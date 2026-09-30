@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "workflow_version": "2.5.0",
+  "workflow_version": "2.5.1",
   "upstream": {
     "repository": "repflow-android",
     "tag": "workflow-v2.3.1",
@@ -8,8 +8,8 @@
   },
   "provenance": {
     "origin": "authored",
-    "base_release": "2.4.0",
-    "overlay_commit": "00032801786695f1b6414508d4a6c5edbe756e3a"
+    "base_release": "2.5.0",
+    "overlay_commit": "0fa3222793173922fa1b095aaa416dcd58dba2e7"
   },
   "categories": {
     "distribution": "Canonical Workflow implementation. Copied byte-for-byte into the payload and installed into every managed target repository.",
@@ -28,8 +28,8 @@
       "distribution": 37,
       "host-evidence": 2
     },
-    "overlay_replaced": 24,
-    "overlay_added": 2
+    "overlay_replaced": 6,
+    "overlay_added": 0
   },
   "artifacts": [
     {
@@ -40,11 +40,7 @@
       "rationale": "Step 0's governing-version enumeration widened from \"1\"/\"2.1\" to include \"2.2\" (workflow-2.5.0); steps 1-8 still run identically for all three (D-Implementation-Review-Stages, CP4).",
       "sha256": "ddf2f49aacd802d831602ac89673a4bba1d65960d4acad13fdad1578d5feff0a",
       "size": 11344,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "3d1efc80a42a32164b4a068e8de53ffd3654f63b7a2f9d1aab4b1d35cacf17d3",
-        "diff_sha256": "52dff435c378dd7298336e132b6b471f5b4dc9fc625b6f14031c58ba0fa820e1"
-      }
+      "executable": false
     },
     {
       "target_path": ".claude/commands/apply-functional-review.md",
@@ -54,11 +50,7 @@
       "rationale": "Two hunks: post-fix bounded-fix regeneration routes back through both implementation-review stages for a \"2.2\" work item before /approve-review implementation is reachable again; and the child work-item lifecycle chain inserts /record-manual-implementation-review <child-id> for a \"2.2\"-governed child and states that such a child enters review at AWAITING_LOCAL_PLAN_REVIEW identically to a \"2.1\" child (D-Implementation-Review-Stages, CP5).",
       "sha256": "a29cb42921d9ecadb9cfbc995896ece1a1348d4835eb2619aa385879c3cb21aa",
       "size": 18693,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "60728153d8168b7fb2d5dbe67e8070b410d60789b09c30d4ea24c7e98af10e48",
-        "diff_sha256": "0df0b5b7b08cc87f540146bd47952dcaf2204d2f13fa93cd7ae318492f372f23"
-      }
+      "executable": false
     },
     {
       "target_path": ".claude/commands/apply-implementation-review.md",
@@ -68,11 +60,7 @@
       "rationale": "Gains a \"2.2\" branch: step 0's enter_applying_review_feedback entry becomes phase-conditional rather than version-conditional, skipped whenever phase is already APPLYING_REVIEW_FEEDBACK -- which the ordinary \"2.2\" REVISE loop always is -- and still called for a \"2.2\" item at the terminal AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW phase; post-fix regeneration reaches AWAITING_LOCAL_IMPLEMENTATION_REVIEW via record_bundle_generation's own version-dependent resolver (D-Implementation-Review-Stages, CP4). Preserves the base release's own distribution category for this path.",
       "sha256": "fd47b646eeb4d557e51f42c6fc39d8393490cd1496a5093f47c8f1d558c4c1b4",
       "size": 14071,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "0234cd1c6cf698650762711b3569ed5c73e9088ff9adf85501ba821dc0e13b13",
-        "diff_sha256": "34a47730f82da1d074359a1e1ccd52bb836d58b9e70576fd54541d1aaf8c59a8"
-      }
+      "executable": false
     },
     {
       "target_path": ".claude/commands/apply-plan-review.md",
@@ -82,11 +70,7 @@
       "rationale": "governing_workflow_version activation references widened to include the new \"2.2\" target; also corrects the prior claim that the \"2.1\" branch is inert for this repository's own work items (workflow-2.5.0 correction, LOCAL_MODEL_PLAN_REVIEW round 5) and adds an explicit any-other-version refusal branch (round-7 optional finding 2) (D-Implementation-Review-Version-Activation, CP1/CP2).",
       "sha256": "3182ff9a6239e3c4787fc3d0410a5f23daa56df26489c8588e7f71cfaa721a82",
       "size": 11335,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "93e7f23ec703ed006a075b8b809c8aeeb6b6b927a765db401c9310f67e59b6d5",
-        "diff_sha256": "a2c6689a4e2da5fbad9a8c4ac6d04f59c2a99e4be65609e4de803920626cde63"
-      }
+      "executable": false
     },
     {
       "target_path": ".claude/commands/approve-review.md",
@@ -96,11 +80,7 @@
       "rationale": "technical_approval_gate_reachable's widened entry condition (a \"2.2\"-only ledger check mirroring plan_approval_gate_reachable) and the version-dependent bundle-generation provenance-interval check (D-Implementation-Review-Stages, CP1/CP3).",
       "sha256": "0ff381aa856ac7a8a0d30c66cbb8204b376922599ae74aa1c02002cafb70a034",
       "size": 44277,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "c9630a9469b3124f8cbe9acd01594b18ff75387d06b42543555fc08da944f734",
-        "diff_sha256": "da66554823b3a60f8bbec78aa477ba91df08dee5b812ea953061ccb452bdec2e"
-      }
+      "executable": false
     },
     {
       "upstream_path": ".claude/commands/bootstrap-workflow-v2.md",
@@ -121,11 +101,7 @@
       "rationale": "Bundle-generation-record step's target-phase reference generalized to bundle_generation_target_phase(stage, governing_workflow_version), plus an explicit any-other-governing_workflow_version refusal branch added to step 0's branch selection (round-7 optional finding 2) (D-Implementation-Review-Stages \"Provenance-interval interaction\", CP3).",
       "sha256": "937cd2b0fd75e87df4317a9567397294c2ff11c555974704387228745b58276f",
       "size": 22727,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "efb929144f3ba5c5033e522dfcfa48f286502887c548f45fce780f4c72a980ea",
-        "diff_sha256": "c02b9eaa43ea05760b913a2a0b4dd2290d78547ef626260d1d3c55e0057c1e7f"
-      }
+      "executable": false
     },
     {
       "target_path": ".claude/commands/milestone-plan.md",
@@ -135,11 +111,7 @@
       "rationale": "governing_workflow_version references widened for the new \"2.2\" activation target (D-Implementation-Review-Version-Activation, CP1/CP2).",
       "sha256": "90cb51b7c0a45fefeeb19b9d300bf7d93f86e167130c4def9df6a852a725f525",
       "size": 19138,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "23fffdcca909726c89e6d4f348386be0a37683ce097cd8d4af685a4e4b72ebea",
-        "diff_sha256": "8a6912a3ff1ba43337456324682683f18bcf9f3b9113fba51bfd9daf83866205"
-      }
+      "executable": false
     },
     {
       "target_path": ".claude/commands/prepare-functional-review.md",
@@ -149,11 +121,7 @@
       "rationale": "Step 0's legacy-adoption target corrected to always the literal \"2.1\", never config[\"default_workflow_version\"] (workflow-2.5.0 correction, LOCAL_MODEL_PLAN_REVIEW round 6 optional finding 1), plus a new statement that steps 1-5 are themselves version-independent, reachable identically for \"1\", \"2.1\", or \"2.2\" alike (D-Implementation-Review-Stages, CP4).",
       "sha256": "49480af8183c0f194131018fe0fc1b1296762e734252de5a5cce90f9f8046921",
       "size": 11521,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "e5c918c32daef7c241ba177d09448e7c3bf9b18e0a17493773a39d7e7993b81e",
-        "diff_sha256": "e0b27ededdfcdc25e4586dc809742744d6e7b60e5b5396e50bbe6cc8edede045"
-      }
+      "executable": false
     },
     {
       "upstream_path": ".claude/commands/prepare-review.md",
@@ -184,11 +152,7 @@
       "rationale": "Governing-version check widened from a bare \"2.1\" literal to TWO_STAGE_PLAN_REVIEW_VERSIONS membership (\"2.1\"/\"2.2\"), with the description: frontmatter updated to match (D-Implementation-Review-Stages, CP4).",
       "sha256": "63d567f98bf70a39e5b1626fdf0aef37a73725a5bba065f39cf623e9c541995c",
       "size": 7709,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "e0b27966cca274ff09722179903ae631ff4ae979b2c9e1adffcea46912c395ab",
-        "diff_sha256": "3f649f1627798d9dd0133b65b629c8b92c305150ae79c34077c826b0ccec9841"
-      }
+      "executable": false
     },
     {
       "target_path": ".claude/commands/recover-implementation-provenance.md",
@@ -198,24 +162,20 @@
       "rationale": "Recovered-role committed-phase membership test widened to bundle_generation_recovered_role_legal_committed_phases(governing_workflow_version)'s three-phase \"2.2\" set (D-Implementation-Review-Stages \"Provenance-interval interaction\", CP3).",
       "sha256": "5274aaeeaf340b4f2a8bf3cfc529b1baba4580f78b4e1cd416e795ce811e41fe",
       "size": 10971,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "3f6ed056bd7792174347985946322d33c7fc4e5fc19da13e852aeb64c1f9ce55",
-        "diff_sha256": "a2a54e6903e9d618835c8a4c7d710f6c6a6812ef9e37412b3d74e828b71b9f86"
-      }
+      "executable": false
     },
     {
       "target_path": ".claude/commands/request-plan-amendment.md",
       "location": "payload/.claude/commands/request-plan-amendment.md",
       "category": "distribution",
       "rule": "^\\.claude/commands/request-plan-amendment\\.md$",
-      "rationale": "governing_workflow_version references widened for the \"2.2\" activation target (D-Implementation-Review-Version-Activation, CP1/CP2).",
-      "sha256": "5314e159a4c248bc9776ad879772d88c59b037a87d1ffb313fc56f83ac9fedbf",
-      "size": 12600,
+      "rationale": "D-Checkpoint-Id-Anchor-Grammar-Widening (CP2): the command's own documented checkpoint-id-shape precondition and anchor-tag format widened from CP<digits> to CP<digits>[A-Z]?.",
+      "sha256": "ce96bcd8ed24f1989666f50a6047d5b1e97fcfbcd09bf63778520397032c58fc",
+      "size": 12941,
       "executable": false,
       "overlay_delta": {
-        "base_sha256": "8c7dde16f6391dc14c38d5532a6d02c5e3cc1df58343de97591079c3d35100a4",
-        "diff_sha256": "6afb5195695bccd2b5e27a7057b8eb8b9070d872fc667a5cdfd4dfe4cef9d989"
+        "base_sha256": "5314e159a4c248bc9776ad879772d88c59b037a87d1ffb313fc56f83ac9fedbf",
+        "diff_sha256": "c266adc4dca93fd8daf44fd959b8d998b68e7eea6f4a0dc1d785213c442a0809"
       }
     },
     {
@@ -226,11 +186,7 @@
       "rationale": "Phase-guard version enumeration widened from \"1\"/\"2.1\" to include \"2.2\" (workflow-2.5.0), since MILESTONE_WORKFLOW.md defines this state identically for all three (D-Implementation-Review-Stages, CP4).",
       "sha256": "c373a7eb795e433627345b2b098b36a0c1020ddf4f80f804347b58d0ebb207af",
       "size": 8146,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "f6e6cdbc0780d018664dcb2481919f14302eb0776626eeb5e8ade3bad6d7deae",
-        "diff_sha256": "ef8c091ac6b58e1f508b43db3df8fd719678afe9e06295f4413d4cc5904164ab"
-      }
+      "executable": false
     },
     {
       "target_path": ".claude/commands/review-implementation.md",
@@ -240,11 +196,7 @@
       "rationale": "Gains a \"2.2\" authoritative branch (phase guard AWAITING_LOCAL_IMPLEMENTATION_REVIEW, ledger write plus phase transition on APPROVE/REVISE); its existing \"1\"/\"2.1\" steps 1-8 stay byte-unchanged (D-Implementation-Review-Stages, CP4). The authoritative branch's A6 write set additionally gains the same assert_feedback_not_owned_by_other_work_item ownership guard the advisory branch's own step 7 already runs immediately before its write, closing a gap the advisory branch never had (I3, round-2 finding). Preserves the base release's own distribution category for this path.",
       "sha256": "df6de5ba869bfee1e6fc31cf7a07932fecb66dbb36b55a906d8d0d4b831caf62",
       "size": 32365,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "a017359a961ac5dc3e9cee1c3c2f8265e38f924f1af2cdbe984b381f79f4de6a",
-        "diff_sha256": "e83f61c8e8d67faf0cf708118dacd443685726a23542279c34bb85f25d57c731"
-      }
+      "executable": false
     },
     {
       "target_path": ".claude/commands/review-plan.md",
@@ -254,11 +206,7 @@
       "rationale": "Governing-version check widened from a bare \"2.1\" literal to TWO_STAGE_PLAN_REVIEW_VERSIONS membership (\"2.1\"/\"2.2\"), with the description: frontmatter updated to match -- the same semantic change as sibling record-manual-plan-review.md (D-Implementation-Review-Version-Activation, CP4). Step 8's write set additionally gains the same assert_feedback_not_owned_by_other_work_item ownership guard /review-implementation's advisory branch already runs immediately before its own write -- this command had never had it (I3, round-2 finding; a faithful mirror of the pre-existing gap, closed here rather than left as its second instance).",
       "sha256": "37d2896320c30e3039e69bd9499c88dd6d60e97bfb1189af7d35737719a831a2",
       "size": 9314,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "20603d29b085c93cc31a5597e5951146a453a6a9a1edfa16b0046ffdedd86402",
-        "diff_sha256": "84e7e8350e3847525407df7e65a932408f6f87d762a071d707963cd683d57f1b"
-      }
+      "executable": false
     },
     {
       "upstream_path": "CLAUDE.md",
@@ -297,13 +245,13 @@
       "location": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md",
       "category": "distribution",
       "rule": "^docs/ai-workflow/MILESTONE_WORKFLOW\\.md$",
-      "rationale": "The two new AWAITING_LOCAL_IMPLEMENTATION_REVIEW / AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW states and their transition edges (D-Implementation-Review-Stages, CP1).",
-      "sha256": "329002100b6d95faaee63072cd753db1aec22cfc8f2899ed62c90aa2be3f3759",
-      "size": 45716,
+      "rationale": "D-Checkpoint-Id-Anchor-Grammar-Widening (CP2): the request_plan_amendment entry-condition description and the post-anchor-coverage description under AMENDING_PLAN/plan-approval both widened from CP<digits> to CP<digits>[A-Z]?.",
+      "sha256": "e16f83129ca11800adeb7da2cb14339ddc54f119e6bb94fc475dcc5cd1859551",
+      "size": 46336,
       "executable": false,
       "overlay_delta": {
-        "base_sha256": "e337029f30df66d390181dd71c833dd8075550cbdc15d61c6ef2aff871ad6021",
-        "diff_sha256": "c7ff89de40630cb3c016b276a331a415c3ef6624f4e2fe388e8a26a62a4907f1"
+        "base_sha256": "329002100b6d95faaee63072cd753db1aec22cfc8f2899ed62c90aa2be3f3759",
+        "diff_sha256": "2852d23786e045195e26bba95743cf034af9ed224741c5af9a985b1b1d8acc57"
       }
     },
     {
@@ -314,11 +262,7 @@
       "rationale": "Applicability widened, not merely cross-referenced: the title and the \"Scoped entirely to '2.1' work items\" paragraph now read TWO_STAGE_PLAN_REVIEW_VERSIONS = {\"2.1\", \"2.2\"}, and /apply-plan-review's described exit widens to name both versions alike (D-Implementation-Review-Stages, CP1).",
       "sha256": "02785fd6ffa36157a59e3b292b8c8e878179ddb84dfebbb802ec93e204948748",
       "size": 4289,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "42f042c554aea6f7e3762d3a0aab30cb31e0330d3f21260ad145d61570e73366",
-        "diff_sha256": "137094ac81efa215b31e35834e2fbe889b1f1bfa4e9b51489e8bac4f92f7c442"
-      }
+      "executable": false
     },
     {
       "target_path": "docs/ai-workflow/REVIEW_PROTOCOL.md",
@@ -328,24 +272,20 @@
       "rationale": "D-Review-Finding-Taxonomy-and-Circuit-Breaker's advisory [substantive]/[apparatus] tagging convention and circuit-breaker signal (CP8); implementation-review-stage bundle/manifest references widened for \"2.2\" (CP1).",
       "sha256": "706922bf4e0913ed0162a87c5591ec6a78d43798d22d33b7eb2eb8d036559562",
       "size": 38753,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "30efa7f017865a98c35099545f9d65819c112b8a5ea27d3db6e2613a9a234836",
-        "diff_sha256": "83798558c140dcc882916852ea0c2bb4bbddb85d3d93fc046311f270705ead11"
-      }
+      "executable": false
     },
     {
       "target_path": "docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
       "location": "payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
       "category": "distribution",
       "rule": "^docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE\\.md$",
-      "rationale": "Persisted-phases/writer tables, command count and the new /record-manual-implementation-review section, widened for the \"2.2\" implementation-review stages (D-Implementation-Review-Stages, CP1/CP4).",
-      "sha256": "a37a61187844d2ae9bc0e78ea1241c267bd1d0d9fabebf29fc0044bc42e8fc72",
-      "size": 66220,
+      "rationale": "D-Checkpoint-Id-Anchor-Grammar-Widening (CP2): /request-plan-amendment's own operator-reference Expects/Next/Refuses entries widened from CP<digits> to CP<digits>[A-Z]?, mirroring MILESTONE_WORKFLOW.md's two sites plus the command's own reference entry.",
+      "sha256": "c449d7e475d2a62a9c43148e712de6b47d605f238ba38bc57be5f24a8fb683fc",
+      "size": 66463,
       "executable": false,
       "overlay_delta": {
-        "base_sha256": "b7dbb086019fa3437fe0c30b13203376265d749436d8d40c7fd226d52f1121b6",
-        "diff_sha256": "2dce3c7066e4bd425f0640c978109ebb45afe24f7614a848b24e216183a5172f"
+        "base_sha256": "a37a61187844d2ae9bc0e78ea1241c267bd1d0d9fabebf29fc0044bc42e8fc72",
+        "diff_sha256": "7ae88f51552c96566744bcb924d1140969383af3bfc1149c21d7208c3aebd635"
       }
     },
     {
@@ -397,13 +337,13 @@
       "location": "payload/docs/ai-workflow/WORKFLOW_V2_PLAN.md",
       "category": "distribution",
       "rule": "^docs/ai-workflow/WORKFLOW_V2_PLAN\\.md$",
-      "rationale": "D-Implementation-Review-Stages, D-Implementation-Review-Version-Activation (CP1) and D-Review-Material-Lifecycle (CP6) design-decision sections -- the only checkpoints that actually authored this file (git log 38114204..HEAD -- this path is exactly 20a808d/CP1 and 2af606a/CP6). D-Canonical-Review-Data lives in scripts/workflow_state_test.py (CP7), D-Review-Finding-Taxonomy-and-Circuit-Breaker in REVIEW_PROTOCOL.md (CP8), and D-Post-v2.3.1-Backlog is a plan-internal label for CP9/CP10's own code-fix and docs/defects/ deliverables, not a section in this document.",
-      "sha256": "83ed0bf3785cb79c50ceb9b5db71e35aa2d0fcc9565ea61d40e6db9c4655b4d1",
-      "size": 3200949,
+      "rationale": "D-Checkpoint-Id-Anchor-Grammar-Widening (CP2): D-Plan-Amendment-4's own anchor-comment convention prose clarifies that its `<n>` placeholder denotes a checkpoint id of the widened CP<digits>[A-Z]? anchor-compatible shape, so the document and the code it describes never diverge.",
+      "sha256": "ba0350454c6709e2d61acf4999f6b98d4633adcc35c5adcd2eeca0f96dfe52ac",
+      "size": 3201322,
       "executable": false,
       "overlay_delta": {
-        "base_sha256": "0ea84579bed607c2126b3cc2359c7299154ef866a5bd4ee5f947ca6287810604",
-        "diff_sha256": "0eb56d8ec960f97ea84567e893918a3d251dec703f80360006ebf3be7a580a6a"
+        "base_sha256": "83ed0bf3785cb79c50ceb9b5db71e35aa2d0fcc9565ea61d40e6db9c4655b4d1",
+        "diff_sha256": "15cddc0255d2efb8cf63c7fe63c1b4d4493dc8d5b553438cf31868d64c6a58d3"
       }
     },
     {
@@ -654,11 +594,7 @@
       "rationale": "Round 7's own I1 (implementation-review-two-stage's REVISE round 7): MatrixCase.approve_implementation's shared technical_approval_gate_reachable call, and three narrow unit-test calls, updated to pass the now-required governing_workflow_version/implementation_review_stages/current_review_content_id keyword arguments explicitly (None for every existing '1'/'2.1' row this suite drives, behavior-preserving via the function's own != \"2.2\" branch) -- otherwise every conformance/bootstrap-e2e/disposable-repo suite exercising a '1'/'2.1' item's technical-approval path raises TypeError against this milestone's own I1 fix. Preserves the base release's own distribution category for this path.",
       "sha256": "5049f23916b5513bef467f8151ecbd92a8f6cb386ecee5f05664ffcbc4cb84a5",
       "size": 237520,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "4bb32626d39cfc4a20000cad80f5e75ea27d15d72dcecc68c7a0e1e1afebf5c7",
-        "diff_sha256": "7e5f103f4e5b871a5ccf5e5721f41b5e9b214a8472e1a903b4e6d5e79230b8cc"
-      }
+      "executable": false
     },
     {
       "upstream_path": "scripts/workflow_fingerprint.py",
@@ -712,24 +648,20 @@
       "rationale": "Persisted-phase table, phase-to-writer census, command-count and generator-mention checks updated for the two new commands and phases (D-Implementation-Review-Stages, CP2/CP3/CP4).",
       "sha256": "b313349388b6c471f891b24376d1091073b85f9680a832904b9cd8ca9a9e7cee",
       "size": 391642,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "a7ca02768eb84cb884c50c5bf10529a54be6e7117ed6fbf9ab0034180e1162b6",
-        "diff_sha256": "4d4d4ab05e1b3ee6c9300ce3f33681622fda765835e43bef53855a8d1b1f13ba"
-      }
+      "executable": false
     },
     {
       "target_path": "scripts/workflow_state.py",
       "location": "payload/scripts/workflow_state.py",
       "category": "distribution",
       "rule": "^scripts/workflow_state\\.py$",
-      "rationale": "KNOWN_PHASES additions, the generalized version-aware activation/rollback helpers, implementation_review_stages ledger writers (record_local_implementation_review, record_manual_implementation_review), the widened technical_approval_gate_reachable, and bundle_generation_target_phase/bundle_generation_recovered_role_legal_committed_phases (D-Implementation-Review-Stages, D-Implementation-Review-Version-Activation; CP1-CP3, CP9, CP10). Round 7's own I1 (implementation-review-two-stage's REVISE round 7): technical_approval_gate_reachable's three \"2.2\" widening parameters are now required keyword-only parameters, no longer defaulted to None, closing a fail-open gap where a caller that omitted governing_workflow_version got the gate's answer unconditionally True with the \"2.2\" ledger never consulted. Also adds find_applying_review_feedback_version_claims/sweep_applying_review_feedback_version_claims, a standing negative-corpus sweep for the recurring superseded \"enter_applying_review_feedback is skipped for '2.2' because of a version branch\" documentation claim (round 7's own B1).",
-      "sha256": "797e8778e3567063f4a20a30cc4836e566469e0c4cc2f23d26ab38153bec3bb3",
-      "size": 738632,
+      "rationale": "D-Checkpoint-Id-Anchor-Grammar-Widening (CP1): widens _CHECKPOINT_ANCHOR_RE and _ANCHOR_COMPATIBLE_CHECKPOINT_ID_RE from CP<digits> to CP<digits> optionally followed by exactly one uppercase letter, so checkpoint_id_supports_anchor accepts the pre-2.4.0 inserted-checkpoint lettering convention (e.g. CP4B/CP6B) without widening any other checkpoint-id shape. Every docstring/comment/exception message that spelled out the old 'CP<digits>' shape as prose is updated together.",
+      "sha256": "1d13718567e194c9aea0be0d8f4e54656aa6146c539ee8556e558158f73be2a1",
+      "size": 739975,
       "executable": false,
       "overlay_delta": {
-        "base_sha256": "369ea8979a748674e082aa34ddd3f04fd4faf2c552e2aa9b6793fa8864833379",
-        "diff_sha256": "40fcced62300100f3a0d841822f55f1189cf34d9a299142a4902badcfbcce12e"
+        "base_sha256": "797e8778e3567063f4a20a30cc4836e566469e0c4cc2f23d26ab38153bec3bb3",
+        "diff_sha256": "a2dc050daf793df3162304de8a369da4c6ae8ec1646bc44afe975bcc86c7bf75"
       }
     },
     {
@@ -740,11 +672,7 @@
       "rationale": "TestNeverPersistedPhaseVocabulary's PERSISTED frozenset and its AST-derivation helper widened for the two new persisted phases, one of them (AWAITING_LOCAL_IMPLEMENTATION_REVIEW) reachable only through bundle_generation_target_phase's call indirection (D-Implementation-Review-Stages, CP11).",
       "sha256": "3adb03f2954a49bac1a339a5c3015c3dffa30984d4589cd5ee55f85bac22c8fd",
       "size": 125295,
-      "executable": false,
-      "overlay_delta": {
-        "base_sha256": "0363e002fe1ceeb0086033f62481cfa92ac34fa89851b5e326d35e81adb26bd2",
-        "diff_sha256": "82269b0e0ab5955ab7608226ac79e6b29148a304da80c5a7946cc2d6e843a339"
-      }
+      "executable": false
     },
     {
       "upstream_path": "scripts/workflow_state_demo_test.py",
@@ -762,13 +690,13 @@
       "location": "payload/scripts/workflow_state_test.py",
       "category": "distribution",
       "rule": "^scripts/workflow_state_test\\.py$",
-      "rationale": "The payload's own conformance suite, updated for the new review-stage writers/gates plus CP7's generic, parametric declaration-coverage helper generalizing the bespoke per-work-item pattern (D-Implementation-Review-Stages, D-Canonical-Review-Data; CP2, CP3, CP7).",
-      "sha256": "2183a12999961956589179fc79ebfbefbd6fbbb5cb1018a02ae9555ac9804c96",
-      "size": 798461,
+      "rationale": "D-Checkpoint-Id-Anchor-Grammar-Widening (CP1): adds a legacy-shaped fixture (the full CP1..CP9 plus CP4B/CP6B set), malformed-id fail-closed cases exercised against both checkpoint_id_supports_anchor and validate_post_anchor_coverage, and a tag/shape coupling-invariant test pinning that the anchor tag grammar and the anchor id-shape grammar widen together -- all of it additive: every pre-existing 2.5.0 numeric-only-id test method is left unmodified and continues to run unchanged.",
+      "sha256": "7daf67a7c46a3df4b279152e89a691dbaf4edd7c170c1237697c5ccff87eafba",
+      "size": 807413,
       "executable": false,
       "overlay_delta": {
-        "base_sha256": "90919276d86f08cfebf24f70a0e9a003f8c610481879617d2eaba60b711a88eb",
-        "diff_sha256": "34a5f8a292746c1bbaaa3ff58e5accf4c8a013cde4451e870e41f976e1dc94e6"
+        "base_sha256": "2183a12999961956589179fc79ebfbefbd6fbbb5cb1018a02ae9555ac9804c96",
+        "diff_sha256": "5a7a31a8834647cfab82f35e074c8b3506b8bfbe76a0fc0965f75696ebca1e49"
       }
     },
     {
