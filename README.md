@@ -1,3 +1,3 @@
-# Workflow 2.5.1
+# Workflow 2.6.0
 
-The AI development Workflow, release 2.5.1.
+The AI development Workflow, release 2.6.0.
