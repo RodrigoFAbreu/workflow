@@ -41,8 +41,12 @@ check, Manager pin, settings, and the cutover runbook), `README.md`, and
 Implementation self-review complete: two minor defects fixed (a version
 pattern that accepted a trailing newline, and an unset `$id` in
 `docs/RELEASING.md`'s settings read-back), and the full verification ran
-green. Next is the local implementation review. Evidence: the requirements
-ledger, `docs/ai-workflow/requirements/workflow-repository-setup-ledger.md`.
+green. Evidence: the requirements ledger,
+`docs/ai-workflow/requirements/workflow-repository-setup-ledger.md`.
+
+Implementation review: both stages approved at round 3 (reviewed head
+`06cb6d7`); technical approval recorded in `cc20d69`. Now awaiting the
+owner's functional review.
 
 ## CP3 rehearsal transcript (2026-10-01)
 
@@ -142,13 +146,113 @@ None.
 ## Active plan
 
 `docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md` (revision 6, approved;
-implementing).
+implementation technically approved; awaiting functional review).
 
 ## Functional review checklist
 
-Empty. `/prepare-functional-review` writes the numbered checklist for the
-active work item into this section; `/apply-functional-review` and
-`/accept-milestone` read it back from here.
+W0 is a `process` milestone: the "product" is the release tooling, CI,
+release workflow, settings data and runbook. Nothing here pushes, applies
+settings or publishes; those are the cutover (plan section 7,
+`docs/RELEASING.md` "Cutover"), which comes after this review.
+
+**Setup**
+
+S1. On branch `milestone/workflow-repository-setup`, clean tree, Linux
+    x86_64 with Python 3.12 and an authenticated `gh` (read access to
+    `RodrigoFAbreu/workflow` is enough).
+S2. Create the pinned build runtime as `docs/RELEASING.md` "Building
+    locally" says, but outside the checkout (`.venv-release` is not
+    gitignored and would dirty the tree):
+    ```bash
+    python3.12 -m venv /tmp/w0-venv
+    . /tmp/w0-venv/bin/activate
+    python -m pip install --only-binary=:all: --require-hashes -r tools/release/deflate-requirements.txt
+    ```
+    Expected: the `zlib-ng` 1.0.0 wheel installs with its hash checked.
+S3. Save the live release list once:
+    `gh release list --json tagName,isDraft --limit 1000 > /tmp/releases.json`.
+
+No test data to seed: the published tags `v2.3.1`..`v2.6.0` and their
+assets are the data.
+
+**Flows**
+
+F1. Tooling tests: `python tools/release/release_test.py`.
+    Expected: `Ran 70 tests`, `OK`, including the five archive-digest
+    reproductions; none skipped.
+F2. Reproduce the published 2.6.0 package:
+    `python tools/release/release.py build --commit v2.6.0 --out "$(mktemp -d)"`.
+    Expected: `version=2.6.0`, `zlib_ng=2.2.5`, `archive_sha256=dc86a796…`
+    and `manifest_sha256=d92517a2…`, equal to the `SHA256SUMS` asset of the
+    `v2.6.0` release.
+F3. Build HEAD: `python tools/release/release.py build --commit HEAD --out "$(mktemp -d)"`.
+    Expected: `commit=` is HEAD, and `files=70`, `tar_sha256`,
+    `archive_sha256` and `manifest_sha256` equal F2's (the release source
+    is unchanged on this branch).
+F4. Title grammar and agreement (`check-title "<title>" --agree`):
+    - `"ci: CI, releases and main protection for the workflow repository"`
+      → exit 0, `impact=none`, `2.6.0 -> 2.6.0 (none) agrees`;
+    - `"feat: something"` → exit 1, refused: impact minor but the version
+      change is none;
+    - `"Update stuff"` → exit 1, `invalid pull-request title`.
+F5. Release decision on the live list:
+    `python tools/release/release.py next-release --trigger HEAD --releases /tmp/releases.json`.
+    Expected: exit 0, `state=published`, `version=2.6.0`,
+    `target=2d5b760…` (the commit `v2.6.0` was published from), i.e.
+    merging this branch would release nothing.
+F6. Release-source guards:
+    `check-pending --releases /tmp/releases.json` → `ok: 2.6.0 -> 2.6.0
+    (none); release source unchanged`; `check-immutable --releases
+    /tmp/releases.json` → `ok: release source unchanged since v2.6.0`.
+F7. Negative guard (local only, then discard): edit any file under
+    `payload/` without bumping `manifest.json`, commit it on a scratch
+    branch, and rerun `check-immutable`.
+    Expected: exit 1, `refused: version 2.6.0 is published, and the
+    release source differs from v2.6.0 in <that path>: a published release
+    never changes; bump the version (D-W0-Immutable)`. Then `git switch milestone/workflow-repository-setup` and delete
+    the scratch branch.
+F8. Release-source conformance fixture:
+    `python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)/fx"`
+    (the `--out` path must not exist yet).
+    Expected: exit 0, prints `fixture=<path>`; the staged fixture is what CI's
+    `release-source-conformance` job runs its suites in.
+F9. Installation integrity: `workflow-manager verify .`.
+    Expected: `installation matches workflow 2.6.0`.
+F10. Read the CI and release workflows
+    (`.github/workflows/workflow-ci.yml`, `pr-title.yml`, `release.yml`).
+    Expected: job names `tooling`, `package`, `immutability`,
+    `installation`, `release-source-conformance`, `aggregate`; check name
+    `Conventional Commit title`; `Release` triggers only on a green
+    `Workflow CI` run on `main` and on `workflow_dispatch`, with job-level
+    concurrency and no path that moves a tag or replaces an asset.
+F11. Read `.github/repository/merge-settings.json` and `ruleset-main.json`.
+    Expected: squash merges only (title = PR title, blank body); ruleset on
+    the default branch with no deletion, no force-push, linear history,
+    pull requests merged by squash only, required checks `aggregate`,
+    `Conventional Commit title`, `workflow-conformance`, `strict` on, no
+    bypass actors. These are what cutover step 3 applies.
+F12. Read `docs/RELEASING.md` end to end, and `README.md`/`CLAUDE.md`'s
+    release text. Expected: a release, recovery from a failed publication,
+    supersession of an incomplete release, local build, Manager-pin bump
+    and the cutover runbook are each understandable and executable as
+    written, and agree with the CP3 rehearsal transcript above.
+F13. Optional: inspect the rehearsal repository
+    (`gh release list -R RodrigoFAbreu/workflow-release-rehearsal`).
+    Expected: `v0.0.1`, `v0.0.2` (incomplete, superseded) and `v0.0.3`
+    (Latest), as the transcript records; delete it afterwards as planned.
+
+**Known limitations / out of scope**
+
+- No real GitHub Actions run exists yet: CI and `Release` are proven by
+  local runs of their commands and the CP3 rehearsal. The first real
+  evidence is the cutover pull request (cutover steps 2 and 4).
+- Repository settings and the ruleset are not applied; that is cutover
+  step 3, owner-only.
+- W0 publishes no release; the manifest stays at 2.6.0.
+- Locally, a read-only token does not see draft releases, so F5 cannot
+  show a draft residue; `release_test.py` and the CP3 rehearsal cover it.
+- The `immutability` job's comparison against downloaded `v2.6.0` assets
+  runs in CI; locally, F2 is the equivalent byte check.
 
 <!--
 This file is `workflow_state.FUNCTIONAL_CHECKLIST_PATH`. It is
