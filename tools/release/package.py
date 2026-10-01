@@ -66,7 +66,11 @@ _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 FULL_PROFILE_CATEGORIES = ("distribution", "conformance")
 RELEASE_TEMPLATES = {".github/workflows/workflow-conformance.yml": "conformance"}
 GITIGNORE_TEMPLATE = ".gitignore.workflow-fragment"
-STATE_TEMPLATE_PREFIX = "docs/ai-workflow/"
+#: The state templates the Manager's conformance fixture places: its
+#: `STATE_TEMPLATES` under `docs/ai-workflow/`, named, so a future template
+#: there is not placed by prefix.
+CONFORMANCE_STATE_TEMPLATES = ("docs/ai-workflow/WORKFLOW_STATE.json",
+                               "docs/ai-workflow/WORKFLOW_CONFIG.json")
 
 GIT_TIMEOUT = 120
 
@@ -456,7 +460,7 @@ def stage_conformance(release_dir: Path, dest: Path) -> Path:
     The Workflow Manager's `build_conformance_repo`: a fresh Git repository
     holding the `full`-profile payload (categories `distribution` and
     `conformance`, plus the release-owned conformance templates), the
-    `host-evidence` fixtures, the `docs/ai-workflow/` state templates and
+    `host-evidence` fixtures, the two `docs/ai-workflow/` state templates and
     the `.gitignore` fragment as `.gitignore`, committed once.
     """
     root = Path(release_dir)
@@ -479,7 +483,7 @@ def stage_conformance(release_dir: Path, dest: Path) -> Path:
         target = record["target_path"]
         if RELEASE_TEMPLATES.get(target) in FULL_PROFILE_CATEGORIES:
             _place(root, record, dest, FILE_MODE)
-        elif target.startswith(STATE_TEMPLATE_PREFIX):
+        elif target in CONFORMANCE_STATE_TEMPLATES:
             _place(root, record, dest, FILE_MODE)
         elif target == GITIGNORE_TEMPLATE:
             gitignore = record

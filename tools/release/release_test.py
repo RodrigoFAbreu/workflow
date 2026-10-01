@@ -494,6 +494,26 @@ class VerifyReleaseTest(unittest.TestCase):
 # -- next-release ------------------------------------------------------------------
 
 
+
+class ConformanceFixtureTest(unittest.TestCase):
+    def test_places_only_the_managers_state_templates(self):
+        tmp = Path(tempfile.mkdtemp(prefix="conformance-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        write_release(tmp / "release", "1.2.3", extra={
+            "templates/docs/ai-workflow/WORKFLOW_STATE.json": "{}\n",
+            "templates/docs/ai-workflow/WORKFLOW_CONFIG.json": "{}\n",
+            "templates/docs/ai-workflow/FUTURE_TEMPLATE.md": "future\n",
+            "templates/docs/ACTIVE_MILESTONE.md": "active\n",
+        })
+        fixture = package.stage_conformance(tmp / "release", tmp / "fixture")
+        files = subprocess.run(["git", "-C", str(fixture), "ls-files"], check=True,
+                               capture_output=True, text=True).stdout.split()
+        self.assertEqual(sorted(files), [
+            ".gitignore", "docs/ai-workflow/WORKFLOW_CONFIG.json",
+            "docs/ai-workflow/WORKFLOW_STATE.json", "docs/guide.md", "host.md",
+            "scripts/tool.py"])
+
+
 class MainHistoryCase(ScratchTestCase):
     """`main`: v2.6.0 published at `base`; `C_V` bumps to 2.7.0; two ci: commits."""
 
