@@ -252,3 +252,70 @@ passed.
   files. The release source, the installation, `workflow-ci.yml` and
   `pr-title.yml` are unchanged. Nothing touched `RodrigoFAbreu/workflow`'s
   releases, tags or settings.
+
+## `CP4` — Settings, documentation, cutover runbook
+
+Requirements: REQ-5 (`main` protection as reviewed data, applied by the
+owner), REQ-6 (`docs/RELEASING.md` and `README.md`).
+
+- **Implementation**:
+  - `.github/repository/merge-settings.json` (new): byte-identical to
+    `workflow-manager`'s: squash only, `PR_TITLE`/`BLANK`, auto-merge on,
+    delete branch on merge.
+  - `.github/repository/ruleset-main.json` (new): `workflow-manager`'s
+    ruleset with two changes: the required checks are `aggregate`,
+    `Conventional Commit title` and `workflow-conformance` (`OD-W0-4`), and
+    `strict_required_status_checks_policy: true` (`OD-W0-5`). No bypass
+    actors.
+  - `docs/RELEASING.md` (new): the two copies; how a release happens
+    (D-W0-Version: the manifest bump in the release-source pull request,
+    published vs. residue, the version change from `HEAD^1`); the title rule
+    and agreement (D-W0-Title); the `strict` "update branch" step; what CI
+    checks, including D-W0-Immutable and D-W0-Pending; the release job and
+    its target (D-W0-Target); when nothing is released; fix-forward;
+    "Recovering from a failed publication" (D-W0-Recovery's four steps
+    verbatim, including the tag-only variant) and "Superseding an
+    incomplete published release" (its five steps verbatim) with an empty
+    "Superseded releases" table (version, superseded by, read-back failure,
+    date); the pinned deflate runtime and a local build (D-W0-Deflate); the
+    installation check and the Manager-pin bump (D-W0-Installation); the
+    `workflow-manager` pin follow-up, pointing at that repository's
+    "Workflow packages: adding a pin"; applying and reading back the
+    settings; and W0's cutover (plan section 7) as runnable steps. The two
+    section titles are the ones `release.py`'s refusals cite.
+  - `README.md`: what the repository is, the two copies, the current release
+    (2.6.0), links to `docs/RELEASING.md` and `docs/ROADMAP.md`.
+  - `CLAUDE.md`: below the managed-block marker only, "Until W0 lands,
+    `main` has no required checks" replaced with the protection, the three
+    required checks and a pointer to `docs/RELEASING.md`.
+- **Verification**:
+  - Both JSON files parse. `merge-settings.json` equals the Manager's; in
+    `ruleset-main.json` everything but the required-check list and `strict`
+    equals the Manager's (compared as parsed JSON).
+  - The recovery and supersession procedures in `docs/RELEASING.md` equal
+    D-W0-Recovery's text (whitespace-normalized comparison against the plan),
+    and their commands are the ones the CP3 rehearsals ran (`gh release view
+    … --json isDraft,tagName,assets`, `git ls-remote --tags origin`, `gh
+    release delete v<V> --yes --cleanup-tag`, `git push origin --delete
+    refs/tags/v<V>`, the manifest-only `fix: supersede incomplete release V`
+    bump).
+  - The local commands `docs/RELEASING.md` gives, run at HEAD (`35019b9`) in
+    a fresh Python 3.12 virtual environment with the pinned `zlib-ng` 1.0.0:
+    `release_test.py` `Ran 62 tests`, `OK`; `build --commit HEAD` the
+    published 2.6.0 digests (`archive_sha256=dc86a796…9f61`,
+    `manifest_sha256=d92517a2…fc2e`, `zlib_ng=2.2.5`); against the live
+    release list, `check-pending` `ok: 2.6.0 -> 2.6.0 (none)`,
+    `check-immutable` `ok: release source unchanged since v2.6.0`,
+    `next-release --trigger HEAD` `state=published`, `version=2.6.0`,
+    `target=2d5b760a…`; `stage-conformance` exit 0; `check-title "feat: …"`
+    `impact=minor`, and with `--agree` refused (exit 1) since the version is
+    unchanged. `gh pr update-branch`, `gh workflow run --ref`, `gh pr checks
+    --json` exist in the installed `gh`; the Manager's `v1.2.0` release
+    carries `SHA256SUMS` and the wheel, as the pin-bump steps assume.
+  - `workflow-manager verify .` with the pinned Manager 1.2.0 (wheel
+    `sha256sum -c` `OK`): `installation matches workflow 2.6.0`.
+  - The settings are not applied here: that is cutover step 3, the owner's.
+- **Review**: the diff adds the two settings files and `docs/RELEASING.md`,
+  rewrites `README.md`, changes one bullet of `CLAUDE.md`'s
+  repository-owned text, and this work item's narrative files. The release
+  source, the installation and the three workflows are unchanged.

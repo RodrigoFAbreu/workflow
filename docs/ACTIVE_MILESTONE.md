@@ -29,8 +29,15 @@ evidence is the cutover pull request (plan section 7).
 
 `CP3` (release workflow) complete: `.github/workflows/release.yml`
 (`Release`). The local dry run against HEAD and both live rehearsals passed;
-the transcript is below. Next: `CP4` (settings, documentation, cutover
-runbook). Evidence: the requirements ledger,
+the transcript is below.
+
+`CP4` (settings, documentation, cutover runbook) complete:
+`.github/repository/merge-settings.json` and `ruleset-main.json` (the
+Manager's, plus `workflow-conformance` and `strict` on), `docs/RELEASING.md`
+(the release model, CI, recovery, supersession, local build, installation
+check, Manager pin, settings, and the cutover runbook), `README.md`, and
+`CLAUDE.md`'s repository-owned release text. Every checkpoint is complete;
+next is the implementation self-review. Evidence: the requirements ledger,
 `docs/ai-workflow/requirements/workflow-repository-setup-ledger.md`.
 
 ## CP3 rehearsal transcript (2026-10-01)

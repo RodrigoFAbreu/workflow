@@ -68,9 +68,13 @@ and installed.
   superseded by a new version.
 - `workflow-manager` installs a release only once its pin is added there, in
   a small `workflow-manager` pull request.
-- The roadmap is `docs/ROADMAP.md`. W0 sets up this repository's CI, release
-  workflow and branch protection. Until W0 lands, `main` has no required
-  checks.
+- The roadmap is `docs/ROADMAP.md`.
+- `main` is protected: squash merges only, Conventional-Commit pull-request
+  titles whose impact agrees with the manifest's version change, and the
+  required checks `aggregate`, `Conventional Commit title` and
+  `workflow-conformance`, up to date with `main`. A release is published by
+  the `Release` workflow when `main`'s manifest names an unpublished
+  version. How releases, CI and the settings work: `docs/RELEASING.md`.
 
 ## Hard rules
 
