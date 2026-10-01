@@ -1,0 +1,227 @@
+# CI over this repository's release source (`manifest.json`, `payload/`,
+# `fixtures/`, `templates/`) and its own Workflow installation
+# (docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md, CP2):
+#
+#   tooling                     tools/release/'s tests, including the
+#                               byte-for-byte reproduction of every published
+#                               release in the pinned deflate runtime.
+#   package                     builds HEAD's package, then the pinned Workflow
+#                               Manager verifies it and bootstraps and verifies
+#                               a scratch repository from the staged release.
+#   immutability                the release source is frozen while a version is
+#                               pending, and a published version's release
+#                               source and assets never change.
+#   installation                `workflow-manager verify .`: this repository's
+#                               installed Workflow is exactly the release it
+#                               says it is.
+#   release-source-conformance  the release source's own frozen suites, in its
+#                               conformance fixture.
+#   aggregate                   fails unless every job above succeeded. It is
+#                               the required check, so adding a job here never
+#                               touches the ruleset.
+#
+# The release source is always read from `git archive` of a commit, never
+# from the working tree, which also holds the installation. Every job that
+# builds a package installs the hash-pinned `zlib-ng` wheel first
+# (tools/release/deflate-requirements.txt); the Manager wheel is pinned by
+# version and sha256 in tools/release/manager-pin.json. A version change is
+# measured from `HEAD^1`: the base branch tip on a pull request's merge ref,
+# the previous `main` tip on a push. This workflow is not managed by
+# workflow-manager; workflow-conformance.yml is, and stays as installed.
+name: Workflow CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A pull request keeps its per-ref group, and a new push cancels its stale
+# run. Every other run gets its own per-event, per-commit group and is never
+# cancelled, so no `main` commit loses the run the release job waits for.
+concurrency:
+  group: workflow-ci-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+# An explicit `bash` runs with `-o pipefail`, so a failing command before a
+# pipe (`release.py build | tee`) fails its step.
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  tooling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # Full history and tags: the reproduction tests stage v2.3.1 .. v2.6.0.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the pinned deflate runtime
+        run: |
+          python3 -m pip install --only-binary=:all: --require-hashes -r tools/release/deflate-requirements.txt
+          python3 -c 'from zlib_ng import zlib_ng; print("zlib-ng", zlib_ng.ZLIBNG_RUNTIME_VERSION)'
+      - name: release_test.py
+        run: python3 tools/release/release_test.py
+
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the pinned deflate runtime
+        run: |
+          python3 -m pip install --only-binary=:all: --require-hashes -r tools/release/deflate-requirements.txt
+          python3 -c 'from zlib_ng import zlib_ng; print("zlib-ng", zlib_ng.ZLIBNG_RUNTIME_VERSION)'
+      - name: Install the pinned Workflow Manager
+        run: |
+          read -r version wheel sha256 < <(python3 -c 'import json; p = json.load(open("tools/release/manager-pin.json")); print(p["version"], p["wheel"], p["sha256"])')
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$wheel" "https://github.com/RodrigoFAbreu/workflow-manager/releases/download/v$version/$wheel"
+          (cd "$RUNNER_TEMP" && echo "$sha256  $wheel" | sha256sum -c)
+          python3 -m pip install "$RUNNER_TEMP/$wheel"
+          workflow-manager --version
+      - name: Build the package
+        run: |
+          python3 tools/release/release.py build --commit HEAD --out "$RUNNER_TEMP/assets" | tee "$RUNNER_TEMP/build.txt"
+          python3 -c 'import sys; sys.path.insert(0, "tools/release"); import package; package.stage(".", "HEAD", sys.argv[1])' "$RUNNER_TEMP/staged"
+      - name: Verify the package with the Workflow Manager
+        run: |
+          version="$(sed -n 's/^version=//p' "$RUNNER_TEMP/build.txt")"
+          digest="$(sed -n 's/^archive_sha256=//p' "$RUNNER_TEMP/build.txt")"
+          workflow-manager package verify "$RUNNER_TEMP/assets/workflow-$version.tar.gz" --sha256 "$digest"
+      # `--release-dir` on `verify` too: without it, `verify` resolves the
+      # recorded version through the Manager's pins, which refuse a version
+      # the pinned Manager does not know (an unpublished bump).
+      - name: Bootstrap and verify a scratch repository
+        run: |
+          git init -q "$RUNNER_TEMP/scratch"
+          workflow-manager --release-dir "$RUNNER_TEMP/staged" bootstrap "$RUNNER_TEMP/scratch"
+          workflow-manager --release-dir "$RUNNER_TEMP/staged" verify "$RUNNER_TEMP/scratch"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: ${{ runner.temp }}/assets/
+          if-no-files-found: error
+
+  immutability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the pinned deflate runtime
+        run: |
+          python3 -m pip install --only-binary=:all: --require-hashes -r tools/release/deflate-requirements.txt
+          python3 -c 'from zlib_ng import zlib_ng; print("zlib-ng", zlib_ng.ZLIBNG_RUNTIME_VERSION)'
+      # A `contents: read` token does not see drafts; that is enough here,
+      # since a draft never counts as a publication.
+      - name: Save the release list
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release list --json tagName,isDraft --limit 1000 > "$RUNNER_TEMP/releases.json"
+      - name: Pending release source is frozen
+        run: python3 tools/release/release.py check-pending --releases "$RUNNER_TEMP/releases.json"
+      - name: Published release source is unchanged
+        run: python3 tools/release/release.py check-immutable --releases "$RUNNER_TEMP/releases.json"
+      - name: Published assets are unchanged
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(git show HEAD:manifest.json | python3 -c 'import json, sys; print(json.load(sys.stdin)["workflow_version"])')"
+          if ! jq -e --arg tag "v$version" 'any(.[]; .tagName == $tag and (.isDraft | not))' "$RUNNER_TEMP/releases.json" > /dev/null; then
+            echo "version $version is not published; nothing to compare"
+            exit 0
+          fi
+          gh release download "v$version" --dir "$RUNNER_TEMP/published"
+          python3 tools/release/release.py check-immutable --releases "$RUNNER_TEMP/releases.json" --published "$RUNNER_TEMP/published"
+
+  installation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the pinned Workflow Manager
+        run: |
+          read -r version wheel sha256 < <(python3 -c 'import json; p = json.load(open("tools/release/manager-pin.json")); print(p["version"], p["wheel"], p["sha256"])')
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$wheel" "https://github.com/RodrigoFAbreu/workflow-manager/releases/download/v$version/$wheel"
+          (cd "$RUNNER_TEMP" && echo "$sha256  $wheel" | sha256sum -c)
+          python3 -m pip install "$RUNNER_TEMP/$wheel"
+          workflow-manager --version
+      - name: workflow-manager verify .
+        run: workflow-manager verify .
+
+  release-source-conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Stage the conformance fixture
+        run: python3 tools/release/release.py stage-conformance --commit HEAD --out "$RUNNER_TEMP/fixture"
+      # The same seven suites, in the same order, as workflow-conformance.yml.
+      - name: workflow_fingerprint_test.py
+        working-directory: ${{ runner.temp }}/fixture/scripts
+        run: python3 workflow_fingerprint_test.py
+      - name: workflow_state_test.py
+        working-directory: ${{ runner.temp }}/fixture/scripts
+        run: python3 workflow_state_test.py
+      - name: workflow_test_harness_test.py
+        working-directory: ${{ runner.temp }}/fixture/scripts
+        run: python3 workflow_test_harness_test.py
+      - name: workflow_integration_test.py
+        working-directory: ${{ runner.temp }}/fixture/scripts
+        run: python3 workflow_integration_test.py
+      - name: workflow_acceptance_matrix_test.py
+        working-directory: ${{ runner.temp }}/fixture/scripts
+        run: python3 workflow_acceptance_matrix_test.py
+      - name: workflow_state_completion_obligations_test.py
+        working-directory: ${{ runner.temp }}/fixture/scripts
+        run: python3 workflow_state_completion_obligations_test.py
+      - name: workflow_fingerprint_generalization_test.py
+        working-directory: ${{ runner.temp }}/fixture/scripts
+        run: python3 workflow_fingerprint_generalization_test.py
+
+  aggregate:
+    needs: [tooling, package, immutability, installation, release-source-conformance]
+    # Always, so a failed, skipped or cancelled job fails this required check
+    # rather than skipping it.
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every job
+        env:
+          TOOLING: ${{ needs.tooling.result }}
+          PACKAGE: ${{ needs.package.result }}
+          IMMUTABILITY: ${{ needs.immutability.result }}
+          INSTALLATION: ${{ needs.installation.result }}
+          CONFORMANCE: ${{ needs.release-source-conformance.result }}
+        run: |
+          status=0
+          for pair in "tooling=$TOOLING" "package=$PACKAGE" "immutability=$IMMUTABILITY" \
+              "installation=$INSTALLATION" "release-source-conformance=$CONFORMANCE"; do
+            job="${pair%%=*}" result="${pair#*=}"
+            if [ "$result" != success ]; then echo "::error::the $job job concluded $result"; status=1; fi
+          done
+          exit "$status"

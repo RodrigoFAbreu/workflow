@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_item_id": "workflow-repository-setup",
+  "requirements": {
+    "REQ-1": {
+      "description": "The release source (manifest.json, payload/, fixtures/, templates/) is staged apart from this repository's own installation, and built into a deterministic package (workflow-V.tar.gz, workflow-V.manifest.json, SHA256SUMS), deflated by a pinned, hash-checked compression runtime, that reproduces every published release (2.3.1 to 2.6.0) byte-for-byte from its tag, in CI's own runtime.",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "REQ-2": {
+      "description": "Pull-request titles are Conventional Commits, checked by one stdlib implementation, and a title's release impact agrees with the release-source version change the pull request makes.",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "REQ-3": {
+      "description": "CI on every pull request and main push checks the release source and this repository's installation: the release source's own conformance suites run in a conformance fixture, its package builds and passes the Workflow Manager's package verify and bootstrap/verify, a published version's release source is unchanged (immutability), and workflow-manager verify . passes on the checkout. A single 'aggregate' job is the required check.",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "REQ-4": {
+      "description": "A release workflow publishes vV with its three assets, in one immutable release, exactly when a green main push carries a manifest version V that has no published release; otherwise it publishes nothing. A draft or a tag left by a failed publication is not a publication: the workflow refuses on it and a documented, tested recovery makes V publishable again. A published release whose read-back fails is never reported as nothing to release on a later run: every run reads an already-published V back and fails, and a documented, tested supersession publishes the next patch version instead. Never moves a published tag or replaces an asset.",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    },
+    "REQ-5": {
+      "description": "main protection (squash-only merge, Conventional-Commit squash titles, required checks, no bypass) is recorded as reviewed data and applied by the repository owner, never by CI or an agent.",
+      "checkpoint_ids": [
+        "CP4"
+      ]
+    },
+    "REQ-6": {
+      "description": "docs/RELEASING.md and README.md document the release model, the two copies of the Workflow, the workflow-manager pin follow-up, and this milestone's cutover.",
+      "checkpoint_ids": [
+        "CP4"
+      ]
+    }
+  }
+}

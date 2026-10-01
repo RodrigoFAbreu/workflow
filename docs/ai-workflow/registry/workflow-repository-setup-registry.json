@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_item_id": "workflow-repository-setup",
+  "plan_revision": 6,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "Release tooling: release-source staging, deterministic package build, title grammar, release decision, with tests",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP2",
+      "name": "CI: release-source checks, release-source conformance suites, package immutability, installation integrity, PR title check, aggregate",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP3",
+      "name": "Release workflow: publish an immutable release when main's manifest names an unpublished version",
+      "depends_on": [
+        "CP1",
+        "CP2"
+      ],
+      "complexity": 2,
+      "session_target": "1"
+    },
+    {
+      "id": "CP4",
+      "name": "Repository settings as reviewed data, RELEASING.md, README, cutover runbook",
+      "depends_on": [
+        "CP2",
+        "CP3"
+      ],
+      "complexity": 2,
+      "session_target": "1"
+    }
+  ]
+}

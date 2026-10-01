@@ -1,0 +1,197 @@
+# Publishes a Workflow release when `main`'s manifest names a version that is
+# not yet published (docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md, CP3).
+#
+# It runs after every successful `Workflow CI` push run on `main`, and on
+# `workflow_dispatch` as the re-run path. The `gate` job checks out nothing and
+# runs none of this repository's code: it resolves `main`'s tip and lets the
+# `release` job run only for a tip that has a successful `Workflow CI` push
+# run, checked out at that exact sha, so the release tooling it executes is
+# always tooling CI passed. A `workflow_run` whose commit is no longer the tip
+# defers to the tip's own run. `release.py next-release` then decides, on the
+# tip's first-parent history, the manifest version `V` and its introducing
+# commit `C_V`:
+#
+#   state=published  `vV` already exists: build `C_V` and read `vV` back.
+#                    Intact, there is nothing to release; anything else fails
+#                    the run, naming what differs and the supersession
+#                    procedure. A published release is never repaired.
+#   state=pending    build `C_V`, verify it with the pinned Workflow Manager,
+#                    publish `vV` at `C_V` and read it back.
+#
+# A draft or a tag without a published release is the residue of a failed
+# publication: `next-release` refuses on it, naming the recovery
+# (docs/RELEASING.md). This job never deletes, edits or re-uploads a release,
+# never creates or pushes a tag itself, and never changes the manifest.
+name: Release
+
+on:
+  workflow_run:
+    workflows: [Workflow CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # A green `main` push run, or a dispatch on `main`. A pull request's run,
+  # a failed run or a dispatch on any other branch releases nothing.
+  gate:
+    if: >-
+      (github.event_name == 'workflow_run'
+        && github.event.workflow_run.event == 'push'
+        && github.event.workflow_run.conclusion == 'success')
+      || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    outputs:
+      sha: ${{ steps.resolve.outputs.sha }}
+    steps:
+      # The triggering run's success covers only its own commit. The tip,
+      # read afresh, is released only once its own push run has succeeded:
+      # the triggering run when they agree, otherwise one the API confirms. A
+      # `workflow_run` for a commit `main` has since moved past ends here
+      # with no `sha` (the tip's own run, once green, triggers `Release`); a
+      # dispatch on a tip without one fails.
+      - name: Resolve the release commit
+        id: resolve
+        env:
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          tip="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
+          if [ "$GITHUB_EVENT_NAME" != workflow_run ] || [ "$tip" != "$RUN_SHA" ]; then
+            runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/workflow-ci.yml/runs?head_sha=$tip&event=push&status=success" --jq '.total_count')"
+            # Anything but a count (`null`, empty) is never read as green.
+            case "$runs" in
+              '' | *[!0-9]*)
+                echo "::error::unexpected Workflow CI run count '$runs' for main's tip $tip"
+                exit 1
+                ;;
+            esac
+            if [ "$runs" -lt 1 ]; then
+              if [ "$GITHUB_EVENT_NAME" = workflow_run ]; then
+                echo "::notice::main moved from $RUN_SHA to $tip, which has no successful Workflow CI push run yet; its own run decides the release"
+                exit 0
+              fi
+              echo "::error::main's tip $tip has no successful Workflow CI push run"
+              exit 1
+            fi
+          fi
+          echo "sha=$tip" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs: gate
+    if: needs.gate.outputs.sha != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Competing runs resolve the same `V`, `C_V` and bytes; serialized, the
+    # second finds `V` published and only reads it back.
+    concurrency:
+      group: workflow-release
+      cancel-in-progress: false
+    # `contents: write` publishes, and also lets the saved release list show
+    # drafts, which `next-release` must see.
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      # The gate's green sha, never the moving `main`: the release tooling
+      # executed below is that commit's. Full history and every tag.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate.outputs.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the pinned deflate runtime
+        run: |
+          python3 -m pip install --only-binary=:all: --require-hashes -r tools/release/deflate-requirements.txt
+          python3 -c 'from zlib_ng import zlib_ng; print("zlib-ng", zlib_ng.ZLIBNG_RUNTIME_VERSION)'
+      - name: Save the release list
+        run: gh release list --json tagName,isDraft --limit 1000 > "$RUNNER_TEMP/releases.json"
+      - name: Decide what to release
+        id: decide
+        env:
+          TRIGGER: ${{ needs.gate.outputs.sha }}
+        run: python3 tools/release/release.py next-release --trigger "$TRIGGER" --releases "$RUNNER_TEMP/releases.json" | tee -a "$GITHUB_OUTPUT"
+      - name: Build the package
+        env:
+          VERSION: ${{ steps.decide.outputs.version }}
+          TARGET: ${{ steps.decide.outputs.target }}
+        run: |
+          python3 tools/release/release.py build --commit "$TARGET" --out "$RUNNER_TEMP/assets" | tee "$RUNNER_TEMP/build.txt"
+          built="$(sed -n 's/^version=//p' "$RUNNER_TEMP/build.txt")"
+          if [ "$built" != "$VERSION" ]; then
+            echo "::error::$TARGET builds version $built, not $VERSION"
+            exit 1
+          fi
+
+      # state=pending: verify, publish, read back.
+      - name: Install the pinned Workflow Manager
+        if: steps.decide.outputs.state == 'pending'
+        run: |
+          read -r version wheel sha256 < <(python3 -c 'import json; p = json.load(open("tools/release/manager-pin.json")); print(p["version"], p["wheel"], p["sha256"])')
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$wheel" "https://github.com/RodrigoFAbreu/workflow-manager/releases/download/v$version/$wheel"
+          (cd "$RUNNER_TEMP" && echo "$sha256  $wheel" | sha256sum -c)
+          python3 -m pip install "$RUNNER_TEMP/$wheel"
+          workflow-manager --version
+      - name: Verify the package with the Workflow Manager
+        if: steps.decide.outputs.state == 'pending'
+        env:
+          VERSION: ${{ steps.decide.outputs.version }}
+          TARGET: ${{ steps.decide.outputs.target }}
+        run: |
+          digest="$(sed -n 's/^archive_sha256=//p' "$RUNNER_TEMP/build.txt")"
+          workflow-manager package verify "$RUNNER_TEMP/assets/workflow-$VERSION.tar.gz" --sha256 "$digest"
+          python3 -c 'import sys; sys.path.insert(0, "tools/release"); import package; package.stage(".", sys.argv[1], sys.argv[2])' "$TARGET" "$RUNNER_TEMP/staged"
+          git init -q "$RUNNER_TEMP/scratch"
+          workflow-manager --release-dir "$RUNNER_TEMP/staged" bootstrap "$RUNNER_TEMP/scratch"
+          workflow-manager --release-dir "$RUNNER_TEMP/staged" verify "$RUNNER_TEMP/scratch"
+      # Not atomic: `gh release create` makes a draft, uploads and publishes.
+      # A failure inside it can leave a draft and a tag, which the next run's
+      # `next-release` refuses on (docs/RELEASING.md); it is never retried
+      # here.
+      - name: Publish
+        if: steps.decide.outputs.state == 'pending'
+        env:
+          VERSION: ${{ steps.decide.outputs.version }}
+          TARGET: ${{ steps.decide.outputs.target }}
+        run: |
+          gh release create "v$VERSION" --target "$TARGET" --title "Workflow $VERSION" \
+            --notes "Workflow release $VERSION." --latest \
+            "$RUNNER_TEMP/assets/workflow-$VERSION.tar.gz" \
+            "$RUNNER_TEMP/assets/workflow-$VERSION.manifest.json" \
+            "$RUNNER_TEMP/assets/SHA256SUMS"
+
+      # Both states: read `vV` back. After publishing, the release list and
+      # the tags are read afresh.
+      - name: Read the release back
+        env:
+          VERSION: ${{ steps.decide.outputs.version }}
+          TARGET: ${{ steps.decide.outputs.target }}
+          STATE: ${{ steps.decide.outputs.state }}
+        run: |
+          git fetch --quiet --force origin "refs/tags/v${VERSION}:refs/tags/v${VERSION}"
+          gh release list --json tagName,isDraft --limit 1000 > "$RUNNER_TEMP/releases-after.json"
+          gh release download "v$VERSION" --dir "$RUNNER_TEMP/downloaded"
+          python3 tools/release/release.py check-published --version "$VERSION" --target "$TARGET" \
+            --releases "$RUNNER_TEMP/releases-after.json" --assets "$RUNNER_TEMP/assets" \
+            --downloaded "$RUNNER_TEMP/downloaded"
+          if [ "$STATE" = published ]; then
+            echo "::notice::nothing to release (v$VERSION read back intact)"
+          else
+            echo "::notice::published v$VERSION at $TARGET"
+          fi
