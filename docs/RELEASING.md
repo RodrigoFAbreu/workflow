@@ -528,8 +528,10 @@ states the commands and reads results back. Record each step's evidence in
    ```
 
    Confirm the `installation` job fails naming that file (`modified:
-   .claude/commands/accept-milestone.md`), `aggregate` fails, and the pull
-   request is blocked from merging:
+   .claude/commands/accept-milestone.md`) and the required `aggregate` check
+   fails. That failing required check is the evidence that the pull request
+   is blocked: a draft's `mergeStateStatus` reads `DRAFT` whatever its
+   checks say, so it cannot show *why* merging is blocked on its own.
 
    ```bash
    gh pr checks <probe-number> --json name,state
