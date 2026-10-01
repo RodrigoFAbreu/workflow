@@ -1,5 +1,97 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
-  "work_items": {}
+  "active_work_item_id": "workflow-repository-setup",
+  "work_items": {
+    "workflow-repository-setup": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "workflow-repository-setup",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/workflow-repository-setup-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/workflow-repository-setup-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 4,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "bf511378a649015aa6f18cf0df3dd40d7a84d7e9",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "91f0ba33c5a2f14f35fb087e710aae9f32a46cb5c55302fea43d579b75ba236e",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "EXTERNAL_APPROVE",
+        "reviewed_bundle_id": "91f0ba33c5a2f14f35fb087e710aae9f32a46cb5c55302fea43d579b75ba236e",
+        "approved_review_content_id": "4b8af6c16f04943e3f4d0b3d8c290d12ce68d8c122d68a8404f8464d2f676fcb",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2df12152b1d0c7fbd44bbab8284e5f8e44c4bb6a"
+          },
+          {
+            "path": "docs/ai-workflow/registry/workflow-repository-setup-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c3c21935885e85ac4c1868e6004996e0e63f8628"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/workflow-repository-setup-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "dec62d792223eabff63f545b909a23f7ad56ca91"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "I approve the plan stage for workflow-repository-setup",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-01T01:30:23Z"
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "4b8af6c16f04943e3f4d0b3d8c290d12ce68d8c122d68a8404f8464d2f676fcb",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "91f0ba33c5a2f14f35fb087e710aae9f32a46cb5c55302fea43d579b75ba236e",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-10-01T01:23:54Z"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "91f0ba33c5a2f14f35fb087e710aae9f32a46cb5c55302fea43d579b75ba236e",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-10-01T01:26:34Z"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "state_revision": 17,
+      "last_transition": "2026-10-01T01:30:23Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-01T01:20:47Z",
+        "consumed": {
+          "review_content_id": "6a17b0ad0f46cc3d254de5eb040d4b8568a55939ed802a0da0d87896153284ce",
+          "plan_revision": 3,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "4b8af6c16f04943e3f4d0b3d8c290d12ce68d8c122d68a8404f8464d2f676fcb",
+          "plan_revision": 4
+        },
+        "bound": {
+          "review_content_id": "4b8af6c16f04943e3f4d0b3d8c290d12ce68d8c122d68a8404f8464d2f676fcb",
+          "bundle_id": "91f0ba33c5a2f14f35fb087e710aae9f32a46cb5c55302fea43d579b75ba236e",
+          "plan_revision": 4
+        }
+      }
+    }
+  }
 }
