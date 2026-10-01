@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "workflow-repository-setup",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -11,7 +11,7 @@
       "registry_path": "docs/ai-workflow/registry/workflow-repository-setup-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/workflow-repository-setup-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 6,
       "implementation_revision": 3,
       "functional_review_round": null,
@@ -190,8 +190,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 51,
-      "last_transition": "2026-10-01T17:16:19Z",
+      "state_revision": 52,
+      "last_transition": "2026-10-01T18:00:22Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",

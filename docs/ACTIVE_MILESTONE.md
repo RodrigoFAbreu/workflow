@@ -2,7 +2,7 @@
 
 ## Milestone
 
-W0: `workflow-repository-setup` (`process`, governing version `2.2`),
+**Complete.** W0: `workflow-repository-setup` (`process`, governing version `2.2`),
 branch `milestone/workflow-repository-setup`, base `bf51137`.
 
 ## Goal
@@ -13,6 +13,23 @@ names an unpublished version, and `main` protection with Conventional-Commit
 titles. W0 itself releases nothing.
 
 ## Current checkpoint
+
+**Milestone complete.** `workflow-repository-setup` reached
+`MILESTONE_COMPLETE` through `/accept-milestone` on 2026-10-01, with the
+owner's confirmation, and `active_work_item_id` is cleared.
+- **Checkpoints:** CP1-CP4 are complete.
+- **Technical approval:** commit `cc20d69`, both implementation-review
+  stages approved at round 3 (reviewed head `06cb6d7`).
+- **Functional review:** the owner accepted the milestone after the
+  functional review against the checklist below (evidence commit
+  `dca51ce`), with no findings routed through `/apply-functional-review`.
+- **Cutover:** steps 1-4 are done; the evidence is under "Cutover
+  evidence" below. Steps 5 and 6 (squash-merge, then the `main` read-back)
+  come after this acceptance.
+
+The checkpoint log below is this milestone's permanent record.
+
+### Checkpoint log
 
 `CP1` (release tooling) complete: `tools/release/` builds the release
 source into a package that reproduces every published release (2.3.1 to
@@ -45,8 +62,7 @@ green. Evidence: the requirements ledger,
 `docs/ai-workflow/requirements/workflow-repository-setup-ledger.md`.
 
 Implementation review: both stages approved at round 3 (reviewed head
-`06cb6d7`); technical approval recorded in `cc20d69`. Now awaiting the
-owner's functional review.
+`06cb6d7`); technical approval recorded in `cc20d69`.
 
 ## CP3 rehearsal transcript (2026-10-01)
 
@@ -139,14 +155,56 @@ End state of the rehearsal repository: published releases `v0.0.1`,
 `v0.0.2` (incomplete, superseded) and `v0.0.3` (Latest), with tags at
 `a2b7f21`, `1db4b90` and `d0fb200`.
 
+## Cutover evidence (2026-10-01)
+
+Plan section 7 / `docs/RELEASING.md` "Cutover", steps 1-4, run by the
+owner before acceptance and read back here.
+
+1. Pull request #3, `ci: CI, releases and main protection for the workflow
+   repository`, from `milestone/workflow-repository-setup` into `main`.
+2. On its head `dca51ce`, `Workflow CI` run 36899558841 and the title check:
+   `aggregate`, `Conventional Commit title` and `workflow-conformance` (and
+   `tooling`, `package`, `immutability`, `installation`,
+   `release-source-conformance`) all `SUCCESS`. Logs: `tooling` printed
+   `Ran 70 tests` / `OK` with nothing skipped, so the five archive-digest
+   reproductions ran; `package` printed
+   `archive_sha256=dc86a796…` and `installation matches workflow 2.6.0` for
+   the scratch install; `immutability` printed `ok: the rebuilt package
+   equals the published assets of v2.6.0`; `installation` printed `.:
+   installation matches workflow 2.6.0`. `mergeStateStatus` `CLEAN`.
+3. Settings read back: `allow_squash_merge` true, `allow_merge_commit` and
+   `allow_rebase_merge` false, squash title `PR_TITLE`, message `BLANK`.
+   Ruleset `main` (id 24322847): target `branch`, enforcement `active`, no
+   bypass actors, rules `deletion`, `non_fast_forward`,
+   `required_linear_history`, `pull_request`, `required_status_checks`.
+4. Installation-integrity probe: draft pull request #4 (head `a0a433c`,
+   `Workflow CI` run 36901180854). `installation` failed with `modified:
+   .claude/commands/accept-milestone.md`, and `aggregate` and
+   `workflow-conformance` failed. The pull request is closed, unmerged.
+
 ## Current blockers
 
 None.
 
 ## Active plan
 
-`docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md` (revision 6, approved;
-implementation technically approved; awaiting functional review).
+None, because the milestone is complete. The plan document stays at
+`docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md` (revision 6, plan
+approval `CURRENT`) instead of being archived: `docs/RELEASING.md`,
+`tools/release/release.py` and the three CI workflows cite it as the design
+record.
+
+## Next action
+
+`workflow-repository-setup` is complete. Next:
+1. Finish the cutover (plan section 7, steps 5-6): bring pull request #3 up
+   to this acceptance commit, wait for its checks, squash-merge it, then
+   confirm `main`'s `Workflow CI` push run is green and its `Release` run
+   ends with "nothing to release (v2.6.0 read back intact)", with no new
+   release or tag. These are the owner's actions.
+2. Then run `/milestone-plan` for W1 in `docs/ROADMAP.md`: Workflow 2.7,
+   the first release developed here (Orchestration Protocol v1, and the
+   `v2.6.0-001` and `v2.6.0-002` follow-ups).
 
 ## Functional review checklist
 

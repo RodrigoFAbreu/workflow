@@ -22,8 +22,8 @@ historical numbers; the table below is the current order.
 
 | # | Step | Section |
 |---|---|---|
-| W0 | Set this repository up for development: CI, a release workflow (build the package and `SHA256SUMS`, publish an immutable release), `main` protection with Conventional-Commit titles, `CLAUDE.md`, its own Workflow installation kept apart from the release source, and this roadmap | this table |
-| W1 | Workflow 2.7, the first release developed here: Orchestration Protocol v1, and the `v2.6.0-001` and `v2.6.0-002` follow-ups | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
+| W0 | **COMPLETE** (milestone `workflow-repository-setup`, accepted 2026-10-01; the post-acceptance squash-merge and `main` read-back, `docs/RELEASING.md` "Cutover" steps 5-6, remain) — Set this repository up for development: CI, a release workflow (build the package and `SHA256SUMS`, publish an immutable release), `main` protection with Conventional-Commit titles, `CLAUDE.md`, its own Workflow installation kept apart from the release source, and this roadmap | this table |
+| W1 | **NEXT** — Workflow 2.7, the first release developed here: Orchestration Protocol v1, and the `v2.6.0-001` and `v2.6.0-002` follow-ups | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
 | W2 | Workflow 2.8: declarative gate policy, and a red or changes-requested pull request reopening the same work item | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
 
 The Workflow Controller consumes W1 (its C9, the Controller on the protocol) and W2 (its C10, gate
