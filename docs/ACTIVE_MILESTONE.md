@@ -2,15 +2,23 @@
 
 ## Milestone
 
-None. No work item is active in this repository yet.
+W0: `workflow-repository-setup` (`process`, governing version `2.2`),
+branch `milestone/workflow-repository-setup`, base `bf51137`.
 
 ## Goal
 
-Set by the work item's own plan document when one is activated.
+Set this repository up for development: CI over the release source, a
+release workflow that publishes an immutable release when `main`'s manifest
+names an unpublished version, and `main` protection with Conventional-Commit
+titles. W0 itself releases nothing.
 
 ## Current checkpoint
 
-None.
+`CP1` (release tooling) complete: `tools/release/` builds the release
+source into a package that reproduces every published release (2.3.1 to
+2.6.0) byte-for-byte under the pinned `zlib-ng` 1.0.0 wheel; 62 tests green.
+Next: `CP2` (CI). Evidence: the requirements ledger,
+`docs/ai-workflow/requirements/workflow-repository-setup-ledger.md`.
 
 ## Current blockers
 
@@ -18,8 +26,8 @@ None.
 
 ## Active plan
 
-None. `/milestone-plan` records the plan document path on the work item's
-`WORKFLOW_STATE.json` entry when a work item is created.
+`docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md` (revision 4, approved;
+implementing).
 
 ## Functional review checklist
 
