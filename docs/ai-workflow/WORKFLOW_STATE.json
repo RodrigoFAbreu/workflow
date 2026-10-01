@@ -11,7 +11,7 @@
       "registry_path": "docs/ai-workflow/registry/workflow-repository-setup-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/workflow-repository-setup-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 6,
       "implementation_revision": 3,
       "functional_review_round": null,
@@ -69,7 +69,109 @@
         "waived_guarantees": [],
         "recorded_at": "2026-10-01T12:10:56Z"
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "EXTERNAL_APPROVE",
+        "reviewed_bundle_id": "d7b80b0599ef658cb5332a90eba312ac895ffc2f1ed30d67435c3b00c1d171f0",
+        "approved_review_content_id": "f3b3f7c5ba15135e4282afd9f6bdd098d4dbdc977c112caee63669fc3a81513e",
+        "review_content_manifest": [
+          {
+            "path": ".github/repository/merge-settings.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cc27cfa0b971448ca90c5d7242b9fe99b8cc9067"
+          },
+          {
+            "path": ".github/repository/ruleset-main.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4d2b495ffaaf32d7104f18a9e4b9018447a6cdfb"
+          },
+          {
+            "path": ".github/workflows/pr-title.yml",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e41fc7fa085eba04aa3e7bb17cad513653c30024"
+          },
+          {
+            "path": ".github/workflows/release.yml",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8b937507d106738dd2fd1b42db2b8aabc7f88e7c"
+          },
+          {
+            "path": ".github/workflows/workflow-ci.yml",
+            "exists": true,
+            "mode": "100644",
+            "blob": "884633af7d6919da9d9d825ceeed41767443c0ae"
+          },
+          {
+            "path": "CLAUDE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cb75ce30f273859df40a6ddd6a46887ee3f65068"
+          },
+          {
+            "path": "README.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3b85de1786106cb43526a36adf0826069b7f9aba"
+          },
+          {
+            "path": "docs/RELEASING.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c6e474df5d52ff54873561e3a911e8bc4e327ddb"
+          },
+          {
+            "path": "docs/ai-workflow/registry/workflow-repository-setup-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e5b98a35b2fb9123a19984be58c099ce0bce29fb"
+          },
+          {
+            "path": "tools/release/__init__.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+          },
+          {
+            "path": "tools/release/deflate-requirements.txt",
+            "exists": true,
+            "mode": "100644",
+            "blob": "09307a1107aadff53971c44b336a5e4280ce33a1"
+          },
+          {
+            "path": "tools/release/manager-pin.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7f1cc1acb910bef95191a77f0dd8a54fe6ed2b56"
+          },
+          {
+            "path": "tools/release/package.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4add491b0941a44db4d505e0a81a8e86af5ed167"
+          },
+          {
+            "path": "tools/release/release.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2889417c544174c2711bf38b1800a29eebca0a17"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "aa601fdf92b2634dea8238039c3ee89b9a3a85d5"
+          }
+        ],
+        "reviewed_content_commit": "06cb6d728d3c7ae8643ea38e8a17816123bd8c2a",
+        "legacy_evidence": null,
+        "user_confirmation": "I approve the implementation stage for workflow-repository-setup",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-01T17:16:19Z"
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "1ee9d649d5ad1f652f0bb812398e1323d10305f56cbae4261693c97edeafe27e",
@@ -88,8 +190,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 48,
-      "last_transition": "2026-10-01T13:54:07Z",
+      "state_revision": 51,
+      "last_transition": "2026-10-01T17:16:19Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -166,14 +268,19 @@
       ],
       "amendment_base_commit": "75b66f693e3ecea8dbf6aaee826210c5181851cd",
       "implementation_review_stages": {
-        "review_content_id": "cfbf7c1df028194f6db3dffa5fb1f4ca6c212388e576566341c56c8b60710898",
+        "review_content_id": "f3b3f7c5ba15135e4282afd9f6bdd098d4dbdc977c112caee63669fc3a81513e",
         "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "d13f3754d5874995a3c63cee83a46d27d67b347ab73af14f677730a2369d1cb2",
+          "bundle_id": "d7b80b0599ef658cb5332a90eba312ac895ffc2f1ed30d67435c3b00c1d171f0",
           "verdict": "APPROVE",
-          "round": 2,
-          "completed_at": "2026-10-01T13:48:09Z"
+          "round": 3,
+          "completed_at": "2026-10-01T14:05:53Z"
         },
-        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "d7b80b0599ef658cb5332a90eba312ac895ffc2f1ed30d67435c3b00c1d171f0",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-01T14:08:16Z"
+        }
       }
     }
   }
