@@ -17,7 +17,8 @@ titles. W0 itself releases nothing.
 `CP1` (release tooling) complete: `tools/release/` builds the release
 source into a package that reproduces every published release (2.3.1 to
 2.6.0) byte-for-byte under the pinned `zlib-ng` 1.0.0 wheel; 62 tests green.
-Next: `CP2` (CI). Evidence: the requirements ledger,
+After plan amendment 0, CP1 was revalidated at plan revision 6 with its code
+unchanged. Next: `CP2` (CI). Evidence: the requirements ledger,
 `docs/ai-workflow/requirements/workflow-repository-setup-ledger.md`.
 
 ## Current blockers
@@ -26,7 +27,7 @@ None.
 
 ## Active plan
 
-`docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md` (revision 4, approved;
+`docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md` (revision 6, approved;
 implementing).
 
 ## Functional review checklist

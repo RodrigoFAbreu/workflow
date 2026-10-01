@@ -71,3 +71,24 @@ and agreement; the CI wiring is CP2's).
   - `workflow-manager verify .`: `installation matches workflow 2.6.0`.
 - **Review**: the diff touches only `tools/release/` and this work item's
   narrative files. No release-source or installation file changed.
+
+### `CP1` revalidation (plan revision 6)
+
+Plan amendment 0 (revisions 5 and 6) added the plan-stage exclusions and the
+`<!-- CPn -->` anchors. Revision 4 had no anchors, so approving revision 6
+moved CP1 to `NEEDS_REVALIDATION`. CP1's scope, files and tests are
+unchanged, and `tools/` is byte-identical between `75b66f6` and `3f576d9`
+(`git diff --stat 75b66f6 3f576d9 -- tools/` is empty). Nothing was
+re-implemented. The verification was re-run at `3f576d9`:
+
+- `python tools/release/release_test.py` in a fresh Python 3.12 virtual
+  environment, with the pinned wheel installed with `pip install
+  --require-hashes -r tools/release/deflate-requirements.txt`
+  (`zlib-ng 1.0.0`): `Ran 62 tests`, `OK`.
+- `release.py build --commit HEAD --out <tmp>`: `version=2.6.0`,
+  `files=70`, `zlib_ng=2.2.5`, `tar_sha256=1b8a3e79…e348`,
+  `archive_sha256=dc86a796…9f61`, `manifest_sha256=d92517a2…fc2e`. These
+  equal the published 2.6.0 digests (`release_test.py`'s constants).
+- The same `build` under Python 3.12 without `zlib_ng` refuses:
+  `zlib_ng is not installed`, exit 1.
+- `workflow-manager verify .`: `installation matches workflow 2.6.0`.
