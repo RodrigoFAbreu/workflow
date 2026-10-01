@@ -198,8 +198,9 @@ which prints `state`, `version` and `target`, or refuses, naming what it
 found. The target is always the introducing commit `C_V`, never the
 triggering commit; `next-release` refuses unless the trigger is on `main`'s
 first-parent history and its release source equals `C_V`'s, `V` is greater
-than the highest published version, and that version's tag is an ancestor of
-`C_V`. Two competing runs resolve the same `V`, `C_V` and bytes; the second
+than the highest published version, that version's tag is an ancestor of
+`C_V`, and the version `C_V`'s parent names is published (no version is ever
+skipped, even if a red push run was merged). Two competing runs resolve the same `V`, `C_V` and bytes; the second
 finds `V` published. Then:
 
 - `release.py build --commit <C_V>` (refusing unless it builds version `V`);

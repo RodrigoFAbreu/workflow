@@ -502,6 +502,14 @@ def cmd_next_release(args) -> int:
             if not _is_ancestor(args.repo, releases.tags[highest], target):
                 raise ReleaseError(f"v{highest}'s tag ({releases.tags[highest]}) is not an "
                                    f"ancestor of {target}, the commit that introduced {version}")
+            # D-W0-Pending, independently of CI: `C_V`'s parent's version is
+            # published, so no version is ever skipped.
+            parent = history[history.index(target) + 1:][:1]
+            previous = manifest_version_at(args.repo, parent[0]) if parent else None
+            if previous is not None and not releases.is_published(previous):
+                raise ReleaseError(f"version {previous}, which {target}'s parent names, is not "
+                                   f"published: v{previous} must be published before {version} "
+                                   f"(D-W0-Pending)")
     print(f"state={'published' if status.published else 'pending'}")
     print(f"version={version}")
     print(f"target={target}")

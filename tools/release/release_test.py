@@ -562,6 +562,17 @@ class NextReleaseTest(MainHistoryCase):
         self.assert_refused("next-release", "--trigger", "HEAD", "--releases", releases,
                             naming=("v2.6.0's tag", "is not an ancestor of"))
 
+    def test_unpublished_predecessor_version_refused(self):
+        # 2.7.0 merged on a red push run and never published; 2.8.0 bumps it.
+        self.repo.release_commit("2.8.0", "feat: 2.8.0", payload="v3\n")
+        releases = self.releases(self.published_260)
+        self.assert_refused("next-release", "--trigger", "HEAD", "--releases", releases,
+                            naming=("version 2.7.0", "is not published",
+                                    "v2.7.0 must be published before 2.8.0"))
+        self.repo.tag("2.7.0", self.bump)
+        releases = self.releases(self.published_260, ("2.7.0", False))
+        self.assertEqual(self.next_release(releases)["state"], "pending")
+
     def test_trigger_whose_release_source_differs_refused(self):
         self.repo.release_commit("2.7.0", "slipped past", payload="v3\n")
         releases = self.releases(self.published_260)
