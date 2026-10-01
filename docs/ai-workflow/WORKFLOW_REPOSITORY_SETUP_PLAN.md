@@ -1,12 +1,13 @@
-# W0: Set up the `workflow` repository for development (Revision 4)
+# W0: Set up the `workflow` repository for development (Revision 6)
 
 - **Work item:** `workflow-repository-setup` (`process`, governing version `2.2`)
 - **Roadmap step:** W0 (`docs/ROADMAP.md`, "At a glance")
 - **Branch:** `milestone/workflow-repository-setup`
 - **Base commit:** `bf51137` (Workflow 2.6.0 installed, #2)
-- **Plan revision:** 4 (revision 1 → 2: local plan review round 1; 2 → 3:
+- **Plan revision:** 6 (revision 1 → 2: local plan review round 1; 2 → 3:
   manual external plan review round 1; 3 → 4: manual external plan review
-  round 2; section 11)
+  round 2; 4 → 5: plan amendment 0, after CP1; 5 → 6: plan amendment 0,
+  checkpoint anchors; section 11)
 
 ## 1. Goal
 
@@ -418,6 +419,7 @@ plan is written against.
 | CP3 | Release workflow: publish an immutable release when main's manifest names an unpublished version | CP1, CP2 | 2 | 1 |
 | CP4 | Repository settings as reviewed data, RELEASING.md, README, cutover runbook | CP2, CP3 | 2 | 1 |
 
+<!-- CP1 -->
 ### CP1 — Release tooling
 
 **Files (new):**
@@ -556,6 +558,9 @@ environment, `python3 tools/release/release_test.py` green;
 2.6.0's published digests; the same `build` without `zlib_ng` refuses;
 `workflow-manager verify .` clean.
 
+<!-- /CP1 -->
+
+<!-- CP2 -->
 ### CP2 — CI
 
 **Files (new):**
@@ -613,6 +618,9 @@ The real CI evidence is the cutover pull request (section 7): its `tooling`
 job reproduces the five archive digests on a GitHub runner, and its
 `immutability` job matches the downloaded `v2.6.0` assets byte-for-byte.
 
+<!-- /CP2 -->
+
+<!-- CP3 -->
 ### CP3 — Release workflow
 
 **File (new):** `.github/workflows/release.yml`, name `Release`:
@@ -689,6 +697,9 @@ The transcript goes in `docs/ACTIVE_MILESTONE.md`. The live proof on this
 repository is that the cutover merge's `Release` run ends green with
 "nothing to release (v2.6.0 read back intact)" after reading `v2.6.0` back.
 
+<!-- /CP3 -->
+
+<!-- CP4 -->
 ### CP4 — Settings, documentation, cutover runbook
 
 **Files:**
@@ -732,6 +743,8 @@ repository is that the cutover merge's `Release` run ends green with
 `workflow-manager verify .` clean; every command in `docs/RELEASING.md` is
 one CP1-CP3 actually provide, and its recovery and supersession commands
 are the ones the CP3 rehearsals ran.
+
+<!-- /CP4 -->
 
 ## 6. Tests and verification summary
 
@@ -815,9 +828,13 @@ Mapping: `docs/ai-workflow/requirements/workflow-repository-setup-mapping.json`.
 `docs/ai-workflow/registry/workflow-repository-setup-artifacts.json`, from the
 `process` template, reviewed against this plan's footprint:
 
-- **plan stage:** the template as generated. Planning touches only this plan,
-  the registry, the mapping (protected), the declarations file, the state file
-  and `docs/ACTIVE_MILESTONE.md` (excluded).
+- **plan stage:** the template as generated, plus the exclusions plan
+  amendment 0 added (section 11): `tools/`, `docs/RELEASING.md`, and the
+  release source (`manifest.json`, `payload/`, `fixtures/`, `templates/`).
+  Every path this item's checkpoints write is therefore classified at
+  both stages. Planning touches only this plan, the registry, the mapping
+  (protected), the declarations file, the state file and
+  `docs/ACTIVE_MILESTONE.md` (excluded).
 - **implementation stage:** added to the protected set — `tools/` (prefix);
   the exact paths `.github/workflows/workflow-ci.yml`, `pr-title.yml`,
   `release.yml`, `.github/repository/merge-settings.json`,
@@ -978,3 +995,55 @@ Each finding was checked against revision 3 before being applied.
 - **Migration/data-integrity and usability concerns:** covered by the
   supersession procedure (no in-place repair; superseded versions recorded
   and never pinned) and the two recovery variants in `docs/RELEASING.md`.
+
+### Plan amendment 0 (revision 4 → 5): plan-stage classification, after CP1
+
+Requested from `IMPLEMENTING` after CP1 (`75b66f6`). Revision 4's
+plan-stage declaration was the `process` template unchanged, and it left
+unclassified the implementation paths that only section 10's
+implementation-stage additions named: `tools/`, `docs/RELEASING.md` and the
+release source. The plan-stage digest classifies every path changed since
+the base commit (`bf51137`). Once CP1 committed `tools/release/*`, every
+plan-stage check, including the plan-approval check, raised
+`UnclassifiedPathError: tools/release/__init__.py`.
+
+- **Change:** `plan_stage.excluded_prefixes` gains `tools/`, `payload/`,
+  `fixtures/` and `templates/`, and `plan_stage.excluded_paths` gains
+  `docs/RELEASING.md` and `manifest.json`. These are implementation
+  deliverables, or content W0 must leave unchanged, and are already
+  protected at the implementation stage. They are not plan design content.
+  The implementation-stage declaration is unchanged. Checked: every tracked
+  path, together with every new file the checkpoints name, now matches a
+  classification at both stages.
+- **Unchanged:** goal, design decisions, open decisions, checkpoints
+  (re-generated at revision 5), requirements and mapping. CP1 stays
+  `COMPLETE`; CP2-CP4 are unchanged.
+- **Why exclusion rather than protection at plan stage:** protecting
+  `tools/` at plan stage would put CP1's implementation into the plan
+  digest. Every later implementation commit would then make a plan
+  approval stale. That is the coupling the two-stage split exists to
+  avoid.
+
+### Plan amendment 0, revision 5 → 6: checkpoint anchors
+
+`/approve-review plan` refused revision 5 with
+`AmendmentAnchorCoverageError: CP1 has no well-formed anchor pair in the
+plan document being approved`. An amended plan must delimit every registry
+checkpoint id with a `<!-- CPn -->`/`<!-- /CPn -->` anchor pair
+(`MILESTONE_WORKFLOW.md`, `AMENDING_PLAN`; `request-plan-amendment.md`).
+The item was withdrawn from `AWAITING_PLAN_APPROVAL` to `AMENDING_PLAN` to
+fix that.
+
+- **Change:** each section in section 5, `CP1` to `CP4`, is wrapped in one
+  `<!-- CPn -->`/`<!-- /CPn -->` pair, running from its `### CPn` heading
+  to the line before the next checkpoint heading (for `CP4`, the line
+  before section 6). The title's `(Revision N)` marker and the header's
+  plan-revision line move to 6 to match the registry. Nothing else in the
+  plan changes.
+- **Consequence for CP1:** revision 4, the pre-amendment plan, has no
+  anchors. Reconciliation therefore cannot match CP1's content and treats
+  it conservatively as changed. At approval CP1 moves from `COMPLETE` to
+  `NEEDS_REVALIDATION`, and `/milestone-implement` re-runs it. This
+  replaces revision 5's statement above that "CP1 stays `COMPLETE`". CP1's
+  scope, files and tests are unchanged, so revalidation re-runs its
+  verification against the existing commit `75b66f6`.

@@ -32,7 +32,9 @@
       "gradle.properties": "product build configuration and product documentation -- implementation-stage content owned by whichever product work item declares it, never plan-stage design content for this item (salvage audit I8)",
       "gradlew": "product build configuration and product documentation -- implementation-stage content owned by whichever product work item declares it, never plan-stage design content for this item (salvage audit I8)",
       "gradlew.bat": "product build configuration and product documentation -- implementation-stage content owned by whichever product work item declares it, never plan-stage design content for this item (salvage audit I8)",
-      "settings.gradle.kts": "product build configuration and product documentation -- implementation-stage content owned by whichever product work item declares it, never plan-stage design content for this item (salvage audit I8)"
+      "settings.gradle.kts": "product build configuration and product documentation -- implementation-stage content owned by whichever product work item declares it, never plan-stage design content for this item (salvage audit I8)",
+      "docs/RELEASING.md": "the release runbook this item authors in CP4 -- implementation-stage content, protected there; never plan-stage design content (plan amendment 0, revision 5)",
+      "manifest.json": "the release source's manifest -- protected at the implementation stage so W0's required byte-identity to v2.6.0 is reviewed; never plan-stage design content for this item (plan amendment 0, revision 5)"
     },
     "excluded_prefixes": {
       ".claude/commands/": "workflow command files this milestone creates (the bootstrap command, /approve-review, /accept-milestone) or modifies (the eight existing v1 commands, per D-States/D-Self-Governance) -- implementation of the approved design, not the design itself",
@@ -50,7 +52,11 @@
       "config/": "product/repository content outside this process work item's declared scope -- concurrent work items (product milestones, functional-finding fixes, other tooling changes) may write here; fail-closed is preserved for any path outside this named set (resolves OPUS-R18-004)",
       ".github/": "product/repository content outside this process work item's declared scope -- concurrent work items (product milestones, functional-finding fixes, other tooling changes) may write here; fail-closed is preserved for any path outside this named set (resolves OPUS-R18-004)",
       "docs/ai-workflow/": "another work item's own plan-stage content and this workflow's own bookkeeping -- owned, reviewed and bound by whichever item declares it, never this item's own reviewed content. A work item whose deliverable genuinely *is* a workflow design document under this prefix must move that exact path into implementation_stage.protected_paths during SELF_REVIEWING_PLAN, exactly as workflow-v2-1-core-artifacts.json does for MILESTONE_WORKFLOW.md and REVIEW_PROTOCOL.md (salvage audit B7)",
-      ".workflow-manager/": "workflow_manager's own installation-record bookkeeping (which release is installed, managed/generated/merged file digests) -- tooling identity, never this or any other work item's own plan-stage content"
+      ".workflow-manager/": "workflow_manager's own installation-record bookkeeping (which release is installed, managed/generated/merged file digests) -- tooling identity, never this or any other work item's own plan-stage content",
+      "tools/": "the release tooling this item authors (CP1) -- implementation-stage content, protected there; never plan-stage design content (plan amendment 0, revision 5)",
+      "payload/": "the release source -- protected at the implementation stage so W0's required byte-identity to v2.6.0 is reviewed; never plan-stage design content for this item (plan amendment 0, revision 5)",
+      "fixtures/": "the release source -- protected at the implementation stage so W0's required byte-identity to v2.6.0 is reviewed; never plan-stage design content for this item (plan amendment 0, revision 5)",
+      "templates/": "the release source -- protected at the implementation stage so W0's required byte-identity to v2.6.0 is reviewed; never plan-stage design content for this item (plan amendment 0, revision 5)"
     }
   },
   "implementation_stage": {
