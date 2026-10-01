@@ -165,3 +165,4 @@ missing, ask for it and stop — do not proceed on an inferred "yes."
    `/milestone-plan`. Do not begin implementing the next milestone in this
    command. (For a remediation child, step 2b's report replaces this
    one's "next action": the parent is what continues, not a new plan.)
+probe
