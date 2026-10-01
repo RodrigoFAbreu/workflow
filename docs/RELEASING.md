@@ -42,8 +42,10 @@ manifest at build time.
    (below). It is merged into `main` by squash; the title becomes the squash
    commit's subject, with a blank body.
 3. `main`'s `Workflow CI` push run checks the merged commit again.
-4. When that run completes green, `Release` starts (`workflow_run`). It reads
-   `main`'s first-parent history and every tag and release, and decides
+4. When that run completes green, `Release` starts (`workflow_run`). If
+   `main` has meanwhile moved on to a commit whose own push run has not
+   succeeded, it defers to that commit's run. Otherwise it checks out `main`'s
+   tip, reads its first-parent history and every tag and release, and decides
    (`release.py next-release`):
    - `main`'s manifest names `V` and `vV` is **published**: there is nothing
      to release, once `vV` reads back intact (below);
@@ -169,14 +171,24 @@ what makes the release target deterministic.
 
 `Release` (`.github/workflows/release.yml`) runs after every **successful
 `Workflow CI` push run on `main`** (`workflow_run`), and on
-`workflow_dispatch` on `main`, the re-run path. A dispatch takes `main`'s tip
-as the trigger and first refuses unless a successful `Workflow CI` push run
-exists for that sha, since it bypasses the `workflow_run` gate. Runs are
-serialized by one concurrency group, `workflow-release`, and never cancelled.
+`workflow_dispatch` on `main`, the re-run path. It has two jobs.
 
-It checks out `main` with full history and tags, installs the pinned deflate
-wheel, saves the release list with its `contents: write` token (which sees
-drafts), and runs:
+The `gate` job checks out nothing and runs none of this repository's code. It
+reads `main`'s current tip through the API and passes it on only once that
+tip has a successful `Workflow CI` push run: the triggering run itself when
+the tip is the triggering commit, otherwise one the API lists for the tip's
+sha. A green run only covers its own commit, and `release.yml` executes the
+release tooling of the commit it checks out, so a newer tooling-only commit
+whose push run is red or still running is never executed. A `workflow_run`
+whose commit `main` has moved past, with no green run for the tip yet, ends
+there with a notice: the tip's own push run, once green, starts `Release`
+again. A dispatch on a tip without one fails.
+
+The `release` job runs only with the gate's sha. Runs are serialized by one
+concurrency group, `workflow-release`, and never cancelled. It checks out
+that exact sha (never the moving `main`) with full history and tags, installs
+the pinned deflate wheel, saves the release list with its `contents: write`
+token (which sees drafts), and runs:
 
 ```bash
 python3 tools/release/release.py next-release --trigger <sha> --releases releases.json
@@ -219,8 +231,11 @@ procedures below.
   intact)". This is every merge that does not bump the version.
 - A pull request's `Workflow CI` run, a failed or cancelled `main` push run,
   or a dispatch on any branch other than `main`: the job does not run.
+- A `workflow_run` whose commit `main` has moved past, while the new tip has
+  no successful `Workflow CI` push run: the `gate` job ends green with a
+  notice and nothing else runs; the tip's own run decides.
 - A dispatch whose `main` tip has no successful `Workflow CI` push run: the
-  job fails before deciding anything.
+  `gate` job fails before anything is checked out.
 
 `next-release` never answers an empty "nothing": a draft or a tag without a
 published release refuses, and a published release that does not read back

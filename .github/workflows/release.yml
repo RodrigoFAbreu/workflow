@@ -2,9 +2,14 @@
 # not yet published (docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md, CP3).
 #
 # It runs after every successful `Workflow CI` push run on `main`, and on
-# `workflow_dispatch` as the re-run path, which first requires such a run for
-# `main`'s tip. `release.py next-release` decides, on `main`'s first-parent
-# history, the manifest version `V` and its introducing commit `C_V`:
+# `workflow_dispatch` as the re-run path. The `gate` job checks out nothing and
+# runs none of this repository's code: it resolves `main`'s tip and lets the
+# `release` job run only for a tip that has a successful `Workflow CI` push
+# run, checked out at that exact sha, so the release tooling it executes is
+# always tooling CI passed. A `workflow_run` whose commit is no longer the tip
+# defers to the tip's own run. `release.py next-release` then decides, on the
+# tip's first-parent history, the manifest version `V` and its introducing
+# commit `C_V`:
 #
 #   state=published  `vV` already exists: build `C_V` and read `vV` back.
 #                    Intact, there is nothing to release; anything else fails
@@ -34,14 +39,52 @@ defaults:
     shell: bash
 
 jobs:
-  release:
-    # A green `main` push run, or a dispatch on `main`. A pull request's run,
-    # a failed run or a dispatch on any other branch releases nothing.
+  # A green `main` push run, or a dispatch on `main`. A pull request's run,
+  # a failed run or a dispatch on any other branch releases nothing.
+  gate:
     if: >-
       (github.event_name == 'workflow_run'
         && github.event.workflow_run.event == 'push'
         && github.event.workflow_run.conclusion == 'success')
       || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    outputs:
+      sha: ${{ steps.resolve.outputs.sha }}
+    steps:
+      # The triggering run's success covers only its own commit. The tip,
+      # read afresh, is released only once its own push run has succeeded:
+      # the triggering run when they agree, otherwise one the API confirms. A
+      # `workflow_run` for a commit `main` has since moved past ends here
+      # with no `sha` (the tip's own run, once green, triggers `Release`); a
+      # dispatch on a tip without one fails.
+      - name: Resolve the release commit
+        id: resolve
+        env:
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          tip="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
+          if [ "$GITHUB_EVENT_NAME" != workflow_run ] || [ "$tip" != "$RUN_SHA" ]; then
+            runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/workflow-ci.yml/runs?head_sha=$tip&event=push&status=success" --jq '.total_count')"
+            if [ "$runs" -lt 1 ]; then
+              if [ "$GITHUB_EVENT_NAME" = workflow_run ]; then
+                echo "::notice::main moved from $RUN_SHA to $tip, which has no successful Workflow CI push run yet; its own run decides the release"
+                exit 0
+              fi
+              echo "::error::main's tip $tip has no successful Workflow CI push run"
+              exit 1
+            fi
+          fi
+          echo "sha=$tip" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs: gate
+    if: needs.gate.outputs.sha != ''
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # Competing runs resolve the same `V`, `C_V` and bytes; serialized, the
@@ -57,33 +100,15 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      # `main`, not the triggering commit: the decision reads `main`'s
-      # first-parent history and every tag.
+      # The gate's green sha, never the moving `main`: the release tooling
+      # executed below is that commit's. Full history and every tag.
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ needs.gate.outputs.sha }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Resolve the trigger
-        id: trigger
-        env:
-          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
-        run: |
-          if [ "$GITHUB_EVENT_NAME" = workflow_run ]; then
-            sha="$RUN_SHA"
-          else
-            # A dispatch bypasses the `workflow_run` gate, so it requires a
-            # successful `Workflow CI` push run for the commit it releases.
-            sha="$(git rev-parse HEAD)"
-            runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/workflow-ci.yml/runs?head_sha=$sha&event=push&status=success" --jq '.total_count')"
-            if [ "$runs" -lt 1 ]; then
-              echo "::error::main's tip $sha has no successful Workflow CI push run"
-              exit 1
-            fi
-          fi
-          echo "sha=$sha" >> "$GITHUB_OUTPUT"
       - name: Install the pinned deflate runtime
         run: |
           python3 -m pip install --only-binary=:all: --require-hashes -r tools/release/deflate-requirements.txt
@@ -93,7 +118,7 @@ jobs:
       - name: Decide what to release
         id: decide
         env:
-          TRIGGER: ${{ steps.trigger.outputs.sha }}
+          TRIGGER: ${{ needs.gate.outputs.sha }}
         run: python3 tools/release/release.py next-release --trigger "$TRIGGER" --releases "$RUNNER_TEMP/releases.json" | tee -a "$GITHUB_OUTPUT"
       - name: Build the package
         env:

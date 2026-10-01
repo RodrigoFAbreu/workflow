@@ -766,5 +766,108 @@ class IncompletePublishedReleaseTest(PublishedCase):
         self.assert_ok(*self.check_published(both, superseding, "2.6.1", built))
 
 
+
+# -- the Release workflow's gate ---------------------------------------------------
+
+
+RELEASE_YML = REPO_ROOT / ".github" / "workflows" / "release.yml"
+
+#: A stand-in `gh`: `main`'s tip is `$GH_TIP`; a sha has a successful
+#: `Workflow CI` push run exactly when it is listed in `$GH_GREEN`.
+FAKE_GH = r"""#!/usr/bin/env bash
+[ "$1" = api ] || exit 9
+case "$2" in
+  */commits/main) echo "$GH_TIP" ;;
+  */actions/workflows/workflow-ci.yml/runs\?*event=push\&status=success)
+    sha="${2#*head_sha=}"; sha="${sha%%&*}"
+    case " $GH_GREEN " in *" $sha "*) echo 1 ;; *) echo 0 ;; esac ;;
+  *) exit 9 ;;
+esac
+"""
+
+
+def _job_section(text: str, job: str) -> str:
+    start = text.index(f"\n  {job}:\n")
+    end = text.find("\n  ", start + 1)
+    while end != -1 and text[end + 3] == " ":
+        end = text.find("\n  ", end + 1)
+    return text[start:] if end == -1 else text[start:end]
+
+
+def _step_script(text: str, name: str) -> str:
+    """The `run: |` block of the step called `name`, dedented."""
+    lines = text.splitlines()
+    index = lines.index(f"      - name: {name}")
+    while lines[index].strip() != "run: |":
+        index += 1
+    indent = len(lines[index]) - len(lines[index].lstrip()) + 2
+    body = []
+    for line in lines[index + 1:]:
+        if line.strip() and len(line) - len(line.lstrip()) < indent:
+            break
+        body.append(line[indent:])
+    return "\n".join(body) + "\n"
+
+
+class ReleaseGateTest(unittest.TestCase):
+    """The `gate` job decides which commit the `release` job checks out and
+    executes: only `main`'s tip, and only once its own push run is green."""
+
+    def setUp(self):
+        self.text = RELEASE_YML.read_text()
+        self.tmp = Path(tempfile.mkdtemp(prefix="release-gate-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        bin_dir = self.tmp / "bin"
+        bin_dir.mkdir()
+        (bin_dir / "gh").write_text(FAKE_GH)
+        (bin_dir / "gh").chmod(0o755)
+        self.path = f"{bin_dir}{os.pathsep}{os.environ['PATH']}"
+        self.script = _step_script(self.text, "Resolve the release commit")
+
+    def gate(self, event: str, tip: str, green: tuple[str, ...] = (),
+             run_sha: str = "") -> tuple[int, str, str]:
+        output = self.tmp / "output"
+        output.write_text("")
+        proc = subprocess.run(
+            ["bash", "-e", "-o", "pipefail", "-c", self.script], capture_output=True, text=True,
+            env={"PATH": self.path, "GITHUB_EVENT_NAME": event, "GITHUB_OUTPUT": str(output),
+                 "GITHUB_REPOSITORY": "owner/workflow", "RUN_SHA": run_sha,
+                 "GH_TIP": tip, "GH_GREEN": " ".join(green)})
+        return proc.returncode, output.read_text(), proc.stdout + proc.stderr
+
+    def test_trigger_at_the_tip_is_released(self):
+        self.assertEqual(self.gate("workflow_run", "T", run_sha="T")[:2], (0, "sha=T\n"))
+
+    def test_newer_tip_without_a_green_push_run_defers(self):
+        # A green trigger `T`, then a tooling-only commit `M` whose push run is
+        # red or still running: nothing at `M` is executed.
+        code, output, log = self.gate("workflow_run", "M", green=("T",), run_sha="T")
+        self.assertEqual((code, output), (0, ""))
+        self.assertIn("main moved from T to M", log)
+
+    def test_newer_green_tip_is_released_not_the_trigger(self):
+        self.assertEqual(self.gate("workflow_run", "M", green=("T", "M"), run_sha="T")[:2],
+                         (0, "sha=M\n"))
+
+    def test_dispatch_requires_a_green_tip(self):
+        self.assertEqual(self.gate("workflow_dispatch", "M", green=("M",))[:2], (0, "sha=M\n"))
+        code, output, log = self.gate("workflow_dispatch", "M", green=("T",))
+        self.assertEqual((code, output), (1, ""))
+        self.assertIn("has no successful Workflow CI push run", log)
+
+    def test_release_job_executes_only_the_gate_sha(self):
+        gate = _job_section(self.text, "gate")
+        self.assertNotIn("actions/checkout", gate)
+        self.assertNotIn("tools/release", gate)
+        job = _job_section(self.text, "release")
+        self.assertIn("needs: gate", job)
+        self.assertIn("if: needs.gate.outputs.sha != ''", job)
+        self.assertIn("ref: ${{ needs.gate.outputs.sha }}", job)
+        self.assertIn("TRIGGER: ${{ needs.gate.outputs.sha }}", job)
+        self.assertNotIn("ref: main", self.text)
+        # The checkout precedes every use of the repository's release tooling.
+        self.assertLess(job.index("actions/checkout"), job.index("tools/release"))
+
+
 if __name__ == "__main__":
     unittest.main()
