@@ -18,7 +18,15 @@ titles. W0 itself releases nothing.
 source into a package that reproduces every published release (2.3.1 to
 2.6.0) byte-for-byte under the pinned `zlib-ng` 1.0.0 wheel; 62 tests green.
 After plan amendment 0, CP1 was revalidated at plan revision 6 with its code
-unchanged. Next: `CP2` (CI). Evidence: the requirements ledger,
+unchanged.
+
+`CP2` (CI) complete: `.github/workflows/workflow-ci.yml` (`Workflow CI`:
+`tooling`, `package`, `immutability`, `installation`,
+`release-source-conformance`, `aggregate`) and `.github/workflows/pr-title.yml`
+(`Conventional Commit title`, with `--agree`). Each job's commands ran green
+locally against HEAD under Python 3.12 with the pinned wheels; the real CI
+evidence is the cutover pull request (plan section 7). Next: `CP3` (release
+workflow). Evidence: the requirements ledger,
 `docs/ai-workflow/requirements/workflow-repository-setup-ledger.md`.
 
 ## Current blockers

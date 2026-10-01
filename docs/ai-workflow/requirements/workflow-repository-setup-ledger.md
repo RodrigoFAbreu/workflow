@@ -92,3 +92,89 @@ re-implemented. The verification was re-run at `3f576d9`:
 - The same `build` under Python 3.12 without `zlib_ng` refuses:
   `zlib_ng is not installed`, exit 1.
 - `workflow-manager verify .`: `installation matches workflow 2.6.0`.
+
+## `CP2` — CI
+
+Requirements: REQ-2 (the title check's CI wiring), REQ-3 (CI over the
+release source and the installation).
+
+- **Implementation** (both new):
+  - `.github/workflows/workflow-ci.yml`, `Workflow CI`, on `pull_request`,
+    `push: [main]` and `workflow_dispatch`; `permissions: contents: read`;
+    Python 3.12 on `ubuntu-latest`; `shell: bash` by default, so `-o
+    pipefail` applies. Jobs:
+    - `tooling`: full history and tags, the pinned deflate wheel, then
+      `release_test.py`;
+    - `package`: `release.py build --commit HEAD`, `package.stage` of HEAD,
+      the pinned Manager wheel (downloaded from the `workflow-manager`
+      release, checked with `sha256sum -c` against `manager-pin.json`,
+      installed), `workflow-manager package verify <archive> --sha256
+      <digest>`, then `--release-dir <staged> bootstrap` and `--release-dir
+      <staged> verify` of a fresh `git init` scratch repository; the three
+      assets are uploaded as the `package` artifact;
+    - `immutability`: the release list saved with `gh release list --json
+      tagName,isDraft --limit 1000`, then `check-pending` and
+      `check-immutable`; when the manifest version is a non-draft release,
+      `gh release download v<V>` and `check-immutable --published`;
+    - `installation`: the pinned Manager wheel, then `workflow-manager
+      verify .`;
+    - `release-source-conformance`: `release.py stage-conformance --commit
+      HEAD`, then the seven suites `workflow-conformance.yml` runs, in the
+      same order, in the fixture's `scripts/`;
+    - `aggregate`: `needs` all five, `if: always()`, fails naming every
+      job whose result is not `success`.
+  - `.github/workflows/pr-title.yml`, `PR title`, job `Conventional Commit
+    title`, on `pull_request` `[opened, edited, reopened, synchronize]`:
+    full-history checkout of the merge ref, the title through `env`, then
+    `release.py check-title "$TITLE" --agree`.
+- **Verification** (Python 3.12 virtual environment with `zlib-ng 1.0.0`
+  installed with `--only-binary=:all: --require-hashes`, and the Workflow
+  Manager `1.2.0` wheel downloaded from its release, `sha256sum -c` `OK`
+  against `manager-pin.json`):
+  - `actionlint` 1.7.12 on all three workflows: clean. Its first run caught
+    a real defect, the plain scalar `--only-binary=:all: --require-hashes`
+    (a YAML mapping), now a block scalar.
+  - `tooling`: `Ran 62 tests`, `OK`.
+  - `package`: `build --commit HEAD` gave the published 2.6.0 digests
+    (`archive_sha256=dc86a796…9f61`, `manifest_sha256=d92517a2…fc2e`,
+    `zlib_ng=2.2.5`); `package verify` `release 2.6.0, 69 files,
+    verified`; bootstrap `workflow 2.6.0 (full)`, then `verify` `installation
+    matches workflow 2.6.0`, both exit 0.
+  - `immutability`: against the live release list (five non-draft
+    releases, `v2.3.1` to `v2.6.0`), `check-pending` `ok: 2.6.0 -> 2.6.0
+    (none); release source unchanged`; `check-immutable` `ok: release source
+    unchanged since v2.6.0`; with `gh release download v2.6.0` (exactly the
+    three assets), `check-immutable --published` `ok: the rebuilt package
+    equals the published assets of v2.6.0`.
+  - `installation`: `workflow-manager verify .` (Manager 1.2.0):
+    `installation matches workflow 2.6.0`. In a scratch clone of HEAD,
+    clean gives exit 0; one line appended to
+    `.claude/commands/accept-milestone.md` gives exit 1, `modified:
+    .claude/commands/accept-milestone.md`. A clone was used rather than a
+    linked worktree so that the Workflow's worktree-scoped lifecycle state
+    was not touched.
+  - `release-source-conformance`: the fixture (`workflow v2.6.0
+    conformance fixture`, one commit), all seven suites exit 0:
+    `workflow_fingerprint_test.py` 242 OK, `workflow_state_test.py` 972 OK,
+    `workflow_test_harness_test.py` 19 OK, `workflow_integration_test.py`
+    267 OK, `workflow_acceptance_matrix_test.py` 291 OK (18 skipped),
+    `workflow_state_completion_obligations_test.py` 106 OK,
+    `workflow_fingerprint_generalization_test.py` 105 OK. The fixture's
+    tree stayed clean.
+  - `PR title`: at HEAD, `check-title "ci: CI, releases and main
+    protection for the workflow repository" --agree` gives `impact=none`,
+    exit 0; `feat: something` is refused (exit 1, a `none` version change
+    needs a `docs/chore/ci/test/style` title).
+  - **Unpinned version:** a scratch repository of HEAD's staged release
+    source with `workflow_version` set to `2.99.0`, committed and built
+    (`archive_sha256=7e614e9b…7c3c`): `package verify` passes;
+    `--release-dir <staged> bootstrap` and `--release-dir <staged> verify`
+    both exit 0; `verify` without `--release-dir` exits 1 (`release 2.99.0
+    is not published: this Manager has no pin for it`), which is why the
+    `package` job spells out the flag.
+  - The GitHub-runner evidence (the five archive digests reproduced on a
+    runner, the `v2.6.0` comparison, the three check names) is the cutover
+    pull request's (plan section 7).
+- **Review**: the diff adds only the two workflow files and this work
+  item's narrative files. `workflow-conformance.yml`, the release source and
+  the installation are unchanged; `workflow-manager verify .` is clean.

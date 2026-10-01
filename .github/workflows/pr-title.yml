@@ -1,0 +1,35 @@
+# The pull request's title is the squash commit's subject. It must be a
+# Conventional Commit (the Workflow Manager's grammar and impact table:
+# `feat` a minor, `fix`/`perf`/`refactor`/`build`/`revert` a patch, `!` a
+# major; `docs`/`chore`/`ci`/`test`/`style` none), and its impact must equal
+# the change of manifest.json's `workflow_version` from the base branch tip
+# (`HEAD^1` of the merge ref) to the merge ref: `none` when the version is
+# unchanged (D-W0-Title, docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md).
+# The job name, "Conventional Commit title", is a required status check on
+# `main`. The title reaches the script through `env`, never interpolated into
+# it.
+name: PR title
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  title:
+    name: Conventional Commit title
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check the title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: python3 tools/release/release.py check-title "$TITLE" --agree
