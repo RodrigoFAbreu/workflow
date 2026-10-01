@@ -178,3 +178,77 @@ release source and the installation).
 - **Review**: the diff adds only the two workflow files and this work
   item's narrative files. `workflow-conformance.yml`, the release source and
   the installation are unchanged; `workflow-manager verify .` is clean.
+
+## `CP3` — Release workflow
+
+Requirements: REQ-4.
+
+Status: **complete**. The local verification and both live rehearsals
+passed.
+
+- **Implementation** (new): `.github/workflows/release.yml`, `Release`:
+  - triggers: `workflow_run` of `Workflow CI` (`completed`, `branches:
+    [main]`), with the job guarded by `event == 'push' && conclusion ==
+    'success'`; and `workflow_dispatch`, on `main` only. A dispatch takes
+    `main`'s tip as the trigger and first refuses unless `gh api
+    repos/<repo>/actions/workflows/workflow-ci.yml/runs?head_sha=<sha>&event=push&status=success`
+    reports at least one run;
+  - job-level `concurrency: {group: workflow-release, cancel-in-progress:
+    false}`; job `permissions: contents: write, actions: read` (the
+    workflow default stays `contents: read`);
+  - checks out `main` with full history and tags; installs the pinned
+    deflate wheel; saves the release list with the job's write token, so
+    drafts are visible; `release.py next-release --trigger <sha>` writes
+    `state`, `version` and `target` to the step outputs; `release.py build
+    --commit <C_V>`, refusing if the built version is not `V`;
+  - `state=pending`: the pinned Manager wheel, `package verify`, then
+    `--release-dir <staged C_V>` bootstrap and verify of a scratch
+    repository, as in CP2; then `gh release create v<V> --target <C_V>
+    --title "Workflow <V>" --notes "Workflow release <V>." --latest` with
+    the three assets;
+  - both states: fetch the tag `v<V>`, save the release list again, `gh
+    release download v<V>`, `release.py check-published`. On
+    `state=published` success, the notice is "nothing to release (v<V> read
+    back intact)";
+  - never `--clobber`, `gh release upload`, `gh release delete`, `git tag`,
+    `git push` or a manifest change.
+- **Verification** (Python 3.12.14, `zlib-ng` 1.0.0 with zlib-ng
+  2.2.5, Workflow Manager 1.2.0):
+  - `actionlint` 1.7.12 on `release.yml`, `workflow-ci.yml` and
+    `pr-title.yml`: clean.
+  - The decision and the published-path read-back, run locally against HEAD
+    with the live release list: `next-release --trigger HEAD` prints
+    `state=published`, `version=2.6.0`, `target=2d5b760a…`; `build --commit
+    2d5b760a…` gives the published 2.6.0 digests (`archive_sha256=dc86a796…`,
+    `manifest_sha256=d92517a2…`); after `gh release download v2.6.0`,
+    `check-published --version 2.6.0 --target 2d5b760a…` passes: "ok: v2.6.0
+    is published at 2d5b760a… with exactly its three built assets".
+  - The dispatch gate's `gh api` query was not run: `workflow-ci.yml` is
+    not on the remote `main` yet.
+  - `workflow-manager verify .`: `installation matches workflow 2.6.0`.
+- **Live rehearsals** (2026-10-01), in `RodrigoFAbreu/workflow-release-rehearsal`.
+  This is a throwaway private repository the owner authorized, with release
+  immutability on. It held HEAD's release source and `tools/release/`, with
+  the manifest at `0.0.1`. A local driver ran the `release` job's commands
+  unchanged, with `GH_REPO` pinned to that repository. The dispatch's CI gate
+  was not rehearsed, because the repository has no CI. The full transcript is
+  in `docs/ACTIVE_MILESTONE.md`, "CP3 rehearsal transcript".
+  - Recovery (steps 1-4). A draft `v0.0.1` with one asset plus the pushed
+    tag made `next-release` refuse, naming both. `gh release delete v0.0.1
+    --yes --cleanup-tag` removed the draft and the tag, and both
+    inspections then found nothing. The job then published `v0.0.1` and
+    read it back. A rerun reported "nothing to release (v0.0.1 read back
+    intact)".
+  - Supersession (steps 5-7). `v0.0.2` was published without `SHA256SUMS`.
+    The job's read-back and `check-immutable --published` both refused with
+    "missing asset SHA256SUMS" and the supersession procedure. Neither
+    reported "nothing to release". A manifest-only `fix: supersede
+    incomplete release 0.0.2` commit passed `check-title --agree` (patch)
+    and `check-pending`. The job published `v0.0.3` and read it back.
+    `gh release view v0.0.2 --json assets,isDraft` was unchanged.
+  - Not rehearsed live: the recovery branch for a tag with no release. CP1's
+    fixtures cover it.
+- **Review**: the diff adds `release.yml` and this work item's narrative
+  files. The release source, the installation, `workflow-ci.yml` and
+  `pr-title.yml` are unchanged. Nothing touched `RodrigoFAbreu/workflow`'s
+  releases, tags or settings.
