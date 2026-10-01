@@ -57,7 +57,8 @@ COMPRESS_LEVEL = 9
 #: no flags, mtime 0, XFL 2 (maximum compression), OS 255 (unknown).
 GZIP_HEADER = b"\x1f\x8b\x08\x00" + struct.pack("<I", 0) + b"\x02\xff"
 
-VERSION_RE = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
+#: `\Z`, not `$`: `$` also matches before a trailing newline.
+VERSION_RE = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\Z")
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 #: Payload categories the Manager's `full` install profile installs, and the

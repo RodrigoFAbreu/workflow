@@ -223,7 +223,7 @@ class BumpLevelTest(unittest.TestCase):
 
     def test_anything_else_refused(self):
         for new in ("2.8.0", "2.7.1", "3.0.1", "2.6.0.1", "2.5.9", "1.0.0", "2.6", "v2.6.1",
-                    "02.6.1"):
+                    "02.6.1", "2.6.1\n"):
             with self.subTest(new=new), self.assertRaises(release.ReleaseError):
                 release.bump_level("2.6.0", new)
 

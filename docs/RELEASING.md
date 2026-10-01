@@ -450,6 +450,7 @@ gh api -X PUT "repos/$repo/rulesets/$id" --input .github/repository/ruleset-main
 Read them back:
 
 ```bash
+id="$(gh api "repos/$repo/rulesets" --jq '.[] | select(.name == "main") | .id')"
 gh api "repos/$repo" --jq '{allow_squash_merge, allow_merge_commit,
   allow_rebase_merge, squash_merge_commit_title, squash_merge_commit_message,
   allow_auto_merge, delete_branch_on_merge}'

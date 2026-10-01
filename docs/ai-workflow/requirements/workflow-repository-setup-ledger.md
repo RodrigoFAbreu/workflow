@@ -319,3 +319,49 @@ owner), REQ-6 (`docs/RELEASING.md` and `README.md`).
   rewrites `README.md`, changes one bullet of `CLAUDE.md`'s
   repository-owned text, and this work item's narrative files. The release
   source, the installation and the three workflows are unchanged.
+
+## Implementation self-review
+
+Status: **complete**. The full milestone diff (`bf51137..HEAD`) was
+reviewed against the plan (revision 6). The release source is unchanged
+since `v2.6.0`, and the installation is unchanged. Two minor defects were
+found and fixed; no blocking or important finding remains open.
+
+- `package.VERSION_RE` ended in `$`, which also matches before a trailing
+  newline, so a manifest `workflow_version` of `"2.7.0\n"` passed
+  `release.py`'s version checks. It now ends in `\Z`, and
+  `BumpLevelTest.test_anything_else_refused` covers `"2.6.1\n"`.
+- `docs/RELEASING.md`, "Read them back": `$id` was defined only in the
+  "change the ruleset later" block, so reading back after the first
+  `POST` (cutover step 3) ran with it unset. The block now resolves `$id`
+  itself.
+
+Full verification at the self-review fixes, in a fresh Python 3.12.14
+virtual environment with the pinned `zlib-ng` 1.0.0 (zlib-ng 2.2.5) and the
+pinned Workflow Manager 1.2.0 (wheel `sha256sum -c` `OK`):
+
+- `release_test.py`: `Ran 62 tests`, `OK`;
+- `build --commit HEAD`: `version=2.6.0`, `files=70`, the published
+  digests (`tar_sha256=1b8a3e79…e348`, `archive_sha256=dc86a796…9f61`,
+  `manifest_sha256=d92517a2…fc2e`); without `zlib_ng`, `refused: zlib_ng is
+  not installed`, exit 1;
+- against the live release list: `check-pending` `ok: 2.6.0 -> 2.6.0
+  (none); release source unchanged`; `check-immutable` and
+  `check-immutable --published <downloaded v2.6.0>` `ok: the rebuilt
+  package equals the published assets of v2.6.0`; `next-release --trigger
+  HEAD` `state=published`, `version=2.6.0`, `target=2d5b760a…` (the
+  `v2.6.0` tag); `check-published` of `v2.6.0` at `2d5b760a…` `ok`;
+  `check-title "ci: CI, releases and main protection for the workflow
+  repository" --agree` `impact=none`, agrees;
+- `git diff --quiet v2.6.0 HEAD -- manifest.json payload fixtures
+  templates`: exit 0;
+- the Manager: `package verify` `release 2.6.0, 69 files, verified`;
+  `--release-dir` bootstrap and verify of a scratch repository
+  `installation matches workflow 2.6.0`; `workflow-manager verify .`
+  `installation matches workflow 2.6.0`;
+- `stage-conformance --commit HEAD`, then the seven frozen suites in the
+  fixture under Python 3.12: all `OK` (242, 972, 19, 267, 291 with 18
+  skipped, 106, 105 tests); the installation's seven suites in `scripts/`
+  under Python 3.14.7: all `OK`, the same counts;
+- the three workflows parse as YAML, and the two settings files as JSON.
+  `actionlint` is not installed here and did not run.

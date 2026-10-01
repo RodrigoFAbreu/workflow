@@ -36,9 +36,13 @@ the transcript is below.
 Manager's, plus `workflow-conformance` and `strict` on), `docs/RELEASING.md`
 (the release model, CI, recovery, supersession, local build, installation
 check, Manager pin, settings, and the cutover runbook), `README.md`, and
-`CLAUDE.md`'s repository-owned release text. Every checkpoint is complete;
-next is the implementation self-review. Evidence: the requirements ledger,
-`docs/ai-workflow/requirements/workflow-repository-setup-ledger.md`.
+`CLAUDE.md`'s repository-owned release text. Every checkpoint is complete.
+
+Implementation self-review complete: two minor defects fixed (a version
+pattern that accepted a trailing newline, and an unset `$id` in
+`docs/RELEASING.md`'s settings read-back), and the full verification ran
+green. Next is the local implementation review. Evidence: the requirements
+ledger, `docs/ai-workflow/requirements/workflow-repository-setup-ledger.md`.
 
 ## CP3 rehearsal transcript (2026-10-01)
 
