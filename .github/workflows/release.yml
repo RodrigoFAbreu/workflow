@@ -71,6 +71,13 @@ jobs:
           tip="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
           if [ "$GITHUB_EVENT_NAME" != workflow_run ] || [ "$tip" != "$RUN_SHA" ]; then
             runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/workflow-ci.yml/runs?head_sha=$tip&event=push&status=success" --jq '.total_count')"
+            # Anything but a count (`null`, empty) is never read as green.
+            case "$runs" in
+              '' | *[!0-9]*)
+                echo "::error::unexpected Workflow CI run count '$runs' for main's tip $tip"
+                exit 1
+                ;;
+            esac
             if [ "$runs" -lt 1 ]; then
               if [ "$GITHUB_EVENT_NAME" = workflow_run ]; then
                 echo "::notice::main moved from $RUN_SHA to $tip, which has no successful Workflow CI push run yet; its own run decides the release"

@@ -811,6 +811,7 @@ case "$2" in
   */commits/main) echo "$GH_TIP" ;;
   */actions/workflows/workflow-ci.yml/runs\?*event=push\&status=success)
     sha="${2#*head_sha=}"; sha="${sha%%&*}"
+    if [ "${GH_COUNT+set}" ]; then printf '%s\n' "$GH_COUNT"; exit 0; fi
     case " $GH_GREEN " in *" $sha "*) echo 1 ;; *) echo 0 ;; esac ;;
   *) exit 9 ;;
 esac
@@ -856,14 +857,17 @@ class ReleaseGateTest(unittest.TestCase):
         self.script = _step_script(self.text, "Resolve the release commit")
 
     def gate(self, event: str, tip: str, green: tuple[str, ...] = (),
-             run_sha: str = "") -> tuple[int, str, str]:
+             run_sha: str = "", count: str | None = None) -> tuple[int, str, str]:
         output = self.tmp / "output"
         output.write_text("")
+        env = {"PATH": self.path, "GITHUB_EVENT_NAME": event, "GITHUB_OUTPUT": str(output),
+               "GITHUB_REPOSITORY": "owner/workflow", "RUN_SHA": run_sha,
+               "GH_TIP": tip, "GH_GREEN": " ".join(green)}
+        if count is not None:
+            env["GH_COUNT"] = count
         proc = subprocess.run(
             ["bash", "-e", "-o", "pipefail", "-c", self.script], capture_output=True, text=True,
-            env={"PATH": self.path, "GITHUB_EVENT_NAME": event, "GITHUB_OUTPUT": str(output),
-                 "GITHUB_REPOSITORY": "owner/workflow", "RUN_SHA": run_sha,
-                 "GH_TIP": tip, "GH_GREEN": " ".join(green)})
+            env=env)
         return proc.returncode, output.read_text(), proc.stdout + proc.stderr
 
     def test_trigger_at_the_tip_is_released(self):
@@ -885,6 +889,16 @@ class ReleaseGateTest(unittest.TestCase):
         code, output, log = self.gate("workflow_dispatch", "M", green=("T",))
         self.assertEqual((code, output), (1, ""))
         self.assertIn("has no successful Workflow CI push run", log)
+
+    def test_malformed_run_count_fails_closed(self):
+        # `total_count` that is not a count (`null`, empty, garbage) is never
+        # read as green, on either trigger.
+        for count in ("null", "", "1x", "-1"):
+            for event, run_sha in (("workflow_dispatch", ""), ("workflow_run", "T")):
+                with self.subTest(count=count, event=event):
+                    code, output, log = self.gate(event, "M", run_sha=run_sha, count=count)
+                    self.assertEqual((code, output), (1, ""))
+                    self.assertIn("unexpected Workflow CI run count", log)
 
     def test_release_job_executes_only_the_gate_sha(self):
         gate = _job_section(self.text, "gate")
