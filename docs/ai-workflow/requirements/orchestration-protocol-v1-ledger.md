@@ -776,7 +776,10 @@ approved plan. The disposition is recorded here and in
   `COMPLETE`) plus a third filter, strict descent from the checkpoint's
   recorded `checkpoints[<id>].start_commit`, which a revalidation rewrites.
   The extra filter is consulted only when the first two leave a tie, so any
-  history 2.6.0 resolved resolves identically. `discover_checkpoint_commits`,
+  history 2.6.0 resolved resolves identically (corrected in round 2: the
+  descent filter also applies when the first two would resolve, so one
+  malformed history can differ from 2.6.0; see the docstring of
+  `prove_checkpoint_completions`). `discover_checkpoint_commits`,
   `verify_checkpoint_completions` and every 2.6.0 command are unchanged.
   Descent is strict because a revalidation can start at the commit that was
   the checkpoint's own earlier completion. Two tests drive the lifecycle
@@ -810,3 +813,24 @@ OK; `release.py build --commit HEAD` gives tar/archive/manifest sha256
 because the manifest and two files changed); `workflow-manager verify .`:
 installation matches workflow 2.6.0; `git diff ef714f3..HEAD` over `.claude/`,
 `scripts/`, `.workflow-manager/` and `workflow-conformance.yml` is empty.
+
+### Implementation review, rounds 2 and 3
+
+- **Round 2, Important 1, accepted and fixed (commit `b8bf647`).**
+  `ORCHESTRATION_PROTOCOL.md` check 5 and `reconcile`'s
+  `checkpoint_completion_unproven` now name `prove_checkpoint_completions` and
+  its `start_commit` descent filter. Optional 1, applied (commit `0256c0a`):
+  the docstring no longer claims the descent filter applies only on a tie.
+- **Round 3, Important 1, accepted and fixed.** Reproduced by reading
+  `workflow_state._discover_trailer_commits`: a single trailer candidate
+  resolves before any filter, a single first-parent candidate resolves
+  without the `verify` predicate, and only two or more first-parent candidates
+  reach the `COMPLETE`-and-descent predicate (`OPUS-R129-M03`). Check 5 now
+  describes these as ordered tie-breaks. `manifest.json`'s digest and size for
+  the specification were refreshed; no code changed. `reconcile`'s wording
+  defers to check 5 and is unchanged.
+- **Round 3, Optional 1, applied**: `TEST_RESULTS.md` hashes refreshed.
+- **Round 3, Optional 2, applied**: the ledger claim corrected and these
+  dispositions added.
+- **Round 3, Optional 3**: the `ingest_manual_review_verdict` pre-lock peek
+  stays deferred, as recorded in round 1.
