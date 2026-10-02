@@ -14,18 +14,14 @@ plus the `v2.6.0-001` and `v2.6.0-002` follow-ups.
 
 ## Current checkpoint
 
-Implementing, revalidating after plan revision 13 (amendment 0, wording
-only: the three `default_config()` quotations). `CP1` to `CP3` stay
-complete; `CP4` to `CP7` were demoted to `NEEDS_REVALIDATION` (`CP4`'s
-checkpoint text changed, `CP5` to `CP7` by dependency closure) and are
-re-completed one per invocation. `CP4` to `CP7` are revalidated; `CP4`: the release-source
-`workflow_protocol_test` passes (213 tests) and already runs the totality
-check under `default_config()`; `CP5`: the same suite and the 21 ingest
-tests pass, no code change; `CP6`: the same suite passes and the installed
-governing-version sweep is clean, no code change; `CP7`: no release-source
-change since `fec1b94`, the same suite and sweep pass, and the release-build
-checks were not re-run here (no pinned `zlib-ng` for Python 3.14; see the
-ledger). The per-checkpoint record is the
+Applying implementation review round 1 (`REVISE`: one Important finding,
+no Blocking). `reconcile` and `verify` check 5 now prove a revalidated
+checkpoint by descent from its recorded `start_commit`
+(`workflow_protocol.py`, commit `5b587e8`), with tests, and `verify` passes
+that check on this repository's real history. CP1 to CP7 are complete. The
+eight release-source suites, `release_test.py` and the release build were
+rerun green under Python 3.12.14. The post-fix bundle follows, at
+`implementation_revision` 2. The per-checkpoint record and the self-review are in the
 requirements ledger,
 `docs/ai-workflow/requirements/orchestration-protocol-v1-ledger.md`.
 
@@ -55,13 +51,13 @@ ACCEPTED ['consumed_plan_review_content_ids']
 
 ## Current blockers
 
-None. The `workflow-conformance` failure recorded in the ledger's
-"Implementation self-review" was the plan wording that revision 13 fixed.
+None.
 
 ## Next action
 
-`/milestone-implement orchestration-protocol-v1` again: the self-review entry, the
-full verification and the implementation-review bundle.
+`/review-implementation orchestration-protocol-v1`, in a fresh session (the
+local model review of the post-fix bundle). The manual external review and
+`/approve-review implementation` follow. This is a hard gate.
 
 ---
 

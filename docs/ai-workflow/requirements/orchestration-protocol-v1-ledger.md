@@ -688,3 +688,125 @@ Full verification at `fec1b94`, in Python 3.12.14 with the pinned `zlib-ng`
   the finding above, reproduced under Python 3.12.14.
 - The `./gradlew …` line of `/milestone-implement` step 3 is for Android
   repositories and does not apply here.
+
+### Implementation self-review after plan revision 13 (2026-10-02)
+
+Status: **complete**. `/milestone-implement`'s 1a-1c returned
+`NO_CHECKPOINT` (plan approval reachable, every registry checkpoint
+`COMPLETE`), and `enter_self_reviewing_implementation` was a no-op (phase
+already `SELF_REVIEWING_IMPLEMENTATION`, `state_revision` 72 unchanged), so
+no phase commit was made.
+
+- **The blocking finding above is resolved.** Amendment 0 (plan revision 13)
+  reworded the three quotations; the installed `workflow_state_test.py`
+  now runs `Ran 972 tests`, `OK` under Python 3.12.14.
+- **Re-review of the milestone diff** (`ef714f3..ddc2672`): the release
+  source is byte-identical to the reviewed `fec1b94`. Since then only the plan
+  wording, the registry's `plan_revision`, the state, `docs/ACTIVE_MILESTONE.md`
+  and this ledger changed. `workflow_protocol.py` was re-read in full
+  (envelope, exception domain, the state read, `verify`, `resolve-artifact`,
+  the catalogue and its condition-call table, `EDGES`, `reconcile`,
+  `record-external-result`), with the helpers it relies on
+  (`implementing_entry_status`'s causes against row 22's remedy table, the
+  stage-key normalizers, `ingest_manual_review_verdict`'s two paths). No
+  blocking or important finding. Minor, not fixed, besides the two above:
+  `--protocol-major` is read by `parse_known_args` anywhere in `argv`, so
+  `describe --protocol-major 2` is `unsupported_protocol` while
+  `describe --protocol-major 1` is `invalid_request` (the global option is
+  documented before the operation, where both behave as specified).
+- **Release checks at the branch tip.** `check-title --agree` and
+  `check-pending` compare a commit with its first parent, so at
+  `ddc2672` (whose parent already says 2.7.0) they report `2.7.0 -> 2.7.0
+  (none)`, and `check-title` refuses `feat:`. That is the tip, not the pull
+  request: run against an unreferenced commit with `ddc2672`'s tree and
+  `main` (`ef714f3`) as its only parent (`d8835ef`, what the squash merge
+  produces), they report `version 2.6.0 -> 2.7.0 (minor) agrees with the
+  title` and `ok: 2.6.0 -> 2.7.0 (minor); release source changed: …`.
+
+Full verification at `ddc2672`, Python 3.12.14 in a fresh venv with the
+pinned `zlib-ng` 1.0.0 (zlib-ng 2.2.5, hash-checked) and Workflow Manager
+1.2.0 (wheel sha256 checked against `tools/release/manager-pin.json`):
+
+- `release_test.py`: `Ran 75 tests`, `OK` (the 25 build tests that could
+  not run at the `CP7` revalidation ran here);
+- `release.py build --commit HEAD`: `version=2.7.0`, `files=74`,
+  `zlib_ng=2.2.5`, `tar_sha256=96dc1154…`, `archive_sha256=1873fbbc…`,
+  `manifest_sha256=2dabaae0…`, equal to `CP7`'s;
+- `workflow-manager package verify`: `release 2.7.0, 73 files, verified`;
+  `--release-dir` bootstrap of a scratch repository: `bootstrapped workflow
+  2.7.0 (full)`, and its verify: `installation matches workflow 2.7.0`;
+- live release list (`v2.3.1` … `v2.6.0`, no drafts): `check-immutable`
+  `ok: version 2.7.0 is not published`; `check-title`/`check-pending` as
+  above;
+- `workflow-manager verify .`: `installation matches workflow 2.6.0`;
+- `stage-conformance --commit HEAD`, then the eight release-source suites in
+  the fixture: fingerprint 256, state 1011, test_harness 22, integration
+  267, acceptance_matrix 291 (18 skipped), completion_obligations 106,
+  fingerprint_generalization 105, protocol 213, all `OK`;
+- the installation's seven suites in `scripts/` (the `workflow-conformance`
+  job): fingerprint 242, state 972, test_harness 19, integration 267
+  (1 skipped), acceptance_matrix 291 (18 skipped), completion_obligations
+  106, fingerprint_generalization 105, all `OK`;
+- the working tree was clean afterwards. `./gradlew …` does not apply to
+  this repository.
+
+### Implementation review round 1: disposition (2026-10-02)
+
+`LOCAL_MODEL_IMPLEMENTATION_REVIEW`, `REVISE`, bundle `dc027545…`,
+`review_content_id` `76e5b298…`. No Blocking finding, one Important, three
+Optional. The plan-amendment route is unavailable from
+`APPLYING_REVIEW_FEEDBACK` (`_AMENDMENT_REQUEST_ALLOWED_PHASES` is
+`IMPLEMENTING` and `SELF_REVIEWING_IMPLEMENTATION` only), so the user chose,
+verbatim, "fix it in this round", without a plan amendment. The plan is not
+edited: it is protected plan-stage content, and editing it would stale the
+approved plan. The disposition is recorded here and in
+`IMPLEMENTATION_SUMMARY.md`.
+
+- **Important 1, accepted and fixed (commit `5b587e8`).** Reproduced before
+  any change: `verify_checkpoint_completions` over the real history raises
+  `AmbiguousCheckpointTrailerError` for CP4 to CP7 (two trailer commits each,
+  both first-parent ancestors, both recording the checkpoint `COMPLETE`), so
+  `reconcile` returned `invalid`/`checkpoint_completion_unproven` and
+  `verify` check 5 failed. The plan's promise that check 5 passes for
+  `COMPLETE` checkpoints held only for histories without a revalidation.
+  Fix, in `payload/scripts/workflow_protocol.py` only:
+  `prove_checkpoint_completions` is the one proof used by `reconcile` and by
+  `op_verify` check 5. It calls `workflow_state._discover_trailer_commits`
+  with the 2.6.0 tie-break predicate (committed state records the checkpoint
+  `COMPLETE`) plus a third filter, strict descent from the checkpoint's
+  recorded `checkpoints[<id>].start_commit`, which a revalidation rewrites.
+  The extra filter is consulted only when the first two leave a tie, so any
+  history 2.6.0 resolved resolves identically. `discover_checkpoint_commits`,
+  `verify_checkpoint_completions` and every 2.6.0 command are unchanged.
+  Descent is strict because a revalidation can start at the commit that was
+  the checkpoint's own earlier completion. Two tests drive the lifecycle
+  through the CLI: a checkpoint completed, demoted to `NEEDS_REVALIDATION` and
+  re-completed is `progress` under `reconcile` and `pass` under `verify`; and
+  a second trailer commit that is not a revalidation (same start) is still
+  `invalid`. `manifest.json` digests for the script and its suite were
+  refreshed.
+  Real history at the fix: `workflow_protocol.py verify` reports
+  `checkpoint_completions_provable: pass` (orchestration-protocol-v1);
+  `installation_release_matches` still fails, correctly, until 2.7.0 is
+  installed (the installation is 2.6.0 and untouched).
+- **Missing tests, applied**: the two tests above (protocol suite 213 -> 216).
+- **Optional 1, not applied.** The bare `KeyError`/`AssertionError` in
+  `ingest_manual_review_verdict` is reachable only by a state race after the
+  protocol resolved the item, and giving it a stable code means a new
+  exception class in the registered domain with its tests, which is not
+  cheap or low-risk in a fix round. Deferred.
+- **Optional 2, not applied**: the three CLI items already recorded stay
+  deferred, as the reviewer agreed.
+- **Optional 3, applied** in `TEST_RESULTS.md`: the state suite is reported as
+  1011 with one skipped.
+
+Verification after the fix, Python 3.12.14, the pinned `zlib-ng` 2.2.5:
+`stage-conformance --commit HEAD` and the eight release-source suites
+(fingerprint 256, state 1011 (1 skipped), test_harness 22, integration 267,
+acceptance_matrix 291 (18 skipped), completion_obligations 106,
+fingerprint_generalization 105, protocol 216), all OK; `release_test.py` 75
+OK; `release.py build --commit HEAD` gives tar/archive/manifest sha256
+`96d89352…`/`770c35d2…`/`17503864…` (they differ from the previous round
+because the manifest and two files changed); `workflow-manager verify .`:
+installation matches workflow 2.6.0; `git diff ef714f3..HEAD` over `.claude/`,
+`scripts/`, `.workflow-manager/` and `workflow-conformance.yml` is empty.
