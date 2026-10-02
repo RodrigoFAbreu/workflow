@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "orchestration-protocol-v1",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -292,7 +292,7 @@
       "registry_path": "docs/ai-workflow/registry/orchestration-protocol-v1-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/orchestration-protocol-v1-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 13,
       "implementation_revision": 6,
       "functional_review_round": null,
@@ -597,8 +597,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 87,
-      "last_transition": "2026-10-02T19:47:31Z",
+      "state_revision": 88,
+      "last_transition": "2026-10-02T20:36:31Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",

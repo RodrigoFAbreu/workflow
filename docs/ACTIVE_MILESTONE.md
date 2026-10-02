@@ -2,7 +2,7 @@
 
 ## Milestone
 
-W1: `orchestration-protocol-v1` (`process`, governing version `2.2`),
+**Complete.** W1: `orchestration-protocol-v1` (`process`, governing version `2.2`),
 branch `milestone/orchestration-protocol-v1`, base `ef714f3`. The plan is
 `docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md`.
 
@@ -14,16 +14,22 @@ plus the `v2.6.0-001` and `v2.6.0-002` follow-ups.
 
 ## Current checkpoint
 
-Applying implementation review round 1 (`REVISE`: one Important finding,
-no Blocking). `reconcile` and `verify` check 5 now prove a revalidated
-checkpoint by descent from its recorded `start_commit`
-(`workflow_protocol.py`, commit `5b587e8`), with tests, and `verify` passes
-that check on this repository's real history. CP1 to CP7 are complete. The
-eight release-source suites, `release_test.py` and the release build were
-rerun green under Python 3.12.14. The post-fix bundle follows, at
-`implementation_revision` 2. The per-checkpoint record and the self-review are in the
-requirements ledger,
-`docs/ai-workflow/requirements/orchestration-protocol-v1-ledger.md`.
+**Milestone complete.** `orchestration-protocol-v1` reached
+`MILESTONE_COMPLETE` through `/accept-milestone` on 2026-10-02, with the
+owner's confirmation, and `active_work_item_id` is cleared.
+- **Checkpoints:** CP1-CP7 are complete; the registry's completion
+  obligations derive `PASS`.
+- **Technical approval:** commit `048482f`, both implementation-review
+  stages approved at `implementation_revision` 6 (reviewed head `29559b1`).
+- **Functional review:** round 1 against the checklist below (evidence
+  commit `ee86188`) passed S1-S3 and F1-F11; its one documentation finding
+  was fixed in `docs/ROADMAP.md` (`58fd39a`). Nothing was deferred to a
+  remediation child.
+- **Cutover:** not started; it is the owner's (plan section 7), see "Next
+  action".
+
+The per-checkpoint record and the self-review are in the requirements
+ledger, `docs/ai-workflow/requirements/orchestration-protocol-v1-ledger.md`.
 
 ### CP2 evidence: 2.6.0 reads a 2.7.0-written state (2026-10-02)
 
@@ -329,6 +335,15 @@ F11. Read the documents the milestone ships: `payload/docs/ai-workflow/
 
 None.
 
+## Active plan
+
+None, because the milestone is complete. The plan document stays at
+`docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md` (revision 13, plan
+approval `CURRENT`) instead of being archived, as W0's did: the release
+source (`payload/scripts/workflow_protocol.py`, `workflow_state.py`, the
+test harness and suites) and the artifact registry cite it as the design
+record.
+
 ## Functional review round 1
 
 The orchestrator-run functional review (`FUNCTIONAL_REVIEW.md`, evidence
@@ -341,12 +356,18 @@ deferred to a remediation child. Re-test: re-read the three ROADMAP lines.
 
 ## Next action
 
-Functional review: work through the "Functional review checklist" above and
-write any findings to `.ai-review/orchestration-protocol-v1/feedback/FUNCTIONAL_REVIEW.md`.
-Once testing is clean, `/accept-milestone` is the acceptance command. If
-there are findings, `/apply-functional-review` routes them. This is a hard
-gate; the cutover (pull request, publication, Manager pin) is the owner's and
-comes after acceptance.
+`orchestration-protocol-v1` is complete. Next:
+1. The cutover (plan section 7), the owner's actions: open the pull request
+   from this branch titled `feat: Workflow 2.7.0 with Orchestration Protocol
+   v1` and merge it once `aggregate`, `Conventional Commit title` and
+   `workflow-conformance` are green, so `Release` publishes and reads back
+   `v2.7.0`; then the `workflow-manager` pin pull request; then install
+   2.7.0 here with `workflow-manager update`, in its own pull request; and
+   write `v2.6.0-003` in `workflow-manager`'s `docs/defects/`. Do not update
+   a Controller-driven repository to 2.7.0 before the Controller's C9.
+2. Then run `/milestone-plan` for W2 in `docs/ROADMAP.md`: Workflow 2.8,
+   declarative gate policy, and a red or changes-requested pull request
+   reopening the same work item.
 
 ---
 
