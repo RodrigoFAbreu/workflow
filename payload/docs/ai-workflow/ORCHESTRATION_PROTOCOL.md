@@ -195,10 +195,12 @@ directory exists. Its result (`$defs.results.describe`) is
 5. `checkpoint_completions_provable`: for each non-terminal item with
    `COMPLETE` checkpoints, `prove_checkpoint_completions` proves them by
    reachable trailer commits. That is `verify_checkpoint_completions`'
-   discovery (a first-parent ancestor of `HEAD` carries the checkpoint's
-   `Workflow-Checkpoint` trailer, and the state committed there records the
-   checkpoint `COMPLETE`), plus strict descent from the checkpoint's recorded
-   `start_commit`. A checkpoint re-completed after a plan amendment has two
+   discovery: the checkpoint's `Workflow-Checkpoint` trailer commits in
+   `base..HEAD`; a single one resolves; otherwise a single first-parent
+   ancestor of `HEAD` resolves; otherwise exactly one first-parent candidate
+   must pass the tie-break predicate. Here that predicate is that the state
+   committed there records the checkpoint `COMPLETE` and the commit strictly
+   descends from the checkpoint's recorded `start_commit`. A checkpoint re-completed after a plan amendment has two
    such commits, which `verify_checkpoint_completions` alone refuses as
    ambiguous; the descent filter leaves its latest completion, so the proof
    passes.
