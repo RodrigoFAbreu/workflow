@@ -300,6 +300,15 @@ worker requirements, `allowed_results`, stale-decision refusal), REQ-4
   `workflow_fingerprint_generalization_test.py` 105 OK.
   `workflow-manager verify .`: installation matches workflow 2.6.0.
 
+### Revalidation after plan revision 13 (2026-10-02)
+
+Amendment 0 reworded three `default_config()` quotations in the plan; the
+registry row's content changed for `CP4` only through that wording. No
+code changes. Checked: `payload/scripts/workflow_protocol_test.py`, `Ran
+213 tests`, `OK`, including
+`test_every_phase_and_version_decides_in_a_default_config_repository`,
+which is the behaviour the reworded sentence describes.
+
 ## `CP5` — `record-external-result` and the shared ingest
 
 Requirements: REQ-5 (`record-external-result`: one Workflow-owned ingest for
@@ -566,3 +575,77 @@ run the new suite, release-constant guard).
     the checkpoint commit, `test_round_trip` fails as expected: it builds
     the committed `HEAD`, whose manifest is still CP6's;
   - `workflow-manager verify .`: the installation matches workflow 2.6.0.
+
+## Implementation self-review
+
+Status: **blocked** (2026-10-02). The full milestone diff (`ef714f3..HEAD`,
+CP1 to CP7) was reviewed against the plan (revision 12). The code, the
+release source and the release tooling raised no blocking or important
+finding. One blocking finding is in the approved plan document itself, and
+fixing it needs a plan amendment, so the implementation bundle was **not**
+generated. `enter_self_reviewing_implementation` was a no-op: the phase was
+already `SELF_REVIEWING_IMPLEMENTATION`.
+
+- **Blocking: the required `workflow-conformance` check fails on this
+  branch.** The installed (2.6.0) `scripts/workflow_state_test.py`,
+  `GoverningVersionEnumerationSweepTest.test_real_corpus_sweep_is_clean`,
+  sweeps the top level of `docs/ai-workflow/*.md` for exhaustive
+  governing-version enumerations. It flags three lines of
+  `docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md` (`exhaustive_enumeration`
+  at lines 360, 1860 and 2681), each the literal `` `["1","2.1"]` `` that
+  quotes `default_config()`. Under Python 3.12, as CI runs it, the suite
+  reports `Ran 972 tests`, `FAILED (failures=1, skipped=1)`. The lines
+  were added by the plan-approval commit `ecf05b0`, so the check has failed
+  since then. The release-source suites pass, because the plan is not part
+  of the release source. 2.7.0 ships the same sweep, so installing 2.7.0
+  here later would not clear it.
+  The plan is plan-stage protected, so any edit makes the plan approval
+  stale (`plan_content_drifted`), and `scripts/` is the frozen installation.
+  The remedy is a plan amendment that rewords the three quotations. Checked:
+  replacing each `` `["1","2.1"]` `` with `` `"1"` and `"2.1"` only `` leaves
+  the sweep with no findings over the whole plan.
+- **Minor, not fixed:** `next-action --expect-state-identity` with a value
+  that is not 64-hex refuses as `stale_decision` (retryable) rather than
+  `invalid_request`. This matches the specification's wording ("refuses
+  with `stale_decision` when the current identity differs"), and a
+  re-decision recovers. The CLI's `argparse` parsers also accept unique
+  prefixes of long options (`--work` for `--work-item`).
+- Probed beyond the suites: the protocol CLI against this repository's
+  real state (`describe`; `verify` healthy except
+  `installation_release_matches`, as expected for 2.7.0 scripts over a 2.6.0
+  installation; `next-action` row 24 `self_review_due`; `resolve-artifact`;
+  `reconcile` of that decision `no_progress`; the `stale_decision`,
+  `unknown_work_item`, `unsupported_protocol`, `unsupported_result_kind`
+  and `not_applicable` refusals). The header-only `review_content_id`
+  parser reads both real feedback files in `.ai-review/` correctly. The
+  installation is untouched (`git diff ef714f3..HEAD` over `.claude/`,
+  `scripts/`, `.workflow-manager/`, the managed documents and
+  `workflow-conformance.yml` is empty).
+
+Full verification at `fec1b94`, in Python 3.12.14 with the pinned `zlib-ng`
+1.0.0 (zlib-ng 2.2.5) and the pinned Workflow Manager 1.2.0 (wheel sha256
+`f7ab05a2…4139`, equal to `tools/release/manager-pin.json`):
+
+- `release_test.py`: `Ran 75 tests`, `OK`;
+- `release.py build --commit HEAD`: `version=2.7.0`, `files=74`,
+  `tar_sha256=96dc1154…`, `archive_sha256=1873fbbc…`,
+  `manifest_sha256=2dabaae0…` (CP7's digests);
+- `workflow-manager package verify`: `release 2.7.0, 73 files, verified`;
+  `--release-dir` bootstrap of a scratch repository: `bootstrapped workflow
+  2.7.0 (full)`, and its verify: `installation matches workflow 2.7.0`;
+- against the live release list: `check-title "feat: Workflow 2.7.0 with
+  Orchestration Protocol v1" --agree` `impact=minor`, agrees;
+  `check-pending` `ok: 2.6.0 -> 2.7.0 (minor)`; `check-immutable` `ok:
+  version 2.7.0 is not published`;
+- `workflow-manager verify .`: `installation matches workflow 2.6.0`;
+- `stage-conformance --commit HEAD`, then the eight release-source suites
+  in the fixture: all `OK` (fingerprint 256, state 1011, test_harness 22,
+  integration 267, acceptance_matrix 291 with 18 skipped,
+  completion_obligations 106, fingerprint_generalization 105, protocol 213);
+- the installation's seven suites in `scripts/` (the `workflow-conformance`
+  job), under Python 3.14.7: fingerprint 242, test_harness 19, integration
+  267, acceptance_matrix 291, completion_obligations 106 and
+  fingerprint_generalization 105 `OK`; **state 972, `FAILED (failures=1)`**,
+  the finding above, reproduced under Python 3.12.14.
+- The `./gradlew …` line of `/milestone-implement` step 3 is for Android
+  repositories and does not apply here.

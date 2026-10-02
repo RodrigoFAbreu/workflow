@@ -14,9 +14,14 @@ plus the `v2.6.0-001` and `v2.6.0-002` follow-ups.
 
 ## Current checkpoint
 
-Implementing. Plan revision 12 approved in `ecf05b0`. Every checkpoint,
-`CP1` to `CP7`, is complete; the phase is `SELF_REVIEWING_IMPLEMENTATION`.
-The per-checkpoint record is the requirements ledger,
+Implementing, revalidating after plan revision 13 (amendment 0, wording
+only: the three `default_config()` quotations). `CP1` to `CP3` stay
+complete; `CP4` to `CP7` were demoted to `NEEDS_REVALIDATION` (`CP4`'s
+checkpoint text changed, `CP5` to `CP7` by dependency closure) and are
+re-completed one per invocation. `CP4` is revalidated: the release-source
+`workflow_protocol_test` passes (213 tests) and already runs the totality
+check under `default_config()`. The per-checkpoint record is the
+requirements ledger,
 `docs/ai-workflow/requirements/orchestration-protocol-v1-ledger.md`.
 
 ### CP2 evidence: 2.6.0 reads a 2.7.0-written state (2026-10-02)
@@ -45,12 +50,14 @@ ACCEPTED ['consumed_plan_review_content_ids']
 
 ## Current blockers
 
-None.
+None. The `workflow-conformance` failure recorded in the ledger's
+"Implementation self-review" was the plan wording that revision 13 fixed.
 
 ## Next action
 
-`/milestone-implement orchestration-protocol-v1` again: the implementation
-self-review, the full verification, and the implementation-review bundle.
+`/milestone-implement orchestration-protocol-v1` again: revalidate `CP5`,
+then `CP6` and `CP7`, one per invocation; then the self-review entry, the
+full verification and the implementation-review bundle.
 
 ---
 
