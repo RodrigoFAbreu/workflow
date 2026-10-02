@@ -1031,10 +1031,12 @@ class PlanReviewNotPublishedError(Exception):
 
 class ConsumedPlanReviewContentError(Exception):
     """Raised by `publish_plan_revision` and `bind_plan_review_bundle` when
-    the content equals the `CONSUMED` record's `review_content_id`, or --
-    for a legacy marker, whose id is null -- when `plan_revision` does not
-    exceed the marker's. Content already taken out of review never
-    re-binds."""
+    the content is any `review_content_id` ever taken out of review -- the
+    `CONSUMED` slot's or one in `consumed_plan_review_content_ids`
+    (workflow-2.7.0, `v2.6.0-001`) -- or, for a legacy marker, whose id is
+    null, when `plan_revision` does not exceed the marker's. Content already
+    taken out of review never re-binds, even restored byte for byte; any
+    edit gives it a new id."""
 
 
 class LegacyPlanReviewBindingUnknownError(Exception):
@@ -10124,8 +10126,9 @@ def publish_plan_revision(
     - at `REVISING_PLAN`/`AMENDING_PLAN` with no record,
       `LegacyPlanReviewBindingUnknownError`; with a `BOUND` record,
       `PlanReviewBindingInconsistentError`;
-    - content equal to `consumed.review_content_id`, or -- for a legacy
-      marker -- a `plan_revision` not greater than the marker's,
+    - content equal to `consumed.review_content_id` or to any id in
+      `consumed_plan_review_content_ids` (workflow-2.7.0), or -- for a
+      legacy marker -- a `plan_revision` not greater than the marker's,
       `ConsumedPlanReviewContentError` (an early refusal that only saves a
       wasted generation; `bind` repeats it).
 
@@ -10190,7 +10193,7 @@ def _publish_plan_revision_two_stage(
             f"requires review_content_id=<the fresh plan-stage id>, got {review_content_id!r}"
         )
     record = _plan_review_binding_for_write(work_item, work_item_id)
-    _assert_not_consumed(record, work_item_id, review_content_id, plan_revision)
+    _assert_not_consumed(work_item, record, work_item_id, review_content_id, plan_revision)
 
     published = {"review_content_id": review_content_id, "plan_revision": plan_revision}
     if (
@@ -15051,6 +15054,10 @@ PLAN_REVIEW_BINDING_KEYS = frozenset({"status", "at", "consumed", "published", "
 _PLAN_REVIEW_BINDING_CONSUMED_KEYS = frozenset({"review_content_id", "plan_revision", "legacy"})
 _PLAN_REVIEW_BINDING_PUBLISHED_KEYS = frozenset({"review_content_id", "plan_revision"})
 _PLAN_REVIEW_BINDING_BOUND_KEYS = frozenset({"review_content_id", "bundle_id", "plan_revision"})
+# workflow-2.7.0 (`v2.6.0-001`): the durable consumed history, a work-item
+# key outside `plan_review_binding` so that record's exact key set is
+# unchanged and a `2.6.0` reader ignores it.
+CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY = "consumed_plan_review_content_ids"
 
 # `plan_review_publication_status`'s status vocabulary, one per row group of
 # section 5.3 item 6's decision table (rows 4d and 6 refuse instead).
@@ -15224,16 +15231,56 @@ def _plan_review_binding_for_write(work_item: dict, work_item_id: str) -> dict |
     return record
 
 
-def _assert_not_consumed(record: dict | None, work_item_id: str, review_content_id: str, plan_revision: int) -> None:
+def _validate_consumed_plan_review_content_ids(work_item_id: str, work_item: dict) -> None:
+    """`validate_state`'s shape check for `consumed_plan_review_content_ids`
+    (workflow-2.7.0, `v2.6.0-001`, INV-3): absent means a `2.6.0` record,
+    whose history is its slot alone; a present value must be a sorted,
+    duplicate-free list of 64-hex ids. It need not hold the slot's id -- a
+    `2.6.0` writer after a downgrade can write a slot the list lacks, and
+    every reader takes the union."""
+    if CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY not in work_item:
+        return
+    value = work_item[CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY]
+    if (
+        not isinstance(value, list)
+        or not all(isinstance(entry, str) and _SHA256_HEX_RE.fullmatch(entry) for entry in value)
+        or value != sorted(set(value))
+    ):
+        raise InvalidPlanReviewBindingError(
+            f"work_items[{work_item_id!r}].{CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY} must be a "
+            f"sorted, duplicate-free list of 64-hex review_content_ids: {value!r}"
+        )
+
+
+def _consumed_plan_review_content_ids(work_item: dict) -> list[str]:
+    """Every `review_content_id` ever taken out of review for this item
+    (workflow-2.7.0, `v2.6.0-001`): the union of the durable
+    `consumed_plan_review_content_ids` list and the `plan_review_binding`
+    slot's non-null `consumed.review_content_id`, sorted. Migration is read
+    time only -- a `2.6.0` item with no list has the history `[slot id]`,
+    or `[]` for a legacy marker."""
+    _validate_consumed_plan_review_content_ids(work_item.get("work_item_id"), work_item)
+    history = set(work_item.get(CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY) or [])
+    record = work_item.get("plan_review_binding")
+    consumed = record.get("consumed") if isinstance(record, dict) else None
+    if isinstance(consumed, dict) and isinstance(consumed.get("review_content_id"), str):
+        history.add(consumed["review_content_id"])
+    return sorted(history)
+
+
+def _assert_not_consumed(
+    work_item: dict, record: dict | None, work_item_id: str, review_content_id: str, plan_revision: int,
+) -> None:
+    if review_content_id in _consumed_plan_review_content_ids(work_item):
+        raise ConsumedPlanReviewContentError(
+            f"{work_item_id!r}: review_content_id {review_content_id!r} is content already "
+            f"taken out of review ({CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY} or "
+            f"plan_review_binding.consumed) -- withdrawn, revised or amended content never "
+            f"re-binds, not even restored byte for byte; edit the plan, then regenerate"
+        )
     consumed = record.get("consumed") if record is not None else None
     if consumed is None:
         return
-    if consumed["review_content_id"] is not None and consumed["review_content_id"] == review_content_id:
-        raise ConsumedPlanReviewContentError(
-            f"{work_item_id!r}: review_content_id {review_content_id!r} is the content already "
-            f"taken out of review (plan_review_binding.consumed, plan_revision "
-            f"{consumed['plan_revision']}) -- it never re-binds; edit the plan, then regenerate"
-        )
     if consumed["legacy"] and plan_revision <= consumed["plan_revision"]:
         raise ConsumedPlanReviewContentError(
             f"{work_item_id!r}: the fail-closed legacy marker records no review_content_id, so "
@@ -15247,7 +15294,17 @@ def _write_consumed_plan_review_binding(
 ) -> None:
     """In-place `CONSUMED` write shared by every transition that takes
     content out of review for editing, from that transition's own inputs.
-    A null id writes the fail-closed legacy marker (`legacy: true`)."""
+    A null id writes the fail-closed legacy marker (`legacy: true`).
+
+    Also the sole writer of `consumed_plan_review_content_ids`
+    (workflow-2.7.0, `v2.6.0-001`): the slot is overwritten here, so the id
+    it held and the new one are first added to the durable history. A
+    legacy marker adds no id, and an empty history leaves the key absent."""
+    history = set(_consumed_plan_review_content_ids(work_item))
+    if review_content_id is not None:
+        history.add(review_content_id)
+    if history:
+        work_item[CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY] = sorted(history)
     work_item["plan_review_binding"] = {
         "status": PLAN_REVIEW_BINDING_CONSUMED,
         "at": now,
@@ -15325,8 +15382,9 @@ def bind_plan_review_bundle(state: dict, work_item_id: str, *, binding: dict, no
       `plan_revision` equal `published`'s and the latter equals the
       current mirror (`PlanReviewNotPublishedError` otherwise);
     - the binding's id differs from a non-null `consumed.review_content_id`
-      and, for a legacy marker, its `plan_revision` exceeds the marker's
-      (`ConsumedPlanReviewContentError`).
+      and from every id in `consumed_plan_review_content_ids`
+      (workflow-2.7.0) and, for a legacy marker, its `plan_revision`
+      exceeds the marker's (`ConsumedPlanReviewContentError`).
     A legacy mid-round item with no record refuses
     (`LegacyPlanReviewBindingUnknownError`), as does a non-ready `BOUND`
     record (`PlanReviewBindingInconsistentError`).
@@ -15366,7 +15424,7 @@ def bind_plan_review_bundle(state: dict, work_item_id: str, *, binding: dict, no
             f"{work_item_id!r} has no PUBLISHED plan_review_binding record -- publish the "
             f"completed content (publish_plan_revision) before binding a bundle of it"
         )
-    _assert_not_consumed(record, work_item_id, binding["review_content_id"], binding["plan_revision"])
+    _assert_not_consumed(work_item, record, work_item_id, binding["review_content_id"], binding["plan_revision"])
     expected = {"review_content_id": binding["review_content_id"], "plan_revision": binding["plan_revision"]}
     if (
         record["status"] != PLAN_REVIEW_BINDING_PUBLISHED
@@ -15699,6 +15757,12 @@ def plan_review_publication_status(repo_root: Path, state: dict, work_item_id: s
         consumed = record["consumed"]
         if mirror == registry_revision == consumed["plan_revision"] and fresh == consumed["review_content_id"]:
             return _row("10", PLAN_REVIEW_STATUS_NEEDS_EDIT, normal, fresh_review_content_id=fresh)
+    # workflow-2.7.0 (`v2.6.0-001`, `LPR-R1-010`): the list stores ids only,
+    # so a list hit is id-only, exactly as `_assert_not_consumed`; the slot
+    # keeps the full predicate above.
+    _validate_consumed_plan_review_content_ids(work_item_id, work_item)
+    if fresh is not None and fresh in work_item.get(CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY, []):
+        return _row("10", PLAN_REVIEW_STATUS_NEEDS_EDIT, normal, fresh_review_content_id=fresh)
     return _row("11", PLAN_REVIEW_STATUS_EDIT_IN_PROGRESS, normal, fresh_review_content_id=fresh)
 
 
@@ -16385,6 +16449,7 @@ def _validate_work_item(work_item_id: str, work_item: dict) -> None:
     _validate_implementation_review_stages(work_item)
     _validate_technical_review_block_pins(work_item)
     _validate_plan_review_binding(work_item_id, work_item)
+    _validate_consumed_plan_review_content_ids(work_item_id, work_item)
 
     # I2 (workflow-v2-3-followups continued scope, external cross-model
     # review rounds 2 and 4): validate_approval_record's shape check

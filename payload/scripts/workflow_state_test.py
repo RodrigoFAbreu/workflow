@@ -16757,14 +16757,15 @@ class TestPlanApprovalStagedDiffIgnoresRenames(unittest.TestCase):
 
 
 class TestPlanApprovalPhaseGate(unittest.TestCase):
-    """Implementation review round 1, Important 1: `consumed` is a single
-    slot, and neither the withdrawal nor a `REVISE` discards
-    `plan_review_stages` (section 5.3 item 7). So dual-approved content A,
-    withdrawn, displaced from the slot by a detour through B, and restored
-    byte for byte, publishes and binds again -- and the content-keyed
-    ledger reads A's two `APPROVE`s as live at `AWAITING_LOCAL_PLAN_REVIEW`.
-    `apply_plan_approval` refuses a two-stage item anywhere but
-    `AWAITING_PLAN_APPROVAL`, so that ledger read never reaches approval."""
+    """Implementation review round 1, Important 1: neither the withdrawal
+    nor a `REVISE` discards `plan_review_stages` (section 5.3 item 7), so
+    the content-keyed ledger can read A's two `APPROVE`s as live outside
+    `AWAITING_PLAN_APPROVAL`. `apply_plan_approval` refuses a two-stage item
+    anywhere but `AWAITING_PLAN_APPROVAL`, so that ledger read never reaches
+    approval. workflow-2.7.0 (`v2.6.0-001`): the detour that used to reach
+    it -- dual-approved A withdrawn, displaced from the single `consumed`
+    slot by B, and restored byte for byte -- is now refused at publish, and
+    at bind if a published record is forged."""
 
     @staticmethod
     def _record(review_content_id=_CP4_A):
@@ -16790,7 +16791,7 @@ class TestPlanApprovalPhaseGate(unittest.TestCase):
             current_bundle_id=_CP4_C, plan_review_stages=stages,
         ))
 
-    def test_withdraw_detour_restore_never_reaches_plan_approval(self):
+    def test_withdraw_detour_restore_is_refused_at_publish_and_at_bind(self):
         for version in sorted(ws.TWO_STAGE_PLAN_REVIEW_VERSIONS):
             with self.subTest(version=version):
                 state = ws.withdraw_plan_review(self._dual_approved(version), "wi", "t3")
@@ -16798,19 +16799,29 @@ class TestPlanApprovalPhaseGate(unittest.TestCase):
                 state = ws.bind_plan_review_bundle(
                     state, "wi", binding=_cp4_binding(_CP4_B, _CP4_D, 3), now="t5")
                 state = ws.withdraw_plan_review(state, "wi", "t6")
-                # A is no longer the consumed slot, so it publishes and binds again.
-                state = ws.publish_plan_revision(state, "wi", 4, "t7", review_content_id=_CP4_A)
-                state = ws.bind_plan_review_bundle(
-                    state, "wi", binding=_cp4_binding(_CP4_A, _CP4_C, 4), now="t8")
                 item = state["work_items"]["wi"]
-                self.assertEqual(item["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
-                # The ledger alone still reads as dual-approved for A ...
+                self.assertEqual(item["plan_review_binding"]["consumed"]["review_content_id"], _CP4_B)
+                self.assertEqual(item[ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY], [_CP4_A, _CP4_B])
+                # A is no longer the consumed slot, but the history still holds it.
+                with self.assertRaises(ws.ConsumedPlanReviewContentError):
+                    ws.publish_plan_revision(state, "wi", 4, "t7", review_content_id=_CP4_A)
+                forged = copy.deepcopy(state)
+                forged_item = forged["work_items"]["wi"]
+                forged_item["plan_revision"] = 4
+                forged_item["plan_review_binding"] = _cp4_record(
+                    "PUBLISHED", consumed=_cp4_consumed(_CP4_B, 3),
+                    published={"review_content_id": _CP4_A, "plan_revision": 4})
+                ws.validate_state(forged)
+                with self.assertRaises(ws.ConsumedPlanReviewContentError):
+                    ws.bind_plan_review_bundle(
+                        forged, "wi", binding=_cp4_binding(_CP4_A, _CP4_C, 4), now="t8")
+                # The ledger alone would still read as dual-approved for A, and the
+                # approval refuses at any phase but AWAITING_PLAN_APPROVAL regardless.
                 self.assertTrue(ws.plan_approval_gate_reachable(
                     latest_round_status="APPROVE", governing_workflow_version=version,
                     plan_review_stages=item["plan_review_stages"],
                     current_review_content_id=_CP4_A,
                 ))
-                # ... but the approval itself refuses, writing nothing.
                 with self.assertRaises(ws.PlanApprovalPhaseError):
                     ws.apply_plan_approval(state, "wi", self._record(), "t9")
 
@@ -16831,6 +16842,170 @@ class TestPlanApprovalPhaseGate(unittest.TestCase):
         state["work_items"]["wi"]["phase"] = "AWAITING_EXTERNAL_PLAN_REVIEW"
         new_state = ws.apply_plan_approval(state, "wi", self._record(), "t9")
         self.assertEqual(new_state["work_items"]["wi"]["phase"], "IMPLEMENTING")
+
+
+class TestConsumedPlanReviewHistory(unittest.TestCase):
+    """workflow-2.7.0 (`v2.6.0-001`, `D-Consumed-History`): every
+    `review_content_id` ever written as `consumed` is kept in the work-item
+    key `consumed_plan_review_content_ids`, so content withdrawn, revised or
+    amended away re-enters review only after an edit."""
+
+    _E = "e" * 64
+
+    def _bound(self, review_content_id=_CP4_A, plan_revision=2, consumed=None, version="2.2"):
+        return _base_state(wi=_cp4_item(
+            version=version, phase="AWAITING_LOCAL_PLAN_REVIEW", plan_revision=plan_revision,
+            record=_cp4_record("BOUND", consumed=consumed,
+                               published={"review_content_id": review_content_id, "plan_revision": plan_revision},
+                               bound=_cp4_binding(review_content_id, _CP4_C, plan_revision)),
+        ))
+
+    def _publish_and_bind(self, state, review_content_id, plan_revision, now="t"):
+        state = ws.publish_plan_revision(state, "wi", plan_revision, now, review_content_id=review_content_id)
+        return ws.bind_plan_review_bundle(
+            state, "wi", binding=_cp4_binding(review_content_id, _CP4_D, plan_revision), now=now)
+
+    def _local_revise(self, state, review_content_id):
+        return ws.record_local_plan_review(
+            state, "wi", verdict="REVISE", bundle_id=_CP4_D, review_content_id=review_content_id,
+            round=1, now="t")
+
+    def test_the_defect_sequence_through_a_revise_consumption(self):
+        state = self._local_revise(self._bound(), _CP4_A)
+        state = self._publish_and_bind(state, _CP4_B, 3)
+        state = self._local_revise(state, _CP4_B)
+        self.assertEqual(state["work_items"]["wi"][ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY], [_CP4_A, _CP4_B])
+        with self.assertRaises(ws.ConsumedPlanReviewContentError):
+            ws.publish_plan_revision(state, "wi", 4, "t", review_content_id=_CP4_A)
+
+    def test_the_defect_sequence_through_an_amendment_consumption(self):
+        with ScratchRepo() as repo:
+            approval_commit = repo.commit(
+                "approve plan", trailers={"Workflow-Plan-Approval": _CP4_A, "Workflow-Work-Item": "wi"})
+            item = _cp4_item(
+                phase="IMPLEMENTING", plan_revision=2, base_commit=repo.base,
+                record=_cp4_record("BOUND", consumed=None,
+                                   published={"review_content_id": _CP4_A, "plan_revision": 2},
+                                   bound=_cp4_binding(_CP4_A, _CP4_C, 2)),
+                plan_approval={"status": "CURRENT", "approved_review_content_id": _CP4_A},
+                checkpoints={"CP1": {"status": "COMPLETE", "start_commit": approval_commit}},
+                current_checkpoint_id=None, last_completed_checkpoint_id="CP1",
+            )
+            state = _request_plan_amendment_holding_lifecycle_lock(
+                _base_state(wi=item), "wi", "amend", repo_root=repo.root, now="t1")
+        self.assertEqual(state["work_items"]["wi"]["phase"], "AMENDING_PLAN")
+        self.assertEqual(state["work_items"]["wi"][ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY], [_CP4_A])
+        state = self._publish_and_bind(state, _CP4_B, 3)
+        state = ws.withdraw_plan_review(state, "wi", "t2")
+        self.assertEqual(state["work_items"]["wi"]["phase"], "AMENDING_PLAN")
+        self.assertEqual(state["work_items"]["wi"][ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY], [_CP4_A, _CP4_B])
+        with self.assertRaises(ws.ConsumedPlanReviewContentError):
+            ws.publish_plan_revision(state, "wi", 4, "t3", review_content_id=_CP4_A)
+
+    def test_restored_content_publishes_after_any_edit(self):
+        state = ws.withdraw_plan_review(self._bound(), "wi", "t1")
+        state = self._publish_and_bind(state, _CP4_B, 3)
+        state = ws.withdraw_plan_review(state, "wi", "t2")
+        with self.assertRaises(ws.ConsumedPlanReviewContentError):
+            ws.publish_plan_revision(state, "wi", 4, "t3", review_content_id=_CP4_A)
+        # A one-byte edit of A's bytes yields a new review_content_id.
+        state = self._publish_and_bind(state, self._E, 4)
+        item = state["work_items"]["wi"]
+        self.assertEqual(item["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
+        self.assertEqual(item["plan_review_binding"]["bound"]["review_content_id"], self._E)
+
+    def test_a_2_6_0_item_migrates_at_read_time_and_on_its_first_consumption(self):
+        # A 2.6.0-shaped item: the slot only, no history key.
+        state = _base_state(wi=_cp4_item(plan_revision=3, record=_cp4_record(
+            "CONSUMED", consumed=_cp4_consumed(_CP4_B, 2))))
+        self.assertNotIn(ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY, state["work_items"]["wi"])
+        ws.validate_state(state)
+        with self.assertRaises(ws.ConsumedPlanReviewContentError):
+            ws.publish_plan_revision(state, "wi", 3, "t1", review_content_id=_CP4_B)
+        state = self._publish_and_bind(state, _CP4_A, 3)
+        self.assertNotIn(ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY, state["work_items"]["wi"],
+                         "publish and bind never write the history")
+        state = self._local_revise(state, _CP4_A)
+        self.assertEqual(state["work_items"]["wi"][ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY], [_CP4_A, _CP4_B])
+        ws.validate_state(state)
+
+    def test_a_legacy_marker_adds_nothing(self):
+        state = _base_state(wi=_cp4_item(phase="AWAITING_LOCAL_PLAN_REVIEW", plan_revision=2, record=None))
+        state = ws.withdraw_plan_review(state, "wi", "t1")
+        item = state["work_items"]["wi"]
+        self.assertTrue(item["plan_review_binding"]["consumed"]["legacy"])
+        self.assertNotIn(ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY, item)
+        # Over a non-legacy slot, the marker keeps the slot's id and adds none.
+        state = _base_state(wi=_cp4_item(
+            phase="AWAITING_LOCAL_PLAN_REVIEW", plan_revision=2,
+            record=_cp4_record("PUBLISHED", consumed=_cp4_consumed(_CP4_B, 1),
+                               published={"review_content_id": _CP4_A, "plan_revision": 2})))
+        item = ws.withdraw_plan_review(state, "wi", "t1")["work_items"]["wi"]
+        self.assertTrue(item["plan_review_binding"]["consumed"]["legacy"])
+        self.assertEqual(item[ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY], [_CP4_B])
+
+    def _status(self, item, fresh, registry_revision):
+        original_registry = ws._registry_plan_revision_or_none
+        original_fresh = ws.compute_fresh_plan_review_content_id
+        ws._registry_plan_revision_or_none = lambda repo_root, work_item, work_item_id: registry_revision
+        ws.compute_fresh_plan_review_content_id = lambda repo_root, work_item_id: fresh
+        try:
+            return ws.plan_review_publication_status(Path("/nonexistent"), _base_state(wi=item), "wi")
+        finally:
+            ws._registry_plan_revision_or_none = original_registry
+            ws.compute_fresh_plan_review_content_id = original_fresh
+
+    def test_publication_status_row_10_reads_the_history_id_only(self):
+        item = _cp4_item(plan_revision=5, record=_cp4_record("CONSUMED", consumed=_cp4_consumed(_CP4_B, 4)))
+        item[ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY] = [_CP4_A, _CP4_B]
+        # In the history, not in the slot, at a revision other than the one it was consumed at.
+        status = self._status(item, _CP4_A, 5)
+        self.assertEqual((status["row"], status["status"]), ("10", ws.PLAN_REVIEW_STATUS_NEEDS_EDIT))
+        # The slot keeps its full predicate: a hit at its own revisions, and
+        # (with no list) row 11 at another, as in 2.6.0.
+        slot_only = _cp4_item(plan_revision=4, record=_cp4_record("CONSUMED", consumed=_cp4_consumed(_CP4_B, 4)))
+        status = self._status(slot_only, _CP4_B, 4)
+        self.assertEqual((status["row"], status["status"]), ("10", ws.PLAN_REVIEW_STATUS_NEEDS_EDIT))
+        slot_only["plan_revision"] = 5
+        status = self._status(slot_only, _CP4_B, 5)
+        self.assertEqual((status["row"], status["status"]), ("11", ws.PLAN_REVIEW_STATUS_EDIT_IN_PROGRESS))
+        # In neither.
+        status = self._status(item, _CP4_D, 5)
+        self.assertEqual((status["row"], status["status"]), ("11", ws.PLAN_REVIEW_STATUS_EDIT_IN_PROGRESS))
+        # Unreadable content is never a history hit.
+        status = self._status(item, None, 5)
+        self.assertEqual(status["row"], "11")
+
+    def test_the_validator_refuses_a_malformed_history_and_accepts_one_without_the_slot_id(self):
+        for bad in ([_CP4_B, _CP4_A], [_CP4_A, _CP4_A], ["A" * 64], ["a" * 63], [_CP4_A + "\n"], [None],
+                    _CP4_A, None, {}):
+            with self.subTest(bad=bad):
+                item = _cp4_item()
+                item[ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY] = bad
+                with self.assertRaises(ws.InvalidPlanReviewBindingError):
+                    ws.validate_state(_base_state(wi=item))
+                with self.assertRaises(ws.InvalidPlanReviewBindingError):
+                    ws.publish_plan_revision(_base_state(wi=item), "wi", 2, "t", review_content_id=_CP4_D)
+        item = _cp4_item()  # slot id is _CP4_B
+        item[ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY] = [_CP4_A]
+        ws.validate_state(_base_state(wi=item))
+        item[ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY] = []
+        ws.validate_state(_base_state(wi=item))
+        with self.assertRaises(ws.ConsumedPlanReviewContentError):
+            ws.publish_plan_revision(_base_state(wi=item), "wi", 2, "t", review_content_id=_CP4_B)
+
+    def test_downgrade_the_key_lives_outside_the_binding_record(self):
+        state = self._local_revise(self._bound(consumed=_cp4_consumed(_CP4_B, 1)), _CP4_A)
+        item = state["work_items"]["wi"]
+        self.assertEqual(item[ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY], [_CP4_A, _CP4_B])
+        self.assertEqual(set(item["plan_review_binding"]), ws.PLAN_REVIEW_BINDING_KEYS)
+        self.assertNotIn(ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY, json.dumps(item["plan_review_binding"]))
+        stripped = copy.deepcopy(state)
+        del stripped["work_items"]["wi"][ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY]
+        ws.validate_state(stripped)
+        diff = {key for key in set(item) | set(stripped["work_items"]["wi"])
+                if item.get(key) != stripped["work_items"]["wi"].get(key)}
+        self.assertEqual(diff, {ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY})
 
 
 class TestConsumedPlanReviewBindingWriters(unittest.TestCase):

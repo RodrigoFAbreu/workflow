@@ -2,17 +2,71 @@
 
 ## Milestone
 
+W1: `orchestration-protocol-v1` (`process`, governing version `2.2`),
+branch `milestone/orchestration-protocol-v1`, base `ef714f3`. The plan is
+`docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md`.
+
+## Goal
+
+Workflow 2.7.0: Orchestration Protocol v1 (`describe`, `verify`,
+`next-action`, `reconcile`, `record-external-result`, `resolve-artifact`),
+plus the `v2.6.0-001` and `v2.6.0-002` follow-ups.
+
+## Current checkpoint
+
+Implementing. Plan revision 12 approved in `ecf05b0`. `CP1` and `CP2` are
+complete; `CP3` is next. The per-checkpoint record is the requirements
+ledger, `docs/ai-workflow/requirements/orchestration-protocol-v1-ledger.md`.
+
+### CP2 evidence: 2.6.0 reads a 2.7.0-written state (2026-10-02)
+
+The plan's one-off downgrade check. `STATE` was the
+`TestConsumedPlanReviewHistory` migration scenario (a 2.6.0-shaped item,
+slot `b…b` only, then publish and bind `a…a` and a local `REVISE` of it),
+written by CP2's `workflow_state.py` and dumped to a temporary file; its
+history was `["a…a", "b…b"]`. Run from the repository root:
+
+```text
+d=$(mktemp -d)
+git show v2.6.0:payload/scripts/workflow_state.py > "$d/workflow_state.py"
+git show v2.6.0:payload/scripts/workflow_fingerprint.py > "$d/workflow_fingerprint.py"
+python3 -c 'import json, sys; sys.path.insert(0, sys.argv[1]); import workflow_state as w; s = json.load(open(sys.argv[2])); w.validate_state(s); print("ACCEPTED", sorted(k for i in s["work_items"].values() for k in i if k == "consumed_plan_review_content_ids"))' "$d" "$STATE"
+```
+
+Output, exit code 0:
+
+```text
+ACCEPTED ['consumed_plan_review_content_ids']
+```
+
+2.6.0 blobs: `payload/scripts/workflow_state.py` `fed844fc70c54bac8787ebea8f77cb67cd7c2f05`,
+`payload/scripts/workflow_fingerprint.py` `565f24bb2dcc21227cb5abf52e0549d7091b8525`.
+
+## Current blockers
+
+None.
+
+## Next action
+
+`/milestone-implement orchestration-protocol-v1` for `CP3`.
+
+---
+
+# Previous milestone record: W0 `workflow-repository-setup`
+
+### Milestone
+
 **Complete.** W0: `workflow-repository-setup` (`process`, governing version `2.2`),
 branch `milestone/workflow-repository-setup`, base `bf51137`.
 
-## Goal
+### Goal
 
 Set this repository up for development: CI over the release source, a
 release workflow that publishes an immutable release when `main`'s manifest
 names an unpublished version, and `main` protection with Conventional-Commit
 titles. W0 itself releases nothing.
 
-## Current checkpoint
+### Current checkpoint
 
 **Milestone complete.** `workflow-repository-setup` reached
 `MILESTONE_COMPLETE` through `/accept-milestone` on 2026-10-01, with the
@@ -29,7 +83,7 @@ owner's confirmation, and `active_work_item_id` is cleared.
 
 The checkpoint log below is this milestone's permanent record.
 
-### Checkpoint log
+#### Checkpoint log
 
 `CP1` (release tooling) complete: `tools/release/` builds the release
 source into a package that reproduces every published release (2.3.1 to
@@ -64,7 +118,7 @@ green. Evidence: the requirements ledger,
 Implementation review: both stages approved at round 3 (reviewed head
 `06cb6d7`); technical approval recorded in `cc20d69`.
 
-## CP3 rehearsal transcript (2026-10-01)
+### CP3 rehearsal transcript (2026-10-01)
 
 Where: `RodrigoFAbreu/workflow-release-rehearsal`, a throwaway private
 repository the owner authorized for this. It had release immutability on
@@ -155,7 +209,7 @@ End state of the rehearsal repository: published releases `v0.0.1`,
 `v0.0.2` (incomplete, superseded) and `v0.0.3` (Latest), with tags at
 `a2b7f21`, `1db4b90` and `d0fb200`.
 
-## Cutover evidence (2026-10-01)
+### Cutover evidence (2026-10-01)
 
 Plan section 7 / `docs/RELEASING.md` "Cutover", steps 1-4, run by the
 owner before acceptance and read back here.
@@ -182,11 +236,11 @@ owner before acceptance and read back here.
    .claude/commands/accept-milestone.md`, and `aggregate` and
    `workflow-conformance` failed. The pull request is closed, unmerged.
 
-## Current blockers
+### Current blockers
 
 None.
 
-## Active plan
+### Active plan
 
 None, because the milestone is complete. The plan document stays at
 `docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md` (revision 6, plan
@@ -194,7 +248,7 @@ approval `CURRENT`) instead of being archived: `docs/RELEASING.md`,
 `tools/release/release.py` and the three CI workflows cite it as the design
 record.
 
-## Next action
+### Next action
 
 `workflow-repository-setup` is complete. Next:
 1. Finish the cutover (plan section 7, steps 5-6): bring pull request #3 up
@@ -206,7 +260,7 @@ record.
    the first release developed here (Orchestration Protocol v1, and the
    `v2.6.0-001` and `v2.6.0-002` follow-ups).
 
-## Functional review checklist
+### Functional review checklist
 
 W0 is a `process` milestone: the "product" is the release tooling, CI,
 release workflow, settings data and runbook. Nothing here pushes, applies

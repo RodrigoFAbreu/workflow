@@ -199,7 +199,8 @@ that was `"2.1"` alone through `workflow-v2-1-core`/`workflow-2.4.0`) — a
   `/milestone-plan` step 6 and `/apply-plan-review` step 7' straight after
   a successful plan-stage generation: it writes the phase only for a
   verified bundle of the content `publish_plan_revision` last published,
-  never for content already reviewed or withdrawn (`CONSUMED`).
+  never for content already reviewed or withdrawn (`CONSUMED`, or any id in
+  the work item's `consumed_plan_review_content_ids` history).
 - **Allowed actions**: run `/review-plan` (recommended in a fresh session,
   for genuine independence from the session that wrote the plan — strongly
   recommended operational guidance, not a verified precondition).
@@ -291,7 +292,11 @@ it), refuses while an open plan-approval journal names the item
 (`PlanApprovalInProgressError`), discards both recorded plan-review stages,
 and marks the withdrawn content `CONSUMED`, so it can never re-bind: only
 an edit plus a fresh publish, generation and bind returns the item to
-`AWAITING_LOCAL_PLAN_REVIEW`. It is the one sanctioned way out of a ready
+`AWAITING_LOCAL_PLAN_REVIEW`. Every consumed `review_content_id` is kept in
+the work item's `consumed_plan_review_content_ids` history
+(workflow-2.7.0), so a later withdrawal, `REVISE` or amendment never
+releases an earlier one: content restored byte for byte is refused, and
+any edit at all gives it a new id. It is the one sanctioned way out of a ready
 phase for editing without a `REVISE` verdict; `publish_plan_revision` and
 `route_work_item` refuse at a ready phase (`PlanReviewInProgressError`),
 and outside the plan-stage phases altogether

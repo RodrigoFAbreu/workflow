@@ -160,7 +160,9 @@ normative definition.
      — no ledger entry) and, in the same write, the `CONSUMED`
      `plan_review_binding` record for this `review_content_id`
      (workflow-2.6.0, `D-Plan-Review-Bundle-Binding`), so the reviewed
-     content can never re-bind without an edit.
+     content can never re-bind without an edit. The id is also added to
+     the item's durable `consumed_plan_review_content_ids` history
+     (workflow-2.7.0), so a later round never releases it.
    - `BLOCK`: `REVIEW_FEEDBACK.md` only — `record_local_plan_review(...,
      verdict="BLOCK", ...)` is a true no-op; the work item stays at
      `AWAITING_LOCAL_PLAN_REVIEW`.

@@ -844,7 +844,10 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # commit's widened member set (every declared protected path).
     # Implementation review round 2 (I1): step 3's intent-to-add staging is
     # `git --literal-pathspecs add -N` -- intentional.
-    "milestone-plan.md": "1369139371201c39b9505b00bbbbed87b2cfeebf7f2112e98a42b031b1a8f003",
+    # milestone-plan.md further updated, D-Consumed-History (workflow-2.7.0,
+    # CP2, v2.6.0-001): the withdrawal report names the durable
+    # consumed_plan_review_content_ids history -- intentional content change.
+    "milestone-plan.md": "d74189364d76e431949ddb79aed738695ad3ca22359e3f3c39e034fe657d29cb",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the
@@ -1103,7 +1106,10 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-plan.md further updated, D-Feedback-Label (workflow-2.7.0,
     # CP1, v2.6.0-002): step 7 names the pinned Reviewed review_content_id:
     # label, before the first ## section -- intentional content change.
-    "review-plan.md": "cf3cde77246703ee0d6e7a59b44aca688538d8f793495f3cd8881ac64fcffcb4",
+    # review-plan.md further updated, D-Consumed-History (workflow-2.7.0,
+    # CP2, v2.6.0-001): REVISE also adds the id to the durable
+    # consumed_plan_review_content_ids history -- intentional content change.
+    "review-plan.md": "025bef3dbb2bc5673a81a801d4800bc91d921c5695857a797e9f06c00fc01008",
     # record-manual-plan-review.md further updated, D-Feedback-Layout
     # (workflow-2.6.0, CP3): preamble states feedback_layout-keyed
     # resolution; step 4 prints the exact resolved paste path and adds the
@@ -6978,6 +6984,9 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         # callable; `user_confirmation` is `plan_approval`'s own existing
         # field, first referenced by name in this release's reference text.
         "implementation_review_stages", "user_confirmation",
+        # workflow-2.7.0, D-Consumed-History (v2.6.0-001): the durable
+        # consumed history, a work-item field name, not a callable.
+        "consumed_plan_review_content_ids",
     })
 
     def test_every_code_symbol_the_reference_names_actually_exists(self):

@@ -124,7 +124,10 @@ Key points:
   that content. The three plan-review readers (`/review-plan`,
   `/record-manual-plan-review`, `/approve-review plan`) refuse any other
   bundle, naming the remedy. Content already reviewed, amended away or
-  withdrawn is `CONSUMED` and never binds again without an edit.
+  withdrawn is `CONSUMED` and never binds again without an edit: every
+  consumed id is kept in the work item's `consumed_plan_review_content_ids`
+  history (workflow-2.7.0), so restoring earlier content byte for byte is
+  refused, and any edit gives it a new id.
   `python3 scripts/workflow_state.py --plan-review-publication-status
   <work-item-id>` prints where an item stands (one JSON object, read-only).
 - The two ledger stage names are `LOCAL_MODEL_PLAN_REVIEW` and
@@ -254,7 +257,7 @@ test fails and is authoritative about which one moved.
   `/request-plan-amendment` from `IMPLEMENTING`); a withdrawal without the
   explicit id (`PlanReviewWithdrawalNeedsExplicitIdError`) or during an
   open plan-approval transaction (`PlanApprovalInProgressError`);
-  publishing unchanged, already-reviewed content
+  publishing unchanged or restored, already-reviewed content
   (`ConsumedPlanReviewContentError`). A generator failure after the
   publish leaves `PUBLISHED_UNBOUND`; re-run `/milestone-plan <id>`.
 - **Never**: repoints `active_work_item_id` away from another live item.
