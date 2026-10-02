@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "work_item_id": "orchestration-protocol-v1",
+  "plan_revision": 12,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "Pinned review_content_id label in review feedback, legacy alias accepted (v2.6.0-002)",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": "1"
+    },
+    {
+      "id": "CP2",
+      "name": "Durable consumed plan-review content history: withdrawn or revised content never re-binds (v2.6.0-001)",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP3",
+      "name": "Protocol core: workflow_protocol.py envelope, versioning, error codes, state identity, describe, verify, resolve-artifact",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP4",
+      "name": "next-action and reconcile: the total action catalogue, dispositions, worker requirements, stale-decision refusal, same-phase progress",
+      "depends_on": [
+        "CP3"
+      ],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP5",
+      "name": "record-external-result: one Workflow-owned ingest for manual plan and implementation verdicts, shared by the commands",
+      "depends_on": [
+        "CP1",
+        "CP3",
+        "CP4"
+      ],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP6",
+      "name": "Protocol specification document, command and operator documentation, lifecycle end-to-end test in a disposable repository",
+      "depends_on": [
+        "CP2",
+        "CP4",
+        "CP5"
+      ],
+      "complexity": 2,
+      "session_target": "1"
+    },
+    {
+      "id": "CP7",
+      "name": "Release 2.7.0: manifest, conformance CI for the new suite, release-constant guard, roadmap",
+      "depends_on": [
+        "CP6"
+      ],
+      "complexity": 2,
+      "session_target": "1"
+    }
+  ]
+}

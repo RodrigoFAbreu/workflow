@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "work_item_id": "orchestration-protocol-v1",
+  "requirements": {
+    "REQ-1": {
+      "description": "Orchestration Protocol v1 is a versioned public contract, separate from the Workflow release and the governing version: one CLI, one JSON response envelope, a protocol version whose unknown major fails closed, broad stable error codes alongside the precise Workflow-native exception, and a describe operation reporting release, protocol version, supported governing versions and capabilities.",
+      "checkpoint_ids": [
+        "CP3",
+        "CP6"
+      ]
+    },
+    "REQ-2": {
+      "description": "verify reports repository, state and protocol health without writing: state and config readable and valid (validate_state's first production caller), registry and mirror consistent, checkpoint completions provable, and the installed release record agreeing with the script's own release.",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    },
+    "REQ-3": {
+      "description": "next-action returns, for every persisted phase and governing version, a normalized snapshot, a semantic action id with arguments and a rendered invocation, one disposition (automatic, validation, human_gate, external_gate, blocked, complete), generic worker requirements, allowed result classes, and the decision basis (state revision and state identity); a decision taken on a basis that no longer matches the state is refused as stale.",
+      "checkpoint_ids": [
+        "CP4"
+      ]
+    },
+    "REQ-4": {
+      "description": "reconcile classifies the durable result of an executed automatic action against its decision as progress, no_progress, gate_reached or invalid, recognizing same-phase progress such as a checkpoint completing while the phase stays IMPLEMENTING, and returns the new decision basis; a gate decision is refused, and completion is reported by next-action's complete disposition.",
+      "checkpoint_ids": [
+        "CP4"
+      ]
+    },
+    "REQ-5": {
+      "description": "record-external-result ingests a manual external plan or implementation review verdict: the Workflow parses the verdict header, checks its binding to the current bundle and review_content_id, stores it at the Workflow-resolved feedback path and records the stage, through the same single function the record-manual commands call; unsupported result kinds are refused.",
+      "checkpoint_ids": [
+        "CP5"
+      ]
+    },
+    "REQ-6": {
+      "description": "resolve-artifact returns the Workflow-resolved path of a named semantic artifact kind for a work item, so no consumer copies feedback, bundle or plan-input path rules.",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    },
+    "REQ-7": {
+      "description": "One review_content_id label is pinned in REVIEW_PROTOCOL.md's required feedback structure and written by both review commands; the parser accepts the other historical label as a legacy alias and still refuses two distinct values.",
+      "checkpoint_ids": [
+        "CP1",
+        "CP5"
+      ]
+    },
+    "REQ-8": {
+      "description": "Plan-stage content once taken out of review (withdrawn, or consumed by a REVISE or a plan amendment) is recorded durably and can never be published or bound again; 2.6.0 single-slot records migrate without loss of their slot, and the withdraw, detour, restore sequence is refused.",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "REQ-9": {
+      "description": "Workflow 2.7.0 is releasable: the manifest lists every new and changed file with its digest at version 2.7.0, the release-source conformance CI and the shipped conformance template run the new suite, and the protocol's release constant must equal the manifest version for a build to succeed.",
+      "checkpoint_ids": [
+        "CP7"
+      ]
+    },
+    "REQ-10": {
+      "description": "The protocol is specified in a shipped normative document with every operation's request and response shape, and the command and operator documents agree with the new behaviour; an end-to-end test drives a disposable repository through the lifecycle using only protocol responses.",
+      "checkpoint_ids": [
+        "CP6"
+      ]
+    },
+    "REQ-11": {
+      "description": "A two-stage REVISE is applied by content: apply-plan-review and apply-implementation-review accept a REVISE that states the reviewed review_content_id whatever its advisory bundle fields say, refuse one that states other content even when its bundle fields name the current bundle, and check the on-disk bundle against its own manifest, including that the manifest names this work item and stage, which takes the place of a Work item field the verdict may omit (a manifest that names no work item keeps the bundle binding); no catalogue remedy rewrites a reviewer's binding fields.",
+      "checkpoint_ids": [
+        "CP4"
+      ]
+    }
+  }
+}
