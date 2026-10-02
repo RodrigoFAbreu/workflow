@@ -1100,7 +1100,10 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (workflow-2.6.0, CP4): the bound-bundle reader
     # (validate_local_plan_review_preconditions_bound) and the CONSUMED write
     # on REVISE -- intentional content change, not a regression.
-    "review-plan.md": "232d0f54c72e8ab4d5e7299ce1b846e82fdd98748877262975547394d60f08e5",
+    # review-plan.md further updated, D-Feedback-Label (workflow-2.7.0,
+    # CP1, v2.6.0-002): step 7 names the pinned Reviewed review_content_id:
+    # label, before the first ## section -- intentional content change.
+    "review-plan.md": "cf3cde77246703ee0d6e7a59b44aca688538d8f793495f3cd8881ac64fcffcb4",
     # record-manual-plan-review.md further updated, D-Feedback-Layout
     # (workflow-2.6.0, CP3): preamble states feedback_layout-keyed
     # resolution; step 4 prints the exact resolved paste path and adds the
@@ -1110,7 +1113,11 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # Binding (workflow-2.6.0, CP4): the bound-bundle reader
     # (assert_plan_review_bundle_bound) and the CONSUMED write on REVISE --
     # intentional content change, not a regression.
-    "record-manual-plan-review.md": "1713522d5b1d116dd44429d3764b78839db023800700227421ff0a859f9421cb",
+    # record-manual-plan-review.md further updated, D-Feedback-Label
+    # (workflow-2.7.0, CP1, v2.6.0-002): step 4 names the pinned
+    # Reviewed review_content_id: label and the header-before-## rule --
+    # intentional content change.
+    "record-manual-plan-review.md": "2e512bc679928cb6b1de2cd2d8f23c425b8bbada632db591ded1a01644960dc5",
     # bootstrap-workflow-v2.md (WF8c scope clauses (l)/(p)/(q), GPT-R108-002/
     # OPUS-R109-004): the driver-range text made checkpoint-agnostic
     # (OPUS-R102-009), a NO_CHECKPOINT terminal-wrap-up branch added to step
@@ -1197,7 +1204,11 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # before the write; step 7's recovery text scopes the hand-created-dir
     # warning to legacy items; A7 prints the exact resolved paste path --
     # intentional content change.
-    "review-implementation.md": "19578cc8a506463b0b0b0ad9c5c60db62ab86e75478dad2d595f98db206f4bd8",
+    # review-implementation.md further updated, D-Feedback-Label
+    # (workflow-2.7.0, CP1, v2.6.0-002): step 6 and A5 write the pinned
+    # Reviewed review_content_id: label, before the first ## section --
+    # intentional content change.
+    "review-implementation.md": "07c74d16f90b1405742eae3424a8ac3444789ebf441e7f12f0ea30811c3434d2",
     # review-functional.md: new, workflow-v2-3 CP2 -- the first recorded
     # hash, not a change.
     #

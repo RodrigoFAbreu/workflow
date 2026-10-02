@@ -254,8 +254,10 @@ end of this file for the `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` case.
    `assert_feedback_matches_bundle` is a hard precondition of this
    command's own write in step 7 below, not a convenience for a
    hypothetical hand-copy. Also state
-   `Reviewed review content ID:` with step 4's freshly recomputed
-   implementation-stage `review_content_id` — not one of the three parsed
+   `Reviewed review_content_id:` (exactly this pinned label, workflow-2.7.0,
+   `v2.6.0-002`) with step 4's freshly recomputed
+   implementation-stage `review_content_id`, before the first `## ` section
+   — not one of the three parsed
    binding fields, so no parser or approval requirement changes; purely so
    the printed advisory opinion is easy to correlate against the exact
    reviewed implementation content.
@@ -455,7 +457,9 @@ A5. **Decide the verdict** (`Status: APPROVE | REVISE | BLOCK`) and write
       commit:`, `Work item:`) stated with the recomputed `bundle_id`,
       `base_commit`, and `work_item_id` from A3 (`WFR-03`), plus the
       recomputed implementation-stage `review_content_id` as its own
-      labelled line;
+      labelled line, with exactly the pinned label
+      `Reviewed review_content_id: <hex>` (workflow-2.7.0, `v2.6.0-002`),
+      all before the first `## ` section;
     - the round/sequence number (one more than the highest prior
       `LOCAL_MODEL_IMPLEMENTATION_REVIEW` round on record, or `1` if none);
     - a completion timestamp.

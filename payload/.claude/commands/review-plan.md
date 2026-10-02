@@ -110,7 +110,9 @@ normative definition.
      requires on every round (`Reviewed bundle ID:`, `Reviewed base
      commit:`, `Work item:`), stated with the recomputed `bundle_id`,
      `base_commit`, and `work_item_id` from step 5 (`WFR-03`), plus the
-     recomputed plan-stage `review_content_id` as its own labelled line;
+     recomputed plan-stage `review_content_id` as its own labelled line,
+     with exactly the pinned label `Reviewed review_content_id: <hex>`
+     (workflow-2.7.0, `v2.6.0-002`), all before the first `## ` section;
    - the round/sequence number (one more than the highest prior
      `LOCAL_MODEL_PLAN_REVIEW` round on record, counting a round entry under
      either casing of the stage key, or `1` if none);

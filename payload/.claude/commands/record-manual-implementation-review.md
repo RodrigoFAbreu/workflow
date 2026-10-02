@@ -63,8 +63,14 @@ rule for an item without the field.
    `implementation_review_stages` ledger is introduced fresh at `"2.2"` with
    no pre-`SCREAMING_SNAKE_CASE` history behind it, so a role string that
    does not match this exact spelling is refused outright, never silently
-   normalized), `<bundle_dir>/MANIFEST.md`, `<bundle_dir>/REVIEW_REQUEST.md`,
-   and the ledger's existing `LOCAL_MODEL_IMPLEMENTATION_REVIEW` entry.
+   normalized -- and the reviewed content as
+   `Reviewed review_content_id: <hex>`, the pinned label (workflow-2.7.0,
+   `v2.6.0-002`; the legacy alias `Reviewed review content ID:` is still
+   accepted); tell the reviewer that these header fields come before the
+   first `## ` section, since the `review_content_id` is read from the
+   header block only), `<bundle_dir>/MANIFEST.md`,
+   `<bundle_dir>/REVIEW_REQUEST.md`, and the ledger's existing
+   `LOCAL_MODEL_IMPLEMENTATION_REVIEW` entry.
    **Resolved paste path, printed** (`D-Feedback-Layout`, workflow-2.6.0):
    `<feedback_dir>` is `workflow_fingerprint.resolve_feedback_dir(repo_root,
    work_item_id)` (equivalently the `review_feedback_path` field of

@@ -58,7 +58,13 @@ normative definition.
    `APPROVE` on record" (`WrongPhaseForPlanReviewStageError`).
 4. **Read**: `<feedback_dir>/REVIEW_FEEDBACK.md` (must declare
    `Reviewer role: MANUAL_EXTERNAL_PLAN_REVIEW` -- the legacy
-   `manual_external_plan_review` is also accepted), `<bundle_dir>/MANIFEST.md`,
+   `manual_external_plan_review` is also accepted -- and the reviewed
+   content as `Reviewed review_content_id: <hex>`, the pinned label
+   (workflow-2.7.0, `v2.6.0-002`; the legacy alias
+   `Reviewed review content ID:` is still accepted); tell the reviewer that
+   these header fields come before the first `## ` section, since the
+   `review_content_id` is read from the header block only),
+   `<bundle_dir>/MANIFEST.md`,
    `<bundle_dir>/REVIEW_REQUEST.md`, and the ledger's existing
    `LOCAL_MODEL_PLAN_REVIEW` entry.
    **Resolved paste path, printed** (`D-Feedback-Layout`, workflow-2.6.0):
