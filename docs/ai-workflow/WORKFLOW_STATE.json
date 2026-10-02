@@ -292,8 +292,8 @@
       "registry_path": "docs/ai-workflow/registry/orchestration-protocol-v1-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/orchestration-protocol-v1-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AMENDING_PLAN",
-      "plan_revision": 12,
+      "phase": "IMPLEMENTING",
+      "plan_revision": 13,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "ef714f33efbd12c07e1b2c8083661c3920b1e2e6",
@@ -314,40 +314,40 @@
           "start_commit": "b228adfc08ca96162132f2ce10f31c7b2b254631"
         },
         "CP4": {
-          "status": "COMPLETE",
+          "status": "NEEDS_REVALIDATION",
           "start_commit": "7df0dd4ab421974118d93ea42a3cc2cf799d8e7a"
         },
         "CP5": {
-          "status": "COMPLETE",
+          "status": "NEEDS_REVALIDATION",
           "start_commit": "17a82744d146a34a7bee31f8933d5e7b0418c9a4"
         },
         "CP6": {
-          "status": "COMPLETE",
+          "status": "NEEDS_REVALIDATION",
           "start_commit": "034c4d0cc0142efee97bc8953addc0edb633d69b"
         },
         "CP7": {
-          "status": "COMPLETE",
+          "status": "NEEDS_REVALIDATION",
           "start_commit": "eacb7f01249454a6f83800d6558faefc33c9a90e"
         }
       },
-      "current_bundle_id": "9891048e4a658abe681ed065f626205bdbddbcda7dcc0d89e4b9612fe649fe86",
+      "current_bundle_id": "938ca5d503ccd274a8a86b7a86e2121e4e470deb6dffec073241580c3d3b1087",
       "plan_approval": {
-        "status": "SUPERSEDED",
+        "status": "CURRENT",
         "basis": "EXTERNAL_APPROVE",
-        "reviewed_bundle_id": "9891048e4a658abe681ed065f626205bdbddbcda7dcc0d89e4b9612fe649fe86",
-        "approved_review_content_id": "9636e125e47e1ca40605837cc16ece4bf759671c5251b68156c9fb20972f270c",
+        "reviewed_bundle_id": "938ca5d503ccd274a8a86b7a86e2121e4e470deb6dffec073241580c3d3b1087",
+        "approved_review_content_id": "237e7ca6da45932043d5f111b77b44f6b03ea770790f6e35455056994450a788",
         "review_content_manifest": [
           {
             "path": "docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md",
             "exists": true,
             "mode": "100644",
-            "blob": "1fe16da700d778a4ba359b91c69b6af0c95a9c05"
+            "blob": "93ad3d1254667af0a461a45c09caa5844e447ec9"
           },
           {
             "path": "docs/ai-workflow/registry/orchestration-protocol-v1-registry.json",
             "exists": true,
             "mode": "100644",
-            "blob": "be90c49451bd2fdead8449cd74589d9dd5540017"
+            "blob": "d850816fe568fe99d6efae0601dd9f39b5055289"
           },
           {
             "path": "docs/ai-workflow/requirements/orchestration-protocol-v1-mapping.json",
@@ -358,42 +358,49 @@
         ],
         "reviewed_content_commit": null,
         "legacy_evidence": null,
-        "user_confirmation": "I approve orchestration-protocol-v1 at the plan stage",
+        "user_confirmation": "plan orchestration-protocol-v1 — I approve orchestration-protocol-v1 at the plan stage",
         "waived_guarantees": [],
-        "recorded_at": "2026-10-02T07:27:59Z"
+        "recorded_at": "2026-10-02T16:42:53Z"
       },
       "technical_approval": null,
       "technical_review_block_pins": [],
       "plan_review_stages": {
-        "review_content_id": "9636e125e47e1ca40605837cc16ece4bf759671c5251b68156c9fb20972f270c",
+        "review_content_id": "237e7ca6da45932043d5f111b77b44f6b03ea770790f6e35455056994450a788",
         "LOCAL_MODEL_PLAN_REVIEW": {
-          "bundle_id": "9891048e4a658abe681ed065f626205bdbddbcda7dcc0d89e4b9612fe649fe86",
+          "bundle_id": "938ca5d503ccd274a8a86b7a86e2121e4e470deb6dffec073241580c3d3b1087",
           "verdict": "APPROVE",
-          "round": 12,
-          "completed_at": "2026-10-01T23:35:23Z"
+          "round": 13,
+          "completed_at": "2026-10-02T16:38:33Z"
         },
         "MANUAL_EXTERNAL_PLAN_REVIEW": {
-          "bundle_id": "9891048e4a658abe681ed065f626205bdbddbcda7dcc0d89e4b9612fe649fe86",
+          "bundle_id": "938ca5d503ccd274a8a86b7a86e2121e4e470deb6dffec073241580c3d3b1087",
           "verdict": "APPROVE",
-          "round": 12,
-          "completed_at": "2026-10-01T23:37:33Z"
+          "round": 13,
+          "completed_at": "2026-10-02T16:40:49Z"
         }
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 58,
-      "last_transition": "2026-10-02T16:33:12Z",
+      "state_revision": 64,
+      "last_transition": "2026-10-02T16:42:53Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
-        "status": "CONSUMED",
-        "at": "2026-10-02T16:33:12Z",
+        "status": "BOUND",
+        "at": "2026-10-02T16:37:07Z",
         "consumed": {
           "review_content_id": "9636e125e47e1ca40605837cc16ece4bf759671c5251b68156c9fb20972f270c",
           "plan_revision": 12,
           "legacy": false
         },
-        "published": null,
-        "bound": null
+        "published": {
+          "review_content_id": "237e7ca6da45932043d5f111b77b44f6b03ea770790f6e35455056994450a788",
+          "plan_revision": 13
+        },
+        "bound": {
+          "review_content_id": "237e7ca6da45932043d5f111b77b44f6b03ea770790f6e35455056994450a788",
+          "bundle_id": "938ca5d503ccd274a8a86b7a86e2121e4e470deb6dffec073241580c3d3b1087",
+          "plan_revision": 13
+        }
       },
       "amendment_history": [
         {
@@ -464,7 +471,17 @@
             }
           },
           "pre_amendment_approval_commit": "ecf05b07fdc41f45a255547c961ad5ddbd0266d2",
-          "resolved_at_plan_revision": null
+          "resolved_at_plan_revision": 13,
+          "reconciliation_outcome": {
+            "CP1": "retained",
+            "CP2": "retained",
+            "CP3": "retained",
+            "CP4": "needs_revalidation",
+            "CP5": "needs_revalidation_dependency",
+            "CP6": "needs_revalidation_dependency",
+            "CP7": "needs_revalidation_dependency"
+          },
+          "resolved_review_content_id": "237e7ca6da45932043d5f111b77b44f6b03ea770790f6e35455056994450a788"
         }
       ],
       "amendment_base_commit": "fec1b94c5c66e784000b438a7a8f9197b7b1dce0"

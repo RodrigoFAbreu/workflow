@@ -1,4 +1,4 @@
-# W1: Workflow 2.7.0 — Orchestration Protocol v1 and the 2.6.0 follow-ups (Revision 12)
+# W1: Workflow 2.7.0 — Orchestration Protocol v1 and the 2.6.0 follow-ups (Revision 13)
 
 - **Work item:** `orchestration-protocol-v1` (`process`, governing version `2.2`)
 - **Roadmap step:** W1 (`docs/ROADMAP.md`, "At a glance"; section 1.9)
@@ -357,7 +357,7 @@ exists. It returns:
   `SUPPORTED_GOVERNING_VERSIONS`. It is the single source of this list and
   of the catalogue's totality enumeration (CP4), never a repository's
   `WORKFLOW_CONFIG.json`, whose `default_config()` lists only
-  `["1","2.1"]` until activation (`workflow_state.py:9282`). A test pins it
+  `"1"` and `"2.1"` until activation (`workflow_state.py:9282`). A test pins it
   to `sorted({"1"} | workflow_state.TWO_STAGE_PLAN_REVIEW_VERSIONS)`
   (LPR-R4-003);
 - `capabilities: {operations, dispositions, action_ids, artifact_kinds,
@@ -1857,7 +1857,7 @@ release-source conformance fixture
   test pins `SUPPORTED_GOVERNING_VERSIONS` to
   `sorted({"1"} | TWO_STAGE_PLAN_REVIEW_VERSIONS)`, so removing `2.2` from
   the enumeration source fails, and runs the totality check in a scratch
-  repository built with `default_config()` (`["1","2.1"]`) to show that
+  repository built with `default_config()` (`"1"` and `"2.1"` only) to show that
   the `2.2` rows are still enumerated (LPR-R4-003).
 - **Row order:** the code's catalogue is one list, and the test asserts
   that its order equals the table's. For each row that pre-empts another,
@@ -2678,7 +2678,7 @@ suffixes (`38a`, `38b`). The checkpoint set is unchanged.
 | --- | --- | --- |
 | LPR-R4-001 (Important): `WorkflowStateError` does not exist | **Accepted.** Verified: `grep -rn WorkflowStateError payload/scripts/` finds nothing. Counted with `inspect` over the modules, `workflow_state` defines 168 exception classes and `workflow_fingerprint` 48 (the finding's 155 omits subclasses of the two module-local intermediates `LifecycleRefusalError` and `PlanApprovalTakeoverRefusedError`); none subclasses a built-in other than `Exception`. The domain is defined by origin (`issubclass(C, Exception)` and `C.__module__` in the two modules, `is_workflow_exception`), not by a new base class, which would re-base 216 classes and change the MRO existing handlers rely on. Built-ins from Workflow code are `internal_error`; `OSError` is `state_unreadable` only from the protocol's own state/config/lock-file read. **Self-found correction:** `state_unreadable` was "retryable for a lock timeout", but `state_lock` blocks in `fcntl.flock(fd, LOCK_EX)` with no timeout, so the case does not exist and the code is not retryable | D-OP-Errors (code table, domain); CP3 tests |
 | LPR-R4-002 (Important): no rule for a condition function that raises; row 39's call raises in ordinary states | **Accepted.** Verified: `resolve_own_registry_completion_status` (`workflow_state.py:10263`) raises `RegistryCoverageError` for an unresolvable, unreadable, unparsable or foreign registry, and `StalePlanApprovalRegistryReadError` from `_assert_registry_covered_by_current_plan_approval` (`:10416`) when `plan_approval` is not `CURRENT` or the plan-stage bytes drifted. General rule: a Workflow exception from a value-returning condition ends the evaluation at that row as `blocked`, reason the row's named reason or `condition_refused`, native class and message in `reason`, `ok: true`; a non-Workflow exception is `internal_error`. New row 38a: `plan_content_drifted` (remedy: restore, or `/request-plan-amendment <id>`, which applies at every `gv` per `request-plan-amendment.md` step 0; **corrected in round 6, LPR-R6-001:** step 0 is the version guard only, and step 1's phase gate, `_AMENDMENT_REQUEST_ALLOWED_PHASES` (`workflow_state.py:13378`), refuses at `AWAITING_FUNCTIONAL_REVIEW`, so the amendment was removed from row 38a's remedy) and `registry_unreadable`. CP4's `"1"` test now constructs a covering `CURRENT` `plan_approval`, so the non-raising branch is actually exercised | D-OP-Next (raising-condition rule, rows 38a, 39, function list, table notes); CP4 tests |
-| LPR-R4-003 (Optional): the totality enumeration was keyed to the config | **Accepted.** Verified: `default_config()` lists `["1","2.1"]` (`workflow_state.py:9282`). `SUPPORTED_GOVERNING_VERSIONS` is now the one module constant behind `describe` and the totality test, pinned to `sorted({"1"} \| TWO_STAGE_PLAN_REVIEW_VERSIONS)`, and the test also runs under `default_config()` | D-OP-Describe; D-OP-Next totality sentence; CP4 tests; section 8 |
+| LPR-R4-003 (Optional): the totality enumeration was keyed to the config | **Accepted.** Verified: `default_config()` lists `"1"` and `"2.1"` only (`workflow_state.py:9282`). `SUPPORTED_GOVERNING_VERSIONS` is now the one module constant behind `describe` and the totality test, pinned to `sorted({"1"} \| TWO_STAGE_PLAN_REVIEW_VERSIONS)`, and the test also runs under `default_config()` | D-OP-Describe; D-OP-Next totality sentence; CP4 tests; section 8 |
 | LPR-R4-004 (Optional): row 39 at `"1"` with a non-terminal registry was a gate no command completes | **Accepted.** `/accept-milestone` step 2a refuses such an item, and no `"1"` command writes checkpoint statuses, so nothing at the gate can complete it. New row 38b: `blocked`, `v1_state_not_advanced`, alternatives `functional.apply_findings` and `functional.review.advisory`; the case joins `v2.6.0-003` | D-OP-Next (rows 38b, 39, `"1"` items paragraph); CP4 tests; CP7 roadmap row |
 | Missing tests (three) | **Accepted.** The error-mapping tests are in CP3, the two raising cases of row 38a and the `condition_refused` rule in CP4, and the `2.2`-removal test is CP4's companion totality test | CP3; CP4 |
 
@@ -2813,3 +2813,23 @@ condition list change. The checkpoint set is unchanged.
 | MPR-R11-001 (Important): CP4's command-agreement test still runs `assert_feedback_matches_bundle` at both apply commands, which refuses the content-bound `REVISE` variants the apply-binding tests require to pass | **Accepted, and widened to D-OP-Next's condition list.** Verified: CP4's command-agreement bullet listed `assert_feedback_matches_bundle` as the last guard of `plan.apply_review` and `implementation.apply_review`, and the behaviour test invokes every listed guard on each automatic row's state. D-Apply-Binding ("What changes for an operator") and CP4's files (`apply-plan-review.md`, `apply-implementation-review.md`) replace that call with `assert_apply_review_feedback_binding`, and the apply-binding tests require a two-stage `REVISE` with absent or stale bundle fields to be accepted, which `assert_feedback_matches_bundle` refuses (`MissingFeedbackBindingFieldError`, `FeedbackBundleMismatchError`, `workflow_fingerprint.py:3397`). Both sequences now end in `assert_apply_review_feedback_binding` with the stage, and the behaviour test runs them on the two content-bound variants at rows 8 and 36, with the `"1"`/`"2.1"` implementation rows asserting the bundle binding. The text test also asserts that neither apply command still names the old call in step 1. The same stale call was in D-OP-Next's "Conditions call Workflow functions only" list for `/apply-plan-review`'s acceptance, and is replaced there too. Section 2's description of 2.6.0 and the `"1"`/`"2.1"` ingest rows' tests keep `assert_feedback_matches_bundle`, which is correct for them | D-OP-Next (conditions list); CP4 tests (command agreement) |
 | Missing tests | **Accepted** by MPR-R11-001: the guard sequence exercises the binding function at both apply commands, including both content-bound variants | CP4 tests |
 | Required acceptance criteria | **Met**: CP4's command-agreement test matches D-Apply-Binding, and still checks that every automatic apply action passes the command's actual pre-write guards | CP4 tests |
+
+### Amendment 0 — wording only (plan revision 12 → 13)
+
+Requested by `/request-plan-amendment` from
+`SELF_REVIEWING_IMPLEMENTATION`, after CP7, superseding the approved
+revision 12 (`review_content_id`
+`9636e125e47e1ca40605837cc16ece4bf759671c5251b68156c9fb20972f270c`). The
+plan quoted `default_config()`'s governing-version list in its bracketed
+JSON form three times (D-OP-Describe, CP4's totality test, and round 4's
+`LPR-R4-003` row). The installed 2.6.0 `GoverningVersionEnumerationSweepTest`
+(`test_real_corpus_sweep_is_clean`, part of the required
+`workflow-conformance` check) reads that form as an exhaustive
+governing-version enumeration. The three quotations now name the two
+versions in prose, with the same meaning. Nothing else changes: the
+design, the checkpoints, the requirements, the mapping and the artifact
+classification are unchanged, and CP1 to CP7 stay complete.
+
+| Change | Where |
+| --- | --- |
+| The `default_config()` list is quoted in prose instead of as a JSON list | D-OP-Describe (`supported_governing_versions`); CP4 tests (totality under `default_config()`); round 4, `LPR-R4-003` row |
