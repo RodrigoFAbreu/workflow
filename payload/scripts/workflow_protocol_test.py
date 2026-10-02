@@ -827,6 +827,12 @@ def mutate(repo: h.ScratchRepo, fn, *args, **kwargs) -> dict:
     return state
 
 
+def _demote_checkpoint(state: dict, work_item_id: str, checkpoint_id: str) -> dict:
+    entry = state["work_items"][work_item_id]["checkpoints"][checkpoint_id]
+    entry["status"] = "NEEDS_REVALIDATION"
+    return state
+
+
 def current_I(repo: h.ScratchRepo) -> str:
     return ws.approval_review_content_id(
         repo.root, stage="implementation", base_commit=h.read_state(repo)["work_items"][WI]["base_commit"],
@@ -2884,6 +2890,43 @@ class TestReconcile(unittest.TestCase):
             self.assertEqual(result["class"], "invalid")
             self.assertEqual([reason["code"] for reason in result["invalid_reasons"]],
                              ["checkpoint_completion_unproven"])
+
+    def revalidate_c1(self, repo: h.ScratchRepo) -> dict:
+        """The Workflow's sanctioned amendment revalidation: C1 is demoted,
+        then re-run through the ordinary start, complete and trailer commit,
+        leaving two `Workflow-Checkpoint: C1` commits. Returns the decision
+        taken before C1 first completed."""
+        decision = next_action(repo)
+        self.complete_c1(repo, commit=True)
+        mutate(repo, _demote_checkpoint, "C1")
+        self.complete_c1(repo, commit=True)
+        return decision
+
+    def test_a_revalidated_checkpoint_is_progress(self):
+        with h.ScratchRepo() as repo:
+            self.checkpoint_decision(repo)
+            decision = self.revalidate_c1(repo)
+            result = reconciled(self, repo, decision)
+            self.assertEqual((result["class"], result["evidence"]["completed_checkpoints"]), ("progress", ["C1"]))
+
+    def test_a_revalidated_checkpoint_is_proven_by_verify(self):
+        with h.ScratchRepo() as repo:
+            self.checkpoint_decision(repo)
+            self.revalidate_c1(repo)
+            body, code = call("--repo-root", str(repo.root), "verify")
+        self.assertEqual(code, wp.EXIT_OK)
+        self.assertTrue(body["result"]["healthy"])
+        self.assertEqual(checks_by_id(body)["checkpoint_completions_provable"]["status"], "pass")
+
+    def test_an_unrelated_second_trailer_is_still_ambiguous(self):
+        with h.ScratchRepo() as repo:
+            decision = self.checkpoint_decision(repo)
+            self.complete_c1(repo, commit=True)
+            (repo.root / h.BUNDLE_ITEM_IMPLEMENTATION_PATH).write_text("again\n")
+            h.git(repo, "add", "-A")
+            h.git(repo, "commit", "-q", "-m", f"C1 again\n\nWorkflow-Checkpoint: C1\nWorkflow-Work-Item: {WI}")
+            result = reconciled(self, repo, decision)
+        self.assertEqual(result["class"], "invalid")
 
     def test_an_unchanged_state_and_a_started_checkpoint_are_no_progress(self):
         with h.ScratchRepo() as repo:

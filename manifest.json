@@ -653,8 +653,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_protocol\\.py$",
       "rationale": "Orchestration Protocol v1's one CLI (describe, verify, next-action, reconcile, record-external-result, resolve-artifact): one JSON envelope, versioned, with stable error codes, the total action catalogue and the legal-edge table. WORKFLOW_RELEASE names this release; the release build refuses a mismatch with the manifest version. W1 (workflow-2.7.0, orchestration-protocol-v1, CP3-CP5).",
-      "sha256": "0298a374a85b6d10e7cfcb09874bca1f08df59797f26d04b8253901425df65d7",
-      "size": 109436,
+      "sha256": "26621c24f72bc2b1997092e41b89cc58c4185b1f6278ad47296af493c2dfb8bd",
+      "size": 111987,
       "executable": false
     },
     {
@@ -663,8 +663,8 @@
       "category": "conformance",
       "rule": "^scripts/workflow_protocol_test\\.py$",
       "rationale": "The Orchestration Protocol v1 suite: envelope and schema, the catalogue's totality and every row from a real state, the edge table and reconcile, record-external-result, the specification's tables against the code, and the protocol-only lifecycle end-to-end. Run by workflow-conformance.yml. W1 (workflow-2.7.0, orchestration-protocol-v1, CP3-CP6).",
-      "sha256": "fbbd1edec71813006ba21e4c0fd6aee83d6c7b4ba778c134810fe9b68d5bb7c4",
-      "size": 228922,
+      "sha256": "e6d7d18a9fb02ba35b9c368ee4bb0a89d672ad0f023a028338cad875ab244d8f",
+      "size": 231021,
       "executable": false
     },
     {

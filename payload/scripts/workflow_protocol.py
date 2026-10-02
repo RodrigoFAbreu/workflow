@@ -386,6 +386,49 @@ def _is_check_refusal(exc: BaseException) -> bool:
     return is_workflow_exception(exc) or isinstance(exc, subprocess.CalledProcessError)
 
 
+def _checkpoint_start_descendant(repo_root: Path, commit: str, checkpoint_id: str, starts: dict[str, str]) -> bool:
+    """Whether `commit` is the checkpoint's own latest completion: it
+    strictly descends from `checkpoints[<id>].start_commit`, which an amendment
+    revalidation rewrites. The earlier completion commit of a demoted and
+    re-completed checkpoint precedes that start and is rejected. A
+    checkpoint with no recorded start is not narrowed."""
+    start = starts.get(checkpoint_id)
+    return start is None or (
+        commit != start and workflow_state._is_ancestor(repo_root, start, commit))
+
+
+def prove_checkpoint_completions(
+        work_item: dict, repo_root: Path, base_commit: str, only: list[str] | None = None) -> None:
+    """`workflow_state.verify_checkpoint_completions`, made aware of the
+    Workflow's own amendment revalidation. A revalidated checkpoint has two
+    `Workflow-Checkpoint` commits, both first-parent ancestors that record it
+    `COMPLETE`, which `discover_checkpoint_commits` calls ambiguous. The
+    tie-break here adds a third filter, descent from the recorded
+    `start_commit`. It is consulted only when the first two filters leave a
+    tie, so every history 2.6.0 resolved resolves identically. `only` limits
+    the proof to the named checkpoints (reconcile proves the ones this step
+    completed); the tie-break still sees every checkpoint's start."""
+    work_item_id = work_item["work_item_id"]
+    checkpoints = work_item.get("checkpoints") or {}
+    starts = {cid: entry["start_commit"] for cid, entry in checkpoints.items()
+              if isinstance(entry, dict) and isinstance(entry.get("start_commit"), str)}
+    discovered = workflow_state._discover_trailer_commits(
+        repo_root, "Workflow-Checkpoint", work_item_id, base_commit, "HEAD",
+        ambiguous_error_cls=workflow_state.AmbiguousCheckpointTrailerError,
+        verify=lambda root, commit, checkpoint_id, _candidates: (
+            workflow_state._checkpoint_commit_claims_complete(root, commit, checkpoint_id, work_item_id)
+            and _checkpoint_start_descendant(root, commit, checkpoint_id, starts)),
+    )
+    for checkpoint_id, entry in checkpoints.items():
+        if only is not None and checkpoint_id not in only:
+            continue
+        if entry.get("status") == "COMPLETE" and checkpoint_id not in discovered:
+            raise workflow_state.CheckpointNotReachableError(
+                f"{work_item_id}/{checkpoint_id} is COMPLETE in state but no "
+                f"commit in {base_commit}..HEAD carries a matching "
+                f"Workflow-Checkpoint/Workflow-Work-Item trailer pair")
+
+
 def op_verify(repo_root: Path, args: argparse.Namespace) -> dict:
     checks: list[dict] = []
     state = None
@@ -461,7 +504,7 @@ def op_verify(repo_root: Path, args: argparse.Namespace) -> dict:
                 failures.append(f"{work_item_id}: COMPLETE checkpoints but no base_commit")
                 continue
             try:
-                workflow_state.verify_checkpoint_completions(work_item, repo_root, base_commit)
+                prove_checkpoint_completions(work_item, repo_root, base_commit)
                 proven.append(work_item_id)
             except Exception as exc:
                 if not _is_check_refusal(exc):
@@ -2084,9 +2127,8 @@ def reconcile(repo_root: Path, decision: dict, *, work_item_id: str | None = Non
         invalid_reasons.append({"code": "illegal_edge",
                                 "text": f"{action_id} has no legal edge {source_phase} -> {target_phase} at {version!r}"})
     if completed:
-        proven = dict(work_item, checkpoints={cid: checkpoints[cid] for cid in completed})
         try:
-            workflow_state.verify_checkpoint_completions(proven, repo_root, work_item["base_commit"])
+            prove_checkpoint_completions(work_item, repo_root, work_item["base_commit"], only=completed)
         except Exception as exc:
             if not _is_check_refusal(exc):
                 raise
