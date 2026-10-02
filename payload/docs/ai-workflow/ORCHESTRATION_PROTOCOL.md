@@ -193,8 +193,15 @@ directory exists. Its result (`$defs.results.describe`) is
 4. `active_item_resolvable`: `active_work_item_id` is null or names a
    non-terminal item.
 5. `checkpoint_completions_provable`: for each non-terminal item with
-   `COMPLETE` checkpoints, `verify_checkpoint_completions` proves them by
-   reachable trailer commits.
+   `COMPLETE` checkpoints, `prove_checkpoint_completions` proves them by
+   reachable trailer commits. That is `verify_checkpoint_completions`'
+   discovery (a first-parent ancestor of `HEAD` carries the checkpoint's
+   `Workflow-Checkpoint` trailer, and the state committed there records the
+   checkpoint `COMPLETE`), plus strict descent from the checkpoint's recorded
+   `start_commit`. A checkpoint re-completed after a plan amendment has two
+   such commits, which `verify_checkpoint_completions` alone refuses as
+   ambiguous; the descent filter leaves its latest completion, so the proof
+   passes.
 6. `installation_release_matches`: when `.workflow-manager/installation.json`
    exists, its `workflow_version` equals `WORKFLOW_RELEASE`; `skip` when it
    is absent.
@@ -825,8 +832,9 @@ Classification, first match wins:
      and `from`, `to`, `basis` and `next` are `null`;
    - `illegal_edge`: the edge is not among the action's legal edges;
    - `checkpoint_completion_unproven`: a checkpoint is `COMPLETE` that was
-     not in `basis.checkpoints`, and `verify_checkpoint_completions`
-     cannot prove it by a reachable trailer commit;
+     not in `basis.checkpoints`, and `prove_checkpoint_completions` (the
+     proof of `verify` check 5, descent from the recorded `start_commit`
+     included) cannot prove it by a reachable trailer commit;
    - `bundle_rejected`: the new phase is a review phase (row 6's seven
      review phases, not its two apply phases) and
      `assert_bundle_not_rejected` refuses;

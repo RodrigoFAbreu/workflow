@@ -249,8 +249,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/ORCHESTRATION_PROTOCOL\\.md$",
       "rationale": "The normative Orchestration Protocol v1 specification: versioning, envelope, error codes, state identity, each operation, the catalogue, condition-call, edge and proof tables (rendered from, and tested against, the code's own), consumer obligations and compatibility notes. W1 (workflow-2.7.0, orchestration-protocol-v1, CP6).",
-      "sha256": "29f77a55e088b1a013c71995816724f3b926d890c1c33524fc8c5344689390d1",
-      "size": 62257,
+      "sha256": "db5c87250908b46e2a5e8fbf054d746ca729054c4a6627ad24469ac79ff61a87",
+      "size": 62846,
       "executable": false
     },
     {
