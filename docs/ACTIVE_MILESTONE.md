@@ -329,6 +329,16 @@ F11. Read the documents the milestone ships: `payload/docs/ai-workflow/
 
 None.
 
+## Functional review round 1
+
+The orchestrator-run functional review (`FUNCTIONAL_REVIEW.md`, evidence
+commit `ee86188`) passed S1-S3 and F1-F11 with one finding, F1: three
+wording points in `docs/ROADMAP.md` (the W0 row's cutover steps, the W1 row's
+premature COMPLETE, and the `v2.6.0-001` tense). Classified as documentation,
+no code change; fixed in `docs/ROADMAP.md`, which both stages exclude, so
+`technical_approval` stays CURRENT and no bundle is regenerated. Nothing was
+deferred to a remediation child. Re-test: re-read the three ROADMAP lines.
+
 ## Next action
 
 Functional review: work through the "Functional review checklist" above and
