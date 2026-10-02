@@ -629,6 +629,7 @@ Status: APPROVE | REVISE | BLOCK
 Reviewed bundle ID: <the exact bundle_id this feedback reviewed>
 Reviewed base commit: <the exact base_commit this feedback reviewed>
 Work item: <the exact work_item_id this feedback reviewed>
+Reviewed review_content_id: <the exact review_content_id this feedback reviewed>
 
 ## Blocking findings
 
@@ -649,12 +650,55 @@ Work item: <the exact work_item_id this feedback reviewed>
 
 The three binding fields (`Reviewed bundle ID:`, `Reviewed base commit:`,
 `Work item:`) are required on every ordinary review round, not only WF0's
-one-time bootstrap check (`OPUS-R14-002`, generalized here). Feedback
-missing any of the three, or whose values disagree with the bundle
-actually being approved against, is rejected naming both the feedback's
-own value and the current one
-(`workflow_fingerprint.parse_review_feedback_binding_fields`/
+one-time bootstrap check (`OPUS-R14-002`, generalized here), and they keep
+their meaning: the bundle the reviewer reviewed. Feedback missing any of
+the three, or whose values disagree with the bundle actually being
+approved against, is rejected naming both the feedback's own value and the
+current one (`workflow_fingerprint.parse_review_feedback_binding_fields`/
 `assert_feedback_matches_bundle`, `WFR-03`) — never applied at face value.
+
+**A two-stage `REVISE` is applied by its `review_content_id`**
+(workflow-2.7.0, `D-Apply-Binding`). `/apply-plan-review` and
+`/apply-implementation-review` bind the feedback they apply through
+`workflow_state.assert_apply_review_feedback_binding`. For a two-stage
+`REVISE` that states a `review_content_id` (the plan stage at `"2.1"`/`"2.2"`,
+the implementation stage at `"2.2"`), the binding is by content: the
+stated `review_content_id` must be the content under application (at the
+plan stage the consumed one) and the one the reviewed bundle's own
+`MANIFEST.md` records, and that manifest must name this work item, its
+`base_commit` and this stage. `Reviewed bundle ID:` and `Reviewed base
+commit:` are then advisory — a value that differs, for example after a
+wrapper-only regeneration, is reported, never refused — exactly as the
+two-stage ingests already treat the bundle id. A stated
+`review_content_id` that is not the reviewed content refuses, whatever the
+bundle fields say. Every other verdict (`"1"`, `"2.1"` implementation
+rounds, a legacy marker, a verdict that states no `review_content_id`) is
+bound by the three binding fields, as above. No command and no remedy ever
+rewrites a reviewer's binding fields: they attest to what the reviewer
+reviewed.
+
+`Reviewed review_content_id:` is the one pinned label for the reviewed
+`review_content_id` (workflow-2.7.0, `v2.6.0-002`). It is **required** on
+every two-stage stage verdict — the plan stage at `"2.1"` and `"2.2"`, the
+implementation stage at `"2.2"` — and optional for a `"1"` verdict and for
+the advisory `/review-implementation` at `"1"`/`"2.1"`. `/review-plan` and
+`/review-implementation` write exactly this label. The legacy alias
+`Reviewed review content ID:` and the bare `review_content_id:` are still
+accepted, case-insensitively; two labels stating different values parse as
+no value at all.
+
+The header fields come before the first `## ` section. The
+`review_content_id` is read from the **header block** only — every line
+before the first `## ` heading that follows a field line (`key: value`) —
+so a verdict that opens with `## Review Decision` and states its fields
+under it still has them in its header, and a finding that quotes another
+ID cannot disturb the parse (`workflow_fingerprint.parse_feedback_review_content_id`).
+`Status:`, `Reviewer role:` and the three binding fields keep their
+whole-file scan. Compatibility note: a verdict that states its
+`review_content_id` only after the first `## ` section was accepted by
+2.6.0 and parses as absent from 2.7.0 on; it is the only field read more
+strictly than in 2.6.0. `workflow_fingerprint.parse_review_feedback_header`
+is the single parser that returns every field.
 
 User functional-testing feedback is placed at:
 

@@ -491,6 +491,61 @@ class VerifyReleaseTest(unittest.TestCase):
         self.refused("twice")
 
 
+class ReleaseConstantGuardTest(unittest.TestCase):
+    """`build` refuses a release whose `WORKFLOW_RELEASE` is not its manifest
+    version; a release without `scripts/workflow_protocol.py` is unaffected."""
+
+    PROTOCOL = "payload/scripts/workflow_protocol.py"
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="release-constant-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def release(self, version: str, protocol: str | None) -> Path:
+        root = self.tmp / "release"
+        write_release(root, version,
+                      extra=None if protocol is None else {self.PROTOCOL: protocol})
+        return root
+
+    def refused(self, root: Path, *texts: str) -> None:
+        with self.assertRaises(package.PackageError) as caught:
+            package.build(root, self.tmp / "out")
+        for text in texts:
+            self.assertIn(text, str(caught.exception))
+        self.assertFalse((self.tmp / "out").exists(), "a refused build wrote nothing")
+
+    def test_match(self):
+        root = self.release("2.7.0", '"""Protocol."""\n\nWORKFLOW_RELEASE = "2.7.0"\n')
+        self.assertEqual(package.build(root, self.tmp / "out").version, "2.7.0")
+
+    def test_mismatch_names_both(self):
+        root = self.release("2.7.1", 'WORKFLOW_RELEASE = "2.7.0"\n')
+        self.refused(root, self.PROTOCOL, "'2.7.0'", "'2.7.1'")
+
+    def test_missing_or_repeated_literal(self):
+        for text in ("RELEASE = '2.7.0'\n",
+                     'WORKFLOW_RELEASE = "2.7.0"\nWORKFLOW_RELEASE = "2.7.0"\n'):
+            with self.subTest(text=text):
+                shutil.rmtree(self.tmp / "release", ignore_errors=True)
+                self.refused(self.release("2.7.0", text), "exactly once")
+
+    def test_absent_before_2_7_0(self):
+        self.assertEqual(package.build(self.release("2.6.0", None), self.tmp / "out").version,
+                         "2.6.0")
+        for version in PUBLISHED:
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as tmp:
+                source = package.stage(REPO_ROOT, f"refs/tags/v{version}", Path(tmp) / "src")
+                targets = {record["target_path"] for record in
+                           package.manifest_records(package.load_manifest(source)).values()}
+                self.assertNotIn(package.RELEASE_CONSTANT_TARGET, targets)
+                package.check_release_constant(source)
+
+    def test_head_states_its_manifest_version(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = package.stage(REPO_ROOT, "HEAD", Path(tmp) / "src")
+            package.check_release_constant(source)
+
+
 # -- next-release ------------------------------------------------------------------
 
 

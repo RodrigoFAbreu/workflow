@@ -1031,10 +1031,12 @@ class PlanReviewNotPublishedError(Exception):
 
 class ConsumedPlanReviewContentError(Exception):
     """Raised by `publish_plan_revision` and `bind_plan_review_bundle` when
-    the content equals the `CONSUMED` record's `review_content_id`, or --
-    for a legacy marker, whose id is null -- when `plan_revision` does not
-    exceed the marker's. Content already taken out of review never
-    re-binds."""
+    the content is any `review_content_id` ever taken out of review -- the
+    `CONSUMED` slot's or one in `consumed_plan_review_content_ids`
+    (workflow-2.7.0, `v2.6.0-001`) -- or, for a legacy marker, whose id is
+    null, when `plan_revision` does not exceed the marker's. Content already
+    taken out of review never re-binds, even restored byte for byte; any
+    edit gives it a new id."""
 
 
 class LegacyPlanReviewBindingUnknownError(Exception):
@@ -1121,6 +1123,55 @@ class FeedbackNotForConsumedContentError(Exception):
     of review -- its `review_content_id` differs, or, for a legacy marker
     (null id), its `Work item:` is another item or its `Status:` is not
     `REVISE`."""
+
+
+class FeedbackContentMismatchError(Exception):
+    """`assert_apply_review_feedback_binding`'s content binding
+    (workflow-2.7.0, `D-Apply-Binding`): the feedback's stated
+    `review_content_id` is not the content being applied -- at the plan
+    stage not the consumed one, or, at either stage, not the one the
+    reviewed bundle's `MANIFEST.md` records. Names both values. The verdict
+    is not for the round being applied, whatever its bundle fields say."""
+
+
+class ReviewBundleManifestMismatchError(Exception):
+    """`assert_apply_review_feedback_binding`'s content binding
+    (workflow-2.7.0, `D-Apply-Binding`, `MPR-R9-003`, `MPR-R10-001`): the
+    bundle directory on disk is not this item's reviewed bundle at this
+    stage -- its recomputed `bundle_id` differs from its own `MANIFEST.md`,
+    or the manifest names another work item, base commit or stage, or (at
+    the plan stage) another `review_content_id` than the consumed one.
+    Names the failing comparison and both values. Remedy: run from the
+    worktree that holds the reviewed bundle, or restore it -- never
+    regenerate it, since the feedback binds to the reviewed bundle."""
+
+
+class ImplementationReviewBundleUnverifiedError(Exception):
+    """`verify_implementation_review_bundle`'s refusal (workflow-2.7.0,
+    `LPR-R5-002`): the item's implementation-stage bundle is absent or
+    incomplete, its recomputed `bundle_id` is not its `MANIFEST.md`'s, or
+    the manifest's `review_content_id` is not the current
+    implementation-stage one -- including the stale-plan-stage-manifest
+    variant, named as such. Names the bundle path, the failing comparison
+    and both values. Remedy: regenerate the implementation bundle."""
+
+
+class ManualVerdictHeaderError(Exception):
+    """`ingest_manual_review_verdict`'s header check (workflow-2.7.0,
+    D-OP-External): the verdict lacks a field its ingest row requires --
+    `Status:`, `Reviewer role:` and a `review_content_id` label at a
+    two-stage row, `Status:` and the three binding fields at a
+    feedback-only row -- or states a `Round:` that is not a positive
+    integer. Names every missing field. Nothing is written."""
+
+
+class ConflictingReviewFeedbackError(Exception):
+    """`ingest_manual_review_verdict` at a feedback-only row
+    (workflow-2.7.0, `MPR-R7-002`): `REVIEW_FEEDBACK.md` already holds a
+    different verdict that binds to the current bundle, so a second,
+    concurrent or later ingest would silently replace a current verdict.
+    Identical bytes are the no-op; a verdict that no longer binds (an
+    earlier round's) is replaced. Nothing is written."""
 
 
 class InvalidPlanReviewBindingError(Exception):
@@ -1794,7 +1845,7 @@ def _assert_technical_review_block_pins_monotonic(previous_state: dict, new_stat
             )
 
 
-def state_transaction(repo_root: Path, mutator, *, path: Path = DEFAULT_STATE_PATH) -> dict:
+def state_transaction(repo_root: Path, mutator, *, path: Path = DEFAULT_STATE_PATH, before_publish=None) -> dict:
     """The single required entry point for every production writer of
     `WORKFLOW_STATE.json` (item 354): holds `state_lock` across the
     **complete** critical section -- re-read `path` from disk, call
@@ -1810,12 +1861,22 @@ def state_transaction(repo_root: Path, mutator, *, path: Path = DEFAULT_STATE_PA
     from an earlier, unguarded read. Also enforces D2a's pin-ledger
     monotonicity (`_assert_technical_review_block_pins_monotonic`) against
     every candidate before it is ever published, for every caller, whether
-    or not this particular write touches that field."""
+    or not this particular write touches that field.
+
+    `before_publish` (workflow-2.7.0, `MPR-R7-002`/`MPR-R8-003`): an
+    optional callable receiving the candidate state, run inside the lock
+    after every pre-publication check and immediately before
+    `_publish_state_file` -- a check added later goes before it. An
+    exception from it aborts the transaction with nothing published.
+    `ingest_manual_review_verdict` writes its feedback file here, so the
+    file and the state it records are one critical section."""
     full_path = repo_root / path
     with state_lock(repo_root):
         state = _load_json(full_path) or {}
         new_state = mutator(state)
         _assert_technical_review_block_pins_monotonic(state, new_state)
+        if before_publish is not None:
+            before_publish(new_state)
         _publish_state_file(full_path, new_state)
     return new_state
 
@@ -2230,28 +2291,51 @@ def approval_is_current(
     return current_id == record["approved_review_content_id"]
 
 
-def implementing_entry_reachable(
+IMPLEMENTING_ENTRY_CAUSES = (
+    "plan_approval_not_current",
+    "plan_approval_commit_unreachable",
+    "plan_content_drifted",
+)
+
+
+def implementing_entry_status(
     repo_root: Path, work_item: dict, base_commit: str, head: str = "HEAD",
-) -> bool:
-    """D-Approval-Commits' `IMPLEMENTING` entry condition, in full:
+) -> dict:
+    """D-Approval-Commits' `IMPLEMENTING` entry condition, in full, with
+    the first failing condition named (workflow-2.7.0, `LPR-R3-002`):
+    `plan_approval.status == CURRENT` (else `plan_approval_not_current`);
     current HEAD (derived live) is the plan-approval commit or a
-    checkpoint-commit descendant of it, `plan_approval.status ==
-    CURRENT`, and a freshly recomputed plan-stage `review_content_id`
-    matches `plan_approval.approved_review_content_id` (missing-test item
-    9: true at checkpoints 1, 2, and N in a fresh session, since the
-    plan-approval commit stays a first-ancestor-chain ancestor of every
-    later checkpoint commit and the plan-stage projection stays
-    unchanged by them)."""
+    checkpoint-commit descendant of it (else
+    `plan_approval_commit_unreachable`); and a freshly recomputed
+    plan-stage `review_content_id` matches
+    `plan_approval.approved_review_content_id` (else
+    `plan_content_drifted`). Missing-test item 9: reachable at checkpoints
+    1, 2, and N in a fresh session, since the plan-approval commit stays a
+    first-ancestor-chain ancestor of every later checkpoint commit and the
+    plan-stage projection stays unchanged by them.
+
+    Returns `{"reachable": bool, "cause": str | None}`. `/milestone-implement`
+    step 1a and the protocol's catalogue row 22 call this one function."""
     plan_approval = work_item.get("plan_approval")
     if plan_approval is None or plan_approval.get("status") != "CURRENT":
-        return False
+        return {"reachable": False, "cause": "plan_approval_not_current"}
     approval_commit = discover_plan_approval_commit(
         repo_root, work_item["work_item_id"],
         plan_approval["approved_review_content_id"], base_commit, head,
     )
     if approval_commit is None or not _is_ancestor(repo_root, approval_commit, head):
-        return False
-    return approval_is_current(repo_root, work_item, stage="plan", base_commit=base_commit, head=head)
+        return {"reachable": False, "cause": "plan_approval_commit_unreachable"}
+    if not approval_is_current(repo_root, work_item, stage="plan", base_commit=base_commit, head=head):
+        return {"reachable": False, "cause": "plan_content_drifted"}
+    return {"reachable": True, "cause": None}
+
+
+def implementing_entry_reachable(
+    repo_root: Path, work_item: dict, base_commit: str, head: str = "HEAD",
+) -> bool:
+    """`implementing_entry_status(...)["reachable"]` -- D-Approval-Commits'
+    `IMPLEMENTING` entry condition as a boolean."""
+    return implementing_entry_status(repo_root, work_item, base_commit, head)["reachable"]
 
 
 def verify_post_approval_manifest_match(
@@ -10124,8 +10208,9 @@ def publish_plan_revision(
     - at `REVISING_PLAN`/`AMENDING_PLAN` with no record,
       `LegacyPlanReviewBindingUnknownError`; with a `BOUND` record,
       `PlanReviewBindingInconsistentError`;
-    - content equal to `consumed.review_content_id`, or -- for a legacy
-      marker -- a `plan_revision` not greater than the marker's,
+    - content equal to `consumed.review_content_id` or to any id in
+      `consumed_plan_review_content_ids` (workflow-2.7.0), or -- for a
+      legacy marker -- a `plan_revision` not greater than the marker's,
       `ConsumedPlanReviewContentError` (an early refusal that only saves a
       wasted generation; `bind` repeats it).
 
@@ -10190,7 +10275,7 @@ def _publish_plan_revision_two_stage(
             f"requires review_content_id=<the fresh plan-stage id>, got {review_content_id!r}"
         )
     record = _plan_review_binding_for_write(work_item, work_item_id)
-    _assert_not_consumed(record, work_item_id, review_content_id, plan_revision)
+    _assert_not_consumed(work_item, record, work_item_id, review_content_id, plan_revision)
 
     published = {"review_content_id": review_content_id, "plan_revision": plan_revision}
     if (
@@ -12935,6 +13020,205 @@ def plan_approval_gate_reachable(
 
 
 # ---------------------------------------------------------------------------
+# workflow-2.7.0 (`D-OP-Next`, `LPR-R1-003`, `LPR-R3-004`): the two
+# repository-aware gate wrappers. Each computes the inputs `/approve-review`
+# used to compute in its own steps, then calls the pure predicate above, and
+# names the first failing input. Read-only.
+# ---------------------------------------------------------------------------
+
+#: The causes the plan gate wrapper reports, in its evaluation order.
+PLAN_APPROVAL_GATE_CAUSES = (
+    "bundle_generation_mismatch",
+    "plan_review_bundle_unbound",
+    "bundle_unverified",
+    "no_review_round",
+    "review_blocked",
+    "review_ledger_stale",
+)
+
+#: The causes the technical gate wrapper reports, in its evaluation order.
+TECHNICAL_APPROVAL_GATE_CAUSES = (
+    "bundle_generation_mismatch",
+    "bundle_unverified",
+    "review_block_pinned",
+    "no_review_round",
+    "review_blocked",
+    "protected_path_dirty",
+    "implementation_provenance_stale",
+    "review_ledger_stale",
+)
+
+
+def read_review_feedback(repo_root: Path, work_item_id: str) -> str | None:
+    """The item's `<feedback_dir>/REVIEW_FEEDBACK.md` text, or `None` when
+    the file is absent (`resolve_feedback_dir`, `D-Feedback-Layout`)."""
+    path = Path(repo_root) / fingerprint.resolve_feedback_dir(repo_root, work_item_id) / "REVIEW_FEEDBACK.md"
+    try:
+        return path.read_text()
+    except FileNotFoundError:
+        return None
+
+
+def _gate_status(reachable: bool, cause: str | None, inputs: dict) -> dict:
+    return {"reachable": reachable, "cause": None if reachable else cause, "inputs": inputs}
+
+
+def plan_approval_gate_status(repo_root: Path, state: dict, work_item_id: str) -> dict:
+    """`AWAITING_PLAN_APPROVAL`'s gate, repository-aware (workflow-2.7.0):
+    the generation check over the plan bundle's `MANIFEST.md`
+    (`bundle_generation_mismatch`); then, for a
+    `TWO_STAGE_PLAN_REVIEW_VERSIONS` item, `assert_plan_review_bundle_bound`
+    (`plan_review_bundle_unbound`), or, for a `"1"` item, the computation of
+    the plan bundle's `bundle_id` (`bundle_unverified` on
+    `MissingRequiredBundleFileError`); then `plan_approval_gate_reachable`
+    over `latest_round_status` (from `REVIEW_FEEDBACK.md`), the ledger and
+    the current plan-stage `review_content_id` -- `no_review_round` (no
+    feedback), `review_blocked` (a status other than `REVISE`/`APPROVE`),
+    `review_ledger_stale` (the two-stage ledger does not record both
+    `APPROVE`s for the current content).
+
+    Returns `{"reachable", "cause", "inputs"}`; `reachable` is false
+    whenever a pre-predicate check refuses, and otherwise is exactly the
+    pure predicate's result over `inputs`. `/approve-review plan` calls
+    this for its gate check, so it reports the same first cause."""
+    work_item = state["work_items"][work_item_id]
+    gv = work_item.get("governing_workflow_version")
+    bundle_dir = fingerprint.resolve_bundle_dir(repo_root, work_item_id, stage="plan")
+    inputs: dict = {"governing_workflow_version": gv, "bundle_dir": bundle_dir.as_posix()}
+    try:
+        fingerprint.assert_local_generation_matches(
+            repo_root, Path(repo_root) / bundle_dir / fingerprint.MANIFEST_FILENAME)
+    except fingerprint.WorktreeOrHeadMismatchError as exc:
+        inputs["generation_check"] = str(exc)
+        return _gate_status(False, "bundle_generation_mismatch", inputs)
+    inputs["generation_check"] = "pass"
+    two_stage = gv in TWO_STAGE_PLAN_REVIEW_VERSIONS
+    if two_stage:
+        try:
+            inputs["bundle_bound_advisory"] = assert_plan_review_bundle_bound(
+                repo_root, work_item_id, state=state)
+        except (ReviewedContentDriftError, PlanReviewBundleUnverifiedError,
+                PlanReviewBindingInconsistentError, PlanReviewNotReadyError) as exc:
+            inputs["bundle_bound"] = f"{type(exc).__name__}: {exc}"
+            return _gate_status(False, "plan_review_bundle_unbound", inputs)
+        inputs["bundle_bound"] = "pass"
+    else:
+        try:
+            inputs["bundle_id"], _ = fingerprint.compute_bundle_id(Path(repo_root) / bundle_dir)
+        except fingerprint.MissingRequiredBundleFileError as exc:
+            inputs["bundle_id"] = None
+            inputs["bundle_error"] = str(exc)
+            return _gate_status(False, "bundle_unverified", inputs)
+    feedback = read_review_feedback(repo_root, work_item_id)
+    status = fingerprint.parse_review_feedback_binding_fields(feedback)["status"] if feedback is not None else None
+    current_review_content_id = (
+        fingerprint.compute_review_content_id_plan_stage_for_work_item(repo_root, work_item_id)[0]
+        if two_stage else None
+    )
+    inputs.update(
+        feedback_present=feedback is not None,
+        latest_round_status=status,
+        plan_review_stages=work_item.get("plan_review_stages"),
+        current_review_content_id=current_review_content_id,
+    )
+    reachable = plan_approval_gate_reachable(
+        latest_round_status=status, governing_workflow_version=gv,
+        plan_review_stages=work_item.get("plan_review_stages"),
+        current_review_content_id=current_review_content_id,
+    )
+    if feedback is None:
+        cause = "no_review_round"
+    elif not approval_gate_reachable(status):
+        cause = "review_blocked"
+    else:
+        cause = "review_ledger_stale"
+    return _gate_status(reachable, cause, inputs)
+
+
+def technical_approval_gate_status(repo_root: Path, state: dict, work_item_id: str) -> dict:
+    """The technical (implementation-stage) approval gate, repository-aware
+    (workflow-2.7.0): the generation check over the implementation bundle's
+    `MANIFEST.md` (`bundle_generation_mismatch`); the computation of the
+    current `bundle_id` (`bundle_unverified` on
+    `MissingRequiredBundleFileError`); then
+    `technical_approval_gate_reachable` over `pinned_block`
+    (`is_technical_review_block_pinned`), `latest_round_status` (from
+    `REVIEW_FEEDBACK.md`), `protected_path_dirty`
+    (`any_protected_path_dirty` with the implementation-stage
+    classification), `head_matches_reviewed_implementation_head`
+    (`implementation_provenance_interval_reachable`), the
+    implementation-review ledger and the current implementation-stage
+    `review_content_id` -- causes, in the predicate's own order:
+    `review_block_pinned`, `no_review_round`, `review_blocked`,
+    `protected_path_dirty`, `implementation_provenance_stale`,
+    `review_ledger_stale`.
+
+    Read-only: `/approve-review implementation` records a `BLOCK` pin
+    (`record_technical_review_block_pin`) *before* calling this, on the
+    state re-read after that write (`LPR-R2-008`)."""
+    work_item = state["work_items"][work_item_id]
+    gv = work_item.get("governing_workflow_version")
+    base_commit = work_item["base_commit"]
+    bundle_dir = fingerprint.resolve_bundle_dir(repo_root, work_item_id)
+    inputs: dict = {"governing_workflow_version": gv, "bundle_dir": bundle_dir.as_posix()}
+    try:
+        fingerprint.assert_local_generation_matches(
+            repo_root, Path(repo_root) / bundle_dir / fingerprint.MANIFEST_FILENAME)
+    except fingerprint.WorktreeOrHeadMismatchError as exc:
+        inputs["generation_check"] = str(exc)
+        return _gate_status(False, "bundle_generation_mismatch", inputs)
+    inputs["generation_check"] = "pass"
+    try:
+        bundle_id, _ = fingerprint.compute_bundle_id(Path(repo_root) / bundle_dir)
+    except fingerprint.MissingRequiredBundleFileError as exc:
+        inputs["bundle_id"] = None
+        inputs["bundle_error"] = str(exc)
+        return _gate_status(False, "bundle_unverified", inputs)
+    inputs["bundle_id"] = bundle_id
+    feedback = read_review_feedback(repo_root, work_item_id)
+    status = fingerprint.parse_review_feedback_binding_fields(feedback)["status"] if feedback is not None else None
+    pinned = is_technical_review_block_pinned(work_item, bundle_id)
+    classification = fingerprint.load_implementation_stage_classification(
+        repo_root, fingerprint.artifacts_path_for_work_item(work_item_id))
+    dirty = any_protected_path_dirty(repo_root, *classification)
+    head_matches = implementation_provenance_interval_reachable(repo_root, work_item, base_commit)
+    current_review_content_id = approval_review_content_id(
+        repo_root, stage="implementation", base_commit=base_commit,
+        work_item_type=work_item["work_item_type"], work_item_id=work_item_id, head="HEAD",
+        artifacts_path=fingerprint.artifacts_path_for_work_item(work_item_id),
+    )
+    inputs.update(
+        feedback_present=feedback is not None,
+        latest_round_status=status,
+        pinned_block=pinned,
+        protected_path_dirty=dirty,
+        head_matches_reviewed_implementation_head=head_matches,
+        implementation_review_stages=work_item.get("implementation_review_stages"),
+        current_review_content_id=current_review_content_id,
+    )
+    reachable = technical_approval_gate_reachable(
+        latest_round_status=status, protected_path_dirty=dirty,
+        head_matches_reviewed_implementation_head=head_matches, pinned_block=pinned,
+        governing_workflow_version=gv,
+        implementation_review_stages=work_item.get("implementation_review_stages"),
+        current_review_content_id=current_review_content_id,
+    )
+    if pinned:
+        cause = "review_block_pinned"
+    elif feedback is None:
+        cause = "no_review_round"
+    elif not approval_gate_reachable(status):
+        cause = "review_blocked"
+    elif dirty:
+        cause = "protected_path_dirty"
+    elif not head_matches:
+        cause = "implementation_provenance_stale"
+    else:
+        cause = "review_ledger_stale"
+    return _gate_status(reachable, cause, inputs)
+
+
+# ---------------------------------------------------------------------------
 # D2: unified plan_approval/technical_approval record -- shape, basis
 # decision, and the mechanism-independent user-only guard's second control
 # ---------------------------------------------------------------------------
@@ -15051,6 +15335,10 @@ PLAN_REVIEW_BINDING_KEYS = frozenset({"status", "at", "consumed", "published", "
 _PLAN_REVIEW_BINDING_CONSUMED_KEYS = frozenset({"review_content_id", "plan_revision", "legacy"})
 _PLAN_REVIEW_BINDING_PUBLISHED_KEYS = frozenset({"review_content_id", "plan_revision"})
 _PLAN_REVIEW_BINDING_BOUND_KEYS = frozenset({"review_content_id", "bundle_id", "plan_revision"})
+# workflow-2.7.0 (`v2.6.0-001`): the durable consumed history, a work-item
+# key outside `plan_review_binding` so that record's exact key set is
+# unchanged and a `2.6.0` reader ignores it.
+CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY = "consumed_plan_review_content_ids"
 
 # `plan_review_publication_status`'s status vocabulary, one per row group of
 # section 5.3 item 6's decision table (rows 4d and 6 refuse instead).
@@ -15224,16 +15512,56 @@ def _plan_review_binding_for_write(work_item: dict, work_item_id: str) -> dict |
     return record
 
 
-def _assert_not_consumed(record: dict | None, work_item_id: str, review_content_id: str, plan_revision: int) -> None:
+def _validate_consumed_plan_review_content_ids(work_item_id: str, work_item: dict) -> None:
+    """`validate_state`'s shape check for `consumed_plan_review_content_ids`
+    (workflow-2.7.0, `v2.6.0-001`, INV-3): absent means a `2.6.0` record,
+    whose history is its slot alone; a present value must be a sorted,
+    duplicate-free list of 64-hex ids. It need not hold the slot's id -- a
+    `2.6.0` writer after a downgrade can write a slot the list lacks, and
+    every reader takes the union."""
+    if CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY not in work_item:
+        return
+    value = work_item[CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY]
+    if (
+        not isinstance(value, list)
+        or not all(isinstance(entry, str) and _SHA256_HEX_RE.fullmatch(entry) for entry in value)
+        or value != sorted(set(value))
+    ):
+        raise InvalidPlanReviewBindingError(
+            f"work_items[{work_item_id!r}].{CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY} must be a "
+            f"sorted, duplicate-free list of 64-hex review_content_ids: {value!r}"
+        )
+
+
+def _consumed_plan_review_content_ids(work_item: dict) -> list[str]:
+    """Every `review_content_id` ever taken out of review for this item
+    (workflow-2.7.0, `v2.6.0-001`): the union of the durable
+    `consumed_plan_review_content_ids` list and the `plan_review_binding`
+    slot's non-null `consumed.review_content_id`, sorted. Migration is read
+    time only -- a `2.6.0` item with no list has the history `[slot id]`,
+    or `[]` for a legacy marker."""
+    _validate_consumed_plan_review_content_ids(work_item.get("work_item_id"), work_item)
+    history = set(work_item.get(CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY) or [])
+    record = work_item.get("plan_review_binding")
+    consumed = record.get("consumed") if isinstance(record, dict) else None
+    if isinstance(consumed, dict) and isinstance(consumed.get("review_content_id"), str):
+        history.add(consumed["review_content_id"])
+    return sorted(history)
+
+
+def _assert_not_consumed(
+    work_item: dict, record: dict | None, work_item_id: str, review_content_id: str, plan_revision: int,
+) -> None:
+    if review_content_id in _consumed_plan_review_content_ids(work_item):
+        raise ConsumedPlanReviewContentError(
+            f"{work_item_id!r}: review_content_id {review_content_id!r} is content already "
+            f"taken out of review ({CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY} or "
+            f"plan_review_binding.consumed) -- withdrawn, revised or amended content never "
+            f"re-binds, not even restored byte for byte; edit the plan, then regenerate"
+        )
     consumed = record.get("consumed") if record is not None else None
     if consumed is None:
         return
-    if consumed["review_content_id"] is not None and consumed["review_content_id"] == review_content_id:
-        raise ConsumedPlanReviewContentError(
-            f"{work_item_id!r}: review_content_id {review_content_id!r} is the content already "
-            f"taken out of review (plan_review_binding.consumed, plan_revision "
-            f"{consumed['plan_revision']}) -- it never re-binds; edit the plan, then regenerate"
-        )
     if consumed["legacy"] and plan_revision <= consumed["plan_revision"]:
         raise ConsumedPlanReviewContentError(
             f"{work_item_id!r}: the fail-closed legacy marker records no review_content_id, so "
@@ -15247,7 +15575,17 @@ def _write_consumed_plan_review_binding(
 ) -> None:
     """In-place `CONSUMED` write shared by every transition that takes
     content out of review for editing, from that transition's own inputs.
-    A null id writes the fail-closed legacy marker (`legacy: true`)."""
+    A null id writes the fail-closed legacy marker (`legacy: true`).
+
+    Also the sole writer of `consumed_plan_review_content_ids`
+    (workflow-2.7.0, `v2.6.0-001`): the slot is overwritten here, so the id
+    it held and the new one are first added to the durable history. A
+    legacy marker adds no id, and an empty history leaves the key absent."""
+    history = set(_consumed_plan_review_content_ids(work_item))
+    if review_content_id is not None:
+        history.add(review_content_id)
+    if history:
+        work_item[CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY] = sorted(history)
     work_item["plan_review_binding"] = {
         "status": PLAN_REVIEW_BINDING_CONSUMED,
         "at": now,
@@ -15325,8 +15663,9 @@ def bind_plan_review_bundle(state: dict, work_item_id: str, *, binding: dict, no
       `plan_revision` equal `published`'s and the latter equals the
       current mirror (`PlanReviewNotPublishedError` otherwise);
     - the binding's id differs from a non-null `consumed.review_content_id`
-      and, for a legacy marker, its `plan_revision` exceeds the marker's
-      (`ConsumedPlanReviewContentError`).
+      and from every id in `consumed_plan_review_content_ids`
+      (workflow-2.7.0) and, for a legacy marker, its `plan_revision`
+      exceeds the marker's (`ConsumedPlanReviewContentError`).
     A legacy mid-round item with no record refuses
     (`LegacyPlanReviewBindingUnknownError`), as does a non-ready `BOUND`
     record (`PlanReviewBindingInconsistentError`).
@@ -15366,7 +15705,7 @@ def bind_plan_review_bundle(state: dict, work_item_id: str, *, binding: dict, no
             f"{work_item_id!r} has no PUBLISHED plan_review_binding record -- publish the "
             f"completed content (publish_plan_revision) before binding a bundle of it"
         )
-    _assert_not_consumed(record, work_item_id, binding["review_content_id"], binding["plan_revision"])
+    _assert_not_consumed(work_item, record, work_item_id, binding["review_content_id"], binding["plan_revision"])
     expected = {"review_content_id": binding["review_content_id"], "plan_revision": binding["plan_revision"]}
     if (
         record["status"] != PLAN_REVIEW_BINDING_PUBLISHED
@@ -15699,6 +16038,12 @@ def plan_review_publication_status(repo_root: Path, state: dict, work_item_id: s
         consumed = record["consumed"]
         if mirror == registry_revision == consumed["plan_revision"] and fresh == consumed["review_content_id"]:
             return _row("10", PLAN_REVIEW_STATUS_NEEDS_EDIT, normal, fresh_review_content_id=fresh)
+    # workflow-2.7.0 (`v2.6.0-001`, `LPR-R1-010`): the list stores ids only,
+    # so a list hit is id-only, exactly as `_assert_not_consumed`; the slot
+    # keeps the full predicate above.
+    _validate_consumed_plan_review_content_ids(work_item_id, work_item)
+    if fresh is not None and fresh in work_item.get(CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY, []):
+        return _row("10", PLAN_REVIEW_STATUS_NEEDS_EDIT, normal, fresh_review_content_id=fresh)
     return _row("11", PLAN_REVIEW_STATUS_EDIT_IN_PROGRESS, normal, fresh_review_content_id=fresh)
 
 
@@ -15816,6 +16161,239 @@ def assert_apply_plan_review_feedback(
             f"round being applied"
         )
     return "durable"
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.7.0 (`D-Apply-Binding`, `MPR-R9-001`, `MPR-R10-001`,
+# `OD-W1-11`): a two-stage `REVISE` is applied by content.
+# ---------------------------------------------------------------------------
+
+APPLY_REVIEW_BINDING_STAGES = ("plan", "implementation")
+
+
+def _apply_review_bundle_dir(repo_root: Path, work_item_id: str, stage: str) -> Path:
+    if stage == "plan":
+        return fingerprint.resolve_bundle_dir(repo_root, work_item_id, stage="plan")
+    return fingerprint.resolve_bundle_dir(repo_root, work_item_id)
+
+
+def apply_review_feedback_binding_selection(
+    repo_root: Path, work_item: dict, work_item_id: str, *, stage: str, feedback_content: str,
+) -> str:
+    """Which binding `assert_apply_review_feedback_binding` applies:
+    `"content"` when the item is two-stage for `stage` (`gv` in
+    `TWO_STAGE_PLAN_REVIEW_VERSIONS` at the plan stage, `"2.2"` at the
+    implementation stage), the feedback's `Status:` is `REVISE`, it states a
+    `review_content_id`, the plan-stage `consumed` record is not the legacy
+    marker (the implementation stage: the phase is
+    `APPLYING_REVIEW_FEEDBACK`), and the bundle's `MANIFEST.md` states a
+    `work_item_id`; `"bundle"` otherwise. Read-only."""
+    gv = work_item.get("governing_workflow_version")
+    if stage == "plan":
+        if gv not in TWO_STAGE_PLAN_REVIEW_VERSIONS:
+            return "bundle"
+        record = _plan_review_binding_record(work_item, work_item_id)
+        consumed = record.get("consumed") if record is not None else None
+        if consumed is None or consumed["legacy"]:
+            return "bundle"
+    else:
+        if gv != "2.2" or work_item.get("phase") != "APPLYING_REVIEW_FEEDBACK":
+            return "bundle"
+    fields = fingerprint.parse_review_feedback_header(feedback_content)
+    if fields.get("status") != "REVISE" or fields.get("review_content_id") is None:
+        return "bundle"
+    manifest_path = Path(repo_root) / _apply_review_bundle_dir(repo_root, work_item_id, stage) / fingerprint.MANIFEST_FILENAME
+    if fingerprint._read_manifest_binding_fields(manifest_path)["work_item_id"] is None:
+        return "bundle"
+    return "content"
+
+
+def assert_apply_review_feedback_binding(
+    repo_root: Path, work_item: dict, work_item_id: str, *, stage: str, feedback_content: str,
+) -> dict:
+    """`/apply-plan-review` step 1 (in `"bundle"` mode) and
+    `/apply-implementation-review` step 1's binding of the feedback being
+    applied (workflow-2.7.0, `D-Apply-Binding`). Reads the state and the
+    bundle, writes nothing. Selects a binding
+    (`apply_review_feedback_binding_selection`):
+
+    - **content** -- a two-stage `REVISE` that states a `review_content_id`,
+      checked in order: (1) a present `Work item:` naming another item
+      refuses (`FeedbackBundleMismatchError`); (2) at the plan stage, the
+      feedback's `review_content_id` must be the consumed one
+      (`FeedbackContentMismatchError`); (3) the bundle's `bundle_id` is
+      computed (`MissingRequiredBundleFileError`) and must equal its own
+      `MANIFEST.md`'s, whose `work_item_id` must be this item, whose
+      `base_commit` (when present) must be the item's, whose `stage` must
+      be this stage, and -- at the plan stage -- whose `review_content_id`
+      must be the consumed one (`ReviewBundleManifestMismatchError`); (4)
+      the feedback's `review_content_id` must equal the manifest's
+      (`FeedbackContentMismatchError`). `Reviewed bundle ID:` and
+      `Reviewed base commit:` are not compared: a present, differing value
+      is reported as the advisory.
+    - **bundle** -- exactly 2.6.0's `assert_feedback_matches_bundle`
+      against the recomputed `bundle_id`, the item's `base_commit` and its
+      id (`MissingRequiredBundleFileError` when the bundle cannot be
+      hashed).
+
+    Every refusal carries a `binding` attribute naming the selected
+    binding, and a `bundle_id` attribute: the bundle binding's recomputed
+    `bundle_id`, or `None` where none was computed. Returns `{binding, bundle_id, review_content_id, advisory}`."""
+    if stage not in APPLY_REVIEW_BINDING_STAGES:
+        raise ValueError(f"unknown apply-review binding stage {stage!r}")
+    binding = apply_review_feedback_binding_selection(
+        repo_root, work_item, work_item_id, stage=stage, feedback_content=feedback_content)
+    bundle_id = None
+    try:
+        if binding == "content":
+            return _content_bound_apply_review_feedback(
+                repo_root, work_item, work_item_id, stage=stage, feedback_content=feedback_content)
+        bundle_dir = Path(repo_root) / _apply_review_bundle_dir(repo_root, work_item_id, stage)
+        bundle_id, _ = fingerprint.compute_bundle_id(bundle_dir)
+        fingerprint.assert_feedback_matches_bundle(
+            fingerprint.parse_review_feedback_binding_fields(feedback_content),
+            bundle_id=bundle_id, base_commit=work_item["base_commit"], work_item_id=work_item_id,
+        )
+        return {
+            "binding": "bundle", "bundle_id": bundle_id,
+            "review_content_id": fingerprint.parse_feedback_review_content_id(feedback_content),
+            "advisory": None,
+        }
+    except Exception as exc:
+        exc.binding = binding
+        exc.bundle_id = bundle_id
+        raise
+
+
+def _content_bound_apply_review_feedback(
+    repo_root: Path, work_item: dict, work_item_id: str, *, stage: str, feedback_content: str,
+) -> dict:
+    fields = fingerprint.parse_review_feedback_header(feedback_content)
+    feedback_content_id = fields["review_content_id"]
+    named = fields.get("work_item")
+    if named is not None and named != work_item_id:
+        raise fingerprint.FeedbackBundleMismatchError(
+            f"feedback names work item {named!r}, expected {work_item_id!r}"
+        )
+    consumed_id = None
+    if stage == "plan":
+        consumed_id = _plan_review_binding_record(work_item, work_item_id)["consumed"]["review_content_id"]
+        if feedback_content_id != consumed_id:
+            raise FeedbackContentMismatchError(
+                f"{work_item_id!r}: the feedback's review_content_id {feedback_content_id!r} is not "
+                f"the consumed content {consumed_id!r} -- the verdict is not for the round being applied"
+            )
+    bundle_rel = _apply_review_bundle_dir(repo_root, work_item_id, stage)
+    bundle_dir = Path(repo_root) / bundle_rel
+    manifest_path = bundle_dir / fingerprint.MANIFEST_FILENAME
+    bundle_id, _ = fingerprint.compute_bundle_id(bundle_dir)
+    manifest = fingerprint.read_plan_stage_manifest_fields(manifest_path)
+    manifest_base_commit = fingerprint._read_manifest_binding_fields(manifest_path)["base_commit"]
+    comparisons = [
+        ("bundle_id", manifest.get("bundle_id"), bundle_id, "the recomputed bundle_id of the directory"),
+        ("work_item_id", manifest.get("work_item_id"), work_item_id, "this work item"),
+        ("stage", manifest.get("stage"), stage, f"the {stage} stage"),
+    ]
+    if manifest_base_commit is not None:
+        comparisons.append(("base_commit", manifest_base_commit, work_item["base_commit"], "the item's base_commit"))
+    if stage == "plan":
+        comparisons.append(("review_content_id", manifest.get("review_content_id"), consumed_id, "the consumed content"))
+    for field, recorded, expected, what in comparisons:
+        if recorded != expected:
+            note = (
+                " -- the manifest names another work item; the flat .ai-review/current/ is shared, so "
+                "this is another item's bundle"
+                if field == "work_item_id" else ""
+            )
+            raise ReviewBundleManifestMismatchError(
+                f"{work_item_id!r}: {bundle_rel.as_posix()}/MANIFEST.md records {field} {recorded!r}, "
+                f"not {what} ({expected!r}) -- the directory is not this item's reviewed {stage} "
+                f"bundle{note}"
+            )
+    manifest_content_id = manifest.get("review_content_id")
+    if feedback_content_id != manifest_content_id:
+        raise FeedbackContentMismatchError(
+            f"{work_item_id!r}: the feedback's review_content_id {feedback_content_id!r} is not the "
+            f"reviewed bundle's {manifest_content_id!r} ({bundle_rel.as_posix()}/MANIFEST.md)"
+        )
+    advisories = []
+    if fields.get("reviewed_bundle_id") is not None and fields["reviewed_bundle_id"] != bundle_id:
+        advisories.append(check_manual_stage_bundle_id_advisory(fields["reviewed_bundle_id"], bundle_id))
+    if fields.get("reviewed_base_commit") is not None and fields["reviewed_base_commit"] != work_item["base_commit"]:
+        advisories.append(
+            f"base commit mismatch (advisory only, the verdict is bound by content): feedback "
+            f"base_commit={fields['reviewed_base_commit']!r}, the item's base_commit="
+            f"{work_item['base_commit']!r}"
+        )
+    return {
+        "binding": "content", "bundle_id": bundle_id, "review_content_id": feedback_content_id,
+        "advisory": "; ".join(advisories) if advisories else None,
+    }
+
+
+def verify_implementation_review_bundle(repo_root: Path, work_item_id: str, *, state: dict | None = None) -> dict:
+    """`/review-implementation` step 4's bundle check as one read-only
+    function (workflow-2.7.0, `LPR-R5-002`), over the item's resolved
+    implementation-stage bundle directory: `MANIFEST.md` is present;
+    `compute_bundle_id` succeeds; the recomputed `bundle_id` equals the
+    manifest's; and the manifest's `review_content_id` equals the current
+    implementation-stage `review_content_id`, computed commit-source at
+    `HEAD` (`approval_review_content_id(..., stage="implementation",
+    base_commit=work_item["base_commit"], head="HEAD")`). Any failure
+    raises `ImplementationReviewBundleUnverifiedError`, naming the bundle
+    path, the failing comparison and both values -- and the
+    stale-plan-stage-manifest variant by name when the manifest records
+    `stage: plan`. Does not compare the archive, and does not run
+    `assert_local_generation_matches`, which catches a different failure.
+    Returns `{bundle_id, review_content_id}`. `state`, if given, supplies
+    the work item; otherwise it is read from the worktree."""
+    if state is None:
+        state = _load_json(Path(repo_root) / DEFAULT_STATE_PATH)
+    work_item = state["work_items"][work_item_id]
+    bundle_rel = fingerprint.resolve_bundle_dir(repo_root, work_item_id)
+    bundle_dir = Path(repo_root) / bundle_rel
+    manifest_path = bundle_dir / fingerprint.MANIFEST_FILENAME
+
+    def _unverified(detail: str) -> ImplementationReviewBundleUnverifiedError:
+        return ImplementationReviewBundleUnverifiedError(
+            f"{work_item_id!r}'s implementation-review bundle ({bundle_rel.as_posix()}) does not verify: {detail}"
+        )
+
+    if not manifest_path.is_file():
+        raise _unverified(
+            f"no MANIFEST.md -- no implementation bundle has been generated here (candidates: "
+            f".ai-review/{work_item_id}/current/ and .ai-review/current/); regenerate it"
+        )
+    try:
+        ondisk_bundle_id, _ = fingerprint.compute_bundle_id(bundle_dir)
+    except fingerprint.MissingRequiredBundleFileError as exc:
+        raise _unverified(f"the bundle is incomplete ({exc})") from exc
+    fields = fingerprint.read_plan_stage_manifest_fields(manifest_path)
+    if fields.get("stage") == "plan":
+        raise _unverified(
+            f"MANIFEST.md records stage: plan -- the stale-plan-stage-manifest variant: an "
+            f"implementation-stage bundle written into a directory that holds a plan-stage manifest "
+            f"compares today's implementation-stage content against a stale plan-stage identity "
+            f"(manifest review_content_id {fields.get('review_content_id')!r})"
+        )
+    recorded_bundle_id = fields.get("bundle_id")
+    if recorded_bundle_id != ondisk_bundle_id:
+        raise _unverified(
+            f"bundle_id: MANIFEST.md records {recorded_bundle_id!r}, the directory hashes to "
+            f"{ondisk_bundle_id!r}"
+        )
+    current = approval_review_content_id(
+        repo_root, stage="implementation", base_commit=work_item["base_commit"],
+        work_item_type=work_item["work_item_type"], work_item_id=work_item_id, head="HEAD",
+        artifacts_path=fingerprint.artifacts_path_for_work_item(work_item_id),
+    )
+    recorded_content_id = fields.get("review_content_id")
+    if recorded_content_id != current:
+        raise _unverified(
+            f"review_content_id: MANIFEST.md records {recorded_content_id!r}, the current "
+            f"implementation-stage review_content_id is {current!r}"
+        )
+    return {"bundle_id": ondisk_bundle_id, "review_content_id": recorded_content_id}
 
 
 # ---------------------------------------------------------------------------
@@ -16036,6 +16614,350 @@ def record_manual_implementation_review(
     work_item["last_transition"] = now
     _validate_implementation_review_stages(work_item)
     return new_state
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.7.0 (ORCHESTRATION_PROTOCOL_V1_PLAN.md, D-OP-External, CP5): the
+# one ingest of a manual external review verdict, shared by
+# `/record-manual-plan-review`, `/record-manual-implementation-review` and
+# the orchestration protocol's `record-external-result`. One row of the
+# ingest table is selected from the item's stage, governing version and
+# phase; its guards run in 2.6.0's command order, on the state re-read under
+# `state_lock`, and the feedback file and the state are written in that same
+# critical section (`MPR-R7-002`).
+# ---------------------------------------------------------------------------
+
+MANUAL_VERDICT_STAGES = ("plan", "implementation")
+
+_MANUAL_VERDICT_ROUND_RE = re.compile(r"^Round:[ \t]*(.*?)[ \t]*$", re.MULTILINE)
+_POSITIVE_INTEGER_RE = re.compile(r"^[1-9][0-9]*$")
+
+#: The advisory reported when a two-stage verdict names no bundle
+#: (`LPR-R3-005`): `bundle_id` is recorded as `null`.
+ABSENT_REVIEWED_BUNDLE_ID_ADVISORY = "Reviewed bundle ID: absent"
+
+
+def _manual_verdict_row_is_two_stage(work_item: dict, *, stage: str, two_stage_only: bool) -> bool:
+    """Whether `stage`'s ingest row for this item's governing version is a
+    two-stage row; refuses an unmatched version (see
+    `select_manual_verdict_row`). The governing version alone decides it."""
+    if stage not in MANUAL_VERDICT_STAGES:
+        raise ValueError(f"unknown manual verdict stage {stage!r}")
+    version = work_item.get("governing_workflow_version")
+    if stage == "plan":
+        if version in TWO_STAGE_PLAN_REVIEW_VERSIONS:
+            return True
+        if version == "1" and not two_stage_only:
+            return False
+        _require_v2_1_plan_review(work_item)
+    if version == "2.2":
+        return True
+    if version in ("1", "2.1") and not two_stage_only:
+        return False
+    _require_implementation_review_stage_version(work_item)
+    raise AssertionError("unreachable")
+
+
+_MANUAL_VERDICT_ROW_PHASES = {
+    ("plan", True): "AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW",
+    ("plan", False): "AWAITING_EXTERNAL_PLAN_REVIEW",
+    ("implementation", True): "AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+    ("implementation", False): "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW",
+}
+
+
+def select_manual_verdict_row(work_item: dict, *, stage: str, two_stage_only: bool = False) -> dict:
+    """D-OP-External's row selection for `ingest_manual_review_verdict`:
+    `{stage, two_stage, phase}`, where `phase` is the row's accepted phase.
+    The two-stage rows are the plan stage at `TWO_STAGE_PLAN_REVIEW_VERSIONS`
+    and the implementation stage at `"2.2"`; the feedback-only rows are the
+    plan stage at `"1"` and the implementation stage at `"1"`/`"2.1"`.
+
+    `two_stage_only` is the record-manual commands' 2.6.0 governing-version
+    guard: a feedback-only item refuses with
+    `WrongGoverningVersionForPlanReviewStageError`/
+    `WrongGoverningVersionForImplementationReviewStageError`, as any other
+    unmatched governing version does. A matched version at another phase
+    refuses with `WrongPhaseForPlanReviewStageError`/
+    `WrongPhaseForImplementationReviewStageError`. The protocol reports
+    each of these as `not_applicable`."""
+    two_stage = _manual_verdict_row_is_two_stage(work_item, stage=stage, two_stage_only=two_stage_only)
+    phase = _MANUAL_VERDICT_ROW_PHASES[(stage, two_stage)]
+    if work_item.get("phase") != phase:
+        wrong_phase = WrongPhaseForPlanReviewStageError if stage == "plan" else WrongPhaseForImplementationReviewStageError
+        raise wrong_phase(
+            f"{work_item['work_item_id']}: phase is {work_item.get('phase')!r}, not {phase!r} -- no "
+            f"{stage}-stage manual verdict is accepted at governing version "
+            f"{work_item.get('governing_workflow_version')!r} in this phase"
+        )
+    return {"stage": stage, "two_stage": two_stage, "phase": phase}
+
+
+def parse_manual_verdict(verdict_text: str) -> dict:
+    """The verdict's fields, by the Workflow's verdict parser
+    (`parse_review_feedback_header`, `D-Feedback-Label`), plus `round`: the
+    text of a header-block `Round:` line, or `None` when absent. Reads no
+    state and refuses nothing; `require_manual_verdict_fields` checks them
+    against the selected row."""
+    fields = fingerprint.parse_review_feedback_header(verdict_text)
+    round_match = _MANUAL_VERDICT_ROUND_RE.search(fingerprint.feedback_header_block(verdict_text))
+    fields["round"] = round_match.group(1) if round_match is not None else None
+    return fields
+
+
+def require_manual_verdict_fields(fields: dict, *, two_stage: bool) -> dict:
+    """Refuses with `ManualVerdictHeaderError` when a field the row
+    requires is missing -- `Status:`, `Reviewer role:` and a
+    `review_content_id` label at a two-stage row (the three values 2.6.0's
+    commands hard-checked); `Status:` and the three binding fields at a
+    feedback-only row -- or, at a two-stage row, when `Round:` is present
+    but not a positive integer. Returns `fields` with `round` an `int` or
+    `None` (always `None` at a feedback-only row, which records no round)."""
+    if two_stage:
+        required = ("status", "reviewer_role", "review_content_id")
+    else:
+        required = ("status", "reviewed_bundle_id", "reviewed_base_commit", "work_item")
+    labels = {
+        "status": "Status:", "reviewer_role": "Reviewer role:",
+        "review_content_id": f"a review_content_id label ({fingerprint.FEEDBACK_REVIEW_CONTENT_ID_LABEL}) "
+                             f"in the header block, before the first '## ' section that follows a field",
+        "reviewed_bundle_id": "Reviewed bundle ID:", "reviewed_base_commit": "Reviewed base commit:",
+        "work_item": "Work item:",
+    }
+    missing = [labels[key] for key in required if fields.get(key) is None]
+    if missing:
+        raise ManualVerdictHeaderError(
+            f"the verdict is missing {', '.join(missing)} -- required at a "
+            f"{'two-stage' if two_stage else 'feedback-only'} ingest row. Nothing was written"
+        )
+    if not two_stage:
+        return dict(fields, round=None)
+    stated_round = fields.get("round")
+    if stated_round is not None and not isinstance(stated_round, int):
+        if not _POSITIVE_INTEGER_RE.match(stated_round):
+            raise ManualVerdictHeaderError(
+                f"the verdict states Round: {stated_round!r}, not a positive integer. Nothing was written"
+            )
+        fields = dict(fields, round=int(stated_round))
+    return fields
+
+
+def _write_review_feedback_atomically(path: Path, text: str) -> None:
+    """`text` to `path` through a same-directory temporary file and
+    `os.replace`, so a reader sees the old file or the new one, never a
+    partial write."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(dir=str(path.parent), prefix=f".{path.name}-", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as handle:
+            handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp_name, path)
+    except BaseException:
+        Path(tmp_name).unlink(missing_ok=True)
+        raise
+
+
+def _store_manual_verdict(repo_root: Path, work_item_id: str, verdict_text: str, *, state: dict) -> bool:
+    """D-OP-External step 5: writes the verdict to the resolved
+    `<feedback_dir>/REVIEW_FEEDBACK.md` under the feedback-ownership guard.
+    Identical bytes are the no-op (returns `False`)."""
+    path = Path(repo_root) / fingerprint.resolve_feedback_dir(repo_root, work_item_id) / "REVIEW_FEEDBACK.md"
+    existing = read_review_feedback(repo_root, work_item_id)
+    if existing == verdict_text:
+        return False
+    fingerprint.assert_feedback_not_owned_by_other_work_item(existing, work_item_id=work_item_id, state=state)
+    _write_review_feedback_atomically(path, verdict_text)
+    return True
+
+
+def _manual_verdict_bundle_advisory(feedback_bundle_id: str | None, current_bundle_id: str) -> str | None:
+    if feedback_bundle_id is None:
+        return ABSENT_REVIEWED_BUNDLE_ID_ADVISORY
+    return check_manual_stage_bundle_id_advisory(feedback_bundle_id, current_bundle_id)
+
+
+def _join_advisories(*advisories: str | None) -> str | None:
+    present = [advisory for advisory in advisories if advisory]
+    return "; ".join(present) if present else None
+
+
+def _two_stage_manual_verdict_guards(repo_root: Path, state: dict, work_item_id: str, *, stage: str,
+                                     verdict_text: str, fields: dict) -> dict:
+    """The two-stage rows' guards, in 2.6.0's command order, except the
+    final `assert_bundle_not_rejected`. Returns the recomputed content and
+    bundle ids and the advisory."""
+    work_item = state["work_items"][work_item_id]
+    fingerprint.assert_manual_feedback_names_work_item(verdict_text, work_item_id=work_item_id)
+    if stage == "plan":
+        bundle_rel = fingerprint.resolve_bundle_dir(repo_root, work_item_id, stage="plan")
+        fingerprint.assert_local_generation_matches(
+            repo_root, Path(repo_root) / bundle_rel / fingerprint.MANIFEST_FILENAME)
+        fingerprint.assert_bundle_not_rejected(repo_root, work_item_id)
+        bound_advisory = assert_plan_review_bundle_bound(repo_root, work_item_id, state=state)
+        current_content_id, _ = fingerprint.compute_review_content_id_plan_stage_for_work_item(
+            repo_root, work_item_id)
+        validate_manual_plan_review_preconditions(
+            work_item, current_review_content_id=current_content_id, feedback_role=fields["reviewer_role"],
+            feedback_review_content_id=fields["review_content_id"],
+        )
+        current_bundle_id, _ = fingerprint.compute_bundle_id(Path(repo_root) / bundle_rel)
+    else:
+        bound_advisory = None
+        verified = verify_implementation_review_bundle(repo_root, work_item_id, state=state)
+        bundle_rel = fingerprint.resolve_bundle_dir(repo_root, work_item_id)
+        fingerprint.assert_local_generation_matches(
+            repo_root, Path(repo_root) / bundle_rel / fingerprint.MANIFEST_FILENAME)
+        fingerprint.assert_bundle_not_rejected(repo_root, work_item_id)
+        current_content_id = verified["review_content_id"]
+        validate_manual_implementation_review_preconditions(
+            work_item, current_review_content_id=current_content_id, feedback_role=fields["reviewer_role"],
+            feedback_review_content_id=fields["review_content_id"],
+        )
+        current_bundle_id = verified["bundle_id"]
+    return {
+        "review_content_id": current_content_id,
+        "advisory": _join_advisories(
+            bound_advisory, _manual_verdict_bundle_advisory(fields["reviewed_bundle_id"], current_bundle_id)),
+    }
+
+
+def _local_approval_round(work_item: dict, stage: str) -> int:
+    if stage == "plan":
+        return normalize_plan_review_stages(work_item["plan_review_stages"])[LOCAL_MODEL_PLAN_REVIEW]["round"]
+    stages = normalize_implementation_review_stages(work_item["implementation_review_stages"])
+    return stages[LOCAL_MODEL_IMPLEMENTATION_REVIEW]["round"]
+
+
+def ingest_manual_review_verdict(
+    repo_root: Path, work_item_id: str, *, stage: str, verdict_text: str, now: str,
+    two_stage_only: bool = False,
+) -> dict:
+    """The one ingest of a manual external review verdict (workflow-2.7.0,
+    D-OP-External), called with the verdict's text by
+    `/record-manual-plan-review` and `/record-manual-implementation-review`
+    (`two_stage_only=True`, their 2.6.0 governing-version guard) and by the
+    orchestration protocol's `record-external-result`. In order:
+
+    1. parses the verdict (`parse_manual_verdict`, reading no state);
+    2. holds `state_lock` through step 6, so the steps below read the state
+       fresh and no other ingest or state writer runs between them;
+    3. selects the ingest row (`select_manual_verdict_row`) and checks its
+       required fields (`ManualVerdictHeaderError`);
+    4. runs the row's guards in order, the last `assert_bundle_not_rejected`
+       immediately before step 5. A two-stage row then computes
+       `record_manual_plan_review`/`record_manual_implementation_review`,
+       which is pure, so a refusal of the writer also precedes any write;
+    5. writes `verdict_text` to `<feedback_dir>/REVIEW_FEEDBACK.md`
+       atomically, under `assert_feedback_not_owned_by_other_work_item`;
+       identical bytes are the no-op. A feedback-only row first refuses a
+       different verdict that already binds to the current bundle
+       (`ConflictingReviewFeedbackError`);
+    6. a two-stage row publishes the state of step 4 through
+       `state_transaction` (steps 3-4 are its mutator, step 5 its
+       `before_publish`); a feedback-only row writes no state.
+
+    The guards: a two-stage plan row runs
+    `assert_manual_feedback_names_work_item`, `assert_local_generation_matches`,
+    `assert_bundle_not_rejected`, `assert_plan_review_bundle_bound`,
+    `validate_manual_plan_review_preconditions` and
+    `check_manual_stage_bundle_id_advisory`; the implementation row runs
+    `verify_implementation_review_bundle` in place of the bound check,
+    before `assert_local_generation_matches`, with
+    `validate_manual_implementation_review_preconditions`. A feedback-only
+    row runs `assert_manual_feedback_names_work_item`,
+    `assert_bundle_not_rejected` and `assert_feedback_matches_bundle`
+    against the current bundle.
+
+    `round` is the verdict's `Round:`, else the round of the local
+    `APPROVE` of the same content; `bundle_id` is its `Reviewed bundle ID:`,
+    recorded verbatim, else `null` with the advisory
+    `"Reviewed bundle ID: absent"` and no advisory check. Both are `None` at
+    a feedback-only row. Returns `{stage, verdict, review_content_id, round,
+    bundle_id, advisory, feedback_written}`."""
+    repo_root = Path(repo_root)
+    parsed = parse_manual_verdict(verdict_text)
+    peek = (_load_json(repo_root / DEFAULT_STATE_PATH) or {})["work_items"][work_item_id]
+    two_stage = _manual_verdict_row_is_two_stage(peek, stage=stage, two_stage_only=two_stage_only)
+    if two_stage:
+        return _ingest_two_stage_manual_verdict(
+            repo_root, work_item_id, stage=stage, verdict_text=verdict_text, parsed=parsed, now=now,
+            two_stage_only=two_stage_only)
+    return _ingest_feedback_only_verdict(
+        repo_root, work_item_id, stage=stage, verdict_text=verdict_text, parsed=parsed)
+
+
+def _ingest_two_stage_manual_verdict(repo_root: Path, work_item_id: str, *, stage: str, verdict_text: str,
+                                     parsed: dict, now: str, two_stage_only: bool) -> dict:
+    outcome: dict = {}
+
+    def mutator(state: dict) -> dict:
+        work_item = state["work_items"][work_item_id]
+        row = select_manual_verdict_row(work_item, stage=stage, two_stage_only=two_stage_only)
+        if not row["two_stage"]:
+            raise AssertionError(f"{work_item_id}'s ingest row changed under the lock: {row!r}")
+        fields = require_manual_verdict_fields(parsed, two_stage=True)
+        guarded = _two_stage_manual_verdict_guards(
+            repo_root, state, work_item_id, stage=stage, verdict_text=verdict_text, fields=fields)
+        fingerprint.assert_bundle_not_rejected(repo_root, work_item_id)
+        round_ = fields["round"] if fields["round"] is not None else _local_approval_round(work_item, stage)
+        writer = record_manual_plan_review if stage == "plan" else record_manual_implementation_review
+        new_state = writer(
+            state, work_item_id, verdict=fields["status"], bundle_id=fields["reviewed_bundle_id"], round=round_,
+            now=now, current_review_content_id=guarded["review_content_id"],
+            feedback_role=fields["reviewer_role"], feedback_review_content_id=fields["review_content_id"],
+        )
+        outcome.update({
+            "stage": stage, "verdict": fields["status"], "review_content_id": guarded["review_content_id"],
+            "round": round_, "bundle_id": fields["reviewed_bundle_id"], "advisory": guarded["advisory"],
+            "_state": state,
+        })
+        return new_state
+
+    def before_publish(new_state: dict) -> None:
+        outcome["feedback_written"] = _store_manual_verdict(
+            repo_root, work_item_id, verdict_text, state=outcome.pop("_state"))
+
+    state_transaction(repo_root, mutator, before_publish=before_publish)
+    return outcome
+
+
+def _ingest_feedback_only_verdict(repo_root: Path, work_item_id: str, *, stage: str, verdict_text: str,
+                                  parsed: dict) -> dict:
+    with state_lock(repo_root):
+        state = _load_json(repo_root / DEFAULT_STATE_PATH) or {}
+        work_item = state["work_items"][work_item_id]
+        row = select_manual_verdict_row(work_item, stage=stage)
+        if row["two_stage"]:
+            raise AssertionError(f"{work_item_id}'s ingest row changed under the lock: {row!r}")
+        fields = require_manual_verdict_fields(parsed, two_stage=False)
+        fingerprint.assert_manual_feedback_names_work_item(verdict_text, work_item_id=work_item_id)
+        fingerprint.assert_bundle_not_rejected(repo_root, work_item_id)
+        bundle_rel = fingerprint.resolve_bundle_dir(
+            repo_root, work_item_id, stage="plan" if stage == "plan" else None)
+        bundle_id, _ = fingerprint.compute_bundle_id(repo_root / bundle_rel)
+        binding = {"bundle_id": bundle_id, "base_commit": work_item["base_commit"], "work_item_id": work_item_id}
+        fingerprint.assert_feedback_matches_bundle(fields, **binding)
+        existing = read_review_feedback(repo_root, work_item_id)
+        if existing is not None and existing != verdict_text:
+            try:
+                fingerprint.assert_feedback_matches_bundle(
+                    fingerprint.parse_review_feedback_binding_fields(existing), **binding)
+            except (fingerprint.MissingFeedbackBindingFieldError, fingerprint.FeedbackBundleMismatchError):
+                pass
+            else:
+                raise ConflictingReviewFeedbackError(
+                    f"{work_item_id}: REVIEW_FEEDBACK.md already holds a different verdict for the current "
+                    f"bundle {bundle_id} (Status: "
+                    f"{fingerprint.parse_review_feedback_binding_fields(existing)['status']}) -- refusing to "
+                    f"replace a current verdict. Nothing was written"
+                )
+        written = _store_manual_verdict(repo_root, work_item_id, verdict_text, state=state)
+    return {
+        "stage": stage, "verdict": fields["status"], "review_content_id": fields["review_content_id"],
+        "round": None, "bundle_id": None, "advisory": None, "feedback_written": written,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -16385,6 +17307,7 @@ def _validate_work_item(work_item_id: str, work_item: dict) -> None:
     _validate_implementation_review_stages(work_item)
     _validate_technical_review_block_pins(work_item)
     _validate_plan_review_binding(work_item_id, work_item)
+    _validate_consumed_plan_review_content_ids(work_item_id, work_item)
 
     # I2 (workflow-v2-3-followups continued scope, external cross-model
     # review rounds 2 and 4): validate_approval_record's shape check

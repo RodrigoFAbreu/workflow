@@ -113,10 +113,28 @@ normative definition.
    resolved path (`resolve_feedback_dir(repo_root, work_item_id)`,
    `D-Feedback-Layout`, workflow-2.6.0) where the reviewer's feedback must
    be placed, never a hard-coded flat path. Validate its binding
-   fields (`workflow_fingerprint.parse_review_feedback_binding_fields`/
-   `assert_feedback_matches_bundle` against the current recomputed
-   `bundle_id`/`base_commit`/`work_item_id`, `WFR-03`) — stale or
-   mismatched feedback is a reason to stop and say so, not to apply.
+   fields with `workflow_state.assert_apply_review_feedback_binding(repo_root,
+   work_item, work_item_id, stage="plan", feedback_content=<the file's
+   content>)` (`D-Apply-Binding`, workflow-2.7.0; `WFR-03`), for a `"1"`
+   item and, for a two-stage item, when the acceptance rule below returns
+   `"bundle"`. It applies 2.6.0's bundle binding (`assert_feedback_matches_bundle`
+   against the current recomputed `bundle_id`/`base_commit`/`work_item_id`)
+   to every `"1"` item, every legacy marker, every verdict that states no
+   `review_content_id`, and every bundle whose `MANIFEST.md` names no
+   `work_item_id`. A two-stage `REVISE` that states a `review_content_id`
+   is bound by content instead: it must be the consumed content and the
+   one the bundle's own `MANIFEST.md` records, the manifest must name this
+   item and the plan stage, and its `Reviewed bundle ID:`/`Reviewed base
+   commit:` are advisory -- report the returned `advisory`, if any. Report
+   a refusal by class and stop: `FeedbackContentMismatchError` (the verdict
+   is not for the round being applied), `ReviewBundleManifestMismatchError`
+   or `MissingRequiredBundleFileError` (the bundle on disk is not this
+   item's reviewed bundle: run from the worktree that holds it, or restore
+   it -- never regenerate it, since the verdict binds to it),
+   `MissingFeedbackBindingFieldError`/`FeedbackBundleMismatchError` (stale
+   or mismatched feedback) -- a reason to stop and say so, not to apply.
+   Never edit a verdict's binding fields to make it bind: they attest to
+   what its reviewer reviewed.
    **`REJECTED`-bundle refusal, first of two** (`WFR-67`): also call
    `workflow_fingerprint.assert_bundle_not_rejected(repo_root,
    work_item_id)` here; a `BundleRejectedError` stops the command, naming
@@ -139,7 +157,7 @@ normative definition.
    with `FeedbackNotForConsumedContentError`, and the on-disk bundle
    binding above is not applied. It returns `"bundle"` otherwise, and the
    binding above against the on-disk bundle -- still the reviewed one --
-   applies unchanged.
+   applies.
 2. For every Blocking, Important, and Optional finding: validate it against
    the actual repository (read the relevant code/docs, do not take the
    finding's premise on faith).

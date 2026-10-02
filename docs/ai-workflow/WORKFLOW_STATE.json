@@ -282,6 +282,440 @@
           "completed_at": "2026-10-01T14:08:16Z"
         }
       }
+    },
+    "orchestration-protocol-v1": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "orchestration-protocol-v1",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/orchestration-protocol-v1-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/orchestration-protocol-v1-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 13,
+      "implementation_revision": 6,
+      "functional_review_round": null,
+      "base_commit": "ef714f33efbd12c07e1b2c8083661c3920b1e2e6",
+      "reviewed_implementation_head": "29559b1d2d04d10f971ae51222342bbe1df3f8f1",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP7",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "ecf05b07fdc41f45a255547c961ad5ddbd0266d2"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "e681223a218bc81eda876fa736f5f429aa246262"
+        },
+        "CP3": {
+          "status": "COMPLETE",
+          "start_commit": "b228adfc08ca96162132f2ce10f31c7b2b254631"
+        },
+        "CP4": {
+          "status": "COMPLETE",
+          "start_commit": "2a3c7c7970f94efd1907817184c10bb05c2c0dfd"
+        },
+        "CP5": {
+          "status": "COMPLETE",
+          "start_commit": "8a07d617bc81840295bc108bab0acff34de91a4a"
+        },
+        "CP6": {
+          "status": "COMPLETE",
+          "start_commit": "8f26a3a04507f8c64055c25d16587857dd82722a"
+        },
+        "CP7": {
+          "status": "COMPLETE",
+          "start_commit": "bfd8e9f4fc01e29da1dab27ca08e41c93c90c5fa"
+        }
+      },
+      "current_bundle_id": "938ca5d503ccd274a8a86b7a86e2121e4e470deb6dffec073241580c3d3b1087",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "EXTERNAL_APPROVE",
+        "reviewed_bundle_id": "938ca5d503ccd274a8a86b7a86e2121e4e470deb6dffec073241580c3d3b1087",
+        "approved_review_content_id": "237e7ca6da45932043d5f111b77b44f6b03ea770790f6e35455056994450a788",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "93ad3d1254667af0a461a45c09caa5844e447ec9"
+          },
+          {
+            "path": "docs/ai-workflow/registry/orchestration-protocol-v1-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d850816fe568fe99d6efae0601dd9f39b5055289"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/orchestration-protocol-v1-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7dd997e3dbeb4fc18394a1d3769ca75d7ef6e1d6"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "plan orchestration-protocol-v1 — I approve orchestration-protocol-v1 at the plan stage",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-02T16:42:53Z"
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "EXTERNAL_APPROVE",
+        "reviewed_bundle_id": "f23e43a8fd200d76d7ee5c46c48362203fca8da5dfa3c42e6c230e6dd52cdd2b",
+        "approved_review_content_id": "12dfa9704f139afdd41743a12749191fd8cf97665bd14fe4bd0e83be288e13c7",
+        "review_content_manifest": [
+          {
+            "path": ".github/workflows/workflow-ci.yml",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9b6702f7c43a27017c7f92e475de8bb86b12d4cb"
+          },
+          {
+            "path": "docs/RELEASING.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8611631a53f30518a0164840ac781dcdde4659fc"
+          },
+          {
+            "path": "docs/ai-workflow/registry/orchestration-protocol-v1-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c141f858757988634b7959fc32c416a2b1507859"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4496607fe7193812ab5e57a39223b32ce69bd832"
+          },
+          {
+            "path": "payload/.claude/commands/accept-milestone.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f9b5d7ff82450c3232bd91c501bb8ff11053b8ea"
+          },
+          {
+            "path": "payload/.claude/commands/apply-implementation-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "532bf85bb3234ebfc163d1fa831816d61a7413b6"
+          },
+          {
+            "path": "payload/.claude/commands/apply-plan-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "03c426edbddc26d587e3b359544d2a8aa8aad203"
+          },
+          {
+            "path": "payload/.claude/commands/approve-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b56eabf46dde4af107cb8a33ecfe0f01897cc1bd"
+          },
+          {
+            "path": "payload/.claude/commands/milestone-implement.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "87a49ad01875c8fbc861cac6b39e02682fa73050"
+          },
+          {
+            "path": "payload/.claude/commands/milestone-plan.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "06585d838ff40a203e33205ffb523e71a73bf499"
+          },
+          {
+            "path": "payload/.claude/commands/record-manual-implementation-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f6a0394478cfbe43a8d965c92c35b3ba3b26b361"
+          },
+          {
+            "path": "payload/.claude/commands/record-manual-plan-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e846318669d18ad59c506d4cc714779da9e10b34"
+          },
+          {
+            "path": "payload/.claude/commands/request-plan-amendment.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b9ea62893757a435da88d644abc88f636726bbcd"
+          },
+          {
+            "path": "payload/.claude/commands/review-implementation.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "302e0dc126de08aa33ff35529656ac33b598baa8"
+          },
+          {
+            "path": "payload/.claude/commands/review-plan.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9541b49a6ec3acdbf17193f713f8cad31b2bf230"
+          },
+          {
+            "path": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "35cf1f740f1383cdafbeee9a964c0aa267e5bc2a"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4fe482bacb032c682676c1945020bb99bd36727c"
+          },
+          {
+            "path": "payload/docs/ai-workflow/PLAN_REVIEW_WORKFLOW.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a7bd1a1a6eb9563324311403aba3bd72f10529aa"
+          },
+          {
+            "path": "payload/docs/ai-workflow/REVIEW_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "38589a50d9faeb6d1320f41909ba830ca0572652"
+          },
+          {
+            "path": "payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "78643117919bd4271fb853687438d1fb6b4d630f"
+          },
+          {
+            "path": "payload/docs/ai-workflow/orchestration-protocol-v1.schema.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bcff2b5da4c95b9719bb17b87a4083b6750abcc7"
+          },
+          {
+            "path": "payload/scripts/workflow_acceptance_matrix_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "578a282f560c7141e1bf1c596abc51ce65efb88b"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint.py",
+            "exists": true,
+            "mode": "100755",
+            "blob": "5d6d30d5dd872619ce1a0e6c806e83a7f1272e2b"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cf830835b3bd72635229764902baa0f79ff41bb0"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0c4c8917ed0e48bff57a578c5593be9bf84af259"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5d496125a72fbe68a05ecd08a01456e8fd0ad6ad"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d9934a6feec04930ce8a625b9de08be4750cbbcb"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7c732c75baa281c128c56e090818010c3ffd673d"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5d39a5fb9710a4cc429189949531edfaa431e1e9"
+          },
+          {
+            "path": "payload/scripts/workflow_test_harness.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b26ad489861da61c11fe36a994983f9a52ed3dbd"
+          },
+          {
+            "path": "payload/scripts/workflow_test_harness_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "288f1ef8346ba8031506dfb880f3b0b4644b7dc9"
+          },
+          {
+            "path": "templates/.github/workflows/workflow-conformance.yml",
+            "exists": true,
+            "mode": "100644",
+            "blob": "391e03d6e4ebce9a7f8b94164f9f4b9e59a4a190"
+          },
+          {
+            "path": "tools/release/package.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "87de2e79ae2308b5922b2bbad0b91218728eea20"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "df22a620486f791a33f1a126538b9786f44a27f1"
+          }
+        ],
+        "reviewed_content_commit": "29559b1d2d04d10f971ae51222342bbe1df3f8f1",
+        "legacy_evidence": null,
+        "user_confirmation": "implementation orchestration-protocol-v1 — I approve orchestration-protocol-v1 at the implementation stage",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-02T19:47:31Z"
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "237e7ca6da45932043d5f111b77b44f6b03ea770790f6e35455056994450a788",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "938ca5d503ccd274a8a86b7a86e2121e4e470deb6dffec073241580c3d3b1087",
+          "verdict": "APPROVE",
+          "round": 13,
+          "completed_at": "2026-10-02T16:38:33Z"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "938ca5d503ccd274a8a86b7a86e2121e4e470deb6dffec073241580c3d3b1087",
+          "verdict": "APPROVE",
+          "round": 13,
+          "completed_at": "2026-10-02T16:40:49Z"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "state_revision": 88,
+      "last_transition": "2026-10-02T20:36:31Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-02T16:37:07Z",
+        "consumed": {
+          "review_content_id": "9636e125e47e1ca40605837cc16ece4bf759671c5251b68156c9fb20972f270c",
+          "plan_revision": 12,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "237e7ca6da45932043d5f111b77b44f6b03ea770790f6e35455056994450a788",
+          "plan_revision": 13
+        },
+        "bound": {
+          "review_content_id": "237e7ca6da45932043d5f111b77b44f6b03ea770790f6e35455056994450a788",
+          "bundle_id": "938ca5d503ccd274a8a86b7a86e2121e4e470deb6dffec073241580c3d3b1087",
+          "plan_revision": 13
+        }
+      },
+      "amendment_history": [
+        {
+          "amendment_id": "0",
+          "requested_at": "2026-10-02T16:33:12Z",
+          "requested_from_phase": "SELF_REVIEWING_IMPLEMENTATION",
+          "reason": "the plan quotes [\"1\",\"2.1\"] three times (lines 360, 1860, 2681), which fails the installed 2.6.0 conformance test test_real_corpus_sweep_is_clean in the required workflow-conformance check; reword those quotations only.",
+          "superseded_plan_revision": 12,
+          "superseded_plan_approval": {
+            "status": "CURRENT",
+            "basis": "EXTERNAL_APPROVE",
+            "reviewed_bundle_id": "9891048e4a658abe681ed065f626205bdbddbcda7dcc0d89e4b9612fe649fe86",
+            "approved_review_content_id": "9636e125e47e1ca40605837cc16ece4bf759671c5251b68156c9fb20972f270c",
+            "review_content_manifest": [
+              {
+                "path": "docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md",
+                "exists": true,
+                "mode": "100644",
+                "blob": "1fe16da700d778a4ba359b91c69b6af0c95a9c05"
+              },
+              {
+                "path": "docs/ai-workflow/registry/orchestration-protocol-v1-registry.json",
+                "exists": true,
+                "mode": "100644",
+                "blob": "be90c49451bd2fdead8449cd74589d9dd5540017"
+              },
+              {
+                "path": "docs/ai-workflow/requirements/orchestration-protocol-v1-mapping.json",
+                "exists": true,
+                "mode": "100644",
+                "blob": "7dd997e3dbeb4fc18394a1d3769ca75d7ef6e1d6"
+              }
+            ],
+            "reviewed_content_commit": null,
+            "legacy_evidence": null,
+            "user_confirmation": "I approve orchestration-protocol-v1 at the plan stage",
+            "waived_guarantees": [],
+            "recorded_at": "2026-10-02T07:27:59Z"
+          },
+          "checkpoints_snapshot": {
+            "CP1": {
+              "status": "COMPLETE",
+              "start_commit": "ecf05b07fdc41f45a255547c961ad5ddbd0266d2"
+            },
+            "CP2": {
+              "status": "COMPLETE",
+              "start_commit": "e681223a218bc81eda876fa736f5f429aa246262"
+            },
+            "CP3": {
+              "status": "COMPLETE",
+              "start_commit": "b228adfc08ca96162132f2ce10f31c7b2b254631"
+            },
+            "CP4": {
+              "status": "COMPLETE",
+              "start_commit": "7df0dd4ab421974118d93ea42a3cc2cf799d8e7a"
+            },
+            "CP5": {
+              "status": "COMPLETE",
+              "start_commit": "17a82744d146a34a7bee31f8933d5e7b0418c9a4"
+            },
+            "CP6": {
+              "status": "COMPLETE",
+              "start_commit": "034c4d0cc0142efee97bc8953addc0edb633d69b"
+            },
+            "CP7": {
+              "status": "COMPLETE",
+              "start_commit": "eacb7f01249454a6f83800d6558faefc33c9a90e"
+            }
+          },
+          "pre_amendment_approval_commit": "ecf05b07fdc41f45a255547c961ad5ddbd0266d2",
+          "resolved_at_plan_revision": 13,
+          "reconciliation_outcome": {
+            "CP1": "retained",
+            "CP2": "retained",
+            "CP3": "retained",
+            "CP4": "needs_revalidation",
+            "CP5": "needs_revalidation_dependency",
+            "CP6": "needs_revalidation_dependency",
+            "CP7": "needs_revalidation_dependency"
+          },
+          "resolved_review_content_id": "237e7ca6da45932043d5f111b77b44f6b03ea770790f6e35455056994450a788"
+        }
+      ],
+      "amendment_base_commit": "fec1b94c5c66e784000b438a7a8f9197b7b1dce0",
+      "implementation_review_stages": {
+        "review_content_id": "12dfa9704f139afdd41743a12749191fd8cf97665bd14fe4bd0e83be288e13c7",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "f23e43a8fd200d76d7ee5c46c48362203fca8da5dfa3c42e6c230e6dd52cdd2b",
+          "verdict": "APPROVE",
+          "round": 6,
+          "completed_at": "2026-10-02T19:37:27Z"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "f23e43a8fd200d76d7ee5c46c48362203fca8da5dfa3c42e6c230e6dd52cdd2b",
+          "verdict": "APPROVE",
+          "round": 6,
+          "completed_at": "2026-10-02T19:42:34Z"
+        }
+      }
     }
   }
 }

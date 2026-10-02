@@ -844,7 +844,10 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # commit's widened member set (every declared protected path).
     # Implementation review round 2 (I1): step 3's intent-to-add staging is
     # `git --literal-pathspecs add -N` -- intentional.
-    "milestone-plan.md": "1369139371201c39b9505b00bbbbed87b2cfeebf7f2112e98a42b031b1a8f003",
+    # milestone-plan.md further updated, D-Consumed-History (workflow-2.7.0,
+    # CP2, v2.6.0-001): the withdrawal report names the durable
+    # consumed_plan_review_content_ids history -- intentional content change.
+    "milestone-plan.md": "d74189364d76e431949ddb79aed738695ad3ca22359e3f3c39e034fe657d29cb",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the
@@ -867,7 +870,11 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # 1c routes adopt_claim's to them, and step 1d states that
     # claim_checkpoint returns the claim record whose owner_token field is
     # the token -- intentional content change.
-    "milestone-implement.md": "dd3ceefd29d6ad2533f8df6ad14a76ea0acb35cb021e2b788174aa11179f45e1",
+    # milestone-implement.md further updated, workflow-2.7.0
+    # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 1a calls
+    # implementing_entry_status and reports its cause and remedy --
+    # intentional content change.
+    "milestone-implement.md": "ee82db516103df60c3a7601be6f869167b071e34cd96517eea8e2d458ec18cf6",
     # approve-review.md (WF8c item (c), same-content bundle-generation
     # republication idempotency; further updated WF8c item (b): the
     # trailing caveat naming the dedicated /recover-implementation-provenance
@@ -986,7 +993,13 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # Implementation review round 2 (I1): step 4a reads the staged diff
     # NUL-delimited, step 6.3 calls assert_staged_path_set_within, and step
     # 6d's member-dirty check is literal -- intentional.
-    "approve-review.md": "65d60c81f4a3023d9447977f5e9d7ec892fef45254f7735dfd1c9fee70597995",
+    # approve-review.md further updated, workflow-2.7.0
+    # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 1's gate check calls
+    # plan_approval_gate_status/technical_approval_gate_status on the
+    # state re-read after the BLOCK pin, reporting the first cause in the
+    # wrapper's order; step 2's generation and bundle-bound checks run
+    # inside it -- intentional content change.
+    "approve-review.md": "b401ca09d90c07f76ce696dcdcae526ad768c7bb5f46312396db48d631ed727e",
     # accept-milestone.md updated, baseline-freeze correctness fix
     # (OPUS-R129-001): step 6's completion-commit instruction now states
     # the same "trailers must be the commit message's own final paragraph"
@@ -1003,7 +1016,14 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # forward instead (finish the checkpoint with /milestone-implement, or
     # route a functional finding through /apply-functional-review's
     # bounded/broad branches) -- intentional content change.
-    "accept-milestone.md": "ddf2f49aacd802d831602ac89673a4bba1d65960d4acad13fdad1578d5feff0a",
+    #
+    # accept-milestone.md further updated, Orchestration Protocol v1
+    # (workflow-2.7.0, CP6, v2.6.0-003): step 2a no longer tells the operator
+    # to finish an outstanding checkpoint with /milestone-implement, which
+    # cannot start one at AWAITING_FUNCTIONAL_REVIEW; it says no 2.6.0
+    # command completes one there, and keeps the /apply-functional-review
+    # routing -- intentional content change.
+    "accept-milestone.md": "236a370b2474ce2e6d223da0aeab16c4870f5876831d16c851b58826747c497a",
     # prepare-functional-review.md further updated, baseline-portability
     # correctness fix (OPUS-R129-001): step 3a's checklist-evidence
     # provenance commit instruction now states the same "trailers must be
@@ -1041,7 +1061,12 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # verify-plus-bind with 7'.2's regeneration removed -- intentional content
     # change, not a regression. Implementation review round 1: step 5 states
     # that a legacy-marked item must advance plan_revision -- intentional.
-    "apply-plan-review.md": "069fc470f11aa7e8b755fa2fd351662ab5c2e296f7af5ce208b7f5201acc1469",
+    # apply-plan-review.md further updated, workflow-2.7.0
+    # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 1 binds through
+    # assert_apply_review_feedback_binding (D-Apply-Binding): a two-stage
+    # REVISE stating a review_content_id is bound by content --
+    # intentional content change.
+    "apply-plan-review.md": "7e0eac1ca5a9c343364a482e3de1ade9abe89bf9d18841fbec7942ccff1e010f",
     # apply-implementation-review.md (WF8c item (c)): step 7's
     # record_bundle_generation call site widened to first resolve the
     # outcome (resolve_bundle_generation_outcome) and write the matching
@@ -1068,7 +1093,12 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (workflow-2.6.0, CP3): the preamble states feedback_layout-keyed
     # resolution and step 1 prints the exact resolved path when
     # REVIEW_FEEDBACK.md is absent -- intentional content change.
-    "apply-implementation-review.md": "6fbec6a0ccc8a0640b1ea0e17a506ad11c349431bebc9d88b0b694c84e31b2db",
+    # apply-implementation-review.md further updated, workflow-2.7.0
+    # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 1 binds through
+    # assert_apply_review_feedback_binding (D-Apply-Binding): a 2.2 REVISE
+    # stating a review_content_id is bound by content -- intentional
+    # content change.
+    "apply-implementation-review.md": "c728eeabe25a6fae2376d773f1091d96123fcc6de470f2f49957508de74cc2c1",
     # review-plan.md/record-manual-plan-review.md further updated,
     # workflow-v2-3-followups CP3 (REQ-8/-9): the `Reviewer role:` template
     # literal, the round-computation prose, the exact-match-expectation
@@ -1100,7 +1130,13 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (workflow-2.6.0, CP4): the bound-bundle reader
     # (validate_local_plan_review_preconditions_bound) and the CONSUMED write
     # on REVISE -- intentional content change, not a regression.
-    "review-plan.md": "232d0f54c72e8ab4d5e7299ce1b846e82fdd98748877262975547394d60f08e5",
+    # review-plan.md further updated, D-Feedback-Label (workflow-2.7.0,
+    # CP1, v2.6.0-002): step 7 names the pinned Reviewed review_content_id:
+    # label, before the first ## section -- intentional content change.
+    # review-plan.md further updated, D-Consumed-History (workflow-2.7.0,
+    # CP2, v2.6.0-001): REVISE also adds the id to the durable
+    # consumed_plan_review_content_ids history -- intentional content change.
+    "review-plan.md": "025bef3dbb2bc5673a81a801d4800bc91d921c5695857a797e9f06c00fc01008",
     # record-manual-plan-review.md further updated, D-Feedback-Layout
     # (workflow-2.6.0, CP3): preamble states feedback_layout-keyed
     # resolution; step 4 prints the exact resolved paste path and adds the
@@ -1110,7 +1146,16 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # Binding (workflow-2.6.0, CP4): the bound-bundle reader
     # (assert_plan_review_bundle_bound) and the CONSUMED write on REVISE --
     # intentional content change, not a regression.
-    "record-manual-plan-review.md": "1713522d5b1d116dd44429d3764b78839db023800700227421ff0a859f9421cb",
+    # record-manual-plan-review.md further updated, D-Feedback-Label
+    # (workflow-2.7.0, CP1, v2.6.0-002): step 4 names the pinned
+    # Reviewed review_content_id: label and the header-before-## rule --
+    # intentional content change.
+    # record-manual-plan-review.md further updated, D-OP-External
+    # (workflow-2.7.0, CP5): steps 2-7 are one call to the shared
+    # ingest_manual_review_verdict (two_stage_only=True), which holds
+    # state_lock through the publication; the required header fields,
+    # Round: and the absent-bundle-id advisory -- intentional content change.
+    "record-manual-plan-review.md": "e93576f32faf16c97e96427698c578db664b3fa8d30857904ccffc823e5ed10c",
     # bootstrap-workflow-v2.md (WF8c scope clauses (l)/(p)/(q), GPT-R108-002/
     # OPUS-R109-004): the driver-range text made checkpoint-agnostic
     # (OPUS-R102-009), a NO_CHECKPOINT terminal-wrap-up branch added to step
@@ -1197,7 +1242,14 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # before the write; step 7's recovery text scopes the hand-created-dir
     # warning to legacy items; A7 prints the exact resolved paste path --
     # intentional content change.
-    "review-implementation.md": "19578cc8a506463b0b0b0ad9c5c60db62ab86e75478dad2d595f98db206f4bd8",
+    # review-implementation.md further updated, D-Feedback-Label
+    # (workflow-2.7.0, CP1, v2.6.0-002): step 6 and A5 write the pinned
+    # Reviewed review_content_id: label, before the first ## section --
+    # intentional content change.
+    # review-implementation.md further updated, workflow-2.7.0
+    # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 4's bundle check is
+    # verify_implementation_review_bundle -- intentional content change.
+    "review-implementation.md": "0be61b024f1ac501caff7044d667b842ebce4a26017619999c0d37cf7a6d2ed2",
     # review-functional.md: new, workflow-v2-3 CP2 -- the first recorded
     # hash, not a change.
     #
@@ -2999,17 +3051,27 @@ class TestAssertLocalGenerationMatchesCallSiteConformance(unittest.TestCase):
     strict-mode tests), not through a caller that does not exist. This
     assertion fails if a future change adds a call site not in
     `EXPECTED_CALL_SITES`, so that change cannot land without a human
-    deciding whether `WFR-17`/`D-Bundle-Manifest` need updating too."""
+    deciding whether `WFR-17`/`D-Bundle-Manifest` need updating too.
+    workflow-2.7.0 adds a fourth, `workflow_state.py`'s two gate wrappers
+    (`plan_approval_gate_status`/`technical_approval_gate_status`), which
+    run `/approve-review`'s check on its behalf and are repository-local
+    by construction."""
 
     EXPECTED_CALL_SITES = frozenset({
         Path(".claude/commands/approve-review.md"),
         Path(".claude/commands/review-plan.md"),
         Path(".claude/commands/review-implementation.md"),
+        # workflow-2.7.0 (`D-OP-Next`, `LPR-R1-003`): the two repository-aware
+        # gate wrappers run `/approve-review`'s generation check as their first
+        # cause; both are repository-local by construction (`WFR-17` holds).
+        # CP5 adds `ingest_manual_review_verdict` in the same file, the
+        # record-manual commands' generation check (`LPR-R2-002`).
+        Path("scripts/workflow_state.py"),
     })
 
     _CALL_RE = re.compile(r"assert_local_generation_matches\(")
 
-    def test_exactly_the_three_live_permissive_callers_exist(self):
+    def test_exactly_the_expected_live_permissive_callers_exist(self):
         repo_root = _repo_root()
         found: set[Path] = set()
         for path in sorted((repo_root / ".claude" / "commands").glob("*.md")):
@@ -6967,6 +7029,12 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         # callable; `user_confirmation` is `plan_approval`'s own existing
         # field, first referenced by name in this release's reference text.
         "implementation_review_stages", "user_confirmation",
+        # workflow-2.7.0, D-Consumed-History (v2.6.0-001): the durable
+        # consumed history, a work-item field name, not a callable.
+        "consumed_plan_review_content_ids",
+        # workflow-2.7.0, Orchestration Protocol v1: next-action's
+        # disposition values, literal enum values, not callables.
+        "external_gate", "human_gate",
     })
 
     def test_every_code_symbol_the_reference_names_actually_exists(self):

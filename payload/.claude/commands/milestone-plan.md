@@ -156,7 +156,10 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
         left, which phase it entered, that **both** recorded plan-review
         stages are discarded (a later bind of different content reads them
         as absent), and that the withdrawn content is consumed and can
-        never re-bind -- only an edit plus regeneration can. At a non-ready
+        never re-bind -- only an edit plus regeneration can. The id joins
+        the item's `consumed_plan_review_content_ids` history
+        (workflow-2.7.0), so restoring it byte for byte after a later
+        round is refused as well. At a non-ready
         phase no withdrawal is attempted, so a re-run after a crash that
         followed a withdrawal simply finds the non-ready row.
      3. **Marker, then the status, once** (`LPR-R2-001`, `LPR-R3-006`):

@@ -110,7 +110,9 @@ normative definition.
      requires on every round (`Reviewed bundle ID:`, `Reviewed base
      commit:`, `Work item:`), stated with the recomputed `bundle_id`,
      `base_commit`, and `work_item_id` from step 5 (`WFR-03`), plus the
-     recomputed plan-stage `review_content_id` as its own labelled line;
+     recomputed plan-stage `review_content_id` as its own labelled line,
+     with exactly the pinned label `Reviewed review_content_id: <hex>`
+     (workflow-2.7.0, `v2.6.0-002`), all before the first `## ` section;
    - the round/sequence number (one more than the highest prior
      `LOCAL_MODEL_PLAN_REVIEW` round on record, counting a round entry under
      either casing of the stage key, or `1` if none);
@@ -158,7 +160,9 @@ normative definition.
      — no ledger entry) and, in the same write, the `CONSUMED`
      `plan_review_binding` record for this `review_content_id`
      (workflow-2.6.0, `D-Plan-Review-Bundle-Binding`), so the reviewed
-     content can never re-bind without an edit.
+     content can never re-bind without an edit. The id is also added to
+     the item's durable `consumed_plan_review_content_ids` history
+     (workflow-2.7.0), so a later round never releases it.
    - `BLOCK`: `REVIEW_FEEDBACK.md` only — `record_local_plan_review(...,
      verdict="BLOCK", ...)` is a true no-op; the work item stays at
      `AWAITING_LOCAL_PLAN_REVIEW`.

@@ -160,7 +160,9 @@ and wait.
    "AMENDING_PLAN"`. For a `TWO_STAGE_PLAN_REVIEW_VERSIONS` item it also
    writes the `CONSUMED` `plan_review_binding` record for the approved
    content being amended (`D-Plan-Review-Bundle-Binding`, workflow-2.6.0),
-   so that content can never re-bind without an edit.
+   so that content can never re-bind without an edit. The id is also added
+   to the item's durable `consumed_plan_review_content_ids` history
+   (workflow-2.7.0), so the amendment's later rounds never release it.
 
    `AmendmentApprovalCommitUnreachableError`/
    `WrongPhaseForAmendmentRequestError`: stop and report the exception's
