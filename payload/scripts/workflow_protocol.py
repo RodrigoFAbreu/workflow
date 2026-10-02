@@ -408,7 +408,10 @@ def prove_checkpoint_completions(
     2.6.0 resolved resolves identically unless exactly one of several
     first-parent candidates records `COMPLETE` and that one does not descend
     from the live `start_commit`, which only a malformed history produces;
-    this proof raises there. `only` limits
+    this proof raises there. Discovery accepts a sole trailer candidate
+    without consulting the tie-break, so a reopened checkpoint already
+    marked `COMPLETE` whose only trailer commit is its earlier one is caught
+    by the explicit descent check after discovery. `only` limits
     the proof to the named checkpoints (reconcile proves the ones this step
     completed); the tie-break still sees every checkpoint's start."""
     work_item_id = work_item["work_item_id"]
@@ -430,6 +433,12 @@ def prove_checkpoint_completions(
                 f"{work_item_id}/{checkpoint_id} is COMPLETE in state but no "
                 f"commit in {base_commit}..HEAD carries a matching "
                 f"Workflow-Checkpoint/Workflow-Work-Item trailer pair")
+        if (entry.get("status") == "COMPLETE"
+                and not _checkpoint_start_descendant(repo_root, discovered[checkpoint_id], checkpoint_id, starts)):
+            raise workflow_state.CheckpointNotReachableError(
+                f"{work_item_id}/{checkpoint_id} is COMPLETE in state but its only "
+                f"completion commit {discovered[checkpoint_id]} does not strictly "
+                f"descend from the checkpoint's start_commit {starts[checkpoint_id]}")
 
 
 def op_verify(repo_root: Path, args: argparse.Namespace) -> dict:

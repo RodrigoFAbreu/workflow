@@ -2918,6 +2918,21 @@ class TestReconcile(unittest.TestCase):
         self.assertTrue(body["result"]["healthy"])
         self.assertEqual(checks_by_id(body)["checkpoint_completions_provable"]["status"], "pass")
 
+    def test_a_reopened_checkpoint_with_only_its_earlier_trailer_is_unproven(self):
+        with h.ScratchRepo() as repo:
+            self.checkpoint_decision(repo)
+            decision = next_action(repo)
+            self.complete_c1(repo, commit=True)
+            mutate(repo, _demote_checkpoint, "C1")
+            self.complete_c1(repo, commit=False)
+            result = reconciled(self, repo, decision)
+            body, code = call("--repo-root", str(repo.root), "verify")
+        self.assertEqual(result["class"], "invalid")
+        self.assertEqual([reason["code"] for reason in result["invalid_reasons"]],
+                         ["checkpoint_completion_unproven"])
+        self.assertFalse(body["result"]["healthy"])
+        self.assertEqual(checks_by_id(body)["checkpoint_completions_provable"]["status"], "fail")
+
     def test_an_unrelated_second_trailer_is_still_ambiguous(self):
         with h.ScratchRepo() as repo:
             decision = self.checkpoint_decision(repo)
