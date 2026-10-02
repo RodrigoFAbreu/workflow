@@ -445,7 +445,9 @@ class TestDescribe(unittest.TestCase):
         self.assertEqual(wp.PROTOCOL_VERSION, "1.0")
         self.assertEqual(wp.PROTOCOL_MAJOR, 1)
         self.assertEqual(
-            set(wp.OPERATIONS), {"describe", "verify", "resolve-artifact", "next-action", "reconcile"})
+            set(wp.OPERATIONS),
+            {"describe", "verify", "resolve-artifact", "next-action", "reconcile", "record-external-result"})
+        self.assertEqual(set(wp.EXTERNAL_RESULT_KINDS), {"plan_review_verdict", "implementation_review_verdict"})
         self.assertEqual(set(wp.RESERVED_RESULT_KINDS), {"pr_review_result", "functional_evidence"})
         self.assertEqual(
             set(wp.DISPOSITIONS),
@@ -2418,16 +2420,9 @@ def _guard_plan_review_local(repo, state):
 
 
 def _guard_plan_record_external(repo, state):
-    text = _fb_text(repo)
-    fields = fingerprint.parse_review_feedback_header(text)
-    fingerprint.assert_manual_feedback_names_work_item(text, work_item_id=WI)
-    fingerprint.assert_local_generation_matches(repo.root, bundle_dir(repo) / "MANIFEST.md")
-    fingerprint.assert_bundle_not_rejected(repo.root, WI)
-    ws.assert_plan_review_bundle_bound(repo.root, WI, state=state)
-    fresh, _ = fingerprint.compute_review_content_id_plan_stage_for_work_item(repo.root, WI)
-    ws.validate_manual_plan_review_preconditions(
-        state["work_items"][WI], current_review_content_id=fresh, feedback_role=fields["reviewer_role"],
-        feedback_review_content_id=fields["review_content_id"])
+    """The record-manual command's path since CP5: the shared ingest."""
+    return ws.ingest_manual_review_verdict(
+        repo.root, WI, stage="plan", verdict_text=_fb_text(repo), now="t", two_stage_only=True)
 
 
 def _guard_implementing_entry(repo, state):
@@ -2458,15 +2453,8 @@ def _guard_implementation_review_local(repo, state):
 
 
 def _guard_implementation_record_external(repo, state):
-    text = _fb_text(repo)
-    fields = fingerprint.parse_review_feedback_header(text)
-    fingerprint.assert_manual_feedback_names_work_item(text, work_item_id=WI)
-    ws.verify_implementation_review_bundle(repo.root, WI, state=state)
-    fingerprint.assert_local_generation_matches(repo.root, bundle_dir(repo) / "MANIFEST.md")
-    fingerprint.assert_bundle_not_rejected(repo.root, WI)
-    ws.validate_manual_implementation_review_preconditions(
-        state["work_items"][WI], current_review_content_id=current_I(repo), feedback_role=fields["reviewer_role"],
-        feedback_review_content_id=fields["review_content_id"])
+    return ws.ingest_manual_review_verdict(
+        repo.root, WI, stage="implementation", verdict_text=_fb_text(repo), now="t", two_stage_only=True)
 
 
 def _guard_implementation_apply_review(repo, state):
@@ -2504,13 +2492,14 @@ COMMAND_GUARDS = {
     "plan.review.local": (_guard_plan_review_local, [
         "assert_local_generation_matches", "assert_bundle_not_rejected", "assert_plan_review_bundle_bound",
         "validate_local_plan_review_preconditions"]),
-    "plan.record_external": (_guard_plan_record_external, None),
+    "plan.record_external": (_guard_plan_record_external, ["ingest_manual_review_verdict", "two_stage_only=True"]),
     "implementation.checkpoint": (_guard_checkpoint, ["implementing_entry_status", "transition_checkpoint_in_progress"]),
     "implementation.self_review": (_guard_self_review, ["implementing_entry_status", "enter_self_reviewing_implementation"]),
     "implementation.review.local": (_guard_implementation_review_local, [
         "verify_implementation_review_bundle", "assert_local_generation_matches", "assert_bundle_not_rejected",
         "validate_local_implementation_review_preconditions"]),
-    "implementation.record_external": (_guard_implementation_record_external, None),
+    "implementation.record_external": (_guard_implementation_record_external, [
+        "ingest_manual_review_verdict", "two_stage_only=True"]),
     "implementation.apply_review": (_guard_implementation_apply_review, [
         "REVIEW_FEEDBACK.md", "assert_bundle_not_rejected", "assert_apply_review_feedback_binding"]),
     "functional.prepare": (_guard_functional_prepare, ["AWAITING_FUNCTIONAL_REVIEW"]),
@@ -3164,6 +3153,290 @@ class TestPlanGateRace(unittest.TestCase):
             with mock.patch.object(ws, "plan_review_publication_status", side_effect=first_read_is_stale):
                 result = next_action(repo)
             self.assertEqual((result["row"], result["reason"]["code"]), ("16", "plan_review_bundle_unbound"))
+
+
+# ---------------------------------------------------------------------------
+# record-external-result (D-OP-External, CP5)
+# ---------------------------------------------------------------------------
+
+
+def record_external(repo: h.ScratchRepo, kind: str, text: str, work_item: str = WI) -> tuple[dict, int]:
+    """`record-external-result` in-process, schema-checked, with `text` as
+    its input file (outside the repository)."""
+    tmp = Path(repo.root).parent / f"{Path(repo.root).name}-verdict.md"
+    tmp.write_text(text)
+    try:
+        return call("--repo-root", str(repo.root), "record-external-result", "--work-item", work_item,
+                    "--kind", kind, "--input", str(tmp))
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
+def recorded(test: unittest.TestCase, repo: h.ScratchRepo, kind: str, text: str) -> dict:
+    body, code = record_external(repo, kind, text)
+    test.assertEqual(code, wp.EXIT_OK, body)
+    return body["result"]
+
+
+def refusal(test: unittest.TestCase, repo: h.ScratchRepo, kind: str, text: str, code: str,
+            native: str | None = None) -> dict:
+    """Refused with `code` (and the `native` exception), writing nothing."""
+    state_path = repo.root / ws.DEFAULT_STATE_PATH
+    before = (state_path.read_bytes(), _fb_text(repo))
+    body, exit_code = record_external(repo, kind, text)
+    test.assertEqual((exit_code, body["error"]["code"]), (wp.exit_code_for(code), code), body)
+    if native is not None:
+        test.assertEqual(body["error"]["native"]["exception"], native, body)
+    test.assertEqual((state_path.read_bytes(), _fb_text(repo)), before)
+    return body["error"]
+
+
+_TWO_STAGE_KINDS = {
+    "plan_review_verdict": ("MANUAL_EXTERNAL_PLAN_REVIEW", "P",
+                            lambda repo, version: plan_item_at(repo, "AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW", version),
+                            ("2.1", "2.2")),
+    "implementation_review_verdict": ("MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW", "I",
+                                      lambda repo, version: implementation_at_manual(repo), ("2.2",)),
+}
+
+
+def _feedback_only_item(repo: h.ScratchRepo, kind: str, version: str) -> str:
+    """An item at a feedback-only row's phase with its bundle generated.
+    Returns the bundle id."""
+    if kind == "plan_review_verdict":
+        h.seed_bundle_item(repo, governing_workflow_version=version, phase="AWAITING_EXTERNAL_PLAN_REVIEW")
+        h.generate_plan_bundle(repo)
+    else:
+        implementation_item_at(repo, version)
+    return current_bundle_id(repo)
+
+
+_FEEDBACK_ONLY_ROWS = (("plan_review_verdict", "1"), ("implementation_review_verdict", "1"),
+                       ("implementation_review_verdict", "2.1"))
+
+
+class TestRecordExternalResultTwoStage(unittest.TestCase):
+    def test_each_verdict_records_the_command_paths_state(self):
+        for kind, (role, key, build, versions) in _TWO_STAGE_KINDS.items():
+            writer = ws.record_manual_plan_review if kind == "plan_review_verdict" else ws.record_manual_implementation_review
+            for version in versions:
+                for status in ("APPROVE", "REVISE", "BLOCK"):
+                    with self.subTest(kind=kind, version=version, status=status), h.ScratchRepo() as repo:
+                        ids = build(repo, version)
+                        before = h.read_state(repo)
+                        text = verdict(status, rcid=ids[key], bundle=ids["B"], base=repo.base, role=role)
+                        result = recorded(self, repo, kind, text)
+                        after = h.read_state(repo)
+                        now = after["work_items"][WI]["last_transition"]
+                        expected = writer(before, WI, verdict=status, bundle_id=ids["B"], round=1, now=now,
+                                          current_review_content_id=ids[key], feedback_role=role,
+                                          feedback_review_content_id=ids[key])
+                        self.assertEqual(after, expected)
+                        self.assertEqual(_fb_text(repo), text)
+                        self.assertEqual(
+                            {k: result[k] for k in ("stage", "verdict", "review_content_id", "round", "bundle_id",
+                                                    "advisory")},
+                            {"stage": "plan" if kind == "plan_review_verdict" else "implementation",
+                             "verdict": status, "review_content_id": ids[key], "round": 1, "bundle_id": ids["B"],
+                             "advisory": None})
+                        self.assertEqual(result["basis"], wp.basis(repo.root, after, WI))
+
+    def test_the_command_path_and_the_protocol_path_give_the_same_values(self):
+        """`round` and `bundle_id` (`LPR-R3-005`): a stated `Round:` and an
+        absent bundle id, through both paths."""
+        for kind, (role, key, build, versions) in _TWO_STAGE_KINDS.items():
+            stage = "plan" if kind == "plan_review_verdict" else "implementation"
+            for path in ("command", "protocol"):
+                with self.subTest(kind=kind, path=path), h.ScratchRepo() as repo:
+                    ids = build(repo, versions[-1])
+                    text = verdict("APPROVE", rcid=ids[key], role=role).replace(
+                        "Status: APPROVE\n", "Status: APPROVE\nRound: 4\n")
+                    if path == "command":
+                        result = ws.ingest_manual_review_verdict(repo.root, WI, stage=stage, verdict_text=text,
+                                                                 now="t", two_stage_only=True)
+                    else:
+                        result = recorded(self, repo, kind, text)
+                    self.assertEqual((result["round"], result["bundle_id"], result["advisory"]),
+                                     (4, None, ws.ABSENT_REVIEWED_BUNDLE_ID_ADVISORY))
+
+    def test_refusals(self):
+        for kind, (role, key, build, versions) in _TWO_STAGE_KINDS.items():
+            with self.subTest(kind=kind), h.ScratchRepo() as repo:
+                ids = build(repo, versions[-1])
+                ok = dict(rcid=ids[key], bundle=ids["B"], role=role)
+                refusal(self, repo, kind, verdict("APPROVE", **dict(ok, rcid=None)), "refused",
+                        "ManualVerdictHeaderError")
+                refusal(self, repo, kind, verdict("APPROVE", **ok, work_item="other-item"), "refused",
+                        "ManualFeedbackForeignWorkItemError")
+                refusal(self, repo, kind, verdict("APPROVE", **dict(ok, role="LOCAL_MODEL_PLAN_REVIEW")), "refused",
+                        "WrongReviewerRoleError")
+                refusal(self, repo, kind, verdict("APPROVE", **dict(ok, rcid="e" * 64)), "refused",
+                        "StaleReviewContentIdError")
+                reject_bundle(repo)
+                refusal(self, repo, kind, verdict("APPROVE", **ok), "refused", "BundleRejectedError")
+
+    def test_a_duplicate_is_not_applicable(self):
+        for kind, (role, key, build, versions) in _TWO_STAGE_KINDS.items():
+            with self.subTest(kind=kind), h.ScratchRepo() as repo:
+                ids = build(repo, versions[-1])
+                state = h.read_state(repo)
+                ledger = state["work_items"][WI]["plan_review_stages" if key == "P" else "implementation_review_stages"]
+                local = next(k for k in ledger if k.startswith("LOCAL_MODEL"))
+                ledger[role] = dict(ledger[local])
+                h.write_state(repo, state)
+                refusal(self, repo, kind, verdict("APPROVE", rcid=ids[key], bundle=ids["B"], role=role),
+                        "not_applicable")
+
+    def test_a_retry_after_the_record_is_not_applicable(self):
+        for kind, (role, key, build, versions) in _TWO_STAGE_KINDS.items():
+            with self.subTest(kind=kind), h.ScratchRepo() as repo:
+                ids = build(repo, versions[-1])
+                text = verdict("APPROVE", rcid=ids[key], bundle=ids["B"], role=role)
+                recorded(self, repo, kind, text)
+                refusal(self, repo, kind, text, "not_applicable")
+
+    def test_the_crash_window_is_retried_once_through_either_path(self):
+        """The file is written and the state write fails: the item stays at
+        its phase, next-action reports the unrecorded verdict (rows 13 and
+        27), and a retry through the command path or the protocol records
+        it once."""
+        for kind, (role, key, build, versions) in _TWO_STAGE_KINDS.items():
+            stage = "plan" if kind == "plan_review_verdict" else "implementation"
+            for retry in ("command", "protocol"):
+                with self.subTest(kind=kind, retry=retry), h.ScratchRepo() as repo:
+                    ids = build(repo, versions[-1])
+                    text = verdict("REVISE", rcid=ids[key], bundle=ids["B"], role=role)
+                    revision = h.read_state(repo)["work_items"][WI]["state_revision"]
+                    with mock.patch.object(ws, "_publish_state_file", side_effect=OSError("disk full")):
+                        body, code = record_external(repo, kind, text)
+                    self.assertEqual((code, body["error"]["code"]), (wp.EXIT_INTERNAL, "internal_error"))
+                    self.assertEqual(_fb_text(repo), text)
+                    self.assertEqual(next_action(repo)["row"], "13" if stage == "plan" else "27")
+                    if retry == "command":
+                        ws.ingest_manual_review_verdict(repo.root, WI, stage=stage, verdict_text=text, now="t",
+                                                        two_stage_only=True)
+                    else:
+                        recorded(self, repo, kind, text)
+                    self.assertEqual(h.read_state(repo)["work_items"][WI]["state_revision"], revision + 1)
+                    refusal(self, repo, kind, text, "not_applicable")
+
+    def test_a_manual_revise_without_current_bundle_fields_routes_to_its_apply(self):
+        """`MPR-R8-001`: recorded by the bundle-id rule, then the stage's
+        apply action, whose command accepts the stored file by content."""
+        for kind, (role, key, build, versions) in _TWO_STAGE_KINDS.items():
+            for version in versions:
+                for variant in ("absent", "pre-regeneration"):
+                    with self.subTest(kind=kind, version=version, variant=variant), h.ScratchRepo() as repo:
+                        ids = build(repo, version)
+                        bundle = None
+                        if variant == "pre-regeneration":
+                            bundle = ids["B"]
+                            if kind == "plan_review_verdict":
+                                regenerate_wrapper_only(repo)
+                            else:
+                                summary = bundle_dir(repo) / "IMPLEMENTATION_SUMMARY.md"
+                                summary.write_text(summary.read_text() + "wrapper-only rerun\n")
+                                h._run_generator(repo, "implementation", WI)
+                            self.assertNotEqual(current_bundle_id(repo), bundle)
+                        result = recorded(self, repo, kind, verdict("REVISE", rcid=ids[key], bundle=bundle,
+                                                                    role=role))
+                        self.assertEqual(result["bundle_id"], bundle)
+                        if bundle is None:
+                            self.assertEqual(result["advisory"], ws.ABSENT_REVIEWED_BUNDLE_ID_ADVISORY)
+                        else:
+                            self.assertIn("advisory only", result["advisory"])
+                        decision = next_action(repo)
+                        action = "plan.apply_review" if kind == "plan_review_verdict" else "implementation.apply_review"
+                        self.assertEqual((decision["row"], decision["action"]["id"]),
+                                         ("8" if kind == "plan_review_verdict" else "36", action))
+                        self.assertEqual(COMMAND_GUARDS[action][0](repo, h.read_state(repo))["binding"], "content")
+
+
+class TestRecordExternalResultFeedbackOnly(unittest.TestCase):
+    def test_stored_with_and_without_the_label_and_the_state_unchanged(self):
+        for kind, version in _FEEDBACK_ONLY_ROWS:
+            for label in (True, False):
+                with self.subTest(kind=kind, version=version, label=label), h.ScratchRepo() as repo:
+                    B = _feedback_only_item(repo, kind, version)
+                    rcid = "c" * 64 if label else None
+                    text = verdict("REVISE", rcid=rcid, bundle=B, base=repo.base)
+                    state_before = (repo.root / ws.DEFAULT_STATE_PATH).read_bytes()
+                    result = recorded(self, repo, kind, text)
+                    self.assertEqual((repo.root / ws.DEFAULT_STATE_PATH).read_bytes(), state_before)
+                    self.assertEqual(_fb_text(repo), text)
+                    self.assertEqual((result["verdict"], result["review_content_id"], result["round"],
+                                      result["bundle_id"], result["advisory"]), ("REVISE", rcid, None, None, None))
+                    fingerprint.assert_feedback_matches_bundle(
+                        fingerprint.parse_review_feedback_binding_fields(_fb_text(repo)),
+                        bundle_id=B, base_commit=repo.base, work_item_id=WI)
+
+    def test_refusals(self):
+        for kind, version in _FEEDBACK_ONLY_ROWS:
+            with self.subTest(kind=kind, version=version), h.ScratchRepo() as repo:
+                B = _feedback_only_item(repo, kind, version)
+                refusal(self, repo, kind, verdict("APPROVE", bundle=B, base=repo.base, work_item="other-item"),
+                        "refused", "ManualFeedbackForeignWorkItemError")
+                refusal(self, repo, kind, verdict("APPROVE", bundle="f" * 64, base=repo.base), "refused",
+                        "FeedbackBundleMismatchError")
+                refusal(self, repo, kind, verdict("APPROVE", base=repo.base), "refused", "ManualVerdictHeaderError")
+                reject_bundle(repo)
+                refusal(self, repo, kind, verdict("APPROVE", bundle=B, base=repo.base), "refused",
+                        "BundleRejectedError")
+
+    def test_a_different_current_verdict_conflicts_and_an_earlier_rounds_is_replaced(self):
+        for kind, version in _FEEDBACK_ONLY_ROWS:
+            with self.subTest(kind=kind, version=version), h.ScratchRepo() as repo:
+                B = _feedback_only_item(repo, kind, version)
+                first = verdict("APPROVE", bundle=B, base=repo.base)
+                recorded(self, repo, kind, first)
+                refusal(self, repo, kind, verdict("REVISE", bundle=B, base=repo.base), "refused",
+                        "ConflictingReviewFeedbackError")
+                recorded(self, repo, kind, first)
+                write_feedback(repo, verdict("APPROVE", bundle="f" * 64, base=repo.base))
+                recorded(self, repo, kind, first)
+                self.assertEqual(_fb_text(repo), first)
+
+
+class TestRecordExternalResultApplicability(unittest.TestCase):
+    def test_reserved_and_unknown_kinds(self):
+        with h.ScratchRepo() as repo:
+            write_state(repo, h.base_state(wi=minimal_item("IMPLEMENTING", "2.2")))
+            for kind in wp.RESERVED_RESULT_KINDS:
+                with self.subTest(kind=kind):
+                    refusal(self, repo, kind, "anything", "unsupported_result_kind")
+            refusal(self, repo, "no_such_kind", "anything", "invalid_request")
+
+    def test_the_wrong_phase_is_not_applicable(self):
+        with h.ScratchRepo() as repo:
+            write_state(repo, h.base_state(wi=minimal_item("IMPLEMENTING", "2.2")))
+            for kind in wp.EXTERNAL_RESULT_KINDS:
+                with self.subTest(kind=kind):
+                    refusal(self, repo, kind, verdict("APPROVE", rcid="a" * 64), "not_applicable")
+
+    def test_a_kind_at_the_other_shape_of_row_is_not_applicable(self):
+        """A two-stage kind's phase at a `"1"`/`"2.1"` item, and a
+        feedback-only phase at a two-stage item."""
+        cases = [
+            ("plan_review_verdict", "AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW", "1"),
+            ("implementation_review_verdict", "AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW", "2.1"),
+            ("plan_review_verdict", "AWAITING_EXTERNAL_PLAN_REVIEW", "2.2"),
+            ("implementation_review_verdict", "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW", "2.2"),
+        ]
+        for kind, phase, version in cases:
+            with self.subTest(kind=kind, phase=phase, version=version), h.ScratchRepo() as repo, \
+                    mock.patch.object(ws, "validate_state"):
+                write_state(repo, h.base_state(wi=minimal_item(phase, version)))
+                refusal(self, repo, kind, verdict("APPROVE", rcid="a" * 64, bundle="b" * 64, base="0" * 40),
+                        "not_applicable")
+
+    def test_an_unknown_work_item_and_an_unreadable_input(self):
+        with h.ScratchRepo() as repo:
+            write_state(repo, h.base_state(wi=minimal_item("IMPLEMENTING", "2.2")))
+            body, _code = record_external(repo, "plan_review_verdict", "x", work_item="nope")
+            self.assertEqual(body["error"]["code"], "unknown_work_item")
+            body, code = call("--repo-root", str(repo.root), "record-external-result", "--work-item", WI,
+                              "--kind", "plan_review_verdict", "--input", str(repo.root / "missing.md"))
+            self.assertEqual((code, body["error"]["code"]), (wp.EXIT_INVALID_REQUEST, "invalid_request"))
 
 
 if __name__ == "__main__":

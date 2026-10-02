@@ -1143,7 +1143,12 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (workflow-2.7.0, CP1, v2.6.0-002): step 4 names the pinned
     # Reviewed review_content_id: label and the header-before-## rule --
     # intentional content change.
-    "record-manual-plan-review.md": "2e512bc679928cb6b1de2cd2d8f23c425b8bbada632db591ded1a01644960dc5",
+    # record-manual-plan-review.md further updated, D-OP-External
+    # (workflow-2.7.0, CP5): steps 2-7 are one call to the shared
+    # ingest_manual_review_verdict (two_stage_only=True), which holds
+    # state_lock through the publication; the required header fields,
+    # Round: and the absent-bundle-id advisory -- intentional content change.
+    "record-manual-plan-review.md": "e93576f32faf16c97e96427698c578db664b3fa8d30857904ccffc823e5ed10c",
     # bootstrap-workflow-v2.md (WF8c scope clauses (l)/(p)/(q), GPT-R108-002/
     # OPUS-R109-004): the driver-range text made checkpoint-agnostic
     # (OPUS-R102-009), a NO_CHECKPOINT terminal-wrap-up branch added to step
@@ -3052,6 +3057,8 @@ class TestAssertLocalGenerationMatchesCallSiteConformance(unittest.TestCase):
         # workflow-2.7.0 (`D-OP-Next`, `LPR-R1-003`): the two repository-aware
         # gate wrappers run `/approve-review`'s generation check as their first
         # cause; both are repository-local by construction (`WFR-17` holds).
+        # CP5 adds `ingest_manual_review_verdict` in the same file, the
+        # record-manual commands' generation check (`LPR-R2-002`).
         Path("scripts/workflow_state.py"),
     })
 

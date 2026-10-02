@@ -349,7 +349,9 @@ class ReviewContentIdMismatchError(Exception):
 
 class WorktreeOrHeadMismatchError(Exception):
     """Raised by a **repository-local** consumer (`/approve-review`,
-    `/review-plan`, `/review-implementation`) when the current worktree
+    `/review-plan`, `/review-implementation`, and -- workflow-2.7.0 --
+    `/record-manual-plan-review`/`/record-manual-implementation-review`
+    through `workflow_state.ingest_manual_review_verdict`) when the current worktree
     root or HEAD SHA differs from what `MANIFEST.md` recorded at
     bundle-generation time — the actual first-party Milestone-8 incident
     (a stale bundle read from a different worktree) this check exists to
@@ -3159,7 +3161,10 @@ def assert_local_generation_matches(
     repo_root: Path, manifest_path: Path, *, require_metadata: bool = False,
 ) -> None:
     """**Repository-local commands only** (`/approve-review`,
-    `/review-plan`, `/review-implementation`, and -- workflow-2.7.0 -- the
+    `/review-plan`, `/review-implementation`, and -- workflow-2.7.0 --
+    `/record-manual-plan-review`/`/record-manual-implementation-review` and
+    the protocol's `record-external-result`, all through
+    `workflow_state.ingest_manual_review_verdict`, and the
     repository-aware gate wrappers `workflow_state.plan_approval_gate_status`/
     `technical_approval_gate_status`, which `/approve-review` and the
     orchestration protocol's `next-action` call): stop if the current worktree

@@ -1156,6 +1156,24 @@ class ImplementationReviewBundleUnverifiedError(Exception):
     and both values. Remedy: regenerate the implementation bundle."""
 
 
+class ManualVerdictHeaderError(Exception):
+    """`ingest_manual_review_verdict`'s header check (workflow-2.7.0,
+    D-OP-External): the verdict lacks a field its ingest row requires --
+    `Status:`, `Reviewer role:` and a `review_content_id` label at a
+    two-stage row, `Status:` and the three binding fields at a
+    feedback-only row -- or states a `Round:` that is not a positive
+    integer. Names every missing field. Nothing is written."""
+
+
+class ConflictingReviewFeedbackError(Exception):
+    """`ingest_manual_review_verdict` at a feedback-only row
+    (workflow-2.7.0, `MPR-R7-002`): `REVIEW_FEEDBACK.md` already holds a
+    different verdict that binds to the current bundle, so a second,
+    concurrent or later ingest would silently replace a current verdict.
+    Identical bytes are the no-op; a verdict that no longer binds (an
+    earlier round's) is replaced. Nothing is written."""
+
+
 class InvalidPlanReviewBindingError(Exception):
     """Raised by `validate_state` for a malformed `plan_review_binding`
     record: an unknown `status`, a present `null`, a missing or extra key,
@@ -1827,7 +1845,7 @@ def _assert_technical_review_block_pins_monotonic(previous_state: dict, new_stat
             )
 
 
-def state_transaction(repo_root: Path, mutator, *, path: Path = DEFAULT_STATE_PATH) -> dict:
+def state_transaction(repo_root: Path, mutator, *, path: Path = DEFAULT_STATE_PATH, before_publish=None) -> dict:
     """The single required entry point for every production writer of
     `WORKFLOW_STATE.json` (item 354): holds `state_lock` across the
     **complete** critical section -- re-read `path` from disk, call
@@ -1843,12 +1861,22 @@ def state_transaction(repo_root: Path, mutator, *, path: Path = DEFAULT_STATE_PA
     from an earlier, unguarded read. Also enforces D2a's pin-ledger
     monotonicity (`_assert_technical_review_block_pins_monotonic`) against
     every candidate before it is ever published, for every caller, whether
-    or not this particular write touches that field."""
+    or not this particular write touches that field.
+
+    `before_publish` (workflow-2.7.0, `MPR-R7-002`/`MPR-R8-003`): an
+    optional callable receiving the candidate state, run inside the lock
+    after every pre-publication check and immediately before
+    `_publish_state_file` -- a check added later goes before it. An
+    exception from it aborts the transaction with nothing published.
+    `ingest_manual_review_verdict` writes its feedback file here, so the
+    file and the state it records are one critical section."""
     full_path = repo_root / path
     with state_lock(repo_root):
         state = _load_json(full_path) or {}
         new_state = mutator(state)
         _assert_technical_review_block_pins_monotonic(state, new_state)
+        if before_publish is not None:
+            before_publish(new_state)
         _publish_state_file(full_path, new_state)
     return new_state
 
@@ -16586,6 +16614,350 @@ def record_manual_implementation_review(
     work_item["last_transition"] = now
     _validate_implementation_review_stages(work_item)
     return new_state
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.7.0 (ORCHESTRATION_PROTOCOL_V1_PLAN.md, D-OP-External, CP5): the
+# one ingest of a manual external review verdict, shared by
+# `/record-manual-plan-review`, `/record-manual-implementation-review` and
+# the orchestration protocol's `record-external-result`. One row of the
+# ingest table is selected from the item's stage, governing version and
+# phase; its guards run in 2.6.0's command order, on the state re-read under
+# `state_lock`, and the feedback file and the state are written in that same
+# critical section (`MPR-R7-002`).
+# ---------------------------------------------------------------------------
+
+MANUAL_VERDICT_STAGES = ("plan", "implementation")
+
+_MANUAL_VERDICT_ROUND_RE = re.compile(r"^Round:[ \t]*(.*?)[ \t]*$", re.MULTILINE)
+_POSITIVE_INTEGER_RE = re.compile(r"^[1-9][0-9]*$")
+
+#: The advisory reported when a two-stage verdict names no bundle
+#: (`LPR-R3-005`): `bundle_id` is recorded as `null`.
+ABSENT_REVIEWED_BUNDLE_ID_ADVISORY = "Reviewed bundle ID: absent"
+
+
+def _manual_verdict_row_is_two_stage(work_item: dict, *, stage: str, two_stage_only: bool) -> bool:
+    """Whether `stage`'s ingest row for this item's governing version is a
+    two-stage row; refuses an unmatched version (see
+    `select_manual_verdict_row`). The governing version alone decides it."""
+    if stage not in MANUAL_VERDICT_STAGES:
+        raise ValueError(f"unknown manual verdict stage {stage!r}")
+    version = work_item.get("governing_workflow_version")
+    if stage == "plan":
+        if version in TWO_STAGE_PLAN_REVIEW_VERSIONS:
+            return True
+        if version == "1" and not two_stage_only:
+            return False
+        _require_v2_1_plan_review(work_item)
+    if version == "2.2":
+        return True
+    if version in ("1", "2.1") and not two_stage_only:
+        return False
+    _require_implementation_review_stage_version(work_item)
+    raise AssertionError("unreachable")
+
+
+_MANUAL_VERDICT_ROW_PHASES = {
+    ("plan", True): "AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW",
+    ("plan", False): "AWAITING_EXTERNAL_PLAN_REVIEW",
+    ("implementation", True): "AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+    ("implementation", False): "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW",
+}
+
+
+def select_manual_verdict_row(work_item: dict, *, stage: str, two_stage_only: bool = False) -> dict:
+    """D-OP-External's row selection for `ingest_manual_review_verdict`:
+    `{stage, two_stage, phase}`, where `phase` is the row's accepted phase.
+    The two-stage rows are the plan stage at `TWO_STAGE_PLAN_REVIEW_VERSIONS`
+    and the implementation stage at `"2.2"`; the feedback-only rows are the
+    plan stage at `"1"` and the implementation stage at `"1"`/`"2.1"`.
+
+    `two_stage_only` is the record-manual commands' 2.6.0 governing-version
+    guard: a feedback-only item refuses with
+    `WrongGoverningVersionForPlanReviewStageError`/
+    `WrongGoverningVersionForImplementationReviewStageError`, as any other
+    unmatched governing version does. A matched version at another phase
+    refuses with `WrongPhaseForPlanReviewStageError`/
+    `WrongPhaseForImplementationReviewStageError`. The protocol reports
+    each of these as `not_applicable`."""
+    two_stage = _manual_verdict_row_is_two_stage(work_item, stage=stage, two_stage_only=two_stage_only)
+    phase = _MANUAL_VERDICT_ROW_PHASES[(stage, two_stage)]
+    if work_item.get("phase") != phase:
+        wrong_phase = WrongPhaseForPlanReviewStageError if stage == "plan" else WrongPhaseForImplementationReviewStageError
+        raise wrong_phase(
+            f"{work_item['work_item_id']}: phase is {work_item.get('phase')!r}, not {phase!r} -- no "
+            f"{stage}-stage manual verdict is accepted at governing version "
+            f"{work_item.get('governing_workflow_version')!r} in this phase"
+        )
+    return {"stage": stage, "two_stage": two_stage, "phase": phase}
+
+
+def parse_manual_verdict(verdict_text: str) -> dict:
+    """The verdict's fields, by the Workflow's verdict parser
+    (`parse_review_feedback_header`, `D-Feedback-Label`), plus `round`: the
+    text of a header-block `Round:` line, or `None` when absent. Reads no
+    state and refuses nothing; `require_manual_verdict_fields` checks them
+    against the selected row."""
+    fields = fingerprint.parse_review_feedback_header(verdict_text)
+    round_match = _MANUAL_VERDICT_ROUND_RE.search(fingerprint.feedback_header_block(verdict_text))
+    fields["round"] = round_match.group(1) if round_match is not None else None
+    return fields
+
+
+def require_manual_verdict_fields(fields: dict, *, two_stage: bool) -> dict:
+    """Refuses with `ManualVerdictHeaderError` when a field the row
+    requires is missing -- `Status:`, `Reviewer role:` and a
+    `review_content_id` label at a two-stage row (the three values 2.6.0's
+    commands hard-checked); `Status:` and the three binding fields at a
+    feedback-only row -- or, at a two-stage row, when `Round:` is present
+    but not a positive integer. Returns `fields` with `round` an `int` or
+    `None` (always `None` at a feedback-only row, which records no round)."""
+    if two_stage:
+        required = ("status", "reviewer_role", "review_content_id")
+    else:
+        required = ("status", "reviewed_bundle_id", "reviewed_base_commit", "work_item")
+    labels = {
+        "status": "Status:", "reviewer_role": "Reviewer role:",
+        "review_content_id": f"a review_content_id label ({fingerprint.FEEDBACK_REVIEW_CONTENT_ID_LABEL}) "
+                             f"in the header block, before the first '## ' section that follows a field",
+        "reviewed_bundle_id": "Reviewed bundle ID:", "reviewed_base_commit": "Reviewed base commit:",
+        "work_item": "Work item:",
+    }
+    missing = [labels[key] for key in required if fields.get(key) is None]
+    if missing:
+        raise ManualVerdictHeaderError(
+            f"the verdict is missing {', '.join(missing)} -- required at a "
+            f"{'two-stage' if two_stage else 'feedback-only'} ingest row. Nothing was written"
+        )
+    if not two_stage:
+        return dict(fields, round=None)
+    stated_round = fields.get("round")
+    if stated_round is not None and not isinstance(stated_round, int):
+        if not _POSITIVE_INTEGER_RE.match(stated_round):
+            raise ManualVerdictHeaderError(
+                f"the verdict states Round: {stated_round!r}, not a positive integer. Nothing was written"
+            )
+        fields = dict(fields, round=int(stated_round))
+    return fields
+
+
+def _write_review_feedback_atomically(path: Path, text: str) -> None:
+    """`text` to `path` through a same-directory temporary file and
+    `os.replace`, so a reader sees the old file or the new one, never a
+    partial write."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(dir=str(path.parent), prefix=f".{path.name}-", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as handle:
+            handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp_name, path)
+    except BaseException:
+        Path(tmp_name).unlink(missing_ok=True)
+        raise
+
+
+def _store_manual_verdict(repo_root: Path, work_item_id: str, verdict_text: str, *, state: dict) -> bool:
+    """D-OP-External step 5: writes the verdict to the resolved
+    `<feedback_dir>/REVIEW_FEEDBACK.md` under the feedback-ownership guard.
+    Identical bytes are the no-op (returns `False`)."""
+    path = Path(repo_root) / fingerprint.resolve_feedback_dir(repo_root, work_item_id) / "REVIEW_FEEDBACK.md"
+    existing = read_review_feedback(repo_root, work_item_id)
+    if existing == verdict_text:
+        return False
+    fingerprint.assert_feedback_not_owned_by_other_work_item(existing, work_item_id=work_item_id, state=state)
+    _write_review_feedback_atomically(path, verdict_text)
+    return True
+
+
+def _manual_verdict_bundle_advisory(feedback_bundle_id: str | None, current_bundle_id: str) -> str | None:
+    if feedback_bundle_id is None:
+        return ABSENT_REVIEWED_BUNDLE_ID_ADVISORY
+    return check_manual_stage_bundle_id_advisory(feedback_bundle_id, current_bundle_id)
+
+
+def _join_advisories(*advisories: str | None) -> str | None:
+    present = [advisory for advisory in advisories if advisory]
+    return "; ".join(present) if present else None
+
+
+def _two_stage_manual_verdict_guards(repo_root: Path, state: dict, work_item_id: str, *, stage: str,
+                                     verdict_text: str, fields: dict) -> dict:
+    """The two-stage rows' guards, in 2.6.0's command order, except the
+    final `assert_bundle_not_rejected`. Returns the recomputed content and
+    bundle ids and the advisory."""
+    work_item = state["work_items"][work_item_id]
+    fingerprint.assert_manual_feedback_names_work_item(verdict_text, work_item_id=work_item_id)
+    if stage == "plan":
+        bundle_rel = fingerprint.resolve_bundle_dir(repo_root, work_item_id, stage="plan")
+        fingerprint.assert_local_generation_matches(
+            repo_root, Path(repo_root) / bundle_rel / fingerprint.MANIFEST_FILENAME)
+        fingerprint.assert_bundle_not_rejected(repo_root, work_item_id)
+        bound_advisory = assert_plan_review_bundle_bound(repo_root, work_item_id, state=state)
+        current_content_id, _ = fingerprint.compute_review_content_id_plan_stage_for_work_item(
+            repo_root, work_item_id)
+        validate_manual_plan_review_preconditions(
+            work_item, current_review_content_id=current_content_id, feedback_role=fields["reviewer_role"],
+            feedback_review_content_id=fields["review_content_id"],
+        )
+        current_bundle_id, _ = fingerprint.compute_bundle_id(Path(repo_root) / bundle_rel)
+    else:
+        bound_advisory = None
+        verified = verify_implementation_review_bundle(repo_root, work_item_id, state=state)
+        bundle_rel = fingerprint.resolve_bundle_dir(repo_root, work_item_id)
+        fingerprint.assert_local_generation_matches(
+            repo_root, Path(repo_root) / bundle_rel / fingerprint.MANIFEST_FILENAME)
+        fingerprint.assert_bundle_not_rejected(repo_root, work_item_id)
+        current_content_id = verified["review_content_id"]
+        validate_manual_implementation_review_preconditions(
+            work_item, current_review_content_id=current_content_id, feedback_role=fields["reviewer_role"],
+            feedback_review_content_id=fields["review_content_id"],
+        )
+        current_bundle_id = verified["bundle_id"]
+    return {
+        "review_content_id": current_content_id,
+        "advisory": _join_advisories(
+            bound_advisory, _manual_verdict_bundle_advisory(fields["reviewed_bundle_id"], current_bundle_id)),
+    }
+
+
+def _local_approval_round(work_item: dict, stage: str) -> int:
+    if stage == "plan":
+        return normalize_plan_review_stages(work_item["plan_review_stages"])[LOCAL_MODEL_PLAN_REVIEW]["round"]
+    stages = normalize_implementation_review_stages(work_item["implementation_review_stages"])
+    return stages[LOCAL_MODEL_IMPLEMENTATION_REVIEW]["round"]
+
+
+def ingest_manual_review_verdict(
+    repo_root: Path, work_item_id: str, *, stage: str, verdict_text: str, now: str,
+    two_stage_only: bool = False,
+) -> dict:
+    """The one ingest of a manual external review verdict (workflow-2.7.0,
+    D-OP-External), called with the verdict's text by
+    `/record-manual-plan-review` and `/record-manual-implementation-review`
+    (`two_stage_only=True`, their 2.6.0 governing-version guard) and by the
+    orchestration protocol's `record-external-result`. In order:
+
+    1. parses the verdict (`parse_manual_verdict`, reading no state);
+    2. holds `state_lock` through step 6, so the steps below read the state
+       fresh and no other ingest or state writer runs between them;
+    3. selects the ingest row (`select_manual_verdict_row`) and checks its
+       required fields (`ManualVerdictHeaderError`);
+    4. runs the row's guards in order, the last `assert_bundle_not_rejected`
+       immediately before step 5. A two-stage row then computes
+       `record_manual_plan_review`/`record_manual_implementation_review`,
+       which is pure, so a refusal of the writer also precedes any write;
+    5. writes `verdict_text` to `<feedback_dir>/REVIEW_FEEDBACK.md`
+       atomically, under `assert_feedback_not_owned_by_other_work_item`;
+       identical bytes are the no-op. A feedback-only row first refuses a
+       different verdict that already binds to the current bundle
+       (`ConflictingReviewFeedbackError`);
+    6. a two-stage row publishes the state of step 4 through
+       `state_transaction` (steps 3-4 are its mutator, step 5 its
+       `before_publish`); a feedback-only row writes no state.
+
+    The guards: a two-stage plan row runs
+    `assert_manual_feedback_names_work_item`, `assert_local_generation_matches`,
+    `assert_bundle_not_rejected`, `assert_plan_review_bundle_bound`,
+    `validate_manual_plan_review_preconditions` and
+    `check_manual_stage_bundle_id_advisory`; the implementation row runs
+    `verify_implementation_review_bundle` in place of the bound check,
+    before `assert_local_generation_matches`, with
+    `validate_manual_implementation_review_preconditions`. A feedback-only
+    row runs `assert_manual_feedback_names_work_item`,
+    `assert_bundle_not_rejected` and `assert_feedback_matches_bundle`
+    against the current bundle.
+
+    `round` is the verdict's `Round:`, else the round of the local
+    `APPROVE` of the same content; `bundle_id` is its `Reviewed bundle ID:`,
+    recorded verbatim, else `null` with the advisory
+    `"Reviewed bundle ID: absent"` and no advisory check. Both are `None` at
+    a feedback-only row. Returns `{stage, verdict, review_content_id, round,
+    bundle_id, advisory, feedback_written}`."""
+    repo_root = Path(repo_root)
+    parsed = parse_manual_verdict(verdict_text)
+    peek = (_load_json(repo_root / DEFAULT_STATE_PATH) or {})["work_items"][work_item_id]
+    two_stage = _manual_verdict_row_is_two_stage(peek, stage=stage, two_stage_only=two_stage_only)
+    if two_stage:
+        return _ingest_two_stage_manual_verdict(
+            repo_root, work_item_id, stage=stage, verdict_text=verdict_text, parsed=parsed, now=now,
+            two_stage_only=two_stage_only)
+    return _ingest_feedback_only_verdict(
+        repo_root, work_item_id, stage=stage, verdict_text=verdict_text, parsed=parsed)
+
+
+def _ingest_two_stage_manual_verdict(repo_root: Path, work_item_id: str, *, stage: str, verdict_text: str,
+                                     parsed: dict, now: str, two_stage_only: bool) -> dict:
+    outcome: dict = {}
+
+    def mutator(state: dict) -> dict:
+        work_item = state["work_items"][work_item_id]
+        row = select_manual_verdict_row(work_item, stage=stage, two_stage_only=two_stage_only)
+        if not row["two_stage"]:
+            raise AssertionError(f"{work_item_id}'s ingest row changed under the lock: {row!r}")
+        fields = require_manual_verdict_fields(parsed, two_stage=True)
+        guarded = _two_stage_manual_verdict_guards(
+            repo_root, state, work_item_id, stage=stage, verdict_text=verdict_text, fields=fields)
+        fingerprint.assert_bundle_not_rejected(repo_root, work_item_id)
+        round_ = fields["round"] if fields["round"] is not None else _local_approval_round(work_item, stage)
+        writer = record_manual_plan_review if stage == "plan" else record_manual_implementation_review
+        new_state = writer(
+            state, work_item_id, verdict=fields["status"], bundle_id=fields["reviewed_bundle_id"], round=round_,
+            now=now, current_review_content_id=guarded["review_content_id"],
+            feedback_role=fields["reviewer_role"], feedback_review_content_id=fields["review_content_id"],
+        )
+        outcome.update({
+            "stage": stage, "verdict": fields["status"], "review_content_id": guarded["review_content_id"],
+            "round": round_, "bundle_id": fields["reviewed_bundle_id"], "advisory": guarded["advisory"],
+            "_state": state,
+        })
+        return new_state
+
+    def before_publish(new_state: dict) -> None:
+        outcome["feedback_written"] = _store_manual_verdict(
+            repo_root, work_item_id, verdict_text, state=outcome.pop("_state"))
+
+    state_transaction(repo_root, mutator, before_publish=before_publish)
+    return outcome
+
+
+def _ingest_feedback_only_verdict(repo_root: Path, work_item_id: str, *, stage: str, verdict_text: str,
+                                  parsed: dict) -> dict:
+    with state_lock(repo_root):
+        state = _load_json(repo_root / DEFAULT_STATE_PATH) or {}
+        work_item = state["work_items"][work_item_id]
+        row = select_manual_verdict_row(work_item, stage=stage)
+        if row["two_stage"]:
+            raise AssertionError(f"{work_item_id}'s ingest row changed under the lock: {row!r}")
+        fields = require_manual_verdict_fields(parsed, two_stage=False)
+        fingerprint.assert_manual_feedback_names_work_item(verdict_text, work_item_id=work_item_id)
+        fingerprint.assert_bundle_not_rejected(repo_root, work_item_id)
+        bundle_rel = fingerprint.resolve_bundle_dir(
+            repo_root, work_item_id, stage="plan" if stage == "plan" else None)
+        bundle_id, _ = fingerprint.compute_bundle_id(repo_root / bundle_rel)
+        binding = {"bundle_id": bundle_id, "base_commit": work_item["base_commit"], "work_item_id": work_item_id}
+        fingerprint.assert_feedback_matches_bundle(fields, **binding)
+        existing = read_review_feedback(repo_root, work_item_id)
+        if existing is not None and existing != verdict_text:
+            try:
+                fingerprint.assert_feedback_matches_bundle(
+                    fingerprint.parse_review_feedback_binding_fields(existing), **binding)
+            except (fingerprint.MissingFeedbackBindingFieldError, fingerprint.FeedbackBundleMismatchError):
+                pass
+            else:
+                raise ConflictingReviewFeedbackError(
+                    f"{work_item_id}: REVIEW_FEEDBACK.md already holds a different verdict for the current "
+                    f"bundle {bundle_id} (Status: "
+                    f"{fingerprint.parse_review_feedback_binding_fields(existing)['status']}) -- refusing to "
+                    f"replace a current verdict. Nothing was written"
+                )
+        written = _store_manual_verdict(repo_root, work_item_id, verdict_text, state=state)
+    return {
+        "stage": stage, "verdict": fields["status"], "review_content_id": fields["review_content_id"],
+        "round": None, "bundle_id": None, "advisory": None, "feedback_written": written,
+    }
 
 
 # ---------------------------------------------------------------------------

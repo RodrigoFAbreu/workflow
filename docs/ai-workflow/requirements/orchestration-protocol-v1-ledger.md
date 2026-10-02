@@ -299,3 +299,105 @@ worker requirements, `allowed_results`, stale-decision refusal), REQ-4
   `workflow_state_completion_obligations_test.py` 106 OK,
   `workflow_fingerprint_generalization_test.py` 105 OK.
   `workflow-manager verify .`: installation matches workflow 2.6.0.
+
+## `CP5` — `record-external-result` and the shared ingest
+
+Requirements: REQ-5 (`record-external-result`: one Workflow-owned ingest for
+manual plan and implementation verdicts, shared by the commands), REQ-7's
+ingest half (the required `review_content_id` label at the two-stage rows).
+
+- **Implementation** (release source only):
+  - `payload/scripts/workflow_state.py`: `state_transaction`'s
+    `before_publish` keyword, run after the pin-monotonicity check and
+    immediately before `_publish_state_file` (`MPR-R7-002`, `MPR-R8-003`);
+    `ManualVerdictHeaderError`, `ConflictingReviewFeedbackError`;
+    `select_manual_verdict_row` (the four rows of D-OP-External's table by
+    stage, `gv` and phase; `two_stage_only` keeps the record-manual
+    commands' 2.6.0 governing-version guard), `parse_manual_verdict` and
+    `require_manual_verdict_fields` (CP1's parser plus a header-block
+    `Round:`), and `ingest_manual_review_verdict`. A two-stage row runs the
+    row selection, the header check, the guards in 2.6.0's order
+    (`verify_implementation_review_bundle` before
+    `assert_local_generation_matches` at the implementation row,
+    `LPR-R5-002`), the second `assert_bundle_not_rejected` and the pure
+    `record_manual_*_review` call as `state_transaction`'s mutator, and
+    the atomic feedback write (under `assert_feedback_not_owned_by_other_work_item`,
+    identical bytes a no-op) as its `before_publish`. A feedback-only row
+    holds `state_lock` around the same steps and writes no state; it
+    refuses a different verdict that already binds to the current bundle.
+    `round` is `Round:` or the local `APPROVE`'s round; `bundle_id` is
+    `Reviewed bundle ID:` verbatim, or `null` with the advisory
+    `"Reviewed bundle ID: absent"` and no advisory check (`LPR-R3-005`).
+  - `payload/scripts/workflow_protocol.py`: `record-external-result
+    --work-item ID --kind KIND --input FILE`; `EXTERNAL_RESULT_KINDS` is
+    `plan_review_verdict` and `implementation_review_verdict`; reserved
+    kinds are `unsupported_result_kind`, an unknown kind or unreadable
+    input `invalid_request`; a refusal meaning "no row here" (wrong phase
+    or governing version, or a duplicate stage) is `not_applicable`, every
+    other Workflow refusal `refused`. The result is `{stage, verdict,
+    review_content_id, round, bundle_id, advisory, basis}`. The module now
+    declares `state_writer: true`: this operation writes, through
+    `workflow_state.state_transaction`/`state_lock`.
+  - `payload/scripts/workflow_fingerprint.py`: the docstrings of
+    `assert_local_generation_matches` and `WorktreeOrHeadMismatchError` name
+    the record-manual commands, through the ingest, as callers (`LPR-R2-002`).
+  - Commands: `record-manual-plan-review.md` and
+    `record-manual-implementation-review.md` state that steps 2-7 are one
+    call to the ingest with `two_stage_only=True`, holding the lock through
+    the publication; the steps document its order; the required header
+    fields, `Round:`, and the absent-bundle-id advisory are stated.
+  - `payload/docs/ai-workflow/orchestration-protocol-v1.schema.json`: the
+    `record-external-result` result.
+- **Tests**: `workflow_state_test.py` gains
+  `TestManualVerdictIngestRecordsAs260` (each verdict at both two-stage
+  stages gives the `record_manual_*_review` state; the `## Review Decision`
+  and no-`Work item:` shapes; both labels; the identical-bytes no-op),
+  `TestManualVerdictIngestRefusals` (every listed refusal leaves the state
+  and the feedback file byte-identical, including the verifier's
+  precedence over the generation check and a `REJECTED` marker placed
+  after the guards), `TestManualVerdictRoundAndBundleId`,
+  `TestManualVerdictIngestCrashWindow`, `TestStateTransactionBeforePublish`
+  (a hook exception publishes nothing; checks, hook, publish order; a
+  failed pin check never calls the hook) and
+  `TestConcurrentManualVerdictIngests` (real processes: at each two-stage
+  row two different verdicts started together, and the first paused
+  between its guards and its write while the second blocks on the lock;
+  at each feedback-only row, the conflict and the no-op).
+  `workflow_protocol_test.py` gains `TestRecordExternalResultTwoStage`
+  (the command path's state at every two-stage row and verdict; the same
+  `round`/`bundle_id` through both paths; refusals; a duplicate and a retry
+  are `not_applicable`; the crash window retried once through either path,
+  with rows 13/27 reported in between; `MPR-R8-001`'s absent and
+  pre-regeneration bundle ids routing to row 8/36, whose command accepts
+  the file by content), `TestRecordExternalResultFeedbackOnly` and
+  `TestRecordExternalResultApplicability`; the record-external command
+  guards now run the ingest, and the command documents must name it.
+  `workflow_integration_test.py`: `record-manual-plan-review.md`'s golden
+  hash.
+- **Deviations from the plan's text, found while implementing**:
+  - No row is reported by the existing `WrongPhaseFor*ReviewStageError`/
+    `WrongGoverningVersionFor*ReviewStageError` classes rather than a new
+    one: the command path then refuses exactly as 2.6.0's steps 2-3 did,
+    and the protocol maps them (and the two `Duplicate*` classes) to
+    `not_applicable` inside the operation, not in the global exception
+    table.
+  - Whether a row is two-stage depends on the governing version alone, so
+    the ingest reads it before taking the lock to choose between
+    `state_transaction` and a bare `state_lock`; the row itself, and every
+    guard, is selected and run on the state re-read under the lock.
+  - `ingest_manual_review_verdict` also returns `feedback_written`, which
+    the protocol result omits.
+- **Not yet in the manifest**: as for CP4, the new files stay out of
+  `manifest.json` until CP7.
+- **Verification**: the eight release-source suites in a conformance fixture
+  staged by `tools/release/release.py stage-conformance` from an
+  unreferenced commit of the working tree whose `manifest.json` digests and
+  sizes were refreshed and the three CP3 files listed in that commit only:
+  `workflow_protocol_test.py` 197 OK, `workflow_fingerprint_test.py` 256 OK,
+  `workflow_state_test.py` 1011 OK (1 skipped), `workflow_test_harness_test.py`
+  22 OK, `workflow_integration_test.py` 267 OK,
+  `workflow_acceptance_matrix_test.py` 291 OK (18 skipped),
+  `workflow_state_completion_obligations_test.py` 106 OK,
+  `workflow_fingerprint_generalization_test.py` 105 OK. Only a comment in
+  `workflow_integration_test.py`'s `EXPECTED_CALL_SITES` changed after
+  staging.

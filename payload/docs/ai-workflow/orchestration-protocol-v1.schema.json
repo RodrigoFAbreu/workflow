@@ -306,6 +306,20 @@
             "basis": {"$ref": "#/$defs/nullable_basis"},
             "next": {"type": ["object", "null"]}
           }
+        },
+        "record-external-result": {
+          "type": "object",
+          "required": ["stage", "verdict", "review_content_id", "round", "bundle_id", "advisory", "basis"],
+          "additionalProperties": false,
+          "properties": {
+            "stage": {"type": "string", "enum": ["implementation", "plan"]},
+            "verdict": {"type": "string", "enum": ["APPROVE", "BLOCK", "REVISE"]},
+            "review_content_id": {"type": ["string", "null"]},
+            "round": {"type": ["integer", "null"]},
+            "bundle_id": {"type": ["string", "null"]},
+            "advisory": {"type": ["string", "null"]},
+            "basis": {"$ref": "#/$defs/basis"}
+          }
         }
       }
     }

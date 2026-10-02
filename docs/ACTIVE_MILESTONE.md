@@ -14,8 +14,8 @@ plus the `v2.6.0-001` and `v2.6.0-002` follow-ups.
 
 ## Current checkpoint
 
-Implementing. Plan revision 12 approved in `ecf05b0`. `CP1` to `CP4` are
-complete; `CP5` is next. The per-checkpoint record is the requirements
+Implementing. Plan revision 12 approved in `ecf05b0`. `CP1` to `CP5` are
+complete; `CP6` is next. The per-checkpoint record is the requirements
 ledger, `docs/ai-workflow/requirements/orchestration-protocol-v1-ledger.md`.
 
 ### CP2 evidence: 2.6.0 reads a 2.7.0-written state (2026-10-02)
@@ -48,7 +48,7 @@ None.
 
 ## Next action
 
-`/milestone-implement orchestration-protocol-v1` for `CP5`.
+`/milestone-implement orchestration-protocol-v1` for `CP6`.
 
 ---
 

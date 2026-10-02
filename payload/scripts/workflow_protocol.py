@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# state_writer: false
+# state_writer: true
 """Orchestration Protocol v1: the Workflow's versioned public contract for
 an orchestrator (`docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md`,
 D-OP-Surface).
@@ -12,10 +12,13 @@ and never shells out to them. stdout is exactly one JSON document, the
 envelope; diagnostics go to stderr. Exit codes: 0 `ok: true`; 3 a refusal
 with a stable code; 2 `invalid_request`; 1 `internal_error`.
 
-Operations: `describe`, `verify`, `resolve-artifact`, `next-action` and
-`reconcile`. Every read path here is read-only: the state is read under a
-shared lock on `WORKFLOW_STATE.lock`, never the write lock, and nothing is
-written.
+Operations: `describe`, `verify`, `resolve-artifact`, `next-action`,
+`reconcile` and `record-external-result`. Every read path here is
+read-only: the state is read under a shared lock on `WORKFLOW_STATE.lock`,
+never the write lock, and nothing is written. `record-external-result` is
+the one writer: it calls `workflow_state.ingest_manual_review_verdict`,
+which holds `state_lock` and publishes through `state_transaction`, as the
+record-manual commands do.
 
 Stdlib-only.
 """
@@ -23,6 +26,7 @@ Stdlib-only.
 from __future__ import annotations
 
 import argparse
+import datetime
 import fcntl
 import hashlib
 import json
@@ -84,8 +88,13 @@ WORKFLOW_EXCEPTION_CODES = {
 #: never emits (`OD-W1-7`).
 DISPOSITIONS = ("automatic", "validation", "human_gate", "external_gate", "blocked", "complete")
 
-#: D-OP-External's result kinds: accepted, and reserved for W2.
-EXTERNAL_RESULT_KINDS: tuple[str, ...] = ()
+#: D-OP-External's result kinds, each with the review stage it ingests,
+#: and the kinds reserved for W2.
+EXTERNAL_RESULT_KIND_STAGES = {
+    "plan_review_verdict": "plan",
+    "implementation_review_verdict": "implementation",
+}
+EXTERNAL_RESULT_KINDS = tuple(sorted(EXTERNAL_RESULT_KIND_STAGES))
 RESERVED_RESULT_KINDS = ("functional_evidence", "pr_review_result")
 
 #: D-OP-Next's worker roles.
@@ -2121,6 +2130,73 @@ def op_reconcile(repo_root: Path, args: argparse.Namespace) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# record-external-result (D-OP-External)
+# ---------------------------------------------------------------------------
+
+#: The ingest's refusals that mean "no ingest row accepts this verdict
+#: here" -- no row for the item's governing version and phase, or the
+#: stage already recorded for the current content -- reported as
+#: `not_applicable`, never `refused`.
+_NOT_APPLICABLE_INGEST_REFUSALS = (
+    workflow_state.WrongPhaseForPlanReviewStageError,
+    workflow_state.WrongPhaseForImplementationReviewStageError,
+    workflow_state.WrongGoverningVersionForPlanReviewStageError,
+    workflow_state.WrongGoverningVersionForImplementationReviewStageError,
+    workflow_state.DuplicateManualStageIngestionError,
+    workflow_state.DuplicateManualImplementationStageIngestionError,
+)
+
+
+def _utc_now() -> str:
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _check_result_kind(kind: str) -> None:
+    if kind in RESERVED_RESULT_KINDS:
+        raise ProtocolError("unsupported_result_kind", f"{kind!r} is reserved for a later protocol version")
+    if kind not in EXTERNAL_RESULT_KIND_STAGES:
+        raise ProtocolError(
+            "invalid_request", f"unknown result kind {kind!r}; the v1 kinds are {list(EXTERNAL_RESULT_KINDS)}")
+
+
+def record_external_result(repo_root: Path, work_item_id: str, kind: str, verdict_text: str) -> dict:
+    """Ingest an external result of `kind` for `work_item_id`. A reserved
+    kind is `unsupported_result_kind`, any other unknown kind
+    `invalid_request`. The verdict kinds call
+    `workflow_state.ingest_manual_review_verdict`, the ingest the
+    record-manual commands call, which selects the row, runs its guards and
+    writes the feedback file and the state; the orchestrator never reads or
+    writes a feedback path itself."""
+    _check_result_kind(kind)
+    work_item = work_item_of(load_valid_state(repo_root), work_item_id)
+    version = work_item.get("governing_workflow_version")
+    if version not in SUPPORTED_GOVERNING_VERSIONS:
+        raise ProtocolError(
+            "not_applicable",
+            f"{work_item_id}'s governing_workflow_version {version!r} is not one of "
+            f"{sorted(SUPPORTED_GOVERNING_VERSIONS)}")
+    try:
+        outcome = workflow_state.ingest_manual_review_verdict(
+            repo_root, work_item_id, stage=EXTERNAL_RESULT_KIND_STAGES[kind], verdict_text=verdict_text,
+            now=_utc_now())
+    except _NOT_APPLICABLE_INGEST_REFUSALS as exc:
+        raise ProtocolError("not_applicable", str(exc), exc) from exc
+    state, _config = read_state_and_config(repo_root)
+    result = {key: outcome[key] for key in ("stage", "verdict", "review_content_id", "round", "bundle_id", "advisory")}
+    result["basis"] = basis(repo_root, state, work_item_id)
+    return result
+
+
+def op_record_external_result(repo_root: Path, args: argparse.Namespace) -> dict:
+    _check_result_kind(args.kind)
+    try:
+        verdict_text = Path(args.input).read_text()
+    except (OSError, UnicodeDecodeError) as exc:
+        raise ProtocolError("invalid_request", f"cannot read the input file {args.input!r}: {exc}") from exc
+    return record_external_result(repo_root, args.work_item, args.kind, verdict_text)
+
+
+# ---------------------------------------------------------------------------
 # The CLI and the envelope (D-OP-Surface)
 # ---------------------------------------------------------------------------
 
@@ -2131,6 +2207,7 @@ OPERATIONS = {
     "resolve-artifact": op_resolve_artifact,
     "next-action": op_next_action,
     "reconcile": op_reconcile,
+    "record-external-result": op_record_external_result,
 }
 
 
@@ -2155,6 +2232,10 @@ def _parser() -> _Parser:
     p = sub.add_parser("reconcile")
     p.add_argument("--decision", required=True)
     p.add_argument("--work-item", default=None)
+    p = sub.add_parser("record-external-result")
+    p.add_argument("--work-item", required=True)
+    p.add_argument("--kind", required=True)
+    p.add_argument("--input", required=True)
     return parser
 
 
