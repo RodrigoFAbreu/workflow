@@ -328,6 +328,26 @@ E2E runs), and the installed `GoverningVersionEnumerationSweepTest`
 (`test_real_corpus_sweep_is_clean`, `scripts/`), `Ran 2 tests`, `OK`: the
 corpus, now including the reworded plan, is clean.
 
+### `CP7` revalidation after plan revision 13 (2026-10-02)
+
+`CP7`'s checkpoint text is unchanged; it was demoted by dependency closure
+on `CP4`. No release-source change (`git diff fec1b94 HEAD -- payload
+manifest.json templates fixtures tools .github/workflows/workflow-ci.yml
+docs/ROADMAP.md docs/RELEASING.md` is empty), so the manifest hashes
+recorded at `fec1b94` still describe the release source. Checked here:
+`payload/scripts/workflow_protocol_test.py`, `Ran 213 tests`, `OK`; the
+installed `GoverningVersionEnumerationSweepTest`, `Ran 9 tests`, `OK`;
+`workflow-manager verify .`, `installation matches workflow 2.6.0`.
+
+Not re-run in this environment: the `release.py build` byte-for-byte checks
+and the `release_test.py` cases that build a release (25 of 75 tests fail
+with `zlib_ng is not installed`). This machine has only Python 3.14, and the
+pinned `zlib-ng==1.0.0` wheel hash in `tools/release/deflate-requirements.txt`
+does not match the cp314 wheel, so the pinned runtime was not installed and
+the hash pin was not bypassed. The other 50 `release_test.py` tests pass. The
+Python 3.12 run recorded at `fec1b94` is the last full release-build
+verification, and nothing it covers has changed since.
+
 ## `CP5` — `record-external-result` and the shared ingest
 
 Requirements: REQ-5 (`record-external-result`: one Workflow-owned ingest for
