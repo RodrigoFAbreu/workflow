@@ -123,7 +123,7 @@ the branch itself.
 | `package` | `release.py build --commit HEAD`; the pinned Workflow Manager's `package verify` of the archive; `--release-dir` bootstrap and verify of a scratch repository; uploads the three assets as the `package` artifact |
 | `immutability` | `release.py check-pending` and `check-immutable` against the saved release list; when the manifest version is published, `check-immutable --published` against the downloaded `vV` assets |
 | `installation` | `workflow-manager verify .` with the pinned Manager |
-| `release-source-conformance` | `release.py stage-conformance --commit HEAD`, then the release source's own seven frozen suites in that fixture |
+| `release-source-conformance` | `release.py stage-conformance --commit HEAD`, then the release source's own eight frozen suites in that fixture |
 | `aggregate` | fails unless every job above succeeded |
 
 `PR title` runs `release.py check-title "$TITLE" --agree` on every pull
@@ -356,8 +356,11 @@ python tools/release/release_test.py
 python tools/release/release.py build --commit HEAD --out "$(mktemp -d)"
 ```
 
-`build` stages the release source from the commit, verifies it, builds it
-twice and requires identical bytes, checks the round trip, and prints the
+`build` stages the release source from the commit, verifies it, refuses
+when the release ships `scripts/workflow_protocol.py` (2.7.0 and later) and
+its `WORKFLOW_RELEASE` literal differs from the manifest's `workflow_version`
+(the release-constant guard: bump both together), builds it twice and
+requires identical bytes, checks the round trip, and prints the
 evidence: `version`, `files`, `zlib_ng`, `tar_sha256`, `archive_sha256` and
 `manifest_sha256`. At `v2.6.0`'s release source it prints the published
 digests (`archive_sha256=dc86a796…`, `manifest_sha256=d92517a2…`). The tar

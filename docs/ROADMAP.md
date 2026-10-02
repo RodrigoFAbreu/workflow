@@ -23,7 +23,7 @@ historical numbers; the table below is the current order.
 | # | Step | Section |
 |---|---|---|
 | W0 | **COMPLETE** (milestone `workflow-repository-setup`, accepted 2026-10-01; the post-acceptance squash-merge and `main` read-back, `docs/RELEASING.md` "Cutover" steps 5-6, remain) — Set this repository up for development: CI, a release workflow (build the package and `SHA256SUMS`, publish an immutable release), `main` protection with Conventional-Commit titles, `CLAUDE.md`, its own Workflow installation kept apart from the release source, and this roadmap | this table |
-| W1 | **NEXT** — Workflow 2.7, the first release developed here: Orchestration Protocol v1, and the `v2.6.0-001` and `v2.6.0-002` follow-ups | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
+| W1 | **COMPLETE** (milestone `orchestration-protocol-v1`; published as Workflow 2.7.0 when its pull request merges, then pinned in `workflow-manager`) — Workflow 2.7, the first release developed here: Orchestration Protocol v1, and the `v2.6.0-001` and `v2.6.0-002` follow-ups | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
 | W2 | Workflow 2.8: declarative gate policy, and a red or changes-requested pull request reopening the same work item | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
 
 The Workflow Controller consumes W1 (its C9, the Controller on the protocol) and W2 (its C10, gate
@@ -167,7 +167,27 @@ Documented residuals / follow-ups left by the accepted implementation:
 
 - `v2.4.0-002` is closed **qualified**: mixed-release worktrees remain unsupported until every registered worktree's branch has merged the 2.6.0 update (see the defect record's 2.6.0 disposition and `CLAUDE.md`);
 - `v2.4.0-001`'s separate `workflow_manager update`-rewrites-protected-paths hazard for an active `process` work item is out of scope and belongs to milestone 5;
-- `v2.6.0-001` (withdrawn plan-stage content can re-bind after a detour) is open — partially mitigated in 2.6.0, mandatory follow-up for a later Workflow release.
+- `v2.6.0-001` (withdrawn plan-stage content can re-bind after a detour) is open — partially mitigated in 2.6.0, mandatory follow-up for a later Workflow release. Fixed in 2.7.0.
+
+---
+
+## Workflow 2.7.0
+
+**Status:** Authored release, the first developed in this repository — milestone W1, `orchestration-protocol-v1` (section 1.9). The `Release` workflow publishes it when its pull request merges; `workflow-manager` installs it once its pin is added.
+
+Delivered:
+
+- Orchestration Protocol v1: `scripts/workflow_protocol.py` (`describe`, `verify`, `next-action`, `reconcile`, `record-external-result`, `resolve-artifact`), one versioned JSON envelope with stable error codes, its schema `docs/ai-workflow/orchestration-protocol-v1.schema.json`, and the normative specification `docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`, whose tables are tested against the code's own;
+- `next-action`'s total action catalogue over every phase and governing version, with dispositions, worker requirements and stale-decision refusal; `reconcile` recognizes same-phase progress;
+- one Workflow-owned ingest for manual plan and implementation verdicts, shared by `record-external-result` and the `/record-manual-*-review` commands;
+- a two-stage `REVISE` applied by its `review_content_id`, the bundle fields advisory (`/apply-plan-review`, `/apply-implementation-review`);
+- `v2.6.0-001` fixed: a durable consumed plan-review history, so withdrawn, revised or amended content never re-binds;
+- `v2.6.0-002` fixed: the pinned `Reviewed review_content_id:` label, read from the feedback header only, with the legacy label accepted as an alias;
+- a new conformance suite, `workflow_protocol_test.py`, run by `workflow-conformance.yml` (eight suites).
+
+Compatibility: the 2.6.0 query CLIs are unchanged. A `review_content_id` stated only after the feedback's first `## ` section now parses as absent. Workflow Controller 1.5.0 does not admit 2.7.0; do not update a Controller-driven repository until the Controller does (its C9).
+
+Open, reported by the protocol rather than fixed: `v2.6.0-003` (see the Defect Disposition Summary).
 
 ---
 
@@ -786,7 +806,27 @@ Potential future work:
 | `v2.4.0-001-workflow-manager-installation-record-unclassified-at-plan-stage` | Closed in 2.6.0 (legacy active-item gap)      | Regression protection; separate update-rewrites-protected-paths hazard -> milestone 5 |
 | `v2.4.0-002-amendment-claim-race-crosses-worktree-boundary`                  | Closed, qualified, in 2.6.0                   | Mixed-release worktrees unsupported (documented residual) |
 | `v2.4.0-003-amendment-diff-anchored-at-head-is-always-empty`                 | Closed in 2.6.0                               | Regression protection only |
-| `v2.6.0-001-withdrawn-plan-content-can-rebind-after-a-detour`                | Open; partially mitigated in 2.6.0            | Mandatory follow-up in a later Workflow release |
+| `v2.6.0-001-withdrawn-plan-content-can-rebind-after-a-detour`                | Fixed in 2.7.0                                | Regression protection only |
+| `v2.6.0-002-review-content-id-label-not-pinned`                              | Fixed in 2.7.0                                | Regression protection only |
+| `v2.6.0-003-v1-state-tracked-item-cannot-advance`                            | Open; reported as `blocked` by the protocol   | Follow-up in a later Workflow release |
+
+`v2.6.0-003` (`OD-W1-10`): a work item governed by `"1"` that has a state entry cannot be advanced
+by any 2.6.0 or 2.7.0 command. `/milestone-plan`'s `"1"` branch writes no state at `PLANNING` or
+`AMENDING_PLAN`, and `/milestone-implement`'s `"1"` step 4 calls `record_bundle_generation` from
+`IMPLEMENTING`, which refuses (`IllegalBundleGenerationSourcePhaseError`). At the functional gate,
+a `"1"` item with a registry can never pass `/accept-milestone`'s step-2a pre-flight, since no
+`"1"` command writes checkpoint statuses (protocol row 38b, LPR-R4-004).
+`apply-functional-review.md`'s remediation-child sentence assumes the first of these works. The
+related 2.6.0 prose inaccuracy is corrected in 2.7.0: `accept-milestone.md` step 2a told the
+operator to finish an outstanding checkpoint with `/milestone-implement` from
+`AWAITING_FUNCTIONAL_REVIEW`, where `transition_checkpoint_in_progress` refuses (LPR-R5-003);
+`IncompleteOwnCheckpointsError`'s message still carries that advice. The `2.1`/`2.2` counterpart:
+no 2.6.0 or 2.7.0 command completes an outstanding checkpoint from `AWAITING_FUNCTIONAL_REVIEW` at
+any governing version (`/request-plan-amendment` refuses at that phase, and neither
+`/apply-functional-review` branch makes the parent's registry terminal); a legacy promotion or a
+hand-constructed state reaches it (protocol row 38c, LPR-R6-001). 2.7.0 reports these states as
+`blocked` and fixes none of them: fixing the `"1"` branches changes their v1-inert contract and
+golden-output test (`WF8a-ii`).
 
 Additional hardening items delivered in milestone 1 (Workflow 2.6.0):
 

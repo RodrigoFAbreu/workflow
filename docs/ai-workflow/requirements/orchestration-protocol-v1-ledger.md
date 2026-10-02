@@ -502,3 +502,67 @@ agree; protocol-only lifecycle E2E), REQ-1's specification half.
   self-review fixes and the symbol allowlist, the protocol, integration
   and harness suites were rerun green in a restaged fixture.
   `workflow-manager verify .`: the installation matches workflow 2.6.0.
+
+## `CP7` — Release 2.7.0
+
+Requirements: REQ-9 (2.7.0 releasable: manifest, conformance CI and template
+run the new suite, release-constant guard).
+
+- **Implementation**:
+  - `manifest.json`: `workflow_version` `2.7.0`; `provenance` is
+    `{origin: "authored", base_release: "2.6.0"}` (`OD-W1-4`), with
+    `overlay_commit`, every `overlay_delta` and the `overlay_*` counts
+    dropped; four new artifacts, `scripts/workflow_protocol.py`,
+    `docs/ai-workflow/ORCHESTRATION_PROTOCOL.md` and
+    `docs/ai-workflow/orchestration-protocol-v1.schema.json`
+    (`distribution`) and `scripts/workflow_protocol_test.py`
+    (`conformance`); refreshed `sha256`/`size` for the 23 changed artifacts,
+    each rationale extended with what W1 changed and in which checkpoint;
+    the `workflow-conformance.yml` template's digest, size and derivation;
+    `counts` 67 artifacts (42 distribution, 23 conformance, 2 host-evidence),
+    6 templates.
+  - `templates/.github/workflows/workflow-conformance.yml`: an eighth step,
+    `workflow_protocol_test.py`. `.github/workflows/workflow-ci.yml`: the
+    same step in `release-source-conformance`.
+  - `tools/release/package.py`: the release-constant guard,
+    `check_release_constant`, run by `build` before anything is written.
+    When the manifest lists `scripts/workflow_protocol.py`, the file must
+    hold exactly one `WORKFLOW_RELEASE = "<v>"` line equal to the manifest
+    version, or the build refuses and names both. `release_test.py`:
+    `ReleaseConstantGuardTest` (match, mismatch naming both, missing or
+    repeated literal, absence in a minimal 2.6.0 release and in each of the
+    five published releases, and HEAD's own release).
+  - `docs/ROADMAP.md`: W1 marked complete; a "Workflow 2.7.0" entry;
+    `v2.6.0-001` and `v2.6.0-002` "Fixed in 2.7.0" (the `v2.6.0-002` row was
+    missing and is added); the new `v2.6.0-003-v1-state-tracked-item-cannot-advance`
+    row with its write-up (both `"1"` gaps, row 38b, the remediation-child
+    sentence, the corrected step-2a prose and `IncompleteOwnCheckpointsError`'s
+    remaining advice, row 38c). `docs/RELEASING.md`: one sentence on the
+    guard, and "eight" suites.
+- **Verification** (Python 3.12.14, `zlib-ng` 1.0.0 / zlib-ng 2.2.5, Workflow
+  Manager 1.2.0 from the pinned wheel, sha256 checked), against an
+  unreferenced commit of the working tree, `67452e4`:
+  - `release.py build --commit 67452e4`: `version=2.7.0`, `files=74`,
+    `tar_sha256=96dc1154…`, `archive_sha256=1873fbbc…`,
+    `manifest_sha256=2dabaae0…`;
+  - `workflow-manager package verify`: `release 2.7.0, 73 files, verified`;
+    `--release-dir` bootstrap of a scratch repository: `bootstrapped
+    workflow 2.7.0 (full)`, and its verify: `installation matches workflow
+    2.7.0`;
+  - `check-title "feat: Workflow 2.7.0 with Orchestration Protocol v1"
+    --agree`: `impact=minor`, `version 2.6.0 -> 2.7.0 (minor) agrees with
+    the title`; `check-pending`: `ok: 2.6.0 -> 2.7.0 (minor)`;
+    `check-immutable`: `ok: version 2.7.0 is not published`;
+  - the eight release-source suites in the fixture staged from `67452e4`:
+    `workflow_fingerprint_test.py` 256 OK, `workflow_state_test.py` 1011 OK
+    (1 skipped), `workflow_test_harness_test.py` 22 OK,
+    `workflow_integration_test.py` 267 OK,
+    `workflow_acceptance_matrix_test.py` 291 OK (18 skipped),
+    `workflow_state_completion_obligations_test.py` 106 OK,
+    `workflow_fingerprint_generalization_test.py` 105 OK,
+    `workflow_protocol_test.py` 213 OK;
+  - `release_test.py`: 75 OK, including the five-release reproduction, in
+    a scratch clone with the change committed. In this working tree, before
+    the checkpoint commit, `test_round_trip` fails as expected: it builds
+    the committed `HEAD`, whose manifest is still CP6's;
+  - `workflow-manager verify .`: the installation matches workflow 2.6.0.

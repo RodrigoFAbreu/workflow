@@ -74,6 +74,11 @@ CONFORMANCE_STATE_TEMPLATES = ("docs/ai-workflow/WORKFLOW_STATE.json",
 
 GIT_TIMEOUT = 120
 
+#: The installed script that states its own release (Workflow 2.7.0 and
+#: later), and the literal it states it with (the release-constant guard).
+RELEASE_CONSTANT_TARGET = "scripts/workflow_protocol.py"
+RELEASE_CONSTANT_RE = re.compile(r'^WORKFLOW_RELEASE = "([^"\n]*)"$', re.MULTILINE)
+
 
 class PackageError(RuntimeError):
     """A release that cannot be staged, verified or built. Never guessed past."""
@@ -281,6 +286,37 @@ def verify_release(release_dir: Path) -> str:
     return version
 
 
+def check_release_constant(release_dir: Path) -> None:
+    """Refuse unless the release's own `WORKFLOW_RELEASE` names its manifest
+    version (the release-constant guard).
+
+    Applies only when the manifest lists `scripts/workflow_protocol.py`,
+    which no release before 2.7.0 has, so every published release still
+    builds. The file must hold exactly one `WORKFLOW_RELEASE = "<v>"` line.
+    """
+    root = Path(release_dir)
+    manifest = load_manifest(root)
+    version = manifest_version(manifest)
+    records = [record for record in manifest_records(manifest).values()
+               if record["target_path"] == RELEASE_CONSTANT_TARGET]
+    if not records:
+        return
+    location = records[0]["location"]
+    try:
+        text = (root / location).read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        raise PackageError(f"cannot read {location}: {exc}") from exc
+    found = RELEASE_CONSTANT_RE.findall(text)
+    if len(found) != 1:
+        raise PackageError(
+            f"{location} must state WORKFLOW_RELEASE exactly once, found {len(found)} "
+            f"(manifest version {version})")
+    if found[0] != version:
+        raise PackageError(
+            f"{location} states WORKFLOW_RELEASE = {found[0]!r}, but the manifest version is "
+            f"{version!r}: set both to the release being built")
+
+
 # -- building ----------------------------------------------------------------------
 
 
@@ -375,9 +411,14 @@ class Package:
 
 
 def build(release_dir: Path, out_dir: Path) -> Package:
-    """Pack the verified `release_dir` into its three assets in `out_dir`."""
+    """Pack the verified `release_dir` into its three assets in `out_dir`.
+
+    Refuses a release whose `WORKFLOW_RELEASE` differs from its manifest
+    version (`check_release_constant`) before writing anything."""
     deflate_runtime()
     root = Path(release_dir)
+    verify_release(root)
+    check_release_constant(root)
     version, tar_data = tar_stream(root)
     archive_data = gzip_bytes(tar_data)
     manifest_data = (root / MANIFEST_NAME).read_bytes()
