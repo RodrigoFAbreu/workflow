@@ -106,3 +106,73 @@ content never re-binds; 2.6.0 records migrate).
   291 OK (18 skipped), `workflow_state_completion_obligations_test.py` 106 OK,
   `workflow_fingerprint_generalization_test.py` 105 OK.
   `workflow-manager verify .`: installation matches workflow 2.6.0.
+
+## `CP3` — Protocol core
+
+Requirements: REQ-1 (one CLI, one envelope, unknown major fails closed,
+stable codes beside native diagnostics, `describe`; the specification half
+is CP6's), REQ-2 (`verify`), REQ-6 (`resolve-artifact`).
+
+- **Implementation** (release source only):
+  - `payload/scripts/workflow_protocol.py` (new, `state_writer: false`):
+    the CLI (`[--repo-root PATH] [--protocol-major N] <operation>`), argparse
+    errors raised as `invalid_request` and no `--help` (stdout carries the
+    envelope only); the envelope writer and exit codes 0/3/2/1;
+    `WORKFLOW_RELEASE = "2.7.0"`, `PROTOCOL_VERSION = "1.0"`,
+    `PROTOCOL_MAJOR = 1`; `ERROR_CODES` (the eleven v1 codes, only
+    `stale_decision` retryable); `is_workflow_exception` (origin test against
+    the imported modules' `__name__`) and `WORKFLOW_EXCEPTION_CODES`
+    (`InvalidWorkItemIdError` → `invalid_request`,
+    `FeedbackLayoutUndecidableError` → `state_unreadable`,
+    `UnknownFeedbackLayoutError` → `state_invalid`; any other Workflow
+    exception `refused`, anything else `internal_error`);
+    `read_state_and_config`, the single read where an `OSError` or a corrupt
+    file is `state_unreadable`, under a shared `flock` on an existing
+    `WORKFLOW_STATE.lock` opened read-only (never created, never the write
+    lock); `load_valid_state` (schema-only `validate_state`, refusal
+    `state_invalid`); `state_identity` and `basis`; `describe` (lists from
+    the module tables: `OPERATIONS`, `DISPOSITIONS`, `ACTION_IDS` (empty
+    until CP4), `ARTIFACT_KINDS`, `EXTERNAL_RESULT_KINDS` (empty until CP5),
+    `RESERVED_RESULT_KINDS`, `ERROR_CODES`; `SUPPORTED_GOVERNING_VERSIONS`);
+    `verify`'s seven checks in order (a check fails on a Workflow refusal or
+    a Git refusal, skips when the state is unreadable or, for check 6, when
+    there is no installation record); `resolve-artifact` for the six kinds,
+    each through the existing helper, `review_bundle` with `stage="plan"` at
+    the plan-stage phases, plus the item's `basis`.
+  - `payload/docs/ai-workflow/orchestration-protocol-v1.schema.json` (new):
+    the envelope, `error`, `native`, `basis`, and `$defs.results` for
+    `describe`, `verify` and `resolve-artifact`; only `type`, `required`,
+    `properties`, `additionalProperties`, `enum`, `items` and `$ref`.
+  - `payload/scripts/workflow_protocol_test.py` (new), 58 tests: the minimal
+    schema checker and its keyword-set test; every response validated;
+    stdout is one envelope; `--protocol-major 2` refuses (exit 3) with no
+    read and before `--repo-root` is checked; bad arguments are
+    `invalid_request` (exit 2) envelopes; an injected exception is
+    `internal_error` (exit 1); the exception domain over every enumerated
+    class of both modules (including both intermediates and their
+    subclasses), built-ins and a test-module class excluded, the pinned
+    table, unmapped and later-release classes `refused`, a renamed
+    `importlib` load of `workflow_state`; a raw `KeyError`/`OSError` from a
+    patched `validate_state` is `internal_error`, a symlinked lock file
+    `state_unreadable`; `describe` against the tables; identity stability,
+    per-field change and isolation from other items; each `verify` fault
+    on its own (corrupt or missing state, unknown phase, invalid config,
+    dangling or terminal active id, `COMPLETE` without a trailer commit,
+    mismatched installation record) and `skip` without a record;
+    `resolve-artifact` against the helpers for a scoped item, a legacy-flat
+    item and plan-stage phases, `invalid_request` for an unknown kind; both
+    operations leave the state file and its mtime untouched.
+- **Not yet in the manifest**: the three new files are added to
+  `manifest.json` by CP7, with the conformance CI suite list.
+- **Verification**: the eight release-source suites (the seven plus
+  `workflow_protocol_test.py`) in a conformance fixture staged by
+  `tools/release/release.py stage-conformance` from an unreferenced commit
+  of the working tree whose `manifest.json` digests and sizes were refreshed
+  and the three new files listed in that commit only:
+  `workflow_protocol_test.py` 58 OK, `workflow_fingerprint_test.py` 256 OK,
+  `workflow_state_test.py` 980 OK (1 skipped), `workflow_test_harness_test.py`
+  19 OK, `workflow_integration_test.py` 267 OK,
+  `workflow_acceptance_matrix_test.py` 291 OK (18 skipped),
+  `workflow_state_completion_obligations_test.py` 106 OK,
+  `workflow_fingerprint_generalization_test.py` 105 OK.
+  `workflow-manager verify .`: installation matches workflow 2.6.0.

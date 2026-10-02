@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/RodrigoFAbreu/workflow/orchestration-protocol-v1.schema.json",
+  "title": "Workflow Orchestration Protocol v1",
+  "description": "The envelope every workflow_protocol.py operation prints, and each operation's result. The document validates the envelope; an operation's result is validated against $defs.results.<operation> (the envelope's operation field). Only type, required, properties, additionalProperties, enum, items and $ref are used.",
+  "$ref": "#/$defs/envelope",
+  "$defs": {
+    "envelope": {
+      "type": "object",
+      "required": ["protocol", "workflow_release", "operation", "ok"],
+      "additionalProperties": false,
+      "properties": {
+        "protocol": {
+          "type": "object",
+          "required": ["name", "version"],
+          "additionalProperties": false,
+          "properties": {
+            "name": {"type": "string", "enum": ["workflow-orchestration"]},
+            "version": {"type": "string"}
+          }
+        },
+        "workflow_release": {"type": "string"},
+        "operation": {"type": ["string", "null"]},
+        "ok": {"type": "boolean"},
+        "result": {"type": "object"},
+        "error": {"$ref": "#/$defs/error"}
+      }
+    },
+    "native": {
+      "type": ["object", "null"],
+      "required": ["exception", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "exception": {"type": "string"},
+        "message": {"type": "string"}
+      }
+    },
+    "error": {
+      "type": "object",
+      "required": ["code", "message", "retryable", "native"],
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "internal_error",
+            "invalid_request",
+            "no_work_item",
+            "not_applicable",
+            "refused",
+            "stale_decision",
+            "state_invalid",
+            "state_unreadable",
+            "unknown_work_item",
+            "unsupported_protocol",
+            "unsupported_result_kind"
+          ]
+        },
+        "message": {"type": "string"},
+        "retryable": {"type": "boolean"},
+        "native": {"$ref": "#/$defs/native"}
+      }
+    },
+    "basis": {
+      "type": "object",
+      "required": ["work_item_id", "state_revision", "state_identity", "phase", "head", "checkpoints"],
+      "additionalProperties": false,
+      "properties": {
+        "work_item_id": {"type": "string"},
+        "state_revision": {"type": ["integer", "null"]},
+        "state_identity": {"type": "string"},
+        "phase": {"type": "string"},
+        "head": {"type": ["string", "null"]},
+        "checkpoints": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "string_list": {"type": "array", "items": {"type": "string"}},
+    "results": {
+      "type": "object",
+      "properties": {
+        "describe": {
+          "type": "object",
+          "required": [
+            "workflow_release",
+            "protocol_version",
+            "supported_protocol_majors",
+            "supported_governing_versions",
+            "capabilities"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "workflow_release": {"type": "string"},
+            "protocol_version": {"type": "string"},
+            "supported_protocol_majors": {"type": "array", "items": {"type": "integer"}},
+            "supported_governing_versions": {"$ref": "#/$defs/string_list"},
+            "capabilities": {
+              "type": "object",
+              "required": [
+                "operations",
+                "dispositions",
+                "action_ids",
+                "artifact_kinds",
+                "external_result_kinds",
+                "reserved_result_kinds",
+                "error_codes"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "operations": {"$ref": "#/$defs/string_list"},
+                "dispositions": {"$ref": "#/$defs/string_list"},
+                "action_ids": {"$ref": "#/$defs/string_list"},
+                "artifact_kinds": {"$ref": "#/$defs/string_list"},
+                "external_result_kinds": {"$ref": "#/$defs/string_list"},
+                "reserved_result_kinds": {"$ref": "#/$defs/string_list"},
+                "error_codes": {"$ref": "#/$defs/string_list"}
+              }
+            }
+          }
+        },
+        "verify": {
+          "type": "object",
+          "required": ["healthy", "checks"],
+          "additionalProperties": false,
+          "properties": {
+            "healthy": {"type": "boolean"},
+            "checks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "status", "detail"],
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "enum": [
+                      "state_readable",
+                      "state_valid",
+                      "config_valid",
+                      "active_item_resolvable",
+                      "checkpoint_completions_provable",
+                      "installation_release_matches",
+                      "protocol_ready"
+                    ]
+                  },
+                  "status": {"type": "string", "enum": ["pass", "fail", "skip"]},
+                  "detail": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "resolve-artifact": {
+          "type": "object",
+          "required": ["kind", "path", "exists", "basis"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "functional_checklist",
+                "functional_review",
+                "plan_document",
+                "plan_review_inputs",
+                "review_bundle",
+                "review_feedback"
+              ]
+            },
+            "path": {"type": ["string", "null"]},
+            "exists": {"type": "boolean"},
+            "basis": {"$ref": "#/$defs/basis"}
+          }
+        }
+      }
+    }
+  }
+}
