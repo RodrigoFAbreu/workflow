@@ -71,12 +71,21 @@ D3's `IN_PROGRESS`/`COMPLETE` state writers, D3's worktree-scoped
 dirty-resume rule, `WF2`):
 
 1a. **Entry validation**: call
-    `workflow_state.implementing_entry_reachable(repo_root, work_item,
-    base_commit)`. `False` stops here -- report whether `plan_approval` is
-    missing/`STALE`, or the approval commit is not an ancestor of HEAD;
-    never proceed on a stale or unreachable plan approval. Runs on every
-    invocation, not only the first (missing-test item 9: reachability
-    must hold identically at checkpoints 1, 2, and N).
+    `workflow_state.implementing_entry_status(repo_root, work_item,
+    base_commit)` (workflow-2.7.0, `LPR-R3-002`; the same function the
+    orchestration protocol's `next-action` calls, row 22;
+    `workflow_state.implementing_entry_reachable` is its `reachable` field).
+    `reachable: false` stops here -- report its `cause` and that cause's
+    remedy: `plan_approval_not_current` (no `plan_approval`, or it is
+    `STALE`: obtain a current plan approval),
+    `plan_approval_commit_unreachable` (the approval commit is not
+    HEAD or an ancestor of it: restore the history that contains it), or
+    `plan_content_drifted` (the plan-stage content no longer matches the
+    approved content: restore the approved plan-stage bytes, or
+    `/request-plan-amendment <id>`); never proceed on a stale or
+    unreachable plan approval. Runs on every invocation, not only the
+    first (missing-test item 9: reachability must hold identically at
+    checkpoints 1, 2, and N).
 1b. **Select the checkpoint**: load
     `docs/ai-workflow/registry/<work_item_id>-registry.json` and call
     `workflow_state.select_next_checkpoint(work_item, registry)`

@@ -3159,7 +3159,10 @@ def assert_local_generation_matches(
     repo_root: Path, manifest_path: Path, *, require_metadata: bool = False,
 ) -> None:
     """**Repository-local commands only** (`/approve-review`,
-    `/review-plan`, `/review-implementation`): stop if the current worktree
+    `/review-plan`, `/review-implementation`, and -- workflow-2.7.0 -- the
+    repository-aware gate wrappers `workflow_state.plan_approval_gate_status`/
+    `technical_approval_gate_status`, which `/approve-review` and the
+    orchestration protocol's `next-action` call): stop if the current worktree
     root or HEAD SHA differs from what `MANIFEST.md` recorded at
     generation time, naming both. Never call this from a path that also
     serves external reviewers -- see `WorktreeOrHeadMismatchError` and

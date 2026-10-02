@@ -148,52 +148,25 @@ end of this file for the `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` case.
    the user to regenerate scoped
    (`./scripts/prepare-ai-review.sh <base-sha> implementation
    <work_item_id>`).
-4. **Recompute fresh, before reporting anything**: an absent or unreadable
-   bundle is a clean refusal here, named plainly rather than left to
-   surface as a raw traceback — both candidate `<bundle_dir>` paths
-   (`.ai-review/<work_item_id>/current/` and the flat `.ai-review/current/`)
-   named in the refusal. Do not rely on the later
-   `assert_local_generation_matches` call to catch this case: its default
-   `require_metadata=False` mode reads `MANIFEST.md`'s
-   `worktree_root:`/`generation_head:` lines only if present and performs
-   **no comparison at all**, without raising, when `MANIFEST.md` is simply
-   absent (`read_manifest_generation_metadata` returns `{}` for a missing
-   file). The actual failure is the `bundle_id`/`review_content_id`
-   recompute immediately below, in this same step: `compute_bundle_id`
-   raises `MissingRequiredBundleFileError` naming the missing required
-   file(s) the moment it is called against an absent or incomplete bundle
-   directory — that is the exception this step's refusal is built around.
-   The current `bundle_id` and the implementation-stage `review_content_id`
-   (`scripts/workflow_fingerprint.py`), computed via
-   `compute_review_content_id_implementation_stage_at_commit(repo_root,
-   base=work_item["base_commit"], commit="HEAD", ...)` (or equivalently
-   `workflow_state.approval_review_content_id(..., stage="implementation",
-   base_commit=work_item["base_commit"], head="HEAD")`, which wraps it) —
-   commit-source, anchored at exactly the `base`/`head` pair
-   `workflow_state.approval_review_content_id`'s own implementation-stage
-   branch uses — **never** the worktree-source
-   `compute_review_content_id_implementation_stage` (no `head`/`commit`
-   parameter at all, scoped instead to whatever is currently dirty), which
-   would not reproduce the value `MANIFEST.md` records or `/approve-review
-   implementation` itself checks (the generator's sole writer,
-   `write_manifest_with_verified_identifiers_implementation_stage`, is
-   commit-source too) — with the resolved item's own four classification
-   mappings loaded through
-   `workflow_fingerprint.load_implementation_stage_classification(repo_root,
-   artifacts_path=workflow_fingerprint.artifacts_path_for_work_item(work_item_id))`
-   — never that function's own default `artifacts_path`, which resolves to
-   `workflow-v2-1-core`'s artifacts file and would silently compute a
-   different work item's classification. Report, rather than silently
-   proceeding past, any mismatch against what `MANIFEST.md`/`REVIEW_REQUEST.md`
-   claim. **Stale-plan-stage-manifest variant**: if `MANIFEST.md` is present
-   and otherwise looks healthy but the recomputed implementation-stage
-   `review_content_id` still disagrees with what it records, name this
-   specific cause explicitly — an unscoped implementation/post-fix bundle
-   written into a directory that already holds a plan-stage `MANIFEST.md`
-   silently reuses that plan-stage manifest, so the mismatch is comparing
-   today's implementation-stage recompute against a stale plan-stage
-   identity, not a real content discrepancy — report it as that, not as an
-   unexplained digest mismatch. This command runs inside a real, current
+4. **Verify the bundle, before reporting anything**: call
+   `workflow_state.verify_implementation_review_bundle(repo_root,
+   work_item_id)` (workflow-2.7.0, `LPR-R5-002`), this step's whole bundle
+   check as one read-only function over the resolved `<bundle_dir>`:
+   `MANIFEST.md` is present; `compute_bundle_id` succeeds (an absent or
+   incomplete directory raises `MissingRequiredBundleFileError`, chained);
+   the recomputed `bundle_id` equals the manifest's; and the manifest's
+   `review_content_id` equals the current implementation-stage one,
+   computed commit-source at `HEAD`
+   (`workflow_state.approval_review_content_id(..., stage="implementation",
+   base_commit=work_item["base_commit"], head="HEAD")`, with the item's own
+   classification through `artifacts_path_for_work_item`). On
+   `ImplementationReviewBundleUnverifiedError`, refuse cleanly and report
+   its message -- it names the bundle path (both candidate paths,
+   `.ai-review/<work_item_id>/current/` and the flat `.ai-review/current/`,
+   for an absent bundle), the failing comparison and both values, and the
+   stale-plan-stage-manifest variant by name -- whose remedy is to
+   regenerate the implementation bundle. Report the returned `bundle_id`
+   and `review_content_id`. This command runs inside a real, current
    worktree, so also call
    `workflow_fingerprint.assert_local_generation_matches(repo_root,
    <bundle_dir>/MANIFEST.md)` and stop, naming both the recorded and current

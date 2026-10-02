@@ -17282,5 +17282,283 @@ class TestPlanApprovalClosureUnits(unittest.TestCase):
             self.assertIn("git --literal-pathspecs restore --staged", str(ctx.exception))
 
 
+# ---------------------------------------------------------------------------
+# workflow-2.7.0 (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): the repository-aware
+# gate wrappers, `verify_implementation_review_bundle`, and
+# `implementing_entry_status`. The scratch repositories generate their bundles
+# with the real `prepare-ai-review.sh` (`workflow_test_harness`).
+# ---------------------------------------------------------------------------
+
+import workflow_test_harness as _harness  # noqa: E402
+
+_CP4_WI = "wi"
+
+
+def _cp4_verdict(status, *, rcid=None, bundle=None, base=None, work_item=_CP4_WI, role=None):
+    lines = ["# Review Decision", "", f"Status: {status}", ""]
+    if role:
+        lines.append(f"Reviewer role: {role}")
+    if bundle:
+        lines.append(f"Reviewed bundle ID: {bundle}")
+    if base:
+        lines.append(f"Reviewed base commit: {base}")
+    if work_item:
+        lines.append(f"Work item: {work_item}")
+    if rcid:
+        lines.append(f"Reviewed review_content_id: {rcid}")
+    return "\n".join(lines + ["", "## Blocking findings", "", "None.", ""])
+
+
+def _cp4_feedback(repo, text):
+    path = repo.root / ".ai-review" / _CP4_WI / "feedback" / "REVIEW_FEEDBACK.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if text is None:
+        path.unlink(missing_ok=True)
+    else:
+        path.write_text(text)
+
+
+def _cp4_bundle_dir(repo):
+    return repo.root / ".ai-review" / _CP4_WI / "current"
+
+
+def _cp4_mutate(repo, fn, *args, **kwargs):
+    state = fn(_harness.read_state(repo), _CP4_WI, *args, **kwargs)
+    _harness.write_state(repo, state)
+    return state
+
+
+def _cp4_edit(repo, **fields):
+    state = _harness.read_state(repo)
+    state["work_items"][_CP4_WI].update(fields)
+    _harness.write_state(repo, state)
+    return state
+
+
+def _cp4_move_head(repo):
+    state = _cp4_edit(repo, last_transition="an excluded-only commit")
+    del state
+    return _harness.commit_state(repo, "excluded-only commit")
+
+
+def _cp4_plan_approval_item(repo, version="2.2"):
+    _harness.seed_bundle_item(repo, governing_workflow_version=version, phase="PLANNING")
+    P, B = _harness.publish_and_bind_plan_bundle(repo)
+    _cp4_mutate(repo, ws.record_local_plan_review, verdict="APPROVE", bundle_id=B, review_content_id=P,
+                round=1, now="t")
+    _cp4_mutate(repo, ws.record_manual_plan_review, verdict="APPROVE", bundle_id=B, round=1, now="t",
+                current_review_content_id=P, feedback_role="MANUAL_EXTERNAL_PLAN_REVIEW",
+                feedback_review_content_id=P)
+    _cp4_feedback(repo, _cp4_verdict("APPROVE", rcid=P, bundle=B, base=repo.base, role="MANUAL_EXTERNAL_PLAN_REVIEW"))
+    return P, B
+
+
+def _cp4_external_item(repo, version):
+    """An item at `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`: `"1"`/`"2.1"`
+    straight from generation, `"2.2"` through both recorded stages. The
+    current fb is an `APPROVE` for the bundle."""
+    _harness.seed_bundle_item(repo, governing_workflow_version=version, phase="SELF_REVIEWING_IMPLEMENTATION")
+    repo.commit("implement", filename=_harness.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+    I = _harness.generate_implementation_bundle(repo)
+    B = fingerprint.compute_bundle_id(_cp4_bundle_dir(repo))[0]
+    if version == "2.2":
+        _cp4_mutate(repo, ws.record_local_implementation_review, verdict="APPROVE", bundle_id=B,
+                    review_content_id=I, round=1, now="t")
+        _cp4_mutate(repo, ws.record_manual_implementation_review, verdict="APPROVE", bundle_id=B, round=1, now="t",
+                    current_review_content_id=I, feedback_role="MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+                    feedback_review_content_id=I)
+    _cp4_feedback(repo, _cp4_verdict("APPROVE", rcid=I, bundle=B, base=repo.base))
+    return I, B
+
+
+class TestPlanApprovalGateStatus(unittest.TestCase):
+    def status(self, repo):
+        return ws.plan_approval_gate_status(repo.root, _harness.read_state(repo), _CP4_WI)
+
+    def assert_matches_the_predicate(self, status):
+        inputs = status["inputs"]
+        self.assertEqual(status["reachable"], ws.plan_approval_gate_reachable(
+            latest_round_status=inputs["latest_round_status"],
+            governing_workflow_version=inputs["governing_workflow_version"],
+            plan_review_stages=inputs["plan_review_stages"],
+            current_review_content_id=inputs["current_review_content_id"]))
+
+    def test_reachable(self):
+        with _harness.ScratchRepo() as repo:
+            _cp4_plan_approval_item(repo)
+            status = self.status(repo)
+            self.assertEqual((status["reachable"], status["cause"]), (True, None))
+            self.assert_matches_the_predicate(status)
+
+    def test_each_cause(self):
+        def check(mutate, cause, *, predicate=True):
+            with self.subTest(cause=cause), _harness.ScratchRepo() as repo:
+                P, B = _cp4_plan_approval_item(repo)
+                mutate(repo, P, B)
+                status = self.status(repo)
+                self.assertEqual((status["reachable"], status["cause"]), (False, cause))
+                if predicate:
+                    self.assert_matches_the_predicate(status)
+
+        check(lambda repo, P, B: _cp4_feedback(repo, None), "no_review_round")
+        check(lambda repo, P, B: _cp4_feedback(repo, _cp4_verdict("BLOCK", rcid=P)), "review_blocked")
+        check(lambda repo, P, B: _cp4_edit(repo, plan_review_stages=dict(
+            _harness.read_state(repo)["work_items"][_CP4_WI]["plan_review_stages"], review_content_id="d" * 64)),
+            "review_ledger_stale")
+        check(lambda repo, P, B: _cp4_move_head(repo), "bundle_generation_mismatch", predicate=False)
+        check(lambda repo, P, B: (repo.root / "docs/ai-workflow/WORKFLOW_V2_PLAN.md").write_text("drifted\n"),
+              "plan_review_bundle_unbound", predicate=False)
+
+    def test_a_v1_plan_gate_computes_the_bundle(self):
+        with _harness.ScratchRepo() as repo:
+            _harness.seed_bundle_item(repo, governing_workflow_version="1", phase="AWAITING_EXTERNAL_PLAN_REVIEW")
+            _harness.generate_plan_bundle(repo)
+            B = fingerprint.compute_bundle_id(_cp4_bundle_dir(repo))[0]
+            _cp4_feedback(repo, _cp4_verdict("APPROVE", bundle=B, base=repo.base))
+            status = self.status(repo)
+            self.assertEqual((status["reachable"], status["inputs"]["bundle_id"]), (True, B))
+            self.assert_matches_the_predicate(status)
+            import shutil
+            shutil.rmtree(_cp4_bundle_dir(repo))
+            status = self.status(repo)
+            self.assertEqual((status["reachable"], status["cause"]), (False, "bundle_unverified"))
+
+
+class TestTechnicalApprovalGateStatus(unittest.TestCase):
+    def status(self, repo):
+        return ws.technical_approval_gate_status(repo.root, _harness.read_state(repo), _CP4_WI)
+
+    def assert_matches_the_predicate(self, status):
+        inputs = status["inputs"]
+        self.assertEqual(status["reachable"], ws.technical_approval_gate_reachable(
+            latest_round_status=inputs["latest_round_status"], protected_path_dirty=inputs["protected_path_dirty"],
+            head_matches_reviewed_implementation_head=inputs["head_matches_reviewed_implementation_head"],
+            pinned_block=inputs["pinned_block"], governing_workflow_version=inputs["governing_workflow_version"],
+            implementation_review_stages=inputs["implementation_review_stages"],
+            current_review_content_id=inputs["current_review_content_id"]))
+
+    def test_reachable_at_every_version(self):
+        for version in ("1", "2.1", "2.2"):
+            with self.subTest(version=version), _harness.ScratchRepo() as repo:
+                _cp4_external_item(repo, version)
+                status = self.status(repo)
+                self.assertEqual((status["reachable"], status["cause"]), (True, None))
+                self.assert_matches_the_predicate(status)
+
+    def test_each_cause(self):
+        def check(mutate, cause, *, version="2.2", predicate=True):
+            with self.subTest(cause=cause, version=version), _harness.ScratchRepo() as repo:
+                I, B = _cp4_external_item(repo, version)
+                mutate(repo, I, B)
+                status = self.status(repo)
+                self.assertEqual((status["reachable"], status["cause"]), (False, cause))
+                if predicate:
+                    self.assert_matches_the_predicate(status)
+
+        pin = lambda repo, I, B: _cp4_mutate(  # noqa: E731
+            repo, ws.record_technical_review_block_pin, bundle_id=B, review_content_id=I, now="t")
+        check(pin, "review_block_pinned")
+        check(lambda repo, I, B: _cp4_feedback(repo, None), "no_review_round")
+        check(lambda repo, I, B: _cp4_feedback(repo, _cp4_verdict("BLOCK", rcid=I, bundle=B, base=repo.base)),
+              "review_blocked")
+        check(lambda repo, I, B: (repo.root / _harness.BUNDLE_ITEM_IMPLEMENTATION_PATH).write_text("dirty\n"),
+              "protected_path_dirty")
+        check(lambda repo, I, B: _cp4_edit(repo, reviewed_implementation_head=repo.base),
+              "implementation_provenance_stale")
+        check(lambda repo, I, B: _cp4_edit(repo, implementation_review_stages=dict(
+            _harness.read_state(repo)["work_items"][_CP4_WI]["implementation_review_stages"],
+            review_content_id="d" * 64)), "review_ledger_stale")
+        check(lambda repo, I, B: _cp4_move_head(repo), "bundle_generation_mismatch", predicate=False)
+        import shutil
+        check(lambda repo, I, B: shutil.rmtree(_cp4_bundle_dir(repo)), "bundle_unverified", predicate=False)
+        check(pin, "review_block_pinned", version="2.1")
+
+    def test_approve_reviews_block_pin_precedes_the_wrapper(self):
+        """`LPR-R2-008`: `/approve-review implementation` step 1 records a
+        `BLOCK` pin, then calls the wrapper on the re-read state."""
+        with _harness.ScratchRepo() as repo:
+            I, B = _cp4_external_item(repo, "2.1")
+            _cp4_feedback(repo, _cp4_verdict("BLOCK", bundle=B, base=repo.base))
+            ws.state_transaction(repo.root, lambda state: ws.record_technical_review_block_pin(
+                state, _CP4_WI, bundle_id=B, review_content_id=I, now="t"))
+            state = _harness.read_state(repo)
+            self.assertTrue(ws.is_technical_review_block_pinned(state["work_items"][_CP4_WI], B))
+            status = ws.technical_approval_gate_status(repo.root, state, _CP4_WI)
+            self.assertEqual((status["cause"], status["inputs"]["pinned_block"]), ("review_block_pinned", True))
+        text = (Path(__file__).resolve().parent.parent / ".claude" / "commands" / "approve-review.md").read_text()
+        self.assertIn("workflow_state.plan_approval_gate_status(repo_root, state,", text)
+        self.assertIn("workflow_state.technical_approval_gate_status(repo_root, state,", text)
+        self.assertLess(text.index("record_technical_review_block_pin(state"),
+                        text.index("workflow_state.technical_approval_gate_status(repo_root, state,"))
+
+    def test_the_generation_mismatch_is_named_before_the_pin(self):
+        """`LPR-R3-004`: a pinned `BLOCK` whose pin commit moved HEAD past
+        `generation_head` reports `bundle_generation_mismatch`; after the
+        provenance recovery and the command's re-pin, `review_block_pinned`."""
+        with _harness.ScratchRepo() as repo:
+            I, B = _cp4_external_item(repo, "2.1")
+            _cp4_feedback(repo, _cp4_verdict("BLOCK", bundle=B, base=repo.base))
+            _cp4_mutate(repo, ws.record_technical_review_block_pin, bundle_id=B, review_content_id=I, now="t")
+            _harness.commit_state(repo, "pin the BLOCK")
+            self.assertEqual(self.status(repo)["cause"], "bundle_generation_mismatch")
+            work_item = _harness.read_state(repo)["work_items"][_CP4_WI]
+            superseded = ws.verify_implementation_provenance_recovery(repo.root, work_item, base_commit=repo.base)
+            _cp4_mutate(repo, ws.apply_implementation_provenance_recovery, "t-recover")
+            _harness.commit_state(repo, "recover provenance", {
+                "Workflow-Bundle-Generation-Record": f"{_CP4_WI}/{work_item['implementation_revision']}",
+                "Workflow-Work-Item": _CP4_WI, "Workflow-Supersedes": superseded,
+            })
+            (_cp4_bundle_dir(repo) / "IMPLEMENTATION_SUMMARY.md").write_text(
+                f"implementation_revision: {work_item['implementation_revision']}\n\nrecovered\n")
+            _harness._run_generator(repo, "implementation", _CP4_WI)
+            new_bundle = fingerprint.compute_bundle_id(_cp4_bundle_dir(repo))[0]
+            self.assertEqual(self.status(repo)["cause"], "review_blocked")
+            _cp4_mutate(repo, ws.record_technical_review_block_pin, bundle_id=new_bundle, review_content_id=I, now="t")
+            self.assertEqual(self.status(repo)["cause"], "review_block_pinned")
+
+
+class TestVerifyImplementationReviewBundle(unittest.TestCase):
+    def test_a_fresh_bundle_verifies(self):
+        with _harness.ScratchRepo() as repo:
+            _harness.seed_bundle_item(repo, phase="SELF_REVIEWING_IMPLEMENTATION")
+            repo.commit("implement", filename=_harness.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+            I = _harness.generate_implementation_bundle(repo)
+            self.assertEqual(ws.verify_implementation_review_bundle(repo.root, _CP4_WI), {
+                "bundle_id": fingerprint.compute_bundle_id(_cp4_bundle_dir(repo))[0], "review_content_id": I})
+
+    def test_each_fault_refuses(self):
+        import shutil
+
+        def reclassify(repo):
+            path = repo.root / "docs/ai-workflow/registry/wi-artifacts.json"
+            declarations = json.loads(path.read_text())
+            stage = declarations["implementation_stage"]
+            del stage["protected_paths"][_harness.BUNDLE_ITEM_IMPLEMENTATION_PATH]
+            stage["excluded_paths"][_harness.BUNDLE_ITEM_IMPLEMENTATION_PATH] = "reclassified"
+            path.write_text(json.dumps(declarations) + "\n")
+
+        faults = {
+            "missing directory": (lambda repo: shutil.rmtree(_cp4_bundle_dir(repo)), "no MANIFEST.md"),
+            "required file removed": (lambda repo: (_cp4_bundle_dir(repo) / "MANIFEST.md").unlink(), "no MANIFEST.md"),
+            "files differ": (lambda repo: (_cp4_bundle_dir(repo) / "DIFF.patch").write_text("x\n"), "bundle_id:"),
+            "content is not I": (reclassify, "review_content_id:"),
+        }
+        for name, (fault, detail) in faults.items():
+            with self.subTest(fault=name), _harness.ScratchRepo() as repo:
+                _harness.seed_bundle_item(repo, phase="SELF_REVIEWING_IMPLEMENTATION")
+                repo.commit("implement", filename=_harness.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+                _harness.generate_implementation_bundle(repo)
+                fault(repo)
+                with self.assertRaisesRegex(ws.ImplementationReviewBundleUnverifiedError, detail):
+                    ws.verify_implementation_review_bundle(repo.root, _CP4_WI)
+
+    def test_a_plan_stage_manifest_names_the_stale_variant(self):
+        with _harness.ScratchRepo() as repo:
+            _harness.seed_bundle_item(repo, phase="PLANNING")
+            _harness.publish_and_bind_plan_bundle(repo)
+            with self.assertRaisesRegex(ws.ImplementationReviewBundleUnverifiedError, "stale-plan-stage-manifest"):
+                ws.verify_implementation_review_bundle(repo.root, _CP4_WI)
+
+
 if __name__ == "__main__":
     unittest.main()

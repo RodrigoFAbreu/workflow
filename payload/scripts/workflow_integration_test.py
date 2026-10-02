@@ -870,7 +870,11 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # 1c routes adopt_claim's to them, and step 1d states that
     # claim_checkpoint returns the claim record whose owner_token field is
     # the token -- intentional content change.
-    "milestone-implement.md": "dd3ceefd29d6ad2533f8df6ad14a76ea0acb35cb021e2b788174aa11179f45e1",
+    # milestone-implement.md further updated, workflow-2.7.0
+    # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 1a calls
+    # implementing_entry_status and reports its cause and remedy --
+    # intentional content change.
+    "milestone-implement.md": "ee82db516103df60c3a7601be6f869167b071e34cd96517eea8e2d458ec18cf6",
     # approve-review.md (WF8c item (c), same-content bundle-generation
     # republication idempotency; further updated WF8c item (b): the
     # trailing caveat naming the dedicated /recover-implementation-provenance
@@ -989,7 +993,13 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # Implementation review round 2 (I1): step 4a reads the staged diff
     # NUL-delimited, step 6.3 calls assert_staged_path_set_within, and step
     # 6d's member-dirty check is literal -- intentional.
-    "approve-review.md": "65d60c81f4a3023d9447977f5e9d7ec892fef45254f7735dfd1c9fee70597995",
+    # approve-review.md further updated, workflow-2.7.0
+    # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 1's gate check calls
+    # plan_approval_gate_status/technical_approval_gate_status on the
+    # state re-read after the BLOCK pin, reporting the first cause in the
+    # wrapper's order; step 2's generation and bundle-bound checks run
+    # inside it -- intentional content change.
+    "approve-review.md": "b401ca09d90c07f76ce696dcdcae526ad768c7bb5f46312396db48d631ed727e",
     # accept-milestone.md updated, baseline-freeze correctness fix
     # (OPUS-R129-001): step 6's completion-commit instruction now states
     # the same "trailers must be the commit message's own final paragraph"
@@ -1044,7 +1054,12 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # verify-plus-bind with 7'.2's regeneration removed -- intentional content
     # change, not a regression. Implementation review round 1: step 5 states
     # that a legacy-marked item must advance plan_revision -- intentional.
-    "apply-plan-review.md": "069fc470f11aa7e8b755fa2fd351662ab5c2e296f7af5ce208b7f5201acc1469",
+    # apply-plan-review.md further updated, workflow-2.7.0
+    # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 1 binds through
+    # assert_apply_review_feedback_binding (D-Apply-Binding): a two-stage
+    # REVISE stating a review_content_id is bound by content --
+    # intentional content change.
+    "apply-plan-review.md": "7e0eac1ca5a9c343364a482e3de1ade9abe89bf9d18841fbec7942ccff1e010f",
     # apply-implementation-review.md (WF8c item (c)): step 7's
     # record_bundle_generation call site widened to first resolve the
     # outcome (resolve_bundle_generation_outcome) and write the matching
@@ -1071,7 +1086,12 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (workflow-2.6.0, CP3): the preamble states feedback_layout-keyed
     # resolution and step 1 prints the exact resolved path when
     # REVIEW_FEEDBACK.md is absent -- intentional content change.
-    "apply-implementation-review.md": "6fbec6a0ccc8a0640b1ea0e17a506ad11c349431bebc9d88b0b694c84e31b2db",
+    # apply-implementation-review.md further updated, workflow-2.7.0
+    # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 1 binds through
+    # assert_apply_review_feedback_binding (D-Apply-Binding): a 2.2 REVISE
+    # stating a review_content_id is bound by content -- intentional
+    # content change.
+    "apply-implementation-review.md": "c728eeabe25a6fae2376d773f1091d96123fcc6de470f2f49957508de74cc2c1",
     # review-plan.md/record-manual-plan-review.md further updated,
     # workflow-v2-3-followups CP3 (REQ-8/-9): the `Reviewer role:` template
     # literal, the round-computation prose, the exact-match-expectation
@@ -1214,7 +1234,10 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (workflow-2.7.0, CP1, v2.6.0-002): step 6 and A5 write the pinned
     # Reviewed review_content_id: label, before the first ## section --
     # intentional content change.
-    "review-implementation.md": "07c74d16f90b1405742eae3424a8ac3444789ebf441e7f12f0ea30811c3434d2",
+    # review-implementation.md further updated, workflow-2.7.0
+    # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 4's bundle check is
+    # verify_implementation_review_bundle -- intentional content change.
+    "review-implementation.md": "0be61b024f1ac501caff7044d667b842ebce4a26017619999c0d37cf7a6d2ed2",
     # review-functional.md: new, workflow-v2-3 CP2 -- the first recorded
     # hash, not a change.
     #
@@ -3016,17 +3039,25 @@ class TestAssertLocalGenerationMatchesCallSiteConformance(unittest.TestCase):
     strict-mode tests), not through a caller that does not exist. This
     assertion fails if a future change adds a call site not in
     `EXPECTED_CALL_SITES`, so that change cannot land without a human
-    deciding whether `WFR-17`/`D-Bundle-Manifest` need updating too."""
+    deciding whether `WFR-17`/`D-Bundle-Manifest` need updating too.
+    workflow-2.7.0 adds a fourth, `workflow_state.py`'s two gate wrappers
+    (`plan_approval_gate_status`/`technical_approval_gate_status`), which
+    run `/approve-review`'s check on its behalf and are repository-local
+    by construction."""
 
     EXPECTED_CALL_SITES = frozenset({
         Path(".claude/commands/approve-review.md"),
         Path(".claude/commands/review-plan.md"),
         Path(".claude/commands/review-implementation.md"),
+        # workflow-2.7.0 (`D-OP-Next`, `LPR-R1-003`): the two repository-aware
+        # gate wrappers run `/approve-review`'s generation check as their first
+        # cause; both are repository-local by construction (`WFR-17` holds).
+        Path("scripts/workflow_state.py"),
     })
 
     _CALL_RE = re.compile(r"assert_local_generation_matches\(")
 
-    def test_exactly_the_three_live_permissive_callers_exist(self):
+    def test_exactly_the_expected_live_permissive_callers_exist(self):
         repo_root = _repo_root()
         found: set[Path] = set()
         for path in sorted((repo_root / ".claude" / "commands").glob("*.md")):
