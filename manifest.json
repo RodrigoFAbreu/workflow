@@ -249,8 +249,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/ORCHESTRATION_PROTOCOL\\.md$",
       "rationale": "The normative Orchestration Protocol v1 specification: versioning, envelope, error codes, state identity, each operation, the catalogue, condition-call, edge and proof tables (rendered from, and tested against, the code's own), consumer obligations and compatibility notes. W1 (workflow-2.7.0, orchestration-protocol-v1, CP6).",
-      "sha256": "367248252dacfe60113f5cc91a8461598e4bfad13ee086394ee6bcef0c8bd878",
-      "size": 63033,
+      "sha256": "e5d1d5ae1777c151363dae4687cc5525f70ed7a4aaaa76036a84f403d790b151",
+      "size": 63315,
       "executable": false
     },
     {
@@ -653,8 +653,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_protocol\\.py$",
       "rationale": "Orchestration Protocol v1's one CLI (describe, verify, next-action, reconcile, record-external-result, resolve-artifact): one JSON envelope, versioned, with stable error codes, the total action catalogue and the legal-edge table. WORKFLOW_RELEASE names this release; the release build refuses a mismatch with the manifest version. W1 (workflow-2.7.0, orchestration-protocol-v1, CP3-CP5).",
-      "sha256": "a2487f8f07dbfa8ed4af3505c1a49903bf3ceb347a102266a28aeaa23ad76138",
-      "size": 112896,
+      "sha256": "241b75ba48c480b8d86f507eda7f93d59d86e23e2780e42de565d4e0d32a4215",
+      "size": 112983,
       "executable": false
     },
     {
