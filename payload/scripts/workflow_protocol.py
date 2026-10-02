@@ -404,8 +404,11 @@ def prove_checkpoint_completions(
     `Workflow-Checkpoint` commits, both first-parent ancestors that record it
     `COMPLETE`, which `discover_checkpoint_commits` calls ambiguous. The
     tie-break here adds a third filter, descent from the recorded
-    `start_commit`. It is consulted only when the first two filters leave a
-    tie, so every history 2.6.0 resolved resolves identically. `only` limits
+    `start_commit`, ANDed into the discovery's verify predicate. A history
+    2.6.0 resolved resolves identically unless exactly one of several
+    first-parent candidates records `COMPLETE` and that one does not descend
+    from the live `start_commit`, which only a malformed history produces;
+    this proof raises there. `only` limits
     the proof to the named checkpoints (reconcile proves the ones this step
     completed); the tie-break still sees every checkpoint's start."""
     work_item_id = work_item["work_item_id"]
