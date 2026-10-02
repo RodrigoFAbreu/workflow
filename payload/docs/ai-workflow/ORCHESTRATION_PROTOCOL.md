@@ -200,7 +200,11 @@ directory exists. Its result (`$defs.results.describe`) is
    ancestor of `HEAD` resolves; otherwise exactly one first-parent candidate
    must pass the tie-break predicate. Here that predicate is that the state
    committed there records the checkpoint `COMPLETE` and the commit strictly
-   descends from the checkpoint's recorded `start_commit`. A checkpoint re-completed after a plan amendment has two
+   descends from the checkpoint's recorded `start_commit`. Whichever path
+   resolved the commit, including a sole trailer commit, the proof then
+   requires every `COMPLETE` checkpoint's resolved commit to strictly
+   descend from its recorded `start_commit`; a reopened checkpoint whose
+   only completion commit is its earlier one fails. A checkpoint re-completed after a plan amendment has two
    such commits, which `verify_checkpoint_completions` alone refuses as
    ambiguous; the descent filter leaves its latest completion, so the proof
    passes.

@@ -405,13 +405,14 @@ def prove_checkpoint_completions(
     `COMPLETE`, which `discover_checkpoint_commits` calls ambiguous. The
     tie-break here adds a third filter, descent from the recorded
     `start_commit`, ANDed into the discovery's verify predicate. A history
-    2.6.0 resolved resolves identically unless exactly one of several
-    first-parent candidates records `COMPLETE` and that one does not descend
-    from the live `start_commit`, which only a malformed history produces;
-    this proof raises there. Discovery accepts a sole trailer candidate
-    without consulting the tie-break, so a reopened checkpoint already
-    marked `COMPLETE` whose only trailer commit is its earlier one is caught
-    by the explicit descent check after discovery. `only` limits
+    2.6.0 resolved resolves identically unless the commit discovery
+    resolves (a sole trailer candidate, a sole first-parent candidate among
+    several, or the one first-parent candidate recording `COMPLETE`) does
+    not descend from the live `start_commit`, which only a malformed history
+    produces; this proof raises there. Discovery accepts a sole trailer
+    candidate without consulting the tie-break, so a reopened checkpoint
+    already marked `COMPLETE` whose only trailer commit is its earlier one
+    is caught by the explicit descent check after discovery. `only` limits
     the proof to the named checkpoints (reconcile proves the ones this step
     completed); the tie-break still sees every checkpoint's start."""
     work_item_id = work_item["work_item_id"]
@@ -436,7 +437,7 @@ def prove_checkpoint_completions(
         if (entry.get("status") == "COMPLETE"
                 and not _checkpoint_start_descendant(repo_root, discovered[checkpoint_id], checkpoint_id, starts)):
             raise workflow_state.CheckpointNotReachableError(
-                f"{work_item_id}/{checkpoint_id} is COMPLETE in state but its only "
+                f"{work_item_id}/{checkpoint_id} is COMPLETE in state but its resolved "
                 f"completion commit {discovered[checkpoint_id]} does not strictly "
                 f"descend from the checkpoint's start_commit {starts[checkpoint_id]}")
 
