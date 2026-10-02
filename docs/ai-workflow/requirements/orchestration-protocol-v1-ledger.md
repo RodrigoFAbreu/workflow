@@ -309,6 +309,15 @@ code changes. Checked: `payload/scripts/workflow_protocol_test.py`, `Ran
 `test_every_phase_and_version_decides_in_a_default_config_repository`,
 which is the behaviour the reworded sentence describes.
 
+
+### `CP5` revalidation after plan revision 13 (2026-10-02)
+
+`CP5`'s checkpoint text is unchanged; it was demoted by dependency closure
+on `CP4`. No code changes. Checked in `payload/scripts/`:
+`workflow_protocol_test.py`, `Ran 213 tests`, `OK` (it covers
+`record-external-result`), and `workflow_state_test.py` filtered to the
+ingest and `before_publish` tests, `Ran 21 tests`, `OK`.
+
 ## `CP5` — `record-external-result` and the shared ingest
 
 Requirements: REQ-5 (`record-external-result`: one Workflow-owned ingest for

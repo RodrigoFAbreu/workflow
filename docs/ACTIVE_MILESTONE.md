@@ -18,9 +18,10 @@ Implementing, revalidating after plan revision 13 (amendment 0, wording
 only: the three `default_config()` quotations). `CP1` to `CP3` stay
 complete; `CP4` to `CP7` were demoted to `NEEDS_REVALIDATION` (`CP4`'s
 checkpoint text changed, `CP5` to `CP7` by dependency closure) and are
-re-completed one per invocation. `CP4` is revalidated: the release-source
+re-completed one per invocation. `CP4` and `CP5` are revalidated; `CP4`: the release-source
 `workflow_protocol_test` passes (213 tests) and already runs the totality
-check under `default_config()`. The per-checkpoint record is the
+check under `default_config()`; `CP5`: the same suite and the 21 ingest
+tests pass, no code change. The per-checkpoint record is the
 requirements ledger,
 `docs/ai-workflow/requirements/orchestration-protocol-v1-ledger.md`.
 
@@ -55,8 +56,8 @@ None. The `workflow-conformance` failure recorded in the ledger's
 
 ## Next action
 
-`/milestone-implement orchestration-protocol-v1` again: revalidate `CP5`,
-then `CP6` and `CP7`, one per invocation; then the self-review entry, the
+`/milestone-implement orchestration-protocol-v1` again: revalidate `CP6`,
+then `CP7`, one per invocation; then the self-review entry, the
 full verification and the implementation-review bundle.
 
 ---
