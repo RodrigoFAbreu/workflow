@@ -292,7 +292,7 @@
       "registry_path": "docs/ai-workflow/registry/orchestration-protocol-v1-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/orchestration-protocol-v1-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 13,
       "implementation_revision": 6,
       "functional_review_round": null,
@@ -362,7 +362,223 @@
         "waived_guarantees": [],
         "recorded_at": "2026-10-02T16:42:53Z"
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "EXTERNAL_APPROVE",
+        "reviewed_bundle_id": "f23e43a8fd200d76d7ee5c46c48362203fca8da5dfa3c42e6c230e6dd52cdd2b",
+        "approved_review_content_id": "12dfa9704f139afdd41743a12749191fd8cf97665bd14fe4bd0e83be288e13c7",
+        "review_content_manifest": [
+          {
+            "path": ".github/workflows/workflow-ci.yml",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9b6702f7c43a27017c7f92e475de8bb86b12d4cb"
+          },
+          {
+            "path": "docs/RELEASING.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8611631a53f30518a0164840ac781dcdde4659fc"
+          },
+          {
+            "path": "docs/ai-workflow/registry/orchestration-protocol-v1-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c141f858757988634b7959fc32c416a2b1507859"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4496607fe7193812ab5e57a39223b32ce69bd832"
+          },
+          {
+            "path": "payload/.claude/commands/accept-milestone.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f9b5d7ff82450c3232bd91c501bb8ff11053b8ea"
+          },
+          {
+            "path": "payload/.claude/commands/apply-implementation-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "532bf85bb3234ebfc163d1fa831816d61a7413b6"
+          },
+          {
+            "path": "payload/.claude/commands/apply-plan-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "03c426edbddc26d587e3b359544d2a8aa8aad203"
+          },
+          {
+            "path": "payload/.claude/commands/approve-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b56eabf46dde4af107cb8a33ecfe0f01897cc1bd"
+          },
+          {
+            "path": "payload/.claude/commands/milestone-implement.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "87a49ad01875c8fbc861cac6b39e02682fa73050"
+          },
+          {
+            "path": "payload/.claude/commands/milestone-plan.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "06585d838ff40a203e33205ffb523e71a73bf499"
+          },
+          {
+            "path": "payload/.claude/commands/record-manual-implementation-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f6a0394478cfbe43a8d965c92c35b3ba3b26b361"
+          },
+          {
+            "path": "payload/.claude/commands/record-manual-plan-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e846318669d18ad59c506d4cc714779da9e10b34"
+          },
+          {
+            "path": "payload/.claude/commands/request-plan-amendment.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b9ea62893757a435da88d644abc88f636726bbcd"
+          },
+          {
+            "path": "payload/.claude/commands/review-implementation.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "302e0dc126de08aa33ff35529656ac33b598baa8"
+          },
+          {
+            "path": "payload/.claude/commands/review-plan.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9541b49a6ec3acdbf17193f713f8cad31b2bf230"
+          },
+          {
+            "path": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "35cf1f740f1383cdafbeee9a964c0aa267e5bc2a"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4fe482bacb032c682676c1945020bb99bd36727c"
+          },
+          {
+            "path": "payload/docs/ai-workflow/PLAN_REVIEW_WORKFLOW.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a7bd1a1a6eb9563324311403aba3bd72f10529aa"
+          },
+          {
+            "path": "payload/docs/ai-workflow/REVIEW_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "38589a50d9faeb6d1320f41909ba830ca0572652"
+          },
+          {
+            "path": "payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "78643117919bd4271fb853687438d1fb6b4d630f"
+          },
+          {
+            "path": "payload/docs/ai-workflow/orchestration-protocol-v1.schema.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bcff2b5da4c95b9719bb17b87a4083b6750abcc7"
+          },
+          {
+            "path": "payload/scripts/workflow_acceptance_matrix_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "578a282f560c7141e1bf1c596abc51ce65efb88b"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint.py",
+            "exists": true,
+            "mode": "100755",
+            "blob": "5d6d30d5dd872619ce1a0e6c806e83a7f1272e2b"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cf830835b3bd72635229764902baa0f79ff41bb0"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0c4c8917ed0e48bff57a578c5593be9bf84af259"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5d496125a72fbe68a05ecd08a01456e8fd0ad6ad"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d9934a6feec04930ce8a625b9de08be4750cbbcb"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7c732c75baa281c128c56e090818010c3ffd673d"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5d39a5fb9710a4cc429189949531edfaa431e1e9"
+          },
+          {
+            "path": "payload/scripts/workflow_test_harness.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b26ad489861da61c11fe36a994983f9a52ed3dbd"
+          },
+          {
+            "path": "payload/scripts/workflow_test_harness_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "288f1ef8346ba8031506dfb880f3b0b4644b7dc9"
+          },
+          {
+            "path": "templates/.github/workflows/workflow-conformance.yml",
+            "exists": true,
+            "mode": "100644",
+            "blob": "391e03d6e4ebce9a7f8b94164f9f4b9e59a4a190"
+          },
+          {
+            "path": "tools/release/package.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "87de2e79ae2308b5922b2bbad0b91218728eea20"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "df22a620486f791a33f1a126538b9786f44a27f1"
+          }
+        ],
+        "reviewed_content_commit": "29559b1d2d04d10f971ae51222342bbe1df3f8f1",
+        "legacy_evidence": null,
+        "user_confirmation": "implementation orchestration-protocol-v1 — I approve orchestration-protocol-v1 at the implementation stage",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-02T19:47:31Z"
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "237e7ca6da45932043d5f111b77b44f6b03ea770790f6e35455056994450a788",
@@ -381,8 +597,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 84,
-      "last_transition": "2026-10-02T19:28:08Z",
+      "state_revision": 87,
+      "last_transition": "2026-10-02T19:47:31Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -486,14 +702,19 @@
       ],
       "amendment_base_commit": "fec1b94c5c66e784000b438a7a8f9197b7b1dce0",
       "implementation_review_stages": {
-        "review_content_id": "eea2e98887dc78d2a405eb097f4e2d151457c963c4b7874fb18e2acf72e57fd0",
+        "review_content_id": "12dfa9704f139afdd41743a12749191fd8cf97665bd14fe4bd0e83be288e13c7",
         "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "5c874739b17775620a63388b38bc4d0a7c2e1f2ffa19a8c4cc8de68d70147e41",
+          "bundle_id": "f23e43a8fd200d76d7ee5c46c48362203fca8da5dfa3c42e6c230e6dd52cdd2b",
           "verdict": "APPROVE",
-          "round": 4,
-          "completed_at": "2026-10-02T18:26:14Z"
+          "round": 6,
+          "completed_at": "2026-10-02T19:37:27Z"
         },
-        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "f23e43a8fd200d76d7ee5c46c48362203fca8da5dfa3c42e6c230e6dd52cdd2b",
+          "verdict": "APPROVE",
+          "round": 6,
+          "completed_at": "2026-10-02T19:42:34Z"
+        }
       }
     }
   }
