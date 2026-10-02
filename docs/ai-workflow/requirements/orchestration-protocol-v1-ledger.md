@@ -318,6 +318,16 @@ on `CP4`. No code changes. Checked in `payload/scripts/`:
 `record-external-result`), and `workflow_state_test.py` filtered to the
 ingest and `before_publish` tests, `Ran 21 tests`, `OK`.
 
+### `CP6` revalidation after plan revision 13 (2026-10-02)
+
+`CP6`'s checkpoint text is unchanged; it was demoted by dependency closure
+on `CP4`. No code changes (`git diff 2a3c7c7 HEAD -- payload` is empty).
+Checked: `payload/scripts/workflow_protocol_test.py`, `Ran 213 tests`,
+`OK` (it holds the specification-table comparison and the three lifecycle
+E2E runs), and the installed `GoverningVersionEnumerationSweepTest`
+(`test_real_corpus_sweep_is_clean`, `scripts/`), `Ran 2 tests`, `OK`: the
+corpus, now including the reworded plan, is clean.
+
 ## `CP5` — `record-external-result` and the shared ingest
 
 Requirements: REQ-5 (`record-external-result`: one Workflow-owned ingest for
