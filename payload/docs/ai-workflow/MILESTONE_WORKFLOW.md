@@ -780,6 +780,15 @@ after it. A `"1"`/`"2.1"` item's edge is unaffected; see
 `docs/ai-workflow/WORKFLOW_V2_PLAN.md` (`D-Implementation-Review-Stages`)
 for the full `"2.2"`-only mechanism.
 
+Orchestration Protocol v1 (`workflow-2.7.0`,
+`docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`) reports these same gates and
+adds none. Its `next-action` names each one as a `human_gate` or
+`external_gate` disposition derived from the phase and the commands' own
+guards, and an orchestrator driving the protocol runs only `automatic`
+actions: every gate above is still exited by the same person or external
+reviewer, through the same commands and guards. The hard gate count stays
+**6**.
+
 Between gates, Claude may work autonomously, subject to the stop conditions
 already defined in `AGENTS.md` (ambiguous product behavior, architecture
 changes, new dependency categories, schema migrations, destructive data

@@ -3439,5 +3439,647 @@ class TestRecordExternalResultApplicability(unittest.TestCase):
             self.assertEqual((code, body["error"]["code"]), (wp.EXIT_INVALID_REQUEST, "invalid_request"))
 
 
+
+# ---------------------------------------------------------------------------
+# The specification (CP6): ORCHESTRATION_PROTOCOL.md's mirrored tables
+# ---------------------------------------------------------------------------
+
+SPEC_PATH = Path(__file__).resolve().parent.parent / "docs" / "ai-workflow" / "ORCHESTRATION_PROTOCOL.md"
+_VERSION_ORDER = ("1", "2.1", "2.2")
+
+
+def spec_table(header: str) -> list[list[str]]:
+    """The body rows of the specification's one Markdown table whose header
+    line is exactly `header`, each as its stripped cells."""
+    lines = SPEC_PATH.read_text().splitlines()
+    starts = [i for i, line in enumerate(lines) if line.strip() == header]
+    assert len(starts) == 1, f"{len(starts)} tables with header {header!r}"
+    rows = []
+    for line in lines[starts[0] + 2:]:
+        if not line.startswith("|"):
+            break
+        rows.append([cell.strip() for cell in line.strip().strip("|").split("|")])
+    return rows
+
+
+def _ticked(cell: str) -> list[str]:
+    """The backticked values of a cell, in order; `—` and `none` are none."""
+    return re.findall(r"`([^`]*)`", cell)
+
+
+def _single(cell: str) -> str | None:
+    if cell in ("—", "none"):
+        return None
+    values = _ticked(cell)
+    assert len(values) == 1 and cell == f"`{values[0]}`", cell
+    return values[0]
+
+
+def _pairs(phases_cell: str, versions_cell: str) -> frozenset:
+    if versions_cell != "as listed":
+        return frozenset((phase, version) for phase in _ticked(phases_cell) for version in _ticked(versions_cell))
+    pairs = set()
+    for entry in phases_cell.split(", "):
+        match = re.fullmatch(r"`([A-Z_]+)` at (.+)", entry)
+        assert match, entry
+        pairs |= {(match.group(1), version) for version in _ticked(match.group(2))}
+    return frozenset(pairs)
+
+
+def _versions(cell: str) -> list[str]:
+    versions = _ticked(cell)
+    assert versions == [v for v in _VERSION_ORDER if v in versions], cell
+    return versions
+
+
+_CATALOGUE_HEADER = "| row | phases | gv | condition | disposition | action | reason, invocation and notes |"
+
+
+def catalogue_table_mismatches() -> list[str]:
+    """Every difference between the specification's catalogue table and
+    `CATALOGUE`: the row ids in order, then each row's `(phase, gv)`
+    pairs, disposition and action id."""
+    rows = spec_table(_CATALOGUE_HEADER)
+    ids = [cells[0] for cells in rows]
+    if ids != list(wp.ROW_IDS):
+        return [f"row ids {ids} != {list(wp.ROW_IDS)}"]
+    mismatches = []
+    for (row_id, phases, versions, _condition, disposition, action, _notes), row in zip(rows, wp.CATALOGUE):
+        pairs = frozenset() if (phases, versions) == ("—", "—") else _pairs(phases, versions)
+        expected = (frozenset() if row.no_item else row.pairs, row.disposition, row.action_id)
+        if (pairs, disposition, _single(action)) != expected:
+            mismatches.append(f"row {row_id}: {(sorted(pairs), disposition, _single(action))} != "
+                              f"{(sorted(expected[0]), *expected[1:])}")
+    return mismatches
+
+
+class TestSpecificationTablesEqualTheCode(unittest.TestCase):
+    """`ORCHESTRATION_PROTOCOL.md` is normative, and its mirrored tables are
+    parsed and compared with the module's own, row for row and in order:
+    the catalogue, the condition calls, the legal edges with their proofs
+    and `allowed_results`, and the actions."""
+
+    def test_the_catalogue_table_is_the_catalogue_in_order(self):
+        self.assertEqual(catalogue_table_mismatches(), [])
+
+    def test_the_condition_call_table_is_condition_calls(self):
+        rows = spec_table("| row | call | kind | classes |")
+        parsed: dict[str, list[dict]] = {}
+        for row_id, function, kind, classes in rows:
+            calls = parsed.setdefault(row_id, [])
+            if function == "—":
+                self.assertEqual((kind, classes), ("—", "—"), row_id)
+                continue
+            calls.append({"function": _single(function), "kind": kind, "classes": _ticked(classes)})
+        self.assertEqual(list(parsed), list(wp.ROW_IDS), "every row, in catalogue order")
+        self.assertEqual(parsed, wp.CONDITION_CALLS)
+
+    def test_the_edge_table_is_the_legal_edges(self):
+        rows = spec_table("| action id | from | to | gv |")
+        parsed: dict[str, list[dict]] = {}
+        for action, source, target, versions in rows:
+            parsed.setdefault(_single(action), []).append(
+                {"from": _single(source), "to": _single(target), "versions": _versions(versions)})
+        self.assertEqual(list(parsed), list(wp.EDGES))
+        self.assertEqual(parsed, {action: entry["edges"] for action, entry in wp.EDGES.items()})
+
+    def test_the_proof_table_is_the_proofs_and_allowed_results(self):
+        rows = spec_table("| action id | same-phase proof | allowed_results |")
+        parsed = {_single(action): {"proof": _single(proof), "allowed_results": _ticked(allowed)}
+                  for action, proof, allowed in rows}
+        self.assertEqual(list(parsed), list(wp.EDGES))
+        self.assertEqual(parsed, {action: {"proof": entry["proof"], "allowed_results": entry["allowed_results"]}
+                                  for action, entry in wp.EDGES.items()})
+        for proof in {entry["proof"] for entry in wp.EDGES.values()} - {None}:
+            self.assertIn(f"- `{proof}`:", SPEC_PATH.read_text(), "each proof is defined")
+
+    def test_the_action_table_is_the_actions(self):
+        rows = spec_table("| action id | command | invocation | role | fresh_session | independent_of | user_only |")
+        parsed = {}
+        for action, command, invocation, role, fresh, independent, user_only in rows:
+            self.assertIn(fresh, ("yes", "no"))
+            self.assertIn(user_only, ("yes", "no"))
+            parsed[_single(action)] = {
+                "command": _single(command), "invocation": _single(invocation), "role": _single(role),
+                "fresh_session": fresh == "yes", "independent_of": _ticked(independent),
+                "user_only": user_only == "yes",
+            }
+        self.assertEqual(list(parsed), list(wp.ACTION_IDS))
+        self.assertEqual(parsed, wp.ACTIONS)
+
+    def test_the_vocabulary_tables_name_the_code_values(self):
+        text = SPEC_PATH.read_text()
+        codes = spec_table("| code | meaning | retryable |")
+        self.assertEqual([_single(cells[0]) for cells in codes], list(wp.ERROR_CODES))
+        self.assertEqual({_single(cells[0]): cells[2] != "no" for cells in codes}, wp.ERROR_CODES)
+        kinds = spec_table("| kind | resolved by |")
+        self.assertEqual([_single(cells[0]) for cells in kinds], list(wp.ARTIFACT_KINDS))
+        exits = spec_table("| exit code | meaning |")
+        self.assertEqual([_single(cells[0]) for cells in exits],
+                         [str(c) for c in (wp.EXIT_OK, wp.EXIT_REFUSED, wp.EXIT_INVALID_REQUEST, wp.EXIT_INTERNAL)])
+        for check_id in wp.VERIFY_CHECK_IDS:
+            self.assertIn(f"`{check_id}`", text)
+        for name in (*wp.DISPOSITIONS, *wp.WORKER_ROLES, *wp.EXTERNAL_RESULT_KINDS, *wp.RESERVED_RESULT_KINDS,
+                     *wp.RECONCILE_CLASSES, *wp.WORKFLOW_EXCEPTION_CODES):
+            self.assertIn(f"`{name}`", text)
+        self.assertIn(f'"version": "{wp.PROTOCOL_VERSION}"', text)
+        self.assertIn(f"**Workflow {wp.WORKFLOW_RELEASE}**", text, "the tested releases name this one")
+
+    def test_the_ingest_table_names_each_rows_kind_and_versions(self):
+        rows = spec_table("| kind | gv | accepted phase | required header fields | guards, in order | records |")
+        self.assertEqual(
+            [(_single(kind), tuple(_versions(versions)), _single(phase)) for kind, versions, phase, *_ in rows],
+            [("plan_review_verdict", ("2.1", "2.2"), "AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW"),
+             ("implementation_review_verdict", ("2.2",), "AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW"),
+             ("plan_review_verdict", ("1",), "AWAITING_EXTERNAL_PLAN_REVIEW"),
+             ("implementation_review_verdict", ("1", "2.1"), "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW")])
+        for kind, versions, phase, _fields, _guards, records in rows:
+            stage = wp.EXTERNAL_RESULT_KIND_STAGES[_single(kind)]
+            for version in _versions(versions):
+                with self.subTest(kind=kind, version=version):
+                    item = minimal_item(_single(phase), version)
+                    self.assertEqual(ws.select_manual_verdict_row(item, stage=stage),
+                                     {"stage": stage, "two_stage": records != "nothing (feedback only)",
+                                      "phase": _single(phase)})
+
+    def test_the_parser_catches_a_drifted_table(self):
+        real = SPEC_PATH.read_text()
+        drifted = real.replace("| 23 | `IMPLEMENTING` | `2.1`, `2.2` |", "| 23 | `IMPLEMENTING` | `2.2` |", 1)
+        self.assertNotEqual(drifted, real)
+        with mock.patch(f"{__name__}.SPEC_PATH", _DriftedSpec(drifted)):
+            self.assertEqual(catalogue_table_mismatches(), [
+                f"row 23: {([('IMPLEMENTING', '2.2')], 'automatic', 'implementation.checkpoint')} != "
+                f"{([('IMPLEMENTING', '2.1'), ('IMPLEMENTING', '2.2')], 'automatic', 'implementation.checkpoint')}"])
+
+
+class _DriftedSpec:
+    """A stand-in for `SPEC_PATH` whose text is given."""
+
+    def __init__(self, text: str):
+        self._text = text
+
+    def read_text(self) -> str:
+        return self._text
+
+
+class TestOperatorDocuments(unittest.TestCase):
+    """CP6's command and operator documentation."""
+
+    def accept_step_2a(self) -> str:
+        text = _command_text("accept-milestone")
+        return text.split("\n2a. ", 1)[1].split("\n2b. ", 1)[0]
+
+    def test_accept_milestone_offers_no_command_that_cannot_run_here(self):
+        """`v2.6.0-003`, `LPR-R5-003`, `LPR-R6-001`: step 2a names neither
+        `/milestone-implement` nor `/request-plan-amendment` as a way
+        forward from `AWAITING_FUNCTIONAL_REVIEW`; it says no 2.6.0 command
+        completes the checkpoint there, and keeps the functional routing."""
+        step = self.accept_step_2a()
+        self.assertNotIn("/request-plan-amendment", step)
+        self.assertNotIn("finish it with `/milestone-implement`", step)
+        for sentence in re.split(r"(?<=[.:;])\s+", step):
+            if "/milestone-implement" in sentence:
+                self.assertRegex(sentence, r"cannot", sentence)
+        self.assertIn("no 2.6.0 command completes one here", " ".join(step.split()))
+        self.assertIn("v2.6.0-003", step)
+        self.assertIn("route that\n      finding through `/apply-functional-review` instead", step)
+
+    def test_the_operator_reference_points_at_next_action(self):
+        text = (Path(__file__).resolve().parent.parent / "docs" / "ai-workflow"
+                / "WORKFLOW_V2_1_OPERATOR_REFERENCE.md").read_text()
+        table = text.split("## Which command do I run next?", 1)[1].split("\n---", 1)[0]
+        self.assertIn("workflow_protocol.py next-action", table)
+        self.assertNotIn("`/milestone-implement` — finish it", table)
+        self.assertIn("## Driving the Workflow by protocol", text)
+        self.assertIn("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", text)
+
+    def test_milestone_workflow_says_the_protocol_adds_no_gate(self):
+        text = (Path(__file__).resolve().parent.parent / "docs" / "ai-workflow" / "MILESTONE_WORKFLOW.md").read_text()
+        summary = text.split("## Hard gates summary", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("Claude must stop and wait for a human/external input at exactly six points", summary)
+        self.assertIn("reports these same gates and\nadds none", summary)
+
+
+
+# ---------------------------------------------------------------------------
+# The lifecycle end to end, by protocol only (CP6)
+# ---------------------------------------------------------------------------
+
+LIFECYCLE_CHECKPOINTS = [{"id": "C1", "depends_on": []}, {"id": "C2", "depends_on": ["C1"]}]
+_PLAN_DOC = "docs/ai-workflow/WORKFLOW_V2_PLAN.md"
+
+
+class _Lifecycle:
+    """One disposable repository driven by the protocol alone: every step
+    takes `next-action`'s `action.id` and `arguments`, runs the action's
+    command guards (`COMMAND_GUARDS`) and then applies the Workflow writer
+    sequence that command performs -- the same functions, never a state
+    edit by hand. `reconcile` is called only after an automatic action; a
+    gate's action is applied as the user's writer sequence, and a verdict
+    enters through `record-external-result`, each followed by
+    `next-action`. `verdicts[action id]` scripts what each review returns,
+    in order."""
+
+    def __init__(self, test: unittest.TestCase, repo: h.ScratchRepo, verdicts: dict[str, list[str]]):
+        self.test = test
+        self.repo = repo
+        self.verdicts = {key: list(values) for key, values in verdicts.items()}
+        self.trace: list[tuple] = []
+        self.rounds = 0
+        self.edits = 0
+        self.writers = {
+            "plan.start": self.plan_start,
+            "plan.review.local": self.plan_review_local,
+            "plan.apply_review": self.plan_apply_review,
+            "implementation.checkpoint": self.implementation_checkpoint,
+            "implementation.self_review": self.implementation_self_review,
+            "implementation.review.local": self.implementation_review_local,
+            "implementation.apply_review": self.implementation_apply_review,
+            "functional.prepare": self.functional_prepare,
+        }
+        self.gates = {
+            "plan.approve": self.user_approves_plan,
+            "implementation.approve": self.user_approves_implementation,
+            "functional.review": self.user_accepts_milestone,
+        }
+
+    # -- the protocol calls ------------------------------------------------
+
+    def decide(self) -> dict:
+        state = h.read_state(self.repo)
+        if state.get("active_work_item_id") is None and WI in state.get("work_items", {}):
+            return next_action(self.repo, "--work-item", WI)
+        return next_action(self.repo)
+
+    def run(self, decision: dict) -> dict:
+        """Execute one decision and return the next one. An automatic
+        decision is executed and reconciled; a gate's is resolved."""
+        action = decision["action"]
+        if decision["disposition"] == "automatic":
+            if decision.get("basis") is not None:
+                self.test.assertEqual(
+                    next_action(self.repo, "--work-item", WI, "--expect-state-identity",
+                                decision["basis"]["state_identity"])["row"], decision["row"],
+                    "the identity check immediately before the launch")
+                COMMAND_GUARDS.get(action["id"], (lambda repo, state: None,))[0](self.repo, h.read_state(self.repo))
+            self.writers[action["id"]](action["arguments"])
+            result = reconciled(self.test, self.repo, decision)
+            self.trace.append((decision["row"], action["id"], result["class"]))
+            self.test.assertEqual(result["invalid_reasons"], [])
+            self.test.assertEqual(result["next"], self.decide(), "reconcile's next is next-action's decision")
+            return result["next"]
+        if decision["disposition"] == "external_gate":
+            self.trace.append((decision["row"], action["id"], decision["satisfied_by"]))
+            self.record_external(decision["satisfied_by"])
+        else:
+            self.test.assertEqual(decision["disposition"], "human_gate", decision)
+            self.trace.append((decision["row"], action["id"], "user"))
+            self.gates[action["id"]](decision)
+        return self.decide()
+
+    def drive(self, decision: dict | None = None, *, until: str = "complete") -> dict:
+        decision = decision or self.decide()
+        for _ in range(60):
+            if decision["disposition"] == until:
+                return decision
+            self.test.assertNotEqual(decision["disposition"], "blocked", decision)
+            decision = self.run(decision)
+        raise AssertionError(f"no {until} after 60 steps: {self.trace}")
+
+    def record_external(self, kind: str) -> None:
+        stage = wp.EXTERNAL_RESULT_KIND_STAGES[kind]
+        status = self.verdicts[f"{stage}.manual"].pop(0)
+        state = h.read_state(self.repo)
+        work_item = state["work_items"][WI]
+        if work_item["governing_workflow_version"] in ("2.1", "2.2") and (
+                stage == "plan" or work_item["governing_workflow_version"] == "2.2"):
+            text = verdict(status, rcid=self.current_content(stage), bundle=self.bundle_id(stage),
+                           base=work_item["base_commit"], role=f"MANUAL_EXTERNAL_{stage.upper()}_REVIEW")
+        else:
+            text = verdict(status, bundle=self.bundle_id(stage), base=work_item["base_commit"])
+        result = recorded(self.test, self.repo, kind, text)
+        self.test.assertEqual((result["stage"], result["verdict"]), (stage, status))
+
+    # -- what the commands compute -----------------------------------------
+
+    def bundle_id(self, stage: str) -> str:
+        directory = fingerprint.resolve_bundle_dir(self.repo.root, WI, **({"stage": "plan"} if stage == "plan" else {}))
+        return fingerprint.compute_bundle_id(self.repo.root / directory)[0]
+
+    def current_content(self, stage: str) -> str:
+        if stage == "plan":
+            return fingerprint.compute_review_content_id_plan_stage_for_work_item(self.repo.root, WI)[0]
+        return current_I(self.repo)
+
+    def tick(self) -> str:
+        self.rounds += 1
+        return f"t-{self.rounds}"
+
+    # -- the automatic actions' writer sequences --------------------------
+
+    def plan_start(self, arguments: dict) -> None:
+        """`/milestone-plan`'s `[2.1]` creation: `route_work_item` at the
+        config's default (committed), then the publication and the bound
+        generation."""
+        self.test.assertEqual(arguments, {})
+        state = ws.route_work_item(
+            h.read_state(self.repo), ws.load_config(self.repo.root), work_item_id=WI, work_item_type="process",
+            work_item_kind="process", plan_path=_PLAN_DOC, registry_path=f"docs/ai-workflow/registry/{WI}-registry.json",
+            mapping_path=f"docs/ai-workflow/requirements/{WI}-mapping.json", plan_revision=1, now=self.tick(),
+            base_commit=self.repo.base, repo_root=self.repo.root)
+        h.write_state(self.repo, state)
+        h.commit_state(self.repo, "route the work item")
+        h.publish_and_bind_plan_bundle(self.repo)
+
+    def plan_review_local(self, arguments: dict) -> None:
+        """`/review-plan`: the verdict file, then `record_local_plan_review`."""
+        status = self.verdicts["plan.local"].pop(0)
+        P, B = self.current_content("plan"), self.bundle_id("plan")
+        write_feedback(self.repo, verdict(status, rcid=P, bundle=B, base=self.repo.base, role="LOCAL_MODEL_PLAN_REVIEW"))
+        mutate(self.repo, ws.record_local_plan_review, verdict=status, bundle_id=B, review_content_id=P,
+               round=self.rounds + 1, now=self.tick())
+
+    def plan_apply_review(self, arguments: dict) -> None:
+        """`/apply-plan-review`: the applied edit (committed), then the
+        publication and the regeneration -- a `2.x` item's bound bundle
+        (`AWAITING_LOCAL_PLAN_REVIEW`), a `"1"` item's next revision at its
+        phase."""
+        self.edits += 1
+        plan = self.repo.root / _PLAN_DOC
+        plan.write_text(plan.read_text() + f"applied finding {self.edits}\n")
+        work_item = h.read_state(self.repo)["work_items"][WI]
+        v1 = work_item["governing_workflow_version"] == "1"
+        if v1:  # a "1" round advances the plan's and the registry's revision with the mirror
+            revision = work_item["plan_revision"]
+            plan.write_text(plan.read_text().replace(f"(Revision {revision})", f"(Revision {revision + 1})", 1))
+            registry_path = self.repo.root / f"docs/ai-workflow/registry/{WI}-registry.json"
+            registry = json.loads(registry_path.read_text())
+            registry["plan_revision"] = revision + 1
+            registry_path.write_text(json.dumps(registry) + "\n")
+        h.git(self.repo, "add", "-A", "--", "docs/ai-workflow")
+        h.git(self.repo, "reset", "-q", "--", str(ws.DEFAULT_STATE_PATH))
+        h.git(self.repo, "commit", "-q", "-m", f"apply plan review round {self.edits}")
+        if v1:
+            mutate(self.repo, ws.publish_plan_revision, work_item["plan_revision"] + 1, self.tick())
+            h.generate_plan_bundle(self.repo)
+        else:
+            h.publish_and_bind_plan_bundle(self.repo)
+
+    def implementation_checkpoint(self, arguments: dict) -> None:
+        """`/milestone-implement`'s `[2.1]` step 1: the checkpoint started,
+        implemented, completed, and committed with its trailers."""
+        checkpoint_id = arguments["checkpoint_id"]
+        registry = json.loads((self.repo.root / f"docs/ai-workflow/registry/{WI}-registry.json").read_text())
+        mutate(self.repo, ws.transition_checkpoint_in_progress, checkpoint_id, start_commit=self.repo.head(),
+               now=self.tick())
+        (self.repo.root / h.BUNDLE_ITEM_IMPLEMENTATION_PATH).write_text(f"{checkpoint_id}\n")
+        mutate(self.repo, ws.complete_checkpoint, checkpoint_id, registry, now=self.tick(), repo_root=self.repo.root)
+        h.git(self.repo, "add", "-A")
+        h.git(self.repo, "commit", "-q", "-m",
+              f"{checkpoint_id}\n\nWorkflow-Checkpoint: {checkpoint_id}\nWorkflow-Work-Item: {WI}")
+
+    def implementation_self_review(self, arguments: dict) -> None:
+        """`/milestone-implement` steps 2 to 4: the (no-op) self-review
+        entry, then the bundle generation."""
+        registry = json.loads((self.repo.root / f"docs/ai-workflow/registry/{WI}-registry.json").read_text())
+        mutate(self.repo, ws.enter_self_reviewing_implementation, registry, now=self.tick())
+        h.generate_implementation_bundle(self.repo)
+
+    def implementation_review_local(self, arguments: dict) -> None:
+        """`/review-implementation` at `"2.2"`: the verdict file, then
+        `record_local_implementation_review`."""
+        status = self.verdicts["implementation.local"].pop(0)
+        I, B = self.current_content("implementation"), self.bundle_id("implementation")
+        write_feedback(self.repo, verdict(status, rcid=I, bundle=B, base=self.repo.base,
+                                          role="LOCAL_MODEL_IMPLEMENTATION_REVIEW"))
+        mutate(self.repo, ws.record_local_implementation_review, verdict=status, bundle_id=B,
+               review_content_id=I, round=self.rounds + 1, now=self.tick())
+
+    def implementation_apply_review(self, arguments: dict) -> None:
+        """`/apply-implementation-review`: at the external phase of a
+        `"1"`/`"2.1"` item, `enter_applying_review_feedback`; then the fix,
+        committed with the recorded verdict's state (the round's committed
+        source phase), and the `post-fix` generation."""
+        if h.read_state(self.repo)["work_items"][WI]["phase"] == "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW":
+            mutate(self.repo, ws.enter_applying_review_feedback, now=self.tick())
+            h.commit_state(self.repo, "enter APPLYING_REVIEW_FEEDBACK")
+        self.edits += 1
+        (self.repo.root / h.BUNDLE_ITEM_IMPLEMENTATION_PATH).write_text(f"fix {self.edits}\n")
+        h.git(self.repo, "add", "--", h.BUNDLE_ITEM_IMPLEMENTATION_PATH, str(ws.DEFAULT_STATE_PATH))
+        h.git(self.repo, "commit", "-q", "-m", f"apply implementation review round {self.edits}")
+        h.generate_implementation_bundle(self.repo, stage="post-fix")
+
+    def functional_prepare(self, arguments: dict) -> None:
+        """`/prepare-functional-review`: the checklist-evidence commit for
+        the item's round."""
+        commit_checklist_evidence(self.repo, h.read_state(self.repo)["work_items"][WI]["implementation_revision"])
+
+    # -- the user's writer sequences at the gates -------------------------
+
+    def _feedback_fields(self) -> dict:
+        return fingerprint.parse_review_feedback_binding_fields(ws.read_review_feedback(self.repo.root, WI))
+
+    def user_approves_plan(self, decision: dict) -> None:
+        """`/approve-review plan`: the gate wrapper, the basis, the record
+        over the committed plan-stage projection, `apply_plan_approval`,
+        and the approval commit."""
+        state = h.read_state(self.repo)
+        self.test.assertTrue(ws.plan_approval_gate_status(self.repo.root, state, WI)["reachable"])
+        confirmation = f"I approve {WI} at the plan stage"
+        B = self.bundle_id("plan")
+        basis = ws.resolve_approval_basis(
+            latest_round_status=self._feedback_fields()["status"],
+            feedback_bundle_id=self._feedback_fields()["reviewed_bundle_id"], current_bundle_id=B,
+            user_confirmation=confirmation, work_item_id=WI, stage="plan")
+        digest, projection = fingerprint.compute_review_content_id_plan_stage_at_commit_for_work_item(
+            self.repo.root, WI, "HEAD", base=self.repo.base)
+        record = ws.build_approval_record(
+            basis=basis, stage="plan", user_confirmation=confirmation, now=self.tick(), reviewed_bundle_id=B,
+            approved_review_content_id=digest, review_content_manifest=projection["review_content_manifest"])
+        mutate(self.repo, ws.apply_plan_approval, record, self.tick())
+        h.commit_state(self.repo, "approve the plan", {"Workflow-Plan-Approval": digest, "Workflow-Work-Item": WI})
+        self.plan_basis = basis
+
+    def user_approves_implementation(self, decision: dict) -> None:
+        """`/approve-review implementation`: the gate wrapper's inputs, the
+        basis, the record, `apply_technical_approval`, and the approval
+        commit."""
+        state = h.read_state(self.repo)
+        gate = ws.technical_approval_gate_status(self.repo.root, state, WI)
+        self.test.assertTrue(gate["reachable"], gate)
+        confirmation = f"I approve {WI} at the implementation stage"
+        inputs = gate["inputs"]
+        basis = ws.resolve_approval_basis(
+            latest_round_status=inputs["latest_round_status"],
+            feedback_bundle_id=self._feedback_fields()["reviewed_bundle_id"], current_bundle_id=inputs["bundle_id"],
+            user_confirmation=confirmation, work_item_id=WI, stage="implementation",
+            pinned_block=inputs["pinned_block"])
+        work_item = state["work_items"][WI]
+        record = ws.build_approval_record(
+            basis=basis, stage="implementation", user_confirmation=confirmation, now=self.tick(),
+            reviewed_bundle_id=inputs["bundle_id"], approved_review_content_id=inputs["current_review_content_id"],
+            review_content_manifest=[], reviewed_content_commit=work_item["reviewed_implementation_head"])
+        mutate(self.repo, ws.apply_technical_approval, record, self.tick())
+        h.commit_state(self.repo, "approve the implementation", {
+            "Workflow-Technical-Approval": inputs["current_review_content_id"], "Workflow-Work-Item": WI})
+
+    def user_accepts_milestone(self, decision: dict) -> None:
+        """At the functional gate the user tests and accepts: the offered
+        `milestone.accept` alternative, applied as `/accept-milestone`'s
+        writer sequence (`complete_work_item`) and its completion commit."""
+        self.test.assertIn("milestone.accept", [a["id"] for a in decision["alternatives"]])
+        state = h.read_state(self.repo)
+        is_terminal, _outstanding = ws.resolve_own_registry_completion_status(self.repo.root, state["work_items"][WI])
+        self.test.assertTrue(ws.milestone_complete_gate_reachable(phase="AWAITING_FUNCTIONAL_REVIEW",
+                                                                  is_terminal=is_terminal))
+        h.write_state(self.repo, ws.complete_work_item(state, WI, self.tick(), repo_root=self.repo.root))
+        h.commit_state(self.repo, "accept the milestone", {"Workflow-Work-Item": WI})
+
+
+def _seed_unrouted(repo: h.ScratchRepo, default: str) -> None:
+    """The repository `/milestone-plan` starts from, committed as the base:
+    the declared plan-stage files and the installed scripts, a config whose
+    default is `default`, and no work item yet. The checkpoints' file is
+    classified at the plan stage too (excluded), as a real declaration
+    classifies every path the work writes."""
+    h.seed_bundle_item(repo, registry_checkpoints=LIFECYCLE_CHECKPOINTS)
+    h.git(repo, "reset", "-q", "--hard", repo.base)  # drop the seeded entry: ids are never reused
+    artifacts = repo.root / "docs" / "ai-workflow" / "registry" / f"{WI}-artifacts.json"
+    declarations = json.loads(artifacts.read_text())
+    declarations["plan_stage"]["excluded_paths"][h.BUNDLE_ITEM_IMPLEMENTATION_PATH] = "the checkpoints' output"
+    artifacts.write_text(json.dumps(declarations) + "\n")
+    write_config(repo, default)
+    h.write_state(repo, h.base_state())
+    h.git(repo, "add", "-A")
+    h.git(repo, "commit", "-q", "-m", "no work item yet")
+    repo.base = repo.head()
+
+
+class TestLifecycleEndToEnd2_2(unittest.TestCase):
+    """A `"2.2"` item from no work item to `MILESTONE_COMPLETE`, driven by
+    `next-action`'s decisions only: a `REVISE` round at both stages of both
+    reviews (each manual verdict recorded through `record-external-result`)
+    and two checkpoints, the first of them same-phase progress."""
+
+    VERDICTS = {
+        "plan.local": ["REVISE", "APPROVE", "APPROVE"],
+        "plan.manual": ["REVISE", "APPROVE"],
+        "implementation.local": ["REVISE", "APPROVE", "APPROVE"],
+        "implementation.manual": ["REVISE", "APPROVE"],
+    }
+
+    EXPECTED = [
+        ("1", "plan.start", "progress"),
+        ("12", "plan.review.local", "progress"),
+        ("8", "plan.apply_review", "progress"),
+        ("12", "plan.review.local", "gate_reached"),
+        ("14", "plan.review.external", "plan_review_verdict"),
+        ("8", "plan.apply_review", "progress"),
+        ("12", "plan.review.local", "gate_reached"),
+        ("14", "plan.review.external", "plan_review_verdict"),
+        ("15", "plan.approve", "user"),
+        ("23", "implementation.checkpoint", "progress"),
+        ("23", "implementation.checkpoint", "progress"),
+        ("24", "implementation.self_review", "progress"),
+        ("26", "implementation.review.local", "progress"),
+        ("36", "implementation.apply_review", "progress"),
+        ("26", "implementation.review.local", "gate_reached"),
+        ("28", "implementation.review.external", "implementation_review_verdict"),
+        ("36", "implementation.apply_review", "progress"),
+        ("26", "implementation.review.local", "gate_reached"),
+        ("28", "implementation.review.external", "implementation_review_verdict"),
+        ("29", "implementation.approve", "user"),
+        ("37", "functional.prepare", "gate_reached"),
+        ("39", "functional.review", "user"),
+    ]
+
+    def test_from_no_work_item_to_milestone_complete(self):
+        with h.ScratchRepo() as repo:
+            _seed_unrouted(repo, "2.2")
+            run = _Lifecycle(self, repo, self.VERDICTS)
+            final = run.drive()
+            self.assertEqual(run.trace, self.EXPECTED)
+            self.assertEqual((final["row"], final["disposition"], final["action"]), ("40", "complete", None))
+            state = h.read_state(repo)
+            self.assertEqual((state["work_items"][WI]["phase"], state["active_work_item_id"]),
+                             ("MILESTONE_COMPLETE", None))
+            self.assertEqual(run.plan_basis, "EXTERNAL_APPROVE")
+            self.assertTrue(all(value == [] for value in run.verdicts.values()), run.verdicts)
+
+    def test_the_first_checkpoint_is_same_phase_progress(self):
+        with h.ScratchRepo() as repo:
+            _seed_unrouted(repo, "2.2")
+            run = _Lifecycle(self, repo, self.VERDICTS)
+            decision = run.drive(until="human_gate")  # the plan approval gate
+            decision = run.run(decision)
+            self.assertEqual((decision["row"], decision["action"]["arguments"]),
+                             ("23", {"work_item_id": WI, "checkpoint_id": "C1"}))
+            run.implementation_checkpoint(decision["action"]["arguments"])
+            result = reconciled(self, repo, decision)
+            self.assertEqual((result["class"], result["from"]["phase"], result["to"]["phase"],
+                              result["evidence"]["completed_checkpoints"]),
+                             ("progress", "IMPLEMENTING", "IMPLEMENTING", ["C1"]))
+            self.assertEqual(result["next"]["action"]["arguments"]["checkpoint_id"], "C2")
+
+    def test_a_gates_own_decision_is_refused_by_reconcile(self):
+        with h.ScratchRepo() as repo:
+            _seed_unrouted(repo, "2.2")
+            run = _Lifecycle(self, repo, self.VERDICTS)
+            gate = run.drive(until="human_gate")
+            self.assertEqual(gate["action"]["id"], "plan.approve")
+            body, code = reconcile(repo, gate)
+            self.assertEqual((code, body["error"]["code"]), (wp.EXIT_INVALID_REQUEST, "invalid_request"))
+
+
+class TestLifecycleEndToEndV1(unittest.TestCase):
+    """The two `"1"` runs (`LPR-R3-001`), each from a pre-constructed
+    `"1"` state entry in the phase the named 2.6.0 writer persists, using
+    only what the `"1"` commands write."""
+
+    def test_the_plan_round(self):
+        """From `AWAITING_EXTERNAL_PLAN_REVIEW` as `publish_plan_revision`'s
+        `"1"` branch writes it, to row 6a at `IMPLEMENTING`."""
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo, governing_workflow_version="1", phase="AWAITING_EXTERNAL_PLAN_REVIEW")
+            h.generate_plan_bundle(repo)
+            run = _Lifecycle(self, repo, {"plan.manual": ["REVISE"]})
+            decision = run.decide()
+            self.assertEqual((decision["row"], decision["disposition"]), ("21", "external_gate"))
+            decision = run.run(decision)
+            self.assertEqual((decision["row"], decision["action"]["id"]), ("18", "plan.apply_review"))
+            decision = run.run(decision)
+            self.assertEqual(run.trace[-1], ("18", "plan.apply_review", "gate_reached"))
+            self.assertEqual((decision["row"], decision["action"]["id"]), ("20", "plan.approve"))
+            decision = run.run(decision)
+            self.assertEqual(run.plan_basis, "USER_OVERRIDE")
+            self.assertEqual((decision["row"], decision["disposition"], decision["reason"]["code"],
+                              decision["snapshot"]["phase"]),
+                             ("6a", "blocked", "v1_state_not_advanced", "IMPLEMENTING"))
+            self.assertIsNone(decision["action"])
+
+    def test_the_implementation_round(self):
+        """From `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` as
+        `record_bundle_generation` writes it, with `registry_path: null`, to
+        `complete`."""
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo, governing_workflow_version="1", phase="SELF_REVIEWING_IMPLEMENTATION",
+                               registry_path=None)
+            repo.commit("implement", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+            h.generate_implementation_bundle(repo)
+            run = _Lifecycle(self, repo, {"implementation.manual": ["REVISE", "APPROVE"]})
+            decision = run.decide()
+            self.assertEqual((decision["row"], decision["disposition"]), ("35", "external_gate"))
+            final = run.drive(decision)
+            self.assertEqual(run.trace, [
+                ("35", "implementation.review.external", "implementation_review_verdict"),
+                ("32", "implementation.apply_review", "gate_reached"),
+                ("35", "implementation.review.external", "implementation_review_verdict"),
+                ("33", "implementation.approve", "user"),
+                ("37", "functional.prepare", "gate_reached"),
+                ("39", "functional.review", "user"),
+            ])
+            self.assertEqual((final["row"], final["disposition"]), ("40", "complete"))
+
+
 if __name__ == "__main__":
     unittest.main()

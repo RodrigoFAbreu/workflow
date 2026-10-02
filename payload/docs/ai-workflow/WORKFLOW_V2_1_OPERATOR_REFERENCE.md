@@ -182,19 +182,52 @@ exactly like `AWAITING_TECHNICAL_APPROVAL` is for both versions.
 | `AWAITING_FUNCTIONAL_REVIEW`, want a second opinion on checklist completeness first | `/review-functional` (optional) — report-only, writes nothing |
 | Functional testing produced findings | `/apply-functional-review` |
 | Functional testing clean, **all** own checkpoints `COMPLETE` | **You**: `/accept-milestone` |
-| Functional testing clean, a checkpoint still outstanding | `/milestone-implement` — finish it, then return to this gate |
+| Functional testing clean, a checkpoint still outstanding | No command completes it from this phase (`/milestone-implement` cannot start a checkpoint here; defect `v2.6.0-003`). Ordinary flow never gets here; a legacy promotion or a hand-constructed state does |
 | Review needed for work outside the gates | `/prepare-review` |
+| Not sure, or driving the item from an orchestrator | `python3 scripts/workflow_protocol.py next-action` — the protocol's own answer to this table; see [Driving the Workflow by protocol](#driving-the-workflow-by-protocol) |
 | Driving the `workflow-v2-1-core` item | `/bootstrap-workflow-v2` — its only driver, but that item is `MILESTONE_COMPLETE`, so every path through it now fails closed (ledger `O16`) |
 
 There is only one acceptance command. `/accept-milestone` refuses while the
-item's own registry has any checkpoint that is not `COMPLETE`, and its
-refusal names the outstanding checkpoint plus the three supported ways
-forward: finish the checkpoint with `/milestone-implement` if it is still
-in scope; `/apply-functional-review`'s bounded branch for a same-scope
-functional fix; its broad branch — a `<parent-id>-remediation-<n>` child
-work item — for new or wider scope. Nothing records functional acceptance
-of a partial round: `/accept-scoped-remediation` did, and was retired as an
-unreachable dead contract (ledger `I10`).
+item's own registry has any checkpoint that is not `COMPLETE`, naming the
+outstanding checkpoint. No command completes that checkpoint from
+`AWAITING_FUNCTIONAL_REVIEW`: `/milestone-implement` cannot start one at
+this phase, whatever the refusal's 2.6.0 message suggests (defect
+`v2.6.0-003`). A functional-review finding goes through
+`/apply-functional-review`: its bounded branch for a same-scope fix, its
+broad branch — a `<parent-id>-remediation-<n>` child work item — for new or
+wider scope. Nothing records functional acceptance of a partial round:
+`/accept-scoped-remediation` did, and was retired as an unreachable dead
+contract (ledger `I10`).
+
+---
+
+## Driving the Workflow by protocol
+
+Workflow 2.7.0 ships Orchestration Protocol v1,
+`scripts/workflow_protocol.py`, specified in
+`docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`. It is how an orchestrator
+drives a work item without copying any of this reference, and it is also a
+quick answer to "which command do I run next?":
+
+```text
+python3 scripts/workflow_protocol.py next-action [--work-item <id>]
+```
+
+prints one JSON envelope whose result names the matching catalogue row,
+a disposition (`automatic`, `human_gate`, `external_gate`, `blocked` or
+`complete`), the action with its rendered command, and a reason with a
+remedy. It reads the state and writes nothing. The other operations are
+`describe`, `verify` (a read-only health check), `reconcile` (classifies
+what an automatic action did), `resolve-artifact` and
+`record-external-result`, which records a pasted manual verdict through
+the same ingest `/record-manual-plan-review` and
+`/record-manual-implementation-review` use.
+
+The protocol adds no gate and changes no command. A `human_gate` action is
+still a person's — the user-only commands keep their literal-confirmation
+guard — and an orchestrator runs `automatic` actions only. Where a command
+would refuse, `next-action` reports the state as `blocked` with the
+command's own remedy instead of offering it.
 
 ---
 

@@ -73,15 +73,19 @@ missing, ask for it and stop — do not proceed on an inferred "yes."
       `workflow_state.milestone_complete_gate_reachable(phase=work_item["phase"],
       is_terminal=is_terminal)`. `False` stops here — report the actual
       `phase` and, if `not is_terminal`, name `outstanding_checkpoint_id`
-      and the supported ways forward (next bullet); do not proceed past
+      and what the next bullet says about it; do not proceed past
       this point.
-    - **The supported ways forward from a non-terminal registry** (ledger
+    - **A non-terminal registry** (ledger
       `I10` of the Workflow v2.x defect ledger retired the non-terminal
       acceptance command that used to be named here; its
       gate had no producer in any supported lifecycle, so it can never be
-      the answer): if the outstanding checkpoint is still part of
-      this milestone's scope, finish it with `/milestone-implement` and
-      return to the functional gate afterwards. If acceptance is being
+      the answer): an outstanding checkpoint cannot be completed from
+      `AWAITING_FUNCTIONAL_REVIEW`. `/milestone-implement` cannot start a
+      checkpoint at this phase (`transition_checkpoint_in_progress` refuses
+      outside `IMPLEMENTING`), and no 2.6.0 command completes one here
+      (defect `v2.6.0-003`): report the outstanding checkpoint and stop.
+      Ordinary flow never reaches this phase with a checkpoint outstanding;
+      a legacy promotion or a hand-constructed state does. If acceptance is being
       attempted early because of a functional-review finding, route that
       finding through `/apply-functional-review` instead — its bounded
       branch for a same-scope fix (which marks `technical_approval`
@@ -101,8 +105,9 @@ missing, ask for it and stop — do not proceed on an inferred "yes."
       `work_item_id`; report the specific failure verbatim, this is a data-
       integrity defect, never silently treated as "nothing to check."
       `IncompleteOwnCheckpointsError` stops here — report the named
-      outstanding checkpoint and the supported ways forward the bullet
-      above lists; the exception's own message names them too.
+      outstanding checkpoint as the bullet above says. The exception's
+      own message still carries 2.6.0's `/milestone-implement` advice,
+      which cannot run at this phase.
       `UnsatisfiedCompletionObligationError` stops here too
       (`D-Completion-Obligations`, item 356(a)): every completion
       obligation the item's **own registry** declares must derive `PASS`,

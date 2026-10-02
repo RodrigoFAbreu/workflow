@@ -445,8 +445,9 @@ def seed_bundle_item(
 
 def generate_plan_bundle(repo: ScratchRepo, work_item_id: str = "wi") -> str:
     """Generates `.ai-review/<id>/current/` at the plan stage with the real
-    script, after writing the two author-written preconditions. Returns the
-    plan-stage `review_content_id`."""
+    script, after writing the two author-written preconditions (the item's
+    current `plan_revision` in `TEST_RESULTS.md`). Returns the plan-stage
+    `review_content_id`."""
     import workflow_fingerprint as fingerprint
 
     digest, _ = fingerprint.compute_review_content_id_plan_stage_for_work_item(repo.root, work_item_id)
@@ -454,7 +455,8 @@ def generate_plan_bundle(repo: ScratchRepo, work_item_id: str = "wi") -> str:
     bundle_dir.mkdir(parents=True, exist_ok=True)
     (bundle_dir / "REVIEW_REQUEST.md").write_text(f"stage: plan\nreview_content_id: {digest}\n")
     _, head = fingerprint.current_worktree_root_and_head(repo.root)
-    (bundle_dir / "TEST_RESULTS.md").write_text(f"stage: plan (revision 1)\nhead: {head}\n")
+    revision = read_state(repo)["work_items"][work_item_id]["plan_revision"]
+    (bundle_dir / "TEST_RESULTS.md").write_text(f"stage: plan (revision {revision})\nhead: {head}\n")
     _run_generator(repo, "plan", work_item_id)
     return digest
 

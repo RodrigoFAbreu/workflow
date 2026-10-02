@@ -1016,7 +1016,14 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # forward instead (finish the checkpoint with /milestone-implement, or
     # route a functional finding through /apply-functional-review's
     # bounded/broad branches) -- intentional content change.
-    "accept-milestone.md": "ddf2f49aacd802d831602ac89673a4bba1d65960d4acad13fdad1578d5feff0a",
+    #
+    # accept-milestone.md further updated, Orchestration Protocol v1
+    # (workflow-2.7.0, CP6, v2.6.0-003): step 2a no longer tells the operator
+    # to finish an outstanding checkpoint with /milestone-implement, which
+    # cannot start one at AWAITING_FUNCTIONAL_REVIEW; it says no 2.6.0
+    # command completes one there, and keeps the /apply-functional-review
+    # routing -- intentional content change.
+    "accept-milestone.md": "236a370b2474ce2e6d223da0aeab16c4870f5876831d16c851b58826747c497a",
     # prepare-functional-review.md further updated, baseline-portability
     # correctness fix (OPUS-R129-001): step 3a's checklist-evidence
     # provenance commit instruction now states the same "trailers must be
@@ -7025,6 +7032,9 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         # workflow-2.7.0, D-Consumed-History (v2.6.0-001): the durable
         # consumed history, a work-item field name, not a callable.
         "consumed_plan_review_content_ids",
+        # workflow-2.7.0, Orchestration Protocol v1: next-action's
+        # disposition values, literal enum values, not callables.
+        "external_gate", "human_gate",
     })
 
     def test_every_code_symbol_the_reference_names_actually_exists(self):

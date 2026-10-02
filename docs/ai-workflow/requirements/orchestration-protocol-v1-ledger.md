@@ -401,3 +401,104 @@ ingest half (the required `review_content_id` label at the two-stage rows).
   `workflow_fingerprint_generalization_test.py` 105 OK. Only a comment in
   `workflow_integration_test.py`'s `EXPECTED_CALL_SITES` changed after
   staging.
+
+## `CP6` — Specification, documentation, lifecycle E2E
+
+Requirements: REQ-10 (shipped normative spec; command and operator documents
+agree; protocol-only lifecycle E2E), REQ-1's specification half.
+
+- **Implementation** (release source only):
+  - `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md` (new): versioning
+    (and the releases tested against v1, 2.7.0), the invocation, envelope,
+    exit codes and error codes with the Workflow exception domain, state
+    identity and basis, each operation's request, result (citing the
+    schema's `$defs.results`) and refusals, the ingest table, the actions
+    and worker roles, the condition terms and kinds, the condition-call
+    table, the catalogue table with its notes (the `"1"` states and
+    `v2.6.0-003`, `BLOCK`, applied `"1"` verdicts, content-bound `REVISE`,
+    bundle integrity, row order), the legal-edge and proof tables with
+    `reconcile`'s classification, consumer obligations, the W2 reservations
+    and the compatibility notes (D-Feedback-Label, D-Consumed-History,
+    D-Apply-Binding, the 2.6.0 query CLIs). Its tables were rendered from the
+    code's own tables.
+  - `payload/.claude/commands/accept-milestone.md` step 2a: no longer tells
+    the operator to finish an outstanding checkpoint with
+    `/milestone-implement`; it says that command cannot start one at
+    `AWAITING_FUNCTIONAL_REVIEW` and that no 2.6.0 command completes one
+    there (`v2.6.0-003`), keeping the `/apply-functional-review` routing.
+  - `WORKFLOW_V2_1_OPERATOR_REFERENCE.md`: a `next-action` row in "Which
+    command do I run next?", and the "Driving the Workflow by protocol"
+    section. `MILESTONE_WORKFLOW.md`: the paragraph in "Hard gates summary"
+    stating that the protocol reports the same gates and adds none (count
+    still 6).
+  - `payload/scripts/workflow_protocol_test.py`:
+    `TestSpecificationTablesEqualTheCode` (8 tests) parses the spec's
+    catalogue, condition-call, edge, proof and action tables and compares
+    them with `CATALOGUE`, `CONDITION_CALLS`, `EDGES` and `ACTIONS`, row for
+    row and in order, plus the error-code, artifact-kind, exit-code and
+    ingest tables, and checks that a drifted table is caught.
+    `TestOperatorDocuments` (3 tests) pins step 2a's text (no
+    `/request-plan-amendment`, `/milestone-implement` only in a "cannot"
+    sentence, the routing kept), the operator reference's pointer, and the
+    hard-gates paragraph. The lifecycle E2E (`_Lifecycle`):
+    `TestLifecycleEndToEnd2_2` drives a `"2.2"` item from no work item
+    (`plan.start`, row 1) to row 40 by `next-action` alone, with the identity
+    check before each launch, each automatic action's `COMMAND_GUARDS`
+    sequence and then its writers, `reconcile` after each automatic action
+    and `next-action` after each gate. It has a `REVISE` round at the local
+    and manual stages of both reviews (manual verdicts through
+    `record-external-result`) and two checkpoints, the first of them
+    same-phase progress. It also asserts once that `reconcile` refuses a
+    gate's own decision. `TestLifecycleEndToEndV1` has the `"1"` plan round
+    (rows 21, 18, gate_reached at 20, approval, row 6a) and the `"1"`
+    implementation round with `registry_path: null` (rows 35, 32, 35, 33,
+    37, 39, then `complete`).
+  - `payload/scripts/workflow_test_harness.py`: `generate_plan_bundle`
+    writes the item's current `plan_revision` into `TEST_RESULTS.md` (it was
+    always 1), which the `"1"` apply round needs.
+  - `payload/scripts/workflow_integration_test.py`: `accept-milestone.md`'s
+    golden hash, with its reason; `human_gate`/`external_gate` allowlisted
+    as literal values in the operator-reference symbol check.
+- **Deviations from the plan's text, found while implementing**:
+  - The operator reference's "Which command do I run next?" row for
+    "a checkpoint still outstanding" and the acceptance paragraph after the
+    table repeated step 2a's inaccuracy, so they are corrected too
+    (REQ-10: the command and operator documents agree).
+  - `IncompleteOwnCheckpointsError`'s message in `workflow_state.py` still
+    carries 2.6.0's `/milestone-implement` advice. CP6 changes no code, so
+    step 2a now says the message carries that advice and that it cannot run
+    at this phase. It belongs with the `v2.6.0-003` follow-up (CP7's
+    roadmap row).
+  - The specification also mirrors the actions table, which a test checks
+    too, beyond the three tables CP6 names.
+  - The E2E's writer sequences are the commands' state functions and
+    commits: the plan approval is `apply_plan_approval` and an approval
+    commit, without `/approve-review plan`'s journal and closure-proof
+    machinery; plan edits are committed before the regeneration; the
+    implementation fix is committed with the state of the recorded verdict.
+- **Self-review**: an independent agent checked the specification's prose
+  and free-text columns against the code and the plan. It made 15
+  findings, all fixed: the input-file and installation-record exceptions
+  to the `OSError` rule; the unlocked read when the lock file is absent;
+  `verify`'s skip rules; `action` null for every `blocked` row;
+  `reconcile`'s `--work-item` for `plan.start` and the optional `row`;
+  `Round:` refusing when malformed; the bundle-id advisory's wording; retry
+  outcomes; `state_invalid` standing alone; `no_work_item` reserved; the
+  remedies and conditions of rows 5, 8a, 10, 34 and 35; the schema path.
+  It also raised two minor points, both fixed.
+- **Not yet in the manifest**: the new specification joins the three CP3
+  files in `manifest.json` in CP7.
+- **Verification**: the eight release-source suites in a conformance
+  fixture staged by `tools/release/release.py stage-conformance`. The
+  fixture came from an unreferenced commit of the working tree whose
+  `manifest.json` digests and sizes were refreshed, with the four new files
+  listed in that commit only. Results: `workflow_protocol_test.py` 213 OK,
+  `workflow_fingerprint_test.py` 256 OK, `workflow_state_test.py` 1011 OK
+  (1 skipped), `workflow_test_harness_test.py` 22 OK,
+  `workflow_integration_test.py` 267 OK,
+  `workflow_acceptance_matrix_test.py` 291 OK (18 skipped),
+  `workflow_state_completion_obligations_test.py` 106 OK,
+  `workflow_fingerprint_generalization_test.py` 105 OK. After the
+  self-review fixes and the symbol allowlist, the protocol, integration
+  and harness suites were rerun green in a restaged fixture.
+  `workflow-manager verify .`: the installation matches workflow 2.6.0.
