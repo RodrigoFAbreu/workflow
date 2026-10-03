@@ -2760,11 +2760,15 @@ class TestForgeParser(unittest.TestCase):
             "review_decision": "CHANGES_REQUESTED", "reviewed_head": self.HEAD,
             "checks": {"state": "failure", "failing": ["a", "b"]}, "review_id": "R9", "findings": "fix it"})
 
-    def test_a_decision_on_an_earlier_head_reads_review_required(self):
+    def test_a_decision_on_an_earlier_head_is_reported_as_github_gives_it(self):
         raw = json.dumps([pr_record(self.HEAD, decision="APPROVED",
                                     reviews=[{"id": "R1", "state": "APPROVED", "body": "", "commit": {"oid": "d" * 40}}])])
         fact = forge.parse_forge_raw(raw, "o/r", self.HEAD)
-        self.assertEqual((fact["review_decision"], fact["reviewed_head"]), ("REVIEW_REQUIRED", "d" * 40))
+        self.assertEqual((fact["review_decision"], fact["reviewed_head"]), ("APPROVED", "d" * 40))
+        raw = json.dumps([pr_record(self.HEAD, decision="CHANGES_REQUESTED", reviews=changes_requested("d" * 40, "R1", "fix"))])
+        fact = forge.parse_forge_raw(raw, "o/r", self.HEAD)
+        self.assertEqual((fact["review_decision"], fact["reviewed_head"], fact["findings"]),
+                         ("CHANGES_REQUESTED", "d" * 40, "fix"))
 
     def test_a_later_comment_on_the_head_does_not_make_an_earlier_approval_current(self):
         reviews = ([{"id": "R1", "state": "APPROVED", "body": "", "commit": {"oid": "d" * 40}}]
@@ -2772,7 +2776,7 @@ class TestForgeParser(unittest.TestCase):
         fact = forge.parse_forge_raw(json.dumps([pr_record(self.HEAD, decision="APPROVED", reviews=reviews)]),
                                      "o/r", self.HEAD)
         self.assertEqual((fact["review_decision"], fact["reviewed_head"], fact["review_id"]),
-                         ("REVIEW_REQUIRED", "d" * 40, "R1"))
+                         ("APPROVED", "d" * 40, "R1"))
 
     def test_the_changes_request_keys_on_its_own_review_not_a_later_one(self):
         reviews = (changes_requested(self.HEAD, "R1", "fix x")
@@ -2786,6 +2790,11 @@ class TestForgeParser(unittest.TestCase):
         alone = forge.parse_forge_raw(json.dumps([record]), "o/r", self.HEAD)
         self.assertEqual(g.cause_key("changes_requested", dict(alone, identity_at_head=None)),
                          g.cause_key("changes_requested", dict(fact, identity_at_head=None)))
+
+    def test_a_completed_check_with_no_conclusion_is_pending_not_success(self):
+        self.assertEqual(forge._checks([{"name": "ci", "status": "COMPLETED", "conclusion": ""}])["state"], "pending")
+        self.assertEqual(forge._checks([{"name": "ci", "status": "COMPLETED", "conclusion": "SUCCESS"}])["state"],
+                         "success")
 
     def test_the_checks_state_failure_pending_success_and_none_reported(self):
         for kind, expected in (("success", "success"), ("failure", "failure"), ("pending", "pending"),
@@ -3307,13 +3316,19 @@ class TestInvalidationTable(unittest.TestCase):
             self.assertNotIn("technical_approval", rows["ahead"]["stale"], "never staled at ingest")
             self.assertEqual(rows["changes_requested"]["causes"], ["changes_requested"])
 
-    def test_an_outdated_review_reads_review_required_and_is_not_changes_requested(self):
+    def test_an_outdated_review_keeps_its_decision_but_is_not_changes_requested(self):
         with EvidenceRepo() as ev:
             earlier = ev.anchor
             later = ev.excluded_commit()
             result = self.rule(ev, head=later, decision="CHANGES_REQUESTED", reviews=changes_requested(earlier))
-            self.assertEqual(ev.evidence()["pr"]["review_decision"], "REVIEW_REQUIRED")
+            self.assertEqual(ev.evidence()["pr"]["review_decision"], "CHANGES_REQUESTED")
             self.assertEqual(result["causes"], [])
+            self.assertEqual(result["rule"], "head_changed_same_identity")
+
+    def test_an_approval_of_an_earlier_head_is_not_the_approved_row(self):
+        with EvidenceRepo() as ev:
+            result = self.rule(ev, head=ev.excluded_commit(), decision="APPROVED", reviews=approved(ev.anchor))
+            self.assertEqual(result["rule"], "head_changed_same_identity")
 
     def test_a_reopened_pr_is_a_new_fact(self):
         with EvidenceRepo() as ev:
@@ -3745,6 +3760,30 @@ class TestEvaluateAcceptance(unittest.TestCase):
             ev.query([pr_record(ev.anchor, checks="failure")])
             result = ev.evaluate()
             self.assertEqual(self.unmet(result), ["no_standing_pr_objection"])
+
+    def test_a_changes_request_on_an_earlier_head_stays_blocked_after_a_pushed_fix(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            pushed = ev.excluded_commit()
+            ev.query([pr_record(pushed, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor))])
+            result = ev.evaluate()
+            self.assertFalse(result["satisfiable"])
+            self.assertIn("no_standing_pr_objection", self.unmet(result))
+            self.assertEqual(result["obtainable"], [])
+            ev.query([pr_record(pushed, decision="APPROVED", reviews=approved(pushed))])
+            self.assertTrue(ev.evaluate()["satisfiable"])
+
+    def test_an_approval_of_an_earlier_head_does_not_meet_pr_approved(self):
+        with AcceptanceRepo() as ev:
+            (ev.root / POLICY_REL).write_text(json.dumps(
+                {"schema_version": 1, "gates": {"acceptance": {"requires_pr_approved": True}}}))
+            ev.flow()
+            pushed = ev.excluded_commit()
+            ev.query([pr_record(pushed, decision="APPROVED", reviews=approved(ev.anchor))])
+            g.clear_caches()
+            result = ev.evaluate()
+            self.assertEqual(self.unmet(result), ["pr_approved"])
+            self.assertEqual(result["obtainable"], ["pr_review_result"])
 
     def test_requires_pr_approved_adds_pr_approved(self):
         with AcceptanceRepo() as ev:

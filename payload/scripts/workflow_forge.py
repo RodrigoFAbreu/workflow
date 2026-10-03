@@ -178,8 +178,8 @@ def _checks(rollup) -> dict:
             failing.append(name)
         elif status in _PENDING_STATUSES or conclusion in _PENDING_STATUSES or conclusion == "EXPECTED":
             pending = True
-        elif status not in {"", "COMPLETED"} and not conclusion:
-            pending = True
+        elif not conclusion or status not in {"", "COMPLETED"}:
+            pending = True  # an entry with no conclusion, or an unfinished status, is not a pass
     if failing:
         state = "failure"
     elif pending or not entries:
@@ -215,8 +215,9 @@ def _derive(record: dict) -> dict:
         commit = latest.get("commit") or {}
         reviewed_head = commit.get("oid") if isinstance(commit, dict) else None
         review_id = latest.get("id")
-    if decision in {"APPROVED", "CHANGES_REQUESTED"} and reviewed_head != head:
-        decision = "REVIEW_REQUIRED"  # a decision on an earlier head is outdated
+    # `review_decision` stays as GitHub reports it: a decision on an earlier head is
+    # not softened here (D-GP-Acceptance requirement 5); the consumers that need a
+    # current decision compare `reviewed_head` with `head` themselves.
     return {
         "pr": {"number": number, "url": url}, "state": state, "head": head, "review_decision": decision,
         "reviewed_head": reviewed_head, "checks": _checks(record.get("statusCheckRollup")),

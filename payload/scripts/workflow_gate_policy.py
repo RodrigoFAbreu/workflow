@@ -1731,7 +1731,8 @@ def apply_invalidation(repo_root: Path, state: dict, work_item_id: str, fact: di
         rule = "changes_requested"
     elif "checks_failed" in causes:
         rule = "checks_failed"
-    elif fact["review_decision"] == "APPROVED" and fact["checks"]["state"] in ("pending", "success"):
+    elif (fact["review_decision"] == "APPROVED" and fact["reviewed_head"] == fact["head"]
+          and fact["checks"]["state"] in ("pending", "success")):
         rule = "approved"
     else:
         rule = "head_changed_same_identity"
@@ -1867,8 +1868,10 @@ def _acceptance_pr(repo_root: Path, work_item_id: str, work_item: dict, anchor: 
         requirements.append(_req("ci_green", fact["checks"]["state"] == "success",
                                  f"checks are {fact['checks']['state']!r}"))
     if requires_pr_approved:
-        requirements.append(_req("pr_approved", fact["review_decision"] == "APPROVED" and fact["state"] == "open",
-                                 f"review_decision is {fact['review_decision']!r} on a {fact['state']} pull request"))
+        approved = fact["review_decision"] == "APPROVED" and fact["reviewed_head"] == fact["head"]
+        requirements.append(_req("pr_approved", approved and fact["state"] == "open",
+                                 f"review_decision is {fact['review_decision']!r} (reviewed head {fact['reviewed_head']}) "
+                                 f"on a {fact['state']} pull request"))
     # What a reporter can still change: a missing, older or pending fact; never a failure or an objection
     # at the current head, a different content, or a closed or merged pull request.
     if fact["state"] != "open" or position == "ahead" or (position is None) or (position == "equal" and not descends):
@@ -1878,7 +1881,8 @@ def _acceptance_pr(repo_root: Path, work_item_id: str, work_item: dict, anchor: 
     else:
         unmet_unobtainable = objection
         pending_checks = fact["checks"]["state"] == "pending"
-        undecided = requires_pr_approved and fact["review_decision"] != "APPROVED"
+        undecided = requires_pr_approved and not (
+            fact["review_decision"] == "APPROVED" and fact["reviewed_head"] == fact["head"])
         obtainable = [OBTAINABLE_PR] if not unmet_unobtainable and (pending_checks or undecided) else []
     return {"requirements": requirements, "pending_query": False, "obtainable": obtainable, "fact": fact}
 
