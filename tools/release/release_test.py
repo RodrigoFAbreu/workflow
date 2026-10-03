@@ -969,5 +969,44 @@ class ReleaseGateTest(unittest.TestCase):
         self.assertLess(job.index("actions/checkout"), job.index("tools/release"))
 
 
+class RoadmapTest(unittest.TestCase):
+    """The roadmap text is excluded from reviewed content at both stages, so
+    this is its only guard (W2 CP1, `LPR-R1-008`). CP8 moves the W2 row to
+    complete and updates this test with it."""
+
+    def setUp(self):
+        self.text = (REPO_ROOT / "docs" / "ROADMAP.md").read_text()
+
+    def row(self, step: str) -> str:
+        rows = [line for line in self.text.splitlines() if line.startswith(f"| {step} |")]
+        self.assertEqual(len(rows), 1, step)
+        return rows[0]
+
+    def test_w1_is_complete_and_its_cutover_is_done(self):
+        row = self.row("W1")
+        self.assertIn("**COMPLETE**", row)
+        self.assertNotIn("the cutover remains", row)
+        self.assertIn("workflow-manager#13", row)
+
+    def test_w2_is_in_progress(self):
+        row = self.row("W2")
+        self.assertIn("**IN PROGRESS**", row)
+        self.assertIn("gate-policy-and-reopening", row)
+
+    def test_where_things_stand_is_brought_to_2_7_0(self):
+        start = self.text.index("**Where things stand")
+        paragraph = self.text[start:self.text.index("**In order:**")]
+        self.assertIn("Releases 2.3.1 to 2.7.0", paragraph)
+        self.assertIn("`main` ends at 2.7.0", paragraph)
+        self.assertNotIn("ends at 2.6.0", paragraph)
+
+    def test_it_no_longer_says_the_release_workflow_will_publish_2_7_0(self):
+        section = self.text[self.text.index("## Workflow 2.7.0"):]
+        status = section[:section.index("Delivered:")]
+        self.assertNotIn("publishes it when its pull request merges", status)
+        self.assertIn("tag `v2.7.0`", status)
+        self.assertNotIn("once its pin is added", status)
+
+
 if __name__ == "__main__":
     unittest.main()

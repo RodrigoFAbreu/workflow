@@ -2,34 +2,29 @@
 
 ## Milestone
 
-**Complete.** W1: `orchestration-protocol-v1` (`process`, governing version `2.2`),
-branch `milestone/orchestration-protocol-v1`, base `ef714f3`. The plan is
-`docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md`.
+**Implementing.** W2: `gate-policy-and-reopening` (`process`, governing
+version `2.2`), branch `milestone/gate-policy-and-reopening`, base `d14e0a7`
+(W1's squash merge; Workflow 2.7.0 is published and pinned by
+`workflow-manager#13`, Manager v1.3.0). The plan is
+`docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md` (revision 34, approved;
+local and manual external plan review both `APPROVE`).
 
 ## Goal
 
-Workflow 2.7.0: Orchestration Protocol v1 (`describe`, `verify`,
-`next-action`, `reconcile`, `record-external-result`, `resolve-artifact`),
-plus the `v2.6.0-001` and `v2.6.0-002` follow-ups.
+Workflow 2.8.0 on Orchestration Protocol 1.1: a declarative gate policy
+(plan and technical approval satisfiable by current local plus independent
+cross-model review evidence, functional validation by configured evidence,
+acceptance still human) and post-validation reopening of the same work item
+when a pull request is red or has `CHANGES_REQUESTED`. Default policy equals
+today's gates exactly.
 
 ## Current checkpoint
 
-**Milestone complete.** `orchestration-protocol-v1` reached
-`MILESTONE_COMPLETE` through `/accept-milestone` on 2026-10-02, with the
-owner's confirmation, and `active_work_item_id` is cleared.
-- **Checkpoints:** CP1-CP7 are complete; the registry's completion
-  obligations derive `PASS`.
-- **Technical approval:** commit `048482f`, both implementation-review
-  stages approved at `implementation_revision` 6 (reviewed head `29559b1`).
-- **Functional review:** round 1 against the checklist below (evidence
-  commit `ee86188`) passed S1-S3 and F1-F11; its one documentation finding
-  was fixed in `docs/ROADMAP.md` (`58fd39a`). Nothing was deferred to a
-  remediation child.
-- **Cutover:** not started; it is the owner's (plan section 7), see "Next
-  action".
-
-The per-checkpoint record and the self-review are in the requirements
-ledger, `docs/ai-workflow/requirements/orchestration-protocol-v1-ledger.md`.
+`CP1` (gate policy model) is implemented; its record, deviations and
+deferrals are in the requirements ledger,
+`docs/ai-workflow/requirements/gate-policy-and-reopening-ledger.md`. CP2 to
+CP8 are not started. One checkpoint is implemented per `/milestone-implement`
+invocation.
 
 ### CP2 evidence: 2.6.0 reads a 2.7.0-written state (2026-10-02)
 

@@ -183,7 +183,7 @@ directory exists. Its result (`$defs.results.describe`) is
 
 `verify` is read-only. Its result (`$defs.results.verify`) is
 `{healthy, checks: [{id, status, detail}]}`, with `status` one of `pass`,
-`fail` or `skip`, and these checks in order:
+`warn`, `fail` or `skip`, and these checks in order:
 
 1. `state_readable`: the state file and the config parse.
 2. `state_valid`: `validate_state(state, repo_root=…)` passes, including the
@@ -212,6 +212,13 @@ directory exists. Its result (`$defs.results.describe`) is
    exists, its `workflow_version` equals `WORKFLOW_RELEASE`; `skip` when it
    is absent.
 7. `protocol_ready`: checks 1 to 4 passed.
+8. `gate_policy` (workflow-2.8.0, advisory): `pass` when no
+   `docs/ai-workflow/GATE_POLICY.json` is present (the default applies) or the
+   file equals the adopted policy; `warn` for an unadopted differing file, an
+   ignored loosening, a floor not yet recorded in a commit, a floor holding a
+   setting the file no longer carries, and a gate-lowering adoption; `fail`
+   for an invalid file and for a failed provenance of the adopted policy or
+   the floor. It never changes `healthy` and is not part of check 7.
 
 A check fails on a Workflow or Git refusal. After an unreadable state,
 checks 2 to 5 are `skip`, check 6 still runs, and check 7 fails. A failing

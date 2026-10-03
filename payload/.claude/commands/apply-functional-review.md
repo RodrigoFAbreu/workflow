@@ -133,7 +133,8 @@ all in the same invocation.
      phase is `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`, byte-identical to
      before this checkpoint. Persist the returned state to
      `WORKFLOW_STATE.json`, and commit it
-     **alone**: stage exactly that one path (never a broader `git add`) and
+     **alone**: stage exactly that one path (never a broader `git add`;
+     **Item-scoped staging** (workflow-2.8.0, `LPR-R6-001`): stage the state file with `workflow_state.stage_scoped_state(repo_root, <work_item_id>)` in place of the bare `git add` of that path (it returns `False`, and the ordinary single-path `git add` runs, unless another work item holds uncommitted residue in the state file).) and
      create one commit carrying, for `"ordinary"`,
      `Workflow-Bundle-Generation-Record: <work_item_id>/<implementation_revision>`
      + `Workflow-Work-Item: <work_item_id>` trailers, no other trailer; for

@@ -697,6 +697,14 @@ actually load-bearing control for the Skill exposure path, not mechanism
    technical-approval commit undiscoverable. The exact scoped trailer
    lookup is `workflow_state.discover_technical_approval_commit`
    (`WF4a-iii`).
+   **Item-scoped staging** (workflow-2.8.0, `LPR-R6-001`):
+   the technical-approval commit stages the state file with
+   `workflow_state.stage_scoped_state(repo_root, <work_item_id>)` in place of the bare
+   `git add` of that path (it returns `False`, and the ordinary single-path `git add`
+   runs, unless another work item holds uncommitted residue in the state file). The
+   plan-approval commit is not scoped: it keeps the whole-file pin, and
+   `verify_plan_approval_commit` applies
+   `assert_gate_policy_fields_unchanged_or_tightened` to it.
 
    **Implementation stage — post-commit verification of the commit this
    invocation just created** (workflow system audit, convergence pass 12,

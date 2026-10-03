@@ -39,6 +39,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import workflow_fingerprint  # noqa: E402
+import workflow_gate_policy  # noqa: E402
 import workflow_state  # noqa: E402
 
 #: The Workflow release these bytes are. A build refuses when it differs
@@ -204,7 +205,8 @@ def is_workflow_exception(exc: BaseException) -> bool:
     imported -- read from the module objects, never from literals."""
     if not isinstance(exc, Exception):
         return False
-    return type(exc).__module__ in {workflow_state.__name__, workflow_fingerprint.__name__}
+    return type(exc).__module__ in {
+        workflow_state.__name__, workflow_fingerprint.__name__, workflow_gate_policy.__name__}
 
 
 def code_for_workflow_exception(exc: BaseException) -> str:
@@ -365,7 +367,12 @@ VERIFY_CHECK_IDS = (
     "checkpoint_completions_provable",
     "installation_release_matches",
     "protocol_ready",
+    "gate_policy",
 )
+
+#: Advisory checks: never part of `protocol_ready` and never change `healthy`
+#: (workflow-2.8.0, `LPR-R2-007`).
+ADVISORY_VERIFY_CHECKS = frozenset({"gate_policy"})
 
 
 def _check(check_id: str, status: str, detail: str) -> dict:
@@ -554,7 +561,17 @@ def op_verify(repo_root: Path, args: argparse.Namespace) -> dict:
     checks.append(_check(
         "protocol_ready", "pass" if ready else "fail",
         "checks 1-4 passed" if ready else "a check among 1-4 did not pass"))
-    return {"healthy": all(c["status"] != "fail" for c in checks), "checks": checks}
+    try:
+        status, detail = workflow_gate_policy.verify_check(repo_root, state)
+    except Exception as exc:
+        if not _is_check_refusal(exc):
+            raise
+        status, detail = "fail", _refusal_detail(exc)
+    checks.append(_check("gate_policy", status, detail))
+    return {
+        "healthy": all(c["status"] != "fail" for c in checks if c["id"] not in ADVISORY_VERIFY_CHECKS),
+        "checks": checks,
+    }
 
 
 # ---------------------------------------------------------------------------

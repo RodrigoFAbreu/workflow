@@ -476,6 +476,37 @@ test fails and is authoritative about which one moved.
   an open plan-approval transaction; no literal confirmation/`reason` this
   turn.
 
+### `/adopt-gate-policy` — user-only
+- **When**: any time, for the repository rather than for a work item
+  (`workflow-2.8.0`, `docs/ai-workflow/GATE_POLICY.json`). It names no work
+  item, touches no work item's entry and no approval stage, and is not a
+  state of `MILESTONE_WORKFLOW.md`.
+- **Expects**: a valid `docs/ai-workflow/GATE_POLICY.json`; an index holding
+  nothing but, possibly, `docs/ai-workflow/WORKFLOW_STATE.json`
+  (`DirtyIndexBeforeStagingError` naming the staged paths otherwise).
+- **Does**: shows the file's digest, the resolved difference from the policy
+  in effect (each loosening and tightening), the floor it resets, the
+  `lowered` label it will record and every open plan-stage and
+  implementation-stage bundle the adoption commit will stale, then stops for
+  the user's confirmation: literal text containing `gate_policy` and the
+  first 12 hexadecimal characters of the digest
+  (`validate_gate_policy_confirmation`; `disable-model-invocation: true`).
+  The effective policy is the stricter of the adopted policy, the recorded
+  floor and the file, so a file only ever tightens it; adoption is the only
+  way to loosen it.
+- **Writes**: the top-level `gate_policy_adoption` (`{sha256, adopted_at,
+  confirmation, policy, history, lowered}`) and the reset
+  `gate_policy_floor`, staged top-level-scoped, in **one** commit carrying
+  `Workflow-Gate-Policy-Adoption: <digest>` and nothing else;
+  `validate_gate_policy_adoption_commit` runs right after it.
+- **Next**: nothing automatic. An adoption keeps verifying after a squash
+  merge (both fields are verified by content and chain, never by the commit
+  message); a concurrent second adoption fails closed (every gate human) and
+  is re-adopted after updating from `main`.
+- **Refuses**: an absent or invalid file (`GatePolicyFileInvalidError`); a
+  confirmation lacking the literal or the digest prefix
+  (`GatePolicyConfirmationRejectedError`).
+
 ### `/review-implementation [work-item-id]` — review command
 - **When**: optional, repeatable, repository-local second opinion while a
   bundle sits at `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` — usable before
@@ -925,7 +956,7 @@ back to `IMPLEMENTING`, one or more times.
 
 ### "Enter the `X` state" in a command file
 
-Twelve of the seventeen command files open with an `Enter ...` line naming a
+Twelve of the eighteen command files open with an `Enter ...` line naming a
 phase. It is inherited v1 wording and does **not** mean the command writes
 that phase. Three things it can mean, and which command means which —
 derived from whether the file actually calls a writer of it:

@@ -874,7 +874,12 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 1a calls
     # implementing_entry_status and reports its cause and remedy --
     # intentional content change.
-    "milestone-implement.md": "ee82db516103df60c3a7601be6f869167b071e34cd96517eea8e2d458ec18cf6",
+    # workflow-2.8.0 (gate-policy-and-reopening, CP1): step 4's generation-
+    # record commit stages item-scoped (stage_scoped_state), and the
+    # checkpoint (1f) and self-review (2) commits call
+    # assert_gate_policy_fields_unchanged_or_tightened after landing --
+    # intentional content change.
+    "milestone-implement.md": "697bb2f71b5ffbdff8cfe0891785bdfafd6f49bbab866c9776e3012dc0ce78fc",
     # approve-review.md (WF8c item (c), same-content bundle-generation
     # republication idempotency; further updated WF8c item (b): the
     # trailing caveat naming the dedicated /recover-implementation-provenance
@@ -999,7 +1004,12 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # state re-read after the BLOCK pin, reporting the first cause in the
     # wrapper's order; step 2's generation and bundle-bound checks run
     # inside it -- intentional content change.
-    "approve-review.md": "b401ca09d90c07f76ce696dcdcae526ad768c7bb5f46312396db48d631ed727e",
+    # workflow-2.8.0 (gate-policy-and-reopening, CP1): the technical-
+    # approval commit stages item-scoped (stage_scoped_state); the plan-
+    # approval commit keeps its whole-file pin and
+    # verify_plan_approval_commit applies the gate-policy content check --
+    # intentional content change.
+    "approve-review.md": "8a3b400cd7311e1c85101e8167c40d8385480b19721e3fc8b675580aff5b8845",
     # accept-milestone.md updated, baseline-freeze correctness fix
     # (OPUS-R129-001): step 6's completion-commit instruction now states
     # the same "trailers must be the commit message's own final paragraph"
@@ -1098,7 +1108,10 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # assert_apply_review_feedback_binding (D-Apply-Binding): a 2.2 REVISE
     # stating a review_content_id is bound by content -- intentional
     # content change.
-    "apply-implementation-review.md": "c728eeabe25a6fae2376d773f1091d96123fcc6de470f2f49957508de74cc2c1",
+    # workflow-2.8.0 (gate-policy-and-reopening, CP1): the generation-record
+    # commit stages item-scoped (stage_scoped_state) -- intentional content
+    # change.
+    "apply-implementation-review.md": "5772ee5d342b966b954877002e80aafdd03a80dbdeb02147776507ed3176363f",
     # review-plan.md/record-manual-plan-review.md further updated,
     # workflow-v2-3-followups CP3 (REQ-8/-9): the `Reviewer role:` template
     # literal, the round-computation prose, the exact-match-expectation
@@ -1324,7 +1337,10 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (workflow-2.6.0, CP4): a two-stage remediation child's publish is
     # mirror-only and its bind writes AWAITING_LOCAL_PLAN_REVIEW --
     # intentional content change, not a regression.
-    "apply-functional-review.md": "25b42a93c05e4c2f40cc3f05041878b48ddb8459b9313e9c4f9820edbda27139",
+    # workflow-2.8.0 (gate-policy-and-reopening, CP1): the generation-record
+    # commit stages item-scoped (stage_scoped_state) -- intentional content
+    # change.
+    "apply-functional-review.md": "1c0cb285d24d6adfba8bf10414cf0bf032c2f54d7cbe08f5e5ef6c1b531609fb",
 }
 
 
@@ -6534,14 +6550,15 @@ class TestRetiredScopedRemediationLeavesNoLiveSurface(unittest.TestCase):
         and `/review-functional` without ever sectioning them here. Both
         gaps are now closed -- `workflow-2.4.0` CP3 added a sixteenth,
         `/request-plan-amendment` -- and `workflow-2.5.0` CP4 added a
-        seventeenth, `/record-manual-implementation-review` -- the
-        reference sections all 17 live commands -- and this test derives
+        seventeenth, `/record-manual-implementation-review`, and
+        `workflow-2.8.0` CP1 an eighteenth, `/adopt-gate-policy` -- the
+        reference sections all 18 live commands -- and this test derives
         the expected count from the real files rather than hand-maintaining
         a number that can go stale again."""
         text = (_repo_root() / "docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md").read_text()
         sections = re.findall(r"(?m)^### `/([a-z0-9-]+)", text)
         on_disk = sorted(p.stem for p in (_repo_root() / ".claude" / "commands").glob("*.md"))
-        self.assertEqual(len(on_disk), 17)
+        self.assertEqual(len(on_disk), 18)
         self.assertNotIn("accept-scoped-remediation", sections)
         self.assertNotIn("accept-scoped-remediation", on_disk)
         # Every live command has exactly one section, and vice versa.
@@ -7035,6 +7052,9 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         # workflow-2.7.0, Orchestration Protocol v1: next-action's
         # disposition values, literal enum values, not callables.
         "external_gate", "human_gate",
+        # workflow-2.8.0, D-GP-Policy: the two optional top-level state field
+        # names, not callables.
+        "gate_policy_adoption", "gate_policy_floor",
     })
 
     def test_every_code_symbol_the_reference_names_actually_exists(self):

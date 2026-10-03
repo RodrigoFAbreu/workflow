@@ -373,7 +373,7 @@ def install_workflow_scripts(repo: ScratchRepo) -> None:
     scratch repository's `scripts/`, as an installation would."""
     scripts_dir = repo.root / "scripts"
     scripts_dir.mkdir(parents=True, exist_ok=True)
-    for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py"):
+    for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py", "workflow_gate_policy.py"):
         shutil.copy(_SCRIPTS_DIR / name, scripts_dir / name)
     (scripts_dir / "prepare-ai-review.sh").chmod(0o755)
 

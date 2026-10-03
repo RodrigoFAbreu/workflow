@@ -191,6 +191,7 @@ from types import MappingProxyType
 from typing import Callable, Mapping, NamedTuple
 
 import workflow_fingerprint as fingerprint
+import workflow_gate_policy as gate_policy
 from workflow_fingerprint import (  # noqa: F401 - re-exported for callers
     InvalidWorkItemIdError,
     InvalidWorkItemTypeError,
@@ -2849,6 +2850,10 @@ def verify_plan_approval_commit(
             repo_root, commit, fingerprint.artifacts_path_for_work_item(work_item_id).as_posix(),
             journal["fifth_member_sha256"],
         )
+    # workflow-2.8.0 CP1 (D-GP-Policy): the approval commit carries the whole
+    # working-tree state, so a hand-edited adoption or a loosened floor
+    # would ride in it; apply the two content rules to this very commit.
+    assert_gate_policy_fields_unchanged_or_tightened(repo_root, commit)
     return work_item
 
 
@@ -17508,6 +17513,8 @@ def validate_state(state: dict, *, registry: dict | None = None, repo_root: Path
                     f"plan_revision == {registry_plan_revision!r}"
                 )
 
+    _validate_gate_policy_state_fields(state)
+
     active_id = state.get("active_work_item_id")
     if active_id is not None:
         active_item = work_items.get(active_id)
@@ -18197,6 +18204,442 @@ def _plan_review_publication_status_cli(argv: list[str] | None = None) -> int:
         return 1
     print(json.dumps({k: v for k, v in status.items() if not k.startswith("_")}, sort_keys=True))
     return 0
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.8.0 CP1 (`gate-policy-and-reopening`, D-GP-Policy): the optional
+# top-level `gate_policy_adoption` and `gate_policy_floor`, their writers,
+# their own commits and validators, and item-scoped staging.
+#
+# The policy model itself (schema, default, tighten-only effective policy,
+# provenance by content and chain) is `workflow_gate_policy`; this section is
+# the part that writes the state file and creates commits.
+# ---------------------------------------------------------------------------
+
+GATE_POLICY_ADOPTION_KEY = gate_policy.ADOPTION_KEY
+GATE_POLICY_FLOOR_KEY = gate_policy.FLOOR_KEY
+GATE_POLICY_ADOPTION_TRAILER = gate_policy.ADOPTION_TRAILER
+GATE_POLICY_FLOOR_TRAILER = gate_policy.FLOOR_TRAILER
+
+#: `stage_scoped_state`'s two top-level scopes (a work-item scope is the id).
+GATE_POLICY_ADOPTION_SCOPE = (GATE_POLICY_ADOPTION_KEY, GATE_POLICY_FLOOR_KEY)
+GATE_POLICY_FLOOR_SCOPE = (GATE_POLICY_FLOOR_KEY,)
+
+#: Phases whose review bundle an adoption commit stales (`HEAD` moves past the
+#: bundle's `generation_head`), with the way out of each.
+_PLAN_STAGE_OPEN_BUNDLE_PHASES = frozenset(PLAN_REVIEW_READY_PHASES | {"AWAITING_EXTERNAL_PLAN_REVIEW"})
+_IMPLEMENTATION_STAGE_OPEN_BUNDLE_PHASES = frozenset({
+    "AWAITING_LOCAL_IMPLEMENTATION_REVIEW", "AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+    "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW",
+})
+
+
+#: Re-exported so a caller of the writers below catches them from this module.
+GatePolicyConfirmationRejectedError = gate_policy.GatePolicyConfirmationRejectedError
+GatePolicyFieldsChangedError = gate_policy.GatePolicyFieldsChangedError
+InvalidGatePolicyError = gate_policy.InvalidGatePolicyError
+
+
+class InvalidGatePolicyStateError(Exception):
+    """`validate_state` found a `gate_policy_adoption` or `gate_policy_floor`
+    that breaks its own record shape (`_validate_gate_policy_state_fields`)."""
+
+
+class InvalidGatePolicyAdoptionError(Exception):
+    """`record_gate_policy_adoption` was given a policy or confirmation it
+    cannot record."""
+
+
+class MalformedGatePolicyAdoptionCommitError(Exception):
+    """`validate_gate_policy_adoption_commit` refused a commit: an adoption
+    commit changes exactly the two top-level keys `gate_policy_adoption` and
+    `gate_policy_floor` (the floor reset to the adopted policy's resolved
+    form), touches only `WORKFLOW_STATE.json`, and carries a valid adoption."""
+
+
+class MalformedGatePolicyFloorCommitError(Exception):
+    """`validate_gate_policy_floor_commit` refused a commit: a floor commit
+    changes exactly the top-level key `gate_policy_floor`, touches only
+    `WORKFLOW_STATE.json`, and records a floor no looser than its parent's."""
+
+
+class GatePolicyFileInvalidError(Exception):
+    """`adopt_gate_policy` was asked to adopt a `GATE_POLICY.json` that is
+    absent or invalid; `errors` lists why."""
+
+    def __init__(self, message: str, errors: list[str]):
+        self.errors = list(errors)
+        super().__init__(message)
+
+
+def validate_gate_policy_confirmation(text: str, digest: str) -> None:
+    """The adoption's user-only guard (`LPR-R1-003`): the text must contain
+    the literal `gate_policy` and the first 12 hex characters of `digest`.
+    Raises `workflow_gate_policy.GatePolicyConfirmationRejectedError`.
+    Work-item-free; touches neither `validate_user_confirmation` nor
+    `APPROVAL_STAGES`."""
+    gate_policy.validate_gate_policy_confirmation(text, digest)
+
+
+def assert_gate_policy_fields_unchanged_or_tightened(repo_root: Path, commit: str) -> None:
+    """Applies the two content rules of D-GP-Policy to one commit: a change
+    to `gate_policy_adoption` must be self-consistent and chained onto its
+    first parent's adoption, and a change to `gate_policy_floor` must be no
+    looser than its bound. Called after each unvalidated whole-file state
+    commit (the plan approval, the checkpoint and self-review commits,
+    `/request-plan-amendment`'s commit) and by
+    `verify_gate_policy_provenance`. Raises
+    `workflow_gate_policy.GatePolicyFieldsChangedError`."""
+    gate_policy.assert_gate_policy_fields_unchanged_or_tightened(repo_root, commit)
+
+
+def _validate_gate_policy_state_fields(state: dict) -> None:
+    """The two optional top-level keys, shape and self-consistency only (a
+    present key must be a well-formed record); provenance, the chain and the
+    floor's monotonicity are `verify_gate_policy_provenance`'s."""
+    if GATE_POLICY_ADOPTION_KEY in state:
+        errors = gate_policy.adoption_record_errors(state[GATE_POLICY_ADOPTION_KEY])
+        if errors:
+            raise InvalidGatePolicyStateError("; ".join(errors))
+    if GATE_POLICY_FLOOR_KEY in state:
+        errors = gate_policy.floor_record_errors(state[GATE_POLICY_FLOOR_KEY])
+        if errors:
+            raise InvalidGatePolicyStateError("; ".join(errors))
+
+
+def gate_policy_adoption_lowering(adoption_before: dict | None, floor_before: dict | None,
+                                  policy: dict) -> list[str]:
+    """The fields a new adoption of raw `policy` lowers (`workflow_gate_policy.
+    adoption_lowering`, the one definition the label and the recomputation
+    share)."""
+    return gate_policy.adoption_lowering(adoption_before, floor_before, policy)
+
+
+def record_gate_policy_adoption(
+    state: dict, *, policy: dict, confirmation: str, now: str, lowered: list[str],
+) -> dict:
+    """The one writer of the top-level `gate_policy_adoption`, which also
+    resets `gate_policy_floor` to the adopted policy's resolved form (an
+    adoption is the user's act of loosening). Returns a new state; `state` is
+    untouched. The record is `{sha256, adopted_at, confirmation, policy,
+    history, lowered}`: the digest of the canonical bytes of `policy`, the
+    body itself (so a deleted file cannot loosen what was adopted), the
+    earlier adopted digests, and `lowered`, the gate-lowering label (an audit
+    label, never a precondition)."""
+    try:
+        gate_policy.validate_policy(policy)
+    except gate_policy.InvalidGatePolicyError as exc:
+        raise InvalidGatePolicyAdoptionError(f"the policy is invalid: {exc}") from exc
+    digest = gate_policy.policy_digest(policy)
+    gate_policy.validate_gate_policy_confirmation(confirmation, digest)
+    previous = state.get(GATE_POLICY_ADOPTION_KEY)
+    history: list[str] = []
+    if isinstance(previous, dict):
+        history = list(previous.get("history", [])) + [previous["sha256"]]
+    record = {
+        "sha256": digest, "adopted_at": now, "confirmation": confirmation,
+        "policy": copy.deepcopy(policy), "history": history, "lowered": list(lowered),
+    }
+    problems = gate_policy.adoption_record_errors(record)
+    if problems:
+        raise InvalidGatePolicyAdoptionError("; ".join(problems))
+    resolved = gate_policy.resolve_policy(policy)
+    new_state = copy.deepcopy(state)
+    new_state[GATE_POLICY_ADOPTION_KEY] = record
+    new_state[GATE_POLICY_FLOOR_KEY] = {
+        "policy": resolved, "digest": gate_policy.policy_digest(resolved),
+        "recorded_at": now, "observed": [digest],
+    }
+    return new_state
+
+
+def _commit_top_level_diff(repo_root: Path, commit: str) -> tuple[set[str], dict, dict]:
+    """The top-level keys (`work_items` as one key) whose value differs
+    between a commit's first parent and the commit, with both committed
+    states."""
+    parent = _run(["git", "rev-parse", f"{commit}^"], cwd=repo_root).strip()
+    state_rel = DEFAULT_STATE_PATH.as_posix()
+    before = _read_json_at_commit_or_empty(repo_root, parent, state_rel)
+    after = _read_json_at_commit_or_empty(repo_root, commit, state_rel)
+    changed = {k for k in set(before) | set(after) if before.get(k) != after.get(k)}
+    return changed, before, after
+
+
+def validate_gate_policy_adoption_commit(repo_root: Path, commit: str) -> None:
+    """`LPR-R3-002`/`LPR-R9-003`: the adoption commit's exact contract. It
+    touches only `WORKFLOW_STATE.json`; its state diff is exactly the two
+    top-level keys `gate_policy_adoption` and `gate_policy_floor` (so the
+    adoption key alone, the floor alone, a third key or any work-item change
+    is refused); the adoption is valid (self-consistent, chained onto its
+    first parent's, trailer-consistent); the floor is exactly the adopted
+    policy's resolved form; and the commit carries the
+    `Workflow-Gate-Policy-Adoption` trailer equal to the adoption's digest.
+    Run by the command right after the commit and again on discovery."""
+    changed_paths = _commit_own_changed_paths(repo_root, commit)
+    state_rel = DEFAULT_STATE_PATH.as_posix()
+    if changed_paths != {state_rel}:
+        raise MalformedGatePolicyAdoptionCommitError(
+            f"{commit} is a gate-policy adoption commit but touches {sorted(changed_paths)}, "
+            f"not exactly {{{state_rel!r}}}")
+    changed, _before, after = _commit_top_level_diff(repo_root, commit)
+    if changed != set(GATE_POLICY_ADOPTION_SCOPE):
+        raise MalformedGatePolicyAdoptionCommitError(
+            f"{commit}'s state diff changes {sorted(changed)}, not exactly the two top-level "
+            f"keys {sorted(GATE_POLICY_ADOPTION_SCOPE)}")
+    adoption = after[GATE_POLICY_ADOPTION_KEY]
+    try:
+        gate_policy.assert_gate_policy_fields_unchanged_or_tightened(repo_root, commit)
+    except gate_policy.GatePolicyFieldsChangedError as exc:
+        raise MalformedGatePolicyAdoptionCommitError(f"{commit}: {exc}") from exc
+    resolved = gate_policy.resolve_policy(adoption["policy"])
+    floor = after[GATE_POLICY_FLOOR_KEY]
+    if floor.get("policy") != resolved:
+        raise MalformedGatePolicyAdoptionCommitError(
+            f"{commit}'s gate_policy_floor is not the adopted policy's resolved form (the reset)")
+    trailer = _commit_trailers(repo_root, commit).get(GATE_POLICY_ADOPTION_TRAILER)
+    if trailer != adoption["sha256"]:
+        raise MalformedGatePolicyAdoptionCommitError(
+            f"{commit} carries {GATE_POLICY_ADOPTION_TRAILER}: {trailer!r}, not the adoption's "
+            f"sha256 {adoption['sha256']!r}")
+
+
+def validate_gate_policy_floor_commit(repo_root: Path, commit: str) -> None:
+    """The floor commit's contract: only `WORKFLOW_STATE.json`, exactly the
+    top-level key `gate_policy_floor` changed, a floor no looser than its
+    parent's, and the `Workflow-Gate-Policy-Floor` trailer equal to the
+    floor's digest."""
+    changed_paths = _commit_own_changed_paths(repo_root, commit)
+    state_rel = DEFAULT_STATE_PATH.as_posix()
+    if changed_paths != {state_rel}:
+        raise MalformedGatePolicyFloorCommitError(
+            f"{commit} is a gate-policy floor commit but touches {sorted(changed_paths)}, "
+            f"not exactly {{{state_rel!r}}}")
+    changed, _before, after = _commit_top_level_diff(repo_root, commit)
+    if changed != set(GATE_POLICY_FLOOR_SCOPE):
+        raise MalformedGatePolicyFloorCommitError(
+            f"{commit}'s state diff changes {sorted(changed)}, not exactly "
+            f"{sorted(GATE_POLICY_FLOOR_SCOPE)}")
+    try:
+        gate_policy.assert_gate_policy_fields_unchanged_or_tightened(repo_root, commit)
+    except gate_policy.GatePolicyFieldsChangedError as exc:
+        raise MalformedGatePolicyFloorCommitError(f"{commit}: {exc}") from exc
+    trailer = _commit_trailers(repo_root, commit).get(GATE_POLICY_FLOOR_TRAILER)
+    if trailer != after[GATE_POLICY_FLOOR_KEY]["digest"]:
+        raise MalformedGatePolicyFloorCommitError(
+            f"{commit} carries {GATE_POLICY_FLOOR_TRAILER}: {trailer!r}, not the floor's digest "
+            f"{after[GATE_POLICY_FLOOR_KEY]['digest']!r}")
+
+
+def stage_scoped_state(repo_root: Path, scope) -> bool:
+    """Item-scoped (or top-level-scoped) staging of `WORKFLOW_STATE.json` for a
+    validated commit (`LPR-R4-002`, `LPR-R5-001`, `LPR-R5-002`). `scope` is a
+    work item id, or `GATE_POLICY_ADOPTION_SCOPE` / `GATE_POLICY_FLOOR_SCOPE`.
+
+    Reads `HEAD`'s committed state and the working-tree state. When they
+    differ only inside `work_items[scope]` (or, for a top-level scope, only
+    in those keys) it does nothing and returns `False`: the caller's ordinary
+    single-path `git add` then runs and the bytes are exactly what they were
+    before this function existed. Otherwise it builds `HEAD`'s state with
+    only the scope taken from the working tree (a foreign work item's
+    residue and every other top-level key come from `HEAD`), serializes it
+    with the module's one canonical serializer, writes it as a blob and stages
+    it with `git update-index --cacheinfo`, leaves the working-tree file
+    untouched, and returns `True`. Raises `DirtyIndexBeforeStagingError` when
+    the state path is already staged and differs from `HEAD` (checked only
+    when it would stage)."""
+    state_path = DEFAULT_STATE_PATH
+    state_rel = state_path.as_posix()
+    head = _read_json_at_commit_or_empty(repo_root, "HEAD", state_rel)
+    if not head:
+        return False
+    working = _load_json(repo_root / state_path)
+    if not isinstance(working, dict):
+        return False
+    if isinstance(scope, str):
+        def outside_equal() -> bool:
+            top_head = {k: v for k, v in head.items() if k != "work_items"}
+            top_work = {k: v for k, v in working.items() if k != "work_items"}
+            if top_head != top_work:
+                return False
+            items_head = head.get("work_items", {})
+            items_work = working.get("work_items", {})
+            return all(items_head.get(k) == items_work.get(k)
+                       for k in (set(items_head) | set(items_work)) - {scope})
+    else:
+        keys = set(scope)
+
+        def outside_equal() -> bool:
+            return all(head.get(k) == working.get(k)
+                       for k in (set(head) | set(working)) - keys)
+    if outside_equal():
+        return False
+    already = _run(
+        ["git", "diff", "--name-only", "--cached", "HEAD", "--", state_rel], cwd=repo_root).strip()
+    if already:
+        raise DirtyIndexBeforeStagingError(
+            f"{state_rel} is already staged and differs from HEAD before scoped staging ran "
+            f"-- resolve or unstage it first")
+    scoped = copy.deepcopy(head)
+    if isinstance(scope, str):
+        items = scoped.setdefault("work_items", {})
+        if scope in working.get("work_items", {}):
+            items[scope] = copy.deepcopy(working["work_items"][scope])
+        else:
+            items.pop(scope, None)
+    else:
+        for key in scope:
+            if key in working:
+                scoped[key] = copy.deepcopy(working[key])
+            else:
+                scoped.pop(key, None)
+    mode_and_sha = _blob_mode_and_sha_at_commit(repo_root, "HEAD", state_rel)
+    mode = mode_and_sha[0] if mode_and_sha is not None else _FALLBACK_STATE_BLOB_MODE
+    blob_sha = subprocess.run(
+        ["git", "hash-object", "-w", "--stdin"], cwd=repo_root,
+        input=_serialize_state(scoped), capture_output=True, check=True,
+    ).stdout.decode("ascii").strip()
+    _run(["git", "update-index", "--add", "--cacheinfo", f"{mode},{blob_sha},{state_rel}"],
+         cwd=repo_root)
+    return True
+
+
+def _assert_index_clean_apart_from_state(repo_root: Path) -> None:
+    """The floor and adoption commits commit the whole index (`LPR-R18-O1`),
+    so a user's own staged paths would be swept into a commit the validator
+    could only reject after it landed."""
+    staged = [line for line in _run(["git", "diff", "--name-only", "--cached"], cwd=repo_root).splitlines()
+              if line and line != DEFAULT_STATE_PATH.as_posix()]
+    if staged:
+        raise DirtyIndexBeforeStagingError(
+            f"the index holds staged paths other than {DEFAULT_STATE_PATH.as_posix()}: "
+            f"{sorted(staged)} -- unstage them before this commit")
+
+
+def _stage_state_for_commit(repo_root: Path, scope) -> None:
+    if not stage_scoped_state(repo_root, scope):
+        _run(["git", "add", "--", DEFAULT_STATE_PATH.as_posix()], cwd=repo_root)
+
+
+def _head_sha(repo_root: Path) -> str:
+    return _run(["git", "rev-parse", "HEAD"], cwd=repo_root).strip()
+
+
+def commit_gate_policy_floor(repo_root: Path, *, now: str) -> str | None:
+    """Records the floor (`workflow_gate_policy.record_gate_policy_floor`
+    inside one `state_transaction`) and commits it in its own state-only
+    commit carrying `Workflow-Gate-Policy-Floor: <digest>`, staged
+    top-level-scoped, then validates it. Returns the commit sha, or `None`
+    when nothing observed is stricter than the current floor and the base
+    (nothing is written and no commit is made). A `/satisfy-gate` that made
+    its satisfying commit calls this afterwards, never before its own
+    evaluation (`LPR-R18-001`)."""
+    state_full = repo_root / DEFAULT_STATE_PATH
+    current = _load_json(state_full) or {}
+    if gate_policy.record_gate_policy_floor(repo_root, current, now) is current:
+        return None
+    _assert_index_clean_apart_from_state(repo_root)
+    new_state = state_transaction(
+        repo_root, lambda state: gate_policy.record_gate_policy_floor(repo_root, state, now))
+    floor = new_state[GATE_POLICY_FLOOR_KEY]
+    _stage_state_for_commit(repo_root, GATE_POLICY_FLOOR_SCOPE)
+    if not _run(["git", "diff", "--cached", "--name-only"], cwd=repo_root).strip():
+        return None  # a concurrent writer recorded the same floor first
+    _run(["git", "commit", "-q", "-m", f"chore: record gate policy floor {floor['digest'][:12]}",
+          "-m", f"{GATE_POLICY_FLOOR_TRAILER}: {floor['digest']}"], cwd=repo_root)
+    commit = _head_sha(repo_root)
+    validate_gate_policy_floor_commit(repo_root, commit)
+    gate_policy.clear_caches()
+    return commit
+
+
+def open_bundles_staled_by_adoption(state: dict) -> list[dict]:
+    """Every open plan-stage and implementation-stage bundle of any work item
+    that an adoption commit will stale (`HEAD` is repository-wide), each with
+    the way out, for the adoption's confirmation display."""
+    result: list[dict] = []
+    for work_item_id, work_item in sorted((state.get("work_items") or {}).items()):
+        if not isinstance(work_item, dict):
+            continue
+        phase = work_item.get("phase")
+        if phase in _PLAN_STAGE_OPEN_BUNDLE_PHASES:
+            result.append({
+                "work_item_id": work_item_id, "stage": "plan", "phase": phase,
+                "way_out": f"withdraw and regenerate it with /milestone-plan {work_item_id} "
+                           f"(both review stages are then recorded again)",
+            })
+        elif phase in _IMPLEMENTATION_STAGE_OPEN_BUNDLE_PHASES:
+            result.append({
+                "work_item_id": work_item_id, "stage": "implementation", "phase": phase,
+                "way_out": f"recover it with /recover-implementation-provenance {work_item_id} "
+                           f"from the phases that command admits, otherwise regenerate it through "
+                           f"the item's own remediation cycle",
+            })
+    return result
+
+
+def gate_policy_adoption_preview(repo_root: Path) -> dict:
+    """What `/adopt-gate-policy` shows the user before they confirm: the
+    file's digest (the one to quote), the resolved difference from the
+    current effective policy (each loosening and tightening), the floor the
+    adoption resets, the `lowered` label it will record, and every open
+    bundle the adoption commit will stale. Reads only. Raises
+    `GatePolicyFileInvalidError` when the file is absent or invalid."""
+    file_info = gate_policy.read_policy_file(repo_root)
+    if not file_info["present"]:
+        raise GatePolicyFileInvalidError(
+            f"{gate_policy.POLICY_PATH} does not exist; there is nothing to adopt", [])
+    if not file_info["valid"]:
+        raise GatePolicyFileInvalidError(
+            f"{gate_policy.POLICY_PATH} is invalid and cannot be adopted", file_info["errors"])
+    state = _load_json(repo_root / DEFAULT_STATE_PATH) or {}
+    # The policy in effect without the file being adopted (its observations
+    # of the working tree are excluded, so the difference is the change).
+    before = gate_policy.effective_policy(repo_root, state, ignore_file=True)
+    adopted = file_info["resolved"]
+    committed_adoption = _read_json_at_commit_or_empty(
+        repo_root, "HEAD", DEFAULT_STATE_PATH.as_posix()) if gate_policy.head_commit(repo_root) else {}
+    lowered = gate_policy_adoption_lowering(
+        committed_adoption.get(GATE_POLICY_ADOPTION_KEY),
+        committed_adoption.get(GATE_POLICY_FLOOR_KEY), file_info["policy"])
+    return {
+        "digest": file_info["sha256"],
+        "digest_prefix": file_info["sha256"][:gate_policy.CONFIRMATION_DIGEST_CHARS],
+        "policy": file_info["policy"], "resolved": adopted,
+        "current": {"source": before["source"], "policy": before["policy"], "digest": before["digest"]},
+        "loosened": gate_policy.loosened_fields(before["policy"], adopted),
+        "tightened": gate_policy.tightened_fields(before["policy"], adopted),
+        "lowered": lowered,
+        "floor_reset_to": adopted,
+        "floor_before": before["floor"],
+        "stales": open_bundles_staled_by_adoption(state),
+        "provenance_ok": before["provenance"]["ok"],
+    }
+
+
+def adopt_gate_policy(repo_root: Path, *, confirmation: str, now: str) -> str:
+    """`/adopt-gate-policy`'s one writer: adopts the working-tree
+    `GATE_POLICY.json`. Validates the file and the confirmation (the literal
+    `gate_policy` plus the digest prefix shown by the preview), refuses a
+    non-empty index apart from the state path, records the adoption and the
+    reset floor inside one `state_transaction`, stages them top-level-scoped
+    (another item's residue is neither committed nor refused), commits with
+    the `Workflow-Gate-Policy-Adoption` trailer and runs
+    `validate_gate_policy_adoption_commit`. Returns the commit sha."""
+    preview = gate_policy_adoption_preview(repo_root)
+    gate_policy.validate_gate_policy_confirmation(confirmation, preview["digest"])
+    _assert_index_clean_apart_from_state(repo_root)
+    policy = preview["policy"]
+    lowered = preview["lowered"]
+    state_transaction(repo_root, lambda state: record_gate_policy_adoption(
+        state, policy=policy, confirmation=confirmation, now=now, lowered=lowered))
+    _stage_state_for_commit(repo_root, GATE_POLICY_ADOPTION_SCOPE)
+    _run(["git", "commit", "-q", "-m", f"chore: adopt gate policy {preview['digest_prefix']}",
+          "-m", f"{GATE_POLICY_ADOPTION_TRAILER}: {preview['digest']}"], cwd=repo_root)
+    commit = _head_sha(repo_root)
+    validate_gate_policy_adoption_commit(repo_root, commit)
+    gate_policy.clear_caches()
+    return commit
+
 
 
 if __name__ == "__main__":

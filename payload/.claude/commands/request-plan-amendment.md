@@ -203,7 +203,7 @@ and wait.
    `approve-review.md` step 6.4 already state). No
    `Workflow-Bundle-Generation-Record`, `Workflow-Supersedes`,
    `Workflow-Checkpoint` or `Workflow-Plan-Approval` trailer -- this is
-   none of those.
+   none of those. This commit keeps whole-file staging. **Gate-policy content check** (workflow-2.8.0, D-GP-Policy): right after this commit, call `workflow_state.assert_gate_policy_fields_unchanged_or_tightened(repo_root, <commit>)`; it refuses a commit that changed `gate_policy_adoption` without a valid, chained record or loosened `gate_policy_floor`.
 
 4. **What happens next.** The work item now sits at `AMENDING_PLAN`; the
    very next `/milestone-plan [work-item-id]` invocation resumes it through
