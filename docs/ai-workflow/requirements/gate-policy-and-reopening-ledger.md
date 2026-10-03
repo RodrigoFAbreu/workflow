@@ -324,3 +324,105 @@ Workflow's own `workflow_gh` fact, and the `findings` text is data).
   exactly the same tests as the CP4 head (they need the real repository
   layout). `tools/release/release_test.py` was not re-run: nothing under
   `tools/` changed.
+
+## `CP6` — Protocol 1.1: rows, actions, `validation`, schema, human equivalence
+
+Requirements: REQ-3 (human equivalence: with every gate human, behavior equals
+2.7.0's apart from the listed deltas), REQ-5 (functional flows and
+GitHub-sourced pull-request facts ingested as identity-bound evidence; the
+Workflow owns every invalidation rule and the next legal action), REQ-8
+(protocol 1.1: additive rows, actions and kinds, `validation` emitted, schema,
+`describe`, unaware consumers fail closed or stall).
+
+- **Implementation** (release source only):
+  - `payload/scripts/workflow_protocol.py`: `PROTOCOL_VERSION` `1.1`,
+    `WORKFLOW_RELEASE` `2.8.0`; the role `validator` and the six new actions
+    (`plan.satisfy`, `implementation.satisfy`, `acceptance.satisfy` as
+    `validation`, `pr.apply_review`, and the external gates
+    `functional.evidence.external` and `pr.review.external`); rows `14a`/`14b`,
+    `28a`/`28b` and `38d` to `38i` with their `CONDITION_CALLS` (every call
+    goes through `ctx.call`), `EDGES` for the four new automatic/validation
+    actions (a forward and an unchanged edge each; `pr.apply_review` also
+    `MILESTONE_COMPLETE` to `AWAITING_FUNCTIONAL_REVIEW` and its unchanged
+    edge), the optional `policy` object (`{source, digest, gate, mode}` plus
+    `gate_lowering`) on the new rows only, `reconcile` accepting a `validation`
+    decision (row and disposition must agree), and `record-external-result`
+    for `functional_evidence` and `pr_review_result` (delegating to
+    `record_functional_evidence` / `record_pr_fact`; `RESERVED_RESULT_KINDS`
+    is now empty). `workflow_forge` joins the Workflow exception domain, so a
+    forge refusal is `refused`, never `internal_error`. `verify`'s advisory
+    `gate_policy` check was already CP1's.
+  - `payload/docs/ai-workflow/orchestration-protocol-v1.schema.json`: the new
+    action ids and role, the `satisfied_by` values, the decision's `policy`,
+    the `forge` block and `$defs.inputs` for the two evidence kinds, and the
+    `record-external-result` result widened (`stage` gains `functional` and
+    `pr_review`; only `stage` and `basis` are required).
+  - `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`: the mirrored tables
+    (actions, conditions, catalogue, edges, proofs) and the passages the
+    tests tie to the code (version, roles, kinds, section 9). The prose
+    chapters, the edge-class definitions and the operator guide remain CP7's.
+  - Tests (`workflow_protocol_test.py`): `TestAllHumanEquivalence` (INV-1,
+    below), `TestPlanAndTechnicalGateRows`, `TestAcceptanceRows`,
+    `TestTriggerAndRemedyRuns`, `TestNewActionEdgesAndReconcile`,
+    `TestUnawareConsumer`, `TestEvidenceResultKinds`,
+    `TestProtocolSchemaAndDescribe`; the existing tests are re-pointed at the
+    1.1 vocabulary (row order, version, kinds) and gain guards for the new
+    actions.
+- **The all-human equivalence matrix.** Every scenario builder the file
+  already has (each phase at each governing version, each automatic row, the
+  functional rows, the plan-review phases) is built as a real repository under
+  the harness's committed all-human `GATE_POLICY.json` (the unadopted-file
+  configuration). `next-action` is compared **byte for byte** with the 2.7.0
+  module's, apart from the two envelope fields of delta 1; `describe`,
+  `verify` (no file, unadopted file and invalid file; the advisory check is
+  the only addition and `healthy` is 2.7.0's) and `record-external-result`
+  (the result, the state bytes and the feedback bytes of both stages, with no
+  `Reviewer model:` line and no ledger key) are compared the same way. Under
+  the default configuration only the gate rows (15, 29, 39) are replaced by
+  new rows; the `policy` object appears nowhere else.
+- **Deviations and judgements**:
+  - **The golden outputs are produced live from the immutable tag `v2.7.0`,
+    not stored.** The 2.7.0 modules are read with `git show v2.7.0:...` into a
+    scratch directory and run as a subprocess. Stored outputs would embed
+    commit SHAs, state identities and temp paths that change on every run;
+    the tag is immutable by the repository's own rule (CLAUDE.md). The class
+    skips, naming the reason, when the tag is not in the checkout (an
+    installation holds no release-source history).
+  - **The adopted all-human fixture compares 2.8.0 before and after the
+    adoption**, at the phases that have no bundle for the adoption commit to
+    stale (D-GP-Compat delta 7: 2.7.0 refuses the adoption fields, so it
+    cannot be the reference there).
+  - **Row conditions beyond the plan's text.** `38e` to `38g` match only when
+    the registry is complete and the technical approval is current (and, for
+    `38f`/`38g`, the flows pass), so a stale approval or a failed flow is
+    `38i` (blocked), never an external gate that cannot help; `38g` for an
+    automatic gate also requires a pull-request fact to be obtainable (an
+    objection is `38i`). `38d`'s `policy.gate` is `pr_review` with mode
+    `automatic` (the row has no gate-mode condition and matches only while
+    `pr_review.enabled`).
+  - `reconcile`'s error text for a non-automatic decision now says "automatic
+    or validation".
+  - The spec's mirrored tables are CP6's, not CP7's, because the
+    spec-equals-code tests would otherwise fail at this checkpoint.
+  - `WORKFLOW_RELEASE` is `2.8.0` while `manifest.json` still says `2.7.0`: the
+    release build's constant guard refuses until CP8 bumps the manifest, which
+    is that guard's purpose.
+- **Not done here (stated, not omitted)**: the two-concurrent-2.2-items
+  all-human fixture and the legacy-declared in-flight item are CP1's and
+  CP7's (the update simulation); the `14b`/`28b` withdrawal is run end to end
+  at the plan stage only (the implementation analogue shares the same
+  predicates, and its toggle and adoption halves are run); the commands
+  themselves are model-run prose, so the end-to-end remedy runs call the same
+  library functions the commands name.
+- **Verification**: the release-source suites in a conformance fixture built
+  from the working tree (`payload/` synced over the CP5 fixture):
+  `workflow_gate_policy_test` 278 OK, `workflow_integration_test` 267 OK (1
+  skipped), `workflow_fingerprint_test` 257 OK, `workflow_acceptance_matrix_test`
+  291 OK (18 skipped), `workflow_state_completion_obligations_test` 106 OK,
+  `workflow_fingerprint_generalization_test` 105 OK,
+  `workflow_test_harness_test` 22 OK; `workflow_state_test` 1011 run with the
+  two in-place-layout errors CP4 and CP5 also have. `workflow_protocol_test`
+  275 OK, run from `payload/scripts` against the checkout (the equivalence
+  class needs the `v2.7.0` tag; it ran, none skipped). The two `*_demo_test`
+  suites and `tools/release/release_test.py` were not re-run: nothing they
+  cover changed.

@@ -23,10 +23,11 @@ today's gates exactly.
 `CP1` (gate policy model), `CP2` (automatic plan and technical approvals
 with audit evidence), `CP3` (functional evidence, GitHub-sourced
 pull-request facts and the stale-evidence table), `CP4` (automatic
-milestone acceptance) and `CP5` (reopening the same work item into
-remediation) are implemented; their records, deviations and
-deferrals are in the requirements ledger,
-`docs/ai-workflow/requirements/gate-policy-and-reopening-ledger.md`. CP6 to
+milestone acceptance), `CP5` (reopening the same work item into
+remediation) and `CP6` (Protocol 1.1: the gate rows, actions, `validation`,
+schema and the all-human equivalence matrix) are implemented; their records,
+deviations and deferrals are in the requirements ledger,
+`docs/ai-workflow/requirements/gate-policy-and-reopening-ledger.md`. CP7 and
 CP8 are not started. One checkpoint is implemented per `/milestone-implement`
 invocation.
 
