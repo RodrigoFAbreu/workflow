@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**Implementing.** W2: `gate-policy-and-reopening` (`process`, governing
+**Self-reviewing the implementation.** W2: `gate-policy-and-reopening` (`process`, governing
 version `2.2`), branch `milestone/gate-policy-and-reopening`, base `d14e0a7`
 (W1's squash merge; Workflow 2.7.0 is published and pinned by
 `workflow-manager#13`, Manager v1.3.0). The plan is
@@ -11,12 +11,13 @@ local and manual external plan review both `APPROVE`).
 
 ## Goal
 
-Workflow 2.8.0 on Orchestration Protocol 1.1: a declarative gate policy
-(plan and technical approval satisfiable by current local plus independent
-cross-model review evidence, functional validation by configured evidence,
-acceptance still human) and post-validation reopening of the same work item
-when a pull request is red or has `CHANGES_REQUESTED`. Default policy equals
-today's gates exactly.
+Workflow 2.8.0 on Orchestration Protocol 1.1: a declarative gate policy in
+which the plan approval, the technical approval and the milestone acceptance
+are each satisfied automatically by their evidence unless a human toggle is
+on for it (a master `human_approval` switch and per-gate overrides; the
+shipped default is automatic, and with every gate human the behavior equals
+2.7.0's apart from the listed deltas), and post-validation reopening of the
+same work item when a pull request is red or has `CHANGES_REQUESTED`.
 
 ## Current checkpoint
 
@@ -27,10 +28,32 @@ milestone acceptance), `CP5` (reopening the same work item into
 remediation) and `CP6` (Protocol 1.1: the gate rows, actions, `validation`,
 schema and the all-human equivalence matrix), `CP7` (specification,
 `GATE_POLICY.md`, update simulation, lifecycle end-to-end tests) and `CP8`
-(release 2.8.0: manifest, conformance CI, roadmap) are implemented; their records,
-deviations and deferrals are in the requirements ledger,
-`docs/ai-workflow/requirements/gate-policy-and-reopening-ledger.md`. Every checkpoint is implemented. One checkpoint is implemented per `/milestone-implement`
-invocation.
+(release 2.8.0: manifest, conformance CI, roadmap) are implemented; their
+records, deviations and deferrals are in the requirements ledger,
+`docs/ai-workflow/requirements/gate-policy-and-reopening-ledger.md`. Every
+checkpoint is complete, and the phase is `SELF_REVIEWING_IMPLEMENTATION`;
+the self-review of the full milestone diff and its one fix are recorded in
+the ledger's "Self-review" section.
+
+## Current blockers
+
+None.
+
+## Active plan
+
+`docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md`, revision 34, plan
+approval `CURRENT`.
+
+## Next action
+
+Generate the implementation review bundle (`/milestone-implement`'s
+wrap-up), then the two implementation-review stages. The functional review
+checklist for W2 is written for the functional review; the one below
+belongs to W1.
+
+---
+
+# Previous milestone record: W1 `orchestration-protocol-v1`
 
 ### CP2 evidence: 2.6.0 reads a 2.7.0-written state (2026-10-02)
 
@@ -56,7 +79,7 @@ ACCEPTED ['consumed_plan_review_content_ids']
 2.6.0 blobs: `payload/scripts/workflow_state.py` `fed844fc70c54bac8787ebea8f77cb67cd7c2f05`,
 `payload/scripts/workflow_fingerprint.py` `565f24bb2dcc21227cb5abf52e0549d7091b8525`.
 
-## Functional review checklist
+### Functional review checklist
 
 W1 is a `process` milestone: the "product" is Workflow 2.7.0 (the
 orchestration protocol CLI, the two follow-ups, and the package). Everything
@@ -332,11 +355,11 @@ F11. Read the documents the milestone ships: `payload/docs/ai-workflow/
 - The `verify` operation does not check installation digests; that is
   `workflow-manager verify`.
 
-## Current blockers
+### Current blockers
 
 None.
 
-## Active plan
+### Active plan
 
 None, because the milestone is complete. The plan document stays at
 `docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md` (revision 13, plan
@@ -345,7 +368,7 @@ source (`payload/scripts/workflow_protocol.py`, `workflow_state.py`, the
 test harness and suites) and the artifact registry cite it as the design
 record.
 
-## Functional review round 1
+### Functional review round 1
 
 The orchestrator-run functional review (`FUNCTIONAL_REVIEW.md`, evidence
 commit `ee86188`) passed S1-S3 and F1-F11 with one finding, F1: three
@@ -355,7 +378,7 @@ no code change; fixed in `docs/ROADMAP.md`, which both stages exclude, so
 `technical_approval` stays CURRENT and no bundle is regenerated. Nothing was
 deferred to a remediation child. Re-test: re-read the three ROADMAP lines.
 
-## Next action
+### Next action
 
 `orchestration-protocol-v1` is complete. Next:
 1. The cutover (plan section 7), the owner's actions: open the pull request

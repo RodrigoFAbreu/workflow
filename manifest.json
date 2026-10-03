@@ -683,8 +683,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_forge\\.py$",
       "rationale": "GitHub-sourced pull-request facts and forge provenance for functional evidence and pull-request review results; identity-bound, never trusted from the caller. W2 (workflow-2.8.0, gate-policy-and-reopening).",
-      "sha256": "830a5704d18a525cb5164bc837b3b1bf993cc4f8e78463144725810b7160728c",
-      "size": 12565,
+      "sha256": "3246a0e1950594275dc8ed7d751a0909868ba1ff26ce3fb6b70e26e0aff729e5",
+      "size": 12914,
       "executable": false
     },
     {
@@ -703,8 +703,8 @@
       "category": "conformance",
       "rule": "^scripts/workflow_gate_policy_test\\.py$",
       "rationale": "The gate policy suite: policy model and adoption, automatic plan, technical and acceptance satisfaction, functional evidence and forge facts, reopening, and the all-human equivalence. Run by workflow-conformance.yml. W2 (workflow-2.8.0, gate-policy-and-reopening).",
-      "sha256": "9aa301031dd464c372f227dc1c669ae22f9fb252bf844ec1cb2f5f5b128a17c8",
-      "size": 241845,
+      "sha256": "68448cf69dfbe62a4932099df575395a29c087b005fb93adc6f8d1d0125eaed3",
+      "size": 243492,
       "executable": false
     },
     {

@@ -200,17 +200,21 @@ def _derive(record: dict) -> dict:
     reviews = record.get("reviews") or []
     if not isinstance(reviews, list):
         raise ForgeUnparseableError("reviews is not a list")
-    latest = reviews[-1] if reviews else None
-    reviewed_head = review_id = None
-    if isinstance(latest, dict):
-        commit = latest.get("commit") or {}
-        reviewed_head = commit.get("oid") if isinstance(commit, dict) else None
-        review_id = latest.get("id")
     requested = [r for r in reviews if isinstance(r, dict) and r.get("state") == "CHANGES_REQUESTED"]
     findings = requested[-1].get("body") if requested else None
     decision = record.get("reviewDecision") or None
     if decision is not None and decision not in _DECISIONS:
         raise ForgeUnparseableError(f"unknown reviewDecision {decision!r}")
+    # The latest review that carries the decision, so a later COMMENTED review
+    # neither makes an approval of an earlier head current nor re-keys a
+    # changes request; with no such review, the latest review of any kind.
+    carrying = [r for r in reviews if isinstance(r, dict) and r.get("state") == decision]
+    latest = carrying[-1] if carrying else (reviews[-1] if reviews else None)
+    reviewed_head = review_id = None
+    if isinstance(latest, dict):
+        commit = latest.get("commit") or {}
+        reviewed_head = commit.get("oid") if isinstance(commit, dict) else None
+        review_id = latest.get("id")
     if decision in {"APPROVED", "CHANGES_REQUESTED"} and reviewed_head != head:
         decision = "REVIEW_REQUIRED"  # a decision on an earlier head is outdated
     return {

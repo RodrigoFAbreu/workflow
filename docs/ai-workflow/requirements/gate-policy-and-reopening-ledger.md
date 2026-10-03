@@ -511,3 +511,40 @@ suite, release-constant guard), REQ-11 (roadmap: W2 complete pending cutover).
   acceptance matrix 291, completion obligations 106, generalization 105,
   protocol 298, gate policy 278); `workflow-manager verify .` reports the
   installation matches 2.6.0.
+
+## Self-review (`SELF_REVIEWING_IMPLEMENTATION`, 2026-10-03)
+
+Review of the full milestone diff (`d14e0a7..`, CP1-CP8): the new modules
+(`workflow_forge.py`, `workflow_gate_policy.py`), the `workflow_state.py`
+writers (adoption, floor, evidence, acceptance, reopen, `begin_pr_review`),
+the new and changed commands against the functions they name (every
+`workflow_state.`/`gate_policy.`/`workflow_forge.` reference resolves), and
+the release constants (`WORKFLOW_RELEASE` 2.8.0, `PROTOCOL_VERSION` 1.1, the
+manifest's `workflow_version`).
+
+- **Fixed (important), `workflow_forge._derive`:** `reviewed_head` and
+  `review_id` came from the latest review of any kind. A `COMMENTED` review
+  on the current head after an `APPROVED` review of an earlier head made the
+  stale approval read as current (defeating "a decision on an earlier head is
+  outdated and reads as `REVIEW_REQUIRED`"), and any later review (a comment,
+  another reviewer's approval) changed the `changes_requested` key's
+  `review_id`, so one changes request could reopen the item a second time and
+  `review_id` disagreed with `findings` (already the latest
+  `CHANGES_REQUESTED` review's text). Both now come from the latest review
+  whose state is the decision (`APPROVED` or `CHANGES_REQUESTED`), falling
+  back to the latest review when there is none. This is a reading of the
+  plan's "come from the latest review" consistent with D-GP-Invalidation's
+  rule that a decision applies only when `reviewed_head` equals `head`, and
+  with `findings`. Two tests in `TestForgeParser`; the manifest's `sha256`
+  and `size` for `workflow_forge.py` and `workflow_gate_policy_test.py`
+  refreshed.
+- **Fixed (narrative), `docs/ACTIVE_MILESTONE.md`:** the W2 goal still said
+  acceptance stays human and the default equals today's gates (superseded by
+  the user's 2026-10-03 decision in plan section 1), and W1's records sat
+  under W2's headings; W1's are now under their own "Previous milestone
+  record" heading.
+- **Observed, not changed (plan-level, for the reviewers):** a
+  `statusCheckRollup` entry with `status: COMPLETED` and an empty conclusion
+  counts as passed (GitHub always sets a conclusion on completion); the
+  `pr_fact` writers (`store_workflow_pr_fact`, `ingest_pr_facts`) do not bump
+  the item's `state_revision`, as the plan's residue design admits.

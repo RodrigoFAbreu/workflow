@@ -2766,6 +2766,27 @@ class TestForgeParser(unittest.TestCase):
         fact = forge.parse_forge_raw(raw, "o/r", self.HEAD)
         self.assertEqual((fact["review_decision"], fact["reviewed_head"]), ("REVIEW_REQUIRED", "d" * 40))
 
+    def test_a_later_comment_on_the_head_does_not_make_an_earlier_approval_current(self):
+        reviews = ([{"id": "R1", "state": "APPROVED", "body": "", "commit": {"oid": "d" * 40}}]
+                   + [{"id": "R2", "state": "COMMENTED", "body": "nit", "commit": {"oid": self.HEAD}}])
+        fact = forge.parse_forge_raw(json.dumps([pr_record(self.HEAD, decision="APPROVED", reviews=reviews)]),
+                                     "o/r", self.HEAD)
+        self.assertEqual((fact["review_decision"], fact["reviewed_head"], fact["review_id"]),
+                         ("REVIEW_REQUIRED", "d" * 40, "R1"))
+
+    def test_the_changes_request_keys_on_its_own_review_not_a_later_one(self):
+        reviews = (changes_requested(self.HEAD, "R1", "fix x")
+                   + [{"id": "R2", "state": "COMMENTED", "body": "ping", "commit": {"oid": self.HEAD}},
+                      {"id": "R3", "state": "APPROVED", "body": "", "commit": {"oid": self.HEAD}}])
+        record = pr_record(self.HEAD, decision="CHANGES_REQUESTED", reviews=reviews)
+        fact = forge.parse_forge_raw(json.dumps([record]), "o/r", self.HEAD)
+        self.assertEqual((fact["review_decision"], fact["reviewed_head"], fact["review_id"], fact["findings"]),
+                         ("CHANGES_REQUESTED", self.HEAD, "R1", "fix x"))
+        record["reviews"] = changes_requested(self.HEAD, "R1", "fix x")
+        alone = forge.parse_forge_raw(json.dumps([record]), "o/r", self.HEAD)
+        self.assertEqual(g.cause_key("changes_requested", dict(alone, identity_at_head=None)),
+                         g.cause_key("changes_requested", dict(fact, identity_at_head=None)))
+
     def test_the_checks_state_failure_pending_success_and_none_reported(self):
         for kind, expected in (("success", "success"), ("failure", "failure"), ("pending", "pending"),
                                ("none", "pending")):
