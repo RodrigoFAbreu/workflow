@@ -1245,8 +1245,7 @@ def evaluate_gate(repo_root: Path, state: dict, work_item_id: str, gate_id: str)
     automatic), every policy `require` entry is met and both ledger stages
     carry the audit keys (`review_evidence_audited`). The result also holds
     `evidence` (the inputs a satisfying record binds) and `digests`.
-    `acceptance` is evaluated by D-GP-Acceptance (CP4); until then it is
-    reported unevaluated and never satisfiable."""
+    `acceptance` is evaluated by D-GP-Acceptance (`_evaluate_acceptance`)."""
     work_item = (state.get("work_items") or {}).get(work_item_id)
     if not isinstance(work_item, dict):
         raise GatePolicyError(f"{work_item_id!r} names no work item")
@@ -1263,8 +1262,7 @@ def evaluate_gate(repo_root: Path, state: dict, work_item_id: str, gate_id: str)
                                    "detail": f"{gate_id} is a human gate; a person decides it"}]
         return result
     if gate_id == "acceptance":
-        result["requirements"] = [{"id": "not_evaluated", "met": False,
-                                   "detail": "the automatic evaluation of acceptance is not available in this release"}]
+        result.update(_evaluate_acceptance(repo_root, state, work_item_id, work_item, effective))
         return result
     inputs = _review_gate_inputs(repo_root, state, work_item_id, gate_id)
     requirements = _review_gate_requirements(inputs, effective["policy"][gate_id]["require"])
@@ -1729,3 +1727,224 @@ def apply_invalidation(repo_root: Path, state: dict, work_item_id: str, fact: di
     return {"rule": rule, "stays": row["stays"], "stale": row["stale"],
             "effect": row["effect"] + ("; a reopened PR is a new fact" if reopened_pr else ""),
             "causes": causes, "position": position}
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.8.0 CP4 (`D-GP-Acceptance`): automatic milestone acceptance. The
+# evaluation reads the state and the repository only; it never runs `gh`. The
+# pull-request requirements read the stored `workflow_gh` fact, or are
+# *pending the query* (`pending_query`) when there is none or a reported fact
+# is newer; the act (`workflow_state.satisfy_acceptance_gate`) runs the query
+# inside its transaction and re-evaluates. Every identity is recomputed here
+# from the recorded `head`; a stored identity is never trusted (INV-3).
+# ---------------------------------------------------------------------------
+
+ACCEPTANCE_REQUIREMENT_IDS = (
+    "checkpoints_complete", "technical_approval_current", "functional_flows_passed", "pr_fact_current",
+    "no_standing_pr_objection", "ci_green", "pr_approved",
+)
+#: The evidence kinds a reporter can supply (`obtainable`).
+OBTAINABLE_FUNCTIONAL = "functional_evidence"
+OBTAINABLE_PR = "pr_review_result"
+ACCEPTANCE_TRUST = {"review_verdicts": "orchestrator", "functional_evidence": "orchestrator",
+                    "pr_fact": SOURCE_WORKFLOW_GH}
+
+
+class AcceptanceEvidenceNotCurrentError(GatePolicyError):
+    """`assert_acceptance_evidence_current`: the acceptance gate is not (or no longer) satisfiable."""
+
+
+def _req(requirement_id: str, met: bool, detail: str) -> dict:
+    return {"id": requirement_id, "met": bool(met), "detail": detail}
+
+
+def _acceptance_registry_requirement(repo_root: Path, work_item: dict) -> dict:
+    import workflow_state
+
+    try:
+        terminal, outstanding = workflow_state.resolve_own_registry_completion_status(Path(repo_root), work_item)
+    except Exception as exc:  # an unreadable registry is an unmet requirement, never a pass
+        return _req("checkpoints_complete", False, f"the item's own registry cannot be resolved: {exc}")
+    if terminal:
+        return _req("checkpoints_complete", True, "every checkpoint of the item's own registry is COMPLETE")
+    return _req("checkpoints_complete", False, f"checkpoint {outstanding!r} is not COMPLETE")
+
+
+def _acceptance_functional(repo_root: Path, work_item_id: str, work_item: dict, anchor: dict | None,
+                           required_flows: list[str]) -> tuple[dict, bool, dict]:
+    """`(requirement, obtainable, inputs)` for `functional_flows_passed`. A
+    record counts only when the identity recomputed at its `head` is the
+    anchor's (a stored `identity` is never read)."""
+    records = gate_evidence_of(work_item)["functional"]
+    if anchor is None:
+        return _req("functional_flows_passed", False, "there is no anchor commit (no technical approval)"), False, {}
+    current: dict[str, dict] = {}
+    stale: list[str] = []
+    for flow_id, record in sorted(records.items()):
+        try:
+            identity = identity_at(repo_root, work_item_id, work_item, record["head"])
+        except Exception:
+            identity = None
+        if identity == anchor["identity"]:
+            current[flow_id] = record
+        else:
+            stale.append(flow_id)
+    failed = sorted(flow_id for flow_id, record in current.items() if record["status"] != "passed")
+    missing = sorted(set(required_flows) - set(current))
+    inputs = {flow_id: {"evidence_id": hashlib.sha256(canonical_bytes(record)).hexdigest(),
+                        "log_digest": record["log_digest"], "run_ref": record["run_ref"]}
+              for flow_id, record in current.items() if record["status"] == "passed"}
+    if failed:
+        return _req("functional_flows_passed", False, f"flow(s) {failed} did not pass at the approved content"), False, inputs
+    if not current:
+        detail = ("no functional flow is recorded" if not records else
+                  f"every recorded flow {stale} is stale (recorded at other protected content)")
+        return _req("functional_flows_passed", False, detail), True, inputs
+    if missing:
+        return _req("functional_flows_passed", False,
+                    f"required flow(s) {missing} have no current passing record"), True, inputs
+    return _req("functional_flows_passed", True, f"flows {sorted(current)} passed at the approved content"), False, inputs
+
+
+def _acceptance_pr(repo_root: Path, work_item_id: str, work_item: dict, anchor: dict | None, *,
+                   require_ci: bool, requires_pr_approved: bool) -> dict:
+    """The pull-request requirements (4 to 6), the `pending_query` flag, the
+    kinds obtainable and the fact the decision read."""
+    evidence = gate_evidence_of(work_item)
+    fact, reported = evidence["pr"], evidence["pr_reported"]
+    pending = fact is None or (reported is not None and reported["ingest_seq"] > fact["ingest_seq"])
+    wanted = ["pr_fact_current", "no_standing_pr_objection"]
+    if require_ci:
+        wanted.append("ci_green")
+    if requires_pr_approved:
+        wanted.append("pr_approved")
+    if pending:
+        why = ("no workflow_gh pull-request fact is stored" if fact is None else
+               "a reported pull-request fact is newer than the stored workflow_gh fact")
+        detail = f"pending the query: {why}; the act queries GitHub itself"
+        return {"requirements": [_req(name, False, detail) for name in wanted], "pending_query": True,
+                "obtainable": [OBTAINABLE_PR] if anchor is not None else [], "fact": None}
+    if fact["state"] == "none":
+        detail = "no pull request was found for the approved implementation head; open one and push"
+        return {"requirements": [_req(name, False, detail) for name in wanted], "pending_query": False,
+                "obtainable": [OBTAINABLE_PR], "fact": fact}
+    position = position_of(repo_root, work_item_id, work_item, fact["head"], anchor=anchor) if anchor else None
+    descends = bool(anchor) and fact["head"] is not None and is_ancestor(repo_root, anchor["commit"], fact["head"])
+    current = fact["state"] == "open" and position == "equal" and descends
+    if current:
+        current_detail = f"workflow_gh fact for PR #{fact['pr']['number']} at {fact['head']} is current"
+    elif fact["state"] != "open":
+        current_detail = f"the pull request is {fact['state']}, not open"
+    elif position == "behind":
+        current_detail = (f"the fact is for an older head {fact['head']}, behind the approved implementation; "
+                          f"push the approved head and re-run /satisfy-gate acceptance")
+    elif position == "ahead":
+        current_detail = (f"the fact is for head {fact['head']}, whose protected content differs from the "
+                          f"approved content")
+    else:
+        current_detail = f"head {fact['head']} does not descend from the anchor commit"
+    objection = fact["review_decision"] == "CHANGES_REQUESTED" or fact["checks"]["state"] == "failure"
+    requirements = [
+        _req("pr_fact_current", current, current_detail),
+        _req("no_standing_pr_objection", not objection,
+             "no CHANGES_REQUESTED decision and no failed check" if not objection else
+             f"standing objection: review_decision {fact['review_decision']!r}, checks {fact['checks']['state']!r}"),
+    ]
+    if require_ci:
+        requirements.append(_req("ci_green", fact["checks"]["state"] == "success",
+                                 f"checks are {fact['checks']['state']!r}"))
+    if requires_pr_approved:
+        requirements.append(_req("pr_approved", fact["review_decision"] == "APPROVED" and fact["state"] == "open",
+                                 f"review_decision is {fact['review_decision']!r} on a {fact['state']} pull request"))
+    # What a reporter can still change: a missing, older or pending fact; never a failure or an objection
+    # at the current head, a different content, or a closed or merged pull request.
+    if fact["state"] != "open" or position == "ahead" or (position is None) or (position == "equal" and not descends):
+        obtainable = []
+    elif position == "behind":
+        obtainable = [OBTAINABLE_PR]
+    else:
+        unmet_unobtainable = objection
+        pending_checks = fact["checks"]["state"] == "pending"
+        undecided = requires_pr_approved and fact["review_decision"] != "APPROVED"
+        obtainable = [OBTAINABLE_PR] if not unmet_unobtainable and (pending_checks or undecided) else []
+    return {"requirements": requirements, "pending_query": False, "obtainable": obtainable, "fact": fact}
+
+
+def _evaluate_acceptance(repo_root: Path, state: dict, work_item_id: str, work_item: dict, effective: dict) -> dict:
+    """The `automatic` half of `D-GP-Acceptance`: every requirement recomputed
+    now. Returns the keys `evaluate_gate` merges into its result:
+    `requirements`, `satisfiable`, `satisfiable_after_query` (every
+    requirement but the pending pull-request ones is met), `pending_query`,
+    `obtainable` and `evidence` (the inputs a satisfying record binds)."""
+    import workflow_state
+
+    section = effective["policy"]["acceptance"]
+    anchor = anchor_of(repo_root, work_item_id, work_item)
+    requirements = [_acceptance_registry_requirement(repo_root, work_item)]
+    try:
+        approval_current = workflow_state.approval_is_current(
+            Path(repo_root), work_item, stage="implementation", base_commit=work_item["base_commit"])
+    except Exception:
+        approval_current = False
+    approval = work_item.get("technical_approval")
+    requirements.append(_req(
+        "technical_approval_current", approval_current,
+        "the technical approval is CURRENT for the content now" if approval_current else
+        "there is no CURRENT technical approval for the content now"))
+    functional_req, functional_obtainable, functional_inputs = _acceptance_functional(
+        repo_root, work_item_id, work_item, anchor if approval_current else None, section["required_flows"])
+    requirements.append(functional_req)
+    pr = _acceptance_pr(repo_root, work_item_id, work_item, anchor if approval_current else None,
+                        require_ci=section["require_ci"], requires_pr_approved=section["requires_pr_approved"])
+    requirements += pr["requirements"]
+    obtainable = ([OBTAINABLE_FUNCTIONAL] if functional_obtainable else []) + pr["obtainable"]
+    met = all(r["met"] for r in requirements)
+    non_pr = [r for r in requirements if r["id"] in ("checkpoints_complete", "technical_approval_current",
+                                                     "functional_flows_passed")]
+    fact = pr["fact"]
+    evidence = {
+        "anchor_commit": anchor["commit"] if anchor else None,
+        "anchor_identity": anchor["identity"] if anchor else None,
+        "technical_approval": {"basis": approval.get("basis"), "approved_review_content_id":
+                               approval.get("approved_review_content_id"),
+                               "recorded_at": approval.get("recorded_at")} if isinstance(approval, dict) else None,
+        "functional": functional_inputs,
+        "pr": None if fact is None else {"fact_id": fact["fact_id"], "head": fact["head"],
+                                         "provenance": (fact.get("provenance") or {}).get("source"),
+                                         "raw_sha256": (fact.get("provenance") or {}).get("raw_sha256")},
+    }
+    return {"requirements": requirements, "satisfiable": met,
+            "satisfiable_after_query": pr["pending_query"] and all(r["met"] for r in non_pr),
+            "pending_query": pr["pending_query"], "obtainable": obtainable, "evidence": evidence}
+
+
+def assert_acceptance_evidence_current(repo_root: Path, state: dict, work_item_id: str) -> dict:
+    """The library predicate of the automatic acceptance gate (`LPR-R2-005`):
+    returns the evaluation when the gate is `automatic` and `satisfiable` on
+    the stored facts; otherwise raises `AcceptanceEvidenceNotCurrentError`
+    naming every unmet requirement. It runs no query: the act that calls it
+    has stored a fresh `workflow_gh` fact first."""
+    evaluation = evaluate_gate(repo_root, state, work_item_id, "acceptance")
+    if evaluation["mode"] != "automatic" or not evaluation["satisfiable"]:
+        unmet = [f"{r['id']}: {r['detail']}" for r in evaluation["requirements"] if not r["met"]]
+        raise AcceptanceEvidenceNotCurrentError(
+            f"{work_item_id}: the acceptance gate is not satisfiable by policy "
+            f"(mode {evaluation['mode']!r}); unmet: {unmet}")
+    return evaluation
+
+
+def requires_pr_approved(effective: dict) -> bool:
+    """True when the effective acceptance gate asks for an approved pull
+    request, whatever its mode (`D-GP-Acceptance`, "The human path")."""
+    return bool(effective["policy"]["acceptance"]["requires_pr_approved"])
+
+
+def pr_approved_requirements(repo_root: Path, state: dict, work_item_id: str) -> list[dict]:
+    """`pr_fact_current` and `pr_approved` on the stored `workflow_gh` fact,
+    the check `/accept-milestone` step 2a runs for a human acceptance when
+    `requires_pr_approved` is set (after the Workflow's own query stored a
+    fresh fact). Unmet, never raised: the caller refuses naming each."""
+    work_item = _work_item(state, work_item_id)
+    anchor = anchor_of(repo_root, work_item_id, work_item)
+    pr = _acceptance_pr(repo_root, work_item_id, work_item, anchor, require_ci=False, requires_pr_approved=True)
+    return [r for r in pr["requirements"] if r["id"] in ("pr_fact_current", "pr_approved")]

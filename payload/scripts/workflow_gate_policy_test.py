@@ -2581,7 +2581,7 @@ class TestCommandTextAgreement(unittest.TestCase):
             self.assertIn(sentence, text if sentence != "step 7" else text.replace("Step 7", "step 7"))
 
     def test_every_approve_review_step_cited_exists(self):
-        satisfy = self.text("satisfy-gate.md")
+        satisfy = self.text("satisfy-gate.md").split("## The acceptance stage")[0]  # that stage cites accept-milestone
         approve = (self.COMMANDS / "approve-review.md").read_text()
         steps = set(re.findall(r"(?m)^(\d+[a-z]?\d?)\. \*\*", approve))
         cited = set(re.findall(r"[Ss]teps? (\d+[a-z]?)", satisfy)) | set(re.findall(r"6\.(\d)", satisfy))
@@ -2660,6 +2660,10 @@ def pr_record(head: str, *, number: int = 7, state: str = "OPEN", decision: str 
 
 def changes_requested(head: str, review_id: str = "R1", body: str = "please fix x") -> list:
     return [{"id": review_id, "state": "CHANGES_REQUESTED", "body": body, "commit": {"oid": head}}]
+
+
+def approved(head: str, review_id: str = "R2") -> list:
+    return [{"id": review_id, "state": "APPROVED", "body": "", "commit": {"oid": head}}]
 
 
 def reported_payload(records, queried: str, *, repository: str = "o/r", run_ref: str | None = "run-9") -> dict:
@@ -3476,6 +3480,498 @@ class TestGateEvidenceCommitContracts(unittest.TestCase):
                      f"Workflow-Bundle-Generation-Record: a/{revision}\nWorkflow-Work-Item: a")
             with self.assertRaises(ws.MalformedBundleGenerationRecordCommitError):
                 ws.validate_bundle_generation_record_commit(repo.root, repo.head(), "a")
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.8.0 CP4 (`D-GP-Acceptance`): automatic milestone acceptance
+# ---------------------------------------------------------------------------
+
+class AcceptanceRepo(EvidenceRepo):
+    """An `EvidenceRepo` whose item has a CURRENT technical approval at the
+    anchor, an empty (terminal) registry and the automatic acceptance gate."""
+
+    def __enter__(self) -> "AcceptanceRepo":
+        super().__enter__()
+        self.approve_plan()
+        self.approve()
+        return self
+
+    def approve_plan(self) -> None:
+        """A CURRENT plan approval whose manifest is the live snapshot of every
+        plan-stage protected file (all that registry-derived completion reads)."""
+        import workflow_fingerprint as fingerprint
+
+        manifest = [{"path": path, **fingerprint._snapshot_worktree(self.root, path)}
+                    for path in sorted(h.plan_stage_protected_paths(WI))]
+        record = ws.build_approval_record(
+            basis="EXTERNAL_APPROVE", stage="plan", user_confirmation="approved", now=now(),
+            reviewed_bundle_id="b" * 64, approved_review_content_id="c" * 64, review_content_manifest=manifest)
+        self.set_state(plan_approval=record)
+
+    def approve(self) -> None:
+        head = h.git(self.repo, "rev-parse", "HEAD")
+        record = ws.build_approval_record(
+            basis="EXTERNAL_APPROVE", stage="implementation", user_confirmation="approved", now=now(),
+            reviewed_bundle_id="b" * 64,
+            approved_review_content_id=g.identity_at(self.root, WI, self.item(), head),
+            review_content_manifest=[], reviewed_content_commit=head)
+        self.set_state(technical_approval=record, reviewed_implementation_head=head)
+        self.anchor = head
+
+    def write_adopted(self, policy: dict) -> None:
+        """A loosening policy takes effect only once adopted (`D-GP-Policy`)."""
+        (self.root / POLICY_REL).write_text(json.dumps(policy, indent=2))
+        ws.adopt_gate_policy(self.root, confirmation=confirmation_for(policy), now=now())
+        g.clear_caches()
+
+    def flow(self, head: str | None = None, **kw) -> dict:
+        return ws.record_functional_evidence(self.root, WI, functional_record(head or self.anchor, **kw), now=now())
+
+    def evaluate(self, state: dict | None = None) -> dict:
+        g.clear_caches()
+        return g.evaluate_gate(self.root, state or self.state(), WI, "acceptance")
+
+    def req(self, evaluation: dict, requirement_id: str) -> dict:
+        return next(r for r in evaluation["requirements"] if r["id"] == requirement_id)
+
+    def ready(self, **pr) -> None:
+        self.flow()
+        self.query([pr_record(self.anchor, **pr)])
+
+    def satisfy(self, records=None, **kw) -> dict:
+        body = json.dumps(records if records is not None else [pr_record(self.anchor)])
+        return ws.satisfy_acceptance_gate(self.root, WI, now=now(), run=lambda a, t: body,
+                                          resolve=lambda r: dict(FAKE_GH), **kw)
+
+
+class TestEvaluateAcceptance(unittest.TestCase):
+    def unmet(self, evaluation: dict) -> list[str]:
+        return [r["id"] for r in evaluation["requirements"] if not r["met"]]
+
+    def test_every_requirement_met_is_satisfiable(self):
+        with AcceptanceRepo() as ev:
+            ev.ready()
+            result = ev.evaluate()
+            self.assertEqual((result["mode"], result["satisfiable"], result["obtainable"]), ("automatic", True, []))
+            self.assertEqual([r["id"] for r in result["requirements"]],
+                             ["checkpoints_complete", "technical_approval_current", "functional_flows_passed",
+                              "pr_fact_current", "no_standing_pr_objection", "ci_green"])
+            self.assertEqual(result["evidence"]["pr"]["provenance"], "workflow_gh")
+            self.assertEqual(result["evidence"]["anchor_commit"], ev.anchor)
+
+    def test_each_requirement_failing_alone_is_unsatisfiable(self):
+        cases = {
+            "technical_approval_current": lambda ev: ev.set_state(technical_approval=None),
+            "functional_flows_passed": lambda ev: ev.flow(status="failed"),
+            "no_standing_pr_objection": lambda ev: ev.query([pr_record(
+                ev.anchor, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor))]),
+            "ci_green": lambda ev: ev.query([pr_record(ev.anchor, checks="pending")]),
+        }
+        for requirement, break_it in cases.items():
+            with self.subTest(requirement), AcceptanceRepo() as ev:
+                ev.ready()
+                break_it(ev)
+                result = ev.evaluate()
+                self.assertFalse(result["satisfiable"])
+                self.assertIn(requirement, self.unmet(result))
+
+    def test_an_outstanding_checkpoint_is_unmet(self):
+        with AcceptanceRepo() as ev:
+            ev.ready()
+            registry = ev.root / ev.item()["registry_path"]
+            body = json.loads(registry.read_text())
+            body["checkpoints"] = [{"id": "CP1", "name": "x", "depends_on": [], "complexity": 1, "session_target": "1"}]
+            registry.write_text(json.dumps(body))
+            self.assertEqual(self.unmet(ev.evaluate()), ["checkpoints_complete"])
+
+    def test_no_functional_flow_and_a_missing_required_flow(self):
+        with AcceptanceRepo() as ev:
+            ev.query([pr_record(ev.anchor)])
+            result = ev.evaluate()
+            self.assertEqual(self.unmet(result), ["functional_flows_passed"])
+            self.assertEqual(result["obtainable"], ["functional_evidence"])
+            ev.flow()
+            policy = {"schema_version": 1, "gates": {"acceptance": {"required_flows": ["migration-suite", "e2e-suite"]}}}
+            (ev.root / POLICY_REL).write_text(json.dumps(policy))
+            g.clear_caches()
+            result = ev.evaluate()
+            self.assertIn("e2e-suite", ev.req(result, "functional_flows_passed")["detail"])
+            self.assertEqual(result["obtainable"], ["functional_evidence"])
+            ev.flow(flow_id="e2e-suite")
+            self.assertTrue(ev.evaluate()["satisfiable"])
+
+    def test_a_flow_recorded_at_other_protected_content_is_stale(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            ev.protected_commit("new protected content")
+            state = ev.state()
+            ev.approve()
+            result = ev.evaluate()
+            self.assertIn("functional_flows_passed", self.unmet(result))
+            self.assertIn("stale", ev.req(result, "functional_flows_passed")["detail"])
+
+    def test_a_forged_stored_identity_does_not_satisfy_it(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            ev.protected_commit("new protected content")
+            ev.approve()
+            state = ev.state()
+            anchor_identity = g.anchor_of(ev.root, WI, ev.item())["identity"]
+            state["work_items"][WI]["gate_evidence"]["functional"]["migration-suite"]["identity"] = anchor_identity
+            h.write_state(ev.repo, state)
+            self.assertIn("functional_flows_passed", self.unmet(ev.evaluate()))
+
+    def test_no_pull_request_fact_is_pending_the_query_and_never_satisfiable(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            result = ev.evaluate()
+            self.assertEqual((result["satisfiable"], result["pending_query"], result["satisfiable_after_query"]),
+                             (False, True, True))
+            self.assertEqual(result["obtainable"], ["pr_review_result"])
+
+    def test_a_stored_orchestrator_forge_fact_never_counts_whatever_its_content(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            ev.report([pr_record(ev.anchor, decision="APPROVED", reviews=approved(ev.anchor))])
+            result = ev.evaluate()
+            self.assertFalse(result["satisfiable"])
+            self.assertTrue(result["pending_query"])
+            self.assertIsNone(result["evidence"]["pr"])
+
+    def test_a_newer_report_makes_the_requirements_pending_the_query_again(self):
+        with AcceptanceRepo() as ev:
+            ev.ready()
+            self.assertFalse(ev.evaluate()["pending_query"])
+            ev.report([pr_record(ev.anchor, decision="APPROVED")])
+            result = ev.evaluate()
+            self.assertEqual((result["satisfiable"], result["pending_query"]), (False, True))
+            ev.query([pr_record(ev.anchor)])
+            self.assertTrue(ev.evaluate()["satisfiable"])
+
+    def test_i1_a_red_pull_request_behind_a_local_fix_blocks_and_stays_obtainable(self):
+        with AcceptanceRepo() as ev:
+            old = ev.anchor
+            ev.protected_commit("approved local fix")
+            ev.approve()
+            ev.flow()
+            ev.query([pr_record(old, checks="failure", decision="CHANGES_REQUESTED",
+                                reviews=changes_requested(old))])
+            result = ev.evaluate()
+            self.assertIn("pr_fact_current", self.unmet(result))
+            self.assertIn("push the approved head", ev.req(result, "pr_fact_current")["detail"])
+            self.assertEqual(result["obtainable"], ["pr_review_result"])
+
+    def test_a_green_fact_for_an_older_head_blocks_the_same_way(self):
+        with AcceptanceRepo() as ev:
+            old = ev.anchor
+            ev.protected_commit("approved local fix")
+            ev.approve()
+            ev.flow()
+            ev.query([pr_record(old)])
+            result = ev.evaluate()
+            self.assertEqual(self.unmet(result), ["pr_fact_current"])
+            self.assertEqual(result["obtainable"], ["pr_review_result"])
+
+    def test_a_fact_at_a_descendant_head_with_equal_identity_satisfies_it(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            descendant = ev.excluded_commit()
+            ev.query([pr_record(descendant)])
+            self.assertTrue(ev.evaluate()["satisfiable"])
+
+    def test_a_fact_for_different_protected_content_is_ahead_and_not_obtainable(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            ahead = ev.protected_commit("unreviewed content")
+            ev.query([pr_record(ahead)])
+            result = ev.evaluate()
+            self.assertIn("pr_fact_current", self.unmet(result))
+            self.assertNotIn("pr_review_result", result["obtainable"])
+
+    def test_a_standing_objection_at_the_current_head_is_not_obtainable(self):
+        for kw in ({"checks": "failure"}, {"decision": "CHANGES_REQUESTED"}):
+            with self.subTest(kw), AcceptanceRepo() as ev:
+                ev.flow()
+                if "decision" in kw:
+                    kw["reviews"] = changes_requested(ev.anchor)
+                ev.query([pr_record(ev.anchor, **kw)])
+                result = ev.evaluate()
+                self.assertIn("no_standing_pr_objection", self.unmet(result))
+                self.assertEqual(result["obtainable"], [])
+
+    def test_pending_checks_are_obtainable_a_closed_or_missing_pull_request_is_judged(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            ev.query([pr_record(ev.anchor, checks="pending")])
+            self.assertEqual(ev.evaluate()["obtainable"], ["pr_review_result"])
+            ev.query([pr_record(ev.anchor, state="CLOSED")])
+            result = ev.evaluate()
+            self.assertIn("pr_fact_current", self.unmet(result))
+            self.assertEqual(result["obtainable"], [])
+            ev.query([])
+            result = ev.evaluate()
+            self.assertEqual((result["satisfiable"], result["obtainable"]), (False, ["pr_review_result"]))
+
+    def test_require_ci_false_omits_ci_green_so_pending_passes_but_a_failure_never_does(self):
+        with AcceptanceRepo() as ev:
+            policy = {"schema_version": 1, "gates": {"acceptance": {"require_ci": False}}}
+            ev.write_adopted(policy)
+            ev.flow()
+            ev.query([pr_record(ev.anchor, checks="pending")])
+            result = ev.evaluate()
+            self.assertNotIn("ci_green", [r["id"] for r in result["requirements"]])
+            self.assertTrue(result["satisfiable"], result["requirements"])
+            ev.query([pr_record(ev.anchor, checks="failure")])
+            result = ev.evaluate()
+            self.assertEqual(self.unmet(result), ["no_standing_pr_objection"])
+
+    def test_requires_pr_approved_adds_pr_approved(self):
+        with AcceptanceRepo() as ev:
+            (ev.root / POLICY_REL).write_text(json.dumps(
+                {"schema_version": 1, "gates": {"acceptance": {"requires_pr_approved": True}}}))
+            ev.flow()
+            ev.query([pr_record(ev.anchor)])
+            g.clear_caches()
+            result = ev.evaluate()
+            self.assertEqual(self.unmet(result), ["pr_approved"])
+            self.assertEqual(result["obtainable"], ["pr_review_result"])
+            ev.query([pr_record(ev.anchor, decision="APPROVED", reviews=approved(ev.anchor))])
+            self.assertTrue(ev.evaluate()["satisfiable"])
+
+    def test_a_human_acceptance_is_never_satisfiable(self):
+        with AcceptanceRepo() as ev:
+            ev.ready()
+            (ev.root / POLICY_REL).write_text(json.dumps(ACCEPTANCE_HUMAN))
+            g.clear_caches()
+            result = ev.evaluate()
+            self.assertEqual((result["mode"], result["satisfiable"]), ("human", False))
+            with self.assertRaises(g.AcceptanceEvidenceNotCurrentError):
+                g.assert_acceptance_evidence_current(ev.root, ev.state(), WI)
+
+    def test_the_library_predicate_returns_the_evaluation_or_names_every_unmet_requirement(self):
+        with AcceptanceRepo() as ev:
+            with self.assertRaises(g.AcceptanceEvidenceNotCurrentError) as caught:
+                g.assert_acceptance_evidence_current(ev.root, ev.state(), WI)
+            self.assertIn("functional_flows_passed", str(caught.exception))
+            ev.ready()
+            self.assertTrue(g.assert_acceptance_evidence_current(ev.root, ev.state(), WI)["satisfiable"])
+
+
+class TestSatisfyAcceptance(unittest.TestCase):
+    def test_the_act_stores_the_fact_completes_and_records_the_satisfaction(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            result = ev.satisfy()
+            item = ev.item()
+            self.assertEqual(item["phase"], "MILESTONE_COMPLETE")
+            record = item["acceptance_satisfaction"]
+            self.assertEqual(record, result["record"])
+            self.assertEqual(ws.acceptance_satisfaction_errors(record), [])
+            fact = item["gate_evidence"]["pr"]
+            self.assertEqual(record["inputs"]["pr"], {"fact_id": fact["fact_id"], "head": ev.anchor,
+                                                      "provenance": "workflow_gh", "raw_sha256": fact["provenance"]["raw_sha256"]})
+            self.assertEqual(record["inputs"]["functional"]["migration-suite"]["log_digest"], "b" * 64)
+            self.assertEqual(record["inputs"]["functional"]["migration-suite"]["run_ref"], "run-3")
+            self.assertEqual(record["trust"]["pr_fact"], "workflow_gh")
+            self.assertEqual(record["policy_digest"], g.effective_policy(ev.root, ev.state())["digest"])
+            self.assertEqual(result["trailer"], f"policy:{record['policy_digest'][:12]}")
+
+    def test_gh_unavailable_refuses_and_writes_nothing_whatever_is_stored(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            ev.report([pr_record(ev.anchor, decision="APPROVED")])
+            before = state_bytes(ev.repo)
+
+            def run(argv, timeout):
+                raise forge.ForgeUnavailableError("gh is not installed")
+            with self.assertRaises(forge.ForgeUnavailableError):
+                ws.satisfy_acceptance_gate(ev.root, WI, now=now(), run=run, resolve=lambda r: dict(FAKE_GH))
+            self.assertEqual(state_bytes(ev.repo), before)
+
+    def test_a_fabricated_reported_fact_changes_nothing_the_fresh_query_decides(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            ev.report([pr_record(ev.anchor, decision="APPROVED")])
+            with self.assertRaises(ws.GateNotSatisfiableError):
+                ev.satisfy([pr_record(ev.anchor, checks="failure")])
+            item = ev.item()
+            self.assertEqual(item["phase"], "AWAITING_LOCAL_IMPLEMENTATION_REVIEW")
+            self.assertNotIn("acceptance_satisfaction", item)
+            self.assertEqual(item["gate_evidence"]["pr"]["checks"]["state"], "failure",
+                             "the fact the query read is stored when the gate refuses")
+
+    def test_a_stored_workflow_gh_fact_is_overwritten_by_the_newer_query(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            ev.query([pr_record(ev.anchor, checks="failure")])
+            ev.satisfy([pr_record(ev.anchor)])
+            self.assertEqual(ev.item()["gate_evidence"]["pr"]["checks"]["state"], "success")
+
+    def test_a_refusal_by_complete_work_item_leaves_the_state_byte_identical(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            state = ev.state()
+            state["work_items"]["wi-child"] = copy.deepcopy(state["work_items"][WI])
+            state["work_items"]["wi-child"].update(work_item_id="wi-child", parent_work_item_id=WI)
+            h.write_state(ev.repo, state)
+            before = state_bytes(ev.repo)
+            with self.assertRaises(ws.IncompleteChildWorkItemError):
+                ev.satisfy()
+            self.assertEqual(state_bytes(ev.repo), before)
+
+    def test_a_remediation_child_is_accepted_automatically_and_its_parent_unblocks(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            child_id = f"{WI}-remediation-1"
+            state = ev.state()
+            child = copy.deepcopy(state["work_items"][WI])
+            child.update(work_item_id=child_id, parent_work_item_id=WI)
+            state["work_items"][child_id] = child
+            h.write_state(ev.repo, state)
+            registry_dir = ev.root / "docs" / "ai-workflow" / "registry"
+            (registry_dir / f"{child_id}-artifacts.json").write_text(
+                (registry_dir / f"{WI}-artifacts.json").read_text())
+            registry = json.loads((registry_dir / f"{WI}-registry.json").read_text())
+            registry["work_item_id"] = child_id
+            (registry_dir / f"{child_id}-registry.json").write_text(json.dumps(registry, indent=2) + "\n")
+            h.git(ev.repo, "add", f"docs/ai-workflow/registry/{child_id}-registry.json",
+                  f"docs/ai-workflow/registry/{child_id}-artifacts.json")
+            state = ev.state()
+            child = state["work_items"][child_id]
+            child["registry_path"] = f"docs/ai-workflow/registry/{child_id}-registry.json"
+            import workflow_fingerprint as fingerprint
+            manifest = [{"path": path, **fingerprint._snapshot_worktree(ev.root, path)}
+                        for path in sorted(h.plan_stage_protected_paths(child_id))]
+            child["plan_approval"] = ws.build_approval_record(
+                basis="EXTERNAL_APPROVE", stage="plan", user_confirmation="approved", now=now(),
+                reviewed_bundle_id="b" * 64, approved_review_content_id="c" * 64, review_content_manifest=manifest)
+            child["technical_approval"]["approved_review_content_id"] = g.identity_at(
+                ev.root, child_id, child, ev.anchor)
+            h.write_state(ev.repo, state)
+            body = json.dumps([pr_record(ev.anchor)])
+            with self.assertRaises(ws.IncompleteChildWorkItemError):
+                ev.satisfy()
+            ws.satisfy_acceptance_gate(ev.root, child_id, now=now(), run=lambda a, t: body,
+                                       resolve=lambda r: dict(FAKE_GH))
+            self.assertEqual(ev.state()["work_items"][child_id]["phase"], "MILESTONE_COMPLETE")
+            self.assertIn("acceptance_satisfaction", ev.state()["work_items"][child_id])
+            ev.satisfy()
+            self.assertEqual(ev.item()["phase"], "MILESTONE_COMPLETE")
+
+    def test_the_toggle_turned_human_meanwhile_refuses_and_stores_only_the_fact(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            (ev.root / POLICY_REL).write_text(json.dumps(ACCEPTANCE_HUMAN))
+            g.clear_caches()
+            with self.assertRaises(ws.GateNotSatisfiableError):
+                ev.satisfy()
+            self.assertEqual(ev.item()["phase"], "AWAITING_LOCAL_IMPLEMENTATION_REVIEW")
+            self.assertNotIn("acceptance_satisfaction", ev.item())
+
+    def test_a_re_acceptance_overwrites_the_record(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            first = ev.satisfy()["record"]
+            state = ev.state()
+            state["work_items"][WI]["phase"] = "AWAITING_FUNCTIONAL_REVIEW"
+            h.write_state(ev.repo, state)
+            second = ev.satisfy()["record"]
+            self.assertNotEqual(first["evaluated_at"], second["evaluated_at"])
+            self.assertEqual(ev.item()["acceptance_satisfaction"], second)
+
+    def test_the_record_validator_rejects_a_malformed_record(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            record = ev.satisfy()["record"]
+            self.assertEqual(ws.acceptance_satisfaction_errors(record), [])
+            for mutate in (lambda r: r.pop("trust"), lambda r: r["requirements"][0].update(met=False),
+                           lambda r: r["inputs"]["pr"].update(provenance="orchestrator_forge"),
+                           lambda r: r.update(policy_digest="x")):
+                bad = copy.deepcopy(record)
+                mutate(bad)
+                self.assertTrue(ws.acceptance_satisfaction_errors(bad))
+            state = ev.state()
+            state["work_items"][WI]["acceptance_satisfaction"] = {"x": 1}
+            with self.assertRaises(ws.InvalidAcceptanceSatisfactionError):
+                ws.validate_state(state)
+
+
+class TestHumanAcceptancePrApproved(unittest.TestCase):
+    def preflight(self, ev: AcceptanceRepo, records, **kw):
+        body = json.dumps(records)
+        return ws.assert_human_acceptance_pr_approved(ev.root, WI, now=now(), run=lambda a, t: body,
+                                                      resolve=lambda r: dict(FAKE_GH), **kw)
+
+    def test_off_by_default_it_runs_no_query_and_writes_nothing(self):
+        with AcceptanceRepo() as ev:
+            ev.write_adopted(ACCEPTANCE_HUMAN)
+            before = state_bytes(ev.repo)
+
+            def run(argv, timeout):
+                raise AssertionError("no query may run")
+            self.assertIsNone(ws.assert_human_acceptance_pr_approved(ev.root, WI, now=now(), run=run))
+            self.assertEqual(state_bytes(ev.repo), before)
+
+    def test_set_it_queries_stores_the_fact_and_refuses_an_unapproved_pull_request(self):
+        with AcceptanceRepo() as ev:
+            (ev.root / POLICY_REL).write_text(json.dumps(
+                {"schema_version": 1, "gates": {"acceptance": {"human": True, "requires_pr_approved": True}}}))
+            with self.assertRaises(ws.PullRequestNotApprovedError):
+                self.preflight(ev, [pr_record(ev.anchor)])
+            self.assertEqual(ev.evidence()["pr"]["provenance"]["source"], "workflow_gh",
+                             "the fact the query read is stored also when the step refuses")
+            requirements = self.preflight(ev, [pr_record(ev.anchor, decision="APPROVED", reviews=approved(ev.anchor))])
+            self.assertEqual([r["id"] for r in requirements], ["pr_fact_current", "pr_approved"])
+
+    def test_gh_unavailable_refuses_and_writes_nothing(self):
+        with AcceptanceRepo() as ev:
+            (ev.root / POLICY_REL).write_text(json.dumps(
+                {"schema_version": 1, "gates": {"acceptance": {"human": True, "requires_pr_approved": True}}}))
+            before = state_bytes(ev.repo)
+
+            def run(argv, timeout):
+                raise forge.ForgeUnavailableError("gh is not installed")
+            with self.assertRaises(forge.ForgeUnavailableError):
+                ws.assert_human_acceptance_pr_approved(ev.root, WI, now=now(), run=run, resolve=lambda r: dict(FAKE_GH))
+            self.assertEqual(state_bytes(ev.repo), before)
+
+
+class TestAcceptanceCommandText(unittest.TestCase):
+    COMMANDS = REPO_ROOT / ".claude" / "commands"
+
+    def text(self, name: str) -> str:
+        return " ".join((self.COMMANDS / name).read_text().split())
+
+    def test_satisfy_gate_specifies_the_acceptance_stage_and_no_longer_refuses_it(self):
+        text = self.text("satisfy-gate.md")
+        self.assertNotIn("not available in this installation", text)
+        for sentence in ("The acceptance stage", "satisfy_acceptance_gate", "query_forge_pr_facts",
+                         "forge_unavailable", "forge_undecidable", "acceptance_satisfaction",
+                         "Workflow-Gate-Satisfied-By", "acceptance_satisfied_by_trailer",
+                         "complete_work_item", "LPR-R23-003", "obtainable", "orchestrator_forge",
+                         "steps 2b and 3 to 8"):
+            self.assertIn(sentence, text)
+        stage = text[text.index("## The acceptance stage"):]
+        self.assertIn("perform the satisfying commit, and only afterwards record a stricter observed setting "
+                      "in its own floor commit", stage)
+        self.assertLess(stage.index("**Complete, with the record.**"), stage.index("**Record the floor, after"))
+
+    def test_the_step_numbers_the_acceptance_stage_cites_exist_in_accept_milestone(self):
+        raw = (self.COMMANDS / "accept-milestone.md").read_text()
+        steps = set(re.findall(r"(?m)^(\d+[a-z]?)\. ", raw))
+        self.assertTrue({"0", "1", "2", "2a", "2b", "3", "4", "5", "6", "7", "8"} <= steps, steps)
+
+    def test_accept_milestone_keeps_its_human_path_adds_the_preflight_and_pins_step_5_to_copy(self):
+        text = self.text("accept-milestone.md")
+        self.assertIn("by **copying** them, never moving them", text)
+        self.assertIn("assert_human_acceptance_pr_approved", text)
+        self.assertIn("requires_pr_approved", text)
+        self.assertIn("/satisfy-gate acceptance", text)
+        self.assertIn("This command is user-only by construction", text)
+        self.assertIn("validate_user_confirmation", text)
+
+    def test_apply_functional_review_cross_references_the_automatic_acceptance(self):
+        self.assertIn("/satisfy-gate acceptance", self.text("apply-functional-review.md"))
 
 
 if __name__ == "__main__":

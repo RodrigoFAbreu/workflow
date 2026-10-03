@@ -1042,7 +1042,12 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # cannot start one at AWAITING_FUNCTIONAL_REVIEW; it says no 2.6.0
     # command completes one there, and keeps the /apply-functional-review
     # routing -- intentional content change.
-    "accept-milestone.md": "236a370b2474ce2e6d223da0aeab16c4870f5876831d16c851b58826747c497a",
+    #
+    # accept-milestone.md further updated, workflow-2.8.0 (gate-policy-and-
+    # reopening, CP4): a pointer to /satisfy-gate acceptance, step 2a's
+    # requires_pr_approved pre-flight (only when the option is set) and step 5
+    # pinned to copy, never move (LPR-R2-003) -- intentional content change.
+    "accept-milestone.md": "0e662df3815574b1be6395bd53af16d606e6001d08502aec487387883ee8625d",
     # prepare-functional-review.md further updated, baseline-portability
     # correctness fix (OPUS-R129-001): step 3a's checklist-evidence
     # provenance commit instruction now states the same "trailers must be
@@ -1349,7 +1354,9 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.8.0 (gate-policy-and-reopening, CP1): the generation-record
     # commit stages item-scoped (stage_scoped_state) -- intentional content
     # change.
-    "apply-functional-review.md": "953154b3fbbc50ab9d060701b5fb1e90f62ad1eba7fe587e5ddc94fad55040f4",
+    # workflow-2.8.0 (gate-policy-and-reopening, CP4): a closing cross-reference
+    # to /satisfy-gate acceptance -- intentional content change.
+    "apply-functional-review.md": "70a2eee41863697bfaf2449613b1f3ee9fbd3c66e2ec0875dca04bb65b8d9686",
 }
 
 

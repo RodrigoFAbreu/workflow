@@ -1,5 +1,5 @@
 ---
-description: Record the plan or technical approval of the active (or named) work item from the gate policy, when the gate is automatic and every requirement is met. Not user-only -- an automated validation the Workflow performs.
+description: Record the plan or technical approval, or accept the milestone, of the active (or named) work item from the gate policy, when the gate is automatic and every requirement is met. Not user-only -- an automated validation the Workflow performs.
 argument-hint: <plan|implementation|acceptance> [work-item-id]
 state_writer: true
 review-subject: bundle
@@ -34,9 +34,8 @@ beside it.
 defaults to `active_work_item_id`.
 
 - `plan` and `implementation` are specified below.
-- `acceptance` is added by the acceptance checkpoint of this release. Until
-  then, refuse it cleanly: it is not available in this installation, and
-  `/accept-milestone` remains the way to accept.
+- `acceptance` is specified in "The acceptance stage" below. It records no
+  approval: it accepts the milestone from evidence.
 
 ## What is replaced, and what is not
 
@@ -150,6 +149,79 @@ refusals:**
    **after** the satisfying commit, the approval stands and is reported as done,
    the floor stays virtual (every later evaluation recomputes it), and the report
    names the failed floor commit and its cause.
+
+## The acceptance stage
+
+`/satisfy-gate acceptance [work-item-id]` accepts the milestone from evidence
+(`D-GP-Acceptance`). It is the policy's own act, not a person's decision, so
+it carries no `user_confirmation` and `/accept-milestone`'s step 1 (the
+user-only guard) does not apply. `/accept-milestone` stays the human path in
+either mode and is unchanged apart from its added `requires_pr_approved`
+precondition (INV-5). Read `accept-milestone.md` beside this section: it runs
+that command's steps 0, 2, 2a, 2b and 3 to 8 **unchanged, cited by number**,
+and this stage states only what differs.
+
+1. **Open with the Workflow's own query.** The step every acceptance opens
+   with: `workflow_state.satisfy_acceptance_gate(repo_root, work_item_id,
+   now=<now>)` runs, inside its one `state_transaction`, the fixed GitHub query
+   (`workflow_forge.query_forge_pr_facts`, `D-GP-Trust`, over the `gh` that
+   `resolve_gh` resolved, `D-GP-ThreatModel`) for the anchor commit and stores the
+   result as `gate_evidence.pr` (provenance `workflow_gh`). A failed query
+   (`forge_unavailable`: `gh` missing, unauthenticated, failed or timed out;
+   `forge_undecidable`: an unsafe `gh`, two open pull requests or a full page)
+   **refuses**: the gate does not pass and nothing is written, whatever
+   `orchestrator_forge` facts are stored, including a self-consistent all-green
+   one. Report the code and its remedy (install or authenticate `gh`, or turn
+   acceptance human). A reported fact is tighten-only (`LPR-R9-002`): with `gh`
+   available it changes nothing, because this query decides.
+2. **Evaluate, inside the same transaction.**
+   `workflow_gate_policy.evaluate_gate(repo_root, state, work_item_id,
+   "acceptance")` on the state the query just stored: `checkpoints_complete`,
+   `technical_approval_current`, `functional_flows_passed`, `pr_fact_current`,
+   `no_standing_pr_objection`, `ci_green` (when `require_ci`) and `pr_approved`
+   (when `requires_pr_approved`), each recomputed now. If the gate is `human` or
+   not `satisfiable`, **stop**: show the mode and each unmet requirement with its
+   `detail`, store only the pull-request fact the query read, write nothing else,
+   commit nothing and record no floor (`LPR-R18-001`). The result's `obtainable`
+   names the evidence a reporter can still supply (`functional_evidence`,
+   `pr_review_result`); a failed flow, failed checks, a standing
+   `CHANGES_REQUESTED`, a stale technical approval or a pull request for
+   different content is not obtainable: fix it through `/apply-functional-review`
+   (or `/apply-pr-review`), or turn acceptance human. A fact for an **older**
+   head (a bounded fix approved locally but not pushed) blocks `pr_fact_current`:
+   push the approved head and re-run `/satisfy-gate acceptance`.
+3. **Complete, with the record.** In the same mutator,
+   `workflow_state.apply_acceptance_satisfaction` calls
+   `workflow_state.complete_work_item` -- so every refusal of the human path
+   still holds (an incomplete child, an outstanding checkpoint, an unsatisfied
+   completion obligation; `/accept-milestone` step 2a) and leaves the state
+   byte-identical -- and sets the item's `acceptance_satisfaction`:
+   `policy_digest`, `policy_source`, the file, adopted and floor digests, every
+   requirement with its `detail`, the inputs read (anchor commit and identity,
+   technical approval, each flow's `log_digest` and `run_ref`, the pull-request
+   fact's id, head, provenance `workflow_gh` and `raw_sha256`), the `trust`
+   statement, `evaluated_at` and `workflow_release`. A re-acceptance overwrites it.
+4. **The remaining steps.** Run `/accept-milestone` steps 2b and 3 to 8 as
+   written (the roadmap, `docs/ACTIVE_MILESTONE.md`, the archive copy of step 5,
+   the completion commit, the next action). The completion commit's final
+   paragraph carries `Workflow-Work-Item: <id>` **and**
+   `Workflow-Gate-Satisfied-By: policy:<first 12 characters of the policy digest>`
+   (`workflow_state.acceptance_satisfied_by_trailer(record)`), after any
+   `Co-Authored-By:` lines (`OPUS-R129-001`).
+5. **Record the floor, after the satisfying commit**, exactly as step 5 of "The
+   policy evaluation, then the stage's transaction" says (`LPR-R23-003`:
+   evaluate against the virtual floor, perform the satisfying commit, and only
+   afterwards record a stricter observed setting in its own floor commit).
+6. **Report** that the milestone was accepted **by policy**, not by a person:
+   the policy digest and source, each requirement and its detail, the functional
+   evidence's `log_digest`, `reporter` and `run_ref`, the pull-request fact's
+   provenance and `raw_sha256`, the `trust` statement (review verdicts and
+   functional evidence are trusted from the orchestrator; the pull-request fact
+   comes from the Workflow's own query), and that turning acceptance human is the
+   stronger mode.
+
+A remediation child (`<parent-id>-remediation-<n>`) is accepted the same way,
+by naming its id; its parent's own acceptance then unblocks.
 
 ## Unmet requirements and their remedies
 

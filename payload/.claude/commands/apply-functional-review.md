@@ -300,3 +300,9 @@ all in the same invocation.
    stop already happened above instead (a fresh implementation-review
    round is required first); do not report both stops as satisfied by the
    same invocation.
+
+Once the item is back at `AWAITING_FUNCTIONAL_REVIEW` with current functional
+evidence, `/accept-milestone` accepts it as always; where the gate policy makes
+acceptance automatic and every requirement is met, `/satisfy-gate acceptance`
+does instead (`workflow-2.8.0`). A finding that left the pull request red or
+`CHANGES_REQUESTED` blocks the automatic path until it is pushed and cleared.

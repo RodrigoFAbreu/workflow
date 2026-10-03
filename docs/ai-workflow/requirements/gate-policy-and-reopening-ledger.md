@@ -215,3 +215,48 @@ rule), REQ-12 (the trust boundary for CI and pull-request facts, CP3's part).
   wired by CP6 (CP3 ships the library calls and tests, as the plan says). The
   predicates those rows call (`actionable_pr_keys`, `pr_query_trigger`,
   `pr_key_actionable`) are here and are tested directly.
+
+## `CP4` — Automatic milestone acceptance
+
+Requirements: REQ-6 (acceptance satisfied by evidence, audited, blocked when
+evidence is missing, stale, behind a local fix or undecidable), REQ-12 (the
+trust boundary at acceptance, CP4's part).
+
+- **Implementation** (release source only):
+  - `payload/scripts/workflow_gate_policy.py`: `evaluate_gate('acceptance')`
+    (`_evaluate_acceptance`): `checkpoints_complete`,
+    `technical_approval_current`, `functional_flows_passed`, `pr_fact_current`,
+    `no_standing_pr_objection`, `ci_green`, `pr_approved`, each recomputed from
+    the recorded heads (a stored identity is never read), plus `pending_query`,
+    `satisfiable_after_query`, `obtainable` and `evidence`;
+    `assert_acceptance_evidence_current` (the library predicate,
+    `LPR-R2-005`), `requires_pr_approved`, `pr_approved_requirements`.
+  - `payload/scripts/workflow_state.py`: the item's optional
+    `acceptance_satisfaction` and its validator
+    (`acceptance_satisfaction_errors`, checked in `_validate_work_item`),
+    `build_acceptance_satisfaction`, `apply_acceptance_satisfaction` (sets the
+    record in the same mutator as `complete_work_item`, so a refusal writes
+    nothing), `satisfy_acceptance_gate` (the Workflow's own `gh` query, the
+    evaluation and the completion in one `state_transaction`),
+    `acceptance_satisfied_by_trailer`, and
+    `assert_human_acceptance_pr_approved` (`/accept-milestone` step 2a).
+  - Commands: `satisfy-gate.md` ("The acceptance stage", citing
+    `/accept-milestone` steps by number; the floor is recorded after the
+    satisfying commit, `LPR-R23-003`), `accept-milestone.md` (pointer, the
+    `requires_pr_approved` pre-flight, step 5 pinned to copy, `LPR-R2-003`),
+    `apply-functional-review.md` (cross-reference); golden hashes updated.
+  - Tests: `workflow_gate_policy_test.py` (`TestEvaluateAcceptance`,
+    `TestSatisfyAcceptance` including a remediation child accepted
+    automatically with its parent then unblocked, `TestHumanAcceptancePrApproved`,
+    `TestAcceptanceCommandText`).
+- **Deviations and judgements**:
+  - A stored `orchestrator_forge` fact never counts; with none and no
+    `workflow_gh` fact the PR requirements are *pending the query*, and only the
+    act (which queries GitHub itself) can satisfy them.
+  - The floor-commit order is pinned by the command text (the satisfying
+    commit, then the floor commit), as for plan and technical approval.
+- **Verification**: `workflow_gate_policy_test` 247 tests OK;
+  `workflow_state_test` 1011 tests with 2 errors and `workflow_integration_test`
+  run in place with 12 failures, both identical at the CP3 head (the in-place
+  layout); the integration suite run in a fixture built from `payload/` passes
+  (267 tests, 1 skipped).

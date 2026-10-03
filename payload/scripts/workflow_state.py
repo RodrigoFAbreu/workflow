@@ -17471,6 +17471,11 @@ def _validate_work_item(work_item_id: str, work_item: dict) -> None:
         if problems:
             raise InvalidGateEvidenceError(f"work_items[{work_item_id!r}]: " + "; ".join(problems))
 
+    if work_item.get("acceptance_satisfaction") is not None:
+        problems = acceptance_satisfaction_errors(work_item["acceptance_satisfaction"])
+        if problems:
+            raise InvalidAcceptanceSatisfactionError(f"work_items[{work_item_id!r}]: " + "; ".join(problems))
+
 
 def validate_state(state: dict, *, registry: dict | None = None, repo_root: Path | None = None) -> None:
     """D3's "Validator rejects" list, to the extent checkable from schema
@@ -19053,6 +19058,171 @@ def query_and_store_pr_fact(repo_root: Path, work_item_id: str, *, now: str, run
         return gate_policy.store_workflow_pr_fact(Path(repo_root), state, work_item_id, query, now=now, run_ref=run_ref)
 
     return _record_gate_evidence(Path(repo_root), writer)
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.8.0 CP4 (`D-GP-Acceptance`): the `acceptance_satisfaction` record
+# of an automatic milestone acceptance and the act that writes it. The record
+# is set in the same mutator as `complete_work_item`, so a refusal by that
+# function leaves nothing written; the completion commit has no field
+# contract, so the record needs no widening of a commit validator.
+# ---------------------------------------------------------------------------
+
+ACCEPTANCE_SATISFACTION_KEY = "acceptance_satisfaction"
+_ACCEPTANCE_SATISFACTION_FIELDS = frozenset({
+    "policy_digest", "policy_source", "file_digest", "adopted_digest", "floor_digest", "requirements",
+    "inputs", "trust", "evaluated_at", "workflow_release"})
+_ACCEPTANCE_INPUT_FIELDS = frozenset({"anchor_commit", "anchor_identity", "technical_approval", "functional", "pr"})
+
+
+class InvalidAcceptanceSatisfactionError(Exception):
+    """`validate_state` found a malformed `acceptance_satisfaction`."""
+
+
+def acceptance_satisfaction_errors(record) -> list[str]:
+    if not isinstance(record, dict):
+        return ["acceptance_satisfaction must be an object"]
+    errors = [f"acceptance_satisfaction key {key!r} is unexpected or missing"
+              for key in sorted(set(record) ^ _ACCEPTANCE_SATISFACTION_FIELDS)]
+    if errors:
+        return errors
+    digest = record["policy_digest"]
+    if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+        errors.append("acceptance_satisfaction.policy_digest must be 64 hex")
+    requirements = record["requirements"]
+    if not isinstance(requirements, list) or not requirements or any(
+            not isinstance(r, dict) or set(r) != {"id", "met", "detail"} or r["met"] is not True
+            for r in requirements):
+        errors.append("acceptance_satisfaction.requirements must be a non-empty list of met {id, met, detail}")
+    inputs = record["inputs"]
+    if not isinstance(inputs, dict) or set(inputs) != _ACCEPTANCE_INPUT_FIELDS:
+        errors.append(f"acceptance_satisfaction.inputs must have exactly {sorted(_ACCEPTANCE_INPUT_FIELDS)}")
+    else:
+        pr = inputs["pr"]
+        if not isinstance(pr, dict) or pr.get("provenance") != gate_policy.SOURCE_WORKFLOW_GH or not pr.get("raw_sha256"):
+            errors.append("acceptance_satisfaction.inputs.pr must name a workflow_gh fact and its raw_sha256")
+        functional = inputs["functional"]
+        if not isinstance(functional, dict) or not functional or any(
+                not isinstance(v, dict) or not v.get("log_digest") for v in functional.values()):
+            errors.append("acceptance_satisfaction.inputs.functional must name each flow's log_digest")
+    if not isinstance(record["trust"], dict):
+        errors.append("acceptance_satisfaction.trust must be an object")
+    return errors
+
+
+def build_acceptance_satisfaction(evaluation: dict, *, now: str) -> dict:
+    """The record of a `satisfiable` automatic acceptance evaluation
+    (`D-GP-Acceptance`, INV-4): the policy digests and source, every
+    requirement, the inputs read (anchor, technical approval, each flow's
+    `log_digest`/`run_ref`, the pull-request fact's provenance and
+    `raw_sha256`), the trust statement, the time and the release."""
+    import workflow_protocol  # lazy: the protocol imports this module
+
+    digests = evaluation["digests"]
+    return {
+        "policy_digest": evaluation["policy_digest"], "policy_source": evaluation["source"],
+        "file_digest": digests["file"], "adopted_digest": digests["adopted"], "floor_digest": digests["floor"],
+        "requirements": [dict(r) for r in evaluation["requirements"]],
+        "inputs": copy.deepcopy(evaluation["evidence"]), "trust": dict(gate_policy.ACCEPTANCE_TRUST),
+        "evaluated_at": now, "workflow_release": workflow_protocol.WORKFLOW_RELEASE,
+    }
+
+
+def acceptance_satisfied_by_trailer(record: dict) -> str:
+    """The `Workflow-Gate-Satisfied-By` value of the completion commit."""
+    return f"{POLICY_CONFIRMATION_PREFIX}{record['policy_digest'][:12]}"
+
+
+def apply_acceptance_satisfaction(state: dict, work_item_id: str, now: str, *, repo_root: Path) -> dict:
+    """Re-evaluates the acceptance gate on `state` (the freshly re-read one,
+    after the Workflow's own query stored its fact), then completes the item
+    and sets its `acceptance_satisfaction` in one returned state. Raises
+    `GateNotSatisfiableError` (the gate is human or unmet) or whatever
+    `complete_work_item` raises; either way nothing is returned to persist.
+    A re-acceptance overwrites the record."""
+    try:
+        evaluation = gate_policy.assert_acceptance_evidence_current(Path(repo_root), state, work_item_id)
+    except gate_policy.AcceptanceEvidenceNotCurrentError as exc:
+        raise GateNotSatisfiableError(f"{exc}. Nothing was written") from exc
+    record = build_acceptance_satisfaction(evaluation, now=now)
+    problems = acceptance_satisfaction_errors(record)
+    if problems:
+        raise InvalidAcceptanceSatisfactionError("; ".join(problems))
+    new_state = complete_work_item(state, work_item_id, now, repo_root=Path(repo_root))
+    new_state["work_items"][work_item_id][ACCEPTANCE_SATISFACTION_KEY] = record
+    return new_state
+
+
+def satisfy_acceptance_gate(repo_root: Path, work_item_id: str, *, now: str, run_ref: str | None = None,
+                            run=None, resolve=None) -> dict:
+    """The act of `/satisfy-gate acceptance` (`D-GP-Acceptance`), all inside
+    one `state_transaction`: (1) the Workflow's own fresh `gh` query for the
+    anchor commit, stored as `gate_evidence.pr` -- a `ForgeError` (`gh`
+    unavailable, an unsafe `gh`, a full page) writes nothing; (2) the
+    evaluation on the re-read state; (3) if it is not `satisfiable` (or the
+    gate is human) only the fact the query read is stored and
+    `GateNotSatisfiableError` is raised after the transaction; (4) otherwise
+    `apply_acceptance_satisfaction`, whose refusals write nothing at all.
+    Returns `{record, trailer}`."""
+    import workflow_forge
+
+    repo_root = Path(repo_root)
+    outcome: dict = {}
+
+    def mutator(state: dict) -> dict:
+        work_item = state["work_items"][work_item_id]
+        anchor = gate_policy.anchor_of(repo_root, work_item_id, work_item)
+        if anchor is None:
+            raise workflow_forge.ForgeUndecidableError(
+                f"{work_item_id}: no anchor commit (no technical approval and no reviewed implementation head)")
+        kwargs = {"run": run} if run is not None else {}
+        query = workflow_forge.query_forge_pr_facts(repo_root, anchor["commit"], resolve=resolve, **kwargs)
+        with_fact, _ = gate_policy.store_workflow_pr_fact(repo_root, state, work_item_id, query, now=now, run_ref=run_ref)
+        evaluation = gate_policy.evaluate_gate(repo_root, with_fact, work_item_id, "acceptance")
+        if evaluation["mode"] != "automatic" or not evaluation["satisfiable"]:
+            outcome["refused"] = evaluation
+            return with_fact
+        completed = apply_acceptance_satisfaction(with_fact, work_item_id, now, repo_root=repo_root)
+        outcome["record"] = completed["work_items"][work_item_id][ACCEPTANCE_SATISFACTION_KEY]
+        return completed
+
+    state_transaction(repo_root, mutator)
+    if "refused" in outcome:
+        evaluation = outcome["refused"]
+        unmet = [f"{r['id']}: {r['detail']}" for r in evaluation["requirements"] if not r["met"]]
+        raise GateNotSatisfiableError(
+            f"{work_item_id}/acceptance: the gate is not satisfiable by policy (mode {evaluation['mode']!r}); "
+            f"unmet: {unmet}. Only the pull-request fact the query read was stored")
+    return {"record": outcome["record"], "trailer": acceptance_satisfied_by_trailer(outcome["record"])}
+
+
+class PullRequestNotApprovedError(GateNotSatisfiableError):
+    """`/accept-milestone` step 2a: `requires_pr_approved` is set and the
+    Workflow's own query did not find a current, approved pull request."""
+
+
+def assert_human_acceptance_pr_approved(repo_root: Path, work_item_id: str, *, now: str, run_ref: str | None = None,
+                                        run=None, resolve=None) -> dict | None:
+    """`/accept-milestone` step 2a's added precondition (`D-GP-Acceptance`,
+    "The human path"): only when the effective `requires_pr_approved` is
+    true, run the Workflow's own query and store the `workflow_gh` fact it
+    read (a successful query only, also when this then refuses, `LPR-R12-002`),
+    then refuse with `PullRequestNotApprovedError` unless that fact is
+    current and the pull request approved. A `ForgeError` (`forge_unavailable`,
+    `forge_undecidable`) writes nothing. Returns `None` when the option is off
+    (nothing was run or written), otherwise the met requirements."""
+    repo_root = Path(repo_root)
+    state = _load_json(repo_root / DEFAULT_STATE_PATH) or {}
+    if not gate_policy.requires_pr_approved(gate_policy.effective_policy(repo_root, state)):
+        return None
+    query_and_store_pr_fact(repo_root, work_item_id, now=now, run_ref=run_ref, run=run, resolve=resolve)
+    state = _load_json(repo_root / DEFAULT_STATE_PATH) or {}
+    requirements = gate_policy.pr_approved_requirements(repo_root, state, work_item_id)
+    unmet = [f"{r['id']}: {r['detail']}" for r in requirements if not r["met"]]
+    if unmet:
+        raise PullRequestNotApprovedError(
+            f"{work_item_id}: requires_pr_approved is set and the pull request is not approved; unmet: {unmet}")
+    return requirements
 
 
 if __name__ == "__main__":
