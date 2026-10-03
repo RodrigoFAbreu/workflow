@@ -789,6 +789,21 @@ actions: every gate above is still exited by the same person or external
 reviewer, through the same commands and guards. The hard gate count stays
 **6**.
 
+Gate policy (`workflow-2.8.0`, `docs/ai-workflow/GATE_POLICY.md`): the plan
+approval (`AWAITING_PLAN_APPROVAL`), the technical approval
+(`AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`'s approval) and the milestone
+acceptance (`AWAITING_FUNCTIONAL_REVIEW`'s) are **gates that a person exits
+only when the policy makes them human**. By default they are automatic: the
+Workflow satisfies each from its recorded evidence through `/satisfy-gate`, and
+a gate whose evidence is missing is blocked, never passed. A repository that
+wants every stop to be a person's sets `"human_approval": true` in
+`docs/ai-workflow/GATE_POLICY.json`, and the six points above are then stops
+exactly as described. `/approve-review` and `/accept-milestone` are the human
+path in either mode. The policy adds no phase and no seventh gate; the same
+two review stages and the same phases apply, and turning human approval on is
+the stronger mode. A pull request found red after acceptance reopens the same
+work item into remediation (`GATE_POLICY.md`, "Reopening the same work item").
+
 Between gates, Claude may work autonomously, subject to the stop conditions
 already defined in `AGENTS.md` (ambiguous product behavior, architecture
 changes, new dependency categories, schema migrations, destructive data

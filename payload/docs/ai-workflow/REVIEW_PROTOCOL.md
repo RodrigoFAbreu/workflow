@@ -695,6 +695,15 @@ same text quoted in the body declares nothing, and two different values in the
 header parse as none. The value is declared and unverified. An `APPROVE`
 ingest that states none, or states the family already recorded for the other
 stage, is refused while the stage is open (`DistinctReviewerModelsRequiredError`).
+A person with a single reviewer subscription records a second declared family,
+turns that gate human, or adopts a policy without the requirement before the
+stage's bundle is generated; `GATE_POLICY.md` ("Distinct reviewer models")
+states the three paths. Under the default policy the stage's gate is
+automatic, so an approving verdict is not a person's approval: the Workflow
+satisfies the gate from the recorded verdicts (`/satisfy-gate`), which are
+trusted from whoever reports them and are bound by bundle and content id
+(`GATE_POLICY.md`, "Trust boundary"). Turning human approval on is the stronger
+mode.
 
 `Reviewed review_content_id:` is the one pinned label for the reviewed
 `review_content_id` (workflow-2.7.0, `v2.6.0-002`). It is **required** on

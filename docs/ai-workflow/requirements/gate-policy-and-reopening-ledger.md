@@ -426,3 +426,55 @@ Workflow owns every invalidation rule and the next legal action), REQ-8
   class needs the `v2.7.0` tag; it ran, none skipped). The two `*_demo_test`
   suites and `tools/release/release_test.py` were not re-run: nothing they
   cover changed.
+
+## `CP7` — Specification, operator guide, update simulation, lifecycle end to end
+
+Requirements: REQ-3 (update to 2.8.0 stated and simulated for the default and
+the all-human configuration), REQ-8 (CP7 part), REQ-9 (specification, operator
+guide, lifecycle end-to-end tests, documentation sweeps), REQ-12 (CP7 part).
+
+- **Implementation** (release source only):
+  - `payload/docs/ai-workflow/GATE_POLICY.md` (new): toggles, safety rule and
+    floor, evidence, `requires_pr_approved` order, the way back to human gates,
+    both reopening residuals with the query-path table, trust boundary, the
+    named threat-model section (guaranteed, not guaranteed, safeguards;
+    gate-lowering event), `provenance_failed`, the single-subscription paths,
+    families, the `gh` resolution rule.
+  - `ORCHESTRATION_PROTOCOL.md`: section 7 (classes of the new actions in the
+    classifier's terms; the completion passage amended), section 8 (`validation`
+    in obligation 5; new obligation 10, the `no_progress` bound), section 10
+    (1.1 compatibility notes), new section 11 (gate policy and reopening, trust
+    boundary). `MILESTONE_WORKFLOW.md`, the operator reference and
+    `REVIEW_PROTOCOL.md` point at the guide.
+  - `workflow_integration_test.py`: `TestGatePolicyDocuments` (8 tests, incl.
+    both installed documentation sweeps). `workflow_protocol_test.py`:
+    `TestUpdateSimulation27To28`, `TestUpdateSimulationLegacyDeclaration`,
+    `TestUpdateSimulationInFlightDefault`, `TestAutomaticLifecycle`,
+    `TestMixedLifecycle`, `TestAllHumanLifecycle` (23 tests).
+- **Deviations and judgements** (the code is authoritative):
+  - After CI turns green and a fresh `pr_review_result` is reported,
+    `next-action` emits `38d` (the Workflow's own query, `pr_fact_refreshed`),
+    then `38h` re-queries and completes; the plan's text said `38h` directly.
+  - **Downgrade posture is narrower than the plan's text.** The immutable
+    v2.7.0 refuses only the basis `POLICY_SATISFIED`; it accepts
+    `gate_evidence`, `reopenings`, `acceptance_satisfaction`, the ledger audit
+    keys and the top-level adoption and floor. The protocol's compatibility
+    note says so; a test pins the observed behaviour.
+  - With a legacy declaration the installed `GATE_POLICY.md` is itself
+    unclassified; the same declaration remedies clear it (noted in section 10).
+  - An uncommitted toggle file is seen by the plan-stage classifier only; the
+    implementation-stage classifier reads `HEAD`. The committed case raises in
+    both.
+  - The gate-policy section of the protocol is section 11, appended, to avoid
+    renumbering.
+  - The update simulation is a model of `workflow-manager update` (it re-copies
+    the scripts and adds a stand-in guide); `.claude/commands/*` is not copied.
+- **Verification** (conformance fixture from the working tree, `payload/`
+  synced over the CP6 fixture): `workflow_integration_test` 275 OK (1 skipped),
+  `workflow_gate_policy_test` 278 OK, `workflow_fingerprint_test` 257 OK,
+  `workflow_acceptance_matrix_test` 291 OK (18 skipped),
+  `workflow_state_completion_obligations_test` 106 OK,
+  `workflow_fingerprint_generalization_test` 105 OK,
+  `workflow_test_harness_test` 22 OK; `workflow_protocol_test` 298 OK, run from
+  `payload/scripts`. `workflow_state_test`, the demo suites and
+  `tools/release/release_test.py` were not re-run: nothing they cover changed.

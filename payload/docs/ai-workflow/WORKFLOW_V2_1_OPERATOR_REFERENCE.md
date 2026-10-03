@@ -96,7 +96,7 @@ They are not interchangeable and neither one approves the plan.
 |---|---|---|---|
 | 1. Local model review | Claude, ideally a fresh session | `/review-plan` | Writes `REVIEW_FEEDBACK.md` itself; on `APPROVE` records the `LOCAL_MODEL_PLAN_REVIEW` ledger stage |
 | 2. Manual external review | **You** — upload the bundle to an external reviewer, paste its verdict into `REVIEW_FEEDBACK.md` | `/record-manual-plan-review` | Ingests and binds the verdict you already pasted; on `APPROVE` records the `MANUAL_EXTERNAL_PLAN_REVIEW` ledger stage |
-| 3. Approval | **You** | `/approve-review plan` | The only approval gate; requires **both** ledger stages recorded against the *current* `review_content_id` |
+| 3. Approval | **You**, or the Workflow where the gate is automatic (`/satisfy-gate plan`, `GATE_POLICY.md`) | `/approve-review plan` | The only approval gate; requires **both** ledger stages recorded against the *current* `review_content_id` |
 
 Key points:
 
@@ -228,6 +228,16 @@ still a person's — the user-only commands keep their literal-confirmation
 guard — and an orchestrator runs `automatic` actions only. Where a command
 would refuse, `next-action` reports the state as `blocked` with the
 command's own remedy instead of offering it.
+
+Since Workflow 2.8.0 (protocol `1.1`) the plan approval, the technical
+approval and the milestone acceptance are **automatic by default**: the
+Workflow satisfies each from its recorded evidence (`validation` actions,
+`/satisfy-gate`), unless `docs/ai-workflow/GATE_POLICY.json` turns the gate
+human (`"human_approval": true` makes all three a person's again, as in 2.7.0).
+Everything about the policy, its evidence, its trust boundary and its threat
+model, and the reopening of an item whose pull request turns red, is in
+`docs/ai-workflow/GATE_POLICY.md`. Turning human approval on is the stronger
+mode.
 
 ---
 
@@ -1054,6 +1064,12 @@ two new implementation-review states
 `AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW`), so it stops in nine
 places in practice — do not use the number six to predict stops for any
 version.
+
+Those stops are the gates when they are human. Under the default gate policy
+(`workflow-2.8.0`, `GATE_POLICY.md`) the plan approval, the technical approval
+and the acceptance are satisfied by the Workflow from evidence and are not
+stops unless the policy makes them human, so the number of places you stop
+depends on the policy as well as on the version.
 
 ## Remediation children: a child work item's own cycle
 

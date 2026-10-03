@@ -952,13 +952,45 @@ A class not in the action's `allowed_results` is then replaced by
 names the review stage a review or record action recorded when it moved
 the phase.
 
-**Completion is reported by `next-action`, never by `reconcile`.** The
-only writer of `MILESTONE_COMPLETE` is `/accept-milestone`, a `user_only`
-action offered only at the `human_gate` row 39. No automatic action has an
-edge to `MILESTONE_COMPLETE`, so `reconcile` has no `complete` class: an
-automatic action that left the item there would be `invalid`. After the
-user accepts, the next `next-action` returns row 40, disposition
-`complete`, and that is the terminal signal.
+**The classes of the gate-policy actions (protocol `1.1`).** The three
+`.satisfy` actions and `pr.apply_review` take `proof: —` and the
+classifier's own terms above; nothing in the classifier changed. A refusal of
+a `.satisfy` act leaves the phase alone and reconciles through its same-phase
+edge, never `illegal_edge`. The class is decided by where the next decision
+lands:
+
+- `progress`: the act reached its forward target (the phase advanced), or
+  `pr.apply_review` reopened a completed item (`MILESTONE_COMPLETE` to
+  `AWAITING_FUNCTIONAL_REVIEW`) or took a branch that changed the phase;
+- `gate_reached`: the next decision is a human or external gate. That is
+  `38f` or `38g` (external) after an `acceptance.satisfy` refusal that stored
+  a pending or not-current fact, and row 15, 29 or 39 (human) after a refusal
+  because the gate was turned human meanwhile;
+- `no_progress`: everything else on a legal edge, for example `38h` again
+  after `forge_unavailable` (nothing is stored), `38i` after a stored
+  failed-checks or `CHANGES_REQUESTED` fact, `14b` or `28b` after a
+  `plan.satisfy` or `implementation.satisfy` refusal, `38d` after a stored red
+  fact that reopened the item, and `pr.apply_review` ending in a refusal
+  (`pr_merged`, `pr_fact_superseded`, `forge_unavailable`,
+  `forge_undecidable`, `pr_head_unknown`, `pr_head_not_in_branch`) or in the
+  recorded result `pr_fact_refreshed` at a completed item, which reconciles
+  over the unchanged `MILESTONE_COMPLETE` edge.
+
+A `38d` or `38i` ending changes the stored facts and so the next action's id
+and `state_identity`, yet still reconciles `no_progress`: that is correct for
+a `1.0` consumer too.
+
+**Completion is reported by `next-action`; `reconcile` has no `complete`
+class.** Where the acceptance gate is human, the only writer of
+`MILESTONE_COMPLETE` is `/accept-milestone`, a `user_only` action offered at
+the `human_gate` row 39. Where it is automatic (the default of protocol
+`1.1`), `acceptance.satisfy` is a `validation` action (role `validator`,
+launched like an automatic one) and the only action with an edge from
+`AWAITING_FUNCTIONAL_REVIEW` to `MILESTONE_COMPLETE`; its arrival there is
+classed `progress`, not a completion class. After either the next `next-action` returns row 40,
+disposition `complete`, and that is the terminal signal. `/accept-milestone`
+stays the writer only for a human gate. Any other action that moved an item into `MILESTONE_COMPLETE` would be
+`invalid` (`illegal_edge`).
 
 ## 8. Consumer obligations
 
@@ -973,8 +1005,9 @@ A consumer of protocol `1.x`:
    version or phase is never driven;
 4. dispatches on `action.id` and `arguments`, never on `invocation`, and
    honours `worker` (role, a fresh session, independence, `user_only`);
-5. runs an `automatic` action only, never a gate's action or an
-   alternative on its own; a `user_only` action is always a person's;
+5. runs an `automatic` action (and, from protocol `1.1`, a `validation`
+   action) only, never a gate's action or an alternative on its own; a
+   `user_only` action is always a person's;
 6. checks the identity before launching: `next-action
    --expect-state-identity <basis.state_identity>` immediately before
    the launch, re-deciding on `stale_decision`;
@@ -984,7 +1017,16 @@ A consumer of protocol `1.x`:
 8. records external verdicts through `record-external-result` only, and
    never reads or writes a Workflow artifact path to drive the lifecycle
    (`resolve-artifact` is for display and hand-off);
-9. stops at disposition `complete`.
+9. stops at disposition `complete`;
+10. (protocol `1.1`, a recommendation) bounds its consecutive `no_progress`
+    results of the **same** action id at an **unchanged** `state_identity`,
+    then treats the item as `blocked` with the last refusal's message. This
+    is not a bound on any `no_progress` result: an ending that changes the
+    stored facts, such as a `38d` or `38i` one, changes `state_identity` and
+    hands off to `pr.apply_review` or to a `blocked` explanation. A
+    refusal that stores nothing (`forge_unavailable` at `38h`, or an unsafe
+    `gh` path) leaves `state_identity` unchanged and is the case the bound is
+    for. Section 8 defined no such limit in `1.0`.
 
 ## 9. Reserved for a later protocol version
 
@@ -1025,3 +1067,98 @@ A consumer of protocol `1.x`:
 - **2.6.0's query CLIs** (`workflow_state.py
   --plan-review-publication-status`, `--resolve-feedback-path`) are kept
   byte-compatible; the protocol does not replace them.
+- **Protocol `1.1` and Workflow 2.8.0: the default switches the gates to
+  automatic.** Updating a repository to 2.8.0 with no
+  `docs/ai-workflow/GATE_POLICY.json` makes its gates automatic, unless the
+  file sets `"human_approval": true`, which is the one-line way back to human
+  gates. The update changes no state file by itself. For a repository with
+  no policy file, `next-action` changes as follows: at
+  `AWAITING_PLAN_APPROVAL` (governing versions 2.1 and 2.2) it emits
+  `plan.satisfy` (`validation`) or a `blocked` explanation (`14b`) instead of
+  the human plan gate; at `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` (2.2) the
+  same for `implementation.satisfy` (`28a`, `28b`); at
+  `AWAITING_FUNCTIONAL_REVIEW` it emits the evidence gates
+  (`functional.evidence.external`, `pr.review.external`), `acceptance.satisfy`
+  or a `blocked` explanation instead of the human gate. Items governed by `1`
+  keep a human plan and technical gate, and a 2.1 item a human technical gate,
+  because there is no review ledger to read. The satisfying commands write a
+  `POLICY_SATISFIED` approval or an `acceptance_satisfaction` record in place of
+  a person's confirmation. `GATE_POLICY.md` is the operator guide.
+- **Two further consequences of the default.** The reviewer commands and
+  `record-external-result` write a `Reviewer model:` line and a
+  `reviewer_model` ledger key for an automatic gate that requires
+  `distinct_reviewer_models` (on by default), and a manual `APPROVE` ingest that
+  states no family, or the family of the other stage, is refused while its
+  stage is open. A 2.7.0 item in flight whose ledger was recorded earlier can
+  block at `14b` or `28b` on both `review_evidence_audited` and
+  `distinct_reviewer_models`; the remedies are in `GATE_POLICY.md`.
+- **With every gate human, nothing differs from protocol `1.0` except**: the
+  protocol version and `workflow_release` fields; `functional_evidence` and
+  `pr_review_result` are no longer refused by `record-external-result`; `verify`
+  gains the advisory `gate_policy` check; `describe` lists the new
+  capabilities; and, only once a pull-request fact is reported or queried, row
+  `38d` emits `pr.apply_review` instead of row 39, whatever the gate modes. A
+  human acceptance with `requires_pr_approved` set also queries GitHub in
+  `/accept-milestone` and can emit `38g` before row 39.
+- **An unaware `1.0` consumer** meets unknown action ids, which it treats as
+  `blocked` (obligation 3), and the `validation` disposition, a known value that
+  obligation 5 keeps it from running: a stalled item, not a wrong action.
+- **Downgrade.** 2.7.0 refuses a state that carries the approval basis
+  `POLICY_SATISFIED`, and reads a state that holds none. It does not check the
+  optional fields 2.8.0 added (`gate_evidence`, `reopenings`,
+  `acceptance_satisfaction`, the ledger audit keys, `gate_policy_adoption`,
+  `gate_policy_floor`): it accepts them without acting on them. Because the
+  default is automatic, such fields and bases appear in ordinary operation, so a
+  downgrade is supported only for a repository that has written none.
+- **A policy toggle on an older declaration.** A declaration that predates the
+  exclusion of the `docs/ai-workflow/` prefix leaves a new
+  `GATE_POLICY.json` (and the installed `GATE_POLICY.md` itself) unclassified for an in-flight item; the remedy depends on
+  whether the stage's bundle exists and is in `GATE_POLICY.md`.
+
+## 11. Gate policy and reopening
+
+Protocol `1.1` reports a gate policy; it does not define one. The policy, its
+evidence and its commands are specified in `GATE_POLICY.md`, which is the
+full text. This section states what a consumer of the protocol relies on.
+
+- **Rows and actions.** The catalogue (section 6.4) carries the gate-policy
+  rows `14a`, `14b`, `28a`, `28b` and `38d` to `38i`; the action table
+  (section 6.1) carries `plan.satisfy`, `implementation.satisfy`,
+  `acceptance.satisfy` (disposition `validation`, role `validator`),
+  `pr.apply_review` (automatic, role `applier`) and the external gates
+  `functional.evidence.external` and `pr.review.external`. The edge table of
+  section 7 carries each action's forward edge and its same-phase edge, and
+  `pr.apply_review`'s edges at `MILESTONE_COMPLETE`. A decision on a gate-policy
+  row carries an optional `policy` object (`source`, `digest`, `gate`, `mode`,
+  and `gate_lowering` while the newest adoption lowered a gate); a row that
+  existed in `1.0` never carries it.
+- **Reopening.** A reopened item is the same work item, and a reopen does not
+  set `active_work_item_id`: a consumer names the item (`next-action
+  --work-item ID`, `/apply-pr-review ID`). A reported pull-request fact
+  (`pr_review_result`) never decides a state, a reopening or a completion: it can
+  only make the Workflow run its own fixed GitHub query, and `pr.apply_review`
+  runs it first.
+- **Trust boundary** (design decision D-GP-Trust). CI and pull-request facts that satisfy a gate come from
+  GitHub, queried by the Workflow itself with one fixed `gh` invocation; an
+  orchestrator's forge fact only tightens, and a gate that cannot decide
+  blocks. Review verdicts and functional evidence are trusted from the
+  orchestrator that reports them. The Workflow guarantees binding, freshness and
+  audit, and does not guarantee provenance for them: every automatic
+  satisfaction records the verdict hash, the bundle and content ids and the run
+  reference, for a person to check afterwards. **Turning human approval on is the
+  stronger mode.**
+- **Threat model** (design decision D-GP-ThreatModel). These guarantees hold against an agent acting through the
+  Workflow's commands and protocol. They do not hold against an agent that
+  deliberately forges commits, trailers or state by hand, or replaces a system
+  program such as `gh`; that is the same limit `/approve-review` and
+  `/accept-milestone` have, and no signed commit or GitHub-side adoption is
+  provided. The safeguards are the resolution rule for `gh` (an absolute path,
+  refused inside the repository, a worktree, the temporary directory or a
+  world-writable directory, with its path and sha256 recorded), the
+  gate-lowering event reported by `verify`, `next-action` and the audit record,
+  and human approval. `GATE_POLICY.md` states the threat model in full, and the
+  safety rule (a policy file only ever tightens; `/adopt-gate-policy` is the one
+  way to loosen).
+- **No CI-produced evidence.** The CI outcome is the `checks` of the Workflow's
+  own pull-request fact. Functional or review evidence produced in CI is not
+  accepted, and no policy option offers it.

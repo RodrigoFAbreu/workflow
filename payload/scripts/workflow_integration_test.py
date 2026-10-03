@@ -7197,6 +7197,170 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         self.assertIn("IncompleteChildWorkItemError", section)
 
 
+def _doc_text(name: str) -> str:
+    """A shipped document with Markdown emphasis removed and whitespace
+    collapsed, so a sentence wrapped across lines reads as one."""
+    text = (_repo_root() / "docs" / "ai-workflow" / name).read_text()
+    return " ".join(text.replace("**", "").split())
+
+
+class TestGatePolicyDocuments(unittest.TestCase):
+    """workflow-2.8.0 CP7: the operator guide (`GATE_POLICY.md`) and the
+    protocol specification state the trust boundary, the threat model and the
+    reopening residuals in the plan's words, and offer no CI-produced
+    evidence."""
+
+    GUIDE = "GATE_POLICY.md"
+    PROTOCOL = "ORCHESTRATION_PROTOCOL.md"
+
+    TRUST_BOUNDARY = (
+        "CI and pull-request facts that satisfy a gate come from GitHub",
+        "only tightens",
+        "a gate that cannot decide blocks",
+        "Review verdicts and functional evidence are trusted from the orchestrator",
+        "The Workflow guarantees binding, freshness and audit",
+        "does not guarantee provenance",
+        "Turning human approval on is the stronger mode",
+    )
+
+    def test_the_guide_and_the_protocol_state_the_trust_boundary_and_the_stronger_mode(self):
+        guide = _doc_text(self.GUIDE)
+        protocol = _doc_text(self.PROTOCOL)
+        # The guide's wording differs slightly from the protocol's in the
+        # first sentence only; each document states every other sentence.
+        for sentence in self.TRUST_BOUNDARY[1:]:
+            with self.subTest(sentence=sentence, doc="guide"):
+                self.assertIn(sentence.lower(), guide.lower())
+            with self.subTest(sentence=sentence, doc="protocol"):
+                self.assertIn(sentence.lower(), protocol.lower())
+        for text in (guide, protocol):
+            self.assertIn("CI and pull-request facts", text)
+            self.assertIn("come from GitHub", text)
+            self.assertIn("Turning human approval on is the stronger mode", text)
+        self.assertIn("verdict hash", guide)
+        self.assertIn("bundle id", guide)
+        self.assertIn("run reference", guide)
+        self.assertIn("verdict hash", protocol)
+        self.assertIn("bundle and content ids", protocol)
+        self.assertIn("run reference", protocol)
+
+    def test_the_guide_carries_the_named_threat_model_with_its_three_statements(self):
+        raw = (_repo_root() / "docs" / "ai-workflow" / self.GUIDE).read_text()
+        self.assertEqual(len(re.findall(r"^## Threat model$", raw, re.M)), 1)
+        section = " ".join(raw.split("\n## Threat model", 1)[1].split("\n## ", 1)[0].replace("**", "").split())
+        for label in ("What is guaranteed.", "What is not guaranteed.", "The safeguards that remain"):
+            self.assertIn(label, section)
+        self.assertLess(section.index("What is guaranteed."), section.index("What is not guaranteed."))
+        self.assertLess(section.index("What is not guaranteed."), section.index("The safeguards that remain"))
+        self.assertIn("deliberately forges a commit, a trailer or the state", section)
+        self.assertIn("replaces a system program", section)
+        self.assertIn("No signed commits and no GitHub-side adoption are provided", section)
+        # the resolution rule for `gh` and what it records
+        for fragment in ("absolute path", "inside the repository", "its worktrees", "temporary directory",
+                         "world-writable", "records the resolved path and the executable's sha256"):
+            self.assertIn(fragment, section)
+        # the gate-lowering event and where it is reported
+        guide = _doc_text(self.GUIDE)
+        self.assertIn("gate-lowering event", guide)
+        for place in ("`verify`", "`next-action`", "audit record"):
+            self.assertIn(place, guide)
+        self.assertIn("stronger mode", section)
+        protocol = _doc_text(self.PROTOCOL)
+        self.assertIn("D-GP-ThreatModel", protocol)
+        self.assertIn("D-GP-Trust", protocol)
+        self.assertIn("GATE_POLICY.md", protocol)
+
+    def test_neither_document_offers_ci_produced_functional_or_review_evidence(self):
+        for name in (self.GUIDE, self.PROTOCOL):
+            text = _doc_text(name)
+            self.assertIn("produced in CI is not accepted, and no policy option offers it", text, name)
+            for match in re.finditer(r"(?i)produced in CI|CI-produced|CI result kind|ci_result", text):
+                tail = text[match.start():match.end() + 80]
+                self.assertTrue(
+                    re.search(r"(?i)not accepted|no CI result kind|There is no|No CI-produced", text[max(0, match.start() - 60):match.end() + 80]),
+                    f"{name}: {tail!r}",
+                )
+
+    def test_the_guide_states_both_reopening_residuals_the_second_with_its_human_acceptance_case(self):
+        text = _doc_text(self.GUIDE)
+        # first residual: enabling a cause never reopens a completed item from a stored fact
+        self.assertIn("Enabling a reopening cause never reopens a completed item from a stored fact alone", text)
+        self.assertIn("re-queries GitHub first", text)
+        # second residual
+        self.assertIn("a same-head red reopen with no orchestrator report is never remediated", text)
+        self.assertIn("at `MILESTONE_COMPLETE`", text)
+        self.assertIn("under human acceptance without `requires_pr_approved`, at `AWAITING_FUNCTIONAL_REVIEW`", text)
+        self.assertIn("where no Workflow query runs", text)
+        self.assertIn("A human-acceptance repository must have an orchestrator report it to have it acted on", text)
+        # a reopened item is surfaced only by naming it, and keeps its completed narrative state
+        self.assertIn("A reopened item is surfaced only by naming it", text)
+        self.assertIn("/apply-pr-review", text)
+        self.assertIn("--work-item", text)
+        self.assertIn("the roadmap row stays complete and `docs/ACTIVE_MILESTONE.md` stays cleared", text)
+
+    def test_the_guide_states_the_toggles_the_floor_and_the_single_subscription_paths(self):
+        text = _doc_text(self.GUIDE)
+        raw = (_repo_root() / "docs" / "ai-workflow" / self.GUIDE).read_text()
+        self.assertIn('{"schema_version": 1, "human_approval": true}', raw)
+        self.assertIn("one-line way back to human gates", text)
+        self.assertIn("The default is different, on purpose", text)
+        for fragment in ("provenance_failed", "a new `/adopt-gate-policy` commit", "gate_policy_floor",
+                         "Automatic acceptance needs an open pull request first",
+                         "`distinct_reviewer_models` is on by default",
+                         "Record a second family at ingest", "Turn that gate human",
+                         "Adopt a policy without the requirement", "before the stage's bundle is generated",
+                         "/recover-implementation-provenance", "permanent `warn`", "gate_lowering",
+                         "anthropic/...", "openai/...", "declared and unverified",
+                         "requires_pr_approved", "Order for"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, text)
+
+    def test_the_protocol_states_completion_the_default_and_the_consumer_bound(self):
+        text = _doc_text(self.PROTOCOL)
+        self.assertNotIn("No automatic action has an edge to `MILESTONE_COMPLETE`", text)
+        self.assertIn("`acceptance.satisfy` is a `validation` action", text)
+        self.assertIn("its arrival there is classed `progress`", text)
+        self.assertIn("`/accept-milestone` stays the writer only for a human gate", text)
+        self.assertIn("the default switches the gates to automatic", text)
+        self.assertIn('`"human_approval": true`, which is the one-line way back', text)
+        self.assertIn("consecutive `no_progress` results of the **same** action id at an **unchanged** `state_identity`".replace("**", ""), text)
+        # the edge table carries every .satisfy forward and same-phase edge and pr.apply_review's completed-item edges
+        raw = (_repo_root() / "docs" / "ai-workflow" / self.PROTOCOL).read_text()
+        for row in (
+            "| `plan.satisfy` | `AWAITING_PLAN_APPROVAL` | `IMPLEMENTING` | `2.1`, `2.2` |",
+            "| `plan.satisfy` | `AWAITING_PLAN_APPROVAL` | `AWAITING_PLAN_APPROVAL` | `2.1`, `2.2` |",
+            "| `implementation.satisfy` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `AWAITING_FUNCTIONAL_REVIEW` | `2.2` |",
+            "| `implementation.satisfy` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `2.2` |",
+            "| `acceptance.satisfy` | `AWAITING_FUNCTIONAL_REVIEW` | `MILESTONE_COMPLETE` | `1`, `2.1`, `2.2` |",
+            "| `acceptance.satisfy` | `AWAITING_FUNCTIONAL_REVIEW` | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` |",
+            "| `pr.apply_review` | `MILESTONE_COMPLETE` | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` |",
+            "| `pr.apply_review` | `MILESTONE_COMPLETE` | `MILESTONE_COMPLETE` | `1`, `2.1`, `2.2` |",
+        ):
+            with self.subTest(row=row):
+                self.assertIn(row, raw)
+
+    def test_the_other_gate_documents_point_at_the_guide(self):
+        for name in ("MILESTONE_WORKFLOW.md", "WORKFLOW_V2_1_OPERATOR_REFERENCE.md", "REVIEW_PROTOCOL.md",
+                     self.PROTOCOL):
+            with self.subTest(doc=name):
+                self.assertIn("GATE_POLICY.md", _doc_text(name))
+        self.assertIn("automatic by default", _doc_text("WORKFLOW_V2_1_OPERATOR_REFERENCE.md"))
+        self.assertIn("By default they are automatic", _doc_text("MILESTONE_WORKFLOW.md"))
+
+    def test_the_new_and_edited_documents_pass_the_installed_documentation_sweeps(self):
+        docs = _repo_root() / "docs" / "ai-workflow"
+        names = (self.GUIDE, self.PROTOCOL, "MILESTONE_WORKFLOW.md", "WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+                 "REVIEW_PROTOCOL.md")
+        texts = {str(docs / name): (docs / name).read_text() for name in names}
+        findings = ws.sweep_governing_version_enumeration(texts)
+        self.assertEqual(findings, [], [repr(f) for f in findings])
+        claims = ws.sweep_applying_review_feedback_version_claims(texts)
+        self.assertEqual(claims, [], [repr(f) for f in claims])
+        # the new document quotes no governing-version list at all
+        guide = texts[str(docs / self.GUIDE)]
+        self.assertNotRegex(guide, r'"1"\s*(?:,|/)\s*"2\.1"|"2\.1"\s*(?:,|/)\s*"2\.2"')
+
+
 # ---------------------------------------------------------------------------
 # The lifecycle diagram, checked against the code and against itself
 # (convergence campaign, ledger rows `B12`/`O18`).
