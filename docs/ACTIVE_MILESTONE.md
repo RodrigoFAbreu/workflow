@@ -2,14 +2,11 @@
 
 ## Milestone
 
-**Awaiting functional review.** W2: `gate-policy-and-reopening` (`process`, governing
+**Complete.** W2: `gate-policy-and-reopening` (`process`, governing
 version `2.2`), branch `milestone/gate-policy-and-reopening`, base `d14e0a7`
 (W1's squash merge; Workflow 2.7.0 is published and pinned by
 `workflow-manager#13`, Manager v1.3.0). The plan is
-`docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md` (revision 34, approved;
-local and manual external plan review both `APPROVE`). The implementation
-review is approved (both stages, round 2) and the technical approval is
-recorded.
+`docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md` (revision 34).
 
 ## Goal
 
@@ -27,17 +24,24 @@ has `CHANGES_REQUESTED`.
 
 ## Current checkpoint
 
-`CP1` through `CP8` are implemented and complete: gate policy model (CP1),
-automatic plan and technical approvals with audit evidence (CP2), functional
-evidence, GitHub-sourced pull-request facts and the stale-evidence table (CP3),
-automatic milestone acceptance (CP4), reopening the same work item (CP5),
-Protocol 1.1 and the all-human equivalence matrix (CP6), specification,
-`GATE_POLICY.md`, update simulation and lifecycle end-to-end tests (CP7), and
-release 2.8.0 (CP8). Their records, deviations and deferrals are in the
-requirements ledger,
-`docs/ai-workflow/requirements/gate-policy-and-reopening-ledger.md`, with the
-self-review and the implementation review round 1 resolutions. The phase is
-`AWAITING_FUNCTIONAL_REVIEW`.
+**Milestone complete.** `gate-policy-and-reopening` reached
+`MILESTONE_COMPLETE` through `/accept-milestone` on 2026-10-03, with the
+owner's confirmation, and `active_work_item_id` is cleared.
+- **Checkpoints:** CP1-CP8 are complete; the registry's completion
+  obligations derive `PASS`.
+- **Technical approval:** `CURRENT`, both implementation-review stages
+  approved (round 2, `implementation_revision` 3).
+- **Functional review:** round 2 passed every flow; its one documentation
+  finding (F1, the ROADMAP's 2.8.0 default and Controller compatibility) was
+  fixed in `docs/ROADMAP.md` (`9e03e13`). Nothing was deferred to a
+  remediation child.
+- **Cutover:** not started; it is the owner's (plan section 7), see "Next
+  action". Workflow 2.8.0 is published by the `Release` workflow only once
+  this branch's pull request is squash-merged.
+
+The per-checkpoint record, the self-review and the implementation review
+round 1 resolutions are in the requirements ledger,
+`docs/ai-workflow/requirements/gate-policy-and-reopening-ledger.md`.
 
 ## Current blockers
 
@@ -45,25 +49,18 @@ None.
 
 ## Active plan
 
-`docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md`, revision 34, plan
-approval `CURRENT`.
+None. `docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md` is the completed
+milestone's plan and stays where it is, as W1's did.
 
 ## Next action
 
-Run the functional review checklist below in disposable scratch clones, then
-`/accept-milestone` if it is clean, or write findings to the functional review
-file and run `/apply-functional-review`. The W1 checklist further down is the
-previous milestone's record.
-
-**Functional review round 2:** all flows passed except the ROADMAP check
-(finding F1, round 1's F2 still open): the 2.8.0 entry and section 1.9 said the
-default policy equals the 2.7.0 gates and that Controller 1.5.0 does not admit
-2.8.0. Classified as documentation, no code change; fixed in `docs/ROADMAP.md`
-(human approval off by default, a person restores the 2.7.0 gates with
-`human_approval`; Controller 1.7.0 admits 2.8.0 by protocol capability, its C10
-consumes the gate policy). `docs/ROADMAP.md` is excluded at both stages, so
-`technical_approval` stays CURRENT and no bundle is regenerated. Nothing was
-deferred to a remediation child. Re-test: re-read ROADMAP lines 201, 207, 663.
+The cutover (plan section 7) is the owner's: open the pull request, squash-merge
+it with a Conventional-Commit title whose impact agrees with the manifest's
+version change, let the `Release` workflow publish 2.8.0, then add the pin in
+`workflow-manager`. No further milestone is listed in `docs/ROADMAP.md`'s
+ordered table; the next one is chosen by the owner, then `/milestone-plan`. The
+checklist below and the W1 checklist after it are the completed milestones'
+records.
 
 ## Functional review checklist
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "gate-policy-and-reopening",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -726,7 +726,7 @@
       "registry_path": "docs/ai-workflow/registry/gate-policy-and-reopening-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/gate-policy-and-reopening-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 34,
       "implementation_revision": 3,
       "functional_review_round": null,
@@ -1077,8 +1077,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 140,
-      "last_transition": "2026-10-03T21:21:47Z",
+      "state_revision": 141,
+      "last_transition": "2026-10-03T22:58:37Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
