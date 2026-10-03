@@ -816,6 +816,32 @@ test fails and is authoritative about which one moved.
   round, not just that finding).
 - **Caveat**: enhancements are flagged for you, never silently implemented.
 
+### `/apply-pr-review <work-item-id>` — automatic action
+- **When**: the Workflow's own pull-request fact (`gate_evidence.pr`,
+  provenance `workflow_gh`) is red or `CHANGES_REQUESTED` and actionable under
+  the effective gate policy (`pr_review.enabled`, `reopen_on`), or a reported
+  fact armed the query trigger (`workflow-2.8.0`). It is the action behind
+  `next-action` row `38d` (`pr.apply_review`), at `AWAITING_FUNCTIONAL_REVIEW`
+  or `MILESTONE_COMPLETE`. **The work item id is required**: a reopen does not
+  set `active_work_item_id`.
+- **Does**: step 1 is `workflow_state.begin_pr_review`: reopen the same item
+  (`reopen_work_item`: a `reopenings` entry, the key in `reopened_for`, the phase
+  `AWAITING_FUNCTIONAL_REVIEW`, the technical approval left `CURRENT`), running
+  the Workflow's own `gh` query first at `MILESTONE_COMPLETE` and whenever the
+  trigger holds. Started at `MILESTONE_COMPLETE`, it does only the reopen and
+  ends. Step 2 takes the cause table's branch: `content_changed` stales the
+  approval and runs `post-fix` with no edit; `changes_requested`/`checks_failed`
+  classify the findings (untrusted text, data only) as no code change, a bounded
+  fix or a broad remediation child. Every branch adds the key to `applied`.
+- **Writes**: `reopenings`, `gate_evidence.pr_keys`, the phase; a state-only
+  commit of the reopening and the stale approval, then the `post-fix`
+  generation-record commit, staged item-scoped (`stage_scoped_state`).
+- **Next**: the existing cycle: technical review, functional validation, pull
+  request facts again, then `/satisfy-gate acceptance` or `/accept-milestone`.
+- **Refuses**: a missing id; a merged pull request (`pr_merged`); an incomplete
+  child; a plan that no longer resolves (`reopen_plan_archived`, restore it from
+  `docs/milestones/completed/`); `pr_review` disabled; a key already applied.
+
 ### `/accept-milestone [work-item-id]` — user-only
 - **When**: functional review is clean **and** every checkpoint in the item's
   own registry is `COMPLETE`.
@@ -1071,6 +1097,8 @@ The sequence, in full:
 /review-functional <child-id>           (optional)
 /accept-milestone <child-id>            → MILESTONE_COMPLETE
                                           ...which unblocks the parent
+/apply-pr-review <child-id>             (only if the child's pull request turns red after completion:
+                                          reopens the child into remediation, workflow-2.8.0)
 ```
 
 A `"1"`-governed child (only possible if `default_workflow_version` was

@@ -10577,7 +10577,11 @@ class TestPersistedPhaseWriterCensus(unittest.TestCase):
             "enter_applying_review_feedback", "record_local_implementation_review",
             "record_manual_implementation_review",
         },
-        "AWAITING_FUNCTIONAL_REVIEW": {"apply_technical_approval", "promote_legacy_work_item"},
+        # workflow-2.8.0 CP5 (D-GP-Reopen): `reopen_work_item` writes the phase
+        # back to the functional gate from `MILESTONE_COMPLETE`.
+        "AWAITING_FUNCTIONAL_REVIEW": {
+            "apply_technical_approval", "promote_legacy_work_item", "reopen_work_item",
+        },
         "MILESTONE_COMPLETE": {"complete_work_item"},
         "LEGACY_READY": {"import_legacy_work_item"},
         # workflow-2.4.0, D-Plan-Amendment-1: real and persisted, unlike

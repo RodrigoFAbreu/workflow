@@ -249,7 +249,9 @@ all in the same invocation.
      `/prepare-functional-review <child-id>` → `/review-functional
      <child-id>` (optional) → `/apply-functional-review <child-id>` (only
      if the child's own functional pass produces findings; its own three
-     branches apply recursively) → `/accept-milestone <child-id>`. A
+     branches apply recursively) → `/accept-milestone <child-id>` (a child
+     whose pull request later turns red is reopened by `/apply-pr-review
+     <child-id>`, `workflow-2.8.0`). A
      `REVISE` at either review stage diverts through `/apply-plan-review
      <child-id>` or `/apply-implementation-review <child-id>`
      respectively, and `/recover-implementation-provenance <child-id>`

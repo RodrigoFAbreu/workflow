@@ -14213,6 +14213,10 @@ ORDINARY_BUNDLE_GENERATION_RECORD_FIELDS = frozenset({
     # evidence and pull-request facts sit uncommitted until its next commit.
     # Another item's residue never reaches a commit (item-scoped staging).
     "gate_evidence",
+    # workflow-2.8.0 CP5 (`D-GP-Reopen`, `D-GP-Compat`, `LPR-R3-002`): this
+    # item's own `reopenings` entries (and a reopen's `phase`) sit uncommitted
+    # until its next commit, exactly as its `gate_evidence` does.
+    "reopenings",
 })
 
 RECOVERED_BUNDLE_GENERATION_RECORD_FIELDS = frozenset({
@@ -14226,6 +14230,10 @@ RECOVERED_BUNDLE_GENERATION_RECORD_FIELDS = frozenset({
     # evidence and pull-request facts sit uncommitted until its next commit.
     # Another item's residue never reaches a commit (item-scoped staging).
     "gate_evidence",
+    # workflow-2.8.0 CP5 (`D-GP-Reopen`, `D-GP-Compat`, `LPR-R3-002`): this
+    # item's own `reopenings` entries (and a reopen's `phase`) sit uncommitted
+    # until its next commit, exactly as its `gate_evidence` does.
+    "reopenings",
 })
 
 RECOVERED_BUNDLE_GENERATION_RECORD_LEGAL_SOURCE_PHASES = (
@@ -14412,6 +14420,10 @@ TECHNICAL_APPROVAL_COMMIT_FIELDS = frozenset({
     # evidence and pull-request facts sit uncommitted until its next commit.
     # Another item's residue never reaches a commit (item-scoped staging).
     "gate_evidence",
+    # workflow-2.8.0 CP5 (`D-GP-Reopen`, `D-GP-Compat`, `LPR-R3-002`): this
+    # item's own `reopenings` entries (and a reopen's `phase`) sit uncommitted
+    # until its next commit, exactly as its `gate_evidence` does.
+    "reopenings",
 })
 
 
@@ -17476,6 +17488,11 @@ def _validate_work_item(work_item_id: str, work_item: dict) -> None:
         if problems:
             raise InvalidAcceptanceSatisfactionError(f"work_items[{work_item_id!r}]: " + "; ".join(problems))
 
+    if "reopenings" in work_item:
+        problems = reopenings_errors(work_item["reopenings"], work_item.get("gate_evidence"))
+        if problems:
+            raise InvalidReopeningsError(f"work_items[{work_item_id!r}]: " + "; ".join(problems))
+
 
 def validate_state(state: dict, *, registry: dict | None = None, repo_root: Path | None = None) -> None:
     """D3's "Validator rejects" list, to the extent checkable from schema
@@ -19178,6 +19195,10 @@ def satisfy_acceptance_gate(repo_root: Path, work_item_id: str, *, now: str, run
         kwargs = {"run": run} if run is not None else {}
         query = workflow_forge.query_forge_pr_facts(repo_root, anchor["commit"], resolve=resolve, **kwargs)
         with_fact, _ = gate_policy.store_workflow_pr_fact(repo_root, state, work_item_id, query, now=now, run_ref=run_ref)
+        # The one query path that reopens (`D-GP-Invalidation`, `LPR-R26-001`): an
+        # actionable red fact reopens the same item inside this transaction.
+        with_fact, reopen = reopen_for_stored_fact(repo_root, with_fact, work_item_id, now=now)
+        outcome["reopen"] = reopen
         evaluation = gate_policy.evaluate_gate(repo_root, with_fact, work_item_id, "acceptance")
         if evaluation["mode"] != "automatic" or not evaluation["satisfiable"]:
             outcome["refused"] = evaluation
@@ -19192,7 +19213,9 @@ def satisfy_acceptance_gate(repo_root: Path, work_item_id: str, *, now: str, run
         unmet = [f"{r['id']}: {r['detail']}" for r in evaluation["requirements"] if not r["met"]]
         raise GateNotSatisfiableError(
             f"{work_item_id}/acceptance: the gate is not satisfiable by policy (mode {evaluation['mode']!r}); "
-            f"unmet: {unmet}. Only the pull-request fact the query read was stored")
+            f"unmet: {unmet}. Only the pull-request fact the query read was stored"
+            + (f"; the item was reopened for remediation on {outcome['reopen']['key']} (run /apply-pr-review {work_item_id})"
+               if outcome.get("reopen", {}).get("reopened") else ""))
     return {"record": outcome["record"], "trailer": acceptance_satisfied_by_trailer(outcome["record"])}
 
 
@@ -19223,6 +19246,258 @@ def assert_human_acceptance_pr_approved(repo_root: Path, work_item_id: str, *, n
         raise PullRequestNotApprovedError(
             f"{work_item_id}: requires_pr_approved is set and the pull request is not approved; unmet: {unmet}")
     return requirements
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.8.0 CP5 (`D-GP-Reopen`): reopening the same work item into
+# remediation. `reopen_work_item` is the only writer of an item's `reopenings`
+# list. It never sets `active_work_item_id` (a top-level field the exhaustive
+# commit validators refuse to see changed): every command and `next-action`
+# call names the item explicitly. A completed item's side effects (the roadmap
+# row, the cleared `docs/ACTIVE_MILESTONE.md`) are deliberately not undone.
+# ---------------------------------------------------------------------------
+
+REOPENINGS_KEY = "reopenings"
+_REOPENING_FIELDS = frozenset({"n", "at", "from_phase", "cause", "pr_number", "pr_head", "fact_id", "key"})
+
+
+class InvalidReopeningsError(Exception):
+    """`validate_state` found a malformed `reopenings` list."""
+
+
+def reopenings_errors(reopenings, evidence=None) -> list[str]:
+    """Shape errors of an item's `reopenings`: entries numbered from 1 in
+    order, a legal `from_phase`, a known cause, and a `key` that is also in
+    `gate_evidence.pr_keys.reopened_for` (the writer adds both together)."""
+    if not isinstance(reopenings, list):
+        return ["reopenings must be a list"]
+    reopened = set()
+    if isinstance(evidence, dict) and isinstance(evidence.get("pr_keys"), dict):
+        reopened = set(evidence["pr_keys"].get("reopened_for") or [])
+    errors = []
+    for index, entry in enumerate(reopenings, start=1):
+        label = f"reopenings[{index - 1}]"
+        if not isinstance(entry, dict) or set(entry) != _REOPENING_FIELDS:
+            errors.append(f"{label} must have exactly {sorted(_REOPENING_FIELDS)}")
+            continue
+        if entry["n"] != index or isinstance(entry["n"], bool):
+            errors.append(f"{label}.n must be {index}")
+        if entry["from_phase"] not in gate_policy.REOPENABLE_PHASES:
+            errors.append(f"{label}.from_phase must be one of {sorted(gate_policy.REOPENABLE_PHASES)}")
+        if entry["cause"] not in gate_policy.CAUSES:
+            errors.append(f"{label}.cause must be one of {list(gate_policy.CAUSES)}")
+        if not isinstance(entry["at"], str) or not entry["at"]:
+            errors.append(f"{label}.at must be a time string")
+        if not isinstance(entry["pr_number"], int) or isinstance(entry["pr_number"], bool):
+            errors.append(f"{label}.pr_number must be an integer")
+        if not isinstance(entry["pr_head"], str) or not re.fullmatch(r"[0-9a-f]{40}", entry["pr_head"]):
+            errors.append(f"{label}.pr_head must be 40 hex")
+        if not isinstance(entry["fact_id"], str) or not re.fullmatch(r"[0-9a-f]{64}", entry["fact_id"]):
+            errors.append(f"{label}.fact_id must be 64 hex")
+        if not isinstance(entry["key"], str) or entry["key"] not in reopened:
+            errors.append(f"{label}.key must be in gate_evidence.pr_keys.reopened_for")
+    return errors
+
+
+def reopen_work_item(state: dict, work_item_id: str, *, cause: str, fact: dict, now: str,
+                     repo_root: Path) -> dict:
+    """Reopens `work_item_id` into remediation on the stored `workflow_gh`
+    `fact` (`D-GP-Reopen`): appends the `reopenings` entry, adds the cause's
+    key to `gate_evidence.pr_keys.reopened_for`, and sets the phase to
+    `AWAITING_FUNCTIONAL_REVIEW` (leaving the technical approval `CURRENT`:
+    staling is the fix command's job). Legal from `AWAITING_FUNCTIONAL_REVIEW`
+    (the phase stays) and `MILESTONE_COMPLETE`. Refuses, writing nothing, with
+    a stable code: `reopen_phase_illegal`, `pr_fact_not_workflow_gh`,
+    `pr_merged`, `pr_review_disabled`, `cause_not_actionable`,
+    `key_consumed` (already in `applied`), `already_reopened` (an
+    `AWAITING_FUNCTIONAL_REVIEW` item whose key already caused an entry),
+    `incomplete_child`, `reopen_plan_archived` (a `MILESTONE_COMPLETE` item
+    whose `plan_path` no longer resolves; restore the plan from
+    `docs/milestones/completed/`). Never touches `active_work_item_id`."""
+    repo_root = Path(repo_root)
+    refuse = gate_policy.EvidenceRefusedError
+    work_item = (state.get("work_items") or {}).get(work_item_id)
+    if not isinstance(work_item, dict):
+        raise refuse("reopen_unknown_work_item", f"{work_item_id!r} names no work item")
+    phase = work_item.get("phase")
+    if phase not in gate_policy.REOPENABLE_PHASES:
+        raise refuse("reopen_phase_illegal",
+                     f"{work_item_id}: a reopen is legal only from {sorted(gate_policy.REOPENABLE_PHASES)}, not {phase!r}")
+    if not isinstance(fact, dict) or (fact.get("provenance") or {}).get("source") != gate_policy.SOURCE_WORKFLOW_GH:
+        raise refuse("pr_fact_not_workflow_gh", "a reopen reads only the Workflow's own (workflow_gh) pull-request fact")
+    if fact.get("state") == "merged":
+        raise refuse("pr_merged", f"{work_item_id}: the pull request is merged; the follow-up is a new work item")
+    policy = gate_policy.effective_policy(repo_root, state)["policy"]
+    if not policy["pr_review"]["enabled"]:
+        raise refuse("pr_review_disabled", "pr_review is disabled in the policy in effect")
+    if not gate_policy.pr_key_actionable(policy, fact, cause):
+        raise refuse("cause_not_actionable", f"{cause!r} does not reopen under the policy in effect for this fact")
+    position = gate_policy.position_of(repo_root, work_item_id, work_item, fact["head"],
+                                       identity_at_head=fact.get("identity_at_head"))
+    if cause not in gate_policy.evidential_causes(position, fact):
+        raise refuse("cause_not_actionable", f"the fact does not evidence {cause!r} against the anchor (position {position!r})")
+    key = gate_policy.cause_key(cause, fact)
+    evidence = gate_policy.gate_evidence_of(work_item)
+    if key in evidence["pr_keys"]["applied"]:
+        raise refuse("key_consumed", f"{key} was already applied by /apply-pr-review")
+    if phase == "AWAITING_FUNCTIONAL_REVIEW" and key in evidence["pr_keys"]["reopened_for"]:
+        raise refuse("already_reopened", f"{key} already caused a reopening entry")
+    blocking = incomplete_children(state, work_item_id)
+    if blocking:
+        raise refuse("incomplete_child", f"{work_item_id}: child work item(s) {blocking} have not reached MILESTONE_COMPLETE")
+    if phase == "MILESTONE_COMPLETE":
+        plan_path = work_item.get("plan_path")
+        if not plan_path or not (repo_root / plan_path).is_file():
+            raise refuse(
+                "reopen_plan_archived",
+                f"{work_item_id}: plan_path {plan_path!r} does not resolve; restore the plan from "
+                f"docs/milestones/completed/ to plan_path, then retry")
+    new_state = copy.deepcopy(state)
+    new_item = new_state["work_items"][work_item_id]
+    if key not in evidence["pr_keys"]["reopened_for"]:
+        evidence["pr_keys"]["reopened_for"].append(key)
+    new_item[gate_policy.GATE_EVIDENCE_KEY] = evidence
+    reopenings = list(new_item.get(REOPENINGS_KEY) or [])
+    reopenings.append({
+        "n": len(reopenings) + 1, "at": now, "from_phase": phase, "cause": cause,
+        "pr_number": fact["pr"]["number"], "pr_head": fact["head"], "fact_id": fact["fact_id"], "key": key})
+    new_item[REOPENINGS_KEY] = reopenings
+    new_item["phase"] = "AWAITING_FUNCTIONAL_REVIEW"
+    new_item["state_revision"] = new_item.get("state_revision", 1) + 1
+    new_item["last_transition"] = now
+    return new_state
+
+
+def mark_pr_key_applied(state: dict, work_item_id: str, key: str, now: str) -> dict:
+    """Adds `key` to `gate_evidence.pr_keys.applied` (`/apply-pr-review`'s one
+    consumption write; every branch makes it, composed in the branch's own
+    mutator). Idempotent: a key already applied returns `state` unchanged."""
+    work_item = state["work_items"][work_item_id]
+    evidence = gate_policy.gate_evidence_of(work_item)
+    if key in evidence["pr_keys"]["applied"]:
+        return state
+    evidence["pr_keys"]["applied"].append(key)
+    new_state = copy.deepcopy(state)
+    new_item = new_state["work_items"][work_item_id]
+    new_item[gate_policy.GATE_EVIDENCE_KEY] = evidence
+    new_item["state_revision"] = new_item.get("state_revision", 1) + 1
+    new_item["last_transition"] = now
+    return new_state
+
+
+def reopen_for_stored_fact(repo_root: Path, state: dict, work_item_id: str, *, now: str) -> tuple[dict, dict]:
+    """The store-time reopen (`D-GP-Invalidation`, "Phases at ingest"): called
+    by a Workflow query path that reopens (`satisfy_acceptance_gate`) inside
+    the transaction that stored the `workflow_gh` fact. At
+    `AWAITING_FUNCTIONAL_REVIEW` or `MILESTONE_COMPLETE`, a stored fact that
+    yields an actionable, unapplied key not yet in `reopened_for` reopens
+    through `reopen_work_item`. Any other phase, or no such key, records only.
+    A refusal of the reopen itself (an incomplete child, an archived plan)
+    leaves the stored fact and returns `{"refused": code}`; it never raises.
+    Returns `(state, {"reopened": bool, "cause", "key", "refused"})`."""
+    outcome = {"reopened": False, "cause": None, "key": None, "refused": None}
+    work_item = state["work_items"][work_item_id]
+    if work_item.get("phase") not in gate_policy.REOPENABLE_PHASES:
+        return state, outcome
+    policy = gate_policy.effective_policy(Path(repo_root), state)["policy"]
+    candidate = gate_policy.reopen_candidate(Path(repo_root), state, work_item_id, policy)
+    if candidate is None:
+        return state, outcome
+    fact = gate_policy.gate_evidence_of(work_item)["pr"]
+    try:
+        new_state = reopen_work_item(state, work_item_id, cause=candidate["cause"], fact=fact, now=now,
+                                     repo_root=Path(repo_root))
+    except gate_policy.EvidenceRefusedError as exc:
+        outcome.update(cause=candidate["cause"], key=candidate["key"], refused=exc.code)
+        return state, outcome
+    outcome.update(reopened=True, cause=candidate["cause"], key=candidate["key"])
+    return new_state, outcome
+
+
+def begin_pr_review(repo_root: Path, work_item_id: str, *, now: str, run_ref: str | None = None,
+                    run=None, resolve=None) -> dict:
+    """`/apply-pr-review`'s first step (`D-GP-Reopen`), one `state_transaction`.
+    Returns `{result, cause, key, phase, reopened, ...}` where `result` is:
+
+    - `reopened` / `already_reopened`: the item is at
+      `AWAITING_FUNCTIONAL_REVIEW` on `cause`/`key`, and the command continues
+      into the cause table's branch;
+    - `nothing_to_apply`: no actionable unapplied key (case (a) alone, stored);
+    - `pr_fact_refreshed`: the fresh fact yields no key and none was stored
+      (recorded; the stale trigger clears);
+    - refusals that store the fresh fact and leave the phase: `pr_merged`,
+      `pr_fact_superseded` (S stays unapplied, `LPR-R32-001`), and the reopen's
+      own `incomplete_child` / `reopen_plan_archived`.
+
+    Case (a) alone (a stored actionable key, no query trigger) at
+    `AWAITING_FUNCTIONAL_REVIEW` reopens without a query when the key is not
+    in `reopened_for`. Otherwise the fresh `workflow_gh` query runs first
+    (the trigger takes precedence over a stored key, `LPR-R30-001`) and is
+    stored **without** the store-time reopen (`LPR-R26-001`); steps 2-3 make
+    the one reopen decision. A forge or head refusal (`forge_unavailable`,
+    `forge_undecidable`, `pr_head_unknown`, `pr_head_not_in_branch`) raises
+    and stores nothing. Nothing here ever adds a key to `applied`."""
+    import workflow_forge
+
+    repo_root = Path(repo_root)
+    outcome: dict = {}
+
+    def result(name: str, state: dict, **extra) -> dict:
+        outcome.update(result=name, phase=state["work_items"][work_item_id]["phase"], **extra)
+        return state
+
+    def mutator(state: dict) -> dict:
+        work_item = state["work_items"].get(work_item_id)
+        if not isinstance(work_item, dict):
+            raise gate_policy.EvidenceRefusedError("reopen_unknown_work_item", f"{work_item_id!r} names no work item")
+        phase = work_item["phase"]
+        if phase not in gate_policy.REOPENABLE_PHASES:
+            raise gate_policy.EvidenceRefusedError(
+                "reopen_phase_illegal", f"{work_item_id}: /apply-pr-review runs only from "
+                f"{sorted(gate_policy.REOPENABLE_PHASES)}, not {phase!r}")
+        policy = gate_policy.effective_policy(repo_root, state)["policy"]
+        trigger = gate_policy.pr_query_trigger(state, work_item_id, policy)
+        stored = gate_policy.actionable_pr_keys(repo_root, state, work_item_id, policy)
+        if phase == "AWAITING_FUNCTIONAL_REVIEW" and not trigger:
+            if not stored:
+                return result("nothing_to_apply", state, cause=None, key=None, reopened=False)
+            candidate, evidence = stored[0], gate_policy.gate_evidence_of(work_item)
+            if candidate["key"] in evidence["pr_keys"]["reopened_for"]:
+                return result("already_reopened", state, cause=candidate["cause"], key=candidate["key"], reopened=False)
+            new_state = reopen_work_item(state, work_item_id, cause=candidate["cause"], fact=evidence["pr"], now=now,
+                                         repo_root=repo_root)
+            return result("reopened", new_state, cause=candidate["cause"], key=candidate["key"], reopened=True)
+        # The query path: S is read once, before the query.
+        stored_key = stored[0] if stored else None
+        anchor = gate_policy.anchor_of(repo_root, work_item_id, work_item)
+        if anchor is None:
+            raise workflow_forge.ForgeUndecidableError(
+                f"{work_item_id}: no anchor commit (no technical approval and no reviewed implementation head)")
+        kwargs = {"run": run} if run is not None else {}
+        query = workflow_forge.query_forge_pr_facts(repo_root, anchor["commit"], resolve=resolve, **kwargs)
+        with_fact, stored_fact = gate_policy.store_workflow_pr_fact(repo_root, state, work_item_id, query, now=now,
+                                                                    run_ref=run_ref)
+        fact = stored_fact["fact"]
+        fresh = gate_policy.actionable_pr_keys(repo_root, with_fact, work_item_id, policy)
+        if fact.get("state") == "merged" and stored_key is not None:
+            return result("pr_merged", with_fact, cause=None, key=stored_key["key"], reopened=False)
+        if not fresh or (not trigger and stored_key is not None and fresh[0]["key"] != stored_key["key"]):
+            name = "pr_fact_superseded" if stored_key is not None else "pr_fact_refreshed"
+            return result(name, with_fact, cause=None, key=stored_key["key"] if stored_key else None, reopened=False)
+        chosen = fresh[0] if trigger or stored_key is None else next(
+            c for c in fresh if c["key"] == stored_key["key"])
+        evidence = gate_policy.gate_evidence_of(with_fact["work_items"][work_item_id])
+        if phase == "AWAITING_FUNCTIONAL_REVIEW" and chosen["key"] in evidence["pr_keys"]["reopened_for"]:
+            return result("already_reopened", with_fact, cause=chosen["cause"], key=chosen["key"], reopened=False)
+        try:
+            reopened = reopen_work_item(with_fact, work_item_id, cause=chosen["cause"], fact=evidence["pr"], now=now,
+                                        repo_root=repo_root)
+        except gate_policy.EvidenceRefusedError as exc:
+            return result(exc.code, with_fact, cause=chosen["cause"], key=chosen["key"], reopened=False, refused=True)
+        return result("reopened", reopened, cause=chosen["cause"], key=chosen["key"], reopened=True)
+
+    state_transaction(repo_root, mutator)
+    return outcome
 
 
 if __name__ == "__main__":

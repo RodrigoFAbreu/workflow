@@ -1648,6 +1648,19 @@ def actionable_pr_keys(repo_root: Path, state: dict, work_item_id: str, policy: 
     return result
 
 
+def reopen_candidate(repo_root: Path, state: dict, work_item_id: str, policy: dict) -> dict | None:
+    """The first actionable, unapplied `{cause, key}` of the stored
+    `workflow_gh` fact that has not yet caused a reopening entry (not in
+    `reopened_for`), or `None` (`D-GP-Reopen`, `D-GP-Invalidation`). The one
+    selector the store-time reopen and `/apply-pr-review`'s first step share,
+    so neither restates the cause table."""
+    reopened = gate_evidence_of(_work_item(state, work_item_id))["pr_keys"]["reopened_for"]
+    for candidate in actionable_pr_keys(Path(repo_root), state, work_item_id, policy):
+        if candidate["key"] not in reopened:
+            return candidate
+    return None
+
+
 def _fact_signature(fact: dict) -> tuple:
     return ((fact.get("pr") or {}).get("number"), fact["state"], fact["head"], fact["review_decision"],
             fact["reviewed_head"], fact["checks"]["state"], tuple(fact["checks"]["failing"]), fact["review_id"])

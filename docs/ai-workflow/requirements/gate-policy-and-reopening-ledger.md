@@ -260,3 +260,67 @@ trust boundary at acceptance, CP4's part).
   run in place with 12 failures, both identical at the CP3 head (the in-place
   layout); the integration suite run in a fixture built from `payload/` passes
   (267 tests, 1 skipped).
+
+## `CP5` — Reopening the same work item into remediation
+
+Requirements: REQ-7 (a red or changes-requested pull request reopens the same
+work item into remediation, with re-review and re-validation, and the item
+completes again), REQ-12 (the trust boundary: a reopen reads only the
+Workflow's own `workflow_gh` fact, and the `findings` text is data).
+
+- **Implementation** (release source only):
+  - `payload/scripts/workflow_state.py`: `reopen_work_item` (the only writer of
+    an item's `reopenings`; legal from `AWAITING_FUNCTIONAL_REVIEW` and
+    `MILESTONE_COMPLETE`; the refusals `reopen_phase_illegal`,
+    `pr_fact_not_workflow_gh`, `pr_merged`, `pr_review_disabled`,
+    `cause_not_actionable`, `key_consumed`, `already_reopened`,
+    `incomplete_child`, `reopen_plan_archived`; it never touches
+    `active_work_item_id`), `reopenings_errors` / `InvalidReopeningsError`
+    (checked in `_validate_work_item`), `mark_pr_key_applied` (the one
+    consumption write, idempotent), `reopen_for_stored_fact` (the store-time
+    reopen, called by `satisfy_acceptance_gate` after it stores its
+    `workflow_gh` fact; the human step-2a query and a reported fact never call
+    it) and `begin_pr_review` (`/apply-pr-review`'s first step and the one reopen
+    decision: the case (a) path without a query, and the query path with D-GP-Reopen's
+    decision table, `pr_merged`, `pr_fact_superseded`, `pr_fact_refreshed`).
+    `reopenings` joins the three commit field sets.
+  - `payload/scripts/workflow_gate_policy.py`: `reopen_candidate`, the one
+    selector the store-time reopen shares with the command.
+  - `payload/.claude/commands/apply-pr-review.md` (new, `state_writer: true`,
+    not user-only): the required id, the reopen first step, the branches of the
+    cause table, the durable ordering of every branch that stales
+    (`LPR-R4-001`), the data rule for `findings`. `accept-milestone.md` states
+    what a re-acceptance does; `apply-functional-review.md` names
+    `/apply-pr-review <child-id>` in the child sequence; the operator reference
+    sections the new command (the roster tests require it).
+  - Tests: `workflow_gate_policy_test.py` (`TestReopenWorkItem`,
+    `TestBeginPrReview`, `TestStoreTimeReopen`, `TestReopenCommitContracts`,
+    `TestReopenCommandText`); `workflow_integration_test.py` (command count 20,
+    two golden hashes, the symbol allowlist).
+- **Deviations and judgements**:
+  - `reopen_work_item` takes a `repo_root` keyword the plan's signature omits:
+    the plan-path check and the policy in effect need it.
+  - The refusals of `begin_pr_review`'s decision table that the plan says store
+    the fresh fact (`pr_merged`, `pr_fact_superseded`) are returned as results,
+    not raised, so the transaction publishes the fact; the forge and head
+    refusals raise and store nothing, as the plan says.
+  - The "no code change" note is recorded in the ledger or
+    `docs/ACTIVE_MILESTONE.md` by the command, not in a state field: the
+    `gate_evidence` key set is closed.
+- **Deferred inside the plan's ordering**: row `38d` and the protocol's
+  `pr.apply_review` action are CP6's, so `next-action` does not yet emit this
+  command; the `record-external-result` kinds are CP6's too. The guide chapter
+  and the update simulation are CP7's.
+- **Verification**: the release-source suites in a conformance fixture built
+  from the working tree: `workflow_gate_policy_test` 278 OK,
+  `workflow_integration_test` 267 OK (1 skipped), `workflow_protocol_test` 217
+  OK, `workflow_fingerprint_test` 257 OK, `workflow_acceptance_matrix_test` 291
+  OK (18 skipped), `workflow_state_completion_obligations_test` 106 OK,
+  `workflow_fingerprint_generalization_test` 105 OK,
+  `workflow_test_harness_test` 22 OK; `workflow_state_test` 1011 run with the
+  two in-place-layout errors the CP4 head also has (the live state file is not
+  in the fixture) after the phase-writer census gained `reopen_work_item`;
+  `workflow_state_demo_test` and `workflow_fingerprint_demo_test` fail with
+  exactly the same tests as the CP4 head (they need the real repository
+  layout). `tools/release/release_test.py` was not re-run: nothing under
+  `tools/` changed.

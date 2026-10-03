@@ -1047,7 +1047,13 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # reopening, CP4): a pointer to /satisfy-gate acceptance, step 2a's
     # requires_pr_approved pre-flight (only when the option is set) and step 5
     # pinned to copy, never move (LPR-R2-003) -- intentional content change.
-    "accept-milestone.md": "0e662df3815574b1be6395bd53af16d606e6001d08502aec487387883ee8625d",
+    #
+    # accept-milestone.md further updated, workflow-2.8.0 (gate-policy-and-
+    # reopening, CP5): step 5 states what a re-acceptance of a reopened item
+    # does (one archive copy and one roadmap row, `acceptance_satisfaction`
+    # overwritten, `completion_obligations_accepted` kept) -- intentional
+    # content change.
+    "accept-milestone.md": "e2118ae175569e6db79bda883ba6b7c31199fedc4dedac5697d9fee1f3225f7c",
     # prepare-functional-review.md further updated, baseline-portability
     # correctness fix (OPUS-R129-001): step 3a's checklist-evidence
     # provenance commit instruction now states the same "trailers must be
@@ -1356,7 +1362,10 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # change.
     # workflow-2.8.0 (gate-policy-and-reopening, CP4): a closing cross-reference
     # to /satisfy-gate acceptance -- intentional content change.
-    "apply-functional-review.md": "70a2eee41863697bfaf2449613b1f3ee9fbd3c66e2ec0875dca04bb65b8d9686",
+    # workflow-2.8.0 (gate-policy-and-reopening, CP5): the remediation child
+    # sequence names /apply-pr-review <child-id> for a child whose pull
+    # request turns red -- intentional content change.
+    "apply-functional-review.md": "46433a2781f5e27487702e7c702fb3f0a7f5d3fcb0df7e1bcc18297e645cf7ad",
 }
 
 
@@ -6567,15 +6576,15 @@ class TestRetiredScopedRemediationLeavesNoLiveSurface(unittest.TestCase):
         gaps are now closed -- `workflow-2.4.0` CP3 added a sixteenth,
         `/request-plan-amendment` -- and `workflow-2.5.0` CP4 added a
         seventeenth, `/record-manual-implementation-review`, and
-        `workflow-2.8.0` CP1 an eighteenth, `/adopt-gate-policy`, and CP2 a
-        nineteenth, `/satisfy-gate` -- the
-        reference sections all 19 live commands -- and this test derives
+        `workflow-2.8.0` CP1 an eighteenth, `/adopt-gate-policy`, CP2 a
+        nineteenth, `/satisfy-gate`, and CP5 a twentieth, `/apply-pr-review` --
+        the reference sections all 20 live commands -- and this test derives
         the expected count from the real files rather than hand-maintaining
         a number that can go stale again."""
         text = (_repo_root() / "docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md").read_text()
         sections = re.findall(r"(?m)^### `/([a-z0-9-]+)", text)
         on_disk = sorted(p.stem for p in (_repo_root() / ".claude" / "commands").glob("*.md"))
-        self.assertEqual(len(on_disk), 19)
+        self.assertEqual(len(on_disk), 20)
         self.assertNotIn("accept-scoped-remediation", sections)
         self.assertNotIn("accept-scoped-remediation", on_disk)
         # Every live command has exactly one section, and vice versa.
@@ -7076,6 +7085,12 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         # id that audits the ledger, and the approval record's evidence key,
         # not callables.
         "distinct_reviewer_models", "review_evidence_audited", "policy_evidence",
+        # workflow-2.8.0 CP5, D-GP-Reopen: the pull-request fact's cause names,
+        # the policy keys, the refusal codes and the two key sets, literal
+        # values and field names, not callables.
+        "changes_requested", "checks_failed", "content_changed", "pr_merged",
+        "pr_review", "reopen_on", "reopen_plan_archived", "reopened_for",
+        "workflow_gh",
     })
 
     def test_every_code_symbol_the_reference_names_actually_exists(self):

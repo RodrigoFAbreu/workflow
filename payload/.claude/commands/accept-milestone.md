@@ -167,6 +167,15 @@ missing, ask for it and stop — do not proceed on an inferred "yes."
    `WORKFLOW_STATE.json` names them, so a later reopen of the same work item can
    still read the plan. A re-acceptance updates, never duplicates, the archive
    copy and the roadmap row for the work item id.
+   **A re-acceptance** (`workflow-2.8.0`, `D-GP-Reopen`: an item that
+   `/apply-pr-review` reopened into remediation and that now completes again
+   through this command or `/satisfy-gate acceptance`) finds the archive copy
+   and the roadmap row already present: it overwrites the copy with the current
+   plan and leaves the one roadmap row complete, so there is exactly one of
+   each per work item id. `complete_work_item` is unchanged: an automatic
+   re-acceptance overwrites `acceptance_satisfaction`, and
+   `completion_obligations_accepted` is kept (not rewritten) when the item
+   declares no completion obligations.
 6. Create the final completion commit if verification/doc updates are not
    already committed, carrying a `Workflow-Work-Item: <work_item_id>`
    trailer (the established convention every real completion commit to
