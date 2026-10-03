@@ -726,7 +726,7 @@
       "registry_path": "docs/ai-workflow/registry/gate-policy-and-reopening-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/gate-policy-and-reopening-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 34,
       "implementation_revision": 3,
       "functional_review_round": null,
@@ -801,10 +801,10 @@
         "recorded_at": "2026-10-03T09:32:51Z"
       },
       "technical_approval": {
-        "status": "STALE",
+        "status": "CURRENT",
         "basis": "EXTERNAL_APPROVE",
-        "reviewed_bundle_id": "f87864eb4c4fe581dcbb92b87c355dcb7bf02f586175b263113c24a1a74debf2",
-        "approved_review_content_id": "c4f1190706f8c79a20a34bbc8519a56615c69b69793bdc7426cad10d8ba12a17",
+        "reviewed_bundle_id": "e3164c65a1666caf0af91117cb9585f70e0ef340a73c7e985ac12aa68ca5e7f0",
+        "approved_review_content_id": "bbd4327f82430e3ce0d29526dba12909fa1d6faf4c2614b4dcf12b850351fa0f",
         "review_content_manifest": [
           {
             "path": ".github/workflows/workflow-ci.yml",
@@ -828,7 +828,7 @@
             "path": "manifest.json",
             "exists": true,
             "mode": "100644",
-            "blob": "dcbccdb94c5ef44da16c6f7c94cbbeed8c4dd9ca"
+            "blob": "d42ef7d88fccaff2950d9484e34f86b2e7e54c83"
           },
           {
             "path": "payload/.claude/commands/accept-milestone.md",
@@ -840,7 +840,7 @@
             "path": "payload/.claude/commands/adopt-gate-policy.md",
             "exists": true,
             "mode": "100644",
-            "blob": "60de6d75a9c4d74c7048773618b8ab12fe2cf28a"
+            "blob": "850d091a348b9199b35029b1160c7aa247cec874"
           },
           {
             "path": "payload/.claude/commands/apply-functional-review.md",
@@ -930,7 +930,7 @@
             "path": "payload/docs/ai-workflow/GATE_POLICY.md",
             "exists": true,
             "mode": "100644",
-            "blob": "94920467e16023cd6469fd423def483a4d572530"
+            "blob": "7a674dc33c5ba7c2907591aa74a7d8335d029551"
           },
           {
             "path": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md",
@@ -954,7 +954,7 @@
             "path": "payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
             "exists": true,
             "mode": "100644",
-            "blob": "c228c54f1a5102d35a7f1435b00e19e09c445dab"
+            "blob": "d3882ac6a1ef12cea4d25cbf3143a9d0cce40deb"
           },
           {
             "path": "payload/docs/ai-workflow/orchestration-protocol-v1.schema.json",
@@ -996,13 +996,13 @@
             "path": "payload/scripts/workflow_gate_policy.py",
             "exists": true,
             "mode": "100644",
-            "blob": "42e94fbf5ddff393cd31cd8981485a19a303a030"
+            "blob": "a2e8f39e82f37e9d7e608b698fa20108720e0cef"
           },
           {
             "path": "payload/scripts/workflow_gate_policy_test.py",
             "exists": true,
             "mode": "100644",
-            "blob": "64f5acae4e18f0b82fa150e3cab5317abb017b59"
+            "blob": "615af1ab020c6646c117ba77adb320c164bd2d81"
           },
           {
             "path": "payload/scripts/workflow_integration_test.py",
@@ -1014,19 +1014,19 @@
             "path": "payload/scripts/workflow_protocol.py",
             "exists": true,
             "mode": "100644",
-            "blob": "c08fb6d391939ecbe93c642169403ecfed811557"
+            "blob": "236e34b324ee225801894b2d86b112edec8adeed"
           },
           {
             "path": "payload/scripts/workflow_protocol_test.py",
             "exists": true,
             "mode": "100644",
-            "blob": "c261d00c32a66fb0c74c025c17bc9091ac7904b4"
+            "blob": "0229ae47afb223c0e25e61c45f872757503b3d70"
           },
           {
             "path": "payload/scripts/workflow_state.py",
             "exists": true,
             "mode": "100644",
-            "blob": "b41b6e5555a14cdd90de9c83ac8daccd6956bfec"
+            "blob": "56ce3281478c53567933b49ba1c81bfb310c2300"
           },
           {
             "path": "payload/scripts/workflow_state_test.py",
@@ -1053,11 +1053,11 @@
             "blob": "294fcd83bcbf05d6a22e2731d9eb5a6c454066d7"
           }
         ],
-        "reviewed_content_commit": "4d148be1078cec231f972f9f0e69fffb9fa5e14a",
+        "reviewed_content_commit": "facddb4f90cb7f49e0cb27faccb4ff8a9a27e381",
         "legacy_evidence": null,
         "user_confirmation": "implementation gate-policy-and-reopening — I approve gate-policy-and-reopening at the implementation stage",
         "waived_guarantees": [],
-        "recorded_at": "2026-10-03T19:57:47Z"
+        "recorded_at": "2026-10-03T21:21:47Z"
       },
       "technical_review_block_pins": [],
       "plan_review_stages": {
@@ -1077,8 +1077,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 137,
-      "last_transition": "2026-10-03T20:56:43Z",
+      "state_revision": 140,
+      "last_transition": "2026-10-03T21:21:47Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -1099,18 +1099,18 @@
         }
       },
       "implementation_review_stages": {
-        "review_content_id": "c4f1190706f8c79a20a34bbc8519a56615c69b69793bdc7426cad10d8ba12a17",
+        "review_content_id": "bbd4327f82430e3ce0d29526dba12909fa1d6faf4c2614b4dcf12b850351fa0f",
         "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "f87864eb4c4fe581dcbb92b87c355dcb7bf02f586175b263113c24a1a74debf2",
+          "bundle_id": "e3164c65a1666caf0af91117cb9585f70e0ef340a73c7e985ac12aa68ca5e7f0",
           "verdict": "APPROVE",
-          "round": 2,
-          "completed_at": "2026-10-03T19:33:35Z"
+          "round": 3,
+          "completed_at": "2026-10-03T21:12:55Z"
         },
         "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "f87864eb4c4fe581dcbb92b87c355dcb7bf02f586175b263113c24a1a74debf2",
+          "bundle_id": "e3164c65a1666caf0af91117cb9585f70e0ef340a73c7e985ac12aa68ca5e7f0",
           "verdict": "APPROVE",
-          "round": 2,
-          "completed_at": "2026-10-03T19:42:28Z"
+          "round": 3,
+          "completed_at": "2026-10-03T21:20:33Z"
         }
       }
     }
