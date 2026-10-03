@@ -716,6 +716,403 @@
           "completed_at": "2026-10-02T19:42:34Z"
         }
       }
+    },
+    "gate-policy-and-reopening": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "gate-policy-and-reopening",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/gate-policy-and-reopening-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/gate-policy-and-reopening-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 34,
+      "implementation_revision": 3,
+      "functional_review_round": null,
+      "base_commit": "d14e0a7b013ec3fe8ffec22b90029af3f25d2073",
+      "reviewed_implementation_head": "facddb4f90cb7f49e0cb27faccb4ff8a9a27e381",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP8",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "394e84fc066705191a2a73b76e38065442b71511"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "25d1708ae4001c72fb2d439e8720354c95ec42b8"
+        },
+        "CP3": {
+          "status": "COMPLETE",
+          "start_commit": "64775a178084fae9522ae6b64700e44d0af1b011"
+        },
+        "CP4": {
+          "status": "COMPLETE",
+          "start_commit": "8132eb6b9f6b30089d1ee909f5676010cd6e298d"
+        },
+        "CP5": {
+          "status": "COMPLETE",
+          "start_commit": "ec54da59b88f98057d0691bf48e9dbb175737871"
+        },
+        "CP6": {
+          "status": "COMPLETE",
+          "start_commit": "8d5f83b43136f069a99406149c042ea0b5877f44"
+        },
+        "CP7": {
+          "status": "COMPLETE",
+          "start_commit": "89afc22a1a7c440782d072cb9d1a484cc4704d8c"
+        },
+        "CP8": {
+          "status": "COMPLETE",
+          "start_commit": "c057288d2fd17cd28178bee2964654853dd81042"
+        }
+      },
+      "current_bundle_id": "13cb32a6cdc1f5464e9b2b158a040499183400b76b39c485ffeee786cf203691",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "EXTERNAL_APPROVE",
+        "reviewed_bundle_id": "13cb32a6cdc1f5464e9b2b158a040499183400b76b39c485ffeee786cf203691",
+        "approved_review_content_id": "2a532420e86c9e08821a37e6122ff1fe29a0a30787ade2274759bb0860031a3e",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "af519f2ae0ca62980276574f16b894704dfc2a15"
+          },
+          {
+            "path": "docs/ai-workflow/registry/gate-policy-and-reopening-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ab0b77b2ea0f10341593dbf6c2249ceefa03b968"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/gate-policy-and-reopening-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "fccd731501f0dd5c325299a260d6e74648c8e069"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "plan gate-policy-and-reopening — I approve gate-policy-and-reopening at the plan stage",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-03T09:32:51Z"
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "EXTERNAL_APPROVE",
+        "reviewed_bundle_id": "e3164c65a1666caf0af91117cb9585f70e0ef340a73c7e985ac12aa68ca5e7f0",
+        "approved_review_content_id": "bbd4327f82430e3ce0d29526dba12909fa1d6faf4c2614b4dcf12b850351fa0f",
+        "review_content_manifest": [
+          {
+            "path": ".github/workflows/workflow-ci.yml",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7ed7424151a5f0e5cf1390bf8332e052b1f9f4ac"
+          },
+          {
+            "path": "docs/RELEASING.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c0d08b098f4c6e46eec649fd3375188f49dba961"
+          },
+          {
+            "path": "docs/ai-workflow/registry/gate-policy-and-reopening-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a76880e72ab044ea22ba373e40338ce0f1edd4b5"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d42ef7d88fccaff2950d9484e34f86b2e7e54c83"
+          },
+          {
+            "path": "payload/.claude/commands/accept-milestone.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "caec90a3870b1b149ae2f31390d6f1907337f6c7"
+          },
+          {
+            "path": "payload/.claude/commands/adopt-gate-policy.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "850d091a348b9199b35029b1160c7aa247cec874"
+          },
+          {
+            "path": "payload/.claude/commands/apply-functional-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2ead8a0e096c7da2e99cf5f661f4212a72f9b6e1"
+          },
+          {
+            "path": "payload/.claude/commands/apply-implementation-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4de0f37b30be5653fe5f1ac764f6384a90c64733"
+          },
+          {
+            "path": "payload/.claude/commands/apply-plan-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "57893ee0a433c85ea1e656f97c2d059313224551"
+          },
+          {
+            "path": "payload/.claude/commands/apply-pr-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "372f0cab9581d2e37ffe11f58d2094961731eea7"
+          },
+          {
+            "path": "payload/.claude/commands/approve-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c4d6d7d3a1eefc27a215d16b51ebd7bdf93252ca"
+          },
+          {
+            "path": "payload/.claude/commands/milestone-implement.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "20ddab1b2b4405393e3f024250dc4eb7c81d9fe2"
+          },
+          {
+            "path": "payload/.claude/commands/milestone-plan.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a61d11e416b1f84a9921cfe31c21fe8447101129"
+          },
+          {
+            "path": "payload/.claude/commands/record-manual-implementation-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7a44e248513a4309578d9c8132c6d725c0de7ec3"
+          },
+          {
+            "path": "payload/.claude/commands/record-manual-plan-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d1aabacb455aa075d9dcceb5f0348378b1146c58"
+          },
+          {
+            "path": "payload/.claude/commands/recover-implementation-provenance.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1822e6ca836ef6e03a4c3b9a312614dd77ab5b2c"
+          },
+          {
+            "path": "payload/.claude/commands/request-plan-amendment.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c63ca257fe89a01ba93c923334efc84fa3a8ff98"
+          },
+          {
+            "path": "payload/.claude/commands/review-implementation.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e7f54e5457ef67b0bf1b900fd21ac76762a3b57c"
+          },
+          {
+            "path": "payload/.claude/commands/review-plan.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "94a0c36b3d086ddcf155bb34c2945d5e8b6760f4"
+          },
+          {
+            "path": "payload/.claude/commands/satisfy-gate.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "34350bcc306495d1b627de67f167a0cc3cede169"
+          },
+          {
+            "path": "payload/docs/ai-workflow/GATE_POLICY.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7a674dc33c5ba7c2907591aa74a7d8335d029551"
+          },
+          {
+            "path": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "558a9b857e4a0280e89b319ec3dcfc3b170cb1e7"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1c427b30af16ecdeb21185d191e771ff8fa41cf9"
+          },
+          {
+            "path": "payload/docs/ai-workflow/REVIEW_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "15951c088413e1eb601dd6f0c8a765aaae08234f"
+          },
+          {
+            "path": "payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d3882ac6a1ef12cea4d25cbf3143a9d0cce40deb"
+          },
+          {
+            "path": "payload/docs/ai-workflow/orchestration-protocol-v1.schema.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "41e2015bb753236aef190883d1085e9102932035"
+          },
+          {
+            "path": "payload/scripts/workflow_acceptance_matrix_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "eb300df8424201c57b38a0305f0aaf04fe5c5818"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint.py",
+            "exists": true,
+            "mode": "100755",
+            "blob": "fb51c4fda7f202a48e968029a8f895654aa9ed79"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint_generalization_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d179399fdb73300ef709c56dfe2cfe903072316a"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c0328a67ebc78e0b05731153d1568a4296a3994e"
+          },
+          {
+            "path": "payload/scripts/workflow_forge.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "04498304844c2725f8c3d55f44a05c4a1b89a985"
+          },
+          {
+            "path": "payload/scripts/workflow_gate_policy.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a2e8f39e82f37e9d7e608b698fa20108720e0cef"
+          },
+          {
+            "path": "payload/scripts/workflow_gate_policy_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "615af1ab020c6646c117ba77adb320c164bd2d81"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5e9e562428b4bfd60daa07cf55d72d3994e9f88d"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "236e34b324ee225801894b2d86b112edec8adeed"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0229ae47afb223c0e25e61c45f872757503b3d70"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "56ce3281478c53567933b49ba1c81bfb310c2300"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1415f4fbf36d5b8ffd06a2393a6b5119402c19dd"
+          },
+          {
+            "path": "payload/scripts/workflow_test_harness.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ab651dfcd1fa47b4bffbdfd6b6bf28d0eaf9dea7"
+          },
+          {
+            "path": "templates/.github/workflows/workflow-conformance.yml",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0f350a9c217e5a76135f613a2359f3aa14d91e4a"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "294fcd83bcbf05d6a22e2731d9eb5a6c454066d7"
+          }
+        ],
+        "reviewed_content_commit": "facddb4f90cb7f49e0cb27faccb4ff8a9a27e381",
+        "legacy_evidence": null,
+        "user_confirmation": "implementation gate-policy-and-reopening — I approve gate-policy-and-reopening at the implementation stage",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-03T21:21:47Z"
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "2a532420e86c9e08821a37e6122ff1fe29a0a30787ade2274759bb0860031a3e",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "13cb32a6cdc1f5464e9b2b158a040499183400b76b39c485ffeee786cf203691",
+          "verdict": "APPROVE",
+          "round": 34,
+          "completed_at": "2026-10-03T05:04:09Z"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "13cb32a6cdc1f5464e9b2b158a040499183400b76b39c485ffeee786cf203691",
+          "verdict": "APPROVE",
+          "round": 34,
+          "completed_at": "2026-10-03T05:07:10Z"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "state_revision": 141,
+      "last_transition": "2026-10-03T22:58:37Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-03T05:01:45Z",
+        "consumed": {
+          "review_content_id": "5b59300ddba30fa98a575c5cf01ce164acf4a4498cb9e11f8812e0939eeeaf4b",
+          "plan_revision": 33,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "2a532420e86c9e08821a37e6122ff1fe29a0a30787ade2274759bb0860031a3e",
+          "plan_revision": 34
+        },
+        "bound": {
+          "review_content_id": "2a532420e86c9e08821a37e6122ff1fe29a0a30787ade2274759bb0860031a3e",
+          "bundle_id": "13cb32a6cdc1f5464e9b2b158a040499183400b76b39c485ffeee786cf203691",
+          "plan_revision": 34
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "bbd4327f82430e3ce0d29526dba12909fa1d6faf4c2614b4dcf12b850351fa0f",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "e3164c65a1666caf0af91117cb9585f70e0ef340a73c7e985ac12aa68ca5e7f0",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-03T21:12:55Z"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "e3164c65a1666caf0af91117cb9585f70e0ef340a73c7e985ac12aa68ca5e7f0",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-03T21:20:33Z"
+        }
+      }
     }
   }
 }

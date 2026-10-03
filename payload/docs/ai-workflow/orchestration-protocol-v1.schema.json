@@ -91,7 +91,7 @@
       "required": ["role", "fresh_session", "independent_of", "user_only"],
       "additionalProperties": false,
       "properties": {
-        "role": {"type": "string", "enum": ["planner", "implementer", "self_reviewer", "independent_reviewer", "applier", "user", "external"]},
+        "role": {"type": "string", "enum": ["planner", "implementer", "self_reviewer", "independent_reviewer", "applier", "validator", "user", "external"]},
         "fresh_session": {"type": "boolean"},
         "independent_of": {"$ref": "#/$defs/string_list"},
         "user_only": {"type": "boolean"}
@@ -102,7 +102,7 @@
       "required": ["id", "arguments", "invocation", "worker", "allowed_results"],
       "additionalProperties": false,
       "properties": {
-        "id": {"type": "string", "enum": ["functional.apply_findings", "functional.prepare", "functional.review", "functional.review.advisory", "implementation.apply_review", "implementation.approve", "implementation.checkpoint", "implementation.record_external", "implementation.recover_provenance", "implementation.review.external", "implementation.review.local", "implementation.self_review", "milestone.accept", "plan.apply_review", "plan.approve", "plan.author", "plan.record_external", "plan.review.external", "plan.review.local", "plan.start", "plan.withdraw", "review.resolve_block"]},
+        "id": {"type": "string", "enum": ["acceptance.satisfy", "functional.apply_findings", "functional.evidence.external", "functional.prepare", "functional.review", "functional.review.advisory", "implementation.apply_review", "implementation.approve", "implementation.checkpoint", "implementation.record_external", "implementation.recover_provenance", "implementation.review.external", "implementation.review.local", "implementation.satisfy", "implementation.self_review", "milestone.accept", "plan.apply_review", "plan.approve", "plan.author", "plan.record_external", "plan.review.external", "plan.review.local", "plan.satisfy", "plan.start", "plan.withdraw", "pr.apply_review", "pr.review.external", "review.resolve_block"]},
         "arguments": {"type": "object", "additionalProperties": {"type": "string"}},
         "invocation": {"type": ["string", "null"]},
         "worker": {"$ref": "#/$defs/worker"},
@@ -115,11 +115,52 @@
       "required": ["id", "arguments", "invocation", "worker", "allowed_results"],
       "additionalProperties": false,
       "properties": {
-        "id": {"type": "string", "enum": ["functional.apply_findings", "functional.prepare", "functional.review", "functional.review.advisory", "implementation.apply_review", "implementation.approve", "implementation.checkpoint", "implementation.record_external", "implementation.recover_provenance", "implementation.review.external", "implementation.review.local", "implementation.self_review", "milestone.accept", "plan.apply_review", "plan.approve", "plan.author", "plan.record_external", "plan.review.external", "plan.review.local", "plan.start", "plan.withdraw", "review.resolve_block"]},
+        "id": {"type": "string", "enum": ["acceptance.satisfy", "functional.apply_findings", "functional.evidence.external", "functional.prepare", "functional.review", "functional.review.advisory", "implementation.apply_review", "implementation.approve", "implementation.checkpoint", "implementation.record_external", "implementation.recover_provenance", "implementation.review.external", "implementation.review.local", "implementation.satisfy", "implementation.self_review", "milestone.accept", "plan.apply_review", "plan.approve", "plan.author", "plan.record_external", "plan.review.external", "plan.review.local", "plan.satisfy", "plan.start", "plan.withdraw", "pr.apply_review", "pr.review.external", "review.resolve_block"]},
         "arguments": {"type": "object", "additionalProperties": {"type": "string"}},
         "invocation": {"type": ["string", "null"]},
         "worker": {"$ref": "#/$defs/worker"},
         "allowed_results": {"type": "array", "items": {"type": "string", "enum": ["progress", "no_progress", "gate_reached", "invalid"]}}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["source", "digest", "gate", "mode"],
+      "additionalProperties": false,
+      "properties": {
+        "source": {"type": "string"},
+        "digest": {"type": "string"},
+        "gate": {"type": "string", "enum": ["plan_approval", "technical_approval", "acceptance", "pr_review"]},
+        "mode": {"type": "string", "enum": ["human", "automatic"]},
+        "gate_lowering": {
+          "type": "object",
+          "required": ["sha256", "adopted_at", "lowered"],
+          "additionalProperties": false,
+          "properties": {
+            "sha256": {"type": "string"},
+            "adopted_at": {"type": ["string", "null"]},
+            "lowered": {"$ref": "#/$defs/string_list"}
+          }
+        }
+      }
+    },
+    "forge": {
+      "type": "object",
+      "required": ["source", "query", "repository", "queried_commit", "fetched_at", "fetched_by", "raw", "raw_sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "source": {"type": "string", "enum": ["github"]},
+        "query": {"type": "string"},
+        "repository": {"type": "string"},
+        "queried_commit": {"type": "string"},
+        "fetched_at": {"type": "string"},
+        "fetched_by": {
+          "type": "object",
+          "required": ["name", "version"],
+          "additionalProperties": false,
+          "properties": {"name": {"type": "string"}, "version": {"type": "string"}}
+        },
+        "raw": {"type": "string"},
+        "raw_sha256": {"type": "string"}
       }
     },
     "snapshot": {
@@ -150,9 +191,10 @@
         "snapshot": {"$ref": "#/$defs/snapshot"},
         "disposition": {"type": "string", "enum": ["automatic", "validation", "human_gate", "external_gate", "blocked", "complete"]},
         "action": {"$ref": "#/$defs/nullable_action"},
-        "satisfied_by": {"type": ["string", "null"], "enum": ["implementation_review_verdict", "plan_review_verdict", null]},
+        "satisfied_by": {"type": ["string", "null"], "enum": ["functional_evidence", "implementation_review_verdict", "plan_review_verdict", "pr_review_result", null]},
         "alternatives": {"type": "array", "items": {"$ref": "#/$defs/action"}},
-        "reason": {"$ref": "#/$defs/reason"}
+        "reason": {"$ref": "#/$defs/reason"},
+        "policy": {"$ref": "#/$defs/policy"}
       }
     },
     "phase_identity": {
@@ -175,6 +217,35 @@
         "phase": {"type": "string"},
         "head": {"type": ["string", "null"]},
         "checkpoints": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "properties": {
+        "functional_evidence": {
+          "type": "object",
+          "required": ["flow_id", "status", "head", "ran_at", "summary", "log_digest", "run_ref", "reporter"],
+          "additionalProperties": false,
+          "properties": {
+            "flow_id": {"type": "string"},
+            "status": {"type": "string", "enum": ["passed", "failed"]},
+            "head": {"type": "string"},
+            "ran_at": {"type": "string"},
+            "summary": {"type": "object"},
+            "log_digest": {"type": "string"},
+            "run_ref": {"type": ["string", "null"]},
+            "reporter": {"type": "string"}
+          }
+        },
+        "pr_review_result": {
+          "type": "object",
+          "required": ["forge"],
+          "additionalProperties": false,
+          "properties": {
+            "forge": {"$ref": "#/$defs/forge"},
+            "run_ref": {"type": ["string", "null"]}
+          }
+        }
       }
     },
     "results": {
@@ -241,10 +312,11 @@
                       "active_item_resolvable",
                       "checkpoint_completions_provable",
                       "installation_release_matches",
-                      "protocol_ready"
+                      "protocol_ready",
+                      "gate_policy"
                     ]
                   },
-                  "status": {"type": "string", "enum": ["pass", "fail", "skip"]},
+                  "status": {"type": "string", "enum": ["pass", "warn", "fail", "skip"]},
                   "detail": {"type": "string"}
                 }
               }
@@ -309,15 +381,19 @@
         },
         "record-external-result": {
           "type": "object",
-          "required": ["stage", "verdict", "review_content_id", "round", "bundle_id", "advisory", "basis"],
+          "required": ["stage", "basis"],
           "additionalProperties": false,
           "properties": {
-            "stage": {"type": "string", "enum": ["implementation", "plan"]},
+            "stage": {"type": "string", "enum": ["functional", "implementation", "plan", "pr_review"]},
             "verdict": {"type": "string", "enum": ["APPROVE", "BLOCK", "REVISE"]},
             "review_content_id": {"type": ["string", "null"]},
             "round": {"type": ["integer", "null"]},
             "bundle_id": {"type": ["string", "null"]},
             "advisory": {"type": ["string", "null"]},
+            "flow_id": {"type": "string"},
+            "identity": {"type": "string"},
+            "slot": {"type": "string", "enum": ["pr_reported"]},
+            "fact_id": {"type": "string"},
             "basis": {"$ref": "#/$defs/basis"}
           }
         }

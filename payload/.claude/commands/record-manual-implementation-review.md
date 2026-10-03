@@ -42,7 +42,8 @@ rule for an item without the field.
 Steps 2-7 below are **one call**,
 `workflow_state.ingest_manual_review_verdict(repo_root, work_item_id,
 stage="implementation", verdict_text=<the pasted file's text>, now=<now>,
-two_stage_only=True)` (workflow-2.7.0, `D-OP-External`): the same ingest the
+two_stage_only=True, run_ref=<`session:local` plus the resolved paste path>)`
+(workflow-2.7.0, `D-OP-External`; `run_ref` workflow-2.8.0): the same ingest the
 orchestration protocol's `record-external-result` calls, so there is one
 ingest and no duplicated guard sequence. The steps document what it does,
 in its order; the guard order itself is documented once, in the function.
@@ -158,6 +159,25 @@ and refuses before writing anything.
    `"Reviewed bundle ID: absent"`. `round` is the feedback's `Round:` when
    stated, otherwise the round of the `LOCAL_MODEL_IMPLEMENTATION_REVIEW`
    `APPROVE` of the same content (`LPR-R3-005`).
+   **Gate-policy audit and the reviewer model** (workflow-2.8.0, `D-GP-Gates`,
+   `D-GP-Trust`, `D-GP-Ingest`): the ingest is called with
+   `run_ref="session:local <feedback_dir>/REVIEW_FEEDBACK.md"` (the resolved
+   path, `workflow_state.LOCAL_RUN_REF_PREFIX`; the orchestration protocol's
+   `record-external-result` passes the reporter's own `--run-ref` instead).
+   While the technical gate is `automatic` (`GATE_POLICY.json`, the effective
+   policy), an `APPROVE` ledger entry also records `verdict_sha256` (the
+   sha256 of the pasted verdict's own bytes), `run_ref` and, when the
+   effective `require` lists `distinct_reviewer_models`, the verdict's
+   `Reviewer model: <vendor>/<model>` header line as `reviewer_model`. Under
+   that requirement an `APPROVE` that states no such line, or the same family
+   (the value up to the first `/`, `:` or space, lowercased) as the other
+   stage's recorded one, is refused **before any write**
+   (`DistinctReviewerModelsRequiredError`: `WORKFLOW_STATE.json` byte-identical,
+   the phase unchanged); the message names the two remedies that work at this
+   phase -- re-submit with a second family's line, or turn the gate human
+   (`"human_approval": true` for it, immediate) and re-submit. A `REVISE` or
+   `BLOCK` is admitted with no line. Under a human gate nothing changes: no
+   key, no line, no refusal (2.7.0's bytes).
 7. **Write set, exact.** **`REJECTED`-bundle refusal, second of two, under
    this step's own mutation guard** (`WFR-67`): immediately before the
    first write below, the ingest re-calls
@@ -189,7 +209,9 @@ and refuses before writing anything.
 8. **Report and stop.** Report the ingest's returned `round`, `bundle_id`
    and `advisory`. For an `APPROVE`: state that
    `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` is next and that only the user
-   can invoke `/approve-review implementation` (the technical-approval gate
+   can invoke `/approve-review implementation` -- or, where the technical gate is
+   automatic and every requirement is met, that `/satisfy-gate implementation`
+   records the approval from the policy instead (the technical-approval gate
    for a `"2.2"` item additionally requires both ledger stages current --
    already satisfied the moment this write lands). For a `REVISE`: state
    that `/apply-implementation-review` is next. For a `BLOCK`: state that

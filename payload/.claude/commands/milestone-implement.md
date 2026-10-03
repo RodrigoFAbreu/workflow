@@ -272,6 +272,8 @@ dirty-resume rule, `WF2`):
       two lines (e.g. one followed by `Co-Authored-By:`) silently discards
       both and makes the checkpoint undiscoverable.
 
+    This commit keeps whole-file staging. **Gate-policy content check** (workflow-2.8.0, D-GP-Policy): right after this commit, call `workflow_state.assert_gate_policy_fields_unchanged_or_tightened(repo_root, <commit>)`; it refuses a commit that changed `gate_policy_adoption` without a valid, chained record or loosened `gate_policy_floor`.
+
     Both acts happen inside the same `"destructive"` guard window so a
     takeover landing between them cannot leave two worktrees each
     believing they completed the checkpoint. Once the guard is released
@@ -324,7 +326,8 @@ dirty-resume rule, `WF2`):
    `Workflow-Work-Item: <work_item_id>` trailer as the message's final
    paragraph, and **no** `Workflow-Bundle-Generation-Record`,
    `Workflow-Supersedes` or `Workflow-Checkpoint` trailer (this is not a
-   generation-record commit). A no-op call commits nothing.
+   generation-record commit). A no-op call commits nothing. This commit
+   keeps whole-file staging. **Gate-policy content check** (workflow-2.8.0, D-GP-Policy): right after this commit, call `workflow_state.assert_gate_policy_fields_unchanged_or_tightened(repo_root, <commit>)`; it refuses a commit that changed `gate_policy_adoption` without a valid, chained record or loosened `gate_policy_floor`.
 
    The durability is load-bearing, for the same reason step 1f commits
    `complete_checkpoint`'s own write with the checkpoint commit: step 4's
@@ -374,7 +377,8 @@ dirty-resume rule, `WF2`):
      stage="implementation", head=<current HEAD SHA>, now=<now>)` (`WF4c`,
      D-Approval-Commits' sole writer of `reviewed_implementation_head`),
      persist the returned state to `WORKFLOW_STATE.json`, and commit it
-     **alone** — stage exactly that one path (never a broader `git add`)
+     **alone** — stage exactly that one path (never a broader `git add`;
+     **Item-scoped staging** (workflow-2.8.0, `LPR-R6-001`): stage the state file with `workflow_state.stage_scoped_state(repo_root, <work_item_id>)` in place of the bare `git add` of that path (it returns `False`, and the ordinary single-path `git add` runs, unless another work item holds uncommitted residue in the state file).)
      and create one commit carrying `Workflow-Bundle-Generation-Record:
      <work_item_id>/<implementation_revision>` +
      `Workflow-Work-Item: <work_item_id>` trailers, no other trailer.
@@ -410,7 +414,12 @@ dirty-resume rule, `WF2`):
      `docs/ai-workflow/REVIEW_PROTOCOL.md` (stage: `implementation`),
      whose `review_content_id: <hex>` line is obtained from the single
      canonical entry point that document's "Computing `review_content_id`"
-     names for this stage -- never a second, ad hoc computation;
+     names for this stage -- never a second, ad hoc computation. If the implementation stage's gate is `automatic` and the effective `require` lists
+     `distinct_reviewer_models` (`workflow_state.review_stage_gate_context(repo_root,
+     state, work_item_id, "implementation")["requires_distinct"]`), also ask the reviewer, in
+     that file, to state `Reviewer model: <vendor>/<model>` in the verdict's header
+     block, because an `APPROVE` without it is refused at ingest (workflow-2.8.0,
+     `LPR-R16-003`); under a human gate ask for nothing new.
    - run `./scripts/prepare-ai-review.sh <base-sha> implementation
      [work_item_id]`, where `<base-sha>` is the milestone's starting
      commit; `<bundle_dir>` here resolves per

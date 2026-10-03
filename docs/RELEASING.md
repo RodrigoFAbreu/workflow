@@ -123,7 +123,7 @@ the branch itself.
 | `package` | `release.py build --commit HEAD`; the pinned Workflow Manager's `package verify` of the archive; `--release-dir` bootstrap and verify of a scratch repository; uploads the three assets as the `package` artifact |
 | `immutability` | `release.py check-pending` and `check-immutable` against the saved release list; when the manifest version is published, `check-immutable --published` against the downloaded `vV` assets |
 | `installation` | `workflow-manager verify .` with the pinned Manager |
-| `release-source-conformance` | `release.py stage-conformance --commit HEAD`, then the release source's own eight frozen suites in that fixture |
+| `release-source-conformance` | `release.py stage-conformance --commit HEAD`, then the release source's own nine frozen suites in that fixture |
 | `aggregate` | fails unless every job above succeeded |
 
 `PR title` runs `release.py check-title "$TITLE" --agree` on every pull

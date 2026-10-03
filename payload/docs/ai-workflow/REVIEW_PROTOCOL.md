@@ -590,7 +590,12 @@ evidence.
 - tests run and results;
 - known limitations;
 - unresolved questions;
-- specific areas the reviewer should challenge.
+- specific areas the reviewer should challenge;
+- where the stage's gate is `automatic` and the effective gate policy lists
+  `distinct_reviewer_models` in its `require` (workflow-2.8.0; the default
+  policy does), a request that the reviewer state `Reviewer model:
+  <vendor>/<model>` in the verdict's header block (below). Under a human gate
+  the request asks for nothing new.
 
 It must **not** contain a `bundle_id: <64 hex chars>` line — see the
 prohibition under "Author-written files" above.
@@ -676,6 +681,29 @@ rounds, a legacy marker, a verdict that states no `review_content_id`) is
 bound by the three binding fields, as above. No command and no remedy ever
 rewrites a reviewer's binding fields: they attest to what the reviewer
 reviewed.
+
+`Reviewer model:` (workflow-2.8.0, optional) declares the model that reviewed,
+as `<vendor>/<model>` (for example `anthropic/claude-opus-5-5`), in the header
+block. It is written by `/review-plan` and `/review-implementation`, and
+requested of a manual reviewer, **only when the stage's gate is `automatic` and
+the effective gate policy lists `distinct_reviewer_models`**; otherwise the
+file is exactly 2.7.0's. The family is the value up to the first `/`, `:` or
+space, lowercased, so `anthropic/opus` and `anthropic/sonnet` are one family; a
+bare model id still parses, as its own family. The line is read from the
+header block only (`workflow_fingerprint.parse_feedback_reviewer_model`): the
+same text quoted in the body declares nothing, and two different values in the
+header parse as none. The value is declared and unverified. An `APPROVE`
+ingest that states none, or states the family already recorded for the other
+stage, is refused while the stage is open (`DistinctReviewerModelsRequiredError`).
+A person with a single reviewer subscription records a second declared family,
+turns that gate human, or adopts a policy without the requirement before the
+stage's bundle is generated; `GATE_POLICY.md` ("Distinct reviewer models")
+states the three paths. Under the default policy the stage's gate is
+automatic, so an approving verdict is not a person's approval: the Workflow
+satisfies the gate from the recorded verdicts (`/satisfy-gate`), which are
+trusted from whoever reports them and are bound by bundle and content id
+(`GATE_POLICY.md`, "Trust boundary"). Turning human approval on is the stronger
+mode.
 
 `Reviewed review_content_id:` is the one pinned label for the reviewed
 `review_content_id` (workflow-2.7.0, `v2.6.0-002`). It is **required** on

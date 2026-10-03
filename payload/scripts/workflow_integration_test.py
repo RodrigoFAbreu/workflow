@@ -753,6 +753,15 @@ class TestVersion21OnlyCommandsRefuseCleanlyForV1(unittest.TestCase):
 # below, for the two files where a real pre-v2.1 copy is actually
 # available to diff against.
 _GOLDEN_COMMAND_FILE_SHA256 = {
+    # workflow-2.8.0 (gate-policy-and-reopening, CP2): `approve-review.md`
+    # gains the pointer to `/satisfy-gate`; `milestone-plan.md`,
+    # `apply-plan-review.md`, `milestone-implement.md` and
+    # `apply-implementation-review.md` gain the sentence asking the reviewer for
+    # `Reviewer model:` when the gate requires distinct models;
+    # `review-plan.md`, `review-implementation.md` and
+    # `record-manual-plan-review.md` gain the `Reviewer model:` line and the audit
+    # keys; `apply-functional-review.md` names `/satisfy-gate` in the child
+    # sequence -- intentional content changes, not regressions.
     # Updated by WFO-STATE-SERIALIZATION (item 354/357): every writer
     # command file below gained a `state_writer: true` frontmatter
     # declaration and a "State-writer discipline" paragraph naming
@@ -847,7 +856,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # milestone-plan.md further updated, D-Consumed-History (workflow-2.7.0,
     # CP2, v2.6.0-001): the withdrawal report names the durable
     # consumed_plan_review_content_ids history -- intentional content change.
-    "milestone-plan.md": "d74189364d76e431949ddb79aed738695ad3ca22359e3f3c39e034fe657d29cb",
+    "milestone-plan.md": "e3f1c979871fe65b1f6d20aedabb2e6afe797b40af19944a314a96ee247e6ed3",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the
@@ -874,7 +883,12 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 1a calls
     # implementing_entry_status and reports its cause and remedy --
     # intentional content change.
-    "milestone-implement.md": "ee82db516103df60c3a7601be6f869167b071e34cd96517eea8e2d458ec18cf6",
+    # workflow-2.8.0 (gate-policy-and-reopening, CP1): step 4's generation-
+    # record commit stages item-scoped (stage_scoped_state), and the
+    # checkpoint (1f) and self-review (2) commits call
+    # assert_gate_policy_fields_unchanged_or_tightened after landing --
+    # intentional content change.
+    "milestone-implement.md": "09d20a57b37590fe632b60149f0ce13aa04d6b796a8671909db5dc3dd13bd128",
     # approve-review.md (WF8c item (c), same-content bundle-generation
     # republication idempotency; further updated WF8c item (b): the
     # trailing caveat naming the dedicated /recover-implementation-provenance
@@ -999,7 +1013,12 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # state re-read after the BLOCK pin, reporting the first cause in the
     # wrapper's order; step 2's generation and bundle-bound checks run
     # inside it -- intentional content change.
-    "approve-review.md": "b401ca09d90c07f76ce696dcdcae526ad768c7bb5f46312396db48d631ed727e",
+    # workflow-2.8.0 (gate-policy-and-reopening, CP1): the technical-
+    # approval commit stages item-scoped (stage_scoped_state); the plan-
+    # approval commit keeps its whole-file pin and
+    # verify_plan_approval_commit applies the gate-policy content check --
+    # intentional content change.
+    "approve-review.md": "e760ecb36c98e271ad483af4d3b3a0bcb6469749f333742bbb993c9e93a7fb21",
     # accept-milestone.md updated, baseline-freeze correctness fix
     # (OPUS-R129-001): step 6's completion-commit instruction now states
     # the same "trailers must be the commit message's own final paragraph"
@@ -1023,7 +1042,18 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # cannot start one at AWAITING_FUNCTIONAL_REVIEW; it says no 2.6.0
     # command completes one there, and keeps the /apply-functional-review
     # routing -- intentional content change.
-    "accept-milestone.md": "236a370b2474ce2e6d223da0aeab16c4870f5876831d16c851b58826747c497a",
+    #
+    # accept-milestone.md further updated, workflow-2.8.0 (gate-policy-and-
+    # reopening, CP4): a pointer to /satisfy-gate acceptance, step 2a's
+    # requires_pr_approved pre-flight (only when the option is set) and step 5
+    # pinned to copy, never move (LPR-R2-003) -- intentional content change.
+    #
+    # accept-milestone.md further updated, workflow-2.8.0 (gate-policy-and-
+    # reopening, CP5): step 5 states what a re-acceptance of a reopened item
+    # does (one archive copy and one roadmap row, `acceptance_satisfaction`
+    # overwritten, `completion_obligations_accepted` kept) -- intentional
+    # content change.
+    "accept-milestone.md": "e2118ae175569e6db79bda883ba6b7c31199fedc4dedac5697d9fee1f3225f7c",
     # prepare-functional-review.md further updated, baseline-portability
     # correctness fix (OPUS-R129-001): step 3a's checklist-evidence
     # provenance commit instruction now states the same "trailers must be
@@ -1066,7 +1096,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # assert_apply_review_feedback_binding (D-Apply-Binding): a two-stage
     # REVISE stating a review_content_id is bound by content --
     # intentional content change.
-    "apply-plan-review.md": "7e0eac1ca5a9c343364a482e3de1ade9abe89bf9d18841fbec7942ccff1e010f",
+    "apply-plan-review.md": "17c7ea54b5d98cd5267dccbe42df5b4e37ed8a1fc8be3762d34aa9b2db5a4658",
     # apply-implementation-review.md (WF8c item (c)): step 7's
     # record_bundle_generation call site widened to first resolve the
     # outcome (resolve_bundle_generation_outcome) and write the matching
@@ -1098,7 +1128,10 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # assert_apply_review_feedback_binding (D-Apply-Binding): a 2.2 REVISE
     # stating a review_content_id is bound by content -- intentional
     # content change.
-    "apply-implementation-review.md": "c728eeabe25a6fae2376d773f1091d96123fcc6de470f2f49957508de74cc2c1",
+    # workflow-2.8.0 (gate-policy-and-reopening, CP1): the generation-record
+    # commit stages item-scoped (stage_scoped_state) -- intentional content
+    # change.
+    "apply-implementation-review.md": "deaf93154185971241690ee4b5e0c8ec9b21a765a957e5cae78f1a66627a76ba",
     # review-plan.md/record-manual-plan-review.md further updated,
     # workflow-v2-3-followups CP3 (REQ-8/-9): the `Reviewer role:` template
     # literal, the round-computation prose, the exact-match-expectation
@@ -1136,7 +1169,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-plan.md further updated, D-Consumed-History (workflow-2.7.0,
     # CP2, v2.6.0-001): REVISE also adds the id to the durable
     # consumed_plan_review_content_ids history -- intentional content change.
-    "review-plan.md": "025bef3dbb2bc5673a81a801d4800bc91d921c5695857a797e9f06c00fc01008",
+    "review-plan.md": "61cb286719b6f310c61f9304324d6994f74dc9c443661178b81c051e05d27e0d",
     # record-manual-plan-review.md further updated, D-Feedback-Layout
     # (workflow-2.6.0, CP3): preamble states feedback_layout-keyed
     # resolution; step 4 prints the exact resolved paste path and adds the
@@ -1155,7 +1188,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # ingest_manual_review_verdict (two_stage_only=True), which holds
     # state_lock through the publication; the required header fields,
     # Round: and the absent-bundle-id advisory -- intentional content change.
-    "record-manual-plan-review.md": "e93576f32faf16c97e96427698c578db664b3fa8d30857904ccffc823e5ed10c",
+    "record-manual-plan-review.md": "f5647bdb1af514a4c89d0fdf9e6bfe098009d48ee6f124c0bf26684f2870b58f",
     # bootstrap-workflow-v2.md (WF8c scope clauses (l)/(p)/(q), GPT-R108-002/
     # OPUS-R109-004): the driver-range text made checkpoint-agnostic
     # (OPUS-R102-009), a NO_CHECKPOINT terminal-wrap-up branch added to step
@@ -1249,7 +1282,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-implementation.md further updated, workflow-2.7.0
     # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 4's bundle check is
     # verify_implementation_review_bundle -- intentional content change.
-    "review-implementation.md": "0be61b024f1ac501caff7044d667b842ebce4a26017619999c0d37cf7a6d2ed2",
+    "review-implementation.md": "656538d4033c9a086adf1c0b387f15d18ee5a5b95af782a6267a712018d04060",
     # review-functional.md: new, workflow-v2-3 CP2 -- the first recorded
     # hash, not a change.
     #
@@ -1324,7 +1357,15 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (workflow-2.6.0, CP4): a two-stage remediation child's publish is
     # mirror-only and its bind writes AWAITING_LOCAL_PLAN_REVIEW --
     # intentional content change, not a regression.
-    "apply-functional-review.md": "25b42a93c05e4c2f40cc3f05041878b48ddb8459b9313e9c4f9820edbda27139",
+    # workflow-2.8.0 (gate-policy-and-reopening, CP1): the generation-record
+    # commit stages item-scoped (stage_scoped_state) -- intentional content
+    # change.
+    # workflow-2.8.0 (gate-policy-and-reopening, CP4): a closing cross-reference
+    # to /satisfy-gate acceptance -- intentional content change.
+    # workflow-2.8.0 (gate-policy-and-reopening, CP5): the remediation child
+    # sequence names /apply-pr-review <child-id> for a child whose pull
+    # request turns red -- intentional content change.
+    "apply-functional-review.md": "46433a2781f5e27487702e7c702fb3f0a7f5d3fcb0df7e1bcc18297e645cf7ad",
 }
 
 
@@ -6534,14 +6575,16 @@ class TestRetiredScopedRemediationLeavesNoLiveSurface(unittest.TestCase):
         and `/review-functional` without ever sectioning them here. Both
         gaps are now closed -- `workflow-2.4.0` CP3 added a sixteenth,
         `/request-plan-amendment` -- and `workflow-2.5.0` CP4 added a
-        seventeenth, `/record-manual-implementation-review` -- the
-        reference sections all 17 live commands -- and this test derives
+        seventeenth, `/record-manual-implementation-review`, and
+        `workflow-2.8.0` CP1 an eighteenth, `/adopt-gate-policy`, CP2 a
+        nineteenth, `/satisfy-gate`, and CP5 a twentieth, `/apply-pr-review` --
+        the reference sections all 20 live commands -- and this test derives
         the expected count from the real files rather than hand-maintaining
         a number that can go stale again."""
         text = (_repo_root() / "docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md").read_text()
         sections = re.findall(r"(?m)^### `/([a-z0-9-]+)", text)
         on_disk = sorted(p.stem for p in (_repo_root() / ".claude" / "commands").glob("*.md"))
-        self.assertEqual(len(on_disk), 17)
+        self.assertEqual(len(on_disk), 20)
         self.assertNotIn("accept-scoped-remediation", sections)
         self.assertNotIn("accept-scoped-remediation", on_disk)
         # Every live command has exactly one section, and vice versa.
@@ -7035,6 +7078,19 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         # workflow-2.7.0, Orchestration Protocol v1: next-action's
         # disposition values, literal enum values, not callables.
         "external_gate", "human_gate",
+        # workflow-2.8.0, D-GP-Policy: the two optional top-level state field
+        # names, not callables.
+        "gate_policy_adoption", "gate_policy_floor",
+        # workflow-2.8.0 CP2, D-GP-Gates: a `require` entry, the requirement
+        # id that audits the ledger, and the approval record's evidence key,
+        # not callables.
+        "distinct_reviewer_models", "review_evidence_audited", "policy_evidence",
+        # workflow-2.8.0 CP5, D-GP-Reopen: the pull-request fact's cause names,
+        # the policy keys, the refusal codes and the two key sets, literal
+        # values and field names, not callables.
+        "changes_requested", "checks_failed", "content_changed", "pr_merged",
+        "pr_review", "reopen_on", "reopen_plan_archived", "reopened_for",
+        "workflow_gh",
     })
 
     def test_every_code_symbol_the_reference_names_actually_exists(self):
@@ -7139,6 +7195,170 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         self.assertEqual(expected - named, set())
         self.assertIn("never `active_work_item_id`", section)
         self.assertIn("IncompleteChildWorkItemError", section)
+
+
+def _doc_text(name: str) -> str:
+    """A shipped document with Markdown emphasis removed and whitespace
+    collapsed, so a sentence wrapped across lines reads as one."""
+    text = (_repo_root() / "docs" / "ai-workflow" / name).read_text()
+    return " ".join(text.replace("**", "").split())
+
+
+class TestGatePolicyDocuments(unittest.TestCase):
+    """workflow-2.8.0 CP7: the operator guide (`GATE_POLICY.md`) and the
+    protocol specification state the trust boundary, the threat model and the
+    reopening residuals in the plan's words, and offer no CI-produced
+    evidence."""
+
+    GUIDE = "GATE_POLICY.md"
+    PROTOCOL = "ORCHESTRATION_PROTOCOL.md"
+
+    TRUST_BOUNDARY = (
+        "CI and pull-request facts that satisfy a gate come from GitHub",
+        "only tightens",
+        "a gate that cannot decide blocks",
+        "Review verdicts and functional evidence are trusted from the orchestrator",
+        "The Workflow guarantees binding, freshness and audit",
+        "does not guarantee provenance",
+        "Turning human approval on is the stronger mode",
+    )
+
+    def test_the_guide_and_the_protocol_state_the_trust_boundary_and_the_stronger_mode(self):
+        guide = _doc_text(self.GUIDE)
+        protocol = _doc_text(self.PROTOCOL)
+        # The guide's wording differs slightly from the protocol's in the
+        # first sentence only; each document states every other sentence.
+        for sentence in self.TRUST_BOUNDARY[1:]:
+            with self.subTest(sentence=sentence, doc="guide"):
+                self.assertIn(sentence.lower(), guide.lower())
+            with self.subTest(sentence=sentence, doc="protocol"):
+                self.assertIn(sentence.lower(), protocol.lower())
+        for text in (guide, protocol):
+            self.assertIn("CI and pull-request facts", text)
+            self.assertIn("come from GitHub", text)
+            self.assertIn("Turning human approval on is the stronger mode", text)
+        self.assertIn("verdict hash", guide)
+        self.assertIn("bundle id", guide)
+        self.assertIn("run reference", guide)
+        self.assertIn("verdict hash", protocol)
+        self.assertIn("bundle and content ids", protocol)
+        self.assertIn("run reference", protocol)
+
+    def test_the_guide_carries_the_named_threat_model_with_its_three_statements(self):
+        raw = (_repo_root() / "docs" / "ai-workflow" / self.GUIDE).read_text()
+        self.assertEqual(len(re.findall(r"^## Threat model$", raw, re.M)), 1)
+        section = " ".join(raw.split("\n## Threat model", 1)[1].split("\n## ", 1)[0].replace("**", "").split())
+        for label in ("What is guaranteed.", "What is not guaranteed.", "The safeguards that remain"):
+            self.assertIn(label, section)
+        self.assertLess(section.index("What is guaranteed."), section.index("What is not guaranteed."))
+        self.assertLess(section.index("What is not guaranteed."), section.index("The safeguards that remain"))
+        self.assertIn("deliberately forges a commit, a trailer or the state", section)
+        self.assertIn("replaces a system program", section)
+        self.assertIn("No signed commits and no GitHub-side adoption are provided", section)
+        # the resolution rule for `gh` and what it records
+        for fragment in ("absolute path", "inside the repository", "its worktrees", "temporary directory",
+                         "world-writable", "records the resolved path and the executable's sha256"):
+            self.assertIn(fragment, section)
+        # the gate-lowering event and where it is reported
+        guide = _doc_text(self.GUIDE)
+        self.assertIn("gate-lowering event", guide)
+        for place in ("`verify`", "`next-action`", "audit record"):
+            self.assertIn(place, guide)
+        self.assertIn("stronger mode", section)
+        protocol = _doc_text(self.PROTOCOL)
+        self.assertIn("D-GP-ThreatModel", protocol)
+        self.assertIn("D-GP-Trust", protocol)
+        self.assertIn("GATE_POLICY.md", protocol)
+
+    def test_neither_document_offers_ci_produced_functional_or_review_evidence(self):
+        for name in (self.GUIDE, self.PROTOCOL):
+            text = _doc_text(name)
+            self.assertIn("produced in CI is not accepted, and no policy option offers it", text, name)
+            for match in re.finditer(r"(?i)produced in CI|CI-produced|CI result kind|ci_result", text):
+                tail = text[match.start():match.end() + 80]
+                self.assertTrue(
+                    re.search(r"(?i)not accepted|no CI result kind|There is no|No CI-produced", text[max(0, match.start() - 60):match.end() + 80]),
+                    f"{name}: {tail!r}",
+                )
+
+    def test_the_guide_states_both_reopening_residuals_the_second_with_its_human_acceptance_case(self):
+        text = _doc_text(self.GUIDE)
+        # first residual: enabling a cause never reopens a completed item from a stored fact
+        self.assertIn("Enabling a reopening cause never reopens a completed item from a stored fact alone", text)
+        self.assertIn("re-queries GitHub first", text)
+        # second residual
+        self.assertIn("a same-head red reopen with no orchestrator report is never remediated", text)
+        self.assertIn("at `MILESTONE_COMPLETE`", text)
+        self.assertIn("under human acceptance without `requires_pr_approved`, at `AWAITING_FUNCTIONAL_REVIEW`", text)
+        self.assertIn("where no Workflow query runs", text)
+        self.assertIn("A human-acceptance repository must have an orchestrator report it to have it acted on", text)
+        # a reopened item is surfaced only by naming it, and keeps its completed narrative state
+        self.assertIn("A reopened item is surfaced only by naming it", text)
+        self.assertIn("/apply-pr-review", text)
+        self.assertIn("--work-item", text)
+        self.assertIn("the roadmap row stays complete and `docs/ACTIVE_MILESTONE.md` stays cleared", text)
+
+    def test_the_guide_states_the_toggles_the_floor_and_the_single_subscription_paths(self):
+        text = _doc_text(self.GUIDE)
+        raw = (_repo_root() / "docs" / "ai-workflow" / self.GUIDE).read_text()
+        self.assertIn('{"schema_version": 1, "human_approval": true}', raw)
+        self.assertIn("one-line way back to human gates", text)
+        self.assertIn("The default is different, on purpose", text)
+        for fragment in ("provenance_failed", "a new `/adopt-gate-policy` commit", "gate_policy_floor",
+                         "Automatic acceptance needs an open pull request first",
+                         "`distinct_reviewer_models` is on by default",
+                         "Record a second family at ingest", "Turn that gate human",
+                         "Adopt a policy without the requirement", "before the stage's bundle is generated",
+                         "/recover-implementation-provenance", "permanent `warn`", "gate_lowering",
+                         "anthropic/...", "openai/...", "declared and unverified",
+                         "requires_pr_approved", "Order for"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, text)
+
+    def test_the_protocol_states_completion_the_default_and_the_consumer_bound(self):
+        text = _doc_text(self.PROTOCOL)
+        self.assertNotIn("No automatic action has an edge to `MILESTONE_COMPLETE`", text)
+        self.assertIn("`acceptance.satisfy` is a `validation` action", text)
+        self.assertIn("its arrival there is classed `progress`", text)
+        self.assertIn("`/accept-milestone` stays the writer only for a human gate", text)
+        self.assertIn("the default switches the gates to automatic", text)
+        self.assertIn('`"human_approval": true`, which is the one-line way back', text)
+        self.assertIn("consecutive `no_progress` results of the **same** action id at an **unchanged** `state_identity`".replace("**", ""), text)
+        # the edge table carries every .satisfy forward and same-phase edge and pr.apply_review's completed-item edges
+        raw = (_repo_root() / "docs" / "ai-workflow" / self.PROTOCOL).read_text()
+        for row in (
+            "| `plan.satisfy` | `AWAITING_PLAN_APPROVAL` | `IMPLEMENTING` | `2.1`, `2.2` |",
+            "| `plan.satisfy` | `AWAITING_PLAN_APPROVAL` | `AWAITING_PLAN_APPROVAL` | `2.1`, `2.2` |",
+            "| `implementation.satisfy` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `AWAITING_FUNCTIONAL_REVIEW` | `2.2` |",
+            "| `implementation.satisfy` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `2.2` |",
+            "| `acceptance.satisfy` | `AWAITING_FUNCTIONAL_REVIEW` | `MILESTONE_COMPLETE` | `1`, `2.1`, `2.2` |",
+            "| `acceptance.satisfy` | `AWAITING_FUNCTIONAL_REVIEW` | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` |",
+            "| `pr.apply_review` | `MILESTONE_COMPLETE` | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` |",
+            "| `pr.apply_review` | `MILESTONE_COMPLETE` | `MILESTONE_COMPLETE` | `1`, `2.1`, `2.2` |",
+        ):
+            with self.subTest(row=row):
+                self.assertIn(row, raw)
+
+    def test_the_other_gate_documents_point_at_the_guide(self):
+        for name in ("MILESTONE_WORKFLOW.md", "WORKFLOW_V2_1_OPERATOR_REFERENCE.md", "REVIEW_PROTOCOL.md",
+                     self.PROTOCOL):
+            with self.subTest(doc=name):
+                self.assertIn("GATE_POLICY.md", _doc_text(name))
+        self.assertIn("automatic by default", _doc_text("WORKFLOW_V2_1_OPERATOR_REFERENCE.md"))
+        self.assertIn("By default they are automatic", _doc_text("MILESTONE_WORKFLOW.md"))
+
+    def test_the_new_and_edited_documents_pass_the_installed_documentation_sweeps(self):
+        docs = _repo_root() / "docs" / "ai-workflow"
+        names = (self.GUIDE, self.PROTOCOL, "MILESTONE_WORKFLOW.md", "WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+                 "REVIEW_PROTOCOL.md")
+        texts = {str(docs / name): (docs / name).read_text() for name in names}
+        findings = ws.sweep_governing_version_enumeration(texts)
+        self.assertEqual(findings, [], [repr(f) for f in findings])
+        claims = ws.sweep_applying_review_feedback_version_claims(texts)
+        self.assertEqual(claims, [], [repr(f) for f in claims])
+        # the new document quotes no governing-version list at all
+        guide = texts[str(docs / self.GUIDE)]
+        self.assertNotRegex(guide, r'"1"\s*(?:,|/)\s*"2\.1"|"2\.1"\s*(?:,|/)\s*"2\.2"')
 
 
 # ---------------------------------------------------------------------------

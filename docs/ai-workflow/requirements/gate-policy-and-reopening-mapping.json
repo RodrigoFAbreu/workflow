@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "work_item_id": "gate-policy-and-reopening",
+  "requirements": {
+    "REQ-1": {
+      "description": "A declarative gate policy: a closed schema, an automatic default, a master human-approval switch and per-gate overrides for the plan, implementation and acceptance gates, a default that requires distinct reviewer model families for the automatic plan and technical gates (configurable; removing it is a loosening), and user-only adoption by digest",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "REQ-2": {
+      "description": "Safety: an agent can never loosen a gate; the effective policy is never looser than the committed adopted policy or the recorded floor of every setting observed in the file, an edited, deleted or invalid file never loosens it, and the adopted policy and the floor are verified by their content and the chain of their changes, which survives squash merges, with a stated merge rule for concurrent branches (a floor conflict resolves to the stricter side for the fields both changed and to the changed side otherwise, a concurrent second adoption is re-adopted; a mismatch fails closed to all gates human); the guarantee is stated under the named threat model (an agent acting through the commands and protocol, not one forging state by hand), and every gate-lowering adoption is flagged in its record and reported by verify and next-action",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "REQ-3": {
+      "description": "Human equivalence: with every gate human, behavior equals 2.7.0's apart from the listed deltas; the update to 2.8.0 is stated and simulated for both the default and the all-human configuration",
+      "checkpoint_ids": [
+        "CP6",
+        "CP7"
+      ]
+    },
+    "REQ-4": {
+      "description": "Plan and implementation approvals satisfied automatically by current local and external review evidence, with every existing precondition retained, distinct declared reviewer families by default, the single-family remedies named when it blocks, and an auditable record",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "REQ-5": {
+      "description": "Functional flows and GitHub-sourced pull-request facts (CI is the fact's checks) ingested as identity-bound evidence; the Workflow owns every invalidation rule and the next legal action",
+      "checkpoint_ids": [
+        "CP3",
+        "CP6"
+      ]
+    },
+    "REQ-6": {
+      "description": "Milestone acceptance satisfied automatically by evidence (every checkpoint complete, a current technical approval, passing functional flows, and a GitHub-sourced pull-request fact for the exact approved head with no failing checks and no `CHANGES_REQUESTED`, and by policy green and approved), audited, and blocked when evidence is missing, stale, behind a local fix or undecidable",
+      "checkpoint_ids": [
+        "CP4"
+      ]
+    },
+    "REQ-7": {
+      "description": "A red or changes-requested pull request reopens the same work item into remediation, with re-review and re-validation, and the item completes again",
+      "checkpoint_ids": [
+        "CP5"
+      ]
+    },
+    "REQ-8": {
+      "description": "Protocol 1.1: additive rows, actions and kinds, `validation` emitted, schema, `describe`, unaware consumers fail closed or stall",
+      "checkpoint_ids": [
+        "CP6",
+        "CP7"
+      ]
+    },
+    "REQ-9": {
+      "description": "Specification, operator guide and lifecycle end-to-end tests (automatic, mixed and all-human); installed documentation sweeps pass",
+      "checkpoint_ids": [
+        "CP7"
+      ]
+    },
+    "REQ-10": {
+      "description": "2.8.0 releasable: manifest, conformance CI for the new suite, release-constant guard",
+      "checkpoint_ids": [
+        "CP8"
+      ]
+    },
+    "REQ-11": {
+      "description": "The roadmap refresh: W1 complete including the cutover, W2 in progress, then complete pending cutover",
+      "checkpoint_ids": [
+        "CP1",
+        "CP8"
+      ]
+    },
+    "REQ-12": {
+      "description": "The trust boundary: CI and pull-request facts that satisfy a gate come only from GitHub through the Workflow's one fixed query run in the satisfying transaction (an orchestrator's forge fact is tighten-only: it can only trigger that query, never decide or satisfy) and a gate that cannot decide blocks; review verdicts and functional evidence are trusted from the orchestrator with a stated boundary and an audit trail (verdict hash, bundle and content ids, run reference); human approval is documented as the stronger mode; no CI-produced evidence; the Workflow resolves gh to an absolute path and refuses one inside the repository, a worktree, the temp directory or a world-writable directory (recording its path and sha256), and a full page of pull requests is undecidable",
+      "checkpoint_ids": [
+        "CP2",
+        "CP3",
+        "CP4",
+        "CP7"
+      ]
+    }
+  }
+}

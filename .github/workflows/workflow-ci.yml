@@ -179,7 +179,7 @@ jobs:
           python-version: "3.12"
       - name: Stage the conformance fixture
         run: python3 tools/release/release.py stage-conformance --commit HEAD --out "$RUNNER_TEMP/fixture"
-      # The same eight suites, in the same order, as workflow-conformance.yml.
+      # The same nine suites, in the same order, as workflow-conformance.yml.
       - name: workflow_fingerprint_test.py
         working-directory: ${{ runner.temp }}/fixture/scripts
         run: python3 workflow_fingerprint_test.py
@@ -204,6 +204,9 @@ jobs:
       - name: workflow_protocol_test.py
         working-directory: ${{ runner.temp }}/fixture/scripts
         run: python3 workflow_protocol_test.py
+      - name: workflow_gate_policy_test.py
+        working-directory: ${{ runner.temp }}/fixture/scripts
+        run: python3 workflow_gate_policy_test.py
 
   aggregate:
     needs: [tooling, package, immutability, installation, release-source-conformance]

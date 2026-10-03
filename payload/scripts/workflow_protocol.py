@@ -39,16 +39,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import workflow_fingerprint  # noqa: E402
+import workflow_forge  # noqa: E402
+import workflow_gate_policy  # noqa: E402
 import workflow_state  # noqa: E402
 
 #: The Workflow release these bytes are. A build refuses when it differs
 #: from the manifest's `workflow_version` (CP7); it never reads the
 #: installation record.
-WORKFLOW_RELEASE = "2.7.0"
+WORKFLOW_RELEASE = "2.8.0"
 
 PROTOCOL_NAME = "workflow-orchestration"
 PROTOCOL_MAJOR = 1
-PROTOCOL_VERSION = "1.0"
+PROTOCOL_VERSION = "1.1"
 SUPPORTED_PROTOCOL_MAJORS = (PROTOCOL_MAJOR,)
 
 #: The single source of the governing versions the protocol supports
@@ -84,21 +86,29 @@ WORKFLOW_EXCEPTION_CODES = {
     "UnknownFeedbackLayoutError": "state_invalid",
 }
 
-#: D-OP-Next's dispositions. `validation` is W2 vocabulary that 2.7.0
-#: never emits (`OD-W1-7`).
+#: D-OP-Next's dispositions. `validation` was W2 vocabulary that 2.7.0 never
+#: emitted (`OD-W1-7`); from 2.8.0 (protocol 1.1) a gate satisfied by policy
+#: is a `validation` decision, which an orchestrator may launch like an
+#: automatic one (D-GP-Rows).
 DISPOSITIONS = ("automatic", "validation", "human_gate", "external_gate", "blocked", "complete")
 
-#: D-OP-External's result kinds, each with the review stage it ingests,
-#: and the kinds reserved for W2.
+#: D-OP-External's result kinds, each with the stage it ingests. The two
+#: verdict kinds are the 1.0 kinds; `functional_evidence` and
+#: `pr_review_result` moved from reserved to supported in 1.1 (`OD-W2-9`).
 EXTERNAL_RESULT_KIND_STAGES = {
     "plan_review_verdict": "plan",
     "implementation_review_verdict": "implementation",
+    "functional_evidence": "functional",
+    "pr_review_result": "pr_review",
 }
 EXTERNAL_RESULT_KINDS = tuple(sorted(EXTERNAL_RESULT_KIND_STAGES))
-RESERVED_RESULT_KINDS = ("functional_evidence", "pr_review_result")
+#: The kinds that ingest a review verdict through the manual-verdict ingest.
+VERDICT_RESULT_KINDS = ("implementation_review_verdict", "plan_review_verdict")
+#: The kinds still reserved for a later protocol version (none in 1.1).
+RESERVED_RESULT_KINDS: tuple[str, ...] = ()
 
 #: D-OP-Next's worker roles.
-WORKER_ROLES = ("planner", "implementer", "self_reviewer", "independent_reviewer", "applier", "user", "external")
+WORKER_ROLES = ("planner", "implementer", "self_reviewer", "independent_reviewer", "applier", "validator", "user", "external")
 
 
 def _action_spec(command: str | None, invocation: str | None, role: str, *, fresh_session: bool = False,
@@ -147,6 +157,16 @@ ACTIONS = {
         "review-functional", "/review-functional {id}", "independent_reviewer",
         fresh_session=True, independent_of=("implementer",)),
     "milestone.accept": _action_spec("accept-milestone", "/accept-milestone {id}", "user", user_only=True),
+    # workflow-2.8.0 (protocol 1.1, D-GP-Rows): a gate satisfied by policy is a
+    # validation the Workflow performs (role `validator`), never a person's
+    # decision; `pr.apply_review` reopens and remediates a red pull request;
+    # the two external gates name evidence a reporter can still supply.
+    "plan.satisfy": _action_spec("satisfy-gate", "/satisfy-gate plan {id}", "validator"),
+    "implementation.satisfy": _action_spec("satisfy-gate", "/satisfy-gate implementation {id}", "validator"),
+    "acceptance.satisfy": _action_spec("satisfy-gate", "/satisfy-gate acceptance {id}", "validator"),
+    "pr.apply_review": _action_spec("apply-pr-review", "/apply-pr-review {id}", "applier"),
+    "functional.evidence.external": _action_spec(None, None, "external"),
+    "pr.review.external": _action_spec(None, None, "external"),
 }
 
 #: The action catalogue's ids (D-OP-Next).
@@ -200,11 +220,14 @@ class _Parser(argparse.ArgumentParser):
 def is_workflow_exception(exc: BaseException) -> bool:
     """A Workflow exception is an instance of a class `C` with
     `issubclass(C, Exception)` whose `__module__` is the `__name__` of the
-    `workflow_state` or `workflow_fingerprint` module object this module
-    imported -- read from the module objects, never from literals."""
+    `workflow_state`, `workflow_fingerprint`, `workflow_gate_policy` or
+    `workflow_forge` module object this module imported -- read from the
+    module objects, never from literals."""
     if not isinstance(exc, Exception):
         return False
-    return type(exc).__module__ in {workflow_state.__name__, workflow_fingerprint.__name__}
+    return type(exc).__module__ in {
+        workflow_state.__name__, workflow_fingerprint.__name__, workflow_gate_policy.__name__,
+        workflow_forge.__name__}
 
 
 def code_for_workflow_exception(exc: BaseException) -> str:
@@ -365,7 +388,12 @@ VERIFY_CHECK_IDS = (
     "checkpoint_completions_provable",
     "installation_release_matches",
     "protocol_ready",
+    "gate_policy",
 )
+
+#: Advisory checks: never part of `protocol_ready` and never change `healthy`
+#: (workflow-2.8.0, `LPR-R2-007`).
+ADVISORY_VERIFY_CHECKS = frozenset({"gate_policy"})
 
 
 def _check(check_id: str, status: str, detail: str) -> dict:
@@ -554,7 +582,17 @@ def op_verify(repo_root: Path, args: argparse.Namespace) -> dict:
     checks.append(_check(
         "protocol_ready", "pass" if ready else "fail",
         "checks 1-4 passed" if ready else "a check among 1-4 did not pass"))
-    return {"healthy": all(c["status"] != "fail" for c in checks), "checks": checks}
+    try:
+        status, detail = workflow_gate_policy.verify_check(repo_root, state)
+    except Exception as exc:
+        if not _is_check_refusal(exc):
+            raise
+        status, detail = "fail", _refusal_detail(exc)
+    checks.append(_check("gate_policy", status, detail))
+    return {
+        "healthy": all(c["status"] != "fail" for c in checks if c["id"] not in ADVISORY_VERIFY_CHECKS),
+        "checks": checks,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -759,6 +797,19 @@ CONDITION_CALLS = {
     "38c": [_c("resolve_own_registry_completion_status", "value")],
     "39": [_c("resolve_own_registry_completion_status", "value")],
     "40": [],
+    # workflow-2.8.0 (D-GP-Rows): the rows each gate's policy adds.
+    "14a": [_c("effective_policy", "value"), _c("plan_approval_gate_status", "value"), _c("evaluate_gate", "value")],
+    "14b": [_c("effective_policy", "value"), _c("plan_approval_gate_status", "value"), _c("evaluate_gate", "value")],
+    "28a": [_c("effective_policy", "value"), _c("technical_approval_gate_status", "value"),
+            _c("evaluate_gate", "value")],
+    "28b": [_c("effective_policy", "value"), _c("technical_approval_gate_status", "value"),
+            _c("evaluate_gate", "value")],
+    "38d": [_c("effective_policy", "value"), _c("pr_query_trigger", "value"), _c("actionable_pr_keys", "value")],
+    "38e": [_c("effective_policy", "value"), _c("evaluate_gate", "value")],
+    "38f": [_c("effective_policy", "value"), _c("evaluate_gate", "value")],
+    "38g": [_c("effective_policy", "value"), _c("evaluate_gate", "value"), _c("pr_approved_requirements", "value")],
+    "38h": [_c("effective_policy", "value"), _c("evaluate_gate", "value")],
+    "38i": [_c("effective_policy", "value"), _c("evaluate_gate", "value")],
 }
 
 #: The callables behind `CONDITION_CALLS`' function names, resolved on the
@@ -785,6 +836,11 @@ _CONDITION_FUNCTION_MODULES = {
     "resolve_feedback_dir": workflow_fingerprint,
     "assert_functional_review_not_already_consumed": workflow_fingerprint,
     "resolve_own_registry_completion_status": workflow_state,
+    "effective_policy": workflow_gate_policy,
+    "evaluate_gate": workflow_gate_policy,
+    "pr_query_trigger": workflow_gate_policy,
+    "actionable_pr_keys": workflow_gate_policy,
+    "pr_approved_requirements": workflow_gate_policy,
 }
 
 
@@ -967,6 +1023,32 @@ class _Context:
         return self.call("technical_approval_gate_status", lambda: _fn("technical_approval_gate_status")(
             self.repo_root, self.state, self.work_item_id)).value
 
+    # -- workflow-2.8.0 gate-policy terms (D-GP-Rows) -------------------------
+
+    def effective(self) -> dict:
+        """The policy in effect (`effective_policy`: read-only, the virtual
+        floor included, never raises on a bad file)."""
+        return self.call("effective_policy", lambda: _fn("effective_policy")(self.repo_root, self.state)).value
+
+    def gate_mode(self, gate_id: str) -> str:
+        return workflow_gate_policy.gate_mode(self.effective(), gate_id, self.gv)
+
+    def gate_evaluation(self, gate_id: str) -> dict:
+        return self.call("evaluate_gate", lambda: _fn("evaluate_gate")(
+            self.repo_root, self.state, self.work_item_id, gate_id), key=gate_id).value
+
+    def policy_object(self, gate_id: str, mode: str) -> dict:
+        """The `policy` object a new row's decision carries: `{source, digest,
+        gate, mode}`, plus `gate_lowering` while the newest adoption lowered a
+        gate (D-GP-Policy, D-GP-ThreatModel)."""
+        effective = self.effective()
+        policy = {"source": effective["source"], "digest": effective["digest"], "gate": gate_id, "mode": mode}
+        lowering = effective.get("gate_lowering")
+        if lowering:
+            policy["gate_lowering"] = {"sha256": lowering["sha256"], "adopted_at": lowering["adopted_at"],
+                                       "lowered": list(lowering["lowered"])}
+        return policy
+
     def registry(self) -> dict | None:
         """The item's own registry (`registry_path`), or `None` for a
         registry-less item. A missing or corrupt declared file is a
@@ -1021,9 +1103,9 @@ class Row:
 
 
 def _match(code: str, text: str = "", remedy: str | None = None, *, alternatives=(), arguments=None,
-           satisfied_by: str | None = None, action_id: str | None = None) -> dict:
+           satisfied_by: str | None = None, action_id: str | None = None, policy: dict | None = None) -> dict:
     return {"reason": {"code": code, "text": text, "remedy": remedy}, "alternatives": list(alternatives),
-            "arguments": arguments or {}, "satisfied_by": satisfied_by, "action_id": action_id}
+            "arguments": arguments or {}, "satisfied_by": satisfied_by, "action_id": action_id, "policy": policy}
 
 
 def _alt(action_id: str, **extra) -> tuple[str, dict]:
@@ -1594,6 +1676,204 @@ def _row_38c(ctx):
         "none exists in 2.6.0 (defect v2.6.0-003)", alternatives=_FUNCTIONAL_ALTERNATIVES)
 
 
+# -- workflow-2.8.0: the rows a gate policy adds (D-GP-Rows). Each row of a gate
+# returns no match when that gate is human, except `38d` (no gate-mode
+# condition) and `38g` (which also matches a human acceptance with
+# `requires_pr_approved`), so rows 15, 29 and 39 are reached unchanged.
+
+_RECORDED_AT_INGEST_REQUIREMENTS = ("distinct_reviewer_models", "review_evidence_audited")
+
+
+def _unmet(evaluation: dict) -> list[dict]:
+    return [r for r in evaluation["requirements"] if not r["met"]]
+
+
+def _unmet_text(evaluation: dict) -> str:
+    return "; ".join(f"{r['id']}: {r['detail']}" for r in _unmet(evaluation))
+
+
+def _review_gate_unmet_remedy(ctx, gate_id: str, evaluation: dict) -> str:
+    stage = "plan" if gate_id == "plan_approval" else "implementation"
+    toggle = (f"turn the {stage} gate human (\"human_approval\": true in docs/ai-workflow/GATE_POLICY.json, "
+              f"immediate) and run /approve-review {stage} {ctx.work_item_id}")
+    if not any(r["id"] in _RECORDED_AT_INGEST_REQUIREMENTS for r in _unmet(evaluation)):
+        return f"fix the unmet evidence, or {toggle}"
+    withdraw = (f"/milestone-plan {ctx.work_item_id}" if stage == "plan" else
+                f"/apply-implementation-review {ctx.work_item_id}")
+    return (f"{toggle}; or withdraw with {withdraw}, regenerate the bundle and repeat both review stages "
+            f"(the withdrawn content is consumed). Adopting a policy is for before the bundle is generated: "
+            f"its commit moves HEAD past the open bundle")
+
+
+def _review_gate_row(ctx, gate_id: str, *, satisfiable: bool):
+    if ctx.gate_mode(gate_id) != "automatic":
+        return None
+    gate = ctx.plan_gate() if gate_id == "plan_approval" else ctx.technical_gate()
+    if not gate["reachable"]:
+        return None  # an unreachable wrapper keeps its row-16/30 cause and remedy (`LPR-R5-003`)
+    evaluation = ctx.gate_evaluation(gate_id)
+    if evaluation["satisfiable"] != satisfiable:
+        return None
+    policy = ctx.policy_object(gate_id, "automatic")
+    stage = "plan" if gate_id == "plan_approval" else "technical"
+    if satisfiable:
+        return _match("policy_satisfiable", f"the {stage} approval gate is automatic and every requirement is met",
+                      policy=policy)
+    return _match("gate_evidence_unmet", f"the automatic {stage} approval gate is not satisfiable: "
+                  f"{_unmet_text(evaluation)}", _review_gate_unmet_remedy(ctx, gate_id, evaluation), policy=policy)
+
+
+def _row_14a(ctx):
+    return _review_gate_row(ctx, "plan_approval", satisfiable=True)
+
+
+def _row_14b(ctx):
+    return _review_gate_row(ctx, "plan_approval", satisfiable=False)
+
+
+def _row_28a(ctx):
+    return _review_gate_row(ctx, "technical_approval", satisfiable=True)
+
+
+def _row_28b(ctx):
+    return _review_gate_row(ctx, "technical_approval", satisfiable=False)
+
+
+def _row_38d(ctx):
+    evidence = workflow_gate_policy.gate_evidence_of(ctx.work_item)
+    if evidence["pr"] is None and evidence["pr_reported"] is None:
+        return None
+    policy = ctx.effective()["policy"]
+    state_policy = ctx.policy_object("pr_review", "automatic")
+    if ctx.call("pr_query_trigger", lambda: _fn("pr_query_trigger")(ctx.state, ctx.work_item_id, policy)).value:
+        return _match(
+            "pr_query_due", "a reported pull-request fact differs from the stored workflow_gh fact; the Workflow "
+            "queries GitHub itself before anything is reopened or applied", policy=state_policy)
+    keys = ctx.call("actionable_pr_keys", lambda: _fn("actionable_pr_keys")(
+        ctx.repo_root, ctx.state, ctx.work_item_id, policy)).value
+    if keys:
+        causes = ", ".join(sorted({entry["cause"] for entry in keys}))
+        return _match("pr_review_actionable", f"the stored workflow_gh pull-request fact carries an unapplied "
+                      f"actionable cause: {causes}", policy=state_policy)
+    return None
+
+
+def _acceptance_requirements(evaluation: dict) -> dict:
+    return {r["id"]: r for r in evaluation["requirements"]}
+
+
+def _acceptance_base_ok(evaluation: dict) -> bool:
+    reqs = _acceptance_requirements(evaluation)
+    return reqs["checkpoints_complete"]["met"] and reqs["technical_approval_current"]["met"]
+
+
+def _acceptance_automatic(ctx):
+    """`(evaluation, requirements)` of an automatic acceptance gate, else
+    `None`."""
+    if ctx.gate_mode("acceptance") != "automatic":
+        return None
+    evaluation = ctx.gate_evaluation("acceptance")
+    return evaluation, _acceptance_requirements(evaluation)
+
+
+def _row_38e(ctx):
+    automatic = _acceptance_automatic(ctx)
+    if automatic is None:
+        return None
+    evaluation, reqs = automatic
+    functional = reqs["functional_flows_passed"]
+    if not _acceptance_base_ok(evaluation) or functional["met"] or "functional_evidence" not in evaluation["obtainable"]:
+        return None
+    return _match(
+        "functional_evidence_needed", f"the automatic acceptance gate awaits functional evidence: "
+        f"{functional['detail']}",
+        f"have the orchestrator report one functional_evidence result per required flow at the approved head "
+        f"(record-external-result --kind functional_evidence)",
+        satisfied_by="functional_evidence", policy=ctx.policy_object("acceptance", "automatic"))
+
+
+def _pr_external_remedy(ctx) -> str:
+    return (f"open or push the pull request, wait for its checks, then have the orchestrator report a fresh "
+            f"pr_review_result, or run /satisfy-gate acceptance {ctx.work_item_id}, which queries GitHub itself; "
+            f"a reported fact only triggers that query and never satisfies the gate")
+
+
+def _stored_pr_not_pending(ctx) -> bool:
+    evidence = workflow_gate_policy.gate_evidence_of(ctx.work_item)
+    fact, reported = evidence["pr"], evidence["pr_reported"]
+    return fact is not None and not (reported is not None and reported["ingest_seq"] > fact["ingest_seq"])
+
+
+def _row_38f(ctx):
+    automatic = _acceptance_automatic(ctx)
+    if automatic is None:
+        return None
+    evaluation, reqs = automatic
+    if (not _acceptance_base_ok(evaluation) or not reqs["functional_flows_passed"]["met"]
+            or evaluation["pending_query"] or "pr_review_result" not in evaluation["obtainable"]):
+        return None
+    wanted = [reqs[name] for name in ("pr_fact_current", "ci_green") if name in reqs and not reqs[name]["met"]]
+    if not wanted:
+        return None
+    return _match(
+        "pr_evidence_needed", "the automatic acceptance gate awaits a pull-request fact: "
+        + "; ".join(f"{r['id']}: {r['detail']}" for r in wanted), _pr_external_remedy(ctx),
+        satisfied_by="pr_review_result", policy=ctx.policy_object("acceptance", "automatic"))
+
+
+def _row_38g(ctx):
+    effective = ctx.effective()
+    if not workflow_gate_policy.requires_pr_approved(effective) or not _stored_pr_not_pending(ctx):
+        return None
+    mode = ctx.gate_mode("acceptance")
+    if mode == "human":
+        unmet = [r for r in ctx.call("pr_approved_requirements", lambda: _fn("pr_approved_requirements")(
+            ctx.repo_root, ctx.state, ctx.work_item_id)).value if not r["met"]]
+        if not unmet:
+            return None
+        return _match(
+            "pr_approval_needed", "the human acceptance requires an approved pull request: "
+            + "; ".join(f"{r['id']}: {r['detail']}" for r in unmet),
+            f"run /accept-milestone {ctx.work_item_id}: its step 2a queries GitHub itself and stores the fact "
+            f"(/satisfy-gate refuses while the gate is human)",
+            satisfied_by="pr_review_result", policy=ctx.policy_object("acceptance", "human"))
+    evaluation, reqs = _acceptance_automatic(ctx)
+    approved = reqs.get("pr_approved")
+    if (approved is None or approved["met"] or not _acceptance_base_ok(evaluation)
+            or not reqs["functional_flows_passed"]["met"] or "pr_review_result" not in evaluation["obtainable"]):
+        return None
+    return _match(
+        "pr_approval_needed", f"the automatic acceptance gate awaits an approved pull request: {approved['detail']}",
+        _pr_external_remedy(ctx), satisfied_by="pr_review_result", policy=ctx.policy_object("acceptance", "automatic"))
+
+
+def _row_38h(ctx):
+    automatic = _acceptance_automatic(ctx)
+    if automatic is None:
+        return None
+    evaluation, _reqs = automatic
+    if not (evaluation["satisfiable"] or evaluation["satisfiable_after_query"]):
+        return None
+    return _match(
+        "policy_satisfiable", "the automatic acceptance gate is satisfiable on the evidence now"
+        + ("; the act queries GitHub itself first" if evaluation["pending_query"] else ""),
+        policy=ctx.policy_object("acceptance", "automatic"))
+
+
+def _row_38i(ctx):
+    automatic = _acceptance_automatic(ctx)
+    if automatic is None:
+        return None
+    evaluation, _reqs = automatic
+    return _match(
+        "gate_evidence_unmet", f"the automatic acceptance gate is not satisfiable and nothing is obtainable: "
+        f"{_unmet_text(evaluation)}",
+        f"fix the unmet requirement (/apply-functional-review {ctx.work_item_id} for a failed flow or a stale "
+        f"approval; for a standing objection, the reviewer's approval or dismissal on GitHub, then "
+        f"/satisfy-gate acceptance {ctx.work_item_id}), or turn the acceptance gate human and accept with "
+        f"/accept-milestone {ctx.work_item_id}", policy=ctx.policy_object("acceptance", "automatic"))
+
+
 def _row_39(ctx):
     return _match("functional_review_due", "the registry is terminal; the user's functional review is the gate",
                   alternatives=[_alt("milestone.accept"), *_FUNCTIONAL_ALTERNATIVES])
@@ -1648,6 +1928,9 @@ CATALOGUE = [
         _row_13),
     Row("14", ("AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW",), TWO_STAGE_VERSIONS, "external_gate", "plan.review.external",
         _row_14, unconditional=True),
+    Row("14a", ("AWAITING_PLAN_APPROVAL",), TWO_STAGE_VERSIONS, "validation", "plan.satisfy", _row_14a),
+    Row("14b", ("AWAITING_PLAN_APPROVAL",), TWO_STAGE_VERSIONS, "blocked", None, _row_14b,
+        remedy_commands=("approve-review", "milestone-plan")),
     Row("15", ("AWAITING_PLAN_APPROVAL",), TWO_STAGE_VERSIONS, "human_gate", "plan.approve", _row_15),
     Row("16", ("AWAITING_PLAN_APPROVAL",), TWO_STAGE_VERSIONS, "blocked", None, _row_16, unconditional=True,
         remedy_commands=("milestone-plan",)),
@@ -1674,6 +1957,9 @@ CATALOGUE = [
         _row_27),
     Row("28", ("AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",), _V22, "external_gate",
         "implementation.review.external", _row_28, unconditional=True),
+    Row("28a", _IMPL_EXTERNAL, _V22, "validation", "implementation.satisfy", _row_28a),
+    Row("28b", _IMPL_EXTERNAL, _V22, "blocked", None, _row_28b,
+        remedy_commands=("approve-review", "apply-implementation-review")),
     Row("29", _IMPL_EXTERNAL, _V22, "human_gate", "implementation.approve", _row_29),
     Row("30", _IMPL_EXTERNAL, _V22, "blocked", None, _row_30, unconditional=True,
         remedy_commands=("recover-implementation-provenance", "apply-implementation-review")),
@@ -1701,6 +1987,14 @@ CATALOGUE = [
     Row("38c", _AFR, TWO_STAGE_VERSIONS, "blocked", None, _row_38c,
         remedy_commands=("none_exists", "apply-functional-review", "review-functional"),
         refusing_commands=("milestone-implement", "request-plan-amendment", "accept-milestone")),
+    Row("38d", _AFR + ("MILESTONE_COMPLETE",), ALL_VERSIONS, "automatic", "pr.apply_review", _row_38d),
+    Row("38e", _AFR, ALL_VERSIONS, "external_gate", "functional.evidence.external", _row_38e),
+    Row("38f", _AFR, ALL_VERSIONS, "external_gate", "pr.review.external", _row_38f),
+    Row("38g", _AFR, ALL_VERSIONS, "external_gate", "pr.review.external", _row_38g,
+        remedy_commands=("accept-milestone",)),
+    Row("38h", _AFR, ALL_VERSIONS, "validation", "acceptance.satisfy", _row_38h),
+    Row("38i", _AFR, ALL_VERSIONS, "blocked", None, _row_38i,
+        remedy_commands=("apply-functional-review", "accept-milestone")),
     Row("39", _AFR, ALL_VERSIONS, "human_gate", "functional.review", _row_39, unconditional=True,
         remedy_commands=("accept-milestone", "apply-functional-review", "review-functional")),
     Row("40", ("MILESTONE_COMPLETE",), ALL_VERSIONS, "complete", None, _row_40, unconditional=True),
@@ -1804,6 +2098,34 @@ EDGES = {
                  (version,)) for version in sorted(ALL_VERSIONS)],
         "proof": None, "allowed_results": _PROGRESS_GATE_NONE,
     },
+    # workflow-2.8.0 (D-GP-Rows): each `.satisfy` has its forward edge and the
+    # same-phase edge every refusal leaves the phase on (`LPR-R13-002`).
+    "plan.satisfy": {
+        "edges": [_edge("AWAITING_PLAN_APPROVAL", "IMPLEMENTING", TWO_STAGE_VERSIONS)]
+        + _unchanged(("AWAITING_PLAN_APPROVAL",), TWO_STAGE_VERSIONS),
+        "proof": None, "allowed_results": _PROGRESS_GATE_NONE,
+    },
+    "implementation.satisfy": {
+        "edges": [_edge("AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW", "AWAITING_FUNCTIONAL_REVIEW", _V22)]
+        + _unchanged(_IMPL_EXTERNAL, _V22),
+        "proof": None, "allowed_results": _PROGRESS_GATE_NONE,
+    },
+    "acceptance.satisfy": {
+        "edges": [_edge("AWAITING_FUNCTIONAL_REVIEW", "MILESTONE_COMPLETE", ALL_VERSIONS)]
+        + _unchanged(_AFR, ALL_VERSIONS),
+        "proof": None, "allowed_results": _PROGRESS_GATE_NONE,
+    },
+    # `pr.apply_review` takes `functional.apply_findings`' edges, the reopen of
+    # a completed item (`LPR-R24-001`) and the unchanged `MILESTONE_COMPLETE`
+    # edge of every refusal or `pr_fact_refreshed` result (`LPR-R25-001`).
+    "pr.apply_review": {
+        "edges": _unchanged(_AFR, ALL_VERSIONS)
+        + [_edge("AWAITING_FUNCTIONAL_REVIEW", workflow_state.bundle_generation_target_phase("post-fix", version),
+                 (version,)) for version in sorted(ALL_VERSIONS)]
+        + [_edge("MILESTONE_COMPLETE", "AWAITING_FUNCTIONAL_REVIEW", ALL_VERSIONS)]
+        + _unchanged(("MILESTONE_COMPLETE",), ALL_VERSIONS),
+        "proof": None, "allowed_results": _PROGRESS_GATE_NONE,
+    },
 }
 
 #: The automatic action ids, and the `(action id, phase, gv)` triples some
@@ -1812,7 +2134,7 @@ EDGES = {
 AUTOMATIC_ACTION_IDS = tuple(sorted(EDGES))
 AUTOMATIC_EMISSIONS = frozenset(
     (row.action_id, phase, version)
-    for row in CATALOGUE if row.disposition == "automatic" and not row.no_item
+    for row in CATALOGUE if row.disposition in ("automatic", "validation") and not row.no_item
     for phase, version in row.pairs
 )
 
@@ -1887,6 +2209,8 @@ def _decision(ctx: _Context, row: Row, match: dict) -> dict:
         "alternatives": alternatives,
         "reason": match["reason"],
     }
+    if match.get("policy") is not None:
+        result["policy"] = match["policy"]
     return result
 
 
@@ -2003,15 +2327,17 @@ def read_decision(path: str) -> dict:
 
 def validate_decision(decision: dict) -> str | None:
     """Refuse (`invalid_request`) anything that is not a well-formed,
-    automatic `next-action` result: an unknown or non-automatic action, a
-    disposition other than `automatic`, an action whose rendering differs
+    automatic or validation `next-action` result: an unknown or non-automatic
+    action, a disposition other than `automatic` or `validation` (a
+    `validation` decision's action is launched like an automatic one,
+    protocol 1.1), an action whose rendering differs
     from the catalogue's, or a basis the action could not have been decided
     from. Returns the decision's work item id (`None` for `plan.start`)."""
-    if decision.get("disposition") != "automatic":
+    if decision.get("disposition") not in ("automatic", "validation"):
         raise ProtocolError(
             "invalid_request",
-            f"reconcile accepts an automatic decision only, not {decision.get('disposition')!r}: a gate is "
-            f"resolved outside the run, and the orchestrator then calls next-action again")
+            f"reconcile accepts an automatic or validation decision only, not {decision.get('disposition')!r}: "
+            f"a gate is resolved outside the run, and the orchestrator then calls next-action again")
     action = decision.get("action")
     if not isinstance(action, dict) or action.get("id") not in EDGES:
         raise _invalid_request(f"its action {action.get('id') if isinstance(action, dict) else action!r} is not an automatic action")
@@ -2047,7 +2373,8 @@ def validate_decision(decision: dict) -> str | None:
         raise _invalid_request(f"no automatic row emits {action_id} at ({phase}, {version!r})")
     if row_id is not None:
         row = ROWS_BY_ID.get(row_id)
-        if row is None or row.action_id != action_id or row.disposition != "automatic" or not row.covers(phase, version):
+        if (row is None or row.action_id != action_id or row.disposition != decision.get("disposition")
+                or not row.covers(phase, version)):
             raise _invalid_request(f"row {row_id!r} does not emit {action_id} at ({phase}, {version!r})")
     expected = render_action(action_id, work_item_id, arguments={
         key: value for key, value in (action.get("arguments") or {}).items() if key != "work_item_id"})
@@ -2214,14 +2541,53 @@ def _check_result_kind(kind: str) -> None:
             "invalid_request", f"unknown result kind {kind!r}; the v1 kinds are {list(EXTERNAL_RESULT_KINDS)}")
 
 
-def record_external_result(repo_root: Path, work_item_id: str, kind: str, verdict_text: str) -> dict:
+def _evidence_input(kind: str, text: str) -> dict:
+    """The JSON object a `functional_evidence` or `pr_review_result` input
+    file holds (`D-GP-Evidence`, `D-GP-Invalidation`)."""
+    try:
+        value = json.loads(text)
+    except ValueError as exc:
+        raise ProtocolError("invalid_request", f"a {kind} input is a JSON object: {exc}") from exc
+    if not isinstance(value, dict):
+        raise ProtocolError("invalid_request", f"a {kind} input is a JSON object, not {type(value).__name__}")
+    return value
+
+
+def _record_evidence(repo_root: Path, work_item_id: str, kind: str, text: str, run_ref: str | None) -> dict:
+    """`functional_evidence` and `pr_review_result` (`OD-W2-9`): accepted
+    under every policy, delegated to the library calls CP3 ships. A refusal
+    (`EvidenceRefusedError`, a forge provenance error) writes nothing and is
+    `refused`, naming the library's stable reason code in its message."""
+    payload = _evidence_input(kind, text)
+    now = _utc_now()
+    try:
+        if kind == "functional_evidence":
+            outcome = workflow_state.record_functional_evidence(repo_root, work_item_id, payload, now=now)
+            result = {"stage": "functional", "flow_id": outcome["flow_id"], "identity": outcome["identity"]}
+        else:
+            if run_ref is not None and payload.get("run_ref") is None:
+                payload = {**payload, "run_ref": run_ref}
+            outcome = workflow_state.record_pr_fact(repo_root, work_item_id, payload, now=now)
+            result = {"stage": "pr_review", "slot": outcome["slot"], "fact_id": outcome["fact"]["fact_id"]}
+    except workflow_forge.ForgeError as exc:
+        raise ProtocolError("refused", f"{type(exc).__name__}: {exc}", exc) from exc
+    state, _config = read_state_and_config(repo_root)
+    result["basis"] = basis(repo_root, state, work_item_id)
+    return result
+
+
+def record_external_result(repo_root: Path, work_item_id: str, kind: str, verdict_text: str,
+                           run_ref: str | None = None) -> dict:
     """Ingest an external result of `kind` for `work_item_id`. A reserved
     kind is `unsupported_result_kind`, any other unknown kind
     `invalid_request`. The verdict kinds call
     `workflow_state.ingest_manual_review_verdict`, the ingest the
     record-manual commands call, which selects the row, runs its guards and
     writes the feedback file and the state; the orchestrator never reads or
-    writes a feedback path itself."""
+    writes a feedback path itself. `run_ref` (workflow-2.8.0, `D-GP-Trust`) is
+    the reporter's own identifier for the run that produced the verdict; it is
+    recorded in the ledger entry while that stage's gate is automatic, declared
+    and never verified, and `null` when absent."""
     _check_result_kind(kind)
     work_item = work_item_of(load_valid_state(repo_root), work_item_id)
     version = work_item.get("governing_workflow_version")
@@ -2230,10 +2596,12 @@ def record_external_result(repo_root: Path, work_item_id: str, kind: str, verdic
             "not_applicable",
             f"{work_item_id}'s governing_workflow_version {version!r} is not one of "
             f"{sorted(SUPPORTED_GOVERNING_VERSIONS)}")
+    if kind not in VERDICT_RESULT_KINDS:
+        return _record_evidence(repo_root, work_item_id, kind, verdict_text, run_ref)
     try:
         outcome = workflow_state.ingest_manual_review_verdict(
             repo_root, work_item_id, stage=EXTERNAL_RESULT_KIND_STAGES[kind], verdict_text=verdict_text,
-            now=_utc_now())
+            now=_utc_now(), run_ref=run_ref)
     except _NOT_APPLICABLE_INGEST_REFUSALS as exc:
         raise ProtocolError("not_applicable", str(exc), exc) from exc
     state, _config = read_state_and_config(repo_root)
@@ -2248,7 +2616,7 @@ def op_record_external_result(repo_root: Path, args: argparse.Namespace) -> dict
         verdict_text = Path(args.input).read_text()
     except (OSError, UnicodeDecodeError) as exc:
         raise ProtocolError("invalid_request", f"cannot read the input file {args.input!r}: {exc}") from exc
-    return record_external_result(repo_root, args.work_item, args.kind, verdict_text)
+    return record_external_result(repo_root, args.work_item, args.kind, verdict_text, args.run_ref)
 
 
 # ---------------------------------------------------------------------------
@@ -2291,6 +2659,7 @@ def _parser() -> _Parser:
     p.add_argument("--work-item", required=True)
     p.add_argument("--kind", required=True)
     p.add_argument("--input", required=True)
+    p.add_argument("--run-ref", default=None)
     return parser
 
 

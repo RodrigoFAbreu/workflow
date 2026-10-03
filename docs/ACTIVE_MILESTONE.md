@@ -2,34 +2,611 @@
 
 ## Milestone
 
-**Complete.** W1: `orchestration-protocol-v1` (`process`, governing version `2.2`),
-branch `milestone/orchestration-protocol-v1`, base `ef714f3`. The plan is
-`docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md`.
+**Complete.** W2: `gate-policy-and-reopening` (`process`, governing
+version `2.2`), branch `milestone/gate-policy-and-reopening`, base `d14e0a7`
+(W1's squash merge; Workflow 2.7.0 is published and pinned by
+`workflow-manager#13`, Manager v1.3.0). The plan is
+`docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md` (revision 34).
 
 ## Goal
 
-Workflow 2.7.0: Orchestration Protocol v1 (`describe`, `verify`,
-`next-action`, `reconcile`, `record-external-result`, `resolve-artifact`),
-plus the `v2.6.0-001` and `v2.6.0-002` follow-ups.
+Workflow 2.8.0 on Orchestration Protocol 1.1: a declarative gate policy in
+which the plan approval, the technical approval and the milestone acceptance
+are each satisfied automatically by their evidence, and human approval is
+**off by default**. A person turns it on with the master `human_approval`
+switch, or for one gate at a time (a per-gate override: for example only the
+plan, or only the acceptance), and with all three human the behavior equals
+2.7.0's apart from the listed deltas. Automatic acceptance is in scope: it
+needs current functional evidence and a GitHub-sourced pull-request fact.
+Loosening any toggle takes a person (`/adopt-gate-policy`). Also in scope is
+post-validation reopening of the same work item when a pull request is red or
+has `CHANGES_REQUESTED`.
 
 ## Current checkpoint
 
-**Milestone complete.** `orchestration-protocol-v1` reached
-`MILESTONE_COMPLETE` through `/accept-milestone` on 2026-10-02, with the
+**Milestone complete.** `gate-policy-and-reopening` reached
+`MILESTONE_COMPLETE` through `/accept-milestone` on 2026-10-03, with the
 owner's confirmation, and `active_work_item_id` is cleared.
-- **Checkpoints:** CP1-CP7 are complete; the registry's completion
+- **Checkpoints:** CP1-CP8 are complete; the registry's completion
   obligations derive `PASS`.
-- **Technical approval:** commit `048482f`, both implementation-review
-  stages approved at `implementation_revision` 6 (reviewed head `29559b1`).
-- **Functional review:** round 1 against the checklist below (evidence
-  commit `ee86188`) passed S1-S3 and F1-F11; its one documentation finding
-  was fixed in `docs/ROADMAP.md` (`58fd39a`). Nothing was deferred to a
+- **Technical approval:** `CURRENT`, both implementation-review stages
+  approved (round 2, `implementation_revision` 3).
+- **Functional review:** round 2 passed every flow; its one documentation
+  finding (F1, the ROADMAP's 2.8.0 default and Controller compatibility) was
+  fixed in `docs/ROADMAP.md` (`9e03e13`). Nothing was deferred to a
   remediation child.
 - **Cutover:** not started; it is the owner's (plan section 7), see "Next
-  action".
+  action". Workflow 2.8.0 is published by the `Release` workflow only once
+  this branch's pull request is squash-merged.
 
-The per-checkpoint record and the self-review are in the requirements
-ledger, `docs/ai-workflow/requirements/orchestration-protocol-v1-ledger.md`.
+The per-checkpoint record, the self-review and the implementation review
+round 1 resolutions are in the requirements ledger,
+`docs/ai-workflow/requirements/gate-policy-and-reopening-ledger.md`.
+
+## Current blockers
+
+None.
+
+## Active plan
+
+None. `docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md` is the completed
+milestone's plan and stays where it is, as W1's did.
+
+## Next action
+
+The cutover (plan section 7) is the owner's: open the pull request, squash-merge
+it with a Conventional-Commit title whose impact agrees with the manifest's
+version change, let the `Release` workflow publish 2.8.0, then add the pin in
+`workflow-manager`. No further milestone is listed in `docs/ROADMAP.md`'s
+ordered table; the next one is chosen by the owner, then `/milestone-plan`. The
+checklist below and the W1 checklist after it are the completed milestones'
+records.
+
+## Functional review checklist
+
+W2 is a `process` milestone: the "product" is Workflow 2.8.0 (the gate policy,
+automatic approvals and acceptance, reopening, protocol 1.1, and the package).
+Every flow runs **offline, in a disposable scratch directory or clone**, never in
+this checkout. Nothing here pushes, opens a pull request, calls real GitHub
+(`gh` is simulated through the test seams and a parser fed raw output),
+changes GitHub settings or publishes a release; the cutover (plan section 7) is
+the owner's and comes after acceptance. Never use `git stash`.
+
+**Precondition (a W1 lesson):** any step that needs local `main` first runs
+`git fetch origin` and uses `origin/main` (the base `d14e0a7` is `origin/main`'s
+tip; verify with `git rev-parse origin/main`). No flow below needs a local
+`main`; the clones of S3 take it from `origin`.
+
+**Round 2** (after the bounded F1 fix `007f13b`, implementation revision 3,
+technical approval `104e65f`). Round 1's F1 was that an uncommitted
+`GATE_POLICY.json` was reported adopted while the committed policy stayed in
+force; the fix refuses it (`GatePolicyFileUncommittedError`) and updates
+`GATE_POLICY.md`, `adopt-gate-policy.md` and the operator reference. Which
+flows the fix could affect, so the executor re-runs those and cites round-1
+evidence for the rest (the fix touched `workflow_state.py`'s preview and
+adoption, `workflow_gate_policy.py`'s file-versus-`HEAD` comparison, the
+gate-policy test file, three documents and the manifest digests):
+
+| Flow | Round 2 | Why |
+|---|---|---|
+| F1 default policy | cite round 1 | no preview or adoption is involved |
+| F2 toggles, floor, adoption | **re-run** | its adoption step commits the file first, and it runs the gate-policy classes |
+| F3 adoption order | **re-run (changed: now a real flow)** | the fixed behavior itself |
+| F4 CLI lifecycles | cite round 1 | protocol and lifecycle paths untouched; re-run if any F11 suite fails |
+| F5 automatic plan and technical approval | cite round 1 | row 38i remedy text only changed in documents |
+| F6 automatic acceptance, forge | cite round 1 | untouched |
+| F7 reopening | cite round 1 | untouched |
+| F8 protocol 1.1 | cite round 1 | untouched |
+| F9 all-human equals 2.7.0 | cite round 1 | the all-human path never adopts a file |
+| F10 package, update from 2.7.0 | **re-run** | the manifest digests changed (the 2.8.0 digests below are the preparation run's, not round 2's: compare reproducibility, and report the new digests) |
+| F11 automated suites | **re-run (the gate-policy suite, 284 before the fix plus the new regression test(s); the others may cite round 1 only if their `Ran` counts are unchanged)** | the regression test is in `workflow_gate_policy_test.py` |
+| F12 installation and documents | **re-run (changed: ROADMAP docs check added)** | documents changed, and the ROADMAP check is new |
+
+**Setup**
+
+S1. On branch `milestone/gate-policy-and-reopening`, clean tree. Set the pinned
+    runtime (Python 3.12, `zlib-ng` 1.0.0, Workflow Manager 1.2.0) and a scratch
+    directory:
+    ```bash
+    git fetch -q origin
+    V=/home/rodrigo/.claude/projects/-home-rodrigo-Workspace-workflow-manager/orchestrator-files/runs-workflow/w0-ext-impl-r1/venv
+    S=$(mktemp -d /tmp/w2-review.XXXX); echo $S
+    REPO=$PWD; R=tools/release/release.py
+    new_target() { D=$S/$1; mkdir $D && git -C $D init -q \
+        && git -C $D -c user.name=t -c user.email=t@t commit -q --allow-empty -m init \
+        && $V/bin/workflow-manager --release-dir $S/rel/workflow-2.8.0 bootstrap $D >/dev/null; }
+    ```
+    Run every step from the repository root unless it says `cd`.
+S2. Build the 2.8.0 package, verify it, and unpack it:
+    ```bash
+    $V/bin/python $R build --commit HEAD --out $S/build
+    $V/bin/workflow-manager package verify $S/build/workflow-2.8.0.tar.gz \
+        --sha256 "$(grep tar.gz $S/build/SHA256SUMS | cut -d' ' -f1)"
+    mkdir $S/rel && tar -xzf $S/build/workflow-2.8.0.tar.gz -C $S/rel
+    ```
+    Expected: `version=2.8.0`, `files=81`, `zlib_ng=2.2.5`; `release 2.8.0, 80
+    files, verified`.
+S3. A disposable clone of the repository on the milestone branch, with its tags
+    (the all-human equivalence and update-simulation tests read the `v2.7.0`
+    tag from git):
+    ```bash
+    git clone -q --no-hardlinks . $S/clone
+    git -C $S/clone checkout -q milestone/gate-policy-and-reopening
+    git -C $S/clone tag | grep -x v2.7.0
+    ```
+S4. A scratch installation of 2.8.0 and the protocol shorthand:
+    ```bash
+    new_target t0
+    P() { (cd $S/t0 && $V/bin/python scripts/workflow_protocol.py "$@"); }
+    ```
+    Expected: nothing printed by `new_target`; `$V/bin/workflow-manager
+    --release-dir $S/rel/workflow-2.8.0 verify $S/t0` prints `installation
+    matches workflow 2.8.0`.
+
+No test data to seed: the scripts below build their own scratch repositories
+and the test harness seeds its own work items.
+
+**Flows**
+
+F1. Default policy: gates automatic on evidence (no `GATE_POLICY.json`).
+    `P verify` and the `gate_policy` section of `gp_flows.py` (script in F2).
+    Expected: with no policy file, `P verify` is `healthy: true` and its
+    `gate_policy` check is `pass`, detail `no gate policy file; the default
+    applies`; `effective_policy` has `source=default` and `plan_approval`,
+    `technical_approval` and `acceptance` all `automatic`.
+    Then the disposition: `P next-action` (no work item) is row `1`, action
+    `plan.start`, disposition `automatic`. The automatic path end to end is the
+    lifecycle driver of F4 (`TestAutomaticLifecycle`: a `2.2` item planned,
+    implemented and accepted with no person, then reopened by a
+    `changes_requested` fact and completed again).
+F2. Human approval restored by the toggles, and the tighten-only floor. Save
+    this as `$S/gp_flows.py` (it drives the installed scripts directly and
+    prints one line per step), then run it in a fresh target:
+    ```bash
+    cat > $S/gp_flows.py <<'PY'
+    import json, subprocess, sys
+    sys.path.insert(0, "scripts")
+    import workflow_gate_policy as g
+    import workflow_state as ws
+    from pathlib import Path
+    root = Path(".").resolve(); POL = root / "docs/ai-workflow/GATE_POLICY.json"
+    GATES = ("plan_approval", "technical_approval", "acceptance")
+    tick = [0]
+    def now():
+        tick[0] += 1; return f"2026-10-03T13:00:{tick[0]:02d}Z"
+    def git(*a):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", *a],
+                              cwd=root, capture_output=True, text=True, check=True).stdout.strip()
+    def put(policy):
+        if policy is None: POL.unlink(missing_ok=True)
+        else: POL.write_text(json.dumps(policy))
+    def show(label):
+        e = g.effective_policy(root)
+        print(f"{label:52} {e['source']:22}", {k: g.gate_mode(e, k, "2.2") for k in GATES})
+    def verify():
+        status, detail = g.verify_check(root)
+        print(f"    verify gate_policy = {status}: {detail[:110]}")
+    git("add", "-A"); git("commit", "-q", "-m", "install")
+    print("== flow 1: default"); show("no GATE_POLICY.json"); verify()
+    print("== flow 2: toggles (file edits, uncommitted)")
+    put({"schema_version": 1, "human_approval": True}); show("human_approval true")
+    put({"schema_version": 1, "gates": {"plan_approval": {"human": True}}}); show("only plan_approval human")
+    put({"schema_version": 1, "gates": {"acceptance": {"human": True}}}); show("only acceptance human")
+    put({"schema_version": 1, "human_approval": True, "gates": {"acceptance": {"human": False}}}); show("master human, acceptance forced automatic")
+    print("== flow 3: tighten-only")
+    put({"schema_version": 1, "human_approval": True}); git("add", "-A"); git("commit", "-q", "-m", "human policy")
+    print("recorded floor commit:", (ws.commit_gate_policy_floor(root, now=now()) or "none")[:12])
+    put({"schema_version": 1, "human_approval": False}); show("file edited back to automatic"); verify()
+    put(None); show("file deleted"); verify()
+    put({"schema_version": 1, "human_approval": False}); git("add", "-A"); git("commit", "-q", "-m", "loosened policy file")
+    pv = ws.gate_policy_adoption_preview(root)
+    print("preview: loosened", pv["loosened"], "| lowered", pv["lowered"], "| digest12", pv["digest"][:12])
+    try: ws.adopt_gate_policy(root, confirmation="yes", now=now())
+    except g.GatePolicyConfirmationRejectedError as e: print("wrong confirmation refused:", type(e).__name__)
+    sha = ws.adopt_gate_policy(root, confirmation=f"I adopt gate_policy {pv['digest'][:12]}", now=now())
+    print("adoption commit", sha[:12], "|", git("log", "-1", "--format=%b", sha).strip().splitlines()[-1][:60])
+    show("after /adopt-gate-policy"); verify()
+    print("    gate_lowering:", json.dumps(g.gate_lowering_event(root))[:240])
+    PY
+    new_target t3 && (cd $S/t3 && $V/bin/python $S/gp_flows.py)
+    ```
+    (Remove the heredoc's indentation if pasting.) Expected lines, in order:
+    - `no GATE_POLICY.json`: `default`, all three `automatic`; `verify` `pass`.
+    - `human_approval true`: `file_tightened`, all three `human`.
+    - `only plan_approval human`: plan `human`, the other two `automatic`;
+      `only acceptance human`: acceptance `human`, the other two `automatic`.
+    - `master human, acceptance forced automatic`: plan and technical `human`,
+      acceptance `automatic`.
+    - After committing the human file and recording the floor (a commit sha is
+      printed): `file edited back to automatic` is `file_loosening_ignored`
+      with all three still `human`, and `verify gate_policy` is `warn`
+      (`loosens ... the loosening is ignored (only /adopt-gate-policy
+      loosens)`); `file deleted` is source `floor`, all three `human`,
+      `verify` `warn` (`the recorded floor holds a setting ... no longer
+      carries`).
+    - (Round 2: the loosened file is committed before the preview; an
+      uncommitted one is refused, which is F3.) The adoption preview lists the three `human` settings under `loosened`
+      and the same three under `lowered`; the wrong confirmation is refused
+      with `GatePolicyConfirmationRejectedError`; the adoption commit's last
+      body line is `Workflow-Gate-Policy-Adoption: <64 hex>`; `after
+      /adopt-gate-policy` is source `adopted`, all three `automatic`; `verify`
+      is `warn` with `gate-lowering event: the adoption 1b76de4f95ab (commit
+      ...) lowers plan_approval.human, ...`; `gate_lowering` is an object with
+      `sha256`, `adopted_at`, `lowered` and `commit`. That `warn` and the object
+      are the reported gate-lowering event.
+    `/adopt-gate-policy` itself is a user-only command: the script calls its
+    function (`workflow_state.adopt_gate_policy`) with the confirmation text
+    inside a disposable repository, which is what a scratch test of the
+    behavior needs; never run the slash command from this review.
+    Then the dedicated tests, in the S4 installation:
+    ```bash
+    (cd $S/t0/scripts && $V/bin/python workflow_gate_policy_test.py TestPolicySchema \
+        TestEffectivePolicy TestTightenOnlyAfterAdoption TestFloorRatchet TestProvenance \
+        TestSquashMerge TestAdoptionCommit TestAdoptionCommand TestGateLoweringEvents \
+        TestVerifyCheck TestAllHumanEquivalence 2>&1 | tail -4)
+    ```
+    Expected: `OK`, none failed.
+F3. Adoption order: an uncommitted policy file is refused; a committed one
+    is adopted (functional review F1, fixed in `007f13b`; round 2 turns the
+    former probe into a flow with expected results). Two scripts, each in a
+    fresh target. Case A, a modified file:
+    ```bash
+    cat > $S/adopt_order.py <<'PY'
+    import hashlib, json, subprocess, sys
+    sys.path.insert(0, "scripts")
+    import workflow_gate_policy as g, workflow_state as ws
+    from pathlib import Path
+    root = Path(".").resolve(); POL = root / "docs/ai-workflow/GATE_POLICY.json"; STATE = root / "docs/ai-workflow/WORKFLOW_STATE.json"
+    GATES = ("plan_approval", "technical_approval", "acceptance")
+    def git(*a):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", *a],
+                              cwd=root, capture_output=True, text=True, check=True).stdout.strip()
+    def show(label):
+        e = g.effective_policy(root)
+        print(f"{label:46} {e['source']:22}", {k: g.gate_mode(e, k, "2.2") for k in GATES})
+    def snap(): return (git("rev-parse", "HEAD"), hashlib.sha256(STATE.read_bytes()).hexdigest())
+    def refused(label, fn):
+        before = snap()
+        try: fn(); print(f"{label:46} NOT REFUSED")
+        except ws.GatePolicyFileUncommittedError as e: print(f"{label:46} refused {type(e).__name__}")
+        print(f"    nothing written: {snap() == before} | gate_lowering event: {g.gate_lowering_event(root)}")
+    def attempt(label):
+        refused(label + " (preview)", lambda: ws.gate_policy_adoption_preview(root))
+        refused(label + " (adopt)", lambda: ws.adopt_gate_policy(root, confirmation="I adopt gate_policy 000000000000", now="2026-10-03T13:00:09Z"))
+    git("add", "-A"); git("commit", "-q", "-m", "install")
+    print("== case A: a modified file")
+    POL.write_text('{"schema_version": 1, "human_approval": true}'); git("add", "-A"); git("commit", "-q", "-m", "human policy")
+    print("floor commit:", (ws.commit_gate_policy_floor(root, now="2026-10-03T13:00:01Z") or "none")[:12])
+    POL.write_text('{"schema_version": 1, "human_approval": false}')       # edited, NOT committed
+    attempt("loosened file uncommitted"); show("effective policy after the refusals")
+    git("add", "-A"); git("commit", "-q", "-m", "loosened policy file")
+    pv = ws.gate_policy_adoption_preview(root); print("preview after the commit: loosened", pv["loosened"], "| lowered", pv["lowered"])
+    sha = ws.adopt_gate_policy(root, confirmation=f"I adopt gate_policy {pv['digest'][:12]}", now="2026-10-03T13:00:03Z")
+    print("adoption commit", sha[:12]); show("after committing and adopting")
+    ev = g.gate_lowering_event(root); print("    gate_lowering events:", 1 if ev else 0, json.dumps(ev)[:160])
+    PY
+    new_target t3b && (cd $S/t3b && $V/bin/python $S/adopt_order.py)
+    ```
+    Case B, a new file (no policy file committed before):
+    ```bash
+    cat > $S/adopt_new.py <<'PY'
+    import hashlib, subprocess, sys
+    sys.path.insert(0, "scripts")
+    import workflow_gate_policy as g, workflow_state as ws
+    from pathlib import Path
+    root = Path(".").resolve(); POL = root / "docs/ai-workflow/GATE_POLICY.json"; STATE = root / "docs/ai-workflow/WORKFLOW_STATE.json"
+    def git(*a):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", *a],
+                              cwd=root, capture_output=True, text=True, check=True).stdout.strip()
+    def snap(): return (git("rev-parse", "HEAD"), hashlib.sha256(STATE.read_bytes()).hexdigest())
+    git("add", "-A"); git("commit", "-q", "-m", "install")
+    print("== case B: a new file")
+    POL.write_text('{"schema_version": 1, "human_approval": true}')        # new, NOT committed
+    for label, fn in (("preview", lambda: ws.gate_policy_adoption_preview(root)),
+                      ("adopt", lambda: ws.adopt_gate_policy(root, confirmation="I adopt gate_policy 000000000000", now="2026-10-03T13:00:09Z"))):
+        before = snap()
+        try: fn(); print(f"{label:8} NOT REFUSED")
+        except ws.GatePolicyFileUncommittedError as e: print(f"{label:8} refused {type(e).__name__}")
+        print(f"    nothing written: {snap() == before} | gate_lowering event: {g.gate_lowering_event(root)}")
+    git("add", "-A"); git("commit", "-q", "-m", "policy file")
+    pv = ws.gate_policy_adoption_preview(root); print("preview after the commit: loosened", pv["loosened"], "| lowered", pv["lowered"])
+    PY
+    new_target t3c && (cd $S/t3c && $V/bin/python $S/adopt_new.py)
+    ```
+    Expected, case A, in order: a floor commit sha is printed; `loosened file
+    uncommitted (preview)` and `(adopt)` are each `refused
+    GatePolicyFileUncommittedError`, and under each `nothing written: True |
+    gate_lowering event: None` (HEAD and the state file's sha256 are
+    unchanged); `effective policy after the refusals` is
+    `file_loosening_ignored` with all three `human`; after committing the
+    file, `preview after the commit` lists the three `human` settings under
+    `loosened` and under `lowered`; an `adoption commit` sha is printed;
+    `after committing and adopting` is source `adopted` with all three
+    `automatic`; `gate_lowering events: 1` (exactly one, an object with
+    `sha256`, `adopted_at`, `lowered`). Expected, case B: `preview` and
+    `adopt` are each `refused GatePolicyFileUncommittedError` with `nothing
+    written: True | gate_lowering event: None`; after committing the file the
+    preview no longer refuses (it prints `loosened [] | lowered []`: the new
+    file only tightens, so there is nothing to lower). Any `NOT REFUSED`, any
+    `nothing written: False`, a lowering event before the commit, or more than
+    one event after it is a finding. (The confirmation text in these scripts
+    is a placeholder in the refused calls: the refusal precedes the
+    confirmation check.) The same refusal and the committed adoption are
+    pinned by the F2 gate-policy test classes (`TestAdoptionCommand`).
+F4. Automatic, mixed and all-human lifecycles through the real protocol CLI.
+    The installed lifecycle tests drive a `2.2` item with every protocol call
+    replaced by a subprocess of `scripts/workflow_protocol.py`:
+    ```bash
+    cat > $S/cli_lifecycle.py <<'PY'
+    import json, subprocess, sys, unittest
+    from collections import Counter
+    sys.path.insert(0, "scripts")
+    import workflow_protocol_test as t
+    calls = []
+    def call(*argv):
+        p = subprocess.run([sys.executable, "scripts/workflow_protocol.py", *argv],
+                           capture_output=True, text=True)
+        body = json.loads(p.stdout)
+        t.assert_valid(body)
+        calls.append(body["operation"])
+        return body, p.returncode
+    t.call = call
+    suite = unittest.defaultTestLoader.loadTestsFromNames(
+        ["TestLifecycleEndToEnd2_2", "TestLifecycleEndToEndV1", "TestAutomaticLifecycle",
+         "TestMixedLifecycle", "TestAllHumanLifecycle"], t)
+    res = unittest.TextTestRunner(verbosity=2).run(suite)
+    print("CLI calls by operation:", dict(Counter(calls)))
+    sys.exit(0 if res.wasSuccessful() else 1)
+    PY
+    (cd $S/t0 && $V/bin/python $S/cli_lifecycle.py 2>&1 | tail -8)
+    ```
+    Expected: `Ran 11 tests`, `OK`, and `CLI calls by operation` showing
+    `next-action`, `reconcile` and `record-external-result` (273, 107 and 36
+    on the preparation run). The tests named: `TestAutomaticLifecycle` (planned,
+    implemented and accepted with no person; a `changes_requested` fact reopens
+    the item and it completes again), `TestMixedLifecycle` (only the plan human,
+    only the technical gate human, only acceptance human each stop exactly at
+    that gate and run the rest automatically), `TestAllHumanLifecycle` (every
+    gate stops for a person; a red fact reopens the item).
+F5. Automatic plan and technical approval, distinct reviewer families, and the
+    single-family remedies. Run in the S4 installation:
+    ```bash
+    (cd $S/t0/scripts && $V/bin/python workflow_gate_policy_test.py -v TestEvaluateGateHuman \
+        TestEvaluateGateAutomatic TestPolicySatisfiedRecord TestReviewerModelParsing \
+        TestAuditKeysAndTheIngestRefusal TestTrustBoundaryAndPlanCommit \
+        TestVerifyWarnsOnAnUnreferencedRun 2>&1 | grep -E "ok$|FAIL|ERROR|^Ran|^OK")
+    ```
+    Expected: `OK`, none failed, and in particular these pass:
+    `test_a_satisfied_plan_gate` and `test_each_failing_input_is_unsatisfiable`
+    (a gate is satisfied only with an `APPROVE` whose bundle id matches, the
+    audit keys and distinct families); `test_a_human_gate_never_satisfies`;
+    `test_governing_versions_that_have_no_ledger_stay_human`;
+    `test_an_equal_family_is_refused_naming_the_value` and
+    `test_the_default_refuses_a_manual_approve_without_a_model_and_writes_nothing`
+    (an `APPROVE` with the same family, or none, is refused before any write);
+    the remedies: `test_remedy_one_a_second_family_is_recorded_with_the_audit_keys`,
+    `test_remedy_two_the_gate_turned_human_admits_the_same_verdict_with_2_7_0_bytes`,
+    `test_no_require_adopted_before_the_bundle_admits_one_family`, and
+    `test_an_adoption_at_the_open_phase_is_not_a_remedy`;
+    `test_a_revise_is_admitted_with_no_line`.
+    The reviewer-family rule in one line: `Reviewer model: anthropic/opus` and
+    `anthropic/sonnet` are one family; `anthropic/...` against `openai/...` are
+    two (`TestReviewerModelParsing`).
+F6. Automatic acceptance: current evidence plus a GitHub-sourced pull-request
+    fact; blocks on stale, red and undecidable. First the fixed query's parser,
+    fed simulated `gh` output (no `gh`, no network). Save and run:
+    ```bash
+    cat > $S/forge_demo.py <<'PY'
+    import json, sys
+    sys.path.insert(0, "scripts")
+    import workflow_forge as f
+    C = "c" * 40
+    def pr(n=1, state="OPEN", head=C, decision=None, checks=("SUCCESS",), reviews=()):
+        return {"number": n, "url": f"https://github.com/o/r/pull/{n}", "state": state, "headRefOid": head,
+                "reviewDecision": decision, "reviews": list(reviews),
+                "statusCheckRollup": [{"name": f"job{i}", "status": "COMPLETED", "conclusion": c} for i, c in enumerate(checks)]}
+    def run(label, raw):
+        try:
+            fa = f.parse_forge_raw(raw if isinstance(raw, str) else json.dumps(raw), "o/r", C)
+            print(f"{label:34} state={fa['state']:7} head={str(fa['head'])[:4]} decision={fa['review_decision']} checks={fa['checks']['state']}")
+        except f.ForgeError as e:
+            print(f"{label:34} REFUSED {type(e).__name__}: {str(e)[:70]}")
+    run("green open PR", [pr()])
+    run("stale: PR head is another commit", [pr(head="d" * 40)])
+    run("red checks", [pr(checks=("SUCCESS", "FAILURE"))])
+    run("changes requested", [pr(decision="CHANGES_REQUESTED", reviews=[{"state": "CHANGES_REQUESTED", "id": "r1", "body": "fix x", "commit": {"oid": C}}])])
+    run("pending checks", [pr(checks=("SUCCESS", "IN_PROGRESS"))])
+    run("no pull request", [])
+    run("merged", [pr(state="MERGED")])
+    run("two open PRs (undecidable)", [pr(1), pr(2)])
+    run("full page of 200 (undecidable)", [pr(i) for i in range(200)])
+    run("not JSON (unparseable)", "oops")
+    PY
+    (cd $S/t0 && $V/bin/python $S/forge_demo.py)
+    ```
+    Expected, one line each: `green open PR` `state=open head=cccc
+    decision=None checks=success`; `stale` `head=dddd` (a head other than the
+    queried commit, which the gate treats as stale); `red checks`
+    `checks=failure`; `changes requested` `decision=CHANGES_REQUESTED`;
+    `pending checks` `checks=pending`; `no pull request` `state=none`; `merged`
+    `state=merged`; the two open pull requests and the full page of 200
+    `REFUSED ForgeUndecidableError`; `not JSON` `REFUSED ForgeUnparseableError`.
+    Then the gate itself, with `gh` simulated by the tests' `run=` seam (the
+    fixture's fake never touches GitHub), in the S4 installation:
+    ```bash
+    (cd $S/t0/scripts && $V/bin/python workflow_gate_policy_test.py TestForgeParser TestResolveGh \
+        TestWorkflowQuery TestFunctionalEvidence TestReportedPullRequestFacts TestCauseTable \
+        TestPositionRelativeToTheAnchor TestInvalidationTable TestQueryTrigger \
+        TestEvaluateAcceptance TestSatisfyAcceptance TestHumanAcceptancePrApproved \
+        TestAcceptanceCommandText 2>&1 | tail -4)
+    ```
+    Expected: `OK`, none failed. The behaviors, by test:
+    `test_every_requirement_met_is_satisfiable` (acceptance needs
+    `checkpoints_complete`, `technical_approval_current`,
+    `functional_flows_passed`, `pr_fact_current`, `no_standing_pr_objection`,
+    `ci_green`); `test_a_flow_recorded_at_other_protected_content_is_stale`;
+    `test_i1_a_red_pull_request_behind_a_local_fix_blocks_and_stays_obtainable`
+    and `test_a_green_fact_for_an_older_head_blocks_the_same_way` (stale);
+    `test_a_standing_objection_at_the_current_head_is_not_obtainable` (red);
+    `test_gh_unavailable_refuses_and_writes_nothing_whatever_is_stored` and
+    `test_no_pull_request_fact_is_pending_the_query_and_never_satisfiable`
+    (undecidable or absent: blocked, never passed);
+    `test_a_stored_orchestrator_forge_fact_never_counts_whatever_its_content`
+    and `test_a_fabricated_reported_fact_changes_nothing_the_fresh_query_decides`
+    (an orchestrator-reported fact only tightens); `test_a_human_acceptance_is_never_satisfiable`.
+F7. Reopening through `/apply-pr-review`, including from `MILESTONE_COMPLETE`.
+    In the S4 installation:
+    ```bash
+    (cd $S/t0/scripts && $V/bin/python workflow_gate_policy_test.py -v TestReopenWorkItem \
+        TestBeginPrReview TestStoreTimeReopen TestReopenCommitContracts \
+        TestReopenCommandText 2>&1 | grep -E "ok$|FAIL|ERROR|^Ran|^OK")
+    ```
+    Expected: `OK`, none failed, including
+    `test_a_reopen_from_milestone_complete_moves_the_phase_back` and
+    `test_a_reopen_from_awaiting_functional_review_keeps_the_phase_and_the_approval`,
+    `test_a_completed_item_runs_the_query_first_and_the_invocation_does_only_the_reopen`,
+    `test_the_fresh_fact_decides_a_merged_closed_or_green_answer_stores_and_reopens_nothing`
+    (a merged pull request is refused, a closed or green one reopens nothing),
+    `test_the_same_fact_never_reopens_twice_at_awaiting_functional_review_and_a_new_fact_does`,
+    and `test_findings_text_with_instructions_is_data_it_never_changes_the_decision`.
+    The end-to-end reopening is in F4 (`TestAutomaticLifecycle` and
+    `TestAllHumanLifecycle` reopen an item on a red fact).
+F8. Protocol 1.1: `describe`, `next-action`, and a 1.0 consumer. Against the S4
+    installation:
+    ```bash
+    P describe | $V/bin/python -c "import json,sys; d=json.load(sys.stdin); r=d['result']; \
+        print(d['protocol'], r['protocol_version'], r['workflow_release'], r['supported_protocol_majors'], \
+        r['supported_governing_versions'], r['capabilities']['external_result_kinds'], \
+        r['capabilities']['reserved_result_kinds'], r['capabilities']['dispositions'])"
+    P --protocol-major 2 describe; echo rc=$?
+    P next-action | $V/bin/python -c "import json,sys; d=json.load(sys.stdin); r=d['result']; print(r['row'], r['action']['id'], r['disposition'])"
+    ```
+    Expected: protocol `{'name': 'workflow-orchestration', 'version': '1.1'}`,
+    `protocol_version` `1.1`, `workflow_release` `2.8.0`, majors `[1]`, governing
+    versions `['1', '2.1', '2.2']`, `external_result_kinds` `['functional_evidence',
+    'implementation_review_verdict', 'plan_review_verdict', 'pr_review_result']`,
+    `reserved_result_kinds` `[]`, `dispositions` including `validation`;
+    the `--protocol-major 2` call prints an `ok: false` envelope with
+    `unsupported_protocol` and `rc=3`; `next-action` prints `1 plan.start automatic`.
+    Then the 1.0 consumer and the schema, in the S4 installation:
+    ```bash
+    (cd $S/t0/scripts && $V/bin/python workflow_protocol_test.py TestDescribe \
+        TestProtocolSchemaAndDescribe TestUnawareConsumer TestEvidenceResultKinds \
+        TestPlanAndTechnicalGateRows TestAcceptanceRows TestTriggerAndRemedyRuns \
+        TestNewActionEdgesAndReconcile TestSpecificationTablesEqualTheCode 2>&1 | tail -4)
+    ```
+    Expected: `OK` (some skipped tests are fine, the equivalence ones need the
+    tag and run in F9). `TestUnawareConsumer` shows a `1.0` consumer that does
+    not know a new disposition or action id still works for every decision it
+    understands, and stalls only at a `validation` decision (INV-8).
+F9. All-human equals 2.7.0, in the disposable clone of S3 (it has the
+    `v2.7.0` tag, so nothing is skipped; about 2.5 minutes):
+    ```bash
+    (cd $S/clone/payload/scripts && $V/bin/python workflow_protocol_test.py -v \
+        TestAllHumanEquivalence TestUpdateSimulation27To28 TestUpdateSimulationLegacyDeclaration \
+        TestUpdateSimulationInFlightDefault TestUnawareConsumer TestAutomaticLifecycle \
+        TestMixedLifecycle TestAllHumanLifecycle 2>&1 | grep -E "skipped|FAIL|ERROR|^Ran|^OK")
+    ```
+    Expected: `Ran 33 tests`, `OK`, **no** `skipped` line. The equivalence
+    tests prove that, with the human policy on, `next-action` is byte-equal to
+    2.7.0's across every scenario and `describe` and `verify` differ only by the
+    listed additions.
+F10. The package: reproducible, verified, and the update from 2.7.0.
+    ```bash
+    $V/bin/python $R build --commit HEAD --out $S/build2
+    diff $S/build/SHA256SUMS $S/build2/SHA256SUMS && echo REPRODUCIBLE
+    $V/bin/python $R build --commit v2.7.0 --out $S/b270 | grep -E 'archive|manifest'
+    mkdir $S/rel27 && tar -xzf $S/b270/workflow-2.7.0.tar.gz -C $S/rel27
+    D=$S/t27; mkdir $D && git -C $D init -q \
+        && git -C $D -c user.name=t -c user.email=t@t commit -q --allow-empty -m init
+    $V/bin/workflow-manager --release-dir $S/rel27/workflow-2.7.0 bootstrap $D | head -2
+    (cd $D && sha256sum docs/ai-workflow/WORKFLOW_STATE.json docs/ai-workflow/WORKFLOW_CONFIG.json) > $S/before.sum
+    $V/bin/workflow-manager --release-dir $S/rel/workflow-2.8.0 update $D | head -2
+    $V/bin/workflow-manager --release-dir $S/rel/workflow-2.8.0 verify $D
+    (cd $D && sha256sum docs/ai-workflow/WORKFLOW_STATE.json docs/ai-workflow/WORKFLOW_CONFIG.json) | diff $S/before.sum - && echo STATE_AND_CONFIG_UNCHANGED
+    test ! -e $D/docs/ai-workflow/GATE_POLICY.json && echo NO_POLICY_FILE_CREATED
+    ```
+    Expected: `REPRODUCIBLE`; the 2.7.0 build is `archive_sha256=c287323f...`,
+    `manifest_sha256=f62fb261...` (W1's published bytes, still reproduced); the
+    2.8.0 digests equal the preparation run's: `tar_sha256=c34a60f4...`,
+    `archive_sha256=0dbd1b7d...`, `manifest_sha256=49005d4d...` (at commit
+    `cae6577`; later evidence commits change only `docs/ACTIVE_MILESTONE.md`,
+    which is not in the release source, so they do not move); `bootstrapped
+    workflow 2.7.0 (full)`; `updated ... to workflow 2.8.0` (adds
+    `GATE_POLICY.md`, `workflow_forge.py`, `workflow_gate_policy.py`, the
+    `adopt-gate-policy`, `apply-pr-review` and `satisfy-gate` commands);
+    `installation matches workflow 2.8.0`; `STATE_AND_CONFIG_UNCHANGED` and
+    `NO_POLICY_FILE_CREATED` (the update changes no state file and writes no
+    policy, so the default turns the gates automatic for the repository).
+F11. Automated suites, as CI runs them (nine release-source suites plus the
+    tooling tests), on the staged conformance fixture:
+    ```bash
+    $V/bin/python $R stage-conformance --commit HEAD --out $S/fx
+    (cd $S/fx/scripts && for f in workflow_fingerprint workflow_state workflow_test_harness \
+        workflow_integration workflow_acceptance_matrix workflow_state_completion_obligations \
+        workflow_fingerprint_generalization workflow_protocol workflow_gate_policy; do
+      echo "$f"; $V/bin/python ${f}_test.py 2>&1 | grep -E '^(Ran|OK|FAILED)'; done)
+    $V/bin/python tools/release/release_test.py 2>&1 | tail -3
+    ```
+    Expected: every suite `OK`, none `FAILED`; `Ran` counts: fingerprint 257,
+    state 1011, test harness 22, integration 275, acceptance matrix 291
+    (`skipped=18`), completion obligations 106, fingerprint generalization 105,
+    protocol 298 (`skipped=13`: the tag-dependent tests, which F9 runs), gate
+    policy 284; `release_test.py` `Ran 80 tests`, `OK`. (The state and acceptance-matrix
+    suites take several minutes; the staged fixture has no `v2.7.0` tag, hence
+    the protocol skips.)
+F12. Installation untouched and documents. In this checkout: `$V/bin/workflow-manager
+    verify .` prints `installation matches workflow 2.6.0`, and `git status
+    --short` is empty (after the evidence commit; the scratch work wrote nothing
+    here). Read `payload/docs/ai-workflow/GATE_POLICY.md` against F1-F7 (the
+    default, the toggles, the floor, the three single-family remedies, the
+    residual table, the trust boundary), and skim the `Workflow 2.8.0` entry and
+    the W2 row of `docs/ROADMAP.md`.
+    Round 2 adds a docs check of `docs/ROADMAP.md` (the release source's
+    documents are unchanged by it; this is the repository's own roadmap):
+    ```bash
+    grep -n "Workflow 2.8.0" docs/ROADMAP.md
+    awk '/^## Workflow 2.8.0/,/^---$/' docs/ROADMAP.md
+    awk '/^# 1.9 /,/^# 1.10 /' docs/ROADMAP.md | grep -n "2.8.0\|W2\|Controller\|gate policy\|human approval"
+    grep -n "does not admit 2.8.0\|default policy equals\|behaviour is the 2.7.0" docs/ROADMAP.md
+    ```
+    Expected: the `Workflow 2.8.0` entry **and** section 1.9 (its W2 text,
+    and the W2 row in the table) state the automatic default: human approval
+    is **off** by default, so with no policy adopted the three gates are
+    automatic on evidence, and a person restores the 2.7.0 gates by turning
+    `human_approval` on (the master switch, or per gate). Neither may say the
+    default policy equals the 2.7.0 gates, or that with no policy adopted
+    behaviour is 2.7.0's. Neither may state `Controller 1.5.0 does not admit
+    2.8.0` as the current state: the Controller 1.7.0, released with its C9,
+    admits any Workflow whose `describe` answers protocol major 1 (a
+    historical mention, dated and marked as past, is fine). The last `grep`
+    printing a matching line in the 2.8.0 entry or in 1.9 is a finding to
+    report with the line numbers (the `Workflow 2.7.0` entry's own
+    statement about 1.5.0 is history and is not part of this check).
+**Known limitations / out of scope**
+
+- Nothing is published: no push, no pull request, no GitHub settings, no
+  release. `gh` is never called; the forge is simulated by the parser and the
+  tests' `run=` seam. The first real CI and `Release` run is the cutover.
+- The Workflow Manager has no 2.8.0 pin; installation uses `--release-dir`.
+  The Manager pin pull request is an owner action after publication.
+- This repository's own installation stays 2.6.0; installing 2.8.0 here (which
+  makes its gates automatic unless a `GATE_POLICY.json` with human approval is
+  added first) is a later pull request. Controller releases that pin script
+  hashes refuse 2.8.0 until they admit it; not exercised here.
+- Automatic acceptance needs an open pull request first (`pr_fact_current`).
+  A repository whose flow opens the pull request after acceptance keeps
+  acceptance human (`GATE_POLICY.md`).
+- With human acceptance and `requires_pr_approved` false, and at
+  `MILESTONE_COMPLETE`, no Workflow query runs; only an orchestrator report
+  arms one (the residual table in `GATE_POLICY.md`).
+- `distinct_reviewer_models` families are declared, not verified.
+- `/adopt-gate-policy` is user-only; F2 and F3 call its function in a
+  disposable repository, never the slash command.
+
+---
+
+# Previous milestone record: W1 `orchestration-protocol-v1`
 
 ### CP2 evidence: 2.6.0 reads a 2.7.0-written state (2026-10-02)
 
@@ -55,7 +632,7 @@ ACCEPTED ['consumed_plan_review_content_ids']
 2.6.0 blobs: `payload/scripts/workflow_state.py` `fed844fc70c54bac8787ebea8f77cb67cd7c2f05`,
 `payload/scripts/workflow_fingerprint.py` `565f24bb2dcc21227cb5abf52e0549d7091b8525`.
 
-## Functional review checklist
+### Functional review checklist
 
 W1 is a `process` milestone: the "product" is Workflow 2.7.0 (the
 orchestration protocol CLI, the two follow-ups, and the package). Everything
@@ -331,11 +908,11 @@ F11. Read the documents the milestone ships: `payload/docs/ai-workflow/
 - The `verify` operation does not check installation digests; that is
   `workflow-manager verify`.
 
-## Current blockers
+### Current blockers
 
 None.
 
-## Active plan
+### Active plan
 
 None, because the milestone is complete. The plan document stays at
 `docs/ai-workflow/ORCHESTRATION_PROTOCOL_V1_PLAN.md` (revision 13, plan
@@ -344,7 +921,7 @@ source (`payload/scripts/workflow_protocol.py`, `workflow_state.py`, the
 test harness and suites) and the artifact registry cite it as the design
 record.
 
-## Functional review round 1
+### Functional review round 1
 
 The orchestrator-run functional review (`FUNCTIONAL_REVIEW.md`, evidence
 commit `ee86188`) passed S1-S3 and F1-F11 with one finding, F1: three
@@ -354,7 +931,7 @@ no code change; fixed in `docs/ROADMAP.md`, which both stages exclude, so
 `technical_approval` stays CURRENT and no bundle is regenerated. Nothing was
 deferred to a remediation child. Re-test: re-read the three ROADMAP lines.
 
-## Next action
+### Next action
 
 `orchestration-protocol-v1` is complete. Next:
 1. The cutover (plan section 7), the owner's actions: open the pull request

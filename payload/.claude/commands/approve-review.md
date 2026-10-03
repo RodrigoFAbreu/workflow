@@ -30,6 +30,13 @@ argument. `<feedback_dir>` takes no stage argument at either stage.
 a `feedback_layout: "scoped"` item; the unchanged legacy scoped-else-flat
 rule for an item without the field.
 
+**Gate policy** (workflow-2.8.0): where a plan or technical gate is `automatic`
+under `docs/ai-workflow/GATE_POLICY.json` and every requirement is met,
+`/satisfy-gate` records the approval from the policy instead, citing this
+command's steps by number. This command stays the human path for every gate in
+either mode, unchanged, and records `EXTERNAL_APPROVE` or `USER_OVERRIDE`
+exactly as before; it never writes `POLICY_SATISFIED`.
+
 **This command is user-only by construction.** `disable-model-invocation:
 true` is the primary, harness-enforced control (blocks the SlashCommand
 tool). Claude must never invoke it on the user's own behalf, including as a
@@ -697,6 +704,14 @@ actually load-bearing control for the Skill exposure path, not mechanism
    technical-approval commit undiscoverable. The exact scoped trailer
    lookup is `workflow_state.discover_technical_approval_commit`
    (`WF4a-iii`).
+   **Item-scoped staging** (workflow-2.8.0, `LPR-R6-001`):
+   the technical-approval commit stages the state file with
+   `workflow_state.stage_scoped_state(repo_root, <work_item_id>)` in place of the bare
+   `git add` of that path (it returns `False`, and the ordinary single-path `git add`
+   runs, unless another work item holds uncommitted residue in the state file). The
+   plan-approval commit is not scoped: it keeps the whole-file pin, and
+   `verify_plan_approval_commit` applies
+   `assert_gate_policy_fields_unchanged_or_tightened` to it.
 
    **Implementation stage — post-commit verification of the commit this
    invocation just created** (workflow system audit, convergence pass 12,

@@ -7,10 +7,11 @@ historical numbers; the table below is the current order.
 
 ## At a glance
 
-**Where things stand (2026-10-01).**
-- Releases 2.3.1 to 2.6.0 are published here as immutable packages: one GitHub release per
+**Where things stand (2026-10-03).**
+- Releases 2.3.1 to 2.7.0 are published here as immutable packages: one GitHub release per
   version, each with `workflow-<version>.tar.gz`, its manifest and `SHA256SUMS`, and one tagged
-  commit per release on `main`. `main` ends at 2.6.0, the base the next release develops from.
+  commit per release on `main`. `main` ends at 2.7.0 (published from `d14e0a7`, pinned in
+  `workflow-manager` by `workflow-manager#13`, Manager v1.3.0), the base the next release develops from.
 - `workflow-manager` (v1.2.0 and later) installs a release by downloading its package and
   verifying it against a pin it ships. **Each new release needs a small `workflow-manager` pull
   request that adds its pin** (`OD-M2-2`), and the Manager tests the newest release plus the
@@ -23,8 +24,8 @@ historical numbers; the table below is the current order.
 | # | Step | Section |
 |---|---|---|
 | W0 | **COMPLETE** (milestone `workflow-repository-setup`, accepted 2026-10-01; the post-acceptance squash-merge and `main` read-back, `docs/RELEASING.md` "Cutover" steps 5-6, are done: workflow#3 merged as `ef714f3`, and Release run 36906626604 read back `v2.6.0` with "nothing to release") — Set this repository up for development: CI, a release workflow (build the package and `SHA256SUMS`, publish an immutable release), `main` protection with Conventional-Commit titles, `CLAUDE.md`, its own Workflow installation kept apart from the release source, and this roadmap | this table |
-| W1 | **COMPLETE** (milestone `orchestration-protocol-v1`, accepted 2026-10-02; the cutover remains: published as Workflow 2.7.0 when its pull request merges, then pinned in `workflow-manager`) — Workflow 2.7, the first release developed here: Orchestration Protocol v1, and the `v2.6.0-001` and `v2.6.0-002` follow-ups | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
-| W2 | Workflow 2.8: declarative gate policy, and a red or changes-requested pull request reopening the same work item | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
+| W1 | **COMPLETE** (milestone `orchestration-protocol-v1`, accepted 2026-10-02; published as Workflow 2.7.0 from `d14e0a7` and pinned in `workflow-manager` by `workflow-manager#13`, Manager v1.3.0) — Workflow 2.7, the first release developed here: Orchestration Protocol v1, and the `v2.6.0-001` and `v2.6.0-002` follow-ups | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
+| W2 | **COMPLETE, pending cutover** (milestone `gate-policy-and-reopening`, accepted 2026-10-03; Workflow 2.8.0 is authored and releasable, and is published and pinned in `workflow-manager` only after acceptance and merge) — Workflow 2.8: declarative gate policy, and a red or changes-requested pull request reopening the same work item | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
 
 The Workflow Controller consumes W1 (its C9, the Controller on the protocol) and W2 (its C10, gate
 policy and automatic acceptance). The Manager-and-Workflow lane drives this repository and
@@ -173,7 +174,7 @@ Documented residuals / follow-ups left by the accepted implementation:
 
 ## Workflow 2.7.0
 
-**Status:** Complete authored release, the first developed in this repository — accepted as milestone W1, `orchestration-protocol-v1` (section 1.9), on 2026-10-02. The `Release` workflow publishes it when its pull request merges; `workflow-manager` installs it once its pin is added.
+**Status:** Complete authored release, the first developed in this repository — accepted as milestone W1, `orchestration-protocol-v1` (section 1.9), on 2026-10-02. It was published by the `Release` workflow from `d14e0a7` (tag `v2.7.0`) and is pinned in `workflow-manager` by `workflow-manager#13` (Manager v1.3.0).
 
 Delivered:
 
@@ -188,6 +189,22 @@ Delivered:
 Compatibility: the 2.6.0 query CLIs are unchanged. A `review_content_id` stated only after the feedback's first `## ` section now parses as absent. Workflow Controller 1.5.0 does not admit 2.7.0; do not update a Controller-driven repository until the Controller does (its C9).
 
 Open, reported by the protocol rather than fixed: `v2.6.0-003` (see the Defect Disposition Summary).
+
+---
+
+## Workflow 2.8.0
+
+**Status:** Complete authored release, developed as milestone W2, `gate-policy-and-reopening` (section 1.9, accepted 2026-10-03), pending cutover: it is published by the `Release` workflow only once the milestone is accepted and its pull request is squash-merged, and pinned in `workflow-manager` afterwards.
+
+Delivered:
+
+- a declarative gate policy (`GATE_POLICY.json`, master switch and per-gate overrides, tighten-only against a recorded floor, content-verified adoption that survives squash merges): plan and technical approval satisfiable by current local plus independent cross-model review evidence, functional validation by configured evidence, acceptance evaluated from evidence; human approval is off by default: with no policy adopted the three gates are automatic on their evidence, and a person restores the 2.7.0 gates by turning `human_approval` on (the master switch, or per gate);
+- `scripts/workflow_gate_policy.py`, `scripts/workflow_forge.py` (GitHub-sourced pull-request facts), `/adopt-gate-policy`, `/satisfy-gate`, `/apply-pr-review` and the operator guide `docs/ai-workflow/GATE_POLICY.md`;
+- reopening the same work item into remediation when a pull request is red or has `CHANGES_REQUESTED`;
+- Orchestration Protocol 1.1: the gate rows, validation actions, evidence kinds and schema, with a golden all-human equivalence matrix against the 2.7.0 modules;
+- a new conformance suite, `workflow_gate_policy_test.py`, run by `workflow-conformance.yml` (nine suites).
+
+Compatibility: with no policy adopted, the three gates are automatic on their evidence; a person restores the 2.7.0 gates by turning `human_approval` on (the master switch, or per gate). Workflow Controller 1.7.0 (C9, released 2026-10-03) admits 2.8.0 by protocol capability; the Controller's C10 consumes the gate policy.
 
 ---
 
@@ -643,6 +660,8 @@ Workflow 3.x   ─┘
 
 ## Gate and validation policy must be declarative
 
+**Delivered in Workflow 2.8.0** (W2, milestone `gate-policy-and-reopening`; pending cutover): `GATE_POLICY.json`, `scripts/workflow_gate_policy.py`, `/adopt-gate-policy`, `/satisfy-gate` and `docs/ai-workflow/GATE_POLICY.md`. Human approval is off by default: with no policy adopted the three gates are automatic on their evidence, and a person restores the 2.7.0 gates by turning `human_approval` on (the master switch, or per gate).
+
 Workflow must own the meaning of lifecycle gates rather than assuming today's user-gate layout forever.
 
 Future supported policies may include:
@@ -665,6 +684,8 @@ The protocol must therefore distinguish:
 Removing a human gate must not require Controller lifecycle-code changes if the public protocol contract remains compatible.
 
 ## Post-validation reopening and PR-review defects
+
+**Delivered in Workflow 2.8.0** (W2, milestone `gate-policy-and-reopening`; pending cutover): reopening the same work item into remediation, `/apply-pr-review`, and GitHub-sourced pull-request facts.
 
 "Validation passed" is not irreversible milestone completion.
 

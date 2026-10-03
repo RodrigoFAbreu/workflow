@@ -188,7 +188,7 @@ rule for an item without the field.
    before `/approve-review implementation` is reachable. Persist the
    returned state to `WORKFLOW_STATE.json`, and commit it **alone** —
    stage exactly that one
-   path (never a broader `git add`) and create one commit carrying, for
+   path (never a broader `git add`; **Item-scoped staging** (workflow-2.8.0, `LPR-R6-001`): stage the state file with `workflow_state.stage_scoped_state(repo_root, <work_item_id>)` in place of the bare `git add` of that path (it returns `False`, and the ordinary single-path `git add` runs, unless another work item holds uncommitted residue in the state file).) and create one commit carrying, for
    `"ordinary"`, `Workflow-Bundle-Generation-Record:
    <work_item_id>/<implementation_revision>` +
    `Workflow-Work-Item: <work_item_id>` trailers, no other trailer; for
@@ -223,7 +223,12 @@ rule for an item without the field.
    (`assert_review_request_states_review_content_id`), obtained from the
    single canonical entry point `docs/ai-workflow/REVIEW_PROTOCOL.md`'s
    "Computing `review_content_id`" names for this stage -- never a second,
-   ad hoc computation. Then
+   ad hoc computation. If the implementation stage's gate is `automatic` and the effective `require` lists
+   `distinct_reviewer_models` (`workflow_state.review_stage_gate_context(repo_root,
+   state, work_item_id, "implementation")["requires_distinct"]`), also ask the reviewer, in
+   that file, to state `Reviewer model: <vendor>/<model>` in the verdict's header
+   block, because an `APPROVE` without it is refused at ingest (workflow-2.8.0,
+   `LPR-R16-003`); under a human gate ask for nothing new. Then
    run `./scripts/prepare-ai-review.sh <base-sha> post-fix [work_item_id]`
    — required before `AWAITING_TECHNICAL_APPROVAL` can be reachable again.
 8. If any Blocking finding remains unresolved, or the fix was structurally

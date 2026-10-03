@@ -1,7 +1,8 @@
 # Workflow Orchestration Protocol v1
 
-The normative specification of Orchestration Protocol v1, version `1.0`,
-first shipped in Workflow 2.7.0. An orchestrator (for example the Workflow
+The normative specification of Orchestration Protocol v1, version `1.1`
+(`1.0` first shipped in Workflow 2.7.0; `1.1` adds the gate-policy rows and
+actions in Workflow 2.8.0). An orchestrator (for example the Workflow
 Controller) drives a repository's Workflow through this protocol only. It
 copies no Workflow phases, artifact paths, helper names or transition
 rules: the Workflow owns what the lifecycle means, and the orchestrator owns
@@ -23,7 +24,7 @@ Every existing command still works as before when a person runs it.
 ## 1. Versioning
 
 - The protocol version is `MAJOR.MINOR`, starting at `1.0`. It is
-  independent of the Workflow release (2.7.0) and of any work item's
+  independent of the Workflow release (2.8.0) and of any work item's
   governing version (`1`, `2.1`, `2.2`).
 - A **minor** bump only adds things: optional response fields, new action
   ids, new error codes, new artifact or result kinds, or new capabilities.
@@ -35,7 +36,7 @@ Every existing command still works as before when a person runs it.
   for people.
 - `describe` reports the protocol version, the supported majors and the
   supported governing versions. The Workflow releases tested against v1 are
-  listed only here, never in a response: **Workflow 2.7.0**.
+  listed only here, never in a response: **Workflow 2.7.0** (protocol `1.0`) and **Workflow 2.8.0** (protocol `1.1`).
 
 ## 2. Invocation and the envelope
 
@@ -54,8 +55,8 @@ stdout is exactly one JSON document, the **envelope**
 
 ```json
 {
-  "protocol": {"name": "workflow-orchestration", "version": "1.0"},
-  "workflow_release": "2.7.0",
+  "protocol": {"name": "workflow-orchestration", "version": "1.1"},
+  "workflow_release": "2.8.0",
   "operation": "next-action",
   "ok": true,
   "result": { "...": "operation-specific" }
@@ -183,7 +184,7 @@ directory exists. Its result (`$defs.results.describe`) is
 
 `verify` is read-only. Its result (`$defs.results.verify`) is
 `{healthy, checks: [{id, status, detail}]}`, with `status` one of `pass`,
-`fail` or `skip`, and these checks in order:
+`warn`, `fail` or `skip`, and these checks in order:
 
 1. `state_readable`: the state file and the config parse.
 2. `state_valid`: `validate_state(state, repo_root=…)` passes, including the
@@ -212,6 +213,13 @@ directory exists. Its result (`$defs.results.describe`) is
    exists, its `workflow_version` equals `WORKFLOW_RELEASE`; `skip` when it
    is absent.
 7. `protocol_ready`: checks 1 to 4 passed.
+8. `gate_policy` (workflow-2.8.0, advisory): `pass` when no
+   `docs/ai-workflow/GATE_POLICY.json` is present (the default applies) or the
+   file equals the adopted policy; `warn` for an unadopted differing file, an
+   ignored loosening, a floor not yet recorded in a commit, a floor holding a
+   setting the file no longer carries, and a gate-lowering adoption; `fail`
+   for an invalid file and for a failed provenance of the adopted policy or
+   the floor. It never changes `healthy` and is not part of check 7.
 
 A check fails on a Workflow or Git refusal. After an unreadable state,
 checks 2 to 5 are `skip`, check 6 still runs, and check 7 fails. A failing
@@ -342,14 +350,20 @@ when present, it must be a row that emits the action.
 ### 5.6 `record-external-result`
 
 ```text
-record-external-result --work-item ID --kind KIND --input FILE
+record-external-result --work-item ID --kind KIND --input FILE [--run-ref REF]
 ```
 
-`FILE` holds the external reviewer's verdict text, verbatim. The v1 kinds
-are `plan_review_verdict` and `implementation_review_verdict`;
-`functional_evidence` and `pr_review_result` are reserved and refuse with
-`unsupported_result_kind`, and any other kind, or an unreadable input, is
-`invalid_request`. The operation calls
+`FILE` holds the external reviewer's verdict text, verbatim, for the two
+verdict kinds. The kinds are `plan_review_verdict`,
+`implementation_review_verdict`, and (protocol `1.1`) `functional_evidence`
+and `pr_review_result`, whose `FILE` is a JSON object (the input shapes are
+`$defs.inputs.functional_evidence` and `$defs.inputs.pr_review_result` of the
+schema); both are accepted under every gate policy, and a refusal of either
+(a malformed record, an unknown head, a missing or inconsistent `forge`
+provenance block) is `refused` with the library's reason code in its message
+and nothing stored. No kind is reserved in `1.1`; any other kind, or an
+unreadable input, is `invalid_request`. For the two verdict kinds the
+operation calls
 `workflow_state.ingest_manual_review_verdict`, the same ingest the
 `/record-manual-plan-review` and `/record-manual-implementation-review`
 commands call. It selects one row of this table from the item's phase and
@@ -371,6 +385,16 @@ phase unchanged with the verdict in the file, and a retry through either
 path records it. At a feedback-only row, a different verdict that already
 binds to the current bundle refuses (`ConflictingReviewFeedbackError`).
 
+`--run-ref` (workflow-2.8.0, optional) is the reporter's own identifier for
+the run that produced the verdict. While the stage's gate is automatic
+(`GATE_POLICY.json`), the ledger entry records it beside `verdict_sha256`
+(declared, never verified; `null` when absent), and the entry also records the
+verdict's `Reviewer model:` header line when the effective policy requires
+distinct reviewer models. Under that requirement an `APPROVE` that declares no
+model, or the same family as the other stage, is refused
+(`DistinctReviewerModelsRequiredError`, a `refused` result) before any write.
+Under a human gate nothing changes: no key, no refusal.
+
 `round` is the header-block `Round:` value; a `Round:` that is not a
 positive integer refuses (`ManualVerdictHeaderError`), and when it is
 absent, `round` is the round of the same stage's local `APPROVE` of the
@@ -379,8 +403,10 @@ current content. `bundle_id` is the verdict's `Reviewed bundle ID:`, or
 `Reviewed bundle ID: absent`.
 
 The result (`$defs.results.record-external-result`) is
-`{stage, verdict, review_content_id, round, bundle_id, advisory, basis}`;
-`round` and `bundle_id` are `null` for a feedback-only row. A refusal that
+`{stage, verdict, review_content_id, round, bundle_id, advisory, basis}` for
+a verdict kind (`round` and `bundle_id` are `null` for a feedback-only row),
+`{stage: "functional", flow_id, identity, basis}` for `functional_evidence`
+and `{stage: "pr_review", slot, fact_id, basis}` for `pr_review_result`. A refusal that
 means "no row accepts this verdict here" (the wrong phase or governing
 version, or the stage already recorded for the current content) is
 `not_applicable`; every other Workflow refusal is `refused`. A retry after
@@ -399,7 +425,9 @@ by `ACTIONS`:
 
 | action id | command | invocation | role | fresh_session | independent_of | user_only |
 | --- | --- | --- | --- | --- | --- | --- |
+| `acceptance.satisfy` | `satisfy-gate` | `/satisfy-gate acceptance {id}` | `validator` | no | — | no |
 | `functional.apply_findings` | `apply-functional-review` | `/apply-functional-review {id}` | `applier` | no | — | no |
+| `functional.evidence.external` | — | — | `external` | no | — | no |
 | `functional.prepare` | `prepare-functional-review` | `/prepare-functional-review {id}` | `implementer` | no | — | no |
 | `functional.review` | — | — | `user` | no | — | no |
 | `functional.review.advisory` | `review-functional` | `/review-functional {id}` | `independent_reviewer` | yes | `implementer` | no |
@@ -410,6 +438,7 @@ by `ACTIONS`:
 | `implementation.recover_provenance` | `recover-implementation-provenance` | `/recover-implementation-provenance {id}` | `implementer` | no | — | no |
 | `implementation.review.external` | — | — | `external` | no | — | no |
 | `implementation.review.local` | `review-implementation` | `/review-implementation {id}` | `independent_reviewer` | yes | `implementer`, `self_reviewer` | no |
+| `implementation.satisfy` | `satisfy-gate` | `/satisfy-gate implementation {id}` | `validator` | no | — | no |
 | `implementation.self_review` | `milestone-implement` | `/milestone-implement {id}` | `self_reviewer` | no | — | no |
 | `milestone.accept` | `accept-milestone` | `/accept-milestone {id}` | `user` | no | — | yes |
 | `plan.apply_review` | `apply-plan-review` | `/apply-plan-review {id}` | `applier` | no | — | no |
@@ -418,12 +447,17 @@ by `ACTIONS`:
 | `plan.record_external` | `record-manual-plan-review` | `/record-manual-plan-review {id}` | `applier` | no | — | no |
 | `plan.review.external` | — | — | `external` | no | — | no |
 | `plan.review.local` | `review-plan` | `/review-plan {id}` | `independent_reviewer` | yes | `planner` | no |
+| `plan.satisfy` | `satisfy-gate` | `/satisfy-gate plan {id}` | `validator` | no | — | no |
 | `plan.start` | `milestone-plan` | `/milestone-plan` | `planner` | no | — | no |
 | `plan.withdraw` | `milestone-plan` | `/milestone-plan {id}` | `planner` | no | — | no |
+| `pr.apply_review` | `apply-pr-review` | `/apply-pr-review {id}` | `applier` | no | — | no |
+| `pr.review.external` | — | — | `external` | no | — | no |
 | `review.resolve_block` | — | — | `user` | no | — | no |
 
 The worker roles are `planner`, `implementer`, `self_reviewer`,
-`independent_reviewer`, `applier`, `user` and `external`.
+`independent_reviewer`, `applier`, `validator` (protocol `1.1`: the
+Workflow's own automated validation of a gate by policy, never a person's
+decision), `user` and `external`.
 `fresh_session` asks for a session that has not seen the work, and
 `independent_of` lists the roles whose sessions the worker must not share.
 A `user_only` action always has role `user`, its command file carries
@@ -546,6 +580,12 @@ every row whose condition depends on it.
 | 13 | `parse_review_feedback_header` | value | — |
 | 13 | `plan_review_publication_status` | value | — |
 | 14 | — | — | — |
+| 14a | `effective_policy` | value | — |
+| 14a | `plan_approval_gate_status` | value | — |
+| 14a | `evaluate_gate` | value | — |
+| 14b | `effective_policy` | value | — |
+| 14b | `plan_approval_gate_status` | value | — |
+| 14b | `evaluate_gate` | value | — |
 | 15 | `plan_approval_gate_status` | value | — |
 | 16 | `plan_approval_gate_status` | value | — |
 | 16a | `compute_bundle_id` | guard | `MissingRequiredBundleFileError` |
@@ -582,6 +622,12 @@ every row whose condition depends on it.
 | 27 | `parse_review_feedback_header` | value | — |
 | 27 | `approval_review_content_id` | value | — |
 | 28 | — | — | — |
+| 28a | `effective_policy` | value | — |
+| 28a | `technical_approval_gate_status` | value | — |
+| 28a | `evaluate_gate` | value | — |
+| 28b | `effective_policy` | value | — |
+| 28b | `technical_approval_gate_status` | value | — |
+| 28b | `evaluate_gate` | value | — |
 | 29 | `technical_approval_gate_status` | value | — |
 | 30 | `technical_approval_gate_status` | value | — |
 | 30a | `compute_bundle_id` | guard | `MissingRequiredBundleFileError` |
@@ -617,6 +663,20 @@ every row whose condition depends on it.
 | 38a | `resolve_own_registry_completion_status` | value | `StalePlanApprovalRegistryReadError`, `RegistryCoverageError` |
 | 38b | `resolve_own_registry_completion_status` | value | — |
 | 38c | `resolve_own_registry_completion_status` | value | — |
+| 38d | `effective_policy` | value | — |
+| 38d | `pr_query_trigger` | value | — |
+| 38d | `actionable_pr_keys` | value | — |
+| 38e | `effective_policy` | value | — |
+| 38e | `evaluate_gate` | value | — |
+| 38f | `effective_policy` | value | — |
+| 38f | `evaluate_gate` | value | — |
+| 38g | `effective_policy` | value | — |
+| 38g | `evaluate_gate` | value | — |
+| 38g | `pr_approved_requirements` | value | — |
+| 38h | `effective_policy` | value | — |
+| 38h | `evaluate_gate` | value | — |
+| 38i | `effective_policy` | value | — |
+| 38i | `evaluate_gate` | value | — |
 | 39 | `resolve_own_registry_completion_status` | value | — |
 | 40 | — | — | — |
 
@@ -653,6 +713,8 @@ are a summary, and the code and its tests are the detail.
 | 12 | `AWAITING_LOCAL_PLAN_REVIEW` | `2.1`, `2.2` | — | automatic | `plan.review.local` | `/review-plan <id>`, fresh session, independent of `planner` |
 | 13 | `AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW` | `2.1`, `2.2` | fb holds an unrecorded manual verdict | automatic | `plan.record_external` | `/record-manual-plan-review <id>` |
 | 14 | `AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW` | `2.1`, `2.2` | — | external_gate | `plan.review.external` | `satisfied_by: plan_review_verdict` |
+| 14a | `AWAITING_PLAN_APPROVAL` | `2.1`, `2.2` | the plan gate is `automatic` for the item (`1.1`), its status is reachable and `evaluate_gate` is satisfiable | validation | `plan.satisfy` | `policy_satisfiable`; `/satisfy-gate plan <id>`, role `validator`; the decision carries a `policy` object |
+| 14b | `AWAITING_PLAN_APPROVAL` | `2.1`, `2.2` | the plan gate is `automatic`, its status is reachable and `evaluate_gate` is not satisfiable | blocked | — | `gate_evidence_unmet`: each unmet requirement; remedy: turn the plan gate human and run `/approve-review plan <id>`, or (for `distinct_reviewer_models`, `review_evidence_audited`) withdraw with `/milestone-plan <id>`; an unreachable wrapper reaches row 16 unchanged |
 | 15 | `AWAITING_PLAN_APPROVAL` | `2.1`, `2.2` | the plan gate status is reachable | human_gate | `plan.approve` | `/approve-review plan <id>`, `user_only` |
 | 16 | `AWAITING_PLAN_APPROVAL` | `2.1`, `2.2` | — (the plan gate is unreachable) | blocked | — | the gate's cause; alternative `plan.withdraw` |
 | 16a | `AWAITING_EXTERNAL_PLAN_REVIEW` | `1` | computing **B** raises `MissingRequiredBundleFileError` | blocked | — | `bundle_unverified`: regenerate the plan bundle |
@@ -671,6 +733,8 @@ are a summary, and the code and its tests are the detail.
 | 26 | `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` | `2.2` | — | automatic | `implementation.review.local` | `/review-implementation <id>`, fresh session, independent of `implementer` and `self_reviewer` |
 | 27 | `AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW` | `2.2` | fb holds an unrecorded manual verdict | automatic | `implementation.record_external` | `/record-manual-implementation-review <id>` |
 | 28 | `AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW` | `2.2` | — | external_gate | `implementation.review.external` | `satisfied_by: implementation_review_verdict` |
+| 28a | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `2.2` | the technical gate is `automatic`, its status is reachable and `evaluate_gate` is satisfiable | validation | `implementation.satisfy` | `policy_satisfiable`; `/satisfy-gate implementation <id>`, role `validator`; carries a `policy` object |
+| 28b | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `2.2` | the technical gate is `automatic`, its status is reachable and `evaluate_gate` is not satisfiable | blocked | — | `gate_evidence_unmet`: each unmet requirement; remedy: turn the technical gate human and run `/approve-review implementation <id>`, or withdraw with `/apply-implementation-review <id>`; an unreachable wrapper reaches row 30 unchanged |
 | 29 | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `2.2` | the technical gate status is reachable | human_gate | `implementation.approve` | `/approve-review implementation <id>`, `user_only` |
 | 30 | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `2.2` | — (the technical gate is unreachable) | blocked | — | the gate's cause, with its remedy and alternatives |
 | 30a | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `1`, `2.1` | computing **B** raises `MissingRequiredBundleFileError` | blocked | — | `bundle_unverified`: regenerate the implementation bundle |
@@ -687,6 +751,12 @@ are a summary, and the code and its tests are the detail.
 | 38a | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | `resolve_own_registry_completion_status` raises | blocked | — | `plan_content_drifted` or `registry_unreadable`; alternative `functional.review.advisory` |
 | 38b | `AWAITING_FUNCTIONAL_REVIEW` | `1` | the registry is not terminal | blocked | — | `v1_state_not_advanced` (`v2.6.0-003`) |
 | 38c | `AWAITING_FUNCTIONAL_REVIEW` | `2.1`, `2.2` | the registry is not terminal | blocked | — | `registry_incomplete`: no 2.6.0 command completes it here |
+| 38d | `AWAITING_FUNCTIONAL_REVIEW`, `MILESTONE_COMPLETE` | `1`, `2.1`, `2.2` | the query trigger holds (a reported pull-request fact differs from the stored `workflow_gh` fact), or the stored `workflow_gh` fact has an unapplied cause actionable under the policy; no gate-mode condition | automatic | `pr.apply_review` | `pr_query_due` or `pr_review_actionable`; `/apply-pr-review <id>`; its first step is the Workflow's own query; matches a completed item too |
+| 38e | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | the acceptance gate is `automatic`, its checkpoints and technical approval are current, and `functional_flows_passed` is unmet for want of evidence | external_gate | `functional.evidence.external` | `functional_evidence_needed`; `satisfied_by: functional_evidence` |
+| 38f | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | automatic acceptance, the stored `workflow_gh` fact at least as new as the reported one, and `pr_fact_current` or `ci_green` unmet with a pull-request fact obtainable | external_gate | `pr.review.external` | `pr_evidence_needed`; `satisfied_by: pr_review_result` is a trigger, never evidence |
+| 38g | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | `requires_pr_approved`, the stored `workflow_gh` fact at least as new as the reported one, and `pr_approved` unmet (automatic or human acceptance) | external_gate | `pr.review.external` | `pr_approval_needed`; for a human gate the remedy names `/accept-milestone <id>` |
+| 38h | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | automatic acceptance, satisfiable, or satisfiable once the pending query is run | validation | `acceptance.satisfy` | `policy_satisfiable`; `/satisfy-gate acceptance <id>`, role `validator`; its act re-queries GitHub and may still refuse |
+| 38i | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | automatic acceptance, not satisfiable, nothing obtainable | blocked | — | `gate_evidence_unmet`: each unmet requirement; remedy: `/apply-functional-review <id>`, or turn the acceptance gate human and `/accept-milestone <id>` |
 | 39 | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | — (the registry is terminal) | human_gate | `functional.review` | alternatives `milestone.accept` (`user_only`), `functional.apply_findings`, `functional.review.advisory` |
 | 40 | `MILESTONE_COMPLETE` | `1`, `2.1`, `2.2` | — | complete | — | — |
 
@@ -736,7 +806,11 @@ Notes on the catalogue:
   and applying unconsumed functional findings do not need a terminal
   registry, so a drifted plan or a non-terminal registry is reported only
   where acceptance would be offered.
-- **`validation`** is in the v1 vocabulary, and 2.7.0 emits it from no row.
+- **`validation`** is in the v1 vocabulary. 2.7.0 emits it from no row;
+  from protocol `1.1` (Workflow 2.8.0) rows `14a`, `28a` and `38h` emit it:
+  its action (`plan.satisfy`, `implementation.satisfy`,
+  `acceptance.satisfy`, role `validator`) is launched like an `automatic`
+  one, and `reconcile` accepts such a decision.
 
 ## 7. `reconcile`: legal edges and classification
 
@@ -801,6 +875,18 @@ at any `gv`. Mirrored by `EDGES`:
 | `functional.apply_findings` | `AWAITING_FUNCTIONAL_REVIEW` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `1` |
 | `functional.apply_findings` | `AWAITING_FUNCTIONAL_REVIEW` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `2.1` |
 | `functional.apply_findings` | `AWAITING_FUNCTIONAL_REVIEW` | `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` | `2.2` |
+| `plan.satisfy` | `AWAITING_PLAN_APPROVAL` | `IMPLEMENTING` | `2.1`, `2.2` |
+| `plan.satisfy` | `AWAITING_PLAN_APPROVAL` | `AWAITING_PLAN_APPROVAL` | `2.1`, `2.2` |
+| `implementation.satisfy` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `AWAITING_FUNCTIONAL_REVIEW` | `2.2` |
+| `implementation.satisfy` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `2.2` |
+| `acceptance.satisfy` | `AWAITING_FUNCTIONAL_REVIEW` | `MILESTONE_COMPLETE` | `1`, `2.1`, `2.2` |
+| `acceptance.satisfy` | `AWAITING_FUNCTIONAL_REVIEW` | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` |
+| `pr.apply_review` | `AWAITING_FUNCTIONAL_REVIEW` | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` |
+| `pr.apply_review` | `AWAITING_FUNCTIONAL_REVIEW` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `1` |
+| `pr.apply_review` | `AWAITING_FUNCTIONAL_REVIEW` | `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` | `2.1` |
+| `pr.apply_review` | `AWAITING_FUNCTIONAL_REVIEW` | `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` | `2.2` |
+| `pr.apply_review` | `MILESTONE_COMPLETE` | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` |
+| `pr.apply_review` | `MILESTONE_COMPLETE` | `MILESTONE_COMPLETE` | `1`, `2.1`, `2.2` |
 
 Each automatic action's same-phase proof of progress and its
 `allowed_results`, which `next-action` copies into
@@ -820,6 +906,10 @@ Each automatic action's same-phase proof of progress and its
 | `implementation.apply_review` | `implementation_revision_advanced` | `progress`, `gate_reached`, `no_progress` |
 | `functional.prepare` | — | `gate_reached`, `no_progress` |
 | `functional.apply_findings` | — | `progress`, `gate_reached`, `no_progress` |
+| `plan.satisfy` | — | `progress`, `gate_reached`, `no_progress` |
+| `implementation.satisfy` | — | `progress`, `gate_reached`, `no_progress` |
+| `acceptance.satisfy` | — | `progress`, `gate_reached`, `no_progress` |
+| `pr.apply_review` | — | `progress`, `gate_reached`, `no_progress` |
 
 The proofs:
 
@@ -862,13 +952,45 @@ A class not in the action's `allowed_results` is then replaced by
 names the review stage a review or record action recorded when it moved
 the phase.
 
-**Completion is reported by `next-action`, never by `reconcile`.** The
-only writer of `MILESTONE_COMPLETE` is `/accept-milestone`, a `user_only`
-action offered only at the `human_gate` row 39. No automatic action has an
-edge to `MILESTONE_COMPLETE`, so `reconcile` has no `complete` class: an
-automatic action that left the item there would be `invalid`. After the
-user accepts, the next `next-action` returns row 40, disposition
-`complete`, and that is the terminal signal.
+**The classes of the gate-policy actions (protocol `1.1`).** The three
+`.satisfy` actions and `pr.apply_review` take `proof: —` and the
+classifier's own terms above; nothing in the classifier changed. A refusal of
+a `.satisfy` act leaves the phase alone and reconciles through its same-phase
+edge, never `illegal_edge`. The class is decided by where the next decision
+lands:
+
+- `progress`: the act reached its forward target (the phase advanced), or
+  `pr.apply_review` reopened a completed item (`MILESTONE_COMPLETE` to
+  `AWAITING_FUNCTIONAL_REVIEW`) or took a branch that changed the phase;
+- `gate_reached`: the next decision is a human or external gate. That is
+  `38f` or `38g` (external) after an `acceptance.satisfy` refusal that stored
+  a pending or not-current fact, and row 15, 29 or 39 (human) after a refusal
+  because the gate was turned human meanwhile;
+- `no_progress`: everything else on a legal edge, for example `38h` again
+  after `forge_unavailable` (nothing is stored), `38i` after a stored
+  failed-checks or `CHANGES_REQUESTED` fact, `14b` or `28b` after a
+  `plan.satisfy` or `implementation.satisfy` refusal, `38d` after a stored red
+  fact that reopened the item, and `pr.apply_review` ending in a refusal
+  (`pr_merged`, `pr_fact_superseded`, `forge_unavailable`,
+  `forge_undecidable`, `pr_head_unknown`, `pr_head_not_in_branch`) or in the
+  recorded result `pr_fact_refreshed` at a completed item, which reconciles
+  over the unchanged `MILESTONE_COMPLETE` edge.
+
+A `38d` or `38i` ending changes the stored facts and so the next action's id
+and `state_identity`, yet still reconciles `no_progress`: that is correct for
+a `1.0` consumer too.
+
+**Completion is reported by `next-action`; `reconcile` has no `complete`
+class.** Where the acceptance gate is human, the only writer of
+`MILESTONE_COMPLETE` is `/accept-milestone`, a `user_only` action offered at
+the `human_gate` row 39. Where it is automatic (the default of protocol
+`1.1`), `acceptance.satisfy` is a `validation` action (role `validator`,
+launched like an automatic one) and the only action with an edge from
+`AWAITING_FUNCTIONAL_REVIEW` to `MILESTONE_COMPLETE`; its arrival there is
+classed `progress`, not a completion class. After either the next `next-action` returns row 40,
+disposition `complete`, and that is the terminal signal. `/accept-milestone`
+stays the writer only for a human gate. Any other action that moved an item into `MILESTONE_COMPLETE` would be
+`invalid` (`illegal_edge`).
 
 ## 8. Consumer obligations
 
@@ -883,8 +1005,9 @@ A consumer of protocol `1.x`:
    version or phase is never driven;
 4. dispatches on `action.id` and `arguments`, never on `invocation`, and
    honours `worker` (role, a fresh session, independence, `user_only`);
-5. runs an `automatic` action only, never a gate's action or an
-   alternative on its own; a `user_only` action is always a person's;
+5. runs an `automatic` action (and, from protocol `1.1`, a `validation`
+   action) only, never a gate's action or an alternative on its own; a
+   `user_only` action is always a person's;
 6. checks the identity before launching: `next-action
    --expect-state-identity <basis.state_identity>` immediately before
    the launch, re-deciding on `stale_decision`;
@@ -894,14 +1017,22 @@ A consumer of protocol `1.x`:
 8. records external verdicts through `record-external-result` only, and
    never reads or writes a Workflow artifact path to drive the lifecycle
    (`resolve-artifact` is for display and hand-off);
-9. stops at disposition `complete`.
+9. stops at disposition `complete`;
+10. (protocol `1.1`, a recommendation) bounds its consecutive `no_progress`
+    results of the **same** action id at an **unchanged** `state_identity`,
+    then treats the item as `blocked` with the last refusal's message. This
+    is not a bound on any `no_progress` result: an ending that changes the
+    stored facts, such as a `38d` or `38i` one, changes `state_identity` and
+    hands off to `pr.apply_review` or to a `blocked` explanation. A
+    refusal that stores nothing (`forge_unavailable` at `38h`, or an unsafe
+    `gh` path) leaves `state_identity` unchanged and is the case the bound is
+    for. Section 8 defined no such limit in `1.0`.
 
 ## 9. Reserved for a later protocol version
 
-- The disposition `validation` (declarative gate policy and automatic
-  approvals, Workflow 2.8), emitted by no 2.7.0 row.
-- The result kinds `functional_evidence` and `pr_review_result`, refused
-  with `unsupported_result_kind`.
+- Nothing is reserved in `1.1`: the disposition `validation` and the result
+  kinds `functional_evidence` and `pr_review_result`, reserved in `1.0`, are
+  in use. `reserved_result_kinds` in `describe` is empty.
 
 ## 10. Compatibility notes
 
@@ -936,3 +1067,98 @@ A consumer of protocol `1.x`:
 - **2.6.0's query CLIs** (`workflow_state.py
   --plan-review-publication-status`, `--resolve-feedback-path`) are kept
   byte-compatible; the protocol does not replace them.
+- **Protocol `1.1` and Workflow 2.8.0: the default switches the gates to
+  automatic.** Updating a repository to 2.8.0 with no
+  `docs/ai-workflow/GATE_POLICY.json` makes its gates automatic, unless the
+  file sets `"human_approval": true`, which is the one-line way back to human
+  gates. The update changes no state file by itself. For a repository with
+  no policy file, `next-action` changes as follows: at
+  `AWAITING_PLAN_APPROVAL` (governing versions 2.1 and 2.2) it emits
+  `plan.satisfy` (`validation`) or a `blocked` explanation (`14b`) instead of
+  the human plan gate; at `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` (2.2) the
+  same for `implementation.satisfy` (`28a`, `28b`); at
+  `AWAITING_FUNCTIONAL_REVIEW` it emits the evidence gates
+  (`functional.evidence.external`, `pr.review.external`), `acceptance.satisfy`
+  or a `blocked` explanation instead of the human gate. Items governed by `1`
+  keep a human plan and technical gate, and a 2.1 item a human technical gate,
+  because there is no review ledger to read. The satisfying commands write a
+  `POLICY_SATISFIED` approval or an `acceptance_satisfaction` record in place of
+  a person's confirmation. `GATE_POLICY.md` is the operator guide.
+- **Two further consequences of the default.** The reviewer commands and
+  `record-external-result` write a `Reviewer model:` line and a
+  `reviewer_model` ledger key for an automatic gate that requires
+  `distinct_reviewer_models` (on by default), and a manual `APPROVE` ingest that
+  states no family, or the family of the other stage, is refused while its
+  stage is open. A 2.7.0 item in flight whose ledger was recorded earlier can
+  block at `14b` or `28b` on both `review_evidence_audited` and
+  `distinct_reviewer_models`; the remedies are in `GATE_POLICY.md`.
+- **With every gate human, nothing differs from protocol `1.0` except**: the
+  protocol version and `workflow_release` fields; `functional_evidence` and
+  `pr_review_result` are no longer refused by `record-external-result`; `verify`
+  gains the advisory `gate_policy` check; `describe` lists the new
+  capabilities; and, only once a pull-request fact is reported or queried, row
+  `38d` emits `pr.apply_review` instead of row 39, whatever the gate modes. A
+  human acceptance with `requires_pr_approved` set also queries GitHub in
+  `/accept-milestone` and can emit `38g` before row 39.
+- **An unaware `1.0` consumer** meets unknown action ids, which it treats as
+  `blocked` (obligation 3), and the `validation` disposition, a known value that
+  obligation 5 keeps it from running: a stalled item, not a wrong action.
+- **Downgrade.** 2.7.0 refuses a state that carries the approval basis
+  `POLICY_SATISFIED`, and reads a state that holds none. It does not check the
+  optional fields 2.8.0 added (`gate_evidence`, `reopenings`,
+  `acceptance_satisfaction`, the ledger audit keys, `gate_policy_adoption`,
+  `gate_policy_floor`): it accepts them without acting on them. Because the
+  default is automatic, such fields and bases appear in ordinary operation, so a
+  downgrade is supported only for a repository that has written none.
+- **A policy toggle on an older declaration.** A declaration that predates the
+  exclusion of the `docs/ai-workflow/` prefix leaves a new
+  `GATE_POLICY.json` (and the installed `GATE_POLICY.md` itself) unclassified for an in-flight item; the remedy depends on
+  whether the stage's bundle exists and is in `GATE_POLICY.md`.
+
+## 11. Gate policy and reopening
+
+Protocol `1.1` reports a gate policy; it does not define one. The policy, its
+evidence and its commands are specified in `GATE_POLICY.md`, which is the
+full text. This section states what a consumer of the protocol relies on.
+
+- **Rows and actions.** The catalogue (section 6.4) carries the gate-policy
+  rows `14a`, `14b`, `28a`, `28b` and `38d` to `38i`; the action table
+  (section 6.1) carries `plan.satisfy`, `implementation.satisfy`,
+  `acceptance.satisfy` (disposition `validation`, role `validator`),
+  `pr.apply_review` (automatic, role `applier`) and the external gates
+  `functional.evidence.external` and `pr.review.external`. The edge table of
+  section 7 carries each action's forward edge and its same-phase edge, and
+  `pr.apply_review`'s edges at `MILESTONE_COMPLETE`. A decision on a gate-policy
+  row carries an optional `policy` object (`source`, `digest`, `gate`, `mode`,
+  and `gate_lowering` while the newest adoption lowered a gate); a row that
+  existed in `1.0` never carries it.
+- **Reopening.** A reopened item is the same work item, and a reopen does not
+  set `active_work_item_id`: a consumer names the item (`next-action
+  --work-item ID`, `/apply-pr-review ID`). A reported pull-request fact
+  (`pr_review_result`) never decides a state, a reopening or a completion: it can
+  only make the Workflow run its own fixed GitHub query, and `pr.apply_review`
+  runs it first.
+- **Trust boundary** (design decision D-GP-Trust). CI and pull-request facts that satisfy a gate come from
+  GitHub, queried by the Workflow itself with one fixed `gh` invocation; an
+  orchestrator's forge fact only tightens, and a gate that cannot decide
+  blocks. Review verdicts and functional evidence are trusted from the
+  orchestrator that reports them. The Workflow guarantees binding, freshness and
+  audit, and does not guarantee provenance for them: every automatic
+  satisfaction records the verdict hash, the bundle and content ids and the run
+  reference, for a person to check afterwards. **Turning human approval on is the
+  stronger mode.**
+- **Threat model** (design decision D-GP-ThreatModel). These guarantees hold against an agent acting through the
+  Workflow's commands and protocol. They do not hold against an agent that
+  deliberately forges commits, trailers or state by hand, or replaces a system
+  program such as `gh`; that is the same limit `/approve-review` and
+  `/accept-milestone` have, and no signed commit or GitHub-side adoption is
+  provided. The safeguards are the resolution rule for `gh` (an absolute path,
+  refused inside the repository, a worktree, the temporary directory or a
+  world-writable directory, with its path and sha256 recorded), the
+  gate-lowering event reported by `verify`, `next-action` and the audit record,
+  and human approval. `GATE_POLICY.md` states the threat model in full, and the
+  safety rule (a policy file only ever tightens; `/adopt-gate-policy` is the one
+  way to loosen).
+- **No CI-produced evidence.** The CI outcome is the `checks` of the Workflow's
+  own pull-request fact. Functional or review evidence produced in CI is not
+  accepted, and no policy option offers it.

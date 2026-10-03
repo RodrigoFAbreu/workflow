@@ -255,7 +255,12 @@ normative definition.
      (`assert_review_request_states_review_content_id`), obtained from the
      single canonical entry point `docs/ai-workflow/REVIEW_PROTOCOL.md`'s
      "Computing `review_content_id`" names for this stage -- never a
-     second, ad hoc computation, and never the previous round's value;
+     second, ad hoc computation, and never the previous round's value. If the plan stage's gate is `automatic` and the effective `require` lists
+     `distinct_reviewer_models` (`workflow_state.review_stage_gate_context(repo_root,
+     state, work_item_id, "plan")["requires_distinct"]`), also ask the reviewer, in
+     that file, to state `Reviewer model: <vendor>/<model>` in the verdict's header
+     block, because an `APPROVE` without it is refused at ingest (workflow-2.8.0,
+     `LPR-R16-003`); under a human gate ask for nothing new.
    - `<plan_inputs_dir>/TEST_RESULTS.md`, restating **both** of the labelled
      lines `assert_test_results_consistent_with_plan_review_request`
      requires -- `stage: plan (revision N)` with `N` equal to the
