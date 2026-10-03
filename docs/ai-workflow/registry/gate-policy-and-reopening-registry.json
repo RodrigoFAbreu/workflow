@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "work_item_id": "gate-policy-and-reopening",
+  "plan_revision": 34,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "Gate policy model: GATE_POLICY.json schema with master switch and per-gate overrides, automatic default, tighten-only effective policy with a recorded floor, content-verified adoption that survives squash merges, verify check, roadmap refresh",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP2",
+      "name": "Automatic plan and technical approvals: evaluate_gate, POLICY_SATISFIED basis, reviewer-model and verdict audit evidence, /satisfy-gate plan and implementation, audit record",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP3",
+      "name": "Functional evidence and GitHub-sourced pull-request facts: identity-bound ingest, forge provenance and the Workflow-owned stale-evidence table",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP4",
+      "name": "Automatic milestone acceptance: acceptance evaluation, acceptance_satisfaction record, /satisfy-gate acceptance, accept-milestone changes",
+      "depends_on": [
+        "CP2",
+        "CP3"
+      ],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP5",
+      "name": "Reopening the same work item into remediation: reopen_work_item, /apply-pr-review, re-completion",
+      "depends_on": [
+        "CP3",
+        "CP4"
+      ],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP6",
+      "name": "Protocol 1.1: gate rows, actions, validation disposition, schema, all-human equivalence golden matrix",
+      "depends_on": [
+        "CP2",
+        "CP4",
+        "CP5"
+      ],
+      "complexity": 3,
+      "session_target": "1"
+    },
+    {
+      "id": "CP7",
+      "name": "Specification, operator guide, update simulation of both configurations and lifecycle end-to-end tests",
+      "depends_on": [
+        "CP6"
+      ],
+      "complexity": 2,
+      "session_target": "1"
+    },
+    {
+      "id": "CP8",
+      "name": "Release 2.8.0: manifest, conformance CI for the new suite, release-constant, roadmap",
+      "depends_on": [
+        "CP7"
+      ],
+      "complexity": 2,
+      "session_target": "1"
+    }
+  ]
+}

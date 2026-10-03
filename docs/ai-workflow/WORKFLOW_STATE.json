@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "gate-policy-and-reopening",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -714,6 +714,97 @@
           "verdict": "APPROVE",
           "round": 6,
           "completed_at": "2026-10-02T19:42:34Z"
+        }
+      }
+    },
+    "gate-policy-and-reopening": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "gate-policy-and-reopening",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/gate-policy-and-reopening-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/gate-policy-and-reopening-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 34,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "d14e0a7b013ec3fe8ffec22b90029af3f25d2073",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "13cb32a6cdc1f5464e9b2b158a040499183400b76b39c485ffeee786cf203691",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "EXTERNAL_APPROVE",
+        "reviewed_bundle_id": "13cb32a6cdc1f5464e9b2b158a040499183400b76b39c485ffeee786cf203691",
+        "approved_review_content_id": "2a532420e86c9e08821a37e6122ff1fe29a0a30787ade2274759bb0860031a3e",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "af519f2ae0ca62980276574f16b894704dfc2a15"
+          },
+          {
+            "path": "docs/ai-workflow/registry/gate-policy-and-reopening-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ab0b77b2ea0f10341593dbf6c2249ceefa03b968"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/gate-policy-and-reopening-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "fccd731501f0dd5c325299a260d6e74648c8e069"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "plan gate-policy-and-reopening — I approve gate-policy-and-reopening at the plan stage",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-03T09:32:51Z"
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "2a532420e86c9e08821a37e6122ff1fe29a0a30787ade2274759bb0860031a3e",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "13cb32a6cdc1f5464e9b2b158a040499183400b76b39c485ffeee786cf203691",
+          "verdict": "APPROVE",
+          "round": 34,
+          "completed_at": "2026-10-03T05:04:09Z"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "13cb32a6cdc1f5464e9b2b158a040499183400b76b39c485ffeee786cf203691",
+          "verdict": "APPROVE",
+          "round": 34,
+          "completed_at": "2026-10-03T05:07:10Z"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "state_revision": 113,
+      "last_transition": "2026-10-03T09:32:51Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-03T05:01:45Z",
+        "consumed": {
+          "review_content_id": "5b59300ddba30fa98a575c5cf01ce164acf4a4498cb9e11f8812e0939eeeaf4b",
+          "plan_revision": 33,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "2a532420e86c9e08821a37e6122ff1fe29a0a30787ade2274759bb0860031a3e",
+          "plan_revision": 34
+        },
+        "bound": {
+          "review_content_id": "2a532420e86c9e08821a37e6122ff1fe29a0a30787ade2274759bb0860031a3e",
+          "bundle_id": "13cb32a6cdc1f5464e9b2b158a040499183400b76b39c485ffeee786cf203691",
+          "plan_revision": 34
         }
       }
     }
