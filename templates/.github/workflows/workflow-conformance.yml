@@ -44,3 +44,6 @@ jobs:
       - name: workflow_protocol_test.py
         working-directory: scripts
         run: python3 workflow_protocol_test.py
+      - name: workflow_gate_policy_test.py
+        working-directory: scripts
+        run: python3 workflow_gate_policy_test.py

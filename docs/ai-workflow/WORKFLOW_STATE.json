@@ -726,14 +726,14 @@
       "registry_path": "docs/ai-workflow/registry/gate-policy-and-reopening-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/gate-policy-and-reopening-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 34,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "d14e0a7b013ec3fe8ffec22b90029af3f25d2073",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP7",
+      "last_completed_checkpoint_id": "CP8",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
@@ -762,6 +762,10 @@
         "CP7": {
           "status": "COMPLETE",
           "start_commit": "89afc22a1a7c440782d072cb9d1a484cc4704d8c"
+        },
+        "CP8": {
+          "status": "COMPLETE",
+          "start_commit": "c057288d2fd17cd28178bee2964654853dd81042"
         }
       },
       "current_bundle_id": "13cb32a6cdc1f5464e9b2b158a040499183400b76b39c485ffeee786cf203691",
@@ -815,8 +819,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 127,
-      "last_transition": "2026-10-03T16:35:44Z",
+      "state_revision": 129,
+      "last_transition": "2026-10-03T16:58:12Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",

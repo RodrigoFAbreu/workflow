@@ -478,3 +478,36 @@ guide, lifecycle end-to-end tests, documentation sweeps), REQ-12 (CP7 part).
   `workflow_test_harness_test` 22 OK; `workflow_protocol_test` 298 OK, run from
   `payload/scripts`. `workflow_state_test`, the demo suites and
   `tools/release/release_test.py` were not re-run: nothing they cover changed.
+
+## `CP8` — Release 2.8.0
+
+Requirements: REQ-10 (2.8.0 releasable: manifest, conformance CI for the new
+suite, release-constant guard), REQ-11 (roadmap: W2 complete pending cutover).
+
+- **Implementation** (release source and repository tooling only):
+  - `manifest.json`: `workflow_version` `2.8.0`; seven new entries
+    (`adopt-gate-policy.md`, `apply-pr-review.md`, `satisfy-gate.md`,
+    `GATE_POLICY.md`, `workflow_forge.py`, `workflow_gate_policy.py` as
+    `distribution`; `workflow_gate_policy_test.py` as `conformance`); 28
+    refreshed `sha256`/`size` pairs, each rationale naming W2; `counts` now 74
+    artifacts (48 distribution, 24 conformance, 2 host-evidence); the
+    conformance template's digest and derivation.
+  - `templates/.github/workflows/workflow-conformance.yml` and
+    `.github/workflows/workflow-ci.yml`: a ninth step, `workflow_gate_policy_test.py`;
+    `docs/RELEASING.md` says nine suites.
+  - `docs/ROADMAP.md`: W2 row complete pending cutover, a "Workflow 2.8.0"
+    entry, both roadmap sections marked delivered. `RoadmapTest` in
+    `tools/release/release_test.py` updated to match.
+- **Deviations and judgements:**
+  - The repository's own installation (`.github/workflows/workflow-conformance.yml`
+    included) stays at 2.6.0 and was not edited; it reaches 2.8.0 only through
+    `workflow-manager update` after publication.
+  - The release workflow is run under Python 3.12 (the pinned zlib-ng wheel);
+    the local default interpreter is 3.14, so verification used a 3.12 venv.
+- **Verification** (temporary commit of the CP8 tree, conformance fixture staged
+  from it): `release.py build` reports 2.8.0 and accepts `WORKFLOW_RELEASE`;
+  `check-title ... --agree` and `check-pending` report `2.7.0 -> 2.8.0 (minor)`;
+  all nine suites green (fingerprint 257, state OK, harness 22, integration 275,
+  acceptance matrix 291, completion obligations 106, generalization 105,
+  protocol 298, gate policy 278); `workflow-manager verify .` reports the
+  installation matches 2.6.0.

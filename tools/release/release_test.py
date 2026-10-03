@@ -971,8 +971,8 @@ class ReleaseGateTest(unittest.TestCase):
 
 class RoadmapTest(unittest.TestCase):
     """The roadmap text is excluded from reviewed content at both stages, so
-    this is its only guard (W2 CP1, `LPR-R1-008`). CP8 moves the W2 row to
-    complete and updates this test with it."""
+    this is its only guard (W2 CP1, `LPR-R1-008`). W2's CP8 moved its row to
+    complete, pending cutover."""
 
     def setUp(self):
         self.text = (REPO_ROOT / "docs" / "ROADMAP.md").read_text()
@@ -988,10 +988,19 @@ class RoadmapTest(unittest.TestCase):
         self.assertNotIn("the cutover remains", row)
         self.assertIn("workflow-manager#13", row)
 
-    def test_w2_is_in_progress(self):
+    def test_w2_is_complete_pending_cutover(self):
         row = self.row("W2")
-        self.assertIn("**IN PROGRESS**", row)
+        self.assertIn("**COMPLETE, pending cutover**", row)
+        self.assertNotIn("**IN PROGRESS**", row)
         self.assertIn("gate-policy-and-reopening", row)
+
+    def test_it_has_a_workflow_2_8_0_entry_and_marks_both_sections_delivered(self):
+        self.assertIn("## Workflow 2.8.0", self.text)
+        for heading in ("## Gate and validation policy must be declarative",
+                        "## Post-validation reopening and PR-review defects"):
+            start = self.text.index(heading)
+            self.assertIn("**Delivered in Workflow 2.8.0**",
+                          self.text[start:start + 400], heading)
 
     def test_where_things_stand_is_brought_to_2_7_0(self):
         start = self.text.index("**Where things stand")
