@@ -70,6 +70,31 @@ the owner's and comes after acceptance. Never use `git stash`.
 tip; verify with `git rev-parse origin/main`). No flow below needs a local
 `main`; the clones of S3 take it from `origin`.
 
+**Round 2** (after the bounded F1 fix `007f13b`, implementation revision 3,
+technical approval `104e65f`). Round 1's F1 was that an uncommitted
+`GATE_POLICY.json` was reported adopted while the committed policy stayed in
+force; the fix refuses it (`GatePolicyFileUncommittedError`) and updates
+`GATE_POLICY.md`, `adopt-gate-policy.md` and the operator reference. Which
+flows the fix could affect, so the executor re-runs those and cites round-1
+evidence for the rest (the fix touched `workflow_state.py`'s preview and
+adoption, `workflow_gate_policy.py`'s file-versus-`HEAD` comparison, the
+gate-policy test file, three documents and the manifest digests):
+
+| Flow | Round 2 | Why |
+|---|---|---|
+| F1 default policy | cite round 1 | no preview or adoption is involved |
+| F2 toggles, floor, adoption | **re-run** | its adoption step commits the file first, and it runs the gate-policy classes |
+| F3 adoption order | **re-run (changed: now a real flow)** | the fixed behavior itself |
+| F4 CLI lifecycles | cite round 1 | protocol and lifecycle paths untouched; re-run if any F11 suite fails |
+| F5 automatic plan and technical approval | cite round 1 | row 38i remedy text only changed in documents |
+| F6 automatic acceptance, forge | cite round 1 | untouched |
+| F7 reopening | cite round 1 | untouched |
+| F8 protocol 1.1 | cite round 1 | untouched |
+| F9 all-human equals 2.7.0 | cite round 1 | the all-human path never adopts a file |
+| F10 package, update from 2.7.0 | **re-run** | the manifest digests changed (the 2.8.0 digests below are the preparation run's, not round 2's: compare reproducibility, and report the new digests) |
+| F11 automated suites | **re-run (the gate-policy suite, 284 before the fix plus the new regression test(s); the others may cite round 1 only if their `Ran` counts are unchanged)** | the regression test is in `workflow_gate_policy_test.py` |
+| F12 installation and documents | **re-run (changed: ROADMAP docs check added)** | documents changed, and the ROADMAP check is new |
+
 **Setup**
 
 S1. On branch `milestone/gate-policy-and-reopening`, clean tree. Set the pinned
@@ -166,12 +191,11 @@ F2. Human approval restored by the toggles, and the tighten-only floor. Save
     print("recorded floor commit:", (ws.commit_gate_policy_floor(root, now=now()) or "none")[:12])
     put({"schema_version": 1, "human_approval": False}); show("file edited back to automatic"); verify()
     put(None); show("file deleted"); verify()
-    put({"schema_version": 1, "human_approval": False})
+    put({"schema_version": 1, "human_approval": False}); git("add", "-A"); git("commit", "-q", "-m", "loosened policy file")
     pv = ws.gate_policy_adoption_preview(root)
     print("preview: loosened", pv["loosened"], "| lowered", pv["lowered"], "| digest12", pv["digest"][:12])
     try: ws.adopt_gate_policy(root, confirmation="yes", now=now())
     except g.GatePolicyConfirmationRejectedError as e: print("wrong confirmation refused:", type(e).__name__)
-    git("add", "-A"); git("commit", "-q", "-m", "loosened policy file")
     sha = ws.adopt_gate_policy(root, confirmation=f"I adopt gate_policy {pv['digest'][:12]}", now=now())
     print("adoption commit", sha[:12], "|", git("log", "-1", "--format=%b", sha).strip().splitlines()[-1][:60])
     show("after /adopt-gate-policy"); verify()
@@ -193,7 +217,8 @@ F2. Human approval restored by the toggles, and the tighten-only floor. Save
       loosens)`); `file deleted` is source `floor`, all three `human`,
       `verify` `warn` (`the recorded floor holds a setting ... no longer
       carries`).
-    - The adoption preview lists the three `human` settings under `loosened`
+    - (Round 2: the loosened file is committed before the preview; an
+      uncommitted one is refused, which is F3.) The adoption preview lists the three `human` settings under `loosened`
       and the same three under `lowered`; the wrong confirmation is refused
       with `GatePolicyConfirmationRejectedError`; the adoption commit's last
       body line is `Workflow-Gate-Policy-Adoption: <64 hex>`; `after
@@ -214,45 +239,93 @@ F2. Human approval restored by the toggles, and the tighten-only floor. Save
         TestVerifyCheck TestAllHumanEquivalence 2>&1 | tail -4)
     ```
     Expected: `OK`, none failed.
-F3. Adoption order probe (a possible finding; report what you see). The
-    documentation says "edit the file, then `/adopt-gate-policy`". Save and run:
+F3. Adoption order: an uncommitted policy file is refused; a committed one
+    is adopted (functional review F1, fixed in `007f13b`; round 2 turns the
+    former probe into a flow with expected results). Two scripts, each in a
+    fresh target. Case A, a modified file:
     ```bash
     cat > $S/adopt_order.py <<'PY'
-    import json, subprocess, sys
+    import hashlib, json, subprocess, sys
     sys.path.insert(0, "scripts")
     import workflow_gate_policy as g, workflow_state as ws
     from pathlib import Path
-    root = Path(".").resolve(); POL = root / "docs/ai-workflow/GATE_POLICY.json"
+    root = Path(".").resolve(); POL = root / "docs/ai-workflow/GATE_POLICY.json"; STATE = root / "docs/ai-workflow/WORKFLOW_STATE.json"
+    GATES = ("plan_approval", "technical_approval", "acceptance")
     def git(*a):
         return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", *a],
                               cwd=root, capture_output=True, text=True, check=True).stdout.strip()
     def show(label):
         e = g.effective_policy(root)
-        print(f"{label:46} {e['source']:22}", {k: g.gate_mode(e, k, "2.2") for k in ("plan_approval", "technical_approval", "acceptance")})
+        print(f"{label:46} {e['source']:22}", {k: g.gate_mode(e, k, "2.2") for k in GATES})
+    def snap(): return (git("rev-parse", "HEAD"), hashlib.sha256(STATE.read_bytes()).hexdigest())
+    def refused(label, fn):
+        before = snap()
+        try: fn(); print(f"{label:46} NOT REFUSED")
+        except ws.GatePolicyFileUncommittedError as e: print(f"{label:46} refused {type(e).__name__}")
+        print(f"    nothing written: {snap() == before} | gate_lowering event: {g.gate_lowering_event(root)}")
+    def attempt(label):
+        refused(label + " (preview)", lambda: ws.gate_policy_adoption_preview(root))
+        refused(label + " (adopt)", lambda: ws.adopt_gate_policy(root, confirmation="I adopt gate_policy 000000000000", now="2026-10-03T13:00:09Z"))
     git("add", "-A"); git("commit", "-q", "-m", "install")
+    print("== case A: a modified file")
     POL.write_text('{"schema_version": 1, "human_approval": true}'); git("add", "-A"); git("commit", "-q", "-m", "human policy")
-    ws.commit_gate_policy_floor(root, now="2026-10-03T13:00:01Z")
+    print("floor commit:", (ws.commit_gate_policy_floor(root, now="2026-10-03T13:00:01Z") or "none")[:12])
     POL.write_text('{"schema_version": 1, "human_approval": false}')       # edited, NOT committed
-    pv = ws.gate_policy_adoption_preview(root)
-    ws.adopt_gate_policy(root, confirmation=f"gate_policy {pv['digest'][:12]}", now="2026-10-03T13:00:02Z")
-    show("adopted with the loosened file uncommitted")
-    git("add", "-A"); git("commit", "-q", "-m", "loosened policy file"); show("then the file committed")
-    pv = ws.gate_policy_adoption_preview(root)
-    ws.adopt_gate_policy(root, confirmation=f"gate_policy {pv['digest'][:12]}", now="2026-10-03T13:00:03Z")
-    show("then adopted again")
+    attempt("loosened file uncommitted"); show("effective policy after the refusals")
+    git("add", "-A"); git("commit", "-q", "-m", "loosened policy file")
+    pv = ws.gate_policy_adoption_preview(root); print("preview after the commit: loosened", pv["loosened"], "| lowered", pv["lowered"])
+    sha = ws.adopt_gate_policy(root, confirmation=f"I adopt gate_policy {pv['digest'][:12]}", now="2026-10-03T13:00:03Z")
+    print("adoption commit", sha[:12]); show("after committing and adopting")
+    ev = g.gate_lowering_event(root); print("    gate_lowering events:", 1 if ev else 0, json.dumps(ev)[:160])
     PY
     new_target t3b && (cd $S/t3b && $V/bin/python $S/adopt_order.py)
     ```
-    Observed at preparation (2026-10-03): `adopted with the loosened file
-    uncommitted` stays `file_loosening_ignored` with all three `human` (the
-    adoption commit's own tree still holds the committed human file), `then the
-    file committed` is unchanged, and only `then adopted again` is `adopted`
-    with all three `automatic`. The loosening therefore takes effect only when
-    the loosened file is committed before the adoption (F2's order). If you see
-    the same, record it as a finding: the adoption's preview shows `loosened`
-    and the command reports success while the effective policy does not change,
-    and `docs/ai-workflow/GATE_POLICY.md`/`adopt-gate-policy.md` do not say to
-    commit the file first. If the first line already shows `adopted`, say so.
+    Case B, a new file (no policy file committed before):
+    ```bash
+    cat > $S/adopt_new.py <<'PY'
+    import hashlib, subprocess, sys
+    sys.path.insert(0, "scripts")
+    import workflow_gate_policy as g, workflow_state as ws
+    from pathlib import Path
+    root = Path(".").resolve(); POL = root / "docs/ai-workflow/GATE_POLICY.json"; STATE = root / "docs/ai-workflow/WORKFLOW_STATE.json"
+    def git(*a):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", *a],
+                              cwd=root, capture_output=True, text=True, check=True).stdout.strip()
+    def snap(): return (git("rev-parse", "HEAD"), hashlib.sha256(STATE.read_bytes()).hexdigest())
+    git("add", "-A"); git("commit", "-q", "-m", "install")
+    print("== case B: a new file")
+    POL.write_text('{"schema_version": 1, "human_approval": true}')        # new, NOT committed
+    for label, fn in (("preview", lambda: ws.gate_policy_adoption_preview(root)),
+                      ("adopt", lambda: ws.adopt_gate_policy(root, confirmation="I adopt gate_policy 000000000000", now="2026-10-03T13:00:09Z"))):
+        before = snap()
+        try: fn(); print(f"{label:8} NOT REFUSED")
+        except ws.GatePolicyFileUncommittedError as e: print(f"{label:8} refused {type(e).__name__}")
+        print(f"    nothing written: {snap() == before} | gate_lowering event: {g.gate_lowering_event(root)}")
+    git("add", "-A"); git("commit", "-q", "-m", "policy file")
+    pv = ws.gate_policy_adoption_preview(root); print("preview after the commit: loosened", pv["loosened"], "| lowered", pv["lowered"])
+    PY
+    new_target t3c && (cd $S/t3c && $V/bin/python $S/adopt_new.py)
+    ```
+    Expected, case A, in order: a floor commit sha is printed; `loosened file
+    uncommitted (preview)` and `(adopt)` are each `refused
+    GatePolicyFileUncommittedError`, and under each `nothing written: True |
+    gate_lowering event: None` (HEAD and the state file's sha256 are
+    unchanged); `effective policy after the refusals` is
+    `file_loosening_ignored` with all three `human`; after committing the
+    file, `preview after the commit` lists the three `human` settings under
+    `loosened` and under `lowered`; an `adoption commit` sha is printed;
+    `after committing and adopting` is source `adopted` with all three
+    `automatic`; `gate_lowering events: 1` (exactly one, an object with
+    `sha256`, `adopted_at`, `lowered`). Expected, case B: `preview` and
+    `adopt` are each `refused GatePolicyFileUncommittedError` with `nothing
+    written: True | gate_lowering event: None`; after committing the file the
+    preview no longer refuses (it prints `loosened [] | lowered []`: the new
+    file only tightens, so there is nothing to lower). Any `NOT REFUSED`, any
+    `nothing written: False`, a lowering event before the commit, or more than
+    one event after it is a finding. (The confirmation text in these scripts
+    is a placeholder in the refused calls: the refusal precedes the
+    confirmation check.) The same refusal and the committed adoption are
+    pinned by the F2 gate-policy test classes (`TestAdoptionCommand`).
 F4. Automatic, mixed and all-human lifecycles through the real protocol CLI.
     The installed lifecycle tests drive a `2.2` item with every protocol call
     replaced by a subprocess of `scripts/workflow_protocol.py`:
@@ -482,7 +555,27 @@ F12. Installation untouched and documents. In this checkout: `$V/bin/workflow-ma
     default, the toggles, the floor, the three single-family remedies, the
     residual table, the trust boundary), and skim the `Workflow 2.8.0` entry and
     the W2 row of `docs/ROADMAP.md`.
-
+    Round 2 adds a docs check of `docs/ROADMAP.md` (the release source's
+    documents are unchanged by it; this is the repository's own roadmap):
+    ```bash
+    grep -n "Workflow 2.8.0" docs/ROADMAP.md
+    awk '/^## Workflow 2.8.0/,/^---$/' docs/ROADMAP.md
+    awk '/^# 1.9 /,/^# 1.10 /' docs/ROADMAP.md | grep -n "2.8.0\|W2\|Controller\|gate policy\|human approval"
+    grep -n "does not admit 2.8.0\|default policy equals\|behaviour is the 2.7.0" docs/ROADMAP.md
+    ```
+    Expected: the `Workflow 2.8.0` entry **and** section 1.9 (its W2 text,
+    and the W2 row in the table) state the automatic default: human approval
+    is **off** by default, so with no policy adopted the three gates are
+    automatic on evidence, and a person restores the 2.7.0 gates by turning
+    `human_approval` on (the master switch, or per gate). Neither may say the
+    default policy equals the 2.7.0 gates, or that with no policy adopted
+    behaviour is 2.7.0's. Neither may state `Controller 1.5.0 does not admit
+    2.8.0` as the current state: the Controller 1.7.0, released with its C9,
+    admits any Workflow whose `describe` answers protocol major 1 (a
+    historical mention, dated and marked as past, is fine). The last `grep`
+    printing a matching line in the 2.8.0 entry or in 1.9 is a finding to
+    report with the line numbers (the `Workflow 2.7.0` entry's own
+    statement about 1.5.0 is history and is not part of this check).
 **Known limitations / out of scope**
 
 - Nothing is published: no push, no pull request, no GitHub settings, no
