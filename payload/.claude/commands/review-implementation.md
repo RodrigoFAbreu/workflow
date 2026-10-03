@@ -73,6 +73,10 @@ report it produces, or in any check it performs names a model — running it
 from any capable Claude model produces the same behavior. (For a `"2.2"`
 item at `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`, see the authoritative branch
 at the end of this file instead — it does enter/exit real state.)
+(That authoritative branch alone writes one model-bearing header line,
+`Reviewer model: <vendor>/<model>`, and only when the technical gate is
+`automatic` and the gate policy requires distinct reviewer models — step A5,
+workflow-2.8.0.)
 
 **Writes `<feedback_dir>/REVIEW_FEEDBACK.md`; nothing else.** This command
 writes the current `<feedback_dir>/REVIEW_FEEDBACK.md` (step 7, once every
@@ -426,6 +430,14 @@ A5. **Decide the verdict** (`Status: APPROVE | REVISE | BLOCK`) and write
     - `Reviewer role: LOCAL_MODEL_IMPLEMENTATION_REVIEW` (never a model
       name here, and never the plan-stage role's own
       `LOCAL_MODEL_PLAN_REVIEW` string);
+    - **only when** `workflow_state.review_stage_gate_context(repo_root,
+      state, work_item_id, "implementation")["requires_distinct"]` is true
+      (the technical gate is `automatic` and the effective `require` lists
+      `distinct_reviewer_models`; with the default policy it is): the line
+      `Reviewer model: <vendor>/<model>`, naming the vendor and model of this
+      reviewing session itself (for example `anthropic/claude-opus-5-5`), in
+      the header block before the first `## ` section. Write no such line
+      otherwise -- under a human gate the file is exactly 2.7.0's;
     - the three binding fields (`Reviewed bundle ID:`, `Reviewed base
       commit:`, `Work item:`) stated with the recomputed `bundle_id`,
       `base_commit`, and `work_item_id` from A3 (`WFR-03`), plus the
@@ -467,7 +479,13 @@ A6. **Write set, exact.** **`REJECTED`-bundle refusal, second of two, under
       `workflow_state.state_transaction(repo_root, lambda state:
       workflow_state.record_local_implementation_review(state,
       work_item_id, verdict="APPROVE", bundle_id=<bundle_id>,
-      review_content_id=<review_content_id>, round=<round>, now=<now>))`
+      review_content_id=<review_content_id>, round=<round>, now=<now>,
+      audit=workflow_state.local_review_audit(repo_root, state, work_item_id,
+      "implementation", feedback_text=<the REVIEW_FEEDBACK.md text just
+      written>, feedback_path=<the resolved REVIEW_FEEDBACK.md path>)))`
+      (workflow-2.8.0: `audit` is `None` while the technical gate is human,
+      so the entry is 2.7.0's bytes; otherwise it adds `verdict_sha256`,
+      `run_ref` and, when the line above was written, `reviewer_model`)
       and persisting the returned state — the resolved work item's
       `LOCAL_MODEL_IMPLEMENTATION_REVIEW` ledger fields (the `Reviewer role:`
       string above and the ledger's own canonical key are deliberately the

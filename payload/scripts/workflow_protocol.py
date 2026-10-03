@@ -2231,14 +2231,18 @@ def _check_result_kind(kind: str) -> None:
             "invalid_request", f"unknown result kind {kind!r}; the v1 kinds are {list(EXTERNAL_RESULT_KINDS)}")
 
 
-def record_external_result(repo_root: Path, work_item_id: str, kind: str, verdict_text: str) -> dict:
+def record_external_result(repo_root: Path, work_item_id: str, kind: str, verdict_text: str,
+                           run_ref: str | None = None) -> dict:
     """Ingest an external result of `kind` for `work_item_id`. A reserved
     kind is `unsupported_result_kind`, any other unknown kind
     `invalid_request`. The verdict kinds call
     `workflow_state.ingest_manual_review_verdict`, the ingest the
     record-manual commands call, which selects the row, runs its guards and
     writes the feedback file and the state; the orchestrator never reads or
-    writes a feedback path itself."""
+    writes a feedback path itself. `run_ref` (workflow-2.8.0, `D-GP-Trust`) is
+    the reporter's own identifier for the run that produced the verdict; it is
+    recorded in the ledger entry while that stage's gate is automatic, declared
+    and never verified, and `null` when absent."""
     _check_result_kind(kind)
     work_item = work_item_of(load_valid_state(repo_root), work_item_id)
     version = work_item.get("governing_workflow_version")
@@ -2250,7 +2254,7 @@ def record_external_result(repo_root: Path, work_item_id: str, kind: str, verdic
     try:
         outcome = workflow_state.ingest_manual_review_verdict(
             repo_root, work_item_id, stage=EXTERNAL_RESULT_KIND_STAGES[kind], verdict_text=verdict_text,
-            now=_utc_now())
+            now=_utc_now(), run_ref=run_ref)
     except _NOT_APPLICABLE_INGEST_REFUSALS as exc:
         raise ProtocolError("not_applicable", str(exc), exc) from exc
     state, _config = read_state_and_config(repo_root)
@@ -2265,7 +2269,7 @@ def op_record_external_result(repo_root: Path, args: argparse.Namespace) -> dict
         verdict_text = Path(args.input).read_text()
     except (OSError, UnicodeDecodeError) as exc:
         raise ProtocolError("invalid_request", f"cannot read the input file {args.input!r}: {exc}") from exc
-    return record_external_result(repo_root, args.work_item, args.kind, verdict_text)
+    return record_external_result(repo_root, args.work_item, args.kind, verdict_text, args.run_ref)
 
 
 # ---------------------------------------------------------------------------
@@ -2308,6 +2312,7 @@ def _parser() -> _Parser:
     p.add_argument("--work-item", required=True)
     p.add_argument("--kind", required=True)
     p.add_argument("--input", required=True)
+    p.add_argument("--run-ref", default=None)
     return parser
 
 

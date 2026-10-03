@@ -245,7 +245,12 @@ CHECKPOINT_STATUSES = frozenset({"IN_PROGRESS", "COMPLETE", "NEEDS_REVALIDATION"
 # "CURRENT"), so this addition disambiguates a value that was previously
 # only theoretical, not one any existing record actually held.
 APPROVAL_STATUSES = frozenset({"CURRENT", "STALE", "SUPERSEDED"})
-APPROVAL_BASES = frozenset({"EXTERNAL_APPROVE", "USER_OVERRIDE", "LEGACY_V1"})
+# workflow-2.8.0 (`D-GP-Satisfy`): `POLICY_SATISFIED` is an approval the
+# Workflow records itself when the gate policy makes the gate automatic and
+# every requirement is met; it names no person (its `user_confirmation` is the
+# literal `policy:<digest>`) and carries `policy_evidence`.
+POLICY_SATISFIED = "POLICY_SATISFIED"
+APPROVAL_BASES = frozenset({"EXTERNAL_APPROVE", "USER_OVERRIDE", "LEGACY_V1", POLICY_SATISFIED})
 # Narrowed per OPUS-R10-014: no_content_id removed -- the only basis that
 # uses waivers (LEGACY_V1) always backfills a real content ID at import
 # (D-Legacy), so no reachable state can ever emit it.
@@ -1224,6 +1229,20 @@ class InvalidApprovalRecordError(Exception):
     match D2's shape, including the plan-stage's permanently-null
     `reviewed_content_commit` rule (GPT-R9-006) and the `waived_guarantees`
     controlled vocabulary (OPUS-R6-025/OPUS-R10-014)."""
+
+
+class GateNotSatisfiableError(Exception):
+    """`/satisfy-gate` (workflow-2.8.0, `D-GP-Satisfy`): the gate's evaluation
+    is not `satisfiable` -- it is human, or a requirement is unmet, or the
+    wrapper is unreachable. Names the unmet requirements. Nothing was
+    written; `/approve-review` stays the human path."""
+
+
+class DistinctReviewerModelsRequiredError(Exception):
+    """`D-GP-Ingest` (`LPR-R17-001`): an `APPROVE` ingest under an automatic
+    gate whose effective `require` lists `distinct_reviewer_models` states no
+    `Reviewer model:` header line, or states a family equal to the other
+    stage's. Raised before any write; names the value and the two remedies."""
 
 
 class BlockCannotApproveError(Exception):
@@ -13305,6 +13324,52 @@ def resolve_approval_basis(
     return "USER_OVERRIDE"
 
 
+POLICY_EVIDENCE_KEYS = (
+    "policy_digest", "policy_source", "file_digest", "adopted_digest", "adopted_at",
+    "requirements", "inputs", "floor_digest", "trust", "evaluated_at", "workflow_release",
+)
+POLICY_CONFIRMATION_PREFIX = "policy:"
+
+
+def validate_policy_satisfied_confirmation(value: str, policy_digest: str) -> None:
+    """`D-GP-Satisfy`: a `POLICY_SATISFIED` record's `user_confirmation` is
+    exactly the literal `policy:` plus the record's own
+    `policy_evidence.policy_digest` -- never text that claims a person."""
+    expected = f"{POLICY_CONFIRMATION_PREFIX}{policy_digest}"
+    if value != expected:
+        raise InvalidApprovalRecordError(
+            f"a {POLICY_SATISFIED} record's user_confirmation must be exactly {expected!r}, got {value!r}")
+
+
+def resolve_policy_approval_basis(state: dict, work_item_id: str, stage: str, evaluation: dict) -> str:
+    """`/satisfy-gate`'s basis decision (`D-GP-Satisfy`), the automatic
+    counterpart of `resolve_approval_basis`: keeps its `BLOCK` refusals (a
+    pinned `BLOCK` for the implementation stage, and a gate whose evaluation
+    does not hold) and returns `POLICY_SATISFIED` only for a `satisfiable`
+    evaluation of the stage's own gate. Never `USER_OVERRIDE`: a verdict that
+    is not an `APPROVE` bound to the current bundle is unmet by the
+    evaluation, so it cannot reach here satisfiable."""
+    gate_id = {"plan": "plan_approval", "implementation": "technical_approval"}.get(stage)
+    if gate_id is None:
+        raise InvalidApprovalRecordError(f"unknown approval stage for a policy approval: {stage!r}")
+    work_item = state["work_items"][work_item_id]
+    if stage == "implementation":
+        for pin in work_item.get("technical_review_block_pins") or []:
+            if pin.get("bundle_id") == evaluation.get("bundle_id"):
+                raise BlockCannotApproveError(
+                    f"{work_item_id}/{stage}: a durable BLOCK-verdict pin exists for the current "
+                    f"bundle ({pin.get('bundle_id')!r}) -- a policy approval is not reachable")
+    if evaluation.get("gate") != gate_id:
+        raise GateNotSatisfiableError(
+            f"{work_item_id}/{stage}: the evaluation is for {evaluation.get('gate')!r}, not {gate_id!r}")
+    if evaluation.get("mode") != "automatic" or not evaluation.get("satisfiable"):
+        unmet = [f"{r['id']}: {r['detail']}" for r in evaluation.get("requirements", []) if not r.get("met")]
+        raise GateNotSatisfiableError(
+            f"{work_item_id}/{stage}: the {gate_id} gate is not satisfiable by policy "
+            f"(mode {evaluation.get('mode')!r}); unmet: {unmet}. Nothing was written")
+    return POLICY_SATISFIED
+
+
 def build_approval_record(
     *, basis: str, stage: str, user_confirmation: str, now: str,
     reviewed_bundle_id: str | None = None,
@@ -13313,6 +13378,7 @@ def build_approval_record(
     reviewed_content_commit: str | None = None,
     legacy_evidence: object | None = None,
     waived_guarantees: list[str] | None = None,
+    policy_evidence: dict | None = None,
 ) -> dict:
     """Builds a D2-shaped `plan_approval`/`technical_approval` record and
     validates it before returning -- `reviewed_content_commit` is the
@@ -13330,6 +13396,10 @@ def build_approval_record(
         "waived_guarantees": list(waived_guarantees or []),
         "recorded_at": now,
     }
+    if policy_evidence is not None:
+        # Only a POLICY_SATISFIED record carries the key, so every other
+        # record's bytes are 2.7.0's (INV-1).
+        record["policy_evidence"] = policy_evidence
     validate_approval_record(record, stage=stage)
     return record
 
@@ -13418,6 +13488,19 @@ def validate_approval_record(record: dict, *, stage: str) -> None:
         raise InvalidApprovalRecordError(shape_error)
     if not record.get("user_confirmation"):
         raise InvalidApprovalRecordError("approval record must set a non-empty user_confirmation")
+    if basis == POLICY_SATISFIED:
+        evidence = record.get("policy_evidence")
+        if not isinstance(evidence, dict) or not evidence.get("policy_digest"):
+            raise InvalidApprovalRecordError(
+                "a POLICY_SATISFIED approval record must set policy_evidence with a policy_digest")
+        missing_keys = [key for key in POLICY_EVIDENCE_KEYS if key not in evidence]
+        if missing_keys:
+            raise InvalidApprovalRecordError(
+                f"policy_evidence is missing {missing_keys} (D-GP-Satisfy)")
+        validate_policy_satisfied_confirmation(record["user_confirmation"], evidence["policy_digest"])
+    elif "policy_evidence" in record and record["policy_evidence"] is not None:
+        raise InvalidApprovalRecordError(
+            f"policy_evidence belongs to a {POLICY_SATISFIED} record only, not a {basis} one")
     for guarantee in record.get("waived_guarantees") or []:
         if guarantee not in WAIVED_GUARANTEES:
             raise InvalidApprovalRecordError(f"unknown waived_guarantees entry: {guarantee!r}")
@@ -15126,9 +15209,43 @@ def validate_local_plan_review_preconditions(work_item: dict) -> None:
         )
 
 
+LEDGER_AUDIT_KEYS = ("verdict_sha256", "run_ref", "reviewer_model")
+_SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _ledger_entry(bundle_id: str, round: int, now: str, audit: dict | None) -> dict:
+    """One completed review-stage ledger entry. `audit` (workflow-2.8.0,
+    `D-GP-Gates`/`D-GP-Trust`) is `None` while the stage's gate is human, and
+    then the entry is exactly 2.7.0's bytes (INV-1); otherwise it holds
+    `verdict_sha256` and `run_ref` (possibly `None`, a declared and unverified
+    reference), plus `reviewer_model` only when one was declared."""
+    entry = {"bundle_id": bundle_id, "verdict": "APPROVE", "round": round, "completed_at": now}
+    if audit is not None:
+        entry["verdict_sha256"] = audit["verdict_sha256"]
+        entry["run_ref"] = audit.get("run_ref")
+        if audit.get("reviewer_model") is not None:
+            entry["reviewer_model"] = audit["reviewer_model"]
+    return entry
+
+
+def _validate_ledger_entry_audit(label: str, entry: dict | None) -> None:
+    if entry is None:
+        return
+    extra = [key for key in LEDGER_AUDIT_KEYS if key in entry]
+    if not extra:
+        return
+    digest = entry.get("verdict_sha256")
+    if not isinstance(digest, str) or not _SHA256_HEX_RE.match(digest):
+        raise InvalidLedgerAuditError(f"{label}.verdict_sha256 must be a sha256 hex digest, got {digest!r}")
+    if entry.get("run_ref") is not None and not isinstance(entry["run_ref"], str):
+        raise InvalidLedgerAuditError(f"{label}.run_ref must be a string or null")
+    if "reviewer_model" in entry and not (isinstance(entry["reviewer_model"], str) and entry["reviewer_model"].strip()):
+        raise InvalidLedgerAuditError(f"{label}.reviewer_model must be a non-empty string")
+
+
 def record_local_plan_review(
     state: dict, work_item_id: str, *, verdict: str, bundle_id: str,
-    review_content_id: str, round: int, now: str,
+    review_content_id: str, round: int, now: str, audit: dict | None = None,
 ) -> dict:
     """`/review-plan`'s sole state write set (D-Plan-Review-Stages transition
     table, resolves `GPT-R12-001`/`-002`):
@@ -15157,10 +15274,7 @@ def record_local_plan_review(
     if verdict == "APPROVE":
         work_item["plan_review_stages"] = {
             "review_content_id": review_content_id,
-            LOCAL_MODEL_PLAN_REVIEW: {
-                "bundle_id": bundle_id, "verdict": "APPROVE",
-                "round": round, "completed_at": now,
-            },
+            LOCAL_MODEL_PLAN_REVIEW: _ledger_entry(bundle_id, round, now, audit),
             MANUAL_EXTERNAL_PLAN_REVIEW: None,
         }
         work_item["phase"] = "AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW"
@@ -15258,7 +15372,7 @@ def check_manual_stage_bundle_id_advisory(
 def record_manual_plan_review(
     state: dict, work_item_id: str, *, verdict: str, bundle_id: str, round: int,
     now: str, current_review_content_id: str, feedback_role: str,
-    feedback_review_content_id: str,
+    feedback_review_content_id: str, audit: dict | None = None,
 ) -> dict:
     """`/record-manual-plan-review`'s sole state write set (D-Plan-Review-
     Stages transition table, resolves `GPT-R12-002`/`-003`):
@@ -15285,10 +15399,8 @@ def record_manual_plan_review(
     )
 
     if verdict == "APPROVE":
-        work_item["plan_review_stages"][MANUAL_EXTERNAL_PLAN_REVIEW] = {
-            "bundle_id": bundle_id, "verdict": "APPROVE",
-            "round": round, "completed_at": now,
-        }
+        work_item["plan_review_stages"][MANUAL_EXTERNAL_PLAN_REVIEW] = _ledger_entry(
+            bundle_id, round, now, audit)
         work_item["phase"] = "AWAITING_PLAN_APPROVAL"
     elif verdict == "REVISE":
         work_item["phase"] = "REVISING_PLAN"
@@ -16452,7 +16564,7 @@ def validate_local_implementation_review_preconditions(work_item: dict) -> None:
 
 def record_local_implementation_review(
     state: dict, work_item_id: str, *, verdict: str, bundle_id: str,
-    review_content_id: str, round: int, now: str,
+    review_content_id: str, round: int, now: str, audit: dict | None = None,
 ) -> dict:
     """`/review-implementation`'s sole state write set in its `"2.2"`
     authoritative role (D-Implementation-Review-Stages transition table),
@@ -16487,10 +16599,7 @@ def record_local_implementation_review(
     if verdict == "APPROVE":
         work_item["implementation_review_stages"] = {
             "review_content_id": review_content_id,
-            LOCAL_MODEL_IMPLEMENTATION_REVIEW: {
-                "bundle_id": bundle_id, "verdict": "APPROVE",
-                "round": round, "completed_at": now,
-            },
+            LOCAL_MODEL_IMPLEMENTATION_REVIEW: _ledger_entry(bundle_id, round, now, audit),
             MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW: None,
         }
         work_item["phase"] = "AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW"
@@ -16569,7 +16678,7 @@ def validate_manual_implementation_review_preconditions(
 def record_manual_implementation_review(
     state: dict, work_item_id: str, *, verdict: str, bundle_id: str, round: int,
     now: str, current_review_content_id: str, feedback_role: str,
-    feedback_review_content_id: str,
+    feedback_review_content_id: str, audit: dict | None = None,
 ) -> dict:
     """`/record-manual-implementation-review`'s sole state write set
     (D-Implementation-Review-Stages transition table), mirroring
@@ -16605,10 +16714,8 @@ def record_manual_implementation_review(
     )
 
     if verdict == "APPROVE":
-        work_item["implementation_review_stages"][MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW] = {
-            "bundle_id": bundle_id, "verdict": "APPROVE",
-            "round": round, "completed_at": now,
-        }
+        work_item["implementation_review_stages"][MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW] = _ledger_entry(
+            bundle_id, round, now, audit)
         work_item["phase"] = "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW"
     elif verdict == "REVISE":
         work_item["phase"] = "APPLYING_REVIEW_FEEDBACK"
@@ -16837,7 +16944,7 @@ def _local_approval_round(work_item: dict, stage: str) -> int:
 
 def ingest_manual_review_verdict(
     repo_root: Path, work_item_id: str, *, stage: str, verdict_text: str, now: str,
-    two_stage_only: bool = False,
+    two_stage_only: bool = False, run_ref: str | None = None,
 ) -> dict:
     """The one ingest of a manual external review verdict (workflow-2.7.0,
     D-OP-External), called with the verdict's text by
@@ -16888,13 +16995,14 @@ def ingest_manual_review_verdict(
     if two_stage:
         return _ingest_two_stage_manual_verdict(
             repo_root, work_item_id, stage=stage, verdict_text=verdict_text, parsed=parsed, now=now,
-            two_stage_only=two_stage_only)
+            two_stage_only=two_stage_only, run_ref=run_ref)
     return _ingest_feedback_only_verdict(
         repo_root, work_item_id, stage=stage, verdict_text=verdict_text, parsed=parsed)
 
 
 def _ingest_two_stage_manual_verdict(repo_root: Path, work_item_id: str, *, stage: str, verdict_text: str,
-                                     parsed: dict, now: str, two_stage_only: bool) -> dict:
+                                     parsed: dict, now: str, two_stage_only: bool,
+                                     run_ref: str | None = None) -> dict:
     outcome: dict = {}
 
     def mutator(state: dict) -> dict:
@@ -16906,12 +17014,17 @@ def _ingest_two_stage_manual_verdict(repo_root: Path, work_item_id: str, *, stag
         guarded = _two_stage_manual_verdict_guards(
             repo_root, state, work_item_id, stage=stage, verdict_text=verdict_text, fields=fields)
         fingerprint.assert_bundle_not_rejected(repo_root, work_item_id)
+        assert_ingest_reviewer_model_admissible(
+            repo_root, state, work_item_id, stage=stage, verdict=fields["status"], verdict_text=verdict_text)
+        audit = (review_stage_audit(repo_root, state, work_item_id, stage, verdict_text, run_ref=run_ref)
+                 if fields["status"] == "APPROVE" else None)
         round_ = fields["round"] if fields["round"] is not None else _local_approval_round(work_item, stage)
         writer = record_manual_plan_review if stage == "plan" else record_manual_implementation_review
         new_state = writer(
             state, work_item_id, verdict=fields["status"], bundle_id=fields["reviewed_bundle_id"], round=round_,
             now=now, current_review_content_id=guarded["review_content_id"],
             feedback_role=fields["reviewer_role"], feedback_review_content_id=fields["review_content_id"],
+            audit=audit,
         )
         outcome.update({
             "stage": stage, "verdict": fields["status"], "review_content_id": guarded["review_content_id"],
@@ -17196,6 +17309,7 @@ def _validate_plan_review_stages(work_item: dict) -> None:
             f"while {LOCAL_MODEL_PLAN_REVIEW} is absent"
         )
     for stage_name, stage in ((LOCAL_MODEL_PLAN_REVIEW, local), (MANUAL_EXTERNAL_PLAN_REVIEW, manual)):
+        _validate_ledger_entry_audit(f"{work_item['work_item_id']}.{stage_name}", stage)
         if stage is not None and stage.get("verdict") != "APPROVE":
             raise StageVerdictNotApproveError(
                 f"{work_item['work_item_id']}.{stage_name}.verdict is "
@@ -17235,6 +17349,7 @@ def _validate_implementation_review_stages(work_item: dict) -> None:
     for stage_name, stage in (
         (LOCAL_MODEL_IMPLEMENTATION_REVIEW, local), (MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW, manual),
     ):
+        _validate_ledger_entry_audit(f"{work_item['work_item_id']}.{stage_name}", stage)
         if stage is not None and stage.get("verdict") != "APPROVE":
             raise StageVerdictNotApproveError(
                 f"{work_item['work_item_id']}.{stage_name}.verdict is "
@@ -18640,6 +18755,220 @@ def adopt_gate_policy(repo_root: Path, *, confirmation: str, now: str) -> str:
     gate_policy.clear_caches()
     return commit
 
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.8.0 CP2 (`D-GP-Gates`, `D-GP-Ingest`, `D-GP-Satisfy`,
+# `D-GP-Trust`): the audit keys a review-stage ledger entry carries while its
+# gate is automatic, the ingest refusal of a missing or equal reviewer-model
+# family, and the `POLICY_SATISFIED` approval record `/satisfy-gate` writes.
+# ---------------------------------------------------------------------------
+
+#: The `run_ref` a standalone session records for a verdict it produced
+#: itself: this prefix plus the feedback artifact's path.
+LOCAL_RUN_REF_PREFIX = "session:local"
+
+#: The `trust` statement of every `policy_evidence` (`D-GP-Trust`).
+POLICY_EVIDENCE_TRUST = {"review_verdicts": "orchestrator"}
+
+
+class InvalidLedgerAuditError(Exception):
+    """A review-stage ledger entry carries malformed audit keys
+    (`verdict_sha256`, `run_ref`, `reviewer_model`)."""
+
+
+def review_stage_gate_context(repo_root: Path, state: dict, work_item_id: str, stage: str) -> dict:
+    """What the stage's gate asks of a ledger write: `{gate, automatic,
+    requires_distinct}`. `automatic` is the gate's mode for this item under
+    the effective policy; `requires_distinct` additionally needs the effective
+    `require` to list `distinct_reviewer_models`. A human gate asks for
+    nothing, so its ledger bytes stay 2.7.0's (INV-1)."""
+    gate_id = gate_policy.STAGE_GATE[stage]
+    work_item = state["work_items"][work_item_id]
+    effective = gate_policy.effective_policy(repo_root, state)
+    mode = gate_policy.gate_mode(effective, gate_id, work_item.get("governing_workflow_version"))
+    automatic = mode == "automatic"
+    return {
+        "gate": gate_id, "automatic": automatic,
+        "requires_distinct": automatic and "distinct_reviewer_models" in effective["policy"][gate_id]["require"],
+    }
+
+
+def review_stage_audit(repo_root: Path, state: dict, work_item_id: str, stage: str, verdict_text: str, *,
+                       run_ref: str | None = None) -> dict | None:
+    """The `audit` argument of the four ledger writers: `None` while the
+    stage's gate is human; otherwise `verdict_sha256` (the sha256 of the
+    verdict's own bytes), `run_ref` as given (a declared reference, `None`
+    when the reporter gave none) and, only when the gate also requires
+    distinct models, the `reviewer_model` the verdict's header declares."""
+    context = review_stage_gate_context(repo_root, state, work_item_id, stage)
+    if not context["automatic"]:
+        return None
+    audit: dict = {"verdict_sha256": hashlib.sha256(verdict_text.encode("utf-8")).hexdigest(), "run_ref": run_ref}
+    if context["requires_distinct"]:
+        model = fingerprint.parse_feedback_reviewer_model(verdict_text)
+        if model is not None:
+            audit["reviewer_model"] = model
+    return audit
+
+
+def local_review_audit(repo_root: Path, state: dict, work_item_id: str, stage: str, *,
+                       feedback_text: str, feedback_path: str) -> dict | None:
+    """`review_stage_audit` for a verdict this session wrote itself
+    (`/review-plan`, `/review-implementation`): the `run_ref` is
+    `session:local <feedback artifact path>`."""
+    return review_stage_audit(repo_root, state, work_item_id, stage, feedback_text,
+                              run_ref=f"{LOCAL_RUN_REF_PREFIX} {feedback_path}")
+
+
+def _stage_ledger_entries(work_item: dict, stage: str) -> tuple[dict | None, dict | None]:
+    if stage == "plan":
+        stages = normalize_plan_review_stages(work_item.get("plan_review_stages") or {})
+        return stages.get(LOCAL_MODEL_PLAN_REVIEW), stages.get(MANUAL_EXTERNAL_PLAN_REVIEW)
+    stages = normalize_implementation_review_stages(work_item.get("implementation_review_stages") or {})
+    return stages.get(LOCAL_MODEL_IMPLEMENTATION_REVIEW), stages.get(MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW)
+
+
+def assert_ingest_reviewer_model_admissible(repo_root: Path, state: dict, work_item_id: str, *, stage: str,
+                                            verdict: str, verdict_text: str) -> None:
+    """`D-GP-Ingest`'s refusal, raised before any write: an `APPROVE` ingest
+    for a stage whose gate is automatic and whose effective `require` lists
+    `distinct_reviewer_models` must declare a `Reviewer model:` header line,
+    and its family must differ from the other stage's recorded family. A
+    `REVISE`/`BLOCK`, and an ingest under a human gate, are admitted
+    unchanged. The message names the value and the two remedies that work at
+    the open phase: re-submit with a second family, or turn that gate human."""
+    if verdict != "APPROVE":
+        return
+    if not review_stage_gate_context(repo_root, state, work_item_id, stage)["requires_distinct"]:
+        return
+    gate_id = gate_policy.STAGE_GATE[stage]
+    declared = fingerprint.parse_feedback_reviewer_model(verdict_text)
+    family = gate_policy.reviewer_family(declared)
+    remedies = (
+        f"Remedies: (1) re-submit the same verdict with a `Reviewer model: <vendor>/<model>` line of a "
+        f"second declared family; (2) turn the {gate_id} gate human (set \"human_approval\": true for it "
+        f"in docs/ai-workflow/GATE_POLICY.json), which takes effect immediately, and re-submit the same "
+        f"verdict, which is then admitted with no line. Nothing was written"
+    )
+    if family is None:
+        raise DistinctReviewerModelsRequiredError(
+            f"{work_item_id}: the {gate_id} gate is automatic and requires distinct reviewer models, but "
+            f"the {stage}-stage verdict states no `Reviewer model:` header line. {remedies}")
+    local, _manual = _stage_ledger_entries(state["work_items"][work_item_id], stage)
+    other = gate_policy.reviewer_family((local or {}).get("reviewer_model"))
+    if other is not None and other == family:
+        raise DistinctReviewerModelsRequiredError(
+            f"{work_item_id}: the {gate_id} gate is automatic and requires distinct reviewer models, but "
+            f"the verdict declares the family {family!r} ({declared!r}), equal to the family already "
+            f"recorded for the other stage. {remedies}")
+
+
+def _policy_ledger_inputs(entry: dict | None) -> dict | None:
+    if entry is None:
+        return None
+    return {
+        "bundle_id": entry.get("bundle_id"), "verdict": entry.get("verdict"), "round": entry.get("round"),
+        "verdict_sha256": entry.get("verdict_sha256"),
+        "ledger_entry_sha256": gate_policy.ledger_entry_sha256(entry),
+        "run_ref": entry.get("run_ref"), "reviewer_model": entry.get("reviewer_model"),
+    }
+
+
+def build_policy_evidence(repo_root: Path, state: dict, evaluation: dict, *, now: str) -> dict:
+    """The `policy_evidence` of a `POLICY_SATISFIED` record (`D-GP-Satisfy`,
+    INV-4): the effective policy's digest and source, the file, adopted and
+    floor digests, every requirement with its detail, the inputs the decision
+    read (the content id, each ledger stage's bundle id, verdict, hashes and
+    run reference, the gate status digest), the `trust` statement and the
+    evaluation time and release."""
+    import workflow_protocol  # lazy: the protocol imports this module
+
+    adoption = state.get("gate_policy_adoption") or {}
+    evidence = evaluation["evidence"]
+    digests = evaluation["digests"]
+    return {
+        "policy_digest": evaluation["policy_digest"], "policy_source": evaluation["source"],
+        "file_digest": digests["file"], "adopted_digest": digests["adopted"],
+        "adopted_at": adoption.get("adopted_at") if digests["adopted"] else None,
+        "requirements": [dict(r) for r in evaluation["requirements"]],
+        "inputs": {
+            "review_content_id": evidence["review_content_id"],
+            "ledger": {name: _policy_ledger_inputs(entry) for name, entry in evidence["ledger"].items()},
+            "gate_status_digest": evidence["gate_status_digest"],
+        },
+        "floor_digest": digests["floor"], "trust": dict(POLICY_EVIDENCE_TRUST),
+        "evaluated_at": now, "workflow_release": workflow_protocol.WORKFLOW_RELEASE,
+    }
+
+
+def build_policy_approval_record(repo_root: Path, state: dict, work_item_id: str, stage: str, *, now: str) -> dict:
+    """`/satisfy-gate`'s record (`D-GP-Satisfy`): evaluates the stage's gate
+    on `state`, resolves the basis (`resolve_policy_approval_basis`; a gate
+    that is human, unmet or unreachable raises `GateNotSatisfiableError`),
+    recomputes the `review_content_id` and manifest from the content the
+    reviewers saw, and builds the validated `POLICY_SATISFIED` record. Writes
+    nothing: the command persists it through `apply_plan_approval` /
+    `apply_technical_approval` inside its own transaction, calling this again
+    on the freshly re-read state so a toggle turned human meanwhile refuses."""
+    work_item = state["work_items"][work_item_id]
+    gate_id = gate_policy.STAGE_GATE.get(stage)
+    if gate_id is None:
+        raise InvalidApprovalRecordError(f"unknown approval stage: {stage!r}")
+    evaluation = gate_policy.evaluate_gate(repo_root, state, work_item_id, gate_id)
+    resolve_policy_approval_basis(state, work_item_id, stage, evaluation)
+    if stage == "plan":
+        content_id, projection = fingerprint.compute_review_content_id_plan_stage_for_work_item(
+            repo_root, work_item_id)
+        reviewed_content_commit = None
+    else:
+        artifacts_path = fingerprint.artifacts_path_for_work_item(work_item_id)
+        classification = fingerprint.load_implementation_stage_classification(repo_root, artifacts_path)
+        content_id, projection = fingerprint.compute_review_content_id_implementation_stage_at_commit(
+            repo_root, work_item["base_commit"], "HEAD", work_item["work_item_type"], work_item_id,
+            *classification)
+        reviewed_content_commit = work_item.get("reviewed_implementation_head")
+    if content_id != evaluation["evidence"]["review_content_id"]:
+        raise GateNotSatisfiableError(
+            f"{work_item_id}/{stage}: the recomputed review_content_id {content_id!r} is not the one the "
+            f"reviewers saw ({evaluation['evidence']['review_content_id']!r}). Nothing was written")
+    evidence = build_policy_evidence(repo_root, state, evaluation, now=now)
+    return build_approval_record(
+        basis=POLICY_SATISFIED, stage=stage, now=now,
+        user_confirmation=f"{POLICY_CONFIRMATION_PREFIX}{evidence['policy_digest']}",
+        reviewed_bundle_id=evaluation["bundle_id"], approved_review_content_id=content_id,
+        review_content_manifest=projection["review_content_manifest"],
+        reviewed_content_commit=reviewed_content_commit, policy_evidence=evidence)
+
+
+def assert_policy_still_satisfied(repo_root: Path, state: dict, work_item_id: str, stage: str, record: dict) -> None:
+    """The re-evaluation inside `/satisfy-gate plan`'s transaction
+    (`D-GP-Satisfy`): the policy file is an uncommitted working-tree input the
+    state compare-and-swap cannot see, so the command re-evaluates the gate on
+    the freshly read `state` at step 6.2 and again immediately before step 6.4's
+    commit. Refuses with `GateNotSatisfiableError`, writing nothing, when the
+    gate is no longer automatic and `satisfiable` (a human toggle turned on
+    meanwhile) or when the effective policy is no longer the one `record`
+    names (`policy_evidence.policy_digest`)."""
+    gate_id = gate_policy.STAGE_GATE[stage]
+    evaluation = gate_policy.evaluate_gate(repo_root, state, work_item_id, gate_id)
+    if evaluation["mode"] != "automatic" or not evaluation["satisfiable"]:
+        unmet = [f"{r['id']}: {r['detail']}" for r in evaluation["requirements"] if not r["met"]]
+        raise GateNotSatisfiableError(
+            f"{work_item_id}/{stage}: the {gate_id} gate is no longer satisfiable by policy "
+            f"(mode {evaluation['mode']!r}); unmet: {unmet}. Nothing was written")
+    named = record["policy_evidence"]["policy_digest"]
+    if evaluation["policy_digest"] != named:
+        raise GateNotSatisfiableError(
+            f"{work_item_id}/{stage}: the effective policy changed since the record was built "
+            f"({named[:12]} -> {evaluation['policy_digest'][:12]}). Nothing was written")
+
+
+def gate_satisfied_by_trailer(record: dict) -> str:
+    """The `Workflow-Gate-Satisfied-By` trailer value of the commit that
+    records `record`: `policy:` plus the first 12 hex characters of its
+    policy digest (`D-GP-Satisfy`)."""
+    return f"{POLICY_CONFIRMATION_PREFIX}{record['policy_evidence']['policy_digest'][:12]}"
 
 
 if __name__ == "__main__":

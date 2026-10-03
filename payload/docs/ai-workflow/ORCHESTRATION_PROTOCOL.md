@@ -349,7 +349,7 @@ when present, it must be a row that emits the action.
 ### 5.6 `record-external-result`
 
 ```text
-record-external-result --work-item ID --kind KIND --input FILE
+record-external-result --work-item ID --kind KIND --input FILE [--run-ref REF]
 ```
 
 `FILE` holds the external reviewer's verdict text, verbatim. The v1 kinds
@@ -377,6 +377,16 @@ published. Identical bytes are a no-op. A crash between the two leaves the
 phase unchanged with the verdict in the file, and a retry through either
 path records it. At a feedback-only row, a different verdict that already
 binds to the current bundle refuses (`ConflictingReviewFeedbackError`).
+
+`--run-ref` (workflow-2.8.0, optional) is the reporter's own identifier for
+the run that produced the verdict. While the stage's gate is automatic
+(`GATE_POLICY.json`), the ledger entry records it beside `verdict_sha256`
+(declared, never verified; `null` when absent), and the entry also records the
+verdict's `Reviewer model:` header line when the effective policy requires
+distinct reviewer models. Under that requirement an `APPROVE` that declares no
+model, or the same family as the other stage, is refused
+(`DistinctReviewerModelsRequiredError`, a `refused` result) before any write.
+Under a human gate nothing changes: no key, no refusal.
 
 `round` is the header-block `Round:` value; a `Round:` that is not a
 positive integer refuses (`ManualVerdictHeaderError`), and when it is

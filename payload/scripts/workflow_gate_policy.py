@@ -1021,13 +1021,36 @@ def record_gate_policy_floor(repo_root: Path, state: dict, now: str) -> dict:
     return new_state
 
 
+_LEDGER_KEYS = ("plan_review_stages", "implementation_review_stages")
+
+
+def unreferenced_runs(state) -> list[str]:
+    """`<work item>/<stage>` of every review-stage ledger entry that carries
+    the audit keys (it was recorded while its gate was automatic) but a null
+    `run_ref` (`D-GP-Trust`: declared, never verified, and an absent one is
+    shown as a warning)."""
+    found: list[str] = []
+    for work_item_id, work_item in sorted(((state or {}).get("work_items") or {}).items()):
+        if not isinstance(work_item, dict):
+            continue
+        for key in _LEDGER_KEYS:
+            ledger = work_item.get(key)
+            if not isinstance(ledger, dict):
+                continue
+            for stage, entry in sorted(ledger.items()):
+                if isinstance(entry, dict) and "verdict_sha256" in entry and entry.get("run_ref") is None:
+                    found.append(f"{work_item_id}/{stage}")
+    return found
+
+
 def verify_check(repo_root: Path, state: dict | None = None) -> tuple[str, str]:
     """`verify`'s advisory `gate_policy` check: `(status, detail)`. `pass`
     with no file and nothing stricter recorded, or a file equal to the adopted
     (or default) policy; `warn` for an unadopted differing file, an ignored
     loosening, a floor not yet recorded in a commit, a floor holding a setting
     the file no longer carries, a gate-lowering event and a record whose
-    `lowered` label disagrees with the recomputation; `fail` for an invalid
+    `lowered` label disagrees with the recomputation and a review verdict
+    recorded with audit keys but no `run_ref`; `fail` for an invalid
     file and a failed provenance. Advisory: the caller never lets it change
     the overall status."""
     effective = effective_policy(repo_root, state)
@@ -1065,6 +1088,11 @@ def verify_check(repo_root: Path, state: dict | None = None) -> tuple[str, str]:
             warns.append(
                 f"the adoption's recorded lowered label {lowering['label_lowered']!r} disagrees with "
                 f"the recomputed lowering {lowering['lowered']!r}")
+    unreferenced = unreferenced_runs(state)
+    if unreferenced:
+        warns.append(
+            f"{len(unreferenced)} review verdict(s) were recorded without a run_ref, so the producing "
+            f"run cannot be traced ({', '.join(unreferenced[:5])}{', ...' if len(unreferenced) > 5 else ''})")
     if fails:
         return "fail", "; ".join(fails + warns)
     if warns:
@@ -1098,25 +1126,153 @@ def gate_mode(effective: dict, gate_id: str, governing_version: str | None) -> s
     return "human" if effective["policy"][gate_id]["human"] else "automatic"
 
 
+_FAMILY_SPLIT_RE = re.compile(r"[/: ]")
+STAGE_GATE = {"plan": "plan_approval", "implementation": "technical_approval"}
+
+
+def reviewer_family(value) -> str | None:
+    """The family of a declared `Reviewer model:` (`D-GP-Gates`): the value
+    lowercased and trimmed, up to the first `/`, `:` or space. A family is
+    meant to be a vendor-level identity (`anthropic/...` against `openai/...`);
+    two models of one vendor are one family. The values are declared and
+    unverified (`OD-W2-3`). `None` for an absent or empty value."""
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip().lower()
+    if not normalized:
+        return None
+    return _FAMILY_SPLIT_RE.split(normalized, maxsplit=1)[0] or None
+
+
+def distinct_reviewer_models(local_entry, manual_entry) -> tuple[bool, str]:
+    """`(met, detail)` for the `distinct_reviewer_models` requirement: both
+    ledger stages record a `reviewer_model` and the two families differ."""
+    local = reviewer_family((local_entry or {}).get("reviewer_model"))
+    manual = reviewer_family((manual_entry or {}).get("reviewer_model"))
+    if local is None or manual is None:
+        missing = [name for name, family in (("local", local), ("manual", manual)) if family is None]
+        return False, (
+            f"the {' and '.join(missing)} stage records no reviewer_model; both stages must declare "
+            f"a `Reviewer model:` of a different family")
+    if local == manual:
+        return False, f"both stages declare the family {local!r}; they must differ"
+    return True, f"families {local!r} and {manual!r} differ"
+
+
+def ledger_entry_sha256(entry) -> str | None:
+    """The sha256 of a ledger entry's canonical bytes, or `None` for an absent one."""
+    if entry is None:
+        return None
+    return hashlib.sha256(canonical_bytes(entry)).hexdigest()
+
+
+def _review_gate_inputs(repo_root: Path, state: dict, work_item_id: str, gate_id: str) -> dict:
+    """What a plan or technical gate reads (the wrapper, the latest verdict,
+    the two ledger stages). Read-only; the imports are lazy because
+    `workflow_state` imports this module."""
+    import workflow_fingerprint as fingerprint
+    import workflow_state
+
+    work_item = state["work_items"][work_item_id]
+    plan_stage = gate_id == "plan_approval"
+    status = (workflow_state.plan_approval_gate_status if plan_stage
+              else workflow_state.technical_approval_gate_status)(repo_root, state, work_item_id)
+    feedback = workflow_state.read_review_feedback(repo_root, work_item_id)
+    fields = fingerprint.parse_review_feedback_binding_fields(feedback) if feedback is not None else {}
+    bundle_id = status["inputs"].get("bundle_id")
+    if bundle_id is None and plan_stage:
+        try:
+            bundle_rel = fingerprint.resolve_bundle_dir(repo_root, work_item_id, stage="plan")
+            bundle_id, _ = fingerprint.compute_bundle_id(Path(repo_root) / bundle_rel)
+        except Exception:  # an unverifiable bundle is simply an unmet binding
+            bundle_id = None
+    if plan_stage:
+        stages = workflow_state.normalize_plan_review_stages(work_item.get("plan_review_stages") or {})
+        local = stages.get(workflow_state.LOCAL_MODEL_PLAN_REVIEW)
+        manual = stages.get(workflow_state.MANUAL_EXTERNAL_PLAN_REVIEW)
+    else:
+        stages = workflow_state.normalize_implementation_review_stages(
+            work_item.get("implementation_review_stages") or {})
+        local = stages.get(workflow_state.LOCAL_MODEL_IMPLEMENTATION_REVIEW)
+        manual = stages.get(workflow_state.MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW)
+    return {
+        "status": status, "fields": fields, "bundle_id": bundle_id, "local": local, "manual": manual,
+        "review_content_id": status["inputs"].get("current_review_content_id"),
+    }
+
+
+def _review_gate_requirements(inputs: dict, require: list[str]) -> list[dict]:
+    status, fields = inputs["status"], inputs["fields"]
+    requirements = [{
+        "id": "gate_reachable", "met": bool(status["reachable"]),
+        "detail": "the approval gate is reachable" if status["reachable"]
+        else f"the approval gate is not reachable: {status['cause']}",
+    }]
+    verdict = fields.get("status")
+    bound = (verdict == "APPROVE" and inputs["bundle_id"] is not None
+             and fields.get("reviewed_bundle_id") == inputs["bundle_id"])
+    requirements.append({
+        "id": "verdict_approve_bound", "met": bound,
+        "detail": ("the latest verdict is APPROVE and names the current bundle" if bound else
+                   f"the latest verdict is {verdict!r} naming bundle {fields.get('reviewed_bundle_id')!r}; "
+                   f"APPROVE naming the current bundle {inputs['bundle_id']!r} is required"),
+    })
+    for name in require:
+        if name == "distinct_reviewer_models":
+            met, detail = distinct_reviewer_models(inputs["local"], inputs["manual"])
+            requirements.append({"id": name, "met": met, "detail": detail})
+    unaudited = [label for label, entry in (("local", inputs["local"]), ("manual", inputs["manual"]))
+                 if entry is None or not entry.get("verdict_sha256")]
+    requirements.append({
+        "id": "review_evidence_audited", "met": not unaudited,
+        "detail": ("both stages carry the audit keys" if not unaudited else
+                   f"the {' and '.join(unaudited)} stage was recorded without verdict_sha256 (while its gate "
+                   f"was human); turn that gate human with \"human_approval\": true, or withdraw and "
+                   f"re-review"),
+    })
+    return requirements
+
+
 def evaluate_gate(repo_root: Path, state: dict, work_item_id: str, gate_id: str) -> dict:
     """`{gate, mode, source, policy_digest, satisfiable, obtainable,
-    requirements}`; writes nothing. This checkpoint (CP1) returns the `human`
-    result: a gate in `human` mode is `satisfiable: false` with the single
-    requirement `human_gate`. An automatic gate's evaluation is CP2's; until
-    then it is reported unevaluated and never satisfiable."""
+    requirements, ...}`; writes nothing (`D-GP-Gates`). A gate in `human` mode
+    is `satisfiable: false` with the single requirement `human_gate`.
+    `plan_approval` and `technical_approval`, in `automatic` mode, are
+    satisfiable only when the wrapper is reachable, the latest verdict is an
+    `APPROVE` naming the current bundle (so a `USER_OVERRIDE` is never
+    automatic), every policy `require` entry is met and both ledger stages
+    carry the audit keys (`review_evidence_audited`). The result also holds
+    `evidence` (the inputs a satisfying record binds) and `digests`.
+    `acceptance` is evaluated by D-GP-Acceptance (CP4); until then it is
+    reported unevaluated and never satisfiable."""
     work_item = (state.get("work_items") or {}).get(work_item_id)
     if not isinstance(work_item, dict):
         raise GatePolicyError(f"{work_item_id!r} names no work item")
     effective = effective_policy(repo_root, state)
     mode = gate_mode(effective, gate_id, work_item.get("governing_workflow_version"))
-    if mode == "human":
-        requirements = [{"id": "human_gate", "met": False,
-                         "detail": f"{gate_id} is a human gate; a person decides it"}]
-    else:
-        requirements = [{"id": "not_evaluated", "met": False,
-                         "detail": f"the automatic evaluation of {gate_id} is not available in this release"}]
-    return {
+    result = {
         "gate": gate_id, "mode": mode, "source": effective["source"],
         "policy_digest": effective["digest"], "satisfiable": False, "obtainable": [],
-        "requirements": requirements,
+        "digests": {"file": effective["file"]["sha256"], "adopted": effective["base"]["sha256"],
+                    "floor": effective["floor"]["digest"]},
     }
+    if mode == "human":
+        result["requirements"] = [{"id": "human_gate", "met": False,
+                                   "detail": f"{gate_id} is a human gate; a person decides it"}]
+        return result
+    if gate_id == "acceptance":
+        result["requirements"] = [{"id": "not_evaluated", "met": False,
+                                   "detail": "the automatic evaluation of acceptance is not available in this release"}]
+        return result
+    inputs = _review_gate_inputs(repo_root, state, work_item_id, gate_id)
+    requirements = _review_gate_requirements(inputs, effective["policy"][gate_id]["require"])
+    result["requirements"] = requirements
+    result["satisfiable"] = all(r["met"] for r in requirements)
+    result["bundle_id"] = inputs["bundle_id"]
+    result["evidence"] = {
+        "review_content_id": inputs["review_content_id"], "bundle_id": inputs["bundle_id"],
+        "gate_status_digest": hashlib.sha256(canonical_bytes(
+            {"reachable": inputs["status"]["reachable"], "cause": inputs["status"]["cause"]})).hexdigest(),
+        "ledger": {"local": inputs["local"], "manual": inputs["manual"]},
+    }
+    return result

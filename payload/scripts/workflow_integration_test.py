@@ -753,6 +753,15 @@ class TestVersion21OnlyCommandsRefuseCleanlyForV1(unittest.TestCase):
 # below, for the two files where a real pre-v2.1 copy is actually
 # available to diff against.
 _GOLDEN_COMMAND_FILE_SHA256 = {
+    # workflow-2.8.0 (gate-policy-and-reopening, CP2): `approve-review.md`
+    # gains the pointer to `/satisfy-gate`; `milestone-plan.md`,
+    # `apply-plan-review.md`, `milestone-implement.md` and
+    # `apply-implementation-review.md` gain the sentence asking the reviewer for
+    # `Reviewer model:` when the gate requires distinct models;
+    # `review-plan.md`, `review-implementation.md` and
+    # `record-manual-plan-review.md` gain the `Reviewer model:` line and the audit
+    # keys; `apply-functional-review.md` names `/satisfy-gate` in the child
+    # sequence -- intentional content changes, not regressions.
     # Updated by WFO-STATE-SERIALIZATION (item 354/357): every writer
     # command file below gained a `state_writer: true` frontmatter
     # declaration and a "State-writer discipline" paragraph naming
@@ -847,7 +856,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # milestone-plan.md further updated, D-Consumed-History (workflow-2.7.0,
     # CP2, v2.6.0-001): the withdrawal report names the durable
     # consumed_plan_review_content_ids history -- intentional content change.
-    "milestone-plan.md": "d74189364d76e431949ddb79aed738695ad3ca22359e3f3c39e034fe657d29cb",
+    "milestone-plan.md": "e3f1c979871fe65b1f6d20aedabb2e6afe797b40af19944a314a96ee247e6ed3",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the
@@ -879,7 +888,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # checkpoint (1f) and self-review (2) commits call
     # assert_gate_policy_fields_unchanged_or_tightened after landing --
     # intentional content change.
-    "milestone-implement.md": "697bb2f71b5ffbdff8cfe0891785bdfafd6f49bbab866c9776e3012dc0ce78fc",
+    "milestone-implement.md": "09d20a57b37590fe632b60149f0ce13aa04d6b796a8671909db5dc3dd13bd128",
     # approve-review.md (WF8c item (c), same-content bundle-generation
     # republication idempotency; further updated WF8c item (b): the
     # trailing caveat naming the dedicated /recover-implementation-provenance
@@ -1009,7 +1018,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # approval commit keeps its whole-file pin and
     # verify_plan_approval_commit applies the gate-policy content check --
     # intentional content change.
-    "approve-review.md": "8a3b400cd7311e1c85101e8167c40d8385480b19721e3fc8b675580aff5b8845",
+    "approve-review.md": "e760ecb36c98e271ad483af4d3b3a0bcb6469749f333742bbb993c9e93a7fb21",
     # accept-milestone.md updated, baseline-freeze correctness fix
     # (OPUS-R129-001): step 6's completion-commit instruction now states
     # the same "trailers must be the commit message's own final paragraph"
@@ -1076,7 +1085,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # assert_apply_review_feedback_binding (D-Apply-Binding): a two-stage
     # REVISE stating a review_content_id is bound by content --
     # intentional content change.
-    "apply-plan-review.md": "7e0eac1ca5a9c343364a482e3de1ade9abe89bf9d18841fbec7942ccff1e010f",
+    "apply-plan-review.md": "17c7ea54b5d98cd5267dccbe42df5b4e37ed8a1fc8be3762d34aa9b2db5a4658",
     # apply-implementation-review.md (WF8c item (c)): step 7's
     # record_bundle_generation call site widened to first resolve the
     # outcome (resolve_bundle_generation_outcome) and write the matching
@@ -1111,7 +1120,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.8.0 (gate-policy-and-reopening, CP1): the generation-record
     # commit stages item-scoped (stage_scoped_state) -- intentional content
     # change.
-    "apply-implementation-review.md": "5772ee5d342b966b954877002e80aafdd03a80dbdeb02147776507ed3176363f",
+    "apply-implementation-review.md": "deaf93154185971241690ee4b5e0c8ec9b21a765a957e5cae78f1a66627a76ba",
     # review-plan.md/record-manual-plan-review.md further updated,
     # workflow-v2-3-followups CP3 (REQ-8/-9): the `Reviewer role:` template
     # literal, the round-computation prose, the exact-match-expectation
@@ -1149,7 +1158,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-plan.md further updated, D-Consumed-History (workflow-2.7.0,
     # CP2, v2.6.0-001): REVISE also adds the id to the durable
     # consumed_plan_review_content_ids history -- intentional content change.
-    "review-plan.md": "025bef3dbb2bc5673a81a801d4800bc91d921c5695857a797e9f06c00fc01008",
+    "review-plan.md": "61cb286719b6f310c61f9304324d6994f74dc9c443661178b81c051e05d27e0d",
     # record-manual-plan-review.md further updated, D-Feedback-Layout
     # (workflow-2.6.0, CP3): preamble states feedback_layout-keyed
     # resolution; step 4 prints the exact resolved paste path and adds the
@@ -1168,7 +1177,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # ingest_manual_review_verdict (two_stage_only=True), which holds
     # state_lock through the publication; the required header fields,
     # Round: and the absent-bundle-id advisory -- intentional content change.
-    "record-manual-plan-review.md": "e93576f32faf16c97e96427698c578db664b3fa8d30857904ccffc823e5ed10c",
+    "record-manual-plan-review.md": "f5647bdb1af514a4c89d0fdf9e6bfe098009d48ee6f124c0bf26684f2870b58f",
     # bootstrap-workflow-v2.md (WF8c scope clauses (l)/(p)/(q), GPT-R108-002/
     # OPUS-R109-004): the driver-range text made checkpoint-agnostic
     # (OPUS-R102-009), a NO_CHECKPOINT terminal-wrap-up branch added to step
@@ -1262,7 +1271,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-implementation.md further updated, workflow-2.7.0
     # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 4's bundle check is
     # verify_implementation_review_bundle -- intentional content change.
-    "review-implementation.md": "0be61b024f1ac501caff7044d667b842ebce4a26017619999c0d37cf7a6d2ed2",
+    "review-implementation.md": "656538d4033c9a086adf1c0b387f15d18ee5a5b95af782a6267a712018d04060",
     # review-functional.md: new, workflow-v2-3 CP2 -- the first recorded
     # hash, not a change.
     #
@@ -1340,7 +1349,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.8.0 (gate-policy-and-reopening, CP1): the generation-record
     # commit stages item-scoped (stage_scoped_state) -- intentional content
     # change.
-    "apply-functional-review.md": "1c0cb285d24d6adfba8bf10414cf0bf032c2f54d7cbe08f5e5ef6c1b531609fb",
+    "apply-functional-review.md": "953154b3fbbc50ab9d060701b5fb1e90f62ad1eba7fe587e5ddc94fad55040f4",
 }
 
 
@@ -6551,14 +6560,15 @@ class TestRetiredScopedRemediationLeavesNoLiveSurface(unittest.TestCase):
         gaps are now closed -- `workflow-2.4.0` CP3 added a sixteenth,
         `/request-plan-amendment` -- and `workflow-2.5.0` CP4 added a
         seventeenth, `/record-manual-implementation-review`, and
-        `workflow-2.8.0` CP1 an eighteenth, `/adopt-gate-policy` -- the
-        reference sections all 18 live commands -- and this test derives
+        `workflow-2.8.0` CP1 an eighteenth, `/adopt-gate-policy`, and CP2 a
+        nineteenth, `/satisfy-gate` -- the
+        reference sections all 19 live commands -- and this test derives
         the expected count from the real files rather than hand-maintaining
         a number that can go stale again."""
         text = (_repo_root() / "docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md").read_text()
         sections = re.findall(r"(?m)^### `/([a-z0-9-]+)", text)
         on_disk = sorted(p.stem for p in (_repo_root() / ".claude" / "commands").glob("*.md"))
-        self.assertEqual(len(on_disk), 18)
+        self.assertEqual(len(on_disk), 19)
         self.assertNotIn("accept-scoped-remediation", sections)
         self.assertNotIn("accept-scoped-remediation", on_disk)
         # Every live command has exactly one section, and vice versa.
@@ -7055,6 +7065,10 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         # workflow-2.8.0, D-GP-Policy: the two optional top-level state field
         # names, not callables.
         "gate_policy_adoption", "gate_policy_floor",
+        # workflow-2.8.0 CP2, D-GP-Gates: a `require` entry, the requirement
+        # id that audits the ledger, and the approval record's evidence key,
+        # not callables.
+        "distinct_reviewer_models", "review_evidence_audited", "policy_evidence",
     })
 
     def test_every_code_symbol_the_reference_names_actually_exists(self):

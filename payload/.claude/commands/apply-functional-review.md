@@ -234,7 +234,11 @@ all in the same invocation.
      `/milestone-plan <child-id>` → `/review-plan <child-id>` →
      `/record-manual-plan-review <child-id>` (a `"1"`-governed child uses
      `/apply-plan-review <child-id>` instead of those two) →
-     `/approve-review plan <child-id>` → `/milestone-implement <child-id>`
+     `/approve-review plan <child-id>` (or, where the gate policy makes the
+     plan gate automatic and every requirement is met, `/satisfy-gate plan
+     <child-id>` in its place; likewise `/satisfy-gate implementation
+     <child-id>` for `/approve-review implementation <child-id>` below) →
+     `/milestone-implement <child-id>`
      (× N) → `/review-implementation <child-id>` (optional for a `"1"`/
      `"2.1"` child; a `"2.2"`-governed child instead uses it as the
      authoritative `LOCAL_MODEL_IMPLEMENTATION_REVIEW` stage writer,

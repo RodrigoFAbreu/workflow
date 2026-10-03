@@ -507,6 +507,48 @@ test fails and is authoritative about which one moved.
   confirmation lacking the literal or the digest prefix
   (`GatePolicyConfirmationRejectedError`).
 
+### `/satisfy-gate <plan|implementation|acceptance> [work-item-id]` — automated validation
+- **When**: the plan or technical gate of a `"2.1"`/`"2.2"` item (the technical
+  gate: `"2.2"` only) is `automatic` under the effective gate policy
+  (`workflow-2.8.0`, `docs/ai-workflow/GATE_POLICY.json`; with no file or
+  adoption the built-in default makes both automatic) and the stage's reviews
+  are done: `AWAITING_PLAN_APPROVAL` for `plan`,
+  `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for `implementation`. It is the
+  action behind the protocol's `validation` disposition: not user-only, because
+  it records the Workflow's own decision, not a person's. `acceptance` is added
+  by the acceptance checkpoint of this release and is refused until then.
+- **Expects**: `workflow_gate_policy.evaluate_gate` reports the gate
+  `automatic` and `satisfiable`: the approval-gate wrapper is `reachable`; the
+  latest verdict is an `APPROVE` naming the current bundle (so a
+  `USER_OVERRIDE` is never automatic); each `require` entry is met
+  (`distinct_reviewer_models`: both ledger stages declare a `Reviewer model:`
+  and the two families differ); and both ledger stages carry the audit keys
+  (`review_evidence_audited`).
+- **Does**: runs `/approve-review`'s step 0 and steps 1 to 6d (plan) or 1 to 4
+  and the implementation branch of step 6 (implementation) as one transaction,
+  with these differences: no confirmation text; the basis is
+  `resolve_policy_approval_basis`, `POLICY_SATISFIED`; the record carries
+  `policy_evidence` (the policy digest and source, the file, adopted and floor
+  digests, each requirement, both ledger stages' bundle ids, verdict hashes,
+  ledger-entry hashes and run references, and the `trust` statement) and its
+  `user_confirmation` is `policy:<digest>`; the gate is re-evaluated inside the
+  transaction, so a gate turned human meanwhile writes nothing; the commit adds
+  `Workflow-Gate-Satisfied-By: policy:<first 12 digest characters>`.
+- **Writes**: `plan_approval` or `technical_approval` and the phase, in the
+  existing approval commit; then, only if the committing evaluation observed a
+  setting stricter than the recorded floor, the floor in its own commit
+  (`Workflow-Gate-Policy-Floor`). A refused or `blocked` run writes and commits
+  nothing.
+- **Next**: `IMPLEMENTING` (plan) or `AWAITING_FUNCTIONAL_REVIEW`
+  (implementation), exactly as after `/approve-review`.
+- **Refuses**: a human gate or an unsatisfiable evaluation
+  (`GateNotSatisfiableError`, naming each unmet requirement and its remedy);
+  everything `/approve-review` refuses at the cited steps. `/approve-review`
+  remains the human path in either mode.
+- **Trust**: the Workflow guarantees binding, freshness and audit of the review
+  verdicts; it does not guarantee that a review happened. Turning human
+  approval on is the stronger mode.
+
 ### `/review-implementation [work-item-id]` — review command
 - **When**: optional, repeatable, repository-local second opinion while a
   bundle sits at `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` — usable before
@@ -1016,6 +1058,7 @@ The sequence, in full:
 /review-plan <child-id>                 → AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW
 /record-manual-plan-review <child-id>   → AWAITING_PLAN_APPROVAL
 /approve-review plan <child-id>         → IMPLEMENTING
+                                          (or /satisfy-gate plan <child-id>, where the gate is automatic)
 /milestone-implement <child-id>  (× N)  → SELF_REVIEWING_IMPLEMENTATION
                                         → AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW ("1"/"2.1")
                                         → AWAITING_LOCAL_IMPLEMENTATION_REVIEW ("2.2")
@@ -1023,6 +1066,7 @@ The sequence, in full:
                                         → AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW ("2.2" only)
 /record-manual-implementation-review <child-id>  ("2.2" only) → AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW
 /approve-review implementation <child-id> → AWAITING_FUNCTIONAL_REVIEW
+                                          (or /satisfy-gate implementation <child-id>, where the gate is automatic)
 /prepare-functional-review <child-id>
 /review-functional <child-id>           (optional)
 /accept-milestone <child-id>            → MILESTONE_COMPLETE

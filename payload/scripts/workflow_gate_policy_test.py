@@ -1877,7 +1877,7 @@ class TestCommandSentences(unittest.TestCase):
     #: `validate_bundle_generation_record_commit`), plus the adoption.
     SCOPED = {"approve-review.md", "milestone-implement.md", "apply-implementation-review.md",
               "apply-functional-review.md", "recover-implementation-provenance.md",
-              "adopt-gate-policy.md"}
+              "adopt-gate-policy.md", "satisfy-gate.md"}
     #: `bootstrap-workflow-v2.md` is the one-time driver for `workflow-v2-1-core`
     #: and is not part of any 2.8.0 flow.
     NOT_PART_OF_THE_FLOW = {"bootstrap-workflow-v2.md"}
@@ -2026,7 +2026,7 @@ class TestAllHumanEquivalence(unittest.TestCase):
             self.assertNotIn(g.FLOOR_KEY, repo.state(), "reading never writes the floor")
 
 
-class TestEvaluateGateSkeleton(unittest.TestCase):
+class TestEvaluateGateHuman(unittest.TestCase):
     def test_a_human_gate_evaluates_to_the_human_result(self):
         with PolicyRepo() as repo:
             repo.write_state(h.base_state(wi=h.base_work_item(governing_workflow_version="2.2")))
@@ -2045,7 +2045,8 @@ class TestEvaluateGateSkeleton(unittest.TestCase):
                 v1=h.base_work_item(work_item_id="v1", governing_workflow_version="1"),
                 v21=h.base_work_item(work_item_id="v21", governing_workflow_version="2.1"),
                 v22=h.base_work_item(work_item_id="v22", governing_workflow_version="2.2"))
-            modes = {(wi, gate): g.evaluate_gate(repo.root, state, wi, gate)["mode"]
+            effective = g.effective_policy(repo.root, state)
+            modes = {(wi, gate): g.gate_mode(effective, gate, state["work_items"][wi]["governing_workflow_version"])
                      for wi in ("v1", "v21", "v22") for gate in g.GATE_IDS}
             self.assertEqual(modes[("v1", "plan_approval")], "human")
             self.assertEqual(modes[("v1", "technical_approval")], "human")
@@ -2063,6 +2064,564 @@ class TestEvaluateGateSkeleton(unittest.TestCase):
                 g.evaluate_gate(repo.root, state, "wi", "nope")
             with self.assertRaises(g.GatePolicyError):
                 g.evaluate_gate(repo.root, state, "missing", "plan_approval")
+
+
+# ---------------------------------------------------------------------------
+# CP2: automatic plan and technical approvals, with audit evidence
+# ---------------------------------------------------------------------------
+
+import workflow_fingerprint as fingerprint
+
+WI = "wi"
+CLAUDE = "anthropic/claude-opus-5-5"
+OPENAI = "openai/gpt-5"
+LOCAL_PLAN = "LOCAL_MODEL_PLAN_REVIEW"
+MANUAL_PLAN = "MANUAL_EXTERNAL_PLAN_REVIEW"
+LOCAL_IMPL = "LOCAL_MODEL_IMPLEMENTATION_REVIEW"
+MANUAL_IMPL = "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW"
+
+
+def verdict_text(status: str, *, rcid: str, role: str, bundle: str | None = None, model: str | None = None,
+                 base: str | None = None, body_model: str | None = None) -> str:
+    lines = ["# Review Decision", "", f"Status: {status}", "", f"Reviewer role: {role}"]
+    if model is not None:
+        lines.append(f"Reviewer model: {model}")
+    if bundle is not None:
+        lines.append(f"Reviewed bundle ID: {bundle}")
+    if base is not None:
+        lines.append(f"Reviewed base commit: {base}")
+    lines += [f"Work item: {WI}", f"{fingerprint.FEEDBACK_REVIEW_CONTENT_ID_LABEL} {rcid}", "",
+              "## Blocking findings", "", "None."]
+    if body_model is not None:
+        lines += ["", f"Reviewer model: {body_model}"]
+    return "\n".join(lines) + "\n"
+
+
+def feedback_file(repo: h.ScratchRepo) -> Path:
+    return repo.root / ".ai-review" / WI / "feedback" / "REVIEW_FEEDBACK.md"
+
+
+def put_feedback(repo: h.ScratchRepo, text: str) -> Path:
+    path = feedback_file(repo)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+    return path
+
+
+def state_bytes(repo: h.ScratchRepo) -> bytes:
+    return (repo.root / STATE_REL).read_bytes()
+
+
+def record_local(repo: h.ScratchRepo, stage: str, rcid: str, bundle: str, *, model: str | None = CLAUDE) -> str:
+    """The local stage as the command records it: the verdict written, the
+    audit computed from the state read, the real writer."""
+    role = LOCAL_PLAN if stage == "plan" else LOCAL_IMPL
+    text = verdict_text("APPROVE", rcid=rcid, role=role, bundle=bundle, model=model, base=repo.base)
+    path = put_feedback(repo, text)
+    state = h.read_state(repo)
+    audit = ws.local_review_audit(repo.root, state, WI, stage, feedback_text=text, feedback_path=str(path))
+    writer = ws.record_local_plan_review if stage == "plan" else ws.record_local_implementation_review
+    h.write_state(repo, writer(state, WI, verdict="APPROVE", bundle_id=bundle, review_content_id=rcid,
+                               round=1, now="t-local", audit=audit))
+    return text
+
+
+def plan_at_manual(repo: h.ScratchRepo, *, gate_policy=None, local_model: str | None = CLAUDE,
+                   version: str = "2.2") -> tuple[str, str]:
+    """A two-stage item at `AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW`; the default
+    gate policy unless `gate_policy` says otherwise. Returns `(P, B)`."""
+    h.seed_bundle_item(repo, governing_workflow_version=version, phase="PLANNING", gate_policy=gate_policy)
+    P, B = h.publish_and_bind_plan_bundle(repo)
+    record_local(repo, "plan", P, B, model=local_model)
+    return P, B
+
+
+def implementation_at_manual(repo: h.ScratchRepo, *, gate_policy=None, local_model: str | None = CLAUDE) -> tuple[str, str]:
+    h.seed_bundle_item(repo, governing_workflow_version="2.2", phase="SELF_REVIEWING_IMPLEMENTATION",
+                       gate_policy=gate_policy)
+    repo.commit("implement", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+    rcid = h.generate_implementation_bundle(repo)
+    bundle = fingerprint.compute_bundle_id(repo.root / ".ai-review" / WI / "current")[0]
+    record_local(repo, "implementation", rcid, bundle, model=local_model)
+    return rcid, bundle
+
+
+def ingest(repo: h.ScratchRepo, stage: str, text: str, *, run_ref: str | None = "run-7") -> dict:
+    return ws.ingest_manual_review_verdict(
+        repo.root, WI, stage=stage, verdict_text=text, now="t-manual", two_stage_only=True, run_ref=run_ref)
+
+
+def manual_text(stage: str, rcid: str, bundle: str, status: str = "APPROVE", model: str | None = OPENAI,
+                base: str | None = None) -> str:
+    role = MANUAL_PLAN if stage == "plan" else MANUAL_IMPL
+    return verdict_text(status, rcid=rcid, role=role, bundle=bundle, model=model, base=base)
+
+
+def ledger_of(repo: h.ScratchRepo, stage: str) -> dict:
+    return h.read_state(repo)["work_items"][WI]["plan_review_stages" if stage == "plan" else "implementation_review_stages"]
+
+
+class TestReviewerModelParsing(unittest.TestCase):
+    def test_the_family_is_the_vendor_up_to_the_first_separator(self):
+        self.assertEqual(g.reviewer_family("Anthropic/Claude-Opus-5-5"), "anthropic")
+        self.assertEqual(g.reviewer_family("anthropic:opus"), "anthropic")
+        self.assertEqual(g.reviewer_family("gpt-5 turbo"), "gpt-5")
+        self.assertEqual(g.reviewer_family("  OpenAI/x "), "openai")
+        self.assertIsNone(g.reviewer_family(None))
+        self.assertIsNone(g.reviewer_family("   "))
+
+    def test_two_models_of_one_vendor_are_one_family(self):
+        met, detail = g.distinct_reviewer_models({"reviewer_model": "anthropic/opus"},
+                                                 {"reviewer_model": "anthropic/sonnet"})
+        self.assertFalse(met)
+        self.assertIn("anthropic", detail)
+        self.assertTrue(g.distinct_reviewer_models({"reviewer_model": CLAUDE}, {"reviewer_model": OPENAI})[0])
+        self.assertFalse(g.distinct_reviewer_models({"reviewer_model": CLAUDE}, {})[0])
+        self.assertFalse(g.distinct_reviewer_models(None, None)[0])
+
+    def test_the_line_is_read_from_the_header_and_never_from_the_body(self):
+        header = verdict_text("APPROVE", rcid="a" * 64, role=MANUAL_PLAN, model=CLAUDE)
+        self.assertEqual(fingerprint.parse_review_feedback_header(header)["reviewer_model"], CLAUDE)
+        body = verdict_text("APPROVE", rcid="a" * 64, role=MANUAL_PLAN, body_model=OPENAI)
+        self.assertIsNone(fingerprint.parse_review_feedback_header(body)["reviewer_model"])
+
+
+class TestAuditKeysAndTheIngestRefusal(unittest.TestCase):
+    def test_the_default_refuses_a_manual_approve_without_a_model_and_writes_nothing(self):
+        for stage, build in (("plan", plan_at_manual), ("implementation", implementation_at_manual)):
+            with self.subTest(stage=stage), h.ScratchRepo() as repo:
+                rcid, bundle = build(repo)
+                before = state_bytes(repo)
+                phase = h.read_state(repo)["work_items"][WI]["phase"]
+                text = manual_text(stage, rcid, bundle, model=None)
+                with self.assertRaises(ws.DistinctReviewerModelsRequiredError) as caught:
+                    ingest(repo, stage, text)
+                self.assertEqual(state_bytes(repo), before)
+                self.assertEqual(h.read_state(repo)["work_items"][WI]["phase"], phase)
+                self.assertFalse(feedback_file(repo).read_text() == text)
+                message = str(caught.exception)
+                self.assertIn("no `Reviewer model:`", message)
+                self.assertIn("second declared family", message)
+                self.assertIn("human_approval", message)
+                self.assertNotIn("adopt", message.lower(), "LPR-R19-001: the adoption is not a remedy here")
+
+    def test_an_equal_family_is_refused_naming_the_value(self):
+        with h.ScratchRepo() as repo:
+            P, B = plan_at_manual(repo)
+            before = state_bytes(repo)
+            with self.assertRaises(ws.DistinctReviewerModelsRequiredError) as caught:
+                ingest(repo, "plan", manual_text("plan", P, B, model="Anthropic/claude-sonnet-5-5"))
+            self.assertEqual(state_bytes(repo), before)
+            self.assertIn("'anthropic'", str(caught.exception))
+
+    def test_remedy_one_a_second_family_is_recorded_with_the_audit_keys(self):
+        for stage, build in (("plan", plan_at_manual), ("implementation", implementation_at_manual)):
+            with self.subTest(stage=stage), h.ScratchRepo() as repo:
+                rcid, bundle = build(repo)
+                text = manual_text(stage, rcid, bundle)
+                ingest(repo, stage, text)
+                ledger = ledger_of(repo, stage)
+                entry = ledger[MANUAL_PLAN if stage == "plan" else MANUAL_IMPL]
+                self.assertEqual(entry["reviewer_model"], OPENAI)
+                self.assertEqual(entry["run_ref"], "run-7")
+                self.assertEqual(entry["verdict_sha256"], __import__("hashlib").sha256(text.encode()).hexdigest())
+                local = ledger[LOCAL_PLAN if stage == "plan" else LOCAL_IMPL]
+                self.assertEqual(local["reviewer_model"], CLAUDE)
+                self.assertTrue(local["run_ref"].startswith(ws.LOCAL_RUN_REF_PREFIX + " "))
+                self.assertEqual(h.read_state(repo)["work_items"][WI]["phase"],
+                                 "AWAITING_PLAN_APPROVAL" if stage == "plan" else "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW")
+
+    def test_remedy_two_the_gate_turned_human_admits_the_same_verdict_with_2_7_0_bytes(self):
+        with h.ScratchRepo() as repo:
+            P, B = plan_at_manual(repo)
+            text = manual_text("plan", P, B, model=None)
+            with self.assertRaises(ws.DistinctReviewerModelsRequiredError):
+                ingest(repo, "plan", text)
+            (repo.root / POLICY_REL).write_text(json.dumps(PLAN_HUMAN))
+            ingest(repo, "plan", text)
+            entry = ledger_of(repo, "plan")[MANUAL_PLAN]
+            self.assertEqual(set(entry), {"bundle_id", "verdict", "round", "completed_at"})
+
+    def test_a_revise_is_admitted_with_no_line(self):
+        with h.ScratchRepo() as repo:
+            P, B = plan_at_manual(repo)
+            ingest(repo, "plan", manual_text("plan", P, B, status="REVISE", model=None))
+            self.assertEqual(h.read_state(repo)["work_items"][WI]["phase"], "REVISING_PLAN")
+
+    def test_all_human_writes_no_line_no_key_and_no_refusal(self):
+        for stage, build in (("plan", plan_at_manual), ("implementation", implementation_at_manual)):
+            with self.subTest(stage=stage), h.ScratchRepo() as repo:
+                rcid, bundle = build(repo, gate_policy=HUMAN, local_model=None)
+                ingest(repo, stage, manual_text(stage, rcid, bundle, model=None))
+                ledger = ledger_of(repo, stage)
+                for entry in (v for k, v in ledger.items() if k != "review_content_id"):
+                    self.assertEqual(set(entry), {"bundle_id", "verdict", "round", "completed_at"})
+
+    def test_no_require_adopted_before_the_bundle_admits_one_family(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo, governing_workflow_version="2.2", phase="PLANNING", gate_policy=None)
+            (repo.root / POLICY_REL).write_text(json.dumps(NO_REQUIRE))
+            ws.adopt_gate_policy(repo.root, confirmation=confirmation_for(NO_REQUIRE), now=now())
+            P, B = h.publish_and_bind_plan_bundle(repo)
+            record_local(repo, "plan", P, B, model=None)
+            ingest(repo, "plan", manual_text("plan", P, B, model=None))
+            entry = ledger_of(repo, "plan")[MANUAL_PLAN]
+            self.assertIn("verdict_sha256", entry)
+            self.assertNotIn("reviewer_model", entry)
+            self.assertTrue(g.evaluate_gate(repo.root, h.read_state(repo), WI, "plan_approval")["satisfiable"])
+
+    def test_an_adoption_at_the_open_phase_is_not_a_remedy(self):
+        with h.ScratchRepo() as repo:
+            P, B = plan_at_manual(repo)
+            (repo.root / POLICY_REL).write_text(json.dumps(NO_REQUIRE))
+            ws.adopt_gate_policy(repo.root, confirmation=confirmation_for(NO_REQUIRE), now=now())
+            before = state_bytes(repo)
+            with self.assertRaises(fingerprint.WorktreeOrHeadMismatchError):
+                ingest(repo, "plan", manual_text("plan", P, B, model=None))
+            self.assertEqual(state_bytes(repo), before)
+
+    def test_the_audit_validators_refuse_malformed_keys(self):
+        with h.ScratchRepo() as repo:
+            plan_at_manual(repo)
+            state = h.read_state(repo)
+            state["work_items"][WI]["plan_review_stages"][LOCAL_PLAN]["verdict_sha256"] = "nope"
+            with self.assertRaises(ws.InvalidLedgerAuditError):
+                ws.validate_state(state)
+
+
+class TestEvaluateGateAutomatic(unittest.TestCase):
+    def at_approval(self, repo):
+        P, B = plan_at_manual(repo)
+        text = manual_text("plan", P, B, base=repo.base)
+        ingest(repo, "plan", text)
+        return P, B
+
+    def met(self, evaluation) -> dict:
+        return {r["id"]: r["met"] for r in evaluation["requirements"]}
+
+    def test_a_satisfied_plan_gate(self):
+        with h.ScratchRepo() as repo:
+            P, B = self.at_approval(repo)
+            ev = g.evaluate_gate(repo.root, h.read_state(repo), WI, "plan_approval")
+            self.assertEqual(ev["mode"], "automatic")
+            self.assertTrue(ev["satisfiable"], ev["requirements"])
+            self.assertEqual(self.met(ev), {"gate_reachable": True, "verdict_approve_bound": True,
+                                            "distinct_reviewer_models": True, "review_evidence_audited": True})
+            self.assertEqual(ev["bundle_id"], B)
+            self.assertEqual(ev["evidence"]["review_content_id"], P)
+            self.assertEqual(ev["obtainable"], [])
+
+    def test_each_failing_input_is_unsatisfiable(self):
+        with h.ScratchRepo() as repo:
+            self.at_approval(repo)
+            state = h.read_state(repo)
+            base = g.evaluate_gate(repo.root, state, WI, "plan_approval")
+            self.assertTrue(base["satisfiable"])
+
+            drifted = copy.deepcopy(state)
+            stages = drifted["work_items"][WI]["plan_review_stages"]
+            stages["review_content_id"] = "f" * 64
+            self.assertFalse(g.evaluate_gate(repo.root, drifted, WI, "plan_approval")["satisfiable"])
+
+            unaudited = copy.deepcopy(state)
+            del unaudited["work_items"][WI]["plan_review_stages"][MANUAL_PLAN]["verdict_sha256"]
+            ev = g.evaluate_gate(repo.root, unaudited, WI, "plan_approval")
+            self.assertFalse(ev["satisfiable"])
+            self.assertFalse(self.met(ev)["review_evidence_audited"])
+            self.assertIn("human_approval", [r["detail"] for r in ev["requirements"]
+                                             if r["id"] == "review_evidence_audited"][0])
+
+            same = copy.deepcopy(state)
+            same["work_items"][WI]["plan_review_stages"][MANUAL_PLAN]["reviewer_model"] = "anthropic/other"
+            ev = g.evaluate_gate(repo.root, same, WI, "plan_approval")
+            self.assertFalse(self.met(ev)["distinct_reviewer_models"])
+
+            put_feedback(repo, manual_text("plan", "e" * 64, "d" * 64, status="REVISE"))
+            ev = g.evaluate_gate(repo.root, state, WI, "plan_approval")
+            self.assertFalse(ev["satisfiable"])
+            self.assertFalse(self.met(ev)["verdict_approve_bound"])
+
+    def test_a_human_gate_never_satisfies(self):
+        with h.ScratchRepo() as repo:
+            self.at_approval(repo)
+            (repo.root / POLICY_REL).write_text(json.dumps(PLAN_HUMAN))
+            ev = g.evaluate_gate(repo.root, h.read_state(repo), WI, "plan_approval")
+            self.assertEqual((ev["mode"], ev["satisfiable"]), ("human", False))
+            with self.assertRaises(ws.GateNotSatisfiableError):
+                ws.build_policy_approval_record(repo.root, h.read_state(repo), WI, "plan", now="t-sat")
+
+    def test_governing_versions_that_have_no_ledger_stay_human(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo, governing_workflow_version="2.1", phase="AWAITING_PLAN_APPROVAL", gate_policy=None)
+            state = h.read_state(repo)
+            self.assertEqual(g.evaluate_gate(repo.root, state, WI, "technical_approval")["mode"], "human")
+            self.assertEqual(g.evaluate_gate(repo.root, state, WI, "plan_approval")["mode"], "automatic")
+
+
+class TestPolicySatisfiedRecord(unittest.TestCase):
+    def build_plan(self, repo):
+        P, B = plan_at_manual(repo)
+        ingest(repo, "plan", manual_text("plan", P, B, base=repo.base))
+        return P, B, ws.build_policy_approval_record(repo.root, h.read_state(repo), WI, "plan", now="t-sat")
+
+    def test_the_plan_record_is_valid_and_complete(self):
+        with h.ScratchRepo() as repo:
+            P, B, record = self.build_plan(repo)
+            ws.validate_approval_record(record, stage="plan")
+            self.assertEqual(record["basis"], ws.POLICY_SATISFIED)
+            self.assertEqual(record["approved_review_content_id"], P)
+            self.assertEqual(record["reviewed_bundle_id"], B)
+            self.assertIsNone(record["reviewed_content_commit"])
+            evidence = record["policy_evidence"]
+            self.assertEqual(set(ws.POLICY_EVIDENCE_KEYS) - set(evidence), set())
+            self.assertEqual(record["user_confirmation"], f"policy:{evidence['policy_digest']}")
+            self.assertEqual(evidence["trust"], {"review_verdicts": "orchestrator"})
+            self.assertEqual(evidence["policy_source"], "default")
+            self.assertTrue(evidence["requirements"] and all(r["met"] for r in evidence["requirements"]))
+            ledger = evidence["inputs"]["ledger"]
+            for name in ("local", "manual"):
+                self.assertEqual(set(ledger[name]), {"bundle_id", "verdict", "round", "verdict_sha256",
+                                                     "ledger_entry_sha256", "run_ref", "reviewer_model"})
+                self.assertTrue(ledger[name]["verdict_sha256"] and ledger[name]["ledger_entry_sha256"])
+            self.assertEqual(evidence["inputs"]["review_content_id"], P)
+            self.assertEqual(ws.gate_satisfied_by_trailer(record), "policy:" + evidence["policy_digest"][:12])
+            state = ws.apply_plan_approval(h.read_state(repo), WI, record, "t-sat")
+            self.assertEqual(state["work_items"][WI]["phase"], "IMPLEMENTING")
+            self.assertEqual(state["work_items"][WI]["plan_approval"]["basis"], "POLICY_SATISFIED")
+
+    def test_the_record_shape_rules(self):
+        with h.ScratchRepo() as repo:
+            _P, _B, record = self.build_plan(repo)
+            bad = copy.deepcopy(record)
+            bad["user_confirmation"] = "I approve wi at the plan stage"
+            with self.assertRaises(ws.InvalidApprovalRecordError):
+                ws.validate_approval_record(bad, stage="plan")
+            bad = copy.deepcopy(record)
+            del bad["policy_evidence"]
+            with self.assertRaises(ws.InvalidApprovalRecordError):
+                ws.validate_approval_record(bad, stage="plan")
+            bad = copy.deepcopy(record)
+            del bad["policy_evidence"]["trust"]
+            with self.assertRaises(ws.InvalidApprovalRecordError):
+                ws.validate_approval_record(bad, stage="plan")
+            bad = copy.deepcopy(record)
+            bad["basis"] = "EXTERNAL_APPROVE"
+            with self.assertRaises(ws.InvalidApprovalRecordError):
+                ws.validate_approval_record(bad, stage="plan")
+            with self.assertRaises(ws.InvalidApprovalRecordError):
+                ws.validate_approval_record(record, stage="gate_policy")
+            with self.assertRaises(ws.InvalidApprovalRecordError):
+                ws.validate_policy_satisfied_confirmation("policy:other", "a" * 64)
+
+    def test_resolve_policy_approval_basis_never_returns_a_user_override(self):
+        with h.ScratchRepo() as repo:
+            P, B = plan_at_manual(repo)
+            ingest(repo, "plan", manual_text("plan", P, B, base=repo.base))
+            state = h.read_state(repo)
+            ev = g.evaluate_gate(repo.root, state, WI, "plan_approval")
+            self.assertEqual(ws.resolve_policy_approval_basis(state, WI, "plan", ev), ws.POLICY_SATISFIED)
+            override_case = dict(ev, satisfiable=False)
+            with self.assertRaises(ws.GateNotSatisfiableError):
+                ws.resolve_policy_approval_basis(state, WI, "plan", override_case)
+            with self.assertRaises(ws.GateNotSatisfiableError):
+                ws.resolve_policy_approval_basis(state, WI, "plan", dict(ev, gate="technical_approval"))
+
+    def test_a_pinned_block_refuses_the_technical_gate(self):
+        with h.ScratchRepo() as repo:
+            rcid, bundle = implementation_at_manual(repo)
+            ingest(repo, "implementation", manual_text("implementation", rcid, bundle, base=repo.base))
+            state = ws.record_technical_review_block_pin(
+                h.read_state(repo), WI, bundle_id=bundle, review_content_id=rcid, now="t-pin")
+            ev = {"gate": "technical_approval", "mode": "automatic", "satisfiable": True,
+                  "requirements": [], "bundle_id": bundle}
+            with self.assertRaises(ws.BlockCannotApproveError):
+                ws.resolve_policy_approval_basis(state, WI, "implementation", ev)
+
+    def test_the_toggle_turned_human_meanwhile_refuses_inside_the_transaction(self):
+        with h.ScratchRepo() as repo:
+            _P, _B, record = self.build_plan(repo)
+            state = h.read_state(repo)
+            ws.assert_policy_still_satisfied(repo.root, state, WI, "plan", record)
+            before = state_bytes(repo)
+            (repo.root / POLICY_REL).write_text(json.dumps(PLAN_HUMAN))
+            with self.assertRaises(ws.GateNotSatisfiableError):
+                ws.assert_policy_still_satisfied(repo.root, state, WI, "plan", record)
+            with self.assertRaises(ws.GateNotSatisfiableError):
+                ws.state_transaction(repo.root, lambda st: ws.apply_technical_approval(
+                    st, WI, ws.build_policy_approval_record(repo.root, st, WI, "plan", now="t"), "t"))
+            self.assertEqual(state_bytes(repo), before)
+
+    def test_a_changed_effective_policy_is_refused_even_when_still_automatic(self):
+        with h.ScratchRepo() as repo:
+            _P, _B, record = self.build_plan(repo)
+            tighter = {"schema_version": 1, "gates": {"technical_approval": {"human": True}}}
+            (repo.root / POLICY_REL).write_text(json.dumps(tighter))
+            with self.assertRaises(ws.GateNotSatisfiableError):
+                ws.assert_policy_still_satisfied(repo.root, h.read_state(repo), WI, "plan", record)
+
+    def test_the_technical_commit_passes_its_validator(self):
+        with h.ScratchRepo() as repo:
+            rcid, bundle = implementation_at_manual(repo)
+            ingest(repo, "implementation", manual_text("implementation", rcid, bundle, base=repo.base))
+            record = ws.build_policy_approval_record(repo.root, h.read_state(repo), WI, "implementation", now="t-sat")
+            self.assertEqual(record["reviewed_content_commit"],
+                             h.read_state(repo)["work_items"][WI]["reviewed_implementation_head"])
+            ws.state_transaction(repo.root, lambda st: ws.apply_technical_approval(st, WI, record, "t-sat"))
+            commit = h.commit_state(repo, "technical approval by policy", {
+                "Workflow-Technical-Approval": rcid, "Workflow-Work-Item": WI,
+                "Workflow-Gate-Satisfied-By": ws.gate_satisfied_by_trailer(record)})
+            ws.validate_technical_approval_commit(repo.root, commit, WI)
+            work_item = h.read_state(repo)["work_items"][WI]
+            ws.verify_post_approval_manifest_match(
+                repo.root, work_item, stage="implementation", base_commit=work_item["base_commit"], commit=commit)
+            self.assertEqual(work_item["phase"], "AWAITING_FUNCTIONAL_REVIEW")
+            self.assertEqual(work_item["technical_approval"]["basis"], "POLICY_SATISFIED")
+            self.assertEqual(ws.discover_technical_approval_commit(repo.root, WI, rcid, work_item["base_commit"]), commit)
+
+    def test_all_human_approve_review_records_are_unchanged(self):
+        with h.ScratchRepo() as repo:
+            rcid, _bundle = implementation_at_manual(repo, gate_policy=HUMAN, local_model=None)
+            record = ws.build_approval_record(
+                basis="EXTERNAL_APPROVE", stage="implementation", user_confirmation=f"wi implementation",
+                now="t", reviewed_bundle_id="b" * 64, approved_review_content_id=rcid,
+                review_content_manifest=[{"path": "x"}])
+            self.assertNotIn("policy_evidence", record)
+            self.assertEqual(g.evaluate_gate(repo.root, h.read_state(repo), WI, "technical_approval")["mode"], "human")
+
+
+class TestTrustBoundaryAndPlanCommit(unittest.TestCase):
+    """INV-9: a fabricated manual `APPROVE` satisfies an automatic gate (the
+    boundary is stated), names its hash and reporter, and satisfies nothing
+    under the human toggle or the master switch."""
+
+    def test_a_fabricated_manual_approve_satisfies_an_automatic_gate_and_is_named(self):
+        with h.ScratchRepo() as repo:
+            P, B = plan_at_manual(repo)
+            ingest(repo, "plan", manual_text("plan", P, B, base=repo.base), run_ref="orchestrator:fabricated-1")
+            state = h.read_state(repo)
+            ev = g.evaluate_gate(repo.root, state, WI, "plan_approval")
+            self.assertTrue(ev["satisfiable"], ev["requirements"])
+            record = ws.build_policy_approval_record(repo.root, state, WI, "plan", now="t-sat")
+            manual = record["policy_evidence"]["inputs"]["ledger"]["manual"]
+            self.assertEqual(manual["run_ref"], "orchestrator:fabricated-1")
+            self.assertEqual(len(manual["verdict_sha256"]), 64)
+            self.assertEqual(record["policy_evidence"]["trust"], {"review_verdicts": "orchestrator"})
+
+    def test_the_same_inputs_satisfy_nothing_under_the_toggle_or_the_master_switch(self):
+        for policy in (PLAN_HUMAN, HUMAN):
+            with h.ScratchRepo() as repo:
+                P, B = plan_at_manual(repo, gate_policy=policy, local_model=None)
+                ingest(repo, "plan", manual_text("plan", P, B, base=repo.base, model=None))
+                ev = g.evaluate_gate(repo.root, h.read_state(repo), WI, "plan_approval")
+                self.assertEqual((ev["mode"], ev["satisfiable"]), ("human", False))
+                with self.assertRaises(ws.GateNotSatisfiableError):
+                    ws.build_policy_approval_record(repo.root, h.read_state(repo), WI, "plan", now="t-sat")
+
+    def test_a_mismatched_bundle_id_does_not_satisfy(self):
+        with h.ScratchRepo() as repo:
+            P, B = plan_at_manual(repo)
+            ingest(repo, "plan", manual_text("plan", P, B, base=repo.base))
+            put_feedback(repo, manual_text("plan", P, "0" * 64, base=repo.base))
+            ev = g.evaluate_gate(repo.root, h.read_state(repo), WI, "plan_approval")
+            self.assertFalse(ev["satisfiable"])
+            self.assertFalse({r["id"]: r["met"] for r in ev["requirements"]}["verdict_approve_bound"])
+
+    def test_the_plan_commit_carries_the_trailers_and_the_policy_trailer(self):
+        with h.ScratchRepo() as repo:
+            P, B = plan_at_manual(repo)
+            ingest(repo, "plan", manual_text("plan", P, B, base=repo.base))
+            record = ws.build_policy_approval_record(repo.root, h.read_state(repo), WI, "plan", now="t-sat")
+            ws.state_transaction(repo.root, lambda st: ws.apply_plan_approval(st, WI, record, "t-sat"))
+            commit = h.commit_state(repo, "approve the plan by policy", {
+                "Workflow-Plan-Approval": P, "Workflow-Work-Item": WI,
+                "Workflow-Gate-Satisfied-By": ws.gate_satisfied_by_trailer(record)})
+            message = h.git(repo, "log", "-1", "--format=%B", commit)
+            work_item = h.read_state(repo)["work_items"][WI]
+            self.assertEqual(work_item["plan_approval"]["basis"], "POLICY_SATISFIED")
+            self.assertEqual(work_item["phase"], "IMPLEMENTING")
+            self.assertIn("Workflow-Gate-Satisfied-By: policy:", message)
+            self.assertIn("Workflow-Plan-Approval: " + P, message)
+
+
+class TestVerifyWarnsOnAnUnreferencedRun(unittest.TestCase):
+    def test_a_null_run_ref_is_a_warning_and_a_given_one_is_not(self):
+        with h.ScratchRepo() as repo:
+            P, B = plan_at_manual(repo)
+            ingest(repo, "plan", manual_text("plan", P, B, base=repo.base), run_ref=None)
+            state = h.read_state(repo)
+            status, detail = g.verify_check(repo.root, state)
+            self.assertEqual(status, "warn")
+            self.assertIn("without a run_ref", detail)
+            self.assertIn(f"{WI}/{MANUAL_PLAN}", detail)
+            self.assertNotIn(f"{WI}/{LOCAL_PLAN}", detail, "the local stage records session:local")
+        with h.ScratchRepo() as repo:
+            P, B = plan_at_manual(repo)
+            ingest(repo, "plan", manual_text("plan", P, B, base=repo.base), run_ref="orchestrator:run-1")
+            self.assertEqual(g.verify_check(repo.root, h.read_state(repo))[0], "pass")
+
+
+class TestCommandTextAgreement(unittest.TestCase):
+    COMMANDS = REPO_ROOT / ".claude" / "commands"
+
+    def text(self, name: str) -> str:
+        return " ".join((self.COMMANDS / name).read_text().split())
+
+    def test_satisfy_gate_is_a_non_user_only_writer_citing_approve_review_steps(self):
+        raw = (self.COMMANDS / "satisfy-gate.md").read_text()
+        front = raw.split("---")[1]
+        self.assertNotIn("disable-model-invocation", front)
+        self.assertIn("state_writer: true", front)
+        text = self.text("satisfy-gate.md")
+        for sentence in ("resolve_policy_approval_basis", "build_policy_approval_record",
+                         "assert_policy_still_satisfied", "Workflow-Gate-Satisfied-By",
+                         "Workflow-Plan-Approval", "Workflow-Technical-Approval",
+                         "validate_technical_approval_commit", "verify_post_approval_manifest_match",
+                         "`/approve-review` stays the human path", "step 7", "I21"):
+            self.assertIn(sentence, text if sentence != "step 7" else text.replace("Step 7", "step 7"))
+
+    def test_every_approve_review_step_cited_exists(self):
+        satisfy = self.text("satisfy-gate.md")
+        approve = (self.COMMANDS / "approve-review.md").read_text()
+        steps = set(re.findall(r"(?m)^(\d+[a-z]?\d?)\. \*\*", approve))
+        cited = set(re.findall(r"[Ss]teps? (\d+[a-z]?)", satisfy)) | set(re.findall(r"6\.(\d)", satisfy))
+        for step in cited - {"1", "2", "3", "4", "6", "7", "5"}:
+            self.assertIn(step, steps | {"4a", "4b", "4c", "6a", "6b", "6c", "6d"})
+
+    def test_the_reviewer_commands_request_the_line_only_for_an_automatic_requiring_gate(self):
+        for name in ("review-plan.md", "review-implementation.md"):
+            text = self.text(name)
+            self.assertIn("Reviewer model: <vendor>/<model>", text, name)
+            self.assertIn("requires_distinct", text, name)
+            self.assertIn("2.7.0", text, name)
+        for name in ("record-manual-plan-review.md", "record-manual-implementation-review.md"):
+            text = self.text(name)
+            self.assertIn("DistinctReviewerModelsRequiredError", text, name)
+            self.assertIn("byte-identical", text, name)
+            self.assertNotIn("/adopt-gate-policy", text, name)
+        for name in ("milestone-plan.md", "apply-plan-review.md", "milestone-implement.md",
+                     "apply-implementation-review.md"):
+            text = self.text(name)
+            self.assertIn("Reviewer model: <vendor>/<model>", text, name)
+            self.assertIn("LPR-R16-003", text, name)
+        protocol = " ".join((REPO_ROOT / "docs/ai-workflow/REVIEW_PROTOCOL.md").read_text().split())
+        self.assertIn("`Reviewer model:` (workflow-2.8.0, optional)", protocol)
+
+    def test_the_protocol_ingest_passes_the_reporters_run_ref(self):
+        with h.ScratchRepo() as repo:
+            P, B = plan_at_manual(repo)
+            text = manual_text("plan", P, B, base=repo.base)
+            put_feedback(repo, text)
+            import io, contextlib
+            out = io.StringIO()
+            outside = tempfile.TemporaryDirectory()
+            self.addCleanup(outside.cleanup)
+            path = Path(outside.name) / "verdict.md"
+            path.write_text(text)
+            with contextlib.redirect_stdout(out):
+                code = wp.main(["--repo-root", str(repo.root), "record-external-result", "--work-item", WI,
+                                "--kind", "plan_review_verdict", "--input", str(path), "--run-ref", "orchestrator:run-42"])
+            self.assertEqual(code, 0, out.getvalue())
+            self.assertEqual(ledger_of(repo, "plan")[MANUAL_PLAN]["run_ref"], "orchestrator:run-42")
 
 
 if __name__ == "__main__":

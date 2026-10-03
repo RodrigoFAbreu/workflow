@@ -3416,17 +3416,36 @@ def parse_feedback_review_content_id(content: str) -> str | None:
     return values.pop() if len(values) == 1 else None
 
 
+_FEEDBACK_REVIEWER_MODEL_RE = re.compile(
+    r"^[ \t]*(?:[-*][ \t]+)?`?Reviewer model:`?[ \t]*(\S.*?)[ \t]*$", re.MULTILINE | re.IGNORECASE)
+
+
+def parse_feedback_reviewer_model(content: str) -> str | None:
+    """The `Reviewer model: <vendor>/<model>` a `REVIEW_FEEDBACK.md` declares
+    (workflow-2.8.0, `D-GP-Gates`, `LPR-R17-O2`), header-only exactly like
+    `parse_feedback_review_content_id`: only within the leading header block
+    (`feedback_header_block`), never from a body line, so a verdict that
+    quotes the text in its body declares nothing. The value is returned as
+    written, trimmed. `None` when absent, or when the header states more than
+    one distinct value -- an ambiguous statement never matches."""
+    header = feedback_header_block(content)
+    values = {match.group(1).strip() for match in _FEEDBACK_REVIEWER_MODEL_RE.finditer(header)}
+    return values.pop() if len(values) == 1 else None
+
+
 def parse_review_feedback_header(content: str) -> dict[str, str | None]:
     """The single verdict parser (`D-Feedback-Label`, workflow-2.7.0):
     `status`, `reviewed_bundle_id`, `reviewed_base_commit` and `work_item`
     from `parse_review_feedback_binding_fields` (whole-file, as in 2.6.0),
     `reviewer_role` by the same whole-file first-match convention, and
-    `review_content_id` from `parse_feedback_review_content_id`, the one
-    header-only field. Each key is `None` when absent."""
+    `review_content_id` from `parse_feedback_review_content_id` and
+    `reviewer_model` from `parse_feedback_reviewer_model`, the two
+    header-only fields. Each key is `None` when absent."""
     fields: dict[str, str | None] = dict(parse_review_feedback_binding_fields(content))
     role_match = _FEEDBACK_REVIEWER_ROLE_RE.search(content)
     fields["reviewer_role"] = role_match.group(1) if role_match else None
     fields["review_content_id"] = parse_feedback_review_content_id(content)
+    fields["reviewer_model"] = parse_feedback_reviewer_model(content)
     return fields
 
 

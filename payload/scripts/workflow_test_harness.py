@@ -78,6 +78,10 @@ from pathlib import Path
 SCHEMA_VERSION = 1
 
 
+#: The policy 2.7.0's behaviour is pinned under: every gate human.
+ALL_HUMAN_GATE_POLICY: dict = {"schema_version": 1, "human_approval": True}
+
+
 def _run(args: list[str], cwd: Path) -> None:
     subprocess.run(args, cwd=cwd, check=True, capture_output=True, text=True)
 
@@ -399,7 +403,7 @@ def commit_state(repo: ScratchRepo, subject: str, trailers: dict[str, str] | Non
 def seed_bundle_item(
     repo: ScratchRepo, work_item_id: str = "wi", *, governing_workflow_version: str = "2.2",
     phase: str = "AWAITING_LOCAL_PLAN_REVIEW", registry_checkpoints: list[dict] | None = None,
-    **overrides: object,
+    gate_policy: dict | None = ALL_HUMAN_GATE_POLICY, **overrides: object,
 ) -> dict:
     """Seeds one fully declared work item: `.gitignore` excluding
     `.ai-review/` and `__pycache__/` (as an installation's does), the
@@ -414,6 +418,14 @@ def seed_bundle_item(
 
     (repo.root / ".gitignore").write_text(".ai-review/\n__pycache__/\n")
     install_workflow_scripts(repo)
+    if gate_policy is not None:
+        # Workflow 2.8.0's default policy makes the plan and technical gates
+        # automatic; the 2.7.0 behaviours these fixtures pin run under the
+        # all-human policy (a committed file, stricter than the default, needs
+        # no adoption). A test of the automatic gates passes `gate_policy=None`
+        # (the default) or its own body.
+        (repo.root / "docs" / "ai-workflow").mkdir(parents=True, exist_ok=True)
+        (repo.root / "docs" / "ai-workflow" / "GATE_POLICY.json").write_text(json.dumps(gate_policy) + "\n")
     registry_text = json.dumps({
         "schema_version": SCHEMA_VERSION, "work_item_id": work_item_id, "plan_revision": 1,
         "checkpoints": registry_checkpoints or [],

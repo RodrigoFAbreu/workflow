@@ -124,3 +124,42 @@ refresh, W1 complete including the cutover and W2 in progress).
   `workflow_test_harness_test.py` 22 OK; `tools/release/release_test.py` 79 OK
   under the pinned runtime. `workflow-manager verify .`: installation matches
   workflow 2.6.0.
+
+## `CP2` — Automatic plan and technical approvals, with audit evidence
+
+Requirements: REQ-4 (plan and implementation approvals satisfied by current
+local plus independent cross-model review evidence, every existing
+precondition retained, distinct reviewer families by default, an auditable
+record), REQ-12 (the trust boundary for review verdicts, CP2's part).
+
+- **Implementation** (release source only):
+  - `payload/scripts/workflow_gate_policy.py`: `evaluate_gate` for
+    `plan_approval` and `technical_approval` (wrapper `reachable`, `APPROVE`
+    bound to the recomputed bundle id, `distinct_reviewer_models`,
+    `review_evidence_audited`), `distinct_reviewer_models`, `reviewer_family`,
+    `ledger_entry_sha256`.
+  - `payload/scripts/workflow_fingerprint.py`: `parse_review_feedback_header`
+    returns `reviewer_model`, header-only (`parse_feedback_reviewer_model`).
+  - `payload/scripts/workflow_state.py`: `POLICY_SATISFIED`,
+    `resolve_policy_approval_basis`, `validate_policy_satisfied_confirmation`,
+    `build_policy_evidence`, `build_policy_approval_record`,
+    `assert_policy_still_satisfied`, `gate_satisfied_by_trailer`; the optional
+    `reviewer_model`, `verdict_sha256` and `run_ref` ledger keys and their
+    validators; `review_stage_audit`/`local_review_audit`; the D-GP-Ingest
+    refusal (`assert_ingest_reviewer_model_admissible`) raised before any write.
+  - `payload/scripts/workflow_protocol.py`: `record-external-result` carries
+    the reporter's `--run-ref`.
+  - `payload/.claude/commands/satisfy-gate.md` (new; `plan` and
+    `implementation`); the pointer in `approve-review.md`; the
+    `Reviewer model:` request in the reviewer, record-manual and author
+    commands and in `REVIEW_PROTOCOL.md`; `ORCHESTRATION_PROTOCOL.md` and the
+    operator reference section for `/satisfy-gate`.
+  - Tests: `workflow_gate_policy_test.py` (CP2 classes, including the trust
+    boundary, fabricated inputs, the toggle and master switch, and the plan
+    commit trailers), `workflow_fingerprint_test.py`,
+    `workflow_integration_test.py` (golden hashes, command count 19, roster).
+- **Deferred inside the plan's ordering**: `acceptance` in `/satisfy-gate` is
+  CP4's; the next-action rows are CP6's; the guide chapters are CP7's.
+- **Note**: `workflow_integration_test.py` reads the git toplevel as the
+  installed layout, so it is run in a fixture built from `payload/` (plus
+  `CLAUDE.md` and `docs/ACTIVE_MILESTONE.md`), not in place.

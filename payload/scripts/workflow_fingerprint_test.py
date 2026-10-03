@@ -3334,8 +3334,23 @@ class TestPinnedReviewContentIdLabel(unittest.TestCase):
                 "reviewed_base_commit": "c" * 40,
                 "work_item": "orchestration-protocol-v1",
                 "review_content_id": FAKE_ID_B,
+                "reviewer_model": None,
             },
         )
+
+    def test_reviewer_model_is_read_from_the_header_block_only(self):
+        # CP2 (`LPR-R17-O1`, `LPR-R17-O2`): the declared `<vendor>/<model>` form
+        # parses from the header; the same text quoted in the body declares nothing.
+        header = self._verdict(
+            f"Reviewed review_content_id: {FAKE_ID_B}", "Reviewer model: anthropic/claude-opus-5-5")
+        self.assertEqual(wf.parse_review_feedback_header(header)["reviewer_model"], "anthropic/claude-opus-5-5")
+        body_only = self._verdict(
+            f"Reviewed review_content_id: {FAKE_ID_B}",
+            body="- The reviewer wrote\nReviewer model: openai/x\nin the paste.\n")
+        self.assertIsNone(wf.parse_review_feedback_header(body_only)["reviewer_model"])
+        conflicting = self._verdict(
+            f"Reviewed review_content_id: {FAKE_ID_B}", "Reviewer model: a/b", "Reviewer model: c/d")
+        self.assertIsNone(wf.parse_feedback_reviewer_model(conflicting), "an ambiguous statement never matches")
 
     def test_finding_quoting_another_id_leaves_the_parse_intact(self):
         content = self._verdict(

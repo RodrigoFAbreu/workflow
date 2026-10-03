@@ -30,6 +30,13 @@ argument. `<feedback_dir>` takes no stage argument at either stage.
 a `feedback_layout: "scoped"` item; the unchanged legacy scoped-else-flat
 rule for an item without the field.
 
+**Gate policy** (workflow-2.8.0): where a plan or technical gate is `automatic`
+under `docs/ai-workflow/GATE_POLICY.json` and every requirement is met,
+`/satisfy-gate` records the approval from the policy instead, citing this
+command's steps by number. This command stays the human path for every gate in
+either mode, unchanged, and records `EXTERNAL_APPROVE` or `USER_OVERRIDE`
+exactly as before; it never writes `POLICY_SATISFIED`.
+
 **This command is user-only by construction.** `disable-model-invocation:
 true` is the primary, harness-enforced control (blocks the SlashCommand
 tool). Claude must never invoke it on the user's own behalf, including as a

@@ -223,7 +223,12 @@ rule for an item without the field.
    (`assert_review_request_states_review_content_id`), obtained from the
    single canonical entry point `docs/ai-workflow/REVIEW_PROTOCOL.md`'s
    "Computing `review_content_id`" names for this stage -- never a second,
-   ad hoc computation. Then
+   ad hoc computation. If the implementation stage's gate is `automatic` and the effective `require` lists
+   `distinct_reviewer_models` (`workflow_state.review_stage_gate_context(repo_root,
+   state, work_item_id, "implementation")["requires_distinct"]`), also ask the reviewer, in
+   that file, to state `Reviewer model: <vendor>/<model>` in the verdict's header
+   block, because an `APPROVE` without it is refused at ingest (workflow-2.8.0,
+   `LPR-R16-003`); under a human gate ask for nothing new. Then
    run `./scripts/prepare-ai-review.sh <base-sha> post-fix [work_item_id]`
    — required before `AWAITING_TECHNICAL_APPROVAL` can be reachable again.
 8. If any Blocking finding remains unresolved, or the fix was structurally
