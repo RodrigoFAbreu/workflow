@@ -55,6 +55,16 @@ Run the functional review checklist below in disposable scratch clones, then
 file and run `/apply-functional-review`. The W1 checklist further down is the
 previous milestone's record.
 
+**Functional review round 2:** all flows passed except the ROADMAP check
+(finding F1, round 1's F2 still open): the 2.8.0 entry and section 1.9 said the
+default policy equals the 2.7.0 gates and that Controller 1.5.0 does not admit
+2.8.0. Classified as documentation, no code change; fixed in `docs/ROADMAP.md`
+(human approval off by default, a person restores the 2.7.0 gates with
+`human_approval`; Controller 1.7.0 admits 2.8.0 by protocol capability, its C10
+consumes the gate policy). `docs/ROADMAP.md` is excluded at both stages, so
+`technical_approval` stays CURRENT and no bundle is regenerated. Nothing was
+deferred to a remediation child. Re-test: re-read ROADMAP lines 201, 207, 663.
+
 ## Functional review checklist
 
 W2 is a `process` milestone: the "product" is Workflow 2.8.0 (the gate policy,

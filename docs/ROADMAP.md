@@ -198,13 +198,13 @@ Open, reported by the protocol rather than fixed: `v2.6.0-003` (see the Defect D
 
 Delivered:
 
-- a declarative gate policy (`GATE_POLICY.json`, master switch and per-gate overrides, tighten-only against a recorded floor, content-verified adoption that survives squash merges): plan and technical approval satisfiable by current local plus independent cross-model review evidence, functional validation by configured evidence, acceptance evaluated from evidence; the default policy equals the 2.7.0 gates exactly;
+- a declarative gate policy (`GATE_POLICY.json`, master switch and per-gate overrides, tighten-only against a recorded floor, content-verified adoption that survives squash merges): plan and technical approval satisfiable by current local plus independent cross-model review evidence, functional validation by configured evidence, acceptance evaluated from evidence; human approval is off by default: with no policy adopted the three gates are automatic on their evidence, and a person restores the 2.7.0 gates by turning `human_approval` on (the master switch, or per gate);
 - `scripts/workflow_gate_policy.py`, `scripts/workflow_forge.py` (GitHub-sourced pull-request facts), `/adopt-gate-policy`, `/satisfy-gate`, `/apply-pr-review` and the operator guide `docs/ai-workflow/GATE_POLICY.md`;
 - reopening the same work item into remediation when a pull request is red or has `CHANGES_REQUESTED`;
 - Orchestration Protocol 1.1: the gate rows, validation actions, evidence kinds and schema, with a golden all-human equivalence matrix against the 2.7.0 modules;
 - a new conformance suite, `workflow_gate_policy_test.py`, run by `workflow-conformance.yml` (nine suites).
 
-Compatibility: with no policy adopted, behaviour is the 2.7.0 behaviour. Workflow Controller 1.5.0 does not admit 2.8.0; its C10 consumes it.
+Compatibility: with no policy adopted, the three gates are automatic on their evidence; a person restores the 2.7.0 gates by turning `human_approval` on (the master switch, or per gate). Workflow Controller 1.7.0 (C9, released 2026-10-03) admits 2.8.0 by protocol capability; the Controller's C10 consumes the gate policy.
 
 ---
 
@@ -660,7 +660,7 @@ Workflow 3.x   ─┘
 
 ## Gate and validation policy must be declarative
 
-**Delivered in Workflow 2.8.0** (W2, milestone `gate-policy-and-reopening`; pending cutover): `GATE_POLICY.json`, `scripts/workflow_gate_policy.py`, `/adopt-gate-policy`, `/satisfy-gate` and `docs/ai-workflow/GATE_POLICY.md`. The default policy equals today's gates exactly.
+**Delivered in Workflow 2.8.0** (W2, milestone `gate-policy-and-reopening`; pending cutover): `GATE_POLICY.json`, `scripts/workflow_gate_policy.py`, `/adopt-gate-policy`, `/satisfy-gate` and `docs/ai-workflow/GATE_POLICY.md`. Human approval is off by default: with no policy adopted the three gates are automatic on their evidence, and a person restores the 2.7.0 gates by turning `human_approval` on (the master switch, or per gate).
 
 Workflow must own the meaning of lifecycle gates rather than assuming today's user-gate layout forever.
 
