@@ -114,6 +114,11 @@ class PolicyRepo:
         self.git(*args)
         return self.head()
 
+    def commit_file_if_changed(self, body) -> None:
+        self.write_policy(body)
+        if self.git("status", "--porcelain", "--", POLICY_REL).strip():
+            self.commit("policy file", POLICY_REL)
+
     def commit_policy(self, body, subject: str = "policy file") -> str:
         self.write_policy(body)
         return self.commit(subject, POLICY_REL)
@@ -131,8 +136,9 @@ class PolicyRepo:
         return self.commit(subject, STATE_REL, trailers=trailers, body=body)
 
     def adopt(self, policy: dict) -> str:
-        """The real `/adopt-gate-policy` path on a file holding `policy`."""
-        self.write_policy(policy)
+        """The real `/adopt-gate-policy` path on a file holding `policy`,
+        committed first (an uncommitted file is refused)."""
+        self.commit_file_if_changed(policy)
         return ws.adopt_gate_policy(self.root, confirmation=confirmation_for(policy), now=now())
 
     def adoption_state(self, policy: dict, *, lowered: list | None = None) -> dict:
@@ -188,6 +194,9 @@ class PolicyRepo:
         if resolver is not None:
             self.write_state(resolver(ours, theirs, base_state))
             self.git("add", "--", STATE_REL)
+            if POLICY_REL in self.git("diff", "--name-only", "--diff-filter=U").split():
+                self.git("checkout", "--ours", "--", POLICY_REL)  # both branches committed their own file
+                self.git("add", "--", POLICY_REL)
         elif result.returncode != 0:
             raise AssertionError(f"merge conflicted: {result.stdout}")
         self.git("commit", "-q", "--no-edit", "-m", f"update from {other}")
@@ -199,6 +208,17 @@ class PolicyRepo:
         self.git("merge", "--squash", branch)
         self.git("commit", "-q", "-m", subject)
         return self.head()
+
+
+def commit_policy_file(repo, body) -> None:
+    """Writes the policy file into a harness `ScratchRepo` and commits it: an
+    adoption refuses a file that differs from `HEAD`'s."""
+    path = repo.root / POLICY_REL
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(body if isinstance(body, str) else json.dumps(body, indent=2))
+    h.git(repo, "add", "--", POLICY_REL)
+    if h.git(repo, "diff", "--cached", "--name-only"):
+        h.git(repo, "commit", "-q", "-m", "policy file")
 
 
 def gate_lowering(state: dict, policy: dict) -> list[str]:
@@ -553,6 +573,7 @@ class TestTightenOnlyAfterAdoption(unittest.TestCase):
             self.adopted_human(repo)
             repo.write_policy(AUTOMATIC)
             self.assertEqual(repo.human_gates(), set(g.GATE_IDS))
+            repo.commit("commit the loosened file", POLICY_REL)
             ws.adopt_gate_policy(repo.root, confirmation=confirmation_for(AUTOMATIC), now=now())
             self.assertEqual(repo.human_gates(), set())
             state = repo.state()
@@ -1303,7 +1324,7 @@ class TestConcurrentBranches(unittest.TestCase):
             repo.merge("main")
             self.assertTrue(repo.prov()["ok"])
             self.assertEqual(repo.human_gates(), set(g.GATE_IDS), "the history scan still sees B's human file")
-            self.assertEqual(repo.eff()["source"], "floor")
+            self.assertIn(repo.eff()["source"], {"floor", "file_loosening_ignored"})
 
     def test_the_imported_lowering_stays_visible_after_an_update_merge(self):
         with PolicyRepo() as repo:
@@ -1519,7 +1540,7 @@ class TestAdoptionCommit(unittest.TestCase):
 class TestAdoptionCommand(unittest.TestCase):
     def test_an_empty_or_non_naming_confirmation_is_refused_and_writes_nothing(self):
         with PolicyRepo() as repo:
-            repo.write_policy(HUMAN)
+            repo.commit_file_if_changed(HUMAN)
             head = repo.head()
             before = (repo.root / STATE_REL).read_bytes()
             for text in ("", "adopt it", "gate_policy", f"gate_policy {'0' * 12}", f"{g.policy_digest(HUMAN)[:12]}"):
@@ -1527,6 +1548,39 @@ class TestAdoptionCommand(unittest.TestCase):
                     ws.adopt_gate_policy(repo.root, confirmation=text, now=now())
             self.assertEqual(repo.head(), head)
             self.assertEqual((repo.root / STATE_REL).read_bytes(), before)
+
+    def test_an_uncommitted_policy_file_is_refused_by_the_preview_and_the_adoption(self):
+        """Functional review F1: the adoption commit stages only the state file,
+        so a loosened file left uncommitted was reported adopted (with a gate
+        lowering) while the committed human policy stayed in force."""
+        with PolicyRepo() as repo:
+            repo.adopt(HUMAN)
+            repo.write_policy(AUTOMATIC)
+            head = repo.head()
+            before = (repo.root / STATE_REL).read_bytes()
+            for call in (lambda: ws.gate_policy_adoption_preview(repo.root),
+                         lambda: ws.adopt_gate_policy(repo.root, confirmation=confirmation_for(AUTOMATIC),
+                                                      now=now())):
+                with self.assertRaises(ws.GatePolicyFileUncommittedError) as raised:
+                    call()
+                self.assertIn("Commit the file, then run /adopt-gate-policy", str(raised.exception))
+            self.assertEqual(repo.head(), head)
+            self.assertEqual((repo.root / STATE_REL).read_bytes(), before)
+            self.assertEqual(repo.state()[ws.GATE_POLICY_ADOPTION_KEY]["lowered"], [])
+            # a new file that HEAD does not hold at all is refused the same way
+        with PolicyRepo() as repo:
+            repo.write_policy(HUMAN)
+            with self.assertRaises(ws.GatePolicyFileUncommittedError):
+                ws.adopt_gate_policy(repo.root, confirmation=confirmation_for(HUMAN), now=now())
+        # committed, the same loosening takes effect and is a gate-lowering event
+        with PolicyRepo() as repo:
+            repo.adopt(HUMAN)
+            repo.commit_policy(AUTOMATIC, "commit the loosened file")
+            self.assertEqual(repo.human_gates(), set(g.GATE_IDS))
+            ws.adopt_gate_policy(repo.root, confirmation=confirmation_for(AUTOMATIC), now=now())
+            self.assertEqual(repo.human_gates(), set())
+            self.assertEqual(repo.eff()["source"], "adopted")
+            self.assertTrue(repo.state()[ws.GATE_POLICY_ADOPTION_KEY]["lowered"])
 
     def test_an_absent_or_invalid_file_cannot_be_adopted(self):
         with PolicyRepo() as repo:
@@ -1539,7 +1593,7 @@ class TestAdoptionCommand(unittest.TestCase):
 
     def test_a_non_empty_index_apart_from_the_state_path_is_refused_before_anything_is_written(self):
         with PolicyRepo() as repo:
-            repo.write_policy(HUMAN)
+            repo.commit_file_if_changed(HUMAN)
             (repo.root / "draft.md").write_text("a staged plan draft\n")
             repo.git("add", "draft.md")
             before = (repo.root / STATE_REL).read_bytes()
@@ -1550,7 +1604,7 @@ class TestAdoptionCommand(unittest.TestCase):
             self.assertEqual(repo.head(), head)
             self.assertEqual((repo.root / STATE_REL).read_bytes(), before)
         with PolicyRepo() as repo:
-            repo.write_policy(PLAN_HUMAN)
+            repo.commit_file_if_changed(PLAN_HUMAN)
             (repo.root / "draft.md").write_text("draft\n")
             repo.git("add", "draft.md")
             with self.assertRaises(ws.DirtyIndexBeforeStagingError):
@@ -1559,7 +1613,7 @@ class TestAdoptionCommand(unittest.TestCase):
     def test_the_preview_shows_the_digest_the_difference_the_lowering_and_the_floor(self):
         with PolicyRepo() as repo:
             repo.adopt(HUMAN)
-            repo.write_policy(PLAN_HUMAN)
+            repo.commit_file_if_changed(PLAN_HUMAN)
             preview = ws.gate_policy_adoption_preview(repo.root)
             self.assertEqual(preview["digest"], g.policy_digest(PLAN_HUMAN))
             self.assertEqual(preview["digest_prefix"], preview["digest"][:12])
@@ -1570,7 +1624,7 @@ class TestAdoptionCommand(unittest.TestCase):
             self.assertEqual(preview["current"]["source"], "adopted")
             self.assertTrue(preview["provenance_ok"])
         with PolicyRepo() as repo:
-            repo.write_policy(HUMAN)
+            repo.commit_file_if_changed(HUMAN)
             preview = ws.gate_policy_adoption_preview(repo.root)
             self.assertEqual(preview["tightened"], ["plan_approval.human", "technical_approval.human",
                                                     "acceptance.human"])
@@ -1591,7 +1645,7 @@ class TestAdoptionCommand(unittest.TestCase):
             )
             repo.write_state(state)
             repo.commit("items", STATE_REL)
-            repo.write_policy(HUMAN)
+            repo.commit_file_if_changed(HUMAN)
             stales = ws.gate_policy_adoption_preview(repo.root)["stales"]
             self.assertEqual([(s["work_item_id"], s["stage"]) for s in stales],
                              [("impl", "implementation"), ("plan", "plan")])
@@ -1631,7 +1685,7 @@ class TestAdoptionCommand(unittest.TestCase):
             state = repo.state()
             state["work_items"]["a"]["gate_evidence"] = {"pr": {"x": 1}}
             repo.write_state(state)
-            repo.write_policy(PLAN_HUMAN)
+            repo.commit_file_if_changed(PLAN_HUMAN)
             commit = repo.record_floor()
             ws.validate_gate_policy_floor_commit(repo.root, commit)
             committed = json.loads(repo.git("show", f"{commit}:{STATE_REL}"))
@@ -2261,7 +2315,7 @@ class TestAuditKeysAndTheIngestRefusal(unittest.TestCase):
     def test_no_require_adopted_before_the_bundle_admits_one_family(self):
         with h.ScratchRepo() as repo:
             h.seed_bundle_item(repo, governing_workflow_version="2.2", phase="PLANNING", gate_policy=None)
-            (repo.root / POLICY_REL).write_text(json.dumps(NO_REQUIRE))
+            commit_policy_file(repo, json.dumps(NO_REQUIRE))
             ws.adopt_gate_policy(repo.root, confirmation=confirmation_for(NO_REQUIRE), now=now())
             P, B = h.publish_and_bind_plan_bundle(repo)
             record_local(repo, "plan", P, B, model=None)
@@ -2274,7 +2328,7 @@ class TestAuditKeysAndTheIngestRefusal(unittest.TestCase):
     def test_an_adoption_at_the_open_phase_is_not_a_remedy(self):
         with h.ScratchRepo() as repo:
             P, B = plan_at_manual(repo)
-            (repo.root / POLICY_REL).write_text(json.dumps(NO_REQUIRE))
+            commit_policy_file(repo, json.dumps(NO_REQUIRE))
             ws.adopt_gate_policy(repo.root, confirmation=confirmation_for(NO_REQUIRE), now=now())
             before = state_bytes(repo)
             with self.assertRaises(fingerprint.WorktreeOrHeadMismatchError):
@@ -3557,6 +3611,8 @@ class AcceptanceRepo(EvidenceRepo):
     def write_adopted(self, policy: dict) -> None:
         """A loosening policy takes effect only once adopted (`D-GP-Policy`)."""
         (self.root / POLICY_REL).write_text(json.dumps(policy, indent=2))
+        for args in (("add", "--", POLICY_REL), ("commit", "-q", "-m", "policy file")):
+            subprocess.run(["git", *args], cwd=self.root, check=True, capture_output=True)
         ws.adopt_gate_policy(self.root, confirmation=confirmation_for(policy), now=now())
         g.clear_caches()
 

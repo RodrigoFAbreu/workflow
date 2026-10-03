@@ -18426,6 +18426,13 @@ class GatePolicyFileInvalidError(Exception):
         super().__init__(message)
 
 
+class GatePolicyFileUncommittedError(GatePolicyFileInvalidError):
+    """`gate_policy_adoption_preview`/`adopt_gate_policy` refused a working-tree
+    `GATE_POLICY.json` that differs from `HEAD`'s: the adoption commit stages
+    only the state file, so an uncommitted file would be reported as adopted
+    while the committed policy (and its floor) stayed in force."""
+
+
 def validate_gate_policy_confirmation(text: str, digest: str) -> None:
     """The adoption's user-only guard (`LPR-R1-003`): the text must contain
     the literal `gate_policy` and the first 12 hex characters of `digest`.
@@ -18737,7 +18744,9 @@ def gate_policy_adoption_preview(repo_root: Path) -> dict:
     current effective policy (each loosening and tightening), the floor the
     adoption resets, the `lowered` label it will record, and every open
     bundle the adoption commit will stale. Reads only. Raises
-    `GatePolicyFileInvalidError` when the file is absent or invalid."""
+    `GatePolicyFileInvalidError` when the file is absent or invalid and its
+    subclass `GatePolicyFileUncommittedError` when the working-tree file
+    differs from `HEAD`'s (commit it first)."""
     file_info = gate_policy.read_policy_file(repo_root)
     if not file_info["present"]:
         raise GatePolicyFileInvalidError(
@@ -18745,6 +18754,12 @@ def gate_policy_adoption_preview(repo_root: Path) -> dict:
     if not file_info["valid"]:
         raise GatePolicyFileInvalidError(
             f"{gate_policy.POLICY_PATH} is invalid and cannot be adopted", file_info["errors"])
+    if gate_policy.working_file_differs_from_head(repo_root):
+        raise GatePolicyFileUncommittedError(
+            f"{gate_policy.POLICY_PATH} differs from HEAD's copy; the adoption commit stages only "
+            f"{DEFAULT_STATE_PATH.as_posix()}, so an uncommitted file would be reported as adopted while the "
+            f"committed policy stayed in force. Commit the file, then run /adopt-gate-policy. Nothing was written",
+            [])
     state = _load_json(repo_root / DEFAULT_STATE_PATH) or {}
     # The policy in effect without the file being adopted (its observations
     # of the working tree are excluded, so the difference is the change).

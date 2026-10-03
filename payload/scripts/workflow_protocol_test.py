@@ -4406,8 +4406,7 @@ class TestAllHumanEquivalence(unittest.TestCase):
                 before, _ = run_new(repo.root, "next-action")
                 policy = json.loads((repo.root / gpt.POLICY_REL).read_text()) if (repo.root / gpt.POLICY_REL).exists() \
                     else h.ALL_HUMAN_GATE_POLICY
-                (repo.root / gpt.POLICY_REL).parent.mkdir(parents=True, exist_ok=True)
-                (repo.root / gpt.POLICY_REL).write_text(json.dumps(policy))
+                commit_policy_file(repo, policy)
                 if name == "no item":
                     continue  # adoption needs a committed state; the other two cover it
                 ws.adopt_gate_policy(repo.root, confirmation=gpt.confirmation_for(policy), now="2026-10-03T12:00:00Z")
@@ -4495,6 +4494,15 @@ def write_policy_file(repo: h.ScratchRepo, body: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(body))
     gpt.g.clear_caches()
+
+
+def commit_policy_file(repo: h.ScratchRepo, body: dict) -> None:
+    """`write_policy_file` plus a commit: an adoption refuses a file that
+    differs from `HEAD`'s."""
+    write_policy_file(repo, body)
+    h.git(repo, "add", "--", str(gpt.POLICY_REL))
+    if h.git(repo, "diff", "--cached", "--name-only"):
+        h.git(repo, "commit", "-q", "-m", "policy file")
 
 
 class TestPlanAndTechnicalGateRows(unittest.TestCase):
@@ -4623,7 +4631,7 @@ class TestPlanAndTechnicalGateRows(unittest.TestCase):
         with h.ScratchRepo() as repo:
             h.seed_bundle_item(repo, governing_workflow_version="2.2", phase="PLANNING", gate_policy=None)
             policy = {"schema_version": 1, "gates": {"plan_approval": {"require": []}}}
-            write_policy_file(repo, policy)
+            commit_policy_file(repo, policy)
             ws.adopt_gate_policy(repo.root, confirmation=gpt.confirmation_for(policy), now="2026-10-03T12:00:00Z")
             gpt.g.clear_caches()
             P, B = h.publish_and_bind_plan_bundle(repo)
@@ -4914,7 +4922,7 @@ class TestTriggerAndRemedyRuns(unittest.TestCase):
                 TestPlanAndTechnicalGateRows.unaudited(self, repo, stage)
                 self.assertEqual(next_action(repo)["row"], row)
                 policy = {"schema_version": 1, "human_approval": True}
-                write_policy_file(repo, policy)
+                commit_policy_file(repo, policy)
                 ws.adopt_gate_policy(repo.root, confirmation=gpt.confirmation_for(policy), now="2026-10-03T12:00:00Z")
                 gpt.g.clear_caches()
                 result = next_action(repo)
@@ -5802,7 +5810,7 @@ class TestUpdateSimulationInFlightDefault(unittest.TestCase):
             with self.subTest(stage=stage), no_policy_file(), h.ScratchRepo() as repo:
                 self.build(stage, repo)
                 self.assertEqual(next_action(repo)["row"], row)
-                write_policy_file(repo, gpt.NO_REQUIRE)  # the adoption the guide offers for before generation
+                commit_policy_file(repo, gpt.NO_REQUIRE)  # the adoption the guide offers for before generation
                 ws.adopt_gate_policy(repo.root, confirmation=gpt.confirmation_for(gpt.NO_REQUIRE),
                                      now="2026-10-03T12:00:00Z")
                 gpt.g.clear_caches()

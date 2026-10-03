@@ -491,7 +491,9 @@ test fails and is authoritative about which one moved.
   (`workflow-2.8.0`, `docs/ai-workflow/GATE_POLICY.json`). It names no work
   item, touches no work item's entry and no approval stage, and is not a
   state of `MILESTONE_WORKFLOW.md`.
-- **Expects**: a valid `docs/ai-workflow/GATE_POLICY.json`; an index holding
+- **Expects**: a valid `docs/ai-workflow/GATE_POLICY.json`, **committed**
+  (byte-identical to `HEAD`'s copy: the adoption commit stages only the state
+  file); an index holding
   nothing but, possibly, `docs/ai-workflow/WORKFLOW_STATE.json`
   (`DirtyIndexBeforeStagingError` naming the staged paths otherwise).
 - **Does**: shows the file's digest, the resolved difference from the policy
@@ -514,6 +516,9 @@ test fails and is authoritative about which one moved.
   message); a concurrent second adoption fails closed (every gate human) and
   is re-adopted after updating from `main`.
 - **Refuses**: an absent or invalid file (`GatePolicyFileInvalidError`); a
+  file that differs from `HEAD`'s (`GatePolicyFileUncommittedError`: commit the
+  file, then run `/adopt-gate-policy`; nothing is written and no gate-lowering
+  event is recorded); a
   confirmation lacking the literal or the digest prefix
   (`GatePolicyConfirmationRejectedError`).
 

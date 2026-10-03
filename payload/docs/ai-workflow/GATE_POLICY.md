@@ -87,7 +87,11 @@ enabled, a larger `reopen_on`.
   committed and deleted inside a single squashed branch. To make a human
   setting durable, commit the file, let a `/satisfy-gate` run record it, or
   adopt it.
-- The only way to loosen is `/adopt-gate-policy` (user-only). It shows the
+- The only way to loosen is `/adopt-gate-policy` (user-only). **Commit the
+  file first, then run it**: the adoption commit stages only the state file, so
+  a policy file that differs from `HEAD`'s is refused
+  (`GatePolicyFileUncommittedError`, nothing written) rather than reported
+  adopted while the committed policy stays in force. It shows the
   file's digest and every loosening and tightening, asks for confirmation text
   containing `gate_policy` and the first 12 hex characters of the digest, and
   records the adopted policy body and resets the floor to it.
@@ -412,6 +416,6 @@ Where a repository's risk includes an agent that forges state, use human gates.
 | require a person's review of the pull request | `gates.acceptance.requires_pr_approved: true` |
 | require named functional flows | `gates.acceptance.required_flows: [...]` |
 | stop pull-request facts reopening items | adopt `pr_review.enabled: false` (a loosening) |
-| loosen any setting | edit the file, then `/adopt-gate-policy` |
+| loosen any setting | edit the file, commit it, then `/adopt-gate-policy` |
 | unblock `distinct_reviewer_models` with one subscription | the three paths above |
 | clear `provenance_failed` | a new `/adopt-gate-policy` commit |

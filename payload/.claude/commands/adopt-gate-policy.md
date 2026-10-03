@@ -58,7 +58,12 @@ prior turn; if it is missing, show step 1 and stop and wait.
 
    `GatePolicyFileInvalidError` (the file is absent, or invalid -- `exc.errors`
    lists why) stops here: report it and the file's required shape from
-   `docs/ai-workflow/GATE_POLICY.md`. A `provenance_ok: false` preview is
+   `docs/ai-workflow/GATE_POLICY.md`. `GatePolicyFileUncommittedError` (a
+   subclass: the working-tree file differs from `HEAD`'s copy) stops here too:
+   the adoption commit stages only the state file, so an uncommitted file would
+   be reported adopted while the committed policy (and its floor) stayed in
+   force, with a false gate-lowering event. Tell the user to **commit the file,
+   then run `/adopt-gate-policy`** again; never commit it on their behalf. A `provenance_ok: false` preview is
    reported as well: the adoption is then the way out (it becomes the newest
    change to both fields and the lower bound of the floor range).
 2. **Adopt.** Only with the confirmation in hand, call

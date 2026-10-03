@@ -1868,8 +1868,9 @@ def _row_38i(ctx):
     return _match(
         "gate_evidence_unmet", f"the automatic acceptance gate is not satisfiable and nothing is obtainable: "
         f"{_unmet_text(evaluation)}",
-        f"fix the unmet requirement (/apply-functional-review {ctx.work_item_id} for a failed flow, a stale "
-        f"approval or a standing objection), or turn the acceptance gate human and accept with "
+        f"fix the unmet requirement (/apply-functional-review {ctx.work_item_id} for a failed flow or a stale "
+        f"approval; for a standing objection, the reviewer's approval or dismissal on GitHub, then "
+        f"/satisfy-gate acceptance {ctx.work_item_id}), or turn the acceptance gate human and accept with "
         f"/accept-milestone {ctx.work_item_id}", policy=ctx.policy_object("acceptance", "automatic"))
 
 

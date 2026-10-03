@@ -861,6 +861,24 @@ def read_policy_file(repo_root: Path) -> dict:
     return _parse_policy_bytes(raw)
 
 
+def working_file_differs_from_head(repo_root: Path) -> bool:
+    """True when the working-tree `GATE_POLICY.json` is not byte-identical to
+    `HEAD`'s (absent on exactly one side, or different bytes). An adoption
+    commit stages only the state file, so a policy file that is not yet
+    committed would be adopted without ever reaching `HEAD`'s tree."""
+    path = Path(repo_root) / POLICY_PATH
+    working = path.is_symlink() or path.exists()
+    committed = None
+    if head_commit(repo_root) is not None:
+        shown = _git(repo_root, "rev-parse", "--verify", "--quiet", f"HEAD:{POLICY_PATH.as_posix()}", check=False)
+        committed = shown.stdout.decode().strip() if shown.returncode == 0 else None
+    if not working or committed is None:
+        return working != (committed is not None)
+    if path.is_symlink() or not path.is_file():
+        return True
+    return _git(repo_root, "hash-object", "--", POLICY_PATH.as_posix()).stdout.decode().strip() != committed
+
+
 def _parse_policy_bytes(raw: bytes) -> dict:
     try:
         policy = json.loads(raw.decode("utf-8"))
@@ -881,17 +899,22 @@ def observed_file_versions(repo_root: Path, history: _History | None, *,
     """Every valid version of `GATE_POLICY.json` the Workflow can see: the
     working-tree file, the file at `HEAD`, and every version in a first-parent
     commit since the newest adoption-introducing commit (the same lower bound
-    the floor range uses), deduplicated by digest. Each entry is
-    `{sha256, resolved}`."""
+    the floor range uses), deduplicated by digest. `include_working=False`
+    leaves out the working-tree file and `HEAD`'s copy of it (the adoption's
+    "before"). Each entry is `{sha256, resolved}`."""
     versions: dict[str, dict] = {}
     working = read_policy_file(repo_root)
     if include_working and working["valid"]:
         versions[working["sha256"]] = {"sha256": working["sha256"], "resolved": working["resolved"]}
     if history is not None:
         blob_shas: list[str] = []
+        # Without the working-tree file the adoption's "before" also leaves out
+        # the file `HEAD` holds (an adoption needs it committed, so it is the
+        # file being adopted, not part of the policy in effect without it).
+        skipped = None if include_working else history.policy_blob(history.head)
         for commit in _range_for_floor(history):
             sha = history.policy_blob(commit)
-            if sha is not None and sha not in blob_shas:
+            if sha is not None and sha != skipped and sha not in blob_shas:
                 blob_shas.append(sha)
         for sha in blob_shas:
             parsed = _parse_policy_bytes(_blob(repo_root, sha))
