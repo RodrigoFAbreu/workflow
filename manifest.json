@@ -733,8 +733,8 @@
       "category": "conformance",
       "rule": "^scripts/workflow_protocol_test\\.py$",
       "rationale": "The Orchestration Protocol v1 suite: envelope and schema, the catalogue's totality and every row from a real state, the edge table and reconcile, record-external-result, the specification's tables against the code, and the protocol-only lifecycle end-to-end. Run by workflow-conformance.yml. W1 (workflow-2.7.0, orchestration-protocol-v1, CP3-CP6). W2 (workflow-2.8.0, gate-policy-and-reopening).",
-      "sha256": "51b567ed4f87e73cb0335d32459b71ea9d4279f8fcdc87228d120ef45adf8a0b",
-      "size": 358318,
+      "sha256": "b69ce8e1be85f13093c893cc760fe5bb38e34391d9b91b311dd021414da71ffe",
+      "size": 358933,
       "executable": false
     },
     {

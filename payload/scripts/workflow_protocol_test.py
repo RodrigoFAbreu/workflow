@@ -4213,16 +4213,29 @@ class V270:
         cls.directory, cls.available = directory, True
 
     @classmethod
-    def run(cls, root: Path, *argv: str) -> tuple[dict, int]:
-        out = subprocess.run([sys.executable, str(cls.directory / "workflow_protocol.py"), "--repo-root", str(root),
-                              *argv], capture_output=True, text=True)
-        return json.loads(out.stdout), out.returncode
+    def run(cls, root: Path, *argv: str, now: str | None = None) -> tuple[dict, int]:
+        return run_protocol(cls.directory / "workflow_protocol.py", root, *argv, now=now)
 
 
-def run_new(root: Path, *argv: str) -> tuple[dict, int]:
-    out = subprocess.run([sys.executable, str(SCRIPT), "--repo-root", str(root), *argv], capture_output=True,
-                         text=True)
+#: Runs a protocol module with its `_utc_now` pinned to `argv[2]`: a writer's
+#: timestamps (and so the state identity) then do not depend on which second
+#: each of two compared runs lands in.
+_PINNED_CLOCK = ("import sys; sys.path.insert(0, sys.argv[1]); import workflow_protocol as module; "
+                 "module._utc_now = lambda: sys.argv[2]; sys.exit(module.main(sys.argv[3:]))")
+
+
+def run_protocol(script: Path, root: Path, *argv: str, now: str | None = None) -> tuple[dict, int]:
+    command = ([sys.executable, str(script)] if now is None
+               else [sys.executable, "-c", _PINNED_CLOCK, str(script.parent), now])
+    out = subprocess.run([*command, "--repo-root", str(root), *argv], capture_output=True, text=True)
     return json.loads(out.stdout), out.returncode
+
+
+def run_new(root: Path, *argv: str, now: str | None = None) -> tuple[dict, int]:
+    return run_protocol(SCRIPT, root, *argv, now=now)
+
+
+PINNED_NOW = "2026-10-03T12:00:00Z"
 
 
 def without_release(body: dict) -> dict:
@@ -4359,14 +4372,14 @@ class TestAllHumanEquivalence(unittest.TestCase):
                 snapshot = (state_path.read_bytes(), feedback.read_bytes() if feedback.exists() else None)
                 argv = ("record-external-result", "--work-item", WI, "--kind", kind, "--input", str(verdict_file))
                 try:
-                    old, old_code = V270.run(repo.root, *argv)
+                    old, old_code = V270.run(repo.root, *argv, now=PINNED_NOW)
                     written = (state_path.read_bytes(), feedback.read_bytes())
                     state_path.write_bytes(snapshot[0])  # restore, so both modules start from one state
                     if snapshot[1] is None:
                         feedback.unlink()
                     else:
                         feedback.write_bytes(snapshot[1])
-                    new, new_code = run_new(repo.root, *argv)
+                    new, new_code = run_new(repo.root, *argv, now=PINNED_NOW)
                     self.assertEqual((old_code, new_code), (0, 0), (old, new))
                     assert_valid(new)
                     self.assertEqual(json.dumps(without_release(old), sort_keys=True),

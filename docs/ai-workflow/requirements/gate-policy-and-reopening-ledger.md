@@ -543,6 +543,16 @@ manifest's `workflow_version`).
   the user's 2026-10-03 decision in plan section 1), and W1's records sat
   under W2's headings; W1's are now under their own "Previous milestone
   record" heading.
+- **Fixed (test defect), `TestAllHumanEquivalence.test_record_external_result_writes_the_same_bytes_and_no_reviewer_model`:**
+  the comparison of 2.7.0's and 2.8.0's `record-external-result` writes was
+  flaky (about one run in three when run in place, where the class is not
+  skipped): both modules stamp `completed_at`/`last_transition` from the
+  wall clock at second resolution, so two runs landing in different seconds
+  wrote different bytes and a different `state_identity`. Both runs now go
+  through `run_protocol(..., now=PINNED_NOW)`, which runs the module with its
+  `_utc_now` pinned (the immutable 2.7.0 module is not edited). A negative
+  check (two different pinned times) fails as it should. The manifest digest
+  of `workflow_protocol_test.py` is refreshed.
 - **Observed, not changed (plan-level, for the reviewers):** a
   `statusCheckRollup` entry with `status: COMPLETED` and an empty conclusion
   counts as passed (GitHub always sets a conclusion on completion); the
