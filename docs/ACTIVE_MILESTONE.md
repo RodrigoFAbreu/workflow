@@ -20,10 +20,11 @@ today's gates exactly.
 
 ## Current checkpoint
 
-`CP1` (gate policy model) and `CP2` (automatic plan and technical approvals
-with audit evidence) are implemented; their records, deviations and deferrals
-are in the requirements ledger,
-`docs/ai-workflow/requirements/gate-policy-and-reopening-ledger.md`. CP3 to
+`CP1` (gate policy model), `CP2` (automatic plan and technical approvals
+with audit evidence) and `CP3` (functional evidence, GitHub-sourced
+pull-request facts and the stale-evidence table) are implemented; their
+records, deviations and deferrals are in the requirements ledger,
+`docs/ai-workflow/requirements/gate-policy-and-reopening-ledger.md`. CP4 to
 CP8 are not started. One checkpoint is implemented per `/milestone-implement`
 invocation.
 

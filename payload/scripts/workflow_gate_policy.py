@@ -29,6 +29,8 @@ import re
 import subprocess
 from pathlib import Path
 
+import workflow_forge as forge
+
 POLICY_PATH = Path("docs/ai-workflow/GATE_POLICY.json")
 STATE_PATH = Path("docs/ai-workflow/WORKFLOW_STATE.json")
 SCHEMA_VERSION = 1
@@ -1276,3 +1278,454 @@ def evaluate_gate(repo_root: Path, state: dict, work_item_id: str, gate_id: str)
         "ledger": {"local": inputs["local"], "manual": inputs["manual"]},
     }
     return result
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.8.0 CP3 (`D-GP-Evidence`, `D-GP-Invalidation`, `D-GP-Trust`):
+# functional evidence, pull-request facts with forge provenance, the anchor and
+# a fact's position against it, the cause table, the one query trigger and the
+# stale-evidence table. Every function here is pure over the `state` it is
+# given and returns a new one; `workflow_state` wraps them in
+# `state_transaction`. Nothing here reopens an item (that is CP5's
+# `reopen_work_item`): a stored fact is only recorded and judged.
+# ---------------------------------------------------------------------------
+
+GATE_EVIDENCE_KEY = "gate_evidence"
+GATE_EVIDENCE_KEYS = frozenset({"functional", "pr", "pr_reported", "pr_keys"})
+PR_KEYS_FIELDS = frozenset({"reopened_for", "applied", "ingest_seq"})
+SOURCE_WORKFLOW_GH = "workflow_gh"
+SOURCE_ORCHESTRATOR_FORGE = "orchestrator_forge"
+CAUSES = ("content_changed", "changes_requested", "checks_failed")
+#: The phases at which a stored fact can be acted on (`D-GP-Reopen`).
+REOPENABLE_PHASES = frozenset({"AWAITING_FUNCTIONAL_REVIEW", "MILESTONE_COMPLETE"})
+_COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+_FUNCTIONAL_STATUSES = ("passed", "failed")
+_FUNCTIONAL_FIELDS = ("flow_id", "status", "head", "ran_at", "summary", "log_digest", "run_ref", "reporter")
+_FORGE_BLOCK_FIELDS = ("source", "query", "repository", "queried_commit", "fetched_at", "fetched_by", "raw",
+                       "raw_sha256")
+_FACT_FIELDS = ("pr", "state", "head", "review_decision", "reviewed_head", "checks", "review_id", "findings")
+
+
+class EvidenceRefusedError(GatePolicyError):
+    """An ingest the Workflow refuses, naming a stable `code`; nothing was written."""
+
+    def __init__(self, code: str, message: str):
+        super().__init__(f"{code}: {message}")
+        self.code = code
+
+
+def empty_gate_evidence() -> dict:
+    return {"functional": {}, "pr": None, "pr_reported": None,
+            "pr_keys": {"reopened_for": [], "applied": [], "ingest_seq": 0}}
+
+
+def gate_evidence_of(work_item: dict) -> dict:
+    """A deep copy of the item's `gate_evidence`, every key present."""
+    stored = work_item.get(GATE_EVIDENCE_KEY) or {}
+    evidence = empty_gate_evidence()
+    for key in GATE_EVIDENCE_KEYS & set(stored):
+        evidence[key] = copy.deepcopy(stored[key])
+    return evidence
+
+
+def _fact_errors(label: str, fact, source: str) -> list[str]:
+    if fact is None:
+        return []
+    if not isinstance(fact, dict):
+        return [f"{label} must be an object or null"]
+    errors: list[str] = []
+    expected = set(_FACT_FIELDS) | {"identity_at_head", "observed_at", "fact_id", "ingest_seq", "provenance",
+                                    "repository", "queried_commit"}
+    for key in sorted(set(fact) ^ expected):
+        errors.append(f"{label} key {key!r} is unexpected or missing")
+    if errors:
+        return errors
+    if fact["state"] not in ("open", "closed", "merged", "none"):
+        errors.append(f"{label}.state is {fact['state']!r}")
+    if not isinstance(fact["ingest_seq"], int) or isinstance(fact["ingest_seq"], bool) or fact["ingest_seq"] < 1:
+        errors.append(f"{label}.ingest_seq must be a positive integer")
+    provenance = fact["provenance"]
+    if not isinstance(provenance, dict) or provenance.get("source") != source:
+        errors.append(f"{label}.provenance.source must be {source!r}")
+    elif source == SOURCE_WORKFLOW_GH:
+        for key in ("gh_path", "gh_sha256"):
+            if not provenance.get(key):
+                errors.append(f"{label}.provenance.{key} is required for a workflow_gh fact")
+        if provenance.get("gh_sha256") and not _SHA256_RE.match(str(provenance["gh_sha256"])):
+            errors.append(f"{label}.provenance.gh_sha256 must be 64 hex")
+    return errors
+
+
+def gate_evidence_errors(evidence) -> list[str]:
+    """Shape errors of an item's `gate_evidence`; an unknown key is rejected."""
+    if not isinstance(evidence, dict):
+        return ["gate_evidence must be an object"]
+    errors = [f"gate_evidence key {key!r} is unknown" for key in sorted(set(evidence) - GATE_EVIDENCE_KEYS)]
+    functional = evidence.get("functional", {})
+    if not isinstance(functional, dict):
+        errors.append("gate_evidence.functional must be an object")
+    else:
+        for flow_id, record in sorted(functional.items()):
+            if not isinstance(record, dict) or record.get("flow_id") != flow_id or \
+                    not set(_FUNCTIONAL_FIELDS) <= set(record) or record.get("status") not in _FUNCTIONAL_STATUSES:
+                errors.append(f"gate_evidence.functional[{flow_id!r}] is malformed")
+    errors += _fact_errors("gate_evidence.pr", evidence.get("pr"), SOURCE_WORKFLOW_GH)
+    errors += _fact_errors("gate_evidence.pr_reported", evidence.get("pr_reported"), SOURCE_ORCHESTRATOR_FORGE)
+    keys = evidence.get("pr_keys", empty_gate_evidence()["pr_keys"])
+    if not isinstance(keys, dict) or set(keys) != PR_KEYS_FIELDS:
+        errors.append(f"gate_evidence.pr_keys must have exactly {sorted(PR_KEYS_FIELDS)}")
+    else:
+        for name in ("reopened_for", "applied"):
+            if not isinstance(keys[name], list) or any(not isinstance(k, str) for k in keys[name]):
+                errors.append(f"gate_evidence.pr_keys.{name} must be a list of strings")
+        if not isinstance(keys["ingest_seq"], int) or isinstance(keys["ingest_seq"], bool) or keys["ingest_seq"] < 0:
+            errors.append("gate_evidence.pr_keys.ingest_seq must be a non-negative integer")
+        else:
+            seqs = [f["ingest_seq"] for f in (evidence.get("pr"), evidence.get("pr_reported"))
+                    if isinstance(f, dict) and isinstance(f.get("ingest_seq"), int)]
+            if seqs and keys["ingest_seq"] < max(seqs):
+                errors.append("gate_evidence.pr_keys.ingest_seq is behind a stored fact's ingest_seq")
+    return errors
+
+
+def key_string(*parts) -> str:
+    """The semantic key of a cause, canonical and storable."""
+    return json.dumps(list(parts), separators=(",", ":"), ensure_ascii=False)
+
+
+# -- identity, anchor and position -------------------------------------------
+
+def identity_at(repo_root: Path, work_item_id: str, work_item: dict, head: str) -> str:
+    """The implementation-stage `review_content_id` at `head`, recomputed by
+    the Workflow (never read from a reporter)."""
+    import workflow_fingerprint as fingerprint
+    import workflow_state
+
+    return workflow_state.approval_review_content_id(
+        Path(repo_root), stage="implementation", base_commit=work_item["base_commit"],
+        work_item_type=work_item["work_item_type"], work_item_id=work_item_id, head=head,
+        artifacts_path=fingerprint.artifacts_path_for_work_item(work_item_id))
+
+
+def anchor_of(repo_root: Path, work_item_id: str, work_item: dict) -> dict | None:
+    """`{commit, identity}`: the technical approval's `reviewed_content_commit`
+    and `approved_review_content_id`; with no technical approval, the
+    `reviewed_implementation_head` and the identity computed there; `None`
+    before either exists (`D-GP-Invalidation`, `LPR-R1-002`)."""
+    approval = work_item.get("technical_approval")
+    if isinstance(approval, dict) and approval.get("reviewed_content_commit") \
+            and approval.get("approved_review_content_id"):
+        return {"commit": approval["reviewed_content_commit"], "identity": approval["approved_review_content_id"]}
+    commit = work_item.get("reviewed_implementation_head")
+    if commit:
+        return {"commit": commit, "identity": identity_at(repo_root, work_item_id, work_item, commit)}
+    return None
+
+
+def is_ancestor(repo_root: Path, ancestor: str, descendant: str) -> bool:
+    return _git(Path(repo_root), "merge-base", "--is-ancestor", ancestor, descendant, check=False).returncode == 0
+
+
+def position_of(repo_root: Path, work_item_id: str, work_item: dict, head: str,
+                *, identity_at_head: str | None = None, anchor: dict | None = None) -> str | None:
+    """`equal` (the identity at `head` is the anchor's), `ahead` (it differs
+    and `head` is not an ancestor of the anchor commit) or `behind` (it
+    differs and `head` is an ancestor); `None` while there is no anchor."""
+    anchor = anchor or anchor_of(repo_root, work_item_id, work_item)
+    if anchor is None:
+        return None
+    identity = identity_at_head or identity_at(repo_root, work_item_id, work_item, head)
+    if identity == anchor["identity"]:
+        return "equal"
+    return "behind" if is_ancestor(repo_root, head, anchor["commit"]) else "ahead"
+
+
+def current_at_anchor(repo_root: Path, work_item_id: str, work_item: dict, head: str,
+                      *, identity_at_head: str | None = None, anchor: dict | None = None) -> bool:
+    return position_of(repo_root, work_item_id, work_item, head,
+                       identity_at_head=identity_at_head, anchor=anchor) == "equal"
+
+
+def _require_head(repo_root: Path, head, prefix: str) -> str:
+    if not isinstance(head, str) or not _COMMIT_RE.match(head) or head_commit(Path(repo_root), head) != head:
+        raise EvidenceRefusedError(f"{prefix}_head_unknown", f"head {head!r} does not resolve in this repository")
+    if not is_ancestor(repo_root, head, "HEAD"):
+        raise EvidenceRefusedError(
+            f"{prefix}_head_not_in_branch",
+            f"head {head} is not contained in the local HEAD; fetch and merge it first")
+    return head
+
+
+def _work_item(state: dict, work_item_id: str) -> dict:
+    work_item = (state.get("work_items") or {}).get(work_item_id)
+    if not isinstance(work_item, dict):
+        raise GatePolicyError(f"{work_item_id!r} names no work item")
+    return work_item
+
+
+def _with_evidence(state: dict, work_item_id: str, evidence: dict) -> dict:
+    new_state = copy.deepcopy(state)
+    new_state["work_items"][work_item_id][GATE_EVIDENCE_KEY] = evidence
+    return new_state
+
+
+def _next_seq(evidence: dict) -> int:
+    evidence["pr_keys"]["ingest_seq"] += 1
+    return evidence["pr_keys"]["ingest_seq"]
+
+
+# -- functional evidence ------------------------------------------------------
+
+def ingest_functional_evidence(repo_root: Path, state: dict, work_item_id: str, record, *, now: str) -> tuple[dict, dict]:
+    """Records one flow's result (`D-GP-Evidence`): the identity is recomputed
+    at `head` here, never read from the reporter; the latest record per flow id
+    wins. Returns `(new_state, {flow_id, identity, stored})`. Refuses with an
+    `EvidenceRefusedError` and writes nothing."""
+    work_item = _work_item(state, work_item_id)
+    if not isinstance(record, dict) or set(record) != set(_FUNCTIONAL_FIELDS):
+        raise EvidenceRefusedError("evidence_malformed", f"a functional record has exactly {list(_FUNCTIONAL_FIELDS)}")
+    if not isinstance(record["flow_id"], str) or not FLOW_ID_RE.match(record["flow_id"]):
+        raise EvidenceRefusedError("evidence_malformed", f"flow_id {record['flow_id']!r} is not a valid flow id")
+    if record["status"] not in _FUNCTIONAL_STATUSES:
+        raise EvidenceRefusedError("evidence_malformed", f"status must be one of {list(_FUNCTIONAL_STATUSES)}")
+    if not isinstance(record["log_digest"], str) or not _SHA256_RE.match(record["log_digest"]):
+        raise EvidenceRefusedError("evidence_malformed", "log_digest must be 64 hex")
+    if not isinstance(record["summary"], dict) or not isinstance(record["reporter"], str):
+        raise EvidenceRefusedError("evidence_malformed", "summary must be an object and reporter a string")
+    head = _require_head(repo_root, record["head"], "evidence")
+    stored = {key: copy.deepcopy(record[key]) for key in _FUNCTIONAL_FIELDS}
+    stored["identity"] = identity_at(repo_root, work_item_id, work_item, head)
+    stored["recorded_at"] = now
+    evidence = gate_evidence_of(work_item)
+    evidence["functional"][stored["flow_id"]] = stored
+    return _with_evidence(state, work_item_id, evidence), {
+        "flow_id": stored["flow_id"], "identity": stored["identity"], "stored": stored}
+
+
+def functional_record_current(repo_root: Path, work_item_id: str, work_item: dict, record: dict,
+                              *, anchor: dict | None = None) -> bool:
+    """A record is current when it passed and the identity at its `head` is the anchor's."""
+    anchor = anchor or anchor_of(repo_root, work_item_id, work_item)
+    return record.get("status") == "passed" and anchor is not None and record.get("identity") == anchor["identity"]
+
+
+# -- pull-request facts -------------------------------------------------------
+
+def _build_fact(repo_root: Path, work_item_id: str, work_item: dict, derived: dict, *, source: str,
+                provenance: dict, repository: str, queried_commit: str, now: str, seq: int) -> dict:
+    fact = copy.deepcopy(derived)
+    head = fact["head"]
+    fact["identity_at_head"] = identity_at(repo_root, work_item_id, work_item, head) if head else None
+    fact.update({"observed_at": now, "ingest_seq": seq, "repository": repository,
+                 "queried_commit": queried_commit, "provenance": provenance})
+    digest_input = {k: v for k, v in fact.items() if k not in ("observed_at", "ingest_seq")}
+    fact["fact_id"] = hashlib.sha256(canonical_bytes(digest_input)).hexdigest()
+    return fact
+
+
+def _check_fact_head(repo_root: Path, derived: dict) -> None:
+    if derived["head"] is not None:
+        _require_head(repo_root, derived["head"], "pr")
+
+
+def ingest_pr_facts(repo_root: Path, state: dict, work_item_id: str, payload, *, now: str,
+                    repository: str | None = None) -> tuple[dict, dict]:
+    """An orchestrator's reported fact (`source: orchestrator_forge`,
+    tighten-only). Requires the `forge` block, checks the digest and the
+    repository, parses `raw` itself and stores the derived fact in
+    `gate_evidence.pr_reported` with the next `ingest_seq`. It never touches
+    `pr` or `pr_keys.reopened_for/applied`, reopens nothing, and arms at most
+    the query trigger. Refuses with a `forge` error or `EvidenceRefusedError`
+    and writes nothing."""
+    work_item = _work_item(state, work_item_id)
+    block = payload.get("forge") if isinstance(payload, dict) else None
+    if not isinstance(block, dict) or set(_FORGE_BLOCK_FIELDS) - set(block) or block.get("source") != "github":
+        raise forge.ForgeProvenanceRequiredError(
+            "a pr_review_result is accepted only with the forge provenance block of the fixed query")
+    if not isinstance(block["raw"], str) or hashlib.sha256(block["raw"].encode("utf-8")).hexdigest() != block["raw_sha256"]:
+        raise forge.ForgeDigestMismatchError("sha256(raw) does not equal raw_sha256")
+    repository = repository or forge.origin_repository(Path(repo_root))
+    if block["repository"] != repository:
+        raise forge.ForgeRepositoryMismatchError(f"the fact names {block['repository']!r}, this repository is {repository!r}")
+    derived = forge.parse_forge_raw(block["raw"], repository, block["queried_commit"])
+    _check_fact_head(repo_root, derived)
+    evidence = gate_evidence_of(work_item)
+    fetched_by = block["fetched_by"]
+    provenance = {"source": SOURCE_ORCHESTRATOR_FORGE, "fetched_by": copy.deepcopy(fetched_by),
+                  "fetched_at": block["fetched_at"], "raw_sha256": block["raw_sha256"],
+                  "run_ref": payload.get("run_ref")}
+    fact = _build_fact(repo_root, work_item_id, work_item, derived, source=SOURCE_ORCHESTRATOR_FORGE,
+                       provenance=provenance, repository=repository, queried_commit=block["queried_commit"],
+                       now=now, seq=_next_seq(evidence))
+    evidence["pr_reported"] = fact
+    return _with_evidence(state, work_item_id, evidence), {"slot": "pr_reported", "fact": fact}
+
+
+def store_workflow_pr_fact(repo_root: Path, state: dict, work_item_id: str, query: dict, *, now: str,
+                           run_ref: str | None = None) -> tuple[dict, dict]:
+    """Stores the Workflow's own query result (`query_forge_pr_facts`'s dict)
+    as the `gate_evidence.pr` fact, provenance `workflow_gh` with the `gh`
+    path and sha256 that answered. A query that found no pull request stores
+    `state: none`. Replacing `pr` never touches `pr_keys.reopened_for` or
+    `applied`. It does not reopen: reopening is `reopen_work_item`'s."""
+    work_item = _work_item(state, work_item_id)
+    derived = query["facts"]
+    _check_fact_head(repo_root, derived)
+    evidence = gate_evidence_of(work_item)
+    provenance = {"source": SOURCE_WORKFLOW_GH, "fetched_by": {"name": "workflow-gh", "version": forge.FORGE_QUERY_NAME},
+                  "fetched_at": now, "raw_sha256": query["raw_sha256"], "run_ref": run_ref,
+                  "gh_path": query["gh_path"], "gh_sha256": query["gh_sha256"]}
+    fact = _build_fact(repo_root, work_item_id, work_item, derived, source=SOURCE_WORKFLOW_GH,
+                       provenance=provenance, repository=query["repository"],
+                       queried_commit=query["queried_commit"], now=now, seq=_next_seq(evidence))
+    evidence["pr"] = fact
+    return _with_evidence(state, work_item_id, evidence), {"slot": "pr", "fact": fact}
+
+
+# -- the cause table ----------------------------------------------------------
+
+def cause_key(cause: str, fact: dict) -> str | None:
+    """The semantic key of `cause` for `fact` (`D-GP-Invalidation`'s cause
+    table); deterministic and independent of `observed_at` and `findings`."""
+    number = (fact.get("pr") or {}).get("number")
+    if number is None:
+        return None
+    if cause == "content_changed":
+        return key_string(number, cause, fact["head"], fact.get("identity_at_head"))
+    if cause == "changes_requested":
+        return key_string(number, cause, fact["head"], fact["reviewed_head"], fact["review_id"])
+    if cause == "checks_failed":
+        return key_string(number, cause, fact["head"], sorted(fact["checks"]["failing"]))
+    raise GatePolicyError(f"unknown cause {cause!r}")
+
+
+def evidential_causes(position: str | None, fact: dict) -> list[str]:
+    """The causes a fact evidences at `position` (the "actionable when" column
+    only). A changed identity is `content_changed` alone; the decision and the
+    checks on a non-current head are not acted on."""
+    if position is None or fact.get("state") == "none":
+        return []
+    if position == "ahead":
+        return ["content_changed"]
+    if position != "equal":
+        return []
+    causes = []
+    if fact["review_decision"] == "CHANGES_REQUESTED" and fact["reviewed_head"] == fact["head"]:
+        causes.append("changes_requested")
+    if fact["checks"]["state"] == "failure":
+        causes.append("checks_failed")
+    return causes
+
+
+def pr_key_actionable(policy: dict, fact: dict | None, cause: str) -> bool:
+    """The one shared predicate (`LPR-R23-001`): `policy` is the resolved
+    effective policy. True only when `pr_review.enabled`, the cause reopens
+    under the policy (`content_changed` whenever enabled; the others only
+    when listed in `reopen_on`), the fact is the Workflow's own
+    (`workflow_gh`) and its `state` is `open`. It reads no reported fact."""
+    if not isinstance(fact, dict) or (fact.get("provenance") or {}).get("source") != SOURCE_WORKFLOW_GH:
+        return False
+    section = policy["pr_review"]
+    if not section["enabled"] or fact.get("state") != "open":
+        return False
+    return cause == "content_changed" or (cause in section["reopen_on"] and cause in REOPEN_CAUSES)
+
+
+def actionable_pr_keys(repo_root: Path, state: dict, work_item_id: str, policy: dict) -> list[dict]:
+    """`[{cause, key}]` of the stored `workflow_gh` fact that are evidentially
+    actionable, policy-actionable and not in `applied`. Re-evaluated on the
+    current policy and anchor on every call."""
+    work_item = _work_item(state, work_item_id)
+    evidence = gate_evidence_of(work_item)
+    fact = evidence["pr"]
+    if fact is None or fact.get("state") != "open":
+        return []
+    position = position_of(repo_root, work_item_id, work_item, fact["head"], identity_at_head=fact["identity_at_head"])
+    result = []
+    for cause in evidential_causes(position, fact):
+        key = cause_key(cause, fact)
+        if key is not None and key not in evidence["pr_keys"]["applied"] and pr_key_actionable(policy, fact, cause):
+            result.append({"cause": cause, "key": key})
+    return result
+
+
+def _fact_signature(fact: dict) -> tuple:
+    return ((fact.get("pr") or {}).get("number"), fact["state"], fact["head"], fact["review_decision"],
+            fact["reviewed_head"], fact["checks"]["state"], tuple(fact["checks"]["failing"]), fact["review_id"])
+
+
+def pr_query_trigger(state: dict, work_item_id: str, policy: dict) -> bool:
+    """The single predicate for "run the Workflow's own query first"
+    (`D-GP-Trust` principle 3, `LPR-R29-001`): `pr_review.enabled`, the
+    `pr_reported` slot holds a fact whose `ingest_seq` is greater than the `pr`
+    slot's (or `pr` is empty) and that differs from it in PR number, state,
+    head, decision, reviewed head, checks or review id. Evaluated on the two
+    slots as wholes. A reported fact never decides: it only arms this."""
+    if not policy["pr_review"]["enabled"]:
+        return False
+    evidence = gate_evidence_of(_work_item(state, work_item_id))
+    reported, stored = evidence["pr_reported"], evidence["pr"]
+    if reported is None:
+        return False
+    if stored is None:
+        return True
+    return reported["ingest_seq"] > stored["ingest_seq"] and _fact_signature(reported) != _fact_signature(stored)
+
+
+# -- the stale-evidence table --------------------------------------------------
+
+#: One row per trigger of `D-GP-Invalidation`'s table, first match wins. `stays`
+#: and `stale` name the evidence kinds; `effect` is the row's effect.
+INVALIDATION_RULES: tuple[dict, ...] = (
+    {"id": "merged", "stays": ("plan_approval", "technical_approval", "functional"), "stale": (),
+     "effect": "recorded; a reopen is refused (pr_merged)"},
+    {"id": "closed", "stays": ("plan_approval", "technical_approval", "functional"), "stale": (),
+     "effect": "recorded; requires_pr_approved blocks (pr_closed)"},
+    {"id": "ahead", "stays": ("plan_approval",), "stale": ("functional", "pr_facts"),
+     "effect": "cause content_changed; technical review and full functional validation repeat"},
+    {"id": "behind", "stays": ("plan_approval", "technical_approval", "functional"), "stale": ("pr_fact",),
+     "effect": "recorded only; not actionable; automatic acceptance blocked until a fact for the current head"},
+    {"id": "changes_requested", "stays": ("plan_approval", "technical_approval", "functional"), "stale": (),
+     "effect": "cause changes_requested"},
+    {"id": "checks_failed", "stays": ("plan_approval", "technical_approval", "functional"), "stale": (),
+     "effect": "cause checks_failed"},
+    {"id": "approved", "stays": ("plan_approval", "technical_approval", "functional"), "stale": (),
+     "effect": "recorded; satisfies pr_approved when the head is current"},
+    {"id": "head_changed_same_identity", "stays": ("plan_approval", "technical_approval", "functional"),
+     "stale": ("pr_facts",), "effect": "none; new facts are awaited"},
+)
+
+
+def apply_invalidation(repo_root: Path, state: dict, work_item_id: str, fact: dict | None,
+                       *, previous: dict | None = None) -> dict:
+    """Classifies `fact` against the table: `{rule, stays, stale, effect,
+    causes, position}`. Pure; it stales nothing (the technical approval is
+    never staled at ingest, `/apply-pr-review` stales it before it edits). A
+    reopened PR (`open` after a stored `closed`) is handled as a new fact."""
+    work_item = _work_item(state, work_item_id)
+    if fact is None or fact.get("state") == "none":
+        return {"rule": None, "stays": (), "stale": (), "effect": "no pull request", "causes": [], "position": None}
+    position = position_of(repo_root, work_item_id, work_item, fact["head"], identity_at_head=fact["identity_at_head"])
+    causes = evidential_causes(position, fact)
+    if fact["state"] == "merged":
+        rule = "merged"
+    elif fact["state"] == "closed":
+        rule = "closed"
+    elif position == "ahead":
+        rule = "ahead"
+    elif position == "behind":
+        rule = "behind"
+    elif "changes_requested" in causes:
+        rule = "changes_requested"
+    elif "checks_failed" in causes:
+        rule = "checks_failed"
+    elif fact["review_decision"] == "APPROVED" and fact["checks"]["state"] in ("pending", "success"):
+        rule = "approved"
+    else:
+        rule = "head_changed_same_identity"
+    row = next(r for r in INVALIDATION_RULES if r["id"] == rule)
+    reopened_pr = bool(previous and previous.get("state") == "closed" and fact["state"] == "open")
+    return {"rule": rule, "stays": row["stays"], "stale": row["stale"],
+            "effect": row["effect"] + ("; a reopened PR is a new fact" if reopened_pr else ""),
+            "causes": causes, "position": position}

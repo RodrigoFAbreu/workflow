@@ -14209,6 +14209,10 @@ ORDINARY_BUNDLE_GENERATION_RECORD_FIELDS = frozenset({
     # `implementation_review_stages` at read time, so the vocabulary is
     # rejected, not just unreached.
     "implementation_review_stages",
+    # workflow-2.8.0 CP3 (`D-GP-Compat`, `LPR-R3-002`): this item's own ingested
+    # evidence and pull-request facts sit uncommitted until its next commit.
+    # Another item's residue never reaches a commit (item-scoped staging).
+    "gate_evidence",
 })
 
 RECOVERED_BUNDLE_GENERATION_RECORD_FIELDS = frozenset({
@@ -14218,6 +14222,10 @@ RECOVERED_BUNDLE_GENERATION_RECORD_FIELDS = frozenset({
     # republication (record_bundle_generation(outcome="same_content"), the
     # recovered role) can carry the same stale ledger residue.
     "implementation_review_stages",
+    # workflow-2.8.0 CP3 (`D-GP-Compat`, `LPR-R3-002`): this item's own ingested
+    # evidence and pull-request facts sit uncommitted until its next commit.
+    # Another item's residue never reaches a commit (item-scoped staging).
+    "gate_evidence",
 })
 
 RECOVERED_BUNDLE_GENERATION_RECORD_LEGAL_SOURCE_PHASES = (
@@ -14400,6 +14408,10 @@ TECHNICAL_APPROVAL_COMMIT_FIELDS = frozenset({
     # `implementation_review_stages` at read time, so the vocabulary is
     # rejected, not just unreached.
     "implementation_review_stages",
+    # workflow-2.8.0 CP3 (`D-GP-Compat`, `LPR-R3-002`): this item's own ingested
+    # evidence and pull-request facts sit uncommitted until its next commit.
+    # Another item's residue never reaches a commit (item-scoped staging).
+    "gate_evidence",
 })
 
 
@@ -17454,6 +17466,11 @@ def _validate_work_item(work_item_id: str, work_item: dict) -> None:
     if technical_approval is not None:
         validate_approval_record(technical_approval, stage="implementation")
 
+    if "gate_evidence" in work_item:
+        problems = gate_policy.gate_evidence_errors(work_item["gate_evidence"])
+        if problems:
+            raise InvalidGateEvidenceError(f"work_items[{work_item_id!r}]: " + "; ".join(problems))
+
 
 def validate_state(state: dict, *, registry: dict | None = None, repo_root: Path | None = None) -> None:
     """D3's "Validator rejects" list, to the extent checkable from schema
@@ -18969,6 +18986,73 @@ def gate_satisfied_by_trailer(record: dict) -> str:
     records `record`: `policy:` plus the first 12 hex characters of its
     policy digest (`D-GP-Satisfy`)."""
     return f"{POLICY_CONFIRMATION_PREFIX}{record['policy_evidence']['policy_digest'][:12]}"
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.8.0 CP3 (`D-GP-Evidence`, `D-GP-Invalidation`, `D-GP-Trust`): the
+# writers of an item's `gate_evidence`. Each runs the pure
+# `workflow_gate_policy` function inside `state_transaction`, so the re-read,
+# the apply and the publish happen under one lock; a refusal writes nothing.
+# Neither writer reopens an item or commits: the evidence is the item's own
+# uncommitted residue until its next validated commit (`gate_evidence` joins
+# the three commit field sets), and another item's commit never carries it
+# (`stage_scoped_state`).
+# ---------------------------------------------------------------------------
+
+class InvalidGateEvidenceError(Exception):
+    """`validate_state` found a malformed or unknown-keyed `gate_evidence`."""
+
+
+def _record_gate_evidence(repo_root: Path, writer) -> dict:
+    captured: dict = {}
+
+    def mutator(state: dict) -> dict:
+        new_state, result = writer(state)
+        captured.update(result)
+        return new_state
+
+    state_transaction(Path(repo_root), mutator)
+    return captured
+
+
+def record_functional_evidence(repo_root: Path, work_item_id: str, record: dict, *, now: str) -> dict:
+    """Ingests one flow's `functional_evidence` result under every policy
+    (inert under a human acceptance gate). Returns `{flow_id, identity,
+    stored}`; refuses with `EvidenceRefusedError`, writing nothing."""
+    return _record_gate_evidence(Path(repo_root), lambda state: gate_policy.ingest_functional_evidence(
+        Path(repo_root), state, work_item_id, record, now=now))
+
+
+def record_pr_fact(repo_root: Path, work_item_id: str, payload: dict, *, now: str,
+                   repository: str | None = None) -> dict:
+    """Ingests an orchestrator's `pr_review_result` (forge provenance
+    required) into `gate_evidence.pr_reported`; tighten-only, so it can only
+    arm the query trigger. Returns `{slot, fact}`."""
+    return _record_gate_evidence(Path(repo_root), lambda state: gate_policy.ingest_pr_facts(
+        Path(repo_root), state, work_item_id, payload, now=now, repository=repository))
+
+
+def query_and_store_pr_fact(repo_root: Path, work_item_id: str, *, now: str, run_ref: str | None = None,
+                            run=None, resolve=None) -> dict:
+    """Runs the Workflow's own fixed `gh` query for the item's anchor commit
+    inside the state transaction and stores the result as
+    `gate_evidence.pr` (provenance `workflow_gh`), also when a later gate is
+    refused, so a red answer is not lost and a poll does not loop. A
+    `ForgeError` (`forge_unavailable`, `forge_undecidable`) or an
+    `EvidenceRefusedError` writes nothing."""
+    import workflow_forge
+
+    def writer(state: dict) -> tuple[dict, dict]:
+        work_item = state["work_items"][work_item_id]
+        anchor = gate_policy.anchor_of(Path(repo_root), work_item_id, work_item)
+        if anchor is None:
+            raise workflow_forge.ForgeUndecidableError(
+                f"{work_item_id}: no anchor commit (no technical approval and no reviewed implementation head)")
+        kwargs = {"run": run} if run is not None else {}
+        query = workflow_forge.query_forge_pr_facts(Path(repo_root), anchor["commit"], resolve=resolve, **kwargs)
+        return gate_policy.store_workflow_pr_fact(Path(repo_root), state, work_item_id, query, now=now, run_ref=run_ref)
+
+    return _record_gate_evidence(Path(repo_root), writer)
 
 
 if __name__ == "__main__":

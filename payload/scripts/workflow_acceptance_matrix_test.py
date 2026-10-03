@@ -61,6 +61,7 @@ SCRIPT_FILES = (
     "workflow_state.py",
     "workflow_fingerprint.py",
     "workflow_gate_policy.py",
+    "workflow_forge.py",
     "prepare-ai-review.sh",
 )
 

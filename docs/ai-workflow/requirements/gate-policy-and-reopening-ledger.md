@@ -163,3 +163,55 @@ record), REQ-12 (the trust boundary for review verdicts, CP2's part).
 - **Note**: `workflow_integration_test.py` reads the git toplevel as the
   installed layout, so it is run in a fixture built from `payload/` (plus
   `CLAUDE.md` and `docs/ACTIVE_MILESTONE.md`), not in place.
+
+## `CP3` — Functional evidence, GitHub-sourced pull-request facts and the stale-evidence table
+
+Requirements: REQ-5 (functional flows and GitHub-sourced pull-request facts
+ingested as identity-bound evidence; the Workflow owns every invalidation
+rule), REQ-12 (the trust boundary for CI and pull-request facts, CP3's part).
+
+- **Implementation** (release source only):
+  - `payload/scripts/workflow_forge.py` (new, stdlib-only, `state_writer:
+    false`): the one fixed `gh` argv (`gh_argv`, `--limit 200`),
+    `FORGE_PR_LIST_LIMIT`, `resolve_gh` (the absolute path; refused inside the
+    repository, any worktree, the temporary directory or a world-writable
+    directory, by the resolved target; records `path` and `sha256`),
+    `query_forge_pr_facts` (no shell, 30 s timeout, `origin` parsed and
+    validated, `run` and `resolve` injectable), `parse_forge_raw` (the one
+    parser both sources use; a full page and two open pull requests are
+    `forge_undecidable`), and the stable-code errors.
+  - `payload/scripts/workflow_gate_policy.py`: `gate_evidence` shape and
+    validator (`gate_evidence_errors`), `identity_at`, `anchor_of`,
+    `position_of` (equal, ahead, behind), `current_at_anchor`,
+    `ingest_functional_evidence`, `ingest_pr_facts` (orchestrator report,
+    `orchestrator_forge`, own slot), `store_workflow_pr_fact` (`workflow_gh`,
+    `gh_path`/`gh_sha256`), the cause table (`cause_key`, `evidential_causes`),
+    `pr_key_actionable`, `actionable_pr_keys`, `pr_query_trigger`,
+    `INVALIDATION_RULES` and `apply_invalidation`.
+  - `payload/scripts/workflow_state.py`: `InvalidGateEvidenceError` checked in
+    `_validate_work_item`; the writers `record_functional_evidence`,
+    `record_pr_fact` and `query_and_store_pr_fact`, each through
+    `state_transaction`; `gate_evidence` added to the technical-approval and the
+    two bundle-generation field sets.
+  - Tests: `workflow_gate_policy_test.py` (CP3 classes: forge parser, `gh`
+    resolution, the Workflow query, functional evidence, reported facts, cause
+    table, position, invalidation table, query trigger, shape, commit
+    contracts and cross-item residue); `workflow_forge.py` added to the
+    harness, the generalization and the acceptance-matrix script lists.
+- **Deviations and judgements**:
+  - An empty `statusCheckRollup` reads `checks.state: pending` (fail closed:
+    "no check has reported" never satisfies `ci_green`); a repository without
+    CI sets `require_ci: false`.
+  - When no pull request is open the newest merged or closed record stands
+    (`gh pr list --search <sha>` also returns merged and closed ones).
+  - The pure ingest functions live in `workflow_gate_policy.py` as the plan
+    says and take `state`; the `state_transaction` wrappers are in
+    `workflow_state.py` (the policy module never imports it at import time).
+- **Deferred inside the plan's ordering**: `reopen_work_item`, the reopen at
+  store time (`acceptance.satisfy`, `pr.apply_review`), `pr_keys.reopened_for`
+  and `applied` writes, and every `38d`/`38f`-`38h` assertion of the plan's
+  "single principle" cases are CP4's and CP5's; the `record-external-result`
+  kinds (`functional_evidence`, `pr_review_result`) and their error codes are
+  wired by CP6 (CP3 ships the library calls and tests, as the plan says). The
+  predicates those rows call (`actionable_pr_keys`, `pr_query_trigger`,
+  `pr_key_actionable`) are here and are tested directly.

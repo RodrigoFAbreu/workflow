@@ -14,6 +14,7 @@ Stdlib-only. Run: python3 scripts/workflow_gate_policy_test.py
 
 from __future__ import annotations
 
+import contextlib
 import copy
 import json
 import re
@@ -2622,6 +2623,859 @@ class TestCommandTextAgreement(unittest.TestCase):
                                 "--kind", "plan_review_verdict", "--input", str(path), "--run-ref", "orchestrator:run-42"])
             self.assertEqual(code, 0, out.getvalue())
             self.assertEqual(ledger_of(repo, "plan")[MANUAL_PLAN]["run_ref"], "orchestrator:run-42")
+
+
+# ---------------------------------------------------------------------------
+# CP3: the forge module, functional evidence, pull-request facts, the cause
+# table, the query trigger and the stale-evidence table.
+# ---------------------------------------------------------------------------
+
+import hashlib
+import os
+import stat
+from unittest import mock
+
+import workflow_forge as forge
+
+FAKE_GH = {"path": "/usr/local/bin/gh", "sha256": "a" * 64}
+PROTECTED = h.BUNDLE_ITEM_IMPLEMENTATION_PATH
+
+
+def pr_checks(kind: str = "success", failing=("ci",)) -> list:
+    if kind == "success":
+        return [{"name": "ci", "status": "COMPLETED", "conclusion": "SUCCESS"}]
+    if kind == "failure":
+        return [{"name": n, "status": "COMPLETED", "conclusion": "FAILURE"} for n in failing]
+    if kind == "pending":
+        return [{"name": "ci", "status": "IN_PROGRESS", "conclusion": ""}]
+    return []
+
+
+def pr_record(head: str, *, number: int = 7, state: str = "OPEN", decision: str = "", reviews=None,
+              checks: str = "success", failing=("ci",)) -> dict:
+    return {"number": number, "url": f"https://github.com/o/r/pull/{number}", "state": state,
+            "headRefOid": head, "reviewDecision": decision, "reviews": reviews or [],
+            "statusCheckRollup": pr_checks(checks, failing)}
+
+
+def changes_requested(head: str, review_id: str = "R1", body: str = "please fix x") -> list:
+    return [{"id": review_id, "state": "CHANGES_REQUESTED", "body": body, "commit": {"oid": head}}]
+
+
+def reported_payload(records, queried: str, *, repository: str = "o/r", run_ref: str | None = "run-9") -> dict:
+    raw = records if isinstance(records, str) else json.dumps(records)
+    return {"forge": {"source": "github", "query": "pr-list-v1", "repository": repository,
+                      "queried_commit": queried, "fetched_at": "2026-10-03T12:00:00Z",
+                      "fetched_by": {"name": "controller-forge", "version": "1"},
+                      "raw": raw, "raw_sha256": hashlib.sha256(raw.encode()).hexdigest()},
+            "run_ref": run_ref}
+
+
+def functional_record(head: str, *, flow_id: str = "migration-suite", status: str = "passed", **over) -> dict:
+    record = {"flow_id": flow_id, "status": status, "head": head, "ran_at": "2026-10-03T12:00:00Z",
+              "summary": {"passed": 120, "failed": 0, "skipped": 2}, "log_digest": "b" * 64,
+              "run_ref": "run-3", "reporter": "controller"}
+    record.update(over)
+    return record
+
+
+class EvidenceRepo:
+    """A real repository holding one implemented, bundle-generated item and an
+    `origin` on github.com, so identities are the Workflow's own recomputation."""
+
+    def __enter__(self) -> "EvidenceRepo":
+        g.clear_caches()
+        self.repo = h.ScratchRepo().__enter__()
+        h.seed_bundle_item(self.repo, governing_workflow_version="2.2",
+                           phase="SELF_REVIEWING_IMPLEMENTATION", gate_policy=None)
+        self.repo.commit("implement", filename=PROTECTED)
+        self.rcid = h.generate_implementation_bundle(self.repo)
+        self.root = self.repo.root
+        h.git(self.repo, "remote", "add", "origin", "https://github.com/o/r.git")
+        self.anchor = self.state()["work_items"][WI]["reviewed_implementation_head"]
+        self.policy = g.DEFAULT_RESOLVED
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.repo.__exit__(*exc)
+        g.clear_caches()
+
+    def state(self) -> dict:
+        return h.read_state(self.repo)
+
+    def item(self) -> dict:
+        return self.state()["work_items"][WI]
+
+    def evidence(self) -> dict:
+        return g.gate_evidence_of(self.item())
+
+    def protected_commit(self, text: str) -> str:
+        return self.repo.commit(text, filename=PROTECTED)
+
+    def excluded_commit(self) -> str:
+        return self.repo.commit("notes", filename="docs/ai-workflow/notes.txt")
+
+    def report(self, records, queried: str | None = None, **kw) -> dict:
+        return ws.record_pr_fact(self.root, WI, reported_payload(records, queried or self.anchor, **kw), now=now())
+
+    def query(self, records, *, queried: str | None = None) -> dict:
+        calls = []
+
+        def run(argv, timeout):
+            calls.append((argv, timeout))
+            return records if isinstance(records, str) else json.dumps(records)
+
+        self.calls = calls
+        return ws.query_and_store_pr_fact(self.root, WI, now=now(), run=run, resolve=lambda root: dict(FAKE_GH))
+
+    def set_state(self, **item_fields) -> None:
+        state = self.state()
+        state["work_items"][WI].update(item_fields)
+        h.write_state(self.repo, state)
+
+    def position(self, head: str) -> str | None:
+        return g.position_of(self.root, WI, self.item(), head)
+
+
+class TestForgeParser(unittest.TestCase):
+    HEAD = "c" * 40
+
+    def test_the_argv_is_the_fixed_constant_with_an_explicit_limit(self):
+        argv = forge.gh_argv("o/r", self.HEAD, "/abs/gh")
+        self.assertEqual(argv, ["/abs/gh", "pr", "list", "--repo", "o/r", "--state", "all", "--search", self.HEAD,
+                                "--limit", "200", "--json",
+                                "number,url,state,headRefOid,reviewDecision,reviews,statusCheckRollup"])
+        self.assertEqual(forge.FORGE_PR_LIST_LIMIT, 200)
+
+    def test_every_field_is_derived_from_raw(self):
+        raw = json.dumps([pr_record(self.HEAD, decision="CHANGES_REQUESTED", checks="failure", failing=("b", "a"),
+                                    reviews=changes_requested(self.HEAD, "R9", "fix it"))])
+        fact = forge.parse_forge_raw(raw, "o/r", self.HEAD)
+        self.assertEqual(fact, {
+            "pr": {"number": 7, "url": "https://github.com/o/r/pull/7"}, "state": "open", "head": self.HEAD,
+            "review_decision": "CHANGES_REQUESTED", "reviewed_head": self.HEAD,
+            "checks": {"state": "failure", "failing": ["a", "b"]}, "review_id": "R9", "findings": "fix it"})
+
+    def test_a_decision_on_an_earlier_head_reads_review_required(self):
+        raw = json.dumps([pr_record(self.HEAD, decision="APPROVED",
+                                    reviews=[{"id": "R1", "state": "APPROVED", "body": "", "commit": {"oid": "d" * 40}}])])
+        fact = forge.parse_forge_raw(raw, "o/r", self.HEAD)
+        self.assertEqual((fact["review_decision"], fact["reviewed_head"]), ("REVIEW_REQUIRED", "d" * 40))
+
+    def test_the_checks_state_failure_pending_success_and_none_reported(self):
+        for kind, expected in (("success", "success"), ("failure", "failure"), ("pending", "pending"),
+                               ("none", "pending")):
+            fact = forge.parse_forge_raw(json.dumps([pr_record(self.HEAD, checks=kind)]), "o/r", self.HEAD)
+            self.assertEqual(fact["checks"]["state"], expected, kind)
+
+    def test_two_open_pull_requests_are_undecidable_and_a_closed_one_is_not_in_the_way(self):
+        two = json.dumps([pr_record(self.HEAD, number=1), pr_record(self.HEAD, number=2)])
+        with self.assertRaises(forge.ForgeUndecidableError):
+            forge.parse_forge_raw(two, "o/r", self.HEAD)
+        mixed = json.dumps([pr_record(self.HEAD, number=1, state="CLOSED"), pr_record(self.HEAD, number=2)])
+        self.assertEqual(forge.parse_forge_raw(mixed, "o/r", self.HEAD)["pr"]["number"], 2)
+
+    def test_a_full_page_is_undecidable_and_a_short_page_is_not(self):
+        full = json.dumps([pr_record(self.HEAD, number=1)] + [pr_record(self.HEAD, number=n, state="CLOSED")
+                                                              for n in range(2, 201)])
+        with self.assertRaises(forge.ForgeUndecidableError):
+            forge.parse_forge_raw(full, "o/r", self.HEAD)
+        short = json.dumps([pr_record(self.HEAD, number=1)] + [pr_record(self.HEAD, number=n, state="CLOSED")
+                                                               for n in range(2, 200)])
+        self.assertEqual(forge.parse_forge_raw(short, "o/r", self.HEAD)["state"], "open")
+
+    def test_no_pull_request_is_state_none_and_garbage_is_unparseable(self):
+        self.assertEqual(forge.parse_forge_raw("[]", "o/r", self.HEAD)["state"], "none")
+        for bad in ("not json", "{}", "[1]", json.dumps([{"state": "OPEN"}])):
+            with self.assertRaises(forge.ForgeUnparseableError, msg=bad):
+                forge.parse_forge_raw(bad, "o/r", self.HEAD)
+
+    def test_the_newest_merged_pull_request_stands_when_none_is_open(self):
+        raw = json.dumps([pr_record(self.HEAD, number=3, state="CLOSED"), pr_record(self.HEAD, number=5, state="MERGED")])
+        fact = forge.parse_forge_raw(raw, "o/r", self.HEAD)
+        self.assertEqual((fact["state"], fact["pr"]["number"]), ("merged", 5))
+
+
+class TestResolveGh(unittest.TestCase):
+    """`resolve_gh` decides on resolution only; the executable is never run."""
+
+    def make_gh(self, directory: Path, mode: int = 0o755) -> Path:
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / "gh"
+        path.write_text("#!/bin/sh\nexit 0\n")
+        path.chmod(mode)
+        return path
+
+    def resolve(self, repo_root: Path, directory: Path, *, safe_roots: bool = False):
+        env = {"PATH": f"{directory}{os.pathsep}{os.environ['PATH']}"}
+        patches = [mock.patch.dict(os.environ, env)]
+        if safe_roots:
+            patches += [mock.patch.object(forge, "_temp_roots", return_value=[]),
+                        mock.patch.object(forge, "_worktree_roots", return_value=[Path("/nonexistent-repo")])]
+        with contextlib.ExitStack() as stack:
+            for patch in patches:
+                stack.enter_context(patch)
+            return forge.resolve_gh(repo_root)
+
+    def test_a_gh_inside_the_repository_a_worktree_or_the_temp_directory_is_refused(self):
+        with EvidenceRepo() as ev:
+            inside = self.make_gh(ev.root / "bin")
+            with self.assertRaises(forge.ForgeUndecidableError) as caught:
+                self.resolve(ev.root, inside.parent)
+            self.assertIn(str(inside), str(caught.exception))
+            tempdir = Path(tempfile.mkdtemp(prefix="wf-gh-"))
+            self.addCleanup(shutil.rmtree, tempdir, ignore_errors=True)
+            temp_gh = self.make_gh(tempdir)
+            with self.assertRaises(forge.ForgeUndecidableError):
+                self.resolve(Path("/nonexistent-repo"), temp_gh.parent)
+            worktree = Path(tempfile.mkdtemp(prefix="wf-wt-"))
+            self.addCleanup(shutil.rmtree, worktree, ignore_errors=True)
+            wt_gh = self.make_gh(worktree / "tools")
+            with mock.patch.object(forge, "_worktree_roots", return_value=[worktree]), \
+                    mock.patch.object(forge, "_temp_roots", return_value=[]), \
+                    mock.patch.dict(os.environ, {"PATH": str(wt_gh.parent)}), \
+                    self.assertRaises(forge.ForgeUndecidableError):
+                forge.resolve_gh(ev.root)
+
+    def test_a_world_writable_directory_or_executable_is_refused_and_a_safe_path_is_accepted(self):
+        with EvidenceRepo() as ev:
+            base = Path(tempfile.mkdtemp(prefix="wf-gh-"))
+            self.addCleanup(shutil.rmtree, base, ignore_errors=True)
+            open_dir = base / "open"
+            self.make_gh(open_dir)
+            open_dir.chmod(0o777)
+            with self.assertRaises(forge.ForgeUndecidableError):
+                self.resolve(ev.root, open_dir, safe_roots=True)
+            loose = self.make_gh(base / "loose", 0o757)
+            with self.assertRaises(forge.ForgeUndecidableError):
+                self.resolve(ev.root, loose.parent, safe_roots=True)
+            safe = self.make_gh(base / "safe")
+            found = self.resolve(ev.root, safe.parent, safe_roots=True)
+            self.assertEqual(found, {"path": str(safe.resolve()),
+                                     "sha256": hashlib.sha256(safe.read_bytes()).hexdigest()})
+
+    def test_a_symlink_in_a_safe_directory_is_refused_by_its_resolved_target(self):
+        with EvidenceRepo() as ev:
+            target = self.make_gh(ev.root / "bin")
+            base = Path(tempfile.mkdtemp(prefix="wf-gh-"))
+            self.addCleanup(shutil.rmtree, base, ignore_errors=True)
+            (base / "gh").symlink_to(target)
+            with self.assertRaises(forge.ForgeUndecidableError):
+                self.resolve(ev.root, base, safe_roots=False)
+
+    def test_a_gh_that_is_not_found_is_unavailable(self):
+        empty = Path(tempfile.mkdtemp(prefix="wf-gh-"))
+        self.addCleanup(shutil.rmtree, empty, ignore_errors=True)
+        with mock.patch.dict(os.environ, {"PATH": str(empty)}), self.assertRaises(forge.ForgeUnavailableError):
+            forge.resolve_gh(Path("/nonexistent-repo"))
+
+
+class TestWorkflowQuery(unittest.TestCase):
+    def test_the_query_runs_the_absolute_path_with_the_fixed_argv_and_a_timeout(self):
+        with EvidenceRepo() as ev:
+            ev.query([pr_record(ev.anchor)])
+            argv, timeout = ev.calls[0]
+            self.assertEqual(argv, forge.gh_argv("o/r", ev.anchor, FAKE_GH["path"]))
+            self.assertTrue(os.path.isabs(argv[0]))
+            self.assertEqual(timeout, 30)
+            fact = ev.evidence()["pr"]
+            self.assertEqual(fact["provenance"]["source"], "workflow_gh")
+            self.assertEqual((fact["provenance"]["gh_path"], fact["provenance"]["gh_sha256"]),
+                             (FAKE_GH["path"], FAKE_GH["sha256"]))
+            self.assertEqual(fact["queried_commit"], ev.anchor)
+
+    def test_no_pull_request_stores_state_none(self):
+        with EvidenceRepo() as ev:
+            ev.query([])
+            fact = ev.evidence()["pr"]
+            self.assertEqual((fact["state"], fact["pr"]), ("none", None))
+            self.assertEqual(g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy), [])
+
+    def test_every_failure_raises_and_writes_nothing(self):
+        failures = (forge.ForgeUnavailableError("gh is not installed"), forge.ForgeUnavailableError("exit 1"),
+                    forge.ForgeUnavailableError("timed out"))
+        with EvidenceRepo() as ev:
+            before = state_bytes(ev.repo)
+            for exc in failures:
+                def run(argv, timeout, exc=exc):
+                    raise exc
+                with self.assertRaises(forge.ForgeUnavailableError):
+                    ws.query_and_store_pr_fact(ev.root, WI, now=now(), run=run, resolve=lambda r: dict(FAKE_GH))
+            for bad, error in (("not json", forge.ForgeUnparseableError),
+                               (json.dumps([pr_record(ev.anchor, number=1), pr_record(ev.anchor, number=2)]),
+                                forge.ForgeUndecidableError)):
+                with self.assertRaises(error):
+                    ev.query(bad)
+            with self.assertRaises(forge.ForgeUndecidableError):
+                ws.query_and_store_pr_fact(
+                    ev.root, WI, now=now(), run=lambda a, t: "[]",
+                    resolve=lambda r: (_ for _ in ()).throw(forge.ForgeUndecidableError("unsafe gh")))
+            self.assertEqual(state_bytes(ev.repo), before)
+
+    def test_a_full_page_stores_nothing(self):
+        with EvidenceRepo() as ev:
+            before = state_bytes(ev.repo)
+            page = [pr_record(ev.anchor, number=1)] + [pr_record(ev.anchor, number=n, state="CLOSED") for n in range(2, 201)]
+            with self.assertRaises(forge.ForgeUndecidableError):
+                ev.query(page)
+            self.assertIn("--limit", ev.calls[0][0])
+            self.assertEqual(ev.calls[0][0][ev.calls[0][0].index("--limit") + 1], "200")
+            self.assertEqual(state_bytes(ev.repo), before)
+
+    def test_an_unresolvable_or_foreign_head_stores_nothing(self):
+        with EvidenceRepo() as ev:
+            before = state_bytes(ev.repo)
+            with self.assertRaises(g.EvidenceRefusedError) as caught:
+                ev.query([pr_record("e" * 40)])
+            self.assertEqual(caught.exception.code, "pr_head_unknown")
+            h.git(ev.repo, "checkout", "-q", "-b", "other", ev.repo.base)
+            other = ev.repo.commit("elsewhere", filename="elsewhere.txt")
+            h.git(ev.repo, "checkout", "-q", "-")
+            with self.assertRaises(g.EvidenceRefusedError) as caught:
+                ev.query([pr_record(other)])
+            self.assertEqual(caught.exception.code, "pr_head_not_in_branch")
+            self.assertEqual(state_bytes(ev.repo), before)
+
+    def test_the_replaced_slot_keeps_the_key_sets(self):
+        with EvidenceRepo() as ev:
+            ev.query([pr_record(ev.anchor)])
+            state = ev.state()
+            state["work_items"][WI]["gate_evidence"]["pr_keys"].update(reopened_for=["k1"], applied=["k0"])
+            h.write_state(ev.repo, state)
+            ev.query([pr_record(ev.anchor, checks="failure")])
+            keys = ev.evidence()["pr_keys"]
+            self.assertEqual((keys["reopened_for"], keys["applied"], keys["ingest_seq"]), (["k1"], ["k0"], 2))
+
+
+class TestFunctionalEvidence(unittest.TestCase):
+    def test_identity_is_recomputed_at_head_and_a_reporters_claim_is_never_read(self):
+        with EvidenceRepo() as ev:
+            result = ws.record_functional_evidence(ev.root, WI, functional_record(ev.anchor), now=now())
+            self.assertEqual(result["identity"], ev.rcid)
+            self.assertEqual(result["stored"]["identity"], ev.rcid)
+            with self.assertRaises(g.EvidenceRefusedError) as caught:
+                ws.record_functional_evidence(ev.root, WI, functional_record(ev.anchor, identity="f" * 64), now=now())
+            self.assertEqual(caught.exception.code, "evidence_malformed")
+
+    def test_the_audit_keys_are_kept_and_a_fabricated_record_is_the_stated_boundary(self):
+        with EvidenceRepo() as ev:
+            ws.record_functional_evidence(ev.root, WI, functional_record(ev.anchor, flow_id="never-ran"), now=now())
+            stored = ev.evidence()["functional"]["never-ran"]
+            self.assertEqual((stored["log_digest"], stored["reporter"], stored["run_ref"]), ("b" * 64, "controller", "run-3"))
+            self.assertTrue(g.functional_record_current(ev.root, WI, ev.item(), stored))
+
+    def test_an_excluded_only_commit_keeps_it_current_and_protected_content_stales_it(self):
+        with EvidenceRepo() as ev:
+            ws.record_functional_evidence(ev.root, WI, functional_record(ev.anchor), now=now())
+            ev.excluded_commit()
+            record = ev.evidence()["functional"]["migration-suite"]
+            self.assertEqual(g.identity_at(ev.root, WI, ev.item(), "HEAD"), ev.rcid)
+            self.assertTrue(g.functional_record_current(ev.root, WI, ev.item(), record))
+            moved = ev.protected_commit("changed implementation")
+            ws.record_functional_evidence(ev.root, WI, functional_record(moved, flow_id="later"), now=now())
+            self.assertTrue(g.functional_record_current(ev.root, WI, ev.item(), record), "judged against the anchor")
+            self.assertFalse(g.functional_record_current(
+                ev.root, WI, ev.item(), ev.evidence()["functional"]["later"]), "new content differs from the anchor")
+
+    def test_a_failed_run_is_recorded_and_not_current_and_a_rereport_replaces_it(self):
+        with EvidenceRepo() as ev:
+            ws.record_functional_evidence(ev.root, WI, functional_record(ev.anchor, status="failed"), now=now())
+            self.assertFalse(g.functional_record_current(ev.root, WI, ev.item(), ev.evidence()["functional"]["migration-suite"]))
+            ws.record_functional_evidence(ev.root, WI, functional_record(ev.anchor), now=now())
+            record = ev.evidence()["functional"]["migration-suite"]
+            self.assertEqual(record["status"], "passed")
+            self.assertEqual(len(ev.evidence()["functional"]), 1)
+
+    def test_an_unresolvable_head_or_one_outside_the_branch_refuses_and_writes_nothing(self):
+        with EvidenceRepo() as ev:
+            before = state_bytes(ev.repo)
+            with self.assertRaises(g.EvidenceRefusedError) as caught:
+                ws.record_functional_evidence(ev.root, WI, functional_record("e" * 40), now=now())
+            self.assertEqual(caught.exception.code, "evidence_head_unknown")
+            h.git(ev.repo, "checkout", "-q", "-b", "other", ev.repo.base)
+            other = ev.repo.commit("elsewhere", filename="elsewhere.txt")
+            h.git(ev.repo, "checkout", "-q", "-")
+            with self.assertRaises(g.EvidenceRefusedError) as caught:
+                ws.record_functional_evidence(ev.root, WI, functional_record(other), now=now())
+            self.assertEqual(caught.exception.code, "evidence_head_not_in_branch")
+            self.assertEqual(state_bytes(ev.repo), before)
+
+    def test_malformed_records_are_refused(self):
+        with EvidenceRepo() as ev:
+            for bad in (functional_record(ev.anchor, flow_id="Bad Id"), functional_record(ev.anchor, status="skipped"),
+                        functional_record(ev.anchor, log_digest="short"), "text"):
+                with self.assertRaises(g.EvidenceRefusedError):
+                    ws.record_functional_evidence(ev.root, WI, bad, now=now())
+
+    def test_it_is_accepted_under_the_all_human_policy_too(self):
+        with EvidenceRepo() as ev:
+            (ev.root / POLICY_REL).parent.mkdir(parents=True, exist_ok=True)
+            (ev.root / POLICY_REL).write_text(json.dumps(HUMAN))
+            ws.record_functional_evidence(ev.root, WI, functional_record(ev.anchor), now=now())
+            self.assertIn("migration-suite", ev.evidence()["functional"])
+
+
+class TestReportedPullRequestFacts(unittest.TestCase):
+    def test_a_self_consistent_report_is_stored_in_its_own_slot_as_orchestrator_forge(self):
+        with EvidenceRepo() as ev:
+            result = ev.report([pr_record(ev.anchor)])
+            evidence = ev.evidence()
+            self.assertIsNone(evidence["pr"])
+            fact = evidence["pr_reported"]
+            self.assertEqual(result["slot"], "pr_reported")
+            self.assertEqual(fact["provenance"]["source"], "orchestrator_forge")
+            self.assertEqual(fact["provenance"]["fetched_by"], {"name": "controller-forge", "version": "1"})
+            self.assertEqual(fact["provenance"]["run_ref"], "run-9")
+            self.assertEqual(fact["head"], ev.anchor)
+            self.assertEqual(fact["ingest_seq"], 1)
+
+    def test_provenance_refusals_write_nothing(self):
+        with EvidenceRepo() as ev:
+            before = state_bytes(ev.repo)
+            good = reported_payload([pr_record(ev.anchor)], ev.anchor)
+            cases = []
+            cases.append((forge.ForgeProvenanceRequiredError, {"run_ref": "x"}))
+            cases.append((forge.ForgeProvenanceRequiredError, {"forge": {"raw": "[]"}, "run_ref": "x"}))
+            tampered = copy.deepcopy(good)
+            tampered["forge"]["raw_sha256"] = "0" * 64
+            cases.append((forge.ForgeDigestMismatchError, tampered))
+            cases.append((forge.ForgeRepositoryMismatchError,
+                          reported_payload([pr_record(ev.anchor)], ev.anchor, repository="other/repo")))
+            cases.append((forge.ForgeUnparseableError, reported_payload("not json", ev.anchor)))
+            cases.append((forge.ForgeUndecidableError, reported_payload(
+                [pr_record(ev.anchor, number=1), pr_record(ev.anchor, number=2)], ev.anchor)))
+            for error, payload in cases:
+                with self.assertRaises(error):
+                    ws.record_pr_fact(ev.root, WI, payload, now=now())
+            self.assertEqual(state_bytes(ev.repo), before)
+
+    def test_reporter_supplied_fields_are_not_read(self):
+        with EvidenceRepo() as ev:
+            payload = reported_payload([pr_record(ev.anchor, checks="failure")], ev.anchor)
+            payload.update(state="merged", head="1" * 40, review_decision="APPROVED", checks={"state": "success"})
+            payload["forge"].update(state="merged")
+            ws.record_pr_fact(ev.root, WI, payload, now=now())
+            fact = ev.evidence()["pr_reported"]
+            self.assertEqual((fact["state"], fact["head"], fact["checks"]["state"]), ("open", ev.anchor, "failure"))
+
+    def test_an_unresolvable_head_or_one_outside_the_branch_refuses(self):
+        with EvidenceRepo() as ev:
+            with self.assertRaises(g.EvidenceRefusedError) as caught:
+                ev.report([pr_record("e" * 40)])
+            self.assertEqual(caught.exception.code, "pr_head_unknown")
+
+    def test_a_reported_fact_is_tighten_only_and_read_by_no_decision(self):
+        with EvidenceRepo() as ev:
+            ev.report([pr_record(ev.anchor, decision="APPROVED",
+                                 reviews=[{"id": "R1", "state": "APPROVED", "body": "", "commit": {"oid": ev.anchor}}])])
+            fact = ev.evidence()["pr_reported"]
+            for cause in g.CAUSES:
+                self.assertFalse(g.pr_key_actionable(ev.policy, fact, cause))
+            self.assertEqual(g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy), [])
+
+    def test_a_red_report_reopens_nothing_by_itself_it_arms_the_trigger(self):
+        with EvidenceRepo() as ev:
+            phase_before = ev.item()["phase"]
+            ev.report([pr_record(ev.anchor, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor))])
+            state = ev.state()
+            self.assertEqual(g.actionable_pr_keys(ev.root, state, WI, ev.policy), [])
+            self.assertTrue(g.pr_query_trigger(state, WI, ev.policy))
+            self.assertEqual(state["work_items"][WI]["phase"], phase_before)
+            self.assertNotIn("reopenings", state["work_items"][WI])
+
+    def test_one_slot_per_source_and_a_green_report_never_hides_a_red_workflow_fact(self):
+        with EvidenceRepo() as ev:
+            ev.query([pr_record(ev.anchor, checks="failure")])
+            ev.report([pr_record(ev.anchor)])
+            evidence = ev.evidence()
+            self.assertEqual(evidence["pr"]["checks"]["state"], "failure")
+            self.assertEqual(evidence["pr_reported"]["checks"]["state"], "success")
+            keys = g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy)
+            self.assertEqual([k["cause"] for k in keys], ["checks_failed"])
+
+    def test_ingest_seq_is_assigned_by_the_workflow_strictly_increasing(self):
+        with EvidenceRepo() as ev:
+            ev.report([pr_record(ev.anchor)])
+            ev.query([pr_record(ev.anchor)])
+            ev.report([pr_record(ev.anchor)], run_ref=None)
+            evidence = ev.evidence()
+            self.assertEqual((evidence["pr_reported"]["ingest_seq"], evidence["pr"]["ingest_seq"]), (3, 2))
+            self.assertEqual(evidence["pr_keys"], {"reopened_for": [], "applied": [], "ingest_seq": 3})
+            self.assertIsNone(evidence["pr_reported"]["provenance"]["run_ref"])
+
+    def test_a_pr_review_result_is_recorded_at_every_phase_with_no_state_effect(self):
+        for phase in ("IMPLEMENTING", "AWAITING_LOCAL_IMPLEMENTATION_REVIEW", "AWAITING_FUNCTIONAL_REVIEW",
+                      "MILESTONE_COMPLETE", "PLANNING"):
+            with self.subTest(phase=phase), EvidenceRepo() as ev:
+                ev.set_state(phase=phase)
+                ev.query([pr_record(ev.anchor, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor))])
+                item = ev.item()
+                self.assertEqual(item["phase"], phase)
+                self.assertNotIn("reopenings", item)
+                self.assertEqual(item.get("technical_approval"), None)
+                keys = g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy)
+                self.assertEqual([k["cause"] for k in keys], ["changes_requested"],
+                                 "recorded now, actionable once the item reaches a reopenable phase")
+
+
+class TestCauseTable(unittest.TestCase):
+    def facts(self, ev: EvidenceRepo, **kw) -> dict:
+        ev.query([pr_record(ev.anchor, **kw)])
+        return ev.evidence()["pr"]
+
+    def test_the_three_key_functions_are_deterministic_and_independent_of_observed_at(self):
+        with EvidenceRepo() as ev:
+            fact = self.facts(ev, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor, "R4"),
+                              checks="failure", failing=("z", "a"))
+            self.assertEqual(g.cause_key("changes_requested", fact),
+                             g.key_string(7, "changes_requested", ev.anchor, ev.anchor, "R4"))
+            self.assertEqual(g.cause_key("checks_failed", fact), g.key_string(7, "checks_failed", ev.anchor, ["a", "z"]))
+            self.assertEqual(g.cause_key("content_changed", fact),
+                             g.key_string(7, "content_changed", ev.anchor, ev.rcid))
+            again = copy.deepcopy(fact)
+            again.update(observed_at="later", ingest_seq=99, findings="reworded")
+            for cause in g.CAUSES:
+                self.assertEqual(g.cause_key(cause, again), g.cause_key(cause, fact))
+
+    def test_repolling_the_same_unchanged_fact_is_idempotent_on_the_key(self):
+        with EvidenceRepo() as ev:
+            self.facts(ev, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor), checks="failure")
+            first = g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy)
+            self.facts(ev, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor), checks="failure")
+            self.assertEqual(g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy), first)
+            self.assertEqual(ev.evidence()["pr_keys"]["ingest_seq"], 2, "still stamped with a fresh seq")
+
+    def test_a_new_review_a_new_head_or_a_new_failing_set_is_a_new_key(self):
+        with EvidenceRepo() as ev:
+            a = self.facts(ev, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor, "R1"))
+            b = self.facts(ev, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor, "R2"))
+            self.assertNotEqual(g.cause_key("changes_requested", a), g.cause_key("changes_requested", b))
+            c = self.facts(ev, checks="failure", failing=("x",))
+            d = self.facts(ev, checks="failure", failing=("x", "y"))
+            self.assertNotEqual(g.cause_key("checks_failed", c), g.cause_key("checks_failed", d))
+
+    def test_content_changed_is_tested_first_and_acts_on_nothing_else(self):
+        with EvidenceRepo() as ev:
+            ahead = ev.protected_commit("pr carries new content")
+            ev.query([pr_record(ahead, decision="CHANGES_REQUESTED", reviews=changes_requested(ahead), checks="failure")])
+            keys = g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy)
+            self.assertEqual([k["cause"] for k in keys], ["content_changed"])
+            self.assertEqual(keys[0]["key"], g.cause_key("content_changed", ev.evidence()["pr"]))
+
+    def test_actionability_honors_the_policy_the_state_and_applied_keys(self):
+        with EvidenceRepo() as ev:
+            self.facts(ev, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor), checks="failure")
+            state = ev.state()
+            self.assertEqual({k["cause"] for k in g.actionable_pr_keys(ev.root, state, WI, ev.policy)},
+                             {"changes_requested", "checks_failed"})
+            off = g.resolve_policy({"schema_version": 1, "pr_review": {"enabled": False}})
+            self.assertEqual(g.actionable_pr_keys(ev.root, state, WI, off), [])
+            only_checks = g.resolve_policy({"schema_version": 1, "pr_review": {"enabled": True, "reopen_on": ["checks_failed"]}})
+            self.assertEqual([k["cause"] for k in g.actionable_pr_keys(ev.root, state, WI, only_checks)], ["checks_failed"])
+            applied = g.cause_key("checks_failed", ev.evidence()["pr"])
+            state["work_items"][WI]["gate_evidence"]["pr_keys"]["applied"] = [applied]
+            self.assertEqual([k["cause"] for k in g.actionable_pr_keys(ev.root, state, WI, ev.policy)], ["changes_requested"])
+            self.assertEqual(g.actionable_pr_keys(ev.root, state, WI, off), [], "re-evaluated on the current policy")
+
+    def test_a_closed_unmerged_or_merged_pr_is_recorded_and_never_actionable(self):
+        for pr_state in ("CLOSED", "MERGED"):
+            with self.subTest(pr_state), EvidenceRepo() as ev:
+                self.facts(ev, state=pr_state, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor))
+                self.assertEqual(g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy), [])
+                re_opened = self.facts(ev, state="OPEN", decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor))
+                self.assertEqual(re_opened["state"], "open")
+                self.assertEqual(len(g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy)), 1,
+                                 "a fresh query finding the PR open makes the same key actionable again")
+
+    def test_a_content_changed_head_on_a_completed_item_is_actionable_and_stales_nothing(self):
+        with EvidenceRepo() as ev:
+            approval = {"status": "CURRENT"}
+            ev.set_state(phase="MILESTONE_COMPLETE")
+            ahead = ev.protected_commit("post-completion content")
+            ev.query([pr_record(ahead)])
+            item = ev.item()
+            self.assertEqual(item["phase"], "MILESTONE_COMPLETE")
+            self.assertEqual([k["cause"] for k in g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy)],
+                             ["content_changed"])
+            self.assertNotEqual(item.get("technical_approval"), {"status": "STALE"})
+            del approval
+
+    def test_failed_checks_pending_checks_and_a_stale_head_are_recorded_and_not_current_and_passing(self):
+        with EvidenceRepo() as ev:
+            moved = ev.protected_commit("new content")
+            for kwargs, head in (({"checks": "failure"}, ev.anchor), ({"checks": "pending"}, ev.anchor),
+                                 ({"checks": "success"}, moved)):
+                ev.query([pr_record(head, **kwargs)])
+                fact = ev.evidence()["pr"]
+                current = g.current_at_anchor(ev.root, WI, ev.item(), fact["head"], identity_at_head=fact["identity_at_head"])
+                passing = fact["checks"]["state"] == "success"
+                self.assertFalse(current and passing, (kwargs, head))
+
+
+class TestPositionRelativeToTheAnchor(unittest.TestCase):
+    def test_equal_ahead_and_behind(self):
+        with EvidenceRepo() as ev:
+            self.assertEqual(ev.position(ev.anchor), "equal")
+            self.assertEqual(ev.position(ev.excluded_commit()), "equal")
+            ahead = ev.protected_commit("new protected content")
+            self.assertEqual(ev.position(ahead), "ahead")
+            ev.set_state(reviewed_implementation_head=ahead)
+            self.assertEqual(ev.position(ahead), "equal")
+            self.assertEqual(ev.position(ev.anchor), "behind", "an unpushed bounded fix moved the anchor")
+
+    def test_the_technical_approval_commit_is_the_anchor_when_there_is_one(self):
+        with EvidenceRepo() as ev:
+            ahead = ev.protected_commit("approved content")
+            ev.set_state(technical_approval={"status": "CURRENT", "reviewed_content_commit": ahead,
+                                             "approved_review_content_id": g.identity_at(ev.root, WI, ev.item(), ahead)})
+            self.assertEqual(g.anchor_of(ev.root, WI, ev.item())["commit"], ahead)
+            self.assertEqual(ev.position(ev.anchor), "behind")
+
+    def test_a_behind_fact_is_recorded_not_actionable_and_not_the_content_changed_cause(self):
+        with EvidenceRepo() as ev:
+            ahead = ev.protected_commit("approved content")
+            ev.set_state(reviewed_implementation_head=ahead)
+            ev.query([pr_record(ev.anchor, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor), checks="failure")])
+            fact = ev.evidence()["pr"]
+            self.assertEqual(g.apply_invalidation(ev.root, ev.state(), WI, fact)["rule"], "behind")
+            self.assertEqual(g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy), [])
+            self.assertFalse(g.current_at_anchor(ev.root, WI, ev.item(), fact["head"],
+                                                 identity_at_head=fact["identity_at_head"]))
+
+    def test_an_ahead_head_still_reopens_with_content_changed(self):
+        with EvidenceRepo() as ev:
+            ahead = ev.protected_commit("pr content")
+            ev.query([pr_record(ahead)])
+            self.assertEqual(g.apply_invalidation(ev.root, ev.state(), WI, ev.evidence()["pr"])["rule"], "ahead")
+
+    def test_no_anchor_means_no_position_and_no_actionable_key(self):
+        with EvidenceRepo() as ev:
+            ev.set_state(reviewed_implementation_head=None)
+            self.assertIsNone(g.anchor_of(ev.root, WI, ev.item()))
+            self.assertIsNone(ev.position(ev.anchor))
+
+
+class TestInvalidationTable(unittest.TestCase):
+    def rule(self, ev: EvidenceRepo, head: str | None = None, **kw) -> dict:
+        previous = ev.evidence()["pr"]
+        ev.query([pr_record(head or ev.anchor, **kw)])
+        return g.apply_invalidation(ev.root, ev.state(), WI, ev.evidence()["pr"], previous=previous)
+
+    def test_every_row_of_the_table(self):
+        with EvidenceRepo() as ev:
+            rows = {}
+            rows["merged"] = self.rule(ev, state="MERGED")
+            rows["closed"] = self.rule(ev, state="CLOSED")
+            rows["changes_requested"] = self.rule(ev, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor))
+            rows["checks_failed"] = self.rule(ev, checks="failure")
+            rows["approved"] = self.rule(ev, decision="APPROVED", reviews=[
+                {"id": "R1", "state": "APPROVED", "body": "", "commit": {"oid": ev.anchor}}])
+            rows["same"] = self.rule(ev, head=ev.excluded_commit())
+            rows["ahead"] = self.rule(ev, head=ev.protected_commit("new content"))
+            self.assertEqual({k: v["rule"] for k, v in rows.items()},
+                             {"merged": "merged", "closed": "closed", "changes_requested": "changes_requested",
+                              "checks_failed": "checks_failed", "approved": "approved",
+                              "same": "head_changed_same_identity", "ahead": "ahead"})
+            self.assertEqual({r["id"] for r in g.INVALIDATION_RULES} - {v["rule"] for v in rows.values()}, {"behind"})
+            self.assertIn("technical_approval", rows["same"]["stays"])
+            self.assertIn("functional", rows["ahead"]["stale"])
+            self.assertNotIn("technical_approval", rows["ahead"]["stale"], "never staled at ingest")
+            self.assertEqual(rows["changes_requested"]["causes"], ["changes_requested"])
+
+    def test_an_outdated_review_reads_review_required_and_is_not_changes_requested(self):
+        with EvidenceRepo() as ev:
+            earlier = ev.anchor
+            later = ev.excluded_commit()
+            result = self.rule(ev, head=later, decision="CHANGES_REQUESTED", reviews=changes_requested(earlier))
+            self.assertEqual(ev.evidence()["pr"]["review_decision"], "REVIEW_REQUIRED")
+            self.assertEqual(result["causes"], [])
+
+    def test_a_reopened_pr_is_a_new_fact(self):
+        with EvidenceRepo() as ev:
+            ev.query([pr_record(ev.anchor, state="CLOSED")])
+            result = self.rule(ev, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor))
+            self.assertIn("a reopened PR is a new fact", result["effect"])
+
+    def test_no_ci_produced_evidence_kind_is_offered_anywhere(self):
+        text = (SCRIPTS / "workflow_gate_policy.py").read_text() + (SCRIPTS / "workflow_forge.py").read_text()
+        for word in ("ci_functional", "ci_evidence", "ci_review", "ci_result"):
+            self.assertNotIn(word, text)
+        self.assertEqual(set(g._TOP_KEYS), {"schema_version", "human_approval", "gates", "pr_review"})
+        self.assertNotIn("ci_produced", json.dumps(g.DEFAULT_POLICY))
+
+
+class TestQueryTrigger(unittest.TestCase):
+    def red(self, ev, **kw):
+        return [pr_record(ev.anchor, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor), **kw)]
+
+    def test_a_newer_differing_report_arms_it_and_the_query_clears_it(self):
+        with EvidenceRepo() as ev:
+            ev.query([pr_record(ev.anchor, state="CLOSED")])
+            ev.report(self.red(ev))
+            self.assertTrue(g.pr_query_trigger(ev.state(), WI, ev.policy))
+            ev.query([pr_record(ev.anchor, state="CLOSED")])
+            self.assertFalse(g.pr_query_trigger(ev.state(), WI, ev.policy), "any successful query clears it")
+
+    def test_an_older_or_equal_report_arms_nothing(self):
+        with EvidenceRepo() as ev:
+            ev.report(self.red(ev))
+            ev.query([pr_record(ev.anchor, state="MERGED")])
+            self.assertFalse(g.pr_query_trigger(ev.state(), WI, ev.policy), "the older reported key is never actionable")
+            ev.report([pr_record(ev.anchor, state="MERGED")])
+            self.assertFalse(g.pr_query_trigger(ev.state(), WI, ev.policy), "equal to the stored fact")
+
+    def test_an_empty_pr_slot_or_state_none_differs_from_any_report(self):
+        with EvidenceRepo() as ev:
+            self.assertFalse(g.pr_query_trigger(ev.state(), WI, ev.policy), "no report")
+            ev.report([pr_record(ev.anchor)])
+            self.assertTrue(g.pr_query_trigger(ev.state(), WI, ev.policy))
+            ev.query([])
+            self.assertFalse(g.pr_query_trigger(ev.state(), WI, ev.policy))
+            ev.report([pr_record(ev.anchor)])
+            self.assertTrue(g.pr_query_trigger(ev.state(), WI, ev.policy))
+
+    def test_a_reported_merged_closed_or_open_fact_never_decides_a_stored_key(self):
+        for reported_state in ("MERGED", "CLOSED"):
+            with self.subTest(reported_state), EvidenceRepo() as ev:
+                ev.query(self.red(ev))
+                stored_keys = g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy)
+                ev.report([pr_record(ev.anchor, state=reported_state)])
+                self.assertEqual(g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy), stored_keys,
+                                 "the stored workflow_gh key stays actionable")
+                self.assertTrue(g.pr_query_trigger(ev.state(), WI, ev.policy))
+        with EvidenceRepo() as ev:
+            ev.query([pr_record(ev.anchor, state="CLOSED")])
+            ev.report(self.red(ev))
+            self.assertEqual(g.actionable_pr_keys(ev.root, ev.state(), WI, ev.policy), [],
+                             "a reported open key never makes a closed workflow_gh fact actionable")
+            self.assertTrue(g.pr_query_trigger(ev.state(), WI, ev.policy))
+
+    def test_with_pr_review_disabled_nothing_arms_and_the_fact_is_still_recorded(self):
+        with EvidenceRepo() as ev:
+            ev.report(self.red(ev))
+            off = g.resolve_policy({"schema_version": 1, "pr_review": {"enabled": False}})
+            self.assertFalse(g.pr_query_trigger(ev.state(), WI, off))
+            self.assertIsNotNone(ev.evidence()["pr_reported"])
+
+    def test_one_report_is_at_most_one_successful_query(self):
+        with EvidenceRepo() as ev:
+            ev.report(self.red(ev))
+            self.assertTrue(g.pr_query_trigger(ev.state(), WI, ev.policy))
+            ev.query(self.red(ev))
+            self.assertFalse(g.pr_query_trigger(ev.state(), WI, ev.policy))
+            self.assertFalse(g.pr_query_trigger(ev.state(), WI, ev.policy))
+
+    def test_an_unavailable_gh_leaves_the_trigger_armed(self):
+        with EvidenceRepo() as ev:
+            ev.report(self.red(ev))
+
+            def run(argv, timeout):
+                raise forge.ForgeUnavailableError("gh is not installed")
+
+            with self.assertRaises(forge.ForgeUnavailableError):
+                ws.query_and_store_pr_fact(ev.root, WI, now=now(), run=run, resolve=lambda r: dict(FAKE_GH))
+            self.assertTrue(g.pr_query_trigger(ev.state(), WI, ev.policy))
+
+
+class TestGateEvidenceShape(unittest.TestCase):
+    def test_the_shape_round_trips_through_validate_state_and_an_unknown_key_is_rejected(self):
+        with EvidenceRepo() as ev:
+            ev.query([pr_record(ev.anchor)])
+            ev.report([pr_record(ev.anchor)])
+            ws.record_functional_evidence(ev.root, WI, functional_record(ev.anchor), now=now())
+            state = ev.state()
+            ws.validate_state(state)
+            self.assertEqual(set(state["work_items"][WI]["gate_evidence"]),
+                             {"functional", "pr", "pr_reported", "pr_keys"})
+            bad = copy.deepcopy(state)
+            bad["work_items"][WI]["gate_evidence"]["extra"] = {}
+            with self.assertRaises(ws.InvalidGateEvidenceError):
+                ws.validate_state(bad)
+            bad = copy.deepcopy(state)
+            del bad["work_items"][WI]["gate_evidence"]["pr"]["provenance"]["gh_sha256"]
+            with self.assertRaises(ws.InvalidGateEvidenceError):
+                ws.validate_state(bad)
+            bad = copy.deepcopy(state)
+            bad["work_items"][WI]["gate_evidence"]["pr_reported"]["provenance"]["source"] = "workflow_gh"
+            with self.assertRaises(ws.InvalidGateEvidenceError):
+                ws.validate_state(bad)
+            bad = copy.deepcopy(state)
+            bad["work_items"][WI]["gate_evidence"]["pr_keys"]["ingest_seq"] = 0
+            with self.assertRaises(ws.InvalidGateEvidenceError):
+                ws.validate_state(bad)
+
+    def test_a_state_without_the_key_is_byte_identical_to_before(self):
+        with EvidenceRepo() as ev:
+            self.assertNotIn("gate_evidence", ev.item())
+            ws.validate_state(ev.state())
+
+    def test_pr_keys_never_holds_a_key_derived_from_a_reported_fact(self):
+        with EvidenceRepo() as ev:
+            ev.report([pr_record(ev.anchor, decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor))])
+            self.assertEqual(ev.evidence()["pr_keys"]["reopened_for"], [])
+            self.assertEqual(ev.evidence()["pr_keys"]["applied"], [])
+
+
+class TestGateEvidenceCommitContracts(unittest.TestCase):
+    """`gate_evidence` joins the three field sets for the same item; another
+    item's residue is kept out of a commit by item-scoped staging, and no
+    validator is widened for it (item 267 unweakened)."""
+
+    def residue(self, state: dict, item: str) -> None:
+        evidence = g.empty_gate_evidence()
+        evidence["functional"]["flow"] = {k: "x" for k in g._FUNCTIONAL_FIELDS}
+        evidence["functional"]["flow"].update(flow_id="flow", status="passed", summary={})
+        state["work_items"][item]["gate_evidence"] = evidence
+
+    def generation_commit(self, repo: PolicyRepo, scoped: bool) -> str:
+        repo.write_state(two_item_state(a={"phase": "SELF_REVIEWING_IMPLEMENTATION"}))
+        repo.commit("two items", STATE_REL)
+        state = ws.record_bundle_generation(repo.state(), "a", stage="implementation", head=repo.head(), now="t-gen")
+        self.residue(state, "a")
+        self.residue(state, "b")
+        repo.write_state(state)
+        if scoped:
+            self.assertTrue(ws.stage_scoped_state(repo.root, "a"))
+        else:
+            repo.git("add", "--", STATE_REL)
+        revision = state["work_items"]["a"]["implementation_revision"]
+        repo.git("commit", "-q", "-m", "record bundle generation", "-m",
+                 f"Workflow-Bundle-Generation-Record: a/{revision}\nWorkflow-Work-Item: a")
+        return repo.head()
+
+    def test_the_three_field_sets_admit_the_items_own_gate_evidence(self):
+        for fields in (ws.TECHNICAL_APPROVAL_COMMIT_FIELDS, ws.ORDINARY_BUNDLE_GENERATION_RECORD_FIELDS,
+                       ws.RECOVERED_BUNDLE_GENERATION_RECORD_FIELDS):
+            self.assertIn("gate_evidence", fields)
+
+    def test_the_items_own_residue_passes_and_the_foreign_residue_stays_out_when_scoped(self):
+        with PolicyRepo() as repo:
+            commit = self.generation_commit(repo, scoped=True)
+            ws.validate_bundle_generation_record_commit(repo.root, commit, "a")
+            committed = json.loads(repo.git("show", f"{commit}:{STATE_REL}"))
+            self.assertIn("gate_evidence", committed["work_items"]["a"])
+            self.assertNotIn("gate_evidence", committed["work_items"]["b"], "no change to the other item")
+            self.assertIn("gate_evidence", repo.state()["work_items"]["b"], "still in the working tree")
+
+    def test_foreign_residue_in_an_unscoped_commit_is_still_refused(self):
+        with PolicyRepo() as repo:
+            commit = self.generation_commit(repo, scoped=False)
+            with self.assertRaises(ws.MalformedBundleGenerationRecordCommitError):
+                ws.validate_bundle_generation_record_commit(repo.root, commit, "a")
+
+    def test_a_hand_built_commit_carrying_a_foreign_unrelated_field_is_still_refused(self):
+        with PolicyRepo() as repo:
+            repo.write_state(two_item_state(a={"phase": "SELF_REVIEWING_IMPLEMENTATION"}))
+            repo.commit("two items", STATE_REL)
+            state = ws.record_bundle_generation(repo.state(), "a", stage="implementation", head=repo.head(), now="t-gen")
+            state["work_items"]["b"]["phase"] = "AWAITING_FUNCTIONAL_REVIEW"
+            repo.write_state(state)
+            repo.git("add", "--", STATE_REL)
+            revision = state["work_items"]["a"]["implementation_revision"]
+            repo.git("commit", "-q", "-m", "x", "-m",
+                     f"Workflow-Bundle-Generation-Record: a/{revision}\nWorkflow-Work-Item: a")
+            with self.assertRaises(ws.MalformedBundleGenerationRecordCommitError):
+                ws.validate_bundle_generation_record_commit(repo.root, repo.head(), "a")
 
 
 if __name__ == "__main__":
