@@ -558,3 +558,31 @@ manifest's `workflow_version`).
   counts as passed (GitHub always sets a conclusion on completion); the
   `pr_fact` writers (`store_workflow_pr_fact`, `ingest_pr_facts`) do not bump
   the item's `state_revision`, as the plan's residue design admits.
+
+### Implementation review round 1 (REVISE): B1, I1, I2, O1-O3
+
+- **Fixed (blocking, B1), `workflow_forge._derive` and its consumers:** the
+  parser rewrote a decision on an earlier head to `REVIEW_REQUIRED`, so the
+  automatic acceptance's `no_standing_pr_objection` lost a standing
+  `CHANGES_REQUESTED` after any later push (D-GP-Acceptance requirement 5:
+  "without the `reviewed_head` softening"). `review_decision` is now stored as
+  GitHub reports it and `findings` stays populated whenever it is
+  `CHANGES_REQUESTED`. The consumers that need a current decision compare
+  `reviewed_head` with `head` themselves: `evidential_causes` (already did),
+  `pr_approved`, the `approved` row of `apply_invalidation`, and the
+  `undecided` obtainability test. Three new tests (earlier-head changes
+  request stays blocked after a pushed fix until the reviewer approves;
+  earlier-head approval fails `pr_approved` and stays obtainable;
+  earlier-head approval is not the `approved` row) and two rewritten parser/
+  invalidation tests. gate_policy 280 -> 284.
+- **I1 (carrying-review selection):** kept for `reviewed_head` and
+  `review_id`; B1's fix removes the softening, which settles the widening.
+- **I2 (`pr_merged` naming): not changed.** The reviewer found no reopen path
+  from an `orchestrator_forge` fact and called the `pr_fact_refreshed` result
+  for a merged fresh fact harmless. Evidence: `reopen_work_item` refuses any
+  fact whose provenance is not `workflow_gh`; `pr_key_actionable` reads only
+  `gate_evidence.pr`.
+- **O1, O3: not changed** (the threat model excludes state forgery; the
+  `reviewer_family` limit is documented).
+- **O2 applied:** a `statusCheckRollup` entry with no conclusion, even when
+  `COMPLETED`, reads `pending` (fail-closed); one test.
