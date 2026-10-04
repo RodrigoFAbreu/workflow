@@ -1701,6 +1701,35 @@ class TestGoverningVersion(unittest.TestCase):
             ws.validate_governing_version("3", ws.default_config())
 
 
+# The shipped `templates/docs/ai-workflow/WORKFLOW_CONFIG.json` (not part of the
+# payload, so its content is mirrored here; CP1's staged-fixture check reads the file).
+_SHIPPED_TEMPLATE_CONFIG = {
+    "schema_version": 1,
+    "default_workflow_version": "2.2",
+    "supported_versions": ["1", "2.1", "2.2"],
+}
+
+
+class TestNewInstallationDefaultsToTwoPointTwo(unittest.TestCase):
+    def test_template_config_validates(self):
+        ws.validate_config(_SHIPPED_TEMPLATE_CONFIG)
+
+    def test_work_item_created_from_template_is_governed_by_2_2(self):
+        new_state = ws.route_work_item(
+            _base_state(), _SHIPPED_TEMPLATE_CONFIG, work_item_id="wi", work_item_type="process",
+            work_item_kind="process", plan_path="p", registry_path="r",
+            plan_revision=1, now="t",
+        )
+        self.assertEqual(new_state["work_items"]["wi"]["governing_workflow_version"], "2.2")
+
+    def test_default_config_is_unchanged(self):
+        self.assertEqual(ws.default_config(), {
+            "schema_version": 1,
+            "default_workflow_version": "1",
+            "supported_versions": ["1", "2.1"],
+        })
+
+
 class TestWorkItemRouting(unittest.TestCase):
     def test_fresh_id_creates_entry_and_claims_active_pointer(self):
         state = _base_state()

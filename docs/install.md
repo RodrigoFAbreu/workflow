@@ -22,6 +22,13 @@ Details are on the Manager's pages:
 and
 [verify](https://github.com/RodrigoFAbreu/workflow-manager/blob/main/docs/verify.md).
 
+## The default version of a new installation
+
+From Workflow 2.9, `bootstrap` creates `docs/ai-workflow/WORKFLOW_CONFIG.json`
+with `default_workflow_version` `"2.2"`, so a new work item in a fresh repository
+runs on Workflow version 2.2. `update` never rewrites a configuration that
+already exists, and an existing work item keeps its governing version.
+
 ## Before you install 2.8.0
 
 Workflow 2.8.0 makes plan approval and milestone acceptance automatic (and

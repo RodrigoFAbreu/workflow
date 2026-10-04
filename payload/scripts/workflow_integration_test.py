@@ -224,6 +224,20 @@ class TestFullPassAuthorizedCommitKinds(unittest.TestCase):
 # ---------------------------------------------------------------------------
 
 
+class TestTemplateDefaultCreatesTwoPointTwoItem(unittest.TestCase):
+    def test_item_created_under_the_2_2_template_is_2_2_and_default_config_is_unchanged(self):
+        template = {"schema_version": 1, "default_workflow_version": "2.2",
+                    "supported_versions": ["1", "2.1", "2.2"]}
+        ws.validate_config(template)
+        state = ws.route_work_item(
+            {"schema_version": 1, "active_work_item_id": None, "work_items": {}},
+            template, work_item_id="wi", work_item_type="process", work_item_kind="process",
+            plan_path="p", registry_path="r", plan_revision=1, now="t",
+        )
+        self.assertEqual(state["work_items"]["wi"]["governing_workflow_version"], "2.2")
+        self.assertEqual(ws.default_config()["default_workflow_version"], "1")
+
+
 class TestSelectNextCheckpointDeterminismAlongFullWalk(unittest.TestCase):
     """Missing-test item 58: "at every point in the registry order, exactly
     one command can select and implement the next incomplete checkpoint."

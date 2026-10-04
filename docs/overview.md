@@ -7,7 +7,7 @@ pull request. You can read this page without knowing any code.
 
 ## Lifecycle
 
-This is the lifecycle of a work item on Workflow version 2.2, the newest. Older
+This is the lifecycle of a work item on Workflow version 2.2, the newest and the default of a new installation. Older
 versions differ in the implementation review: a 2.1 item has a single external
 implementation review, and the local one is optional advice
 (`/review-implementation`).

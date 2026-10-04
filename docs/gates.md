@@ -19,13 +19,14 @@ in `docs/ai-workflow/WORKFLOW_CONFIG.json` when the item is created.
 | Governing version | Plan approval | Implementation approval | Milestone acceptance |
 | --- | --- | --- | --- |
 | 2.2 | automatic | automatic | automatic |
-| 2.1 (the default of a freshly bootstrapped repository) | automatic | always a person | automatic |
+| 2.1 | automatic | always a person | automatic |
 | 1 | always a person | always a person | automatic |
 
-So in a fresh repository, plan approval and acceptance are automatic for new
-items, and implementation approval stays with a person until the repository's
-`default_workflow_version` is `"2.2"`. Updating a repository to 2.8.0 changes
-no state file by itself.
+A freshly bootstrapped repository's `default_workflow_version` is `"2.2"` (from
+Workflow 2.9), so all three gates are automatic for its new items. A repository
+bootstrapped earlier keeps the version in its own `WORKFLOW_CONFIG.json`, which
+an update never rewrites, and its existing items keep their governing version.
+Updating a repository changes no state file by itself.
 
 ## What evidence each gate needs
 

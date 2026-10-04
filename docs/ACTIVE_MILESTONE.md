@@ -2,65 +2,66 @@
 
 ## Milestone
 
-**Complete.** W2: `gate-policy-and-reopening` (`process`, governing
-version `2.2`), branch `milestone/gate-policy-and-reopening`, base `d14e0a7`
-(W1's squash merge; Workflow 2.7.0 is published and pinned by
-`workflow-manager#13`, Manager v1.3.0). The plan is
-`docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md` (revision 34).
+**In planning.** W3: `legacy-retire-and-default-version` (`process`, governing
+version `2.2`), branch `milestone/legacy-retire-and-default-version`, base
+`f00c1c3` (the release source is Workflow 2.8.0; this repository's own
+installation is also 2.8.0 with automatic gates and no `GATE_POLICY.json`).
+The plan is `docs/ai-workflow/LEGACY_RETIRE_AND_DEFAULT_VERSION_PLAN.md`
+(revision 1). W3 goes first, ahead of the update tools, to unblock RepFlow.
 
 ## Goal
 
-Workflow 2.8.0 on Orchestration Protocol 1.1: a declarative gate policy in
-which the plan approval, the technical approval and the milestone acceptance
-are each satisfied automatically by their evidence, and human approval is
-**off by default**. A person turns it on with the master `human_approval`
-switch, or for one gate at a time (a per-gate override: for example only the
-plan, or only the acceptance), and with all three human the behavior equals
-2.7.0's apart from the listed deltas. Automatic acceptance is in scope: it
-needs current functional evidence and a GitHub-sourced pull-request fact.
-Loosening any toggle takes a person (`/adopt-gate-policy`). Also in scope is
-post-validation reopening of the same work item when a pull request is red or
-has `CHANGES_REQUESTED`.
+Workflow 2.9.0 on Orchestration Protocol 1.2, a minor release with three parts:
+
+1. **`/retire-legacy-work-item <id>`**, a new user-only command that moves a
+   dormant `LEGACY_READY` work item to `MILESTONE_COMPLETE` as already
+   finished, keeping its `LEGACY_V1` technical approval untouched, with an
+   auditable commit (`Workflow-Legacy-Retirement` and `Workflow-Work-Item`
+   trailers). It refuses any other phase, an active item and unfinished
+   children, and never runs the stale-approval or promotion checks. The
+   protocol reports it as a user-only alternative of blocked row 3, never as
+   automatic. The motivating case is RepFlow's `milestone-8`.
+2. **Default governing version 2.2 for new installations** (the bootstrap
+   template; `default_config()`, the pre-activation fail-safe, is unchanged,
+   see `OD-W3-2`). An update never rewrites an existing config, and items keep
+   their version. It matters because a 2.1 item keeps a human technical gate
+   under the 2.8.0 gate policy.
+3. **Defect `v2.6.0-003`**: a phase-aware `IncompleteOwnCheckpointsError`
+   message; a governing-`1` item with a state entry can reach review from
+   `IMPLEMENTING` and pass acceptance (no `1` command text changes); and a new
+   `/resume-implementation` returns a 2.1/2.2 item with an outstanding
+   checkpoint from `AWAITING_FUNCTIONAL_REVIEW` to `IMPLEMENTING`.
+   `PLANNING`/`AMENDING_PLAN` at `1` stay reported (`OD-W3-7`).
 
 ## Current checkpoint
 
-**Milestone complete.** `gate-policy-and-reopening` reached
-`MILESTONE_COMPLETE` through `/accept-milestone` on 2026-10-03, with the
-owner's confirmation, and `active_work_item_id` is cleared.
-- **Checkpoints:** CP1-CP8 are complete; the registry's completion
-  obligations derive `PASS`.
-- **Technical approval:** `CURRENT`, both implementation-review stages
-  approved (round 2, `implementation_revision` 3).
-- **Functional review:** round 2 passed every flow; its one documentation
-  finding (F1, the ROADMAP's 2.8.0 default and Controller compatibility) was
-  fixed in `docs/ROADMAP.md` (`9e03e13`). Nothing was deferred to a
-  remediation child.
-- **Cutover:** not started; it is the owner's (plan section 7), see "Next
-  action". Workflow 2.8.0 is published by the `Release` workflow only once
-  this branch's pull request is squash-merged.
+**Implementing.** The plan (revision 6) is approved; CP1 is complete.
 
-The per-checkpoint record, the self-review and the implementation review
-round 1 resolutions are in the requirements ledger,
-`docs/ai-workflow/requirements/gate-policy-and-reopening-ledger.md`.
+`CP1` (new installations default to 2.2) complete: the template
+`templates/docs/ai-workflow/WORKFLOW_CONFIG.json` now defaults to `"2.2"` with
+supported versions `1`, `2.1`, `2.2`; `default_config()` is unchanged. Tests in
+`workflow_state_test.py` and `workflow_integration_test.py` prove the template
+validates and an item created from it is 2.2. `docs/gates.md`, `docs/overview.md`
+and `docs/install.md` and the payload's `IMPLEMENTATION_REVIEW_WORKFLOW.md` carry
+the 2.9.0 default. The template digest and derivation text in `manifest.json` are
+refreshed in CP6, as planned.
 
 ## Current blockers
 
-None.
+None. Open decisions for the reviewer and the user are in the plan's section 4
+(`OD-W3-2` is a correction of the request's wording: `default_config()` is the
+fail-safe, default `1`, not 2.1).
 
 ## Active plan
 
-None. `docs/ai-workflow/GATE_POLICY_AND_REOPENING_PLAN.md` is the completed
-milestone's plan and stays where it is, as W1's did.
+`docs/ai-workflow/LEGACY_RETIRE_AND_DEFAULT_VERSION_PLAN.md`.
 
 ## Next action
 
-The cutover (plan section 7) is the owner's: open the pull request, squash-merge
-it with a Conventional-Commit title whose impact agrees with the manifest's
-version change, let the `Release` workflow publish 2.8.0, then add the pin in
-`workflow-manager`. No further milestone is listed in `docs/ROADMAP.md`'s
-ordered table; the next one is chosen by the owner, then `/milestone-plan`. The
-checklist below and the W1 checklist after it are the completed milestones'
-records.
+Plan review (`/review-plan legacy-retire-and-default-version`), then the user's
+plan approval (`/approve-review plan legacy-retire-and-default-version`) unless
+the plan gate is automatic. The sections below are the completed W2 and W1
+milestones' records.
 
 ## Functional review checklist
 
