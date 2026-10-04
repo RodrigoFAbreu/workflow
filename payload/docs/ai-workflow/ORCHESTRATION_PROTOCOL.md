@@ -1,8 +1,9 @@
 # Workflow Orchestration Protocol v1
 
-The normative specification of Orchestration Protocol v1, version `1.1`
+The normative specification of Orchestration Protocol v1, version `1.2`
 (`1.0` first shipped in Workflow 2.7.0; `1.1` adds the gate-policy rows and
-actions in Workflow 2.8.0). An orchestrator (for example the Workflow
+actions in Workflow 2.8.0; `1.2` adds the user-only `legacy.retire`
+alternative of row 3 in Workflow 2.9.0). An orchestrator (for example the Workflow
 Controller) drives a repository's Workflow through this protocol only. It
 copies no Workflow phases, artifact paths, helper names or transition
 rules: the Workflow owns what the lifecycle means, and the orchestrator owns
@@ -36,7 +37,7 @@ Every existing command still works as before when a person runs it.
   for people.
 - `describe` reports the protocol version, the supported majors and the
   supported governing versions. The Workflow releases tested against v1 are
-  listed only here, never in a response: **Workflow 2.7.0** (protocol `1.0`) and **Workflow 2.8.0** (protocol `1.1`).
+  listed only here, never in a response: **Workflow 2.7.0** (protocol `1.0`), **Workflow 2.8.0** (protocol `1.1`) and **Workflow 2.9.0** (protocol `1.2`).
 
 ## 2. Invocation and the envelope
 
@@ -55,7 +56,7 @@ stdout is exactly one JSON document, the **envelope**
 
 ```json
 {
-  "protocol": {"name": "workflow-orchestration", "version": "1.1"},
+  "protocol": {"name": "workflow-orchestration", "version": "1.2"},
   "workflow_release": "2.8.0",
   "operation": "next-action",
   "ok": true,
@@ -440,6 +441,7 @@ by `ACTIONS`:
 | `implementation.review.local` | `review-implementation` | `/review-implementation {id}` | `independent_reviewer` | yes | `implementer`, `self_reviewer` | no |
 | `implementation.satisfy` | `satisfy-gate` | `/satisfy-gate implementation {id}` | `validator` | no | — | no |
 | `implementation.self_review` | `milestone-implement` | `/milestone-implement {id}` | `self_reviewer` | no | — | no |
+| `legacy.retire` | `retire-legacy-work-item` | `/retire-legacy-work-item {id}` | `user` | no | — | yes |
 | `milestone.accept` | `accept-milestone` | `/accept-milestone {id}` | `user` | no | — | yes |
 | `plan.apply_review` | `apply-plan-review` | `/apply-plan-review {id}` | `applier` | no | — | no |
 | `plan.approve` | `approve-review` | `/approve-review plan {id}` | `user` | no | — | yes |
@@ -697,7 +699,7 @@ are a summary, and the code and its tests are the detail.
 | 1 | — | — | no work item is named or active, and `load_config`'s `default_workflow_version` is `2.1` or `2.2` | automatic | `plan.start` | `plan_start` |
 | 1a | — | — | no work item is named or active (the default is `1`) | blocked | — | `plan_start_not_tracked`: a `1` `/milestone-plan` creates no work item |
 | 2 | `AWAITING_TECHNICAL_APPROVAL`, `AWAITING_USER_ACCEPTANCE`, `FIXING_FUNCTIONAL_FINDINGS`, `SELF_REVIEWING_PLAN` | `1`, `2.1`, `2.2` | — (a vocabulary-only phase is persisted) | blocked | — | `invalid_state` |
-| 3 | `LEGACY_READY` | `1`, `2.1`, `2.2` | — | blocked | — | `legacy_item_not_activated` |
+| 3 | `LEGACY_READY` | `1`, `2.1`, `2.2` | — | blocked | — | `legacy_item_not_activated`; remedy: promote it, or (protocol `1.2`) retire it as already finished; alternative `legacy.retire` (`user_only`, never automatic) |
 | 4 | `AWAITING_EXTERNAL_PLAN_REVIEW` at `2.1`/`2.2`, `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` at `1`/`2.1`, `AWAITING_LOCAL_PLAN_REVIEW` at `1`, `AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW` at `1`/`2.1`, `AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW` at `1`, `AWAITING_PLAN_APPROVAL` at `1`, `REVISING_PLAN` at `1`, `SELF_REVIEWING_IMPLEMENTATION` at `1` | as listed | — (no writer persists the phase at that `gv`) | blocked | — | `phase_not_legal_for_governing_version` |
 | 5 | `AMENDING_PLAN`, `AWAITING_LOCAL_PLAN_REVIEW`, `AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW`, `AWAITING_PLAN_APPROVAL`, `PLANNING`, `REVISING_PLAN` | `2.1`, `2.2` | the publication status raises `PlanReviewBindingInconsistentError` | blocked | — | `plan_review_binding_inconsistent`, the error in the text; remedy: withdraw with `/milestone-plan <id>` at a ready phase (alternative `plan.withdraw`), otherwise none exists (repair the record by hand) |
 | 6 | `APPLYING_REVIEW_FEEDBACK`, `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`, `AWAITING_EXTERNAL_PLAN_REVIEW`, `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`, `AWAITING_LOCAL_PLAN_REVIEW`, `AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW`, `AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW`, `AWAITING_PLAN_APPROVAL`, `REVISING_PLAN` | `1`, `2.1`, `2.2` | `assert_bundle_not_rejected` refuses | blocked | — | `bundle_rejected`; the marker's detail; at a two-stage plan phase, alternative `plan.withdraw` |

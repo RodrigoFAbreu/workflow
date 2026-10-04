@@ -35,7 +35,7 @@ Workflow 2.9.0 on Orchestration Protocol 1.2, a minor release with three parts:
 
 ## Current checkpoint
 
-**Implementing.** The plan (revision 6) is approved; CP1 and CP2 are complete.
+**Implementing.** The plan (revision 6) is approved; CP1, CP2 and CP3 are complete.
 
 `CP1` (new installations default to 2.2) complete: the template
 `templates/docs/ai-workflow/WORKFLOW_CONFIG.json` now defaults to `"2.2"` with
@@ -45,6 +45,18 @@ validates and an item created from it is 2.2. `docs/gates.md`, `docs/overview.md
 and `docs/install.md` and the payload's `IMPLEMENTATION_REVIEW_WORKFLOW.md` carry
 the 2.9.0 default. The template digest and derivation text in `manifest.json` are
 refreshed in CP6, as planned.
+
+`CP3` (Protocol 1.2) complete, in the release source only: `PROTOCOL_VERSION`
+`1.2`; the user-only action `legacy.retire` (no `EDGES` entry, so never
+automatic); row 3 stays `blocked`, names both routes in its remedy and carries
+`alternatives: [legacy.retire]` (remedy command `retire-legacy-work-item`); the
+schema's two `action.id` enums and the specification (action table, row 3, version
+statements) match. Tests: row 3 at every governing version, `NEW_1_2_ACTION_IDS`,
+a 1.1-consumer model (`TestUnaware1_1Consumer`), and the `V280` loader with
+`TestEquivalenceAgainstV280` (INV-1 against the published 2.8.0 modules, with the
+enumerated exemptions and the added `LEGACY_READY`, governing-`1` `IMPLEMENTING`
+and retired-item scenarios). The whole protocol suite is green. `WORKFLOW_RELEASE`
+stays `2.8.0` until CP6.
 
 `CP2` (retire a dormant legacy item) complete, in the release source only:
 `retire_legacy_work_item(state, id, now, user_confirmation)` (pure, run in

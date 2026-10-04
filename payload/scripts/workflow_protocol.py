@@ -50,7 +50,7 @@ WORKFLOW_RELEASE = "2.8.0"
 
 PROTOCOL_NAME = "workflow-orchestration"
 PROTOCOL_MAJOR = 1
-PROTOCOL_VERSION = "1.1"
+PROTOCOL_VERSION = "1.2"
 SUPPORTED_PROTOCOL_MAJORS = (PROTOCOL_MAJOR,)
 
 #: The single source of the governing versions the protocol supports
@@ -167,6 +167,10 @@ ACTIONS = {
     "pr.apply_review": _action_spec("apply-pr-review", "/apply-pr-review {id}", "applier"),
     "functional.evidence.external": _action_spec(None, None, "external"),
     "pr.review.external": _action_spec(None, None, "external"),
+    # workflow-2.9.0 (protocol 1.2, D-Retire-Protocol): retiring a dormant
+    # legacy item is a user-only alternative of blocked row 3, never an edge.
+    "legacy.retire": _action_spec(
+        "retire-legacy-work-item", "/retire-legacy-work-item {id}", "user", user_only=True),
 }
 
 #: The action catalogue's ids (D-OP-Next).
@@ -1143,7 +1147,9 @@ def _row_2(ctx):
 
 def _row_3(ctx):
     return _match("legacy_item_not_activated", f"{ctx.work_item_id} is a dormant legacy entry (LEGACY_READY)",
-                  "promote it (D-Legacy phase 2) before driving it")
+                  "promote it (D-Legacy phase 2) before driving it, or retire it as already finished "
+                  f"with /retire-legacy-work-item {ctx.work_item_id}",
+                  alternatives=[_alt("legacy.retire")])
 
 
 def _row_4(ctx):
@@ -1899,7 +1905,8 @@ CATALOGUE = [
     Row("1", None, None, "automatic", "plan.start", _row_1),
     Row("1a", None, None, "blocked", None, _row_1a, unconditional=True),
     Row("2", VOCABULARY_ONLY_PHASES, ALL_VERSIONS, "blocked", None, _row_2, unconditional=True),
-    Row("3", ("LEGACY_READY",), ALL_VERSIONS, "blocked", None, _row_3, unconditional=True),
+    Row("3", ("LEGACY_READY",), ALL_VERSIONS, "blocked", None, _row_3, unconditional=True,
+        remedy_commands=("retire-legacy-work-item",)),
     Row("4", None, None, "blocked", None, _row_4, unconditional=True,
         pairs=[(phase, version) for phase, versions in ILLEGAL_PHASE_VERSIONS.items() for version in versions]),
     Row("5", TWO_STAGE_PLAN_PHASES, TWO_STAGE_VERSIONS, "blocked", None, _row_5,
