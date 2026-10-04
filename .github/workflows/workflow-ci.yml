@@ -16,6 +16,9 @@
 #                               says it is.
 #   release-source-conformance  the release source's own frozen suites, in its
 #                               conformance fixture.
+#   docs                        the user documentation: tools/docs/'s tests, then
+#                               its checker (links, page headers, slash
+#                               commands) over README.md and docs/.
 #   aggregate                   fails unless every job above succeeded. It is
 #                               the required check, so adding a job here never
 #                               touches the ruleset.
@@ -208,8 +211,21 @@ jobs:
         working-directory: ${{ runner.temp }}/fixture/scripts
         run: python3 workflow_gate_policy_test.py
 
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: check_docs_test.py
+        run: python3 tools/docs/check_docs_test.py
+      - name: check_docs.py
+        run: python3 tools/docs/check_docs.py
+
   aggregate:
-    needs: [tooling, package, immutability, installation, release-source-conformance]
+    needs: [tooling, package, immutability, installation, release-source-conformance, docs]
     # Always, so a failed, skipped or cancelled job fails this required check
     # rather than skipping it.
     if: always()
@@ -223,10 +239,11 @@ jobs:
           IMMUTABILITY: ${{ needs.immutability.result }}
           INSTALLATION: ${{ needs.installation.result }}
           CONFORMANCE: ${{ needs.release-source-conformance.result }}
+          DOCS: ${{ needs.docs.result }}
         run: |
           status=0
           for pair in "tooling=$TOOLING" "package=$PACKAGE" "immutability=$IMMUTABILITY" \
-              "installation=$INSTALLATION" "release-source-conformance=$CONFORMANCE"; do
+              "installation=$INSTALLATION" "release-source-conformance=$CONFORMANCE" "docs=$DOCS"; do
             job="${pair%%=*}" result="${pair#*=}"
             if [ "$result" != success ]; then echo "::error::the $job job concluded $result"; status=1; fi
           done
