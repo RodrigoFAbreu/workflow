@@ -16,8 +16,10 @@ installs it into your repositories.
 
 - It splits work into **work items**: a plan, then small checkpoints that are
   implemented one at a time.
-- It has the plan and the finished code **reviewed twice**: once by a local
-  reviewer and once by an independent external one.
+- It has the plan **reviewed twice**, by a local reviewer and then an
+  independent external one. The finished code gets the same two reviews on
+  items using the newest Workflow version (2.2), and one external review on
+  older ones.
 - It puts three **approval gates** in the way: plan approval, implementation
   approval and milestone acceptance. Nothing moves on until each one is
   recorded.
@@ -49,17 +51,30 @@ About five minutes. You need Git and [Claude Code](https://claude.com/claude-cod
    workflow-manager verify /path/to/your/repo
    ```
 
-4. **Start a first work item.** Open Claude Code in that repository and run:
+4. **Commit the installed files.** The first plan needs a base commit, so
+   the repository needs at least one commit that holds the Workflow.
+
+   ```bash
+   git -C /path/to/your/repo add -A && git -C /path/to/your/repo commit -m "chore: install the Workflow"
+   ```
+
+5. **Describe your first milestone.** Write it in `docs/ACTIVE_MILESTONE.md`
+   (and list it in `docs/ROADMAP.md`). `/milestone-plan` reads both to find
+   the work to plan. The id of a new work item comes from there, not from the
+   command.
+6. **Start the first work item.** Open Claude Code in that repository and run:
 
    ```text
-   /milestone-plan my-first-item
+   /milestone-plan
    ```
 
    The agent writes a plan and stops for review. From there each step is a
    command, and the [overview](docs/overview.md#lifecycle) shows the route.
 
-Since 2.8.0 the approval gates are automatic by default. If you want a person
-to approve, read [approval gates](docs/gates.md) before your first work item.
+New work items follow the repository's default Workflow version, set in
+`docs/ai-workflow/WORKFLOW_CONFIG.json`. Which gates are automatic depends on
+it; read [approval gates](docs/gates.md) before your first work item. If you
+want a person to approve, set that up first.
 
 ## Pages
 

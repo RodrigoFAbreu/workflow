@@ -24,8 +24,9 @@ and
 
 ## Before you install 2.8.0
 
-Workflow 2.8.0 makes the approval gates automatic unless the repository
-commits a human policy first. If you want a person to keep approving, commit
+Workflow 2.8.0 makes plan approval and milestone acceptance automatic (and
+implementation approval too, for work items on Workflow version 2.2) unless the
+repository commits a human policy first. If you want a person to keep approving, commit
 `docs/ai-workflow/GATE_POLICY.json` with
 `{"schema_version": 1, "human_approval": true}` before you update. See
 [approval gates](gates.md).

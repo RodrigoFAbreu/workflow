@@ -6,13 +6,26 @@ An approval gate is a point where a work item cannot move on until a decision
 is recorded. There are three: plan approval, implementation approval and
 milestone acceptance. Workflow 2.8 lets each repository choose who decides.
 
-## The default is automatic
+## The default is automatic, for most gates
 
-With no `docs/ai-workflow/GATE_POLICY.json` file, the Workflow satisfies each
-gate itself once its evidence is complete. Updating a repository to 2.8.0
-turns this on without any change to your state files. A gate whose evidence is
-missing is **blocked**, with the missing requirement named. It is never
-passed.
+With no `docs/ai-workflow/GATE_POLICY.json` file, the Workflow satisfies a gate
+itself once its evidence is complete. A gate whose evidence is missing is
+**blocked**, with the missing requirement named. It is never passed.
+
+Which gates this covers depends on the work item's **governing version**: the
+Workflow version it was started under, taken from `default_workflow_version`
+in `docs/ai-workflow/WORKFLOW_CONFIG.json` when the item is created.
+
+| Governing version | Plan approval | Implementation approval | Milestone acceptance |
+| --- | --- | --- | --- |
+| 2.2 | automatic | automatic | automatic |
+| 2.1 (the default of a freshly bootstrapped repository) | automatic | always a person | automatic |
+| 1 | always a person | always a person | automatic |
+
+So in a fresh repository, plan approval and acceptance are automatic for new
+items, and implementation approval stays with a person until the repository's
+`default_workflow_version` is `"2.2"`. Updating a repository to 2.8.0 changes
+no state file by itself.
 
 ## What evidence each gate needs
 

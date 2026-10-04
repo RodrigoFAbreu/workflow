@@ -30,7 +30,12 @@ item has one or more checkpoints, done one per implementation step.
 
 ### Approval gate
 
-Approval gate: one of the points in a work item's lifecycle where it cannot move on until a decision is recorded: plan approval, implementation approval (also called technical approval) and milestone acceptance. Up to Workflow 2.7, a person always makes these decisions. From Workflow 2.8, each gate follows the repository's gate policy (GATE_POLICY.json). By default the Workflow satisfies the gate itself once its evidence is complete (for example, both reviews approve). A repository that turns human approval on (`human_approval` for all gates, or `gates.<gate>.human` for one) gets the person-decides behavior back. The review stages (external plan review, external implementation review, functional review) are separate waiting points; they wait for a review result, not an approval.
+One of the points in a work item's lifecycle where it cannot move on until a decision is recorded: plan approval, implementation approval (also called technical approval) and milestone acceptance.
+
+- Up to Workflow 2.7, a person always makes these decisions.
+- From Workflow 2.8, each gate follows the repository's gate policy (GATE_POLICY.json). By default the Workflow satisfies the gate itself once its evidence is complete (for example, both reviews approve).
+- A repository that turns human_approval on, for all gates or for one, gets the person-decides behavior back.
+- The review stages (external plan review, external implementation review, functional review) are separate waiting points; they wait for a review result, not an approval.
 
 A gate whose evidence is missing is blocked, not passed.
 
@@ -68,6 +73,27 @@ published plan review to the plan content it reviewed.
 ### Protocol
 
 The Workflow Orchestration Protocol: a small set of commands a Workflow
-installation answers so a tool can drive it without knowing its internals
-(`describe`, `next-action` and `reconcile`). Workflow 2.7.0 is the first
+installation answers so a tool can drive it without knowing its internals,
+such as `describe`, `next-action` and `reconcile`. Workflow 2.7.0 is the first
 release that ships it, and major version 1 is the one the Controller speaks.
+
+### Stale
+
+An approval is stale when the content it was given for has changed since. A
+stale approval no longer counts, and the work goes back through review.
+
+### Verdict
+
+A reviewer's result for one review stage: approve, revise or block.
+
+### Orchestrator
+
+A tool or agent that drives the Workflow's commands and reports review and test
+results to it. The [Workflow Controller](https://github.com/RodrigoFAbreu/workflow-controller#readme)
+is one.
+
+### Declaration
+
+A work item's list of which files count as part of the reviewed content
+("protected") and which are left out of it ("excluded"). Every changed file must
+be one or the other.

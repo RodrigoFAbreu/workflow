@@ -25,9 +25,10 @@ Commit `docs/ai-workflow/GATE_POLICY.json` first, then run the command again.
 
 ### UnclassifiedPathError when generating a bundle
 
-A changed file is neither declared protected nor excluded in the work item's
-declaration. Declare the path (or its folder) as one or the other before the
-bundle is generated. For a new `GATE_POLICY.json` on an older declaration,
+Every work item has a declaration: the files that count as reviewed content
+(protected) and the files that are left out of it (excluded). A changed file is
+in neither list. Add the path (or its folder) to one of them before the bundle
+is generated. For a new `GATE_POLICY.json` on an older declaration,
 exclude the `docs/ai-workflow/` prefix.
 
 ### An approve is refused because the reviewer models match
@@ -48,7 +49,7 @@ A policy file can only tighten by itself. Commit it, then run
 
 ### Gates are all human and verify reports provenance_failed
 
-The record of the adopted policy no longer checks out. A new
+The record of the adopted policy no longer checks out, which the Workflow's own `verify` check reports (not `workflow-manager verify`). A new
 `/adopt-gate-policy` commit repairs it.
 
 ### A pull request turned red after completion

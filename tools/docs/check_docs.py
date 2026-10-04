@@ -46,7 +46,8 @@ GITHUB_OWNER = "RodrigoFAbreu"
 GITHUB_REPOS = frozenset({"workflow-controller", "workflow-manager", "workflow"})
 
 HEADER_RE = re.compile(r"^> For: .+\. Last checked with: .+\.$")
-INTERNAL_ID_RES = (re.compile(r"\bCP\d+\b"), re.compile(r"\b[A-Z]{2,5}-R\d+-\d+\b"))
+INTERNAL_ID_RES = (re.compile(r"\bCP\d+\b"), re.compile(r"\b[A-Z]{2,5}-R\d+-\d+\b"),
+                    re.compile(r"\b[MW]\d+[a-z]?\b"))
 
 
 # ---------------------------------------------------------------------------

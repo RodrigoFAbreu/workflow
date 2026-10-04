@@ -7,6 +7,11 @@ pull request. You can read this page without knowing any code.
 
 ## Lifecycle
 
+This is the lifecycle of a work item on Workflow version 2.2, the newest. Older
+versions differ in the implementation review: a 2.1 item has a single external
+implementation review, and the local one is optional advice
+(`/review-implementation`).
+
 ```mermaid
 flowchart TD
     A[Plan] --> B[Local plan review]
@@ -22,15 +27,17 @@ flowchart TD
     G --> H{{Implementation approval gate}}
     H --> I[Functional review]
     I -->|findings to fix| E
-    I --> J{{Milestone acceptance gate}}
-    J --> K[Pull request and merge]
+    I --> P[Open the pull request]
+    P --> J{{Milestone acceptance gate}}
+    J --> K[Merge]
     K -->|red or changes requested| E
 ```
 
 The three hexagons are the **approval gates**. Each one is either
 automatic (the Workflow passes it once its evidence is complete) or needs a
-person, as the repository's [gate policy](gates.md) says. The default is
-automatic.
+person, as the repository's [gate policy](gates.md) and the work item's
+version say. Plan approval and acceptance are automatic by default;
+implementation approval is automatic by default only on version 2.2.
 
 ## The steps
 
@@ -47,24 +54,24 @@ automatic.
 5. **Implement checkpoints.** The agent builds the plan one checkpoint at a
    time (`/milestone-implement`), committing each one, and then reviews its own
    whole diff and runs the tests.
-6. **Local implementation review.** The same kind of local review, now on the
+6. **Local implementation review** (version 2.2). The same kind of local review, now on the
    code (`/review-implementation`). Changes requested go through
    `/apply-implementation-review`.
-7. **External implementation review.** An independent review of the code,
+7. **External implementation review.** An independent review of the code (the only implementation review on version 2.1),
    recorded with `/record-manual-implementation-review`.
 8. **Implementation approval gate.** Also called technical approval. Any
    change to the reviewed code after this point makes the approval stale.
 9. **Functional review.** The work is checked against real behavior. A
    checklist is prepared (`/prepare-functional-review`); findings are fixed
    with `/apply-functional-review`.
-10. **Milestone acceptance gate.** The work item is accepted as done.
-11. **Pull request and merge.** The work lands as one pull request, merged by
-    squash. If the pull request turns red or gets changes requested, the same
-    work item is reopened for fixes (`/apply-pr-review`).
-
-Note on step 10 and 11: when acceptance is automatic, the pull request must
-already be open and pushed, because the Workflow reads the checks from GitHub.
-See [approval gates](gates.md).
+10. **Open the pull request.** The work goes up as one pull request. When
+    acceptance is automatic it must be open and pushed before the gate,
+    because the Workflow reads the checks from GitHub. See
+    [approval gates](gates.md).
+11. **Milestone acceptance gate, then merge.** The work item is accepted as
+    done, and the pull request is merged by squash. If the pull request turns
+    red or gets changes requested, the same work item is reopened for fixes
+    (`/apply-pr-review`).
 
 If the plan must change after it was approved, a person can request an
 amendment (`/request-plan-amendment`), and the plan goes through review again.
