@@ -1,0 +1,57 @@
+# Troubleshooting
+
+> For: anyone who hit an error or a blocked work item. Last checked with: Workflow 2.8.0, Workflow Manager 1.4.0.
+
+Each problem has a one-line fix. The exact rules are in the shipped documents
+under `payload/docs/ai-workflow/`.
+
+### An approval became stale after a change
+
+The approval is tied to the reviewed content, and the content changed. Go back
+through review: for a plan, `/apply-plan-review` (or `/milestone-plan` again)
+and both review stages; for code, `/apply-implementation-review` and its
+reviews. Do not edit the approval by hand.
+
+### A gate is blocked for missing evidence
+
+The Workflow names the unmet requirement. Provide that evidence (a review
+verdict, a functional flow result, an open pull request, green checks) and run
+`/satisfy-gate` again. A blocked gate is never passed on its own.
+
+### GatePolicyFileUncommittedError
+
+`/adopt-gate-policy` refuses a policy file that differs from the committed one.
+Commit `docs/ai-workflow/GATE_POLICY.json` first, then run the command again.
+
+### UnclassifiedPathError when generating a bundle
+
+A changed file is neither declared protected nor excluded in the work item's
+declaration. Declare the path (or its folder) as one or the other before the
+bundle is generated. For a new `GATE_POLICY.json` on an older declaration,
+exclude the `docs/ai-workflow/` prefix.
+
+### An approve is refused because the reviewer models match
+
+Automatic plan and implementation gates need two review stages from different
+model families. Re-submit the approving verdict with a second declared
+`Reviewer model:`, or turn that gate human in the [gate policy](gates.md).
+
+### A gate is blocked because GitHub cannot be asked
+
+The Workflow's own `gh` query failed: `gh` is not installed, not signed in, or
+gave an unclear answer. Fix `gh`, then run `/satisfy-gate acceptance <id>`.
+
+### A looser gate policy is ignored
+
+A policy file can only tighten by itself. Commit it, then run
+`/adopt-gate-policy` to loosen. See [approval gates](gates.md).
+
+### Gates are all human and verify reports provenance_failed
+
+The record of the adopted policy no longer checks out. A new
+`/adopt-gate-policy` commit repairs it.
+
+### A pull request turned red after completion
+
+Run `/apply-pr-review <id>` with the work item id. It reopens the same work
+item. A merged pull request is refused; the follow-up is a new work item.
