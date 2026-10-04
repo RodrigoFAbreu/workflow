@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "work_item_id": "legacy-retire-and-default-version",
+  "requirements": {
+    "REQ-1": {
+      "description": "Default 2.2 for new installations and items; default_config, existing configs and items untouched",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "REQ-2": {
+      "description": "/retire-legacy-work-item: user-only, confirmation validated by the writer and recorded in the commit, LEGACY_READY only, keeps LEGACY_V1, audited",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "REQ-3": {
+      "description": "Protocol 1.2: legacy.retire as a user-only alternative of blocked row 3, never automatic",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    },
+    "REQ-4": {
+      "description": "v2.6.0-003 (a, implementation entry) and (c): 1 item reaches review via a valid record commit, verify healthy; phase-aware message; 1 texts unedited; 1-with-registry acceptance stays open",
+      "checkpoint_ids": [
+        "CP4"
+      ]
+    },
+    "REQ-5": {
+      "description": "v2.6.0-003 (b): user-only /resume-implementation as an alternative of blocked row 38c, never automatic; race guard untouched",
+      "checkpoint_ids": [
+        "CP5"
+      ]
+    },
+    "REQ-6": {
+      "description": "Downgrade posture and 2.8.0 all-human equivalence stated and tested; docs, roadmap and package consistent",
+      "checkpoint_ids": [
+        "CP3",
+        "CP5",
+        "CP6"
+      ]
+    },
+    "REQ-7": {
+      "description": "2.9.0 releasable: manifest digests, release constant, conformance, Manager that knows the release",
+      "checkpoint_ids": [
+        "CP6"
+      ]
+    }
+  }
+}

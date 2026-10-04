@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "work_item_id": "legacy-retire-and-default-version",
+  "plan_revision": 6,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "New installations default to 2.2: template and docs",
+      "depends_on": [],
+      "complexity": 1,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Retire a dormant legacy item: writer, confirmation, commit validation, command",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Protocol 1.2: legacy.retire action, row 3 alternative, schema, specification",
+      "depends_on": [
+        "CP2"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP4",
+      "name": "v2.6.0-003 (a, implementation entry) and (c): the 1 implementation entry and the phase-aware message",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP5",
+      "name": "v2.6.0-003 (b): user-only /resume-implementation and row 38c alternative",
+      "depends_on": [
+        "CP4"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP6",
+      "name": "Documentation, roadmap and release 2.9.0",
+      "depends_on": [
+        "CP1",
+        "CP3",
+        "CP5"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}
