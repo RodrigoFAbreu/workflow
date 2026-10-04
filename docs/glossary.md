@@ -30,7 +30,7 @@ item has one or more checkpoints, done one per implementation step.
 
 ### Approval gate
 
-Approval gate: one of the points in a work item's lifecycle where it cannot move on until a decision is recorded: plan approval, implementation approval (also called technical approval) and milestone acceptance. Up to Workflow 2.7, a person always makes these decisions. From Workflow 2.8, each gate follows the repository's gate policy (GATE_POLICY.json). By default the Workflow satisfies the gate itself once its evidence is complete (for example, both reviews approve). A repository that turns human_approval on, for all gates or for one, gets the person-decides behavior back. The review stages (external plan review, external implementation review, functional review) are separate waiting points; they wait for a review result, not an approval.
+Approval gate: one of the points in a work item's lifecycle where it cannot move on until a decision is recorded: plan approval, implementation approval (also called technical approval) and milestone acceptance. Up to Workflow 2.7, a person always makes these decisions. From Workflow 2.8, each gate follows the repository's gate policy (GATE_POLICY.json). By default the Workflow satisfies the gate itself once its evidence is complete (for example, both reviews approve). A repository that turns human approval on (`human_approval` for all gates, or `gates.<gate>.human` for one) gets the person-decides behavior back. The review stages (external plan review, external implementation review, functional review) are separate waiting points; they wait for a review result, not an approval.
 
 A gate whose evidence is missing is blocked, not passed.
 
