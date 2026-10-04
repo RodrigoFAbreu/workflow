@@ -971,50 +971,38 @@ class ReleaseGateTest(unittest.TestCase):
 
 class RoadmapTest(unittest.TestCase):
     """The roadmap text is excluded from reviewed content at both stages, so
-    this is its only guard (W2 CP1, `LPR-R1-008`). W2's CP8 moved its row to
-    complete, pending cutover."""
+    this is its only guard. It pins the structure and the done/next facts."""
 
     def setUp(self):
         self.text = (REPO_ROOT / "docs" / "ROADMAP.md").read_text()
 
-    def row(self, step: str) -> str:
-        rows = [line for line in self.text.splitlines() if line.startswith(f"| {step} |")]
-        self.assertEqual(len(rows), 1, step)
-        return rows[0]
+    def section(self, heading: str) -> str:
+        start = self.text.index(f"## {heading}")
+        end = self.text.find("\n## ", start + 1)
+        return self.text[start:] if end == -1 else self.text[start:end]
 
-    def test_w1_is_complete_and_its_cutover_is_done(self):
-        row = self.row("W1")
-        self.assertIn("**COMPLETE**", row)
-        self.assertNotIn("the cutover remains", row)
-        self.assertIn("workflow-manager#13", row)
+    def test_it_has_the_readable_sections_in_order(self):
+        headings = ["How to read this roadmap", "What's next", "Done",
+                    "Later (open items)", "Open defects", "Principles"]
+        positions = [self.text.index(f"## {h}") for h in headings]
+        self.assertEqual(positions, sorted(positions))
 
-    def test_w2_is_complete_pending_cutover(self):
-        row = self.row("W2")
-        self.assertIn("**COMPLETE, pending cutover**", row)
-        self.assertNotIn("**IN PROGRESS**", row)
-        self.assertIn("gate-policy-and-reopening", row)
+    def test_whats_next_lists_the_fix_release(self):
+        table = self.section("What's next")
+        self.assertIn("| Order | Item |", table)
+        self.assertIn("v2.6.0-003", table)
+        self.assertIn('"2.2"', table)
 
-    def test_it_has_a_workflow_2_8_0_entry_and_marks_both_sections_delivered(self):
-        self.assertIn("## Workflow 2.8.0", self.text)
-        for heading in ("## Gate and validation policy must be declarative",
-                        "## Post-validation reopening and PR-review defects"):
-            start = self.text.index(heading)
-            self.assertIn("**Delivered in Workflow 2.8.0**",
-                          self.text[start:start + 400], heading)
+    def test_w2_and_workflow_2_8_0_are_done_with_the_cutover_done(self):
+        done = self.section("Done")
+        self.assertIn("**Workflow 2.8.0**", done)
+        self.assertIn("gate policy", done)
+        self.assertIn("pinned by Manager v1.4.0", done)
+        self.assertIn("**Workflow 2.7.0**", done)
+        self.assertNotIn("pending cutover", self.text)
 
-    def test_where_things_stand_is_brought_to_2_7_0(self):
-        start = self.text.index("**Where things stand")
-        paragraph = self.text[start:self.text.index("**In order:**")]
-        self.assertIn("Releases 2.3.1 to 2.7.0", paragraph)
-        self.assertIn("`main` ends at 2.7.0", paragraph)
-        self.assertNotIn("ends at 2.6.0", paragraph)
-
-    def test_it_no_longer_says_the_release_workflow_will_publish_2_7_0(self):
-        section = self.text[self.text.index("## Workflow 2.7.0"):]
-        status = section[:section.index("Delivered:")]
-        self.assertNotIn("publishes it when its pull request merges", status)
-        self.assertIn("tag `v2.7.0`", status)
-        self.assertNotIn("once its pin is added", status)
+    def test_the_only_open_defect_is_listed(self):
+        self.assertIn("`v2.6.0-003`", self.section("Open defects"))
 
 
 if __name__ == "__main__":
