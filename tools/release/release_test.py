@@ -987,11 +987,13 @@ class RoadmapTest(unittest.TestCase):
         positions = [self.text.index(f"## {h}") for h in headings]
         self.assertEqual(positions, sorted(positions))
 
-    def test_whats_next_lists_the_fix_release(self):
+    def test_whats_next_lists_the_fix_release_then_c10_then_m3(self):
         table = self.section("What's next")
         self.assertIn("| Order | Item |", table)
         self.assertIn("v2.6.0-003", table)
         self.assertIn('"2.2"', table)
+        self.assertLess(table.index("small Workflow fix release"), table.index("Controller C10"))
+        self.assertLess(table.index("Controller C10"), table.index("M3"))
 
     def test_w2_and_workflow_2_8_0_are_done_with_the_cutover_done(self):
         done = self.section("Done")
@@ -1002,7 +1004,9 @@ class RoadmapTest(unittest.TestCase):
         self.assertNotIn("pending cutover", self.text)
 
     def test_the_only_open_defect_is_listed(self):
-        self.assertIn("`v2.6.0-003`", self.section("Open defects"))
+        rows = [l for l in self.section("Open defects").splitlines() if l.startswith("| `v")]
+        self.assertEqual(len(rows), 1)
+        self.assertIn("`v2.6.0-003`", rows[0])
 
 
 if __name__ == "__main__":
