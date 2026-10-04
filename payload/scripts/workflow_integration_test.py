@@ -6598,7 +6598,7 @@ class TestRetiredScopedRemediationLeavesNoLiveSurface(unittest.TestCase):
         text = (_repo_root() / "docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md").read_text()
         sections = re.findall(r"(?m)^### `/([a-z0-9-]+)", text)
         on_disk = sorted(p.stem for p in (_repo_root() / ".claude" / "commands").glob("*.md"))
-        self.assertEqual(len(on_disk), 20)
+        self.assertEqual(len(on_disk), 21)
         self.assertNotIn("accept-scoped-remediation", sections)
         self.assertNotIn("accept-scoped-remediation", on_disk)
         # Every live command has exactly one section, and vice versa.
@@ -6679,6 +6679,12 @@ def _commands_naming_a_phase_writer() -> set[str]:
 #: `test_the_single_exempt_command_says_why_it_is_exempt` below.
 _TARGETING_EXEMPT_COMMANDS = frozenset({"bootstrap-workflow-v2.md"})
 
+#: Phase-advancing commands that take a work-item id (so the targeting rule
+#: above still binds them) but are not steps of a remediation child's own
+#: lifecycle: `/retire-legacy-work-item` (workflow-2.9.0) closes a dormant
+#: `LEGACY_READY` item, and a remediation child is never a legacy item.
+_CHILD_SEQUENCE_EXEMPT_COMMANDS = frozenset({"retire-legacy-work-item.md"})
+
 
 class TestWorkItemTargetingContract(unittest.TestCase):
 
@@ -6754,7 +6760,7 @@ class TestWorkItemTargetingContract(unittest.TestCase):
         branch hands the operator."""
         expected = {
             filename[:-3] for filename in
-            _commands_naming_a_phase_writer() - _TARGETING_EXEMPT_COMMANDS
+            _commands_naming_a_phase_writer() - _TARGETING_EXEMPT_COMMANDS - _CHILD_SEQUENCE_EXEMPT_COMMANDS
         }
         missing = expected - _broad_branch_child_commands()
         self.assertEqual(missing, set(), f"child sequence omits: {sorted(missing)}")
@@ -7075,6 +7081,9 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         "plan_approval", "plan_path", "plan_review_stages", "registry_path",
         "review_content_id", "reviewed_implementation_head", "same_content",
         "state_revision", "technical_approval", "work_item_id",
+        # workflow-2.9.0, `/retire-legacy-work-item`: a state field name and a
+        # stable refusal code, not code symbols.
+        "current_checkpoint_id", "reopen_retired_legacy_item",
         "work_item_kind", "work_item_type", "work_items", "worktree_root",
         "test_the_operator_reference_command_count_matches_reality",
         # workflow-2.4.0, D-Plan-Amendment-3: amendment_history entry/
@@ -7204,7 +7213,7 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         named = set(re.findall(r"/([a-z0-9-]+)(?: plan| implementation)? <child-id>", section))
         expected = {
             filename[:-3] for filename in
-            _commands_naming_a_phase_writer() - _TARGETING_EXEMPT_COMMANDS
+            _commands_naming_a_phase_writer() - _TARGETING_EXEMPT_COMMANDS - _CHILD_SEQUENCE_EXEMPT_COMMANDS
         }
         self.assertEqual(expected - named, set())
         self.assertIn("never `active_work_item_id`", section)

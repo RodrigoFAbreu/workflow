@@ -890,6 +890,29 @@ test fails and is authoritative about which one moved.
   and its completion is recorded in the parent's own functional-review
   checklist instead.
 
+### `/retire-legacy-work-item <work-item-id>` — user-only
+- **When**: a dormant `LEGACY_READY` item (imported legacy, governing `1`,
+  `LEGACY_V1` approval) is finished and will never be adopted, for example
+  because its protected content changed and `/prepare-functional-review` would
+  refuse to promote it. It is reported as an alternative of `next-action` row 3
+  (`workflow-2.9.0`), never as an automatic action.
+- **Expects**: the id in `$ARGUMENTS` (never the active item) and your
+  current-turn confirmation naming the id as an exact token and the word
+  `retirement`. The writer validates it itself.
+- **Does**: `workflow_state.retire_legacy_work_item` moves the item to
+  `MILESTONE_COMPLETE` and changes only `phase`, `current_checkpoint_id`,
+  `state_revision` and `last_transition`. The `LEGACY_V1` record, the governing
+  version and the paths are untouched; no stale-approval, reconciliation or
+  promotion check runs.
+- **Writes**: one state-only commit (staged item-scoped) with a
+  `Retirement-Confirmation:` line and the `Workflow-Legacy-Retirement` and
+  `Workflow-Work-Item` trailers; `discover_legacy_retirement_commit` finds it and
+  `validate_legacy_retirement_commit` checks it.
+- **Next**: nothing. A retired item stays closed: pull-request evidence may still
+  be recorded on it but never reopens it (`reopen_retired_legacy_item`).
+- **Refuses**: a missing or wrong confirmation; an unknown id; any phase other
+  than `LEGACY_READY`; the active item; unfinished children.
+
 ### `/prepare-review <base-sha> <stage> [work-item-id]`
 - **When**: a one-off review of work that is not part of a tracked milestone
   checkpoint.

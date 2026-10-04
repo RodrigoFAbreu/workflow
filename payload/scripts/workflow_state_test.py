@@ -10611,7 +10611,7 @@ class TestPersistedPhaseWriterCensus(unittest.TestCase):
         "AWAITING_FUNCTIONAL_REVIEW": {
             "apply_technical_approval", "promote_legacy_work_item", "reopen_work_item",
         },
-        "MILESTONE_COMPLETE": {"complete_work_item"},
+        "MILESTONE_COMPLETE": {"complete_work_item", "retire_legacy_work_item"},
         "LEGACY_READY": {"import_legacy_work_item"},
         # workflow-2.4.0, D-Plan-Amendment-1: real and persisted, unlike
         # DECLARED_BUT_UNWRITTEN's four -- the mechanism must survive an
@@ -18107,6 +18107,293 @@ def _cp5_feedback_only_item(repo, stage, version):
         repo.commit("implement", filename=_harness.BUNDLE_ITEM_IMPLEMENTATION_PATH)
         _harness.generate_implementation_bundle(repo)
     return fingerprint.compute_bundle_id(_cp4_bundle_dir(repo))[0]
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.9.0, D-Retire: `/retire-legacy-work-item`
+# ---------------------------------------------------------------------------
+
+_RETIRE_CONFIRMATION = "retire milestone-8: retirement confirmed"
+
+
+def _legacy_state(work_item_id="milestone-8", **extra_items) -> dict:
+    state = ws.import_legacy_work_item(
+        _base_state(**extra_items), work_item_id=work_item_id,
+        plan_path="docs/milestones/completed/milestone-8-execution.md", registry_path=None,
+        base_commit="b" * 40, reviewed_content_commit="a" * 40, approved_review_content_id="c" * 64,
+        legacy_evidence={"rounds": 4},
+        user_confirmation=f"legacy import confirmed for {work_item_id} implementation", now="t1",
+    )
+    return state
+
+
+class TestUserOnlyConfirmation(unittest.TestCase):
+    def check(self, text, item="milestone-8", stage="retirement"):
+        ws.validate_user_only_confirmation(text, work_item_id=item, stage=stage)
+
+    def test_an_exact_token_and_a_whole_word_are_accepted(self):
+        self.check("retire milestone-8: retirement confirmed")
+        self.check("I confirm the retirement of milestone-8.")
+        self.check("RETIREMENT of Milestone-8", stage="retirement")
+        self.check("resume milestone-8: resumption confirmed", stage="resumption")
+
+    def test_a_prefix_related_id_never_authorizes_another_item(self):
+        for text in ("retirement of milestone-80", "retirement of milestone-8-b", "retirement of xmilestone-8",
+                     "retirement of milestone-8_x"):
+            with self.assertRaises(ws.UserConfirmationRejectedError, msg=text):
+                self.check(text)
+        with self.assertRaises(ws.UserConfirmationRejectedError):
+            self.check("retirement of milestone-8", item="milestone-80")
+        with self.assertRaises(ws.UserConfirmationRejectedError):
+            self.check("retirement of milestone-8-b", item="milestone-8")
+        self.check("retirement of milestone-8-b", item="milestone-8-b")
+
+    def test_missing_empty_wrong_stage_and_unknown_stage_are_refused(self):
+        for text in (None, "", "   ", "milestone-8 only", "retirement only", "retirements of milestone-8",
+                     "approve milestone-8 acceptance"):
+            with self.assertRaises(ws.UserConfirmationRejectedError, msg=repr(text)):
+                self.check(text)
+        with self.assertRaises(ws.InvalidApprovalRecordError):
+            self.check("acceptance of milestone-8", stage="acceptance")
+
+    def test_the_approval_confirmation_validator_and_stages_are_untouched(self):
+        self.assertEqual(ws.APPROVAL_STAGES, frozenset({"plan", "implementation", "acceptance"}))
+        self.assertEqual(ws.USER_ONLY_ACTION_STAGES, frozenset({"retirement", "resumption"}))
+        # The substring behaviour of the existing function is pinned: it still accepts a prefix id.
+        ws.validate_user_confirmation("approve milestone-80 plan", work_item_id="milestone-8", stage="plan")
+
+
+class TestRetireLegacyWorkItem(unittest.TestCase):
+    def retire(self, state, work_item_id="milestone-8", confirmation=_RETIRE_CONFIRMATION):
+        return ws.retire_legacy_work_item(state, work_item_id, "t9", confirmation)
+
+    def test_success_changes_exactly_the_four_fields_and_keeps_the_legacy_record(self):
+        state = _legacy_state()
+        before = json.loads(json.dumps(state))
+        new_state = self.retire(state)
+        self.assertEqual(state, before, "the writer is pure")
+        old, new = before["work_items"]["milestone-8"], new_state["work_items"]["milestone-8"]
+        changed = {k for k in set(old) | set(new) if old.get(k) != new.get(k)}
+        self.assertEqual(changed, {"phase", "state_revision", "last_transition"})
+        self.assertLessEqual(changed, ws.LEGACY_RETIREMENT_FIELDS)
+        self.assertEqual((new["phase"], new["current_checkpoint_id"], new["last_transition"]),
+                         ("MILESTONE_COMPLETE", None, "t9"))
+        self.assertEqual(new["state_revision"], old.get("state_revision", 1) + 1)
+        self.assertEqual(json.dumps(new["technical_approval"], sort_keys=True),
+                         json.dumps(old["technical_approval"], sort_keys=True))
+        self.assertEqual(new["technical_approval"]["basis"], "LEGACY_V1")
+        self.assertEqual(new["governing_workflow_version"], "1")
+        self.assertNotIn("completion_obligations_accepted", new)
+        self.assertEqual(new_state["active_work_item_id"], before["active_work_item_id"])
+        ws.validate_state(new_state)
+
+    def test_every_other_phase_is_refused_and_writes_nothing(self):
+        for phase in sorted(ws.KNOWN_PHASES - {"LEGACY_READY"}):
+            state = _legacy_state()
+            state["work_items"]["milestone-8"]["phase"] = phase
+            before = json.loads(json.dumps(state))
+            with self.assertRaises(ws.LegacyRetirementWrongPhaseError, msg=phase):
+                self.retire(state)
+            self.assertEqual(state, before)
+
+    def test_an_unknown_id_a_bad_confirmation_and_an_empty_confirmation_are_refused(self):
+        state = _legacy_state()
+        with self.assertRaises(ws.LegacyRetirementWrongPhaseError):
+            self.retire(state, "milestone-9", "retirement of milestone-9")
+        for confirmation in (None, "", "   ", "retirement", "milestone-8", "retirement of milestone-80",
+                             "retirement of milestone-8-b", "acceptance of milestone-8"):
+            with self.assertRaises(ws.UserConfirmationRejectedError, msg=repr(confirmation)):
+                self.retire(state, confirmation=confirmation)
+
+    def test_the_confirmation_is_checked_before_any_other_refusal(self):
+        state = _legacy_state()
+        state["work_items"]["milestone-8"]["phase"] = "MILESTONE_COMPLETE"
+        with self.assertRaises(ws.UserConfirmationRejectedError):
+            self.retire(state, confirmation="nothing useful")
+
+    def test_the_active_item_is_refused(self):
+        state = _legacy_state()
+        state["active_work_item_id"] = "milestone-8"
+        with self.assertRaises(ws.LegacyRetirementActiveItemError):
+            self.retire(state)
+
+    def test_an_unfinished_child_is_refused_and_a_finished_one_is_not(self):
+        child = _base_work_item(work_item_id="milestone-8-child", parent_work_item_id="milestone-8",
+                                phase="IMPLEMENTING")
+        state = _legacy_state(**{"milestone-8-child": child})
+        with self.assertRaises(ws.LegacyRetirementUnfinishedChildrenError):
+            self.retire(state)
+        state["work_items"]["milestone-8-child"]["phase"] = "MILESTONE_COMPLETE"
+        self.assertEqual(self.retire(state)["work_items"]["milestone-8"]["phase"], "MILESTONE_COMPLETE")
+
+    def test_a_stale_legacy_approval_retires_where_promotion_still_refuses(self):
+        """RepFlow's `milestone-8` shape: governing `1`, `LEGACY_READY`, product code changed since the
+        reviewed commit. Retirement never runs the stale-approval or reconciliation checks."""
+        with ScratchRepo() as repo:
+            test = TestLegacyPromotion()
+            state, _ = test._import(repo)
+            (repo.root / test.PROTECTED_PATH).write_text("v2 -- changed after import\n")
+            _run(["git", "add", test.PROTECTED_PATH], cwd=repo.root)
+            _run(["git", "commit", "-q", "-m", "post-import protected edit"], cwd=repo.root)
+            with self.assertRaises(ws.LegacyAdoptionStaleApprovalError):
+                test._promote(state, repo)
+            retired = self.retire(state, confirmation="retirement of milestone-8")
+            self.assertEqual(retired["work_items"]["milestone-8"]["phase"], "MILESTONE_COMPLETE")
+            ws.validate_state(retired)
+
+    def test_the_writer_calls_no_promotion_completion_or_stale_check(self):
+        import inspect
+        source = inspect.getsource(ws.retire_legacy_work_item)
+        body = source.split('"""')[2]
+        for name in ("complete_work_item", "promote_legacy_work_item", "verify_legacy_branch_reconciliation",
+                     "any_protected_path_changed_since", "lifecycle_lock", "_evaluate_lifecycle"):
+            self.assertNotIn(name, body)
+
+    def test_the_command_file_is_user_only_and_names_the_guards(self):
+        raw = (Path(__file__).resolve().parent.parent / ".claude" / "commands"
+               / "retire-legacy-work-item.md").read_text()
+        frontmatter = raw.split("---")[1]
+        self.assertIn("disable-model-invocation: true", frontmatter)
+        self.assertIn("state_writer: true", frontmatter)
+        text = " ".join(raw.split())
+        for sentence in ("validate_user_only_confirmation", "stage_scoped_state", "Retirement-Confirmation:",
+                         "Workflow-Legacy-Retirement: <work_item_id>", "Workflow-Work-Item: <work_item_id>",
+                         "final paragraph", "reopen_retired_legacy_item", "state_transaction",
+                         "assert_gate_policy_fields_unchanged_or_tightened"):
+            self.assertIn(sentence, text)
+        self.assertIn("never from the confirmation text", text)
+
+
+class TestRetireLegacyWorkItemLifecycleWitnesses(unittest.TestCase):
+    """`O3` / D-Retire, lifecycle bullet: the writer is outside the lifecycle-witness
+    mechanism. An open amendment of a sibling in another worktree changes neither its
+    outcome nor the witness files."""
+
+    def run_in_b(self, wt_b, with_child):
+        def mutator(state):
+            state = copy.deepcopy(state)
+            state["work_items"]["milestone-8"] = _legacy_state()["work_items"]["milestone-8"]
+            if with_child:
+                state["work_items"]["milestone-8-child"] = _base_work_item(
+                    work_item_id="milestone-8-child", parent_work_item_id="milestone-8", phase="PLANNING")
+            return ws.retire_legacy_work_item(state, "milestone-8", "t9", _RETIRE_CONFIRMATION)
+        return ws.state_transaction(wt_b, mutator)
+
+    def test_an_open_amendment_elsewhere_leaves_the_outcome_and_the_witness_untouched(self):
+        with ScratchRepo() as repo:
+            _lifecycle_repo(repo)
+            wt_b = repo.worktree("b")
+            _amend(repo.root, commit=False)
+            witness_before = _witness_bytes(repo.root)
+            with self.assertRaises(ws.LegacyRetirementUnfinishedChildrenError):
+                self.run_in_b(wt_b, with_child=True)
+            self.assertEqual(_witness_bytes(repo.root), witness_before)
+            result = self.run_in_b(wt_b, with_child=False)
+            self.assertEqual(result["work_items"]["milestone-8"]["phase"], "MILESTONE_COMPLETE")
+            self.assertEqual(_witness_bytes(repo.root), witness_before)
+            self.assertEqual(_witness_bytes(wt_b), witness_before)
+
+
+class TestLegacyRetirementCommit(unittest.TestCase):
+    """`discover_legacy_retirement_commit` / `validate_legacy_retirement_commit`."""
+
+    MESSAGE = (
+        "retire milestone-8\n\nRetirement-Confirmation: {confirmation}\n\n"
+        "Co-Authored-By: Claude <noreply@anthropic.com>\n"
+        "Workflow-Legacy-Retirement: milestone-8\nWorkflow-Work-Item: milestone-8\n")
+
+    def seeded(self, repo, **extra_items):
+        _write_state(repo.root, _legacy_state(**extra_items))
+        _git_in(repo.root, "add", _STATE_REL)
+        _git_in(repo.root, "commit", "-q", "-m", "import legacy item")
+
+    def retire_commit(self, repo, *, confirmation=_RETIRE_CONFIRMATION, message=None, mutate=None, extra_files=()):
+        state = ws.retire_legacy_work_item(_read_state(repo.root), "milestone-8", "t9", _RETIRE_CONFIRMATION)
+        if mutate is not None:
+            mutate(state)
+        _write_state(repo.root, state)
+        _git_in(repo.root, "add", _STATE_REL)
+        for name in extra_files:
+            (repo.root / name).write_text("x\n")
+            _git_in(repo.root, "add", name)
+        _git_in(repo.root, "commit", "-q", "-m", message or self.MESSAGE.format(confirmation=confirmation))
+        return repo.head()
+
+    def test_a_real_retirement_commit_is_found_and_validates(self):
+        with ScratchRepo() as repo:
+            self.seeded(repo)
+            self.assertIsNone(ws.discover_legacy_retirement_commit(repo.root, "milestone-8"))
+            commit = self.retire_commit(repo)
+            self.assertEqual(ws.discover_legacy_retirement_commit(repo.root, "milestone-8"), commit)
+            self.assertIsNone(ws.discover_legacy_retirement_commit(repo.root, "milestone-9"))
+            ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
+
+    def test_a_commit_that_changed_anything_else_is_refused(self):
+        with ScratchRepo() as repo:
+            self.seeded(repo)
+            commit = self.retire_commit(repo, extra_files=("stray.txt",))
+            with self.assertRaises(ws.MalformedLegacyRetirementCommitError):
+                ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
+        with ScratchRepo() as repo:
+            self.seeded(repo)
+            commit = self.retire_commit(repo, mutate=lambda s: s["work_items"]["milestone-8"].update(
+                plan_path="elsewhere.md"))
+            with self.assertRaises(ws.MalformedLegacyRetirementCommitError):
+                ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
+        with ScratchRepo() as repo:
+            self.seeded(repo)
+            commit = self.retire_commit(repo, mutate=lambda s: s.update(active_work_item_id="milestone-8"))
+            with self.assertRaises(ws.MalformedLegacyRetirementCommitError):
+                ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
+
+    def test_a_commit_that_is_not_legacy_ready_to_complete_is_refused(self):
+        with ScratchRepo() as repo:
+            self.seeded(repo)
+            commit = self.retire_commit(repo, mutate=lambda s: s["work_items"]["milestone-8"].update(
+                phase="AWAITING_FUNCTIONAL_REVIEW"))
+            with self.assertRaises(ws.MalformedLegacyRetirementCommitError):
+                ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
+
+    def test_a_missing_or_wrong_recorded_confirmation_is_refused(self):
+        wrong = ("retirement of milestone-80", "retirement of milestone-8-b", "milestone-8 only", "retirement only")
+        for confirmation in wrong:
+            with ScratchRepo() as repo:
+                self.seeded(repo)
+                commit = self.retire_commit(repo, confirmation=confirmation)
+                with self.assertRaises(ws.MalformedLegacyRetirementCommitError, msg=confirmation):
+                    ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
+        with ScratchRepo() as repo:
+            self.seeded(repo)
+            commit = self.retire_commit(repo, message=(
+                "retire milestone-8\n\nWorkflow-Legacy-Retirement: milestone-8\nWorkflow-Work-Item: milestone-8\n"))
+            with self.assertRaises(ws.MalformedLegacyRetirementCommitError):
+                ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
+
+    def test_a_prefix_related_item_id_in_the_trailer_is_refused(self):
+        with ScratchRepo() as repo:
+            self.seeded(repo)
+            commit = self.retire_commit(repo)
+            with self.assertRaises(ws.MalformedLegacyRetirementCommitError):
+                ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-80")
+
+    def test_the_trailers_must_be_the_final_paragraph(self):
+        with ScratchRepo() as repo:
+            self.seeded(repo)
+            commit = self.retire_commit(repo, message=(
+                "retire milestone-8\n\nRetirement-Confirmation: retirement of milestone-8\n\n"
+                "Workflow-Legacy-Retirement: milestone-8\nWorkflow-Work-Item: milestone-8\n\n"
+                "Co-Authored-By: Claude <noreply@anthropic.com>\n"))
+            self.assertIsNone(ws.discover_legacy_retirement_commit(repo.root, "milestone-8"))
+            with self.assertRaises(ws.MalformedLegacyRetirementCommitError):
+                ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
+
+    def test_the_motivating_scenario_end_to_end_validates_the_state(self):
+        with ScratchRepo() as repo:
+            self.seeded(repo)
+            commit = self.retire_commit(repo)
+            ws.validate_state(_read_state(repo.root))
+            ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
+            self.assertEqual(ws.discover_legacy_retirement_commit(repo.root, "milestone-8"), commit)
 
 
 if __name__ == "__main__":

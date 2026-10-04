@@ -1316,6 +1316,39 @@ class LegacyAdoptionStaleApprovalError(Exception):
     import time)."""
 
 
+class LegacyRetirementWrongPhaseError(Exception):
+    """Raised when `retire_legacy_work_item` (workflow-2.9.0) names an item
+    that does not exist or whose `phase` is not exactly `LEGACY_READY`: a
+    promoted item (`AWAITING_FUNCTIONAL_REVIEW`), one already
+    `MILESTONE_COMPLETE` (retired or finished), and every other phase."""
+
+
+class LegacyRetirementActiveItemError(Exception):
+    """Raised when `retire_legacy_work_item` names the item
+    `active_work_item_id` points at. A `LEGACY_READY` item is dormant by
+    construction, so this is a defensive guard against a hand-edited pointer."""
+
+
+class LegacyRetirementUnfinishedChildrenError(Exception):
+    """Raised when `retire_legacy_work_item` names an item that still has
+    children not at `MILESTONE_COMPLETE` (`incomplete_children`)."""
+
+
+class MalformedLegacyRetirementCommitError(Exception):
+    """Raised by `validate_legacy_retirement_commit` when a commit carrying
+    the `Workflow-Legacy-Retirement` trailer is not exactly a retirement:
+    it touches a path other than the state file, changes a field other than
+    the item's `phase`, `current_checkpoint_id`, `state_revision` and
+    `last_transition`, is not a `LEGACY_READY` -> `MILESTONE_COMPLETE`
+    transition, or records no valid `Retirement-Confirmation`."""
+
+
+class AmbiguousLegacyRetirementCommitError(Exception):
+    """Raised by `discover_legacy_retirement_commit` when more than one
+    commit reachable from the head carries the retirement trailer for the
+    same work item."""
+
+
 class InvalidBundleGenerationStageError(Exception):
     """Raised when `record_bundle_generation` is called with a `stage`
     other than `"implementation"`/`"post-fix"` -- `reviewed_implementation_head`
@@ -13273,6 +13306,43 @@ def validate_user_confirmation(text: str, *, work_item_id: str, stage: str) -> N
         )
 
 
+#: The stage words of the user-only actions that are not approvals
+#: (workflow-2.9.0): `retirement` (`/retire-legacy-work-item`) and
+#: `resumption` (`/resume-implementation`). Distinct from `APPROVAL_STAGES`,
+#: which also types the approval records and is deliberately not extended.
+USER_ONLY_ACTION_STAGES = frozenset({"retirement", "resumption"})
+
+_ID_ALPHABET = "A-Za-z0-9_-"
+
+
+def validate_user_only_confirmation(text: str, *, work_item_id: str, stage: str) -> None:
+    """The confirmation check of the user-only actions that are not approvals
+    (`/retire-legacy-work-item`, `/resume-implementation`). Stricter than
+    `validate_user_confirmation` by design: that function tests
+    `work_item_id in text`, so a confirmation naming `milestone-80` would
+    authorize `milestone-8`. Here the id must appear as an exact token (not
+    adjacent to a character of the id alphabet, case-insensitively; a full
+    stop or other punctuation after it is allowed) and the stage word as a
+    whole word. Raises `UserConfirmationRejectedError`."""
+    if stage not in USER_ONLY_ACTION_STAGES:
+        raise InvalidApprovalRecordError(f"unknown user-only action stage: {stage!r}")
+    if not isinstance(text, str) or not text.strip():
+        raise UserConfirmationRejectedError(
+            f"user_confirmation is empty -- must name work_item_id {work_item_id!r} "
+            f"and the word {stage!r}"
+        )
+    id_token = re.compile(
+        rf"(?<![{_ID_ALPHABET}]){re.escape(work_item_id)}(?![{_ID_ALPHABET}])", re.IGNORECASE)
+    if not id_token.search(text):
+        raise UserConfirmationRejectedError(
+            f"user_confirmation does not name work_item_id {work_item_id!r} as an exact token: {text!r}"
+        )
+    if not re.search(rf"(?<![A-Za-z]){re.escape(stage)}(?![A-Za-z])", text, re.IGNORECASE):
+        raise UserConfirmationRejectedError(
+            f"user_confirmation does not name {stage!r} as a whole word: {text!r}"
+        )
+
+
 def resolve_approval_basis(
     *, latest_round_status: str, feedback_bundle_id: str | None, current_bundle_id: str,
     user_confirmation: str | None, work_item_id: str, stage: str,
@@ -17310,6 +17380,146 @@ def promote_legacy_work_item(
 
 
 # ---------------------------------------------------------------------------
+# workflow-2.9.0: retiring a dormant legacy item (D-Retire)
+# ---------------------------------------------------------------------------
+
+LEGACY_RETIREMENT_TRAILER = "Workflow-Legacy-Retirement"
+LEGACY_RETIREMENT_CONFIRMATION_PREFIX = "Retirement-Confirmation:"
+#: The only fields of the retired item a retirement commit may change.
+LEGACY_RETIREMENT_FIELDS = frozenset({
+    "phase", "current_checkpoint_id", "state_revision", "last_transition",
+})
+
+
+def retire_legacy_work_item(state: dict, work_item_id: str, now: str, user_confirmation: str) -> dict:
+    """D-Retire (workflow-2.9.0): moves a dormant `LEGACY_READY` item to
+    `MILESTONE_COMPLETE` as already finished, for `/retire-legacy-work-item`.
+    Run inside `state_transaction`.
+
+    Refuses, writing nothing, in this order: a missing, empty or wrong
+    `user_confirmation` (`UserConfirmationRejectedError`, through
+    `validate_user_only_confirmation`, before any other check, so the writer
+    itself and not only the command file is the guard); an unknown id or a
+    phase other than exactly `LEGACY_READY`
+    (`LegacyRetirementWrongPhaseError`); the item `active_work_item_id`
+    points at (`LegacyRetirementActiveItemError`); unfinished children
+    (`LegacyRetirementUnfinishedChildrenError`).
+
+    Changes four fields of the one item (`phase`, `current_checkpoint_id`,
+    `state_revision`, `last_transition`) and nothing else: `technical_approval`
+    (basis `LEGACY_V1`), the governing version, the paths and the checkpoints
+    stay byte-identical, and no `completion_obligations_accepted` is written.
+    Never calls `complete_work_item`, `promote_legacy_work_item`,
+    `verify_legacy_branch_reconciliation` or `any_protected_path_changed_since`
+    (retirement does not adopt: no stale-approval check applies).
+
+    Deliberately outside the lifecycle-witness mechanism: it takes no
+    `lifecycle_lock`. A `LEGACY_READY` item has no checkpoints, claims or
+    amendments; a sibling's lifecycle is covered by the unfinished-children
+    refusal."""
+    validate_user_only_confirmation(
+        user_confirmation, work_item_id=work_item_id, stage="retirement")
+    work_item = (state.get("work_items") or {}).get(work_item_id)
+    if not isinstance(work_item, dict):
+        raise LegacyRetirementWrongPhaseError(f"{work_item_id!r} names no work item")
+    if work_item.get("phase") != "LEGACY_READY":
+        raise LegacyRetirementWrongPhaseError(
+            f"{work_item_id!r} is not LEGACY_READY (phase={work_item.get('phase')!r}) -- "
+            f"retirement only closes a dormant legacy entry"
+        )
+    if state.get("active_work_item_id") == work_item_id:
+        raise LegacyRetirementActiveItemError(
+            f"{work_item_id!r} is the active work item -- a dormant legacy item is never active"
+        )
+    children = incomplete_children(state, work_item_id)
+    if children:
+        raise LegacyRetirementUnfinishedChildrenError(
+            f"{work_item_id!r} has unfinished child work item(s) {children}"
+        )
+    new_state = copy.deepcopy(state)
+    new_item = new_state["work_items"][work_item_id]
+    new_item["phase"] = "MILESTONE_COMPLETE"
+    new_item["current_checkpoint_id"] = None
+    new_item["state_revision"] = new_item.get("state_revision", 1) + 1
+    new_item["last_transition"] = now
+    return new_state
+
+
+def discover_legacy_retirement_commit(
+    repo_root: Path, work_item_id: str, head: str = "HEAD",
+) -> str | None:
+    """The commit reachable from `head` carrying
+    `Workflow-Legacy-Retirement: <work_item_id>` + `Workflow-Work-Item:
+    <work_item_id>` trailers, or `None`. The audit query for a retirement
+    (the protocol's `verify` reports nothing about it). Raises
+    `AmbiguousLegacyRetirementCommitError` when more than one matches."""
+    out = _run(["git", "log", "--format=%H", head], cwd=repo_root)
+    matches = []
+    for commit in (line for line in out.splitlines() if line):
+        trailers = _commit_trailers(repo_root, commit)
+        if (trailers.get("Workflow-Work-Item") == work_item_id
+                and trailers.get(LEGACY_RETIREMENT_TRAILER) == work_item_id):
+            matches.append(commit)
+    if len(matches) > 1:
+        raise AmbiguousLegacyRetirementCommitError(
+            f"{len(matches)} commits carry {LEGACY_RETIREMENT_TRAILER}: {work_item_id} ({matches})"
+        )
+    return matches[0] if matches else None
+
+
+def validate_legacy_retirement_commit(repo_root: Path, commit: str, work_item_id: str) -> None:
+    """Validates a discovered retirement commit: it touches only
+    `WORKFLOW_STATE.json`; changes nothing outside `work_items[work_item_id]`
+    (no top-level field, no other item); changes only that item's `phase`,
+    `current_checkpoint_id`, `state_revision` and `last_transition`, with the
+    phase going from `LEGACY_READY` to `MILESTONE_COMPLETE`; carries both
+    trailers naming the id; and records a `Retirement-Confirmation` line that
+    passes `validate_user_only_confirmation` for the id (an exact token, so a
+    prefix-related id never validates). Raises
+    `MalformedLegacyRetirementCommitError` naming the mismatch."""
+    state_rel = DEFAULT_STATE_PATH.as_posix()
+    changed_paths = _commit_own_changed_paths(repo_root, commit)
+    if changed_paths != {state_rel}:
+        raise MalformedLegacyRetirementCommitError(
+            f"{commit} touches {sorted(changed_paths)}, not exactly {{{state_rel!r}}}")
+    outside_diff = _forbidden_state_mutation(repo_root, commit, work_item_id)
+    if outside_diff is not None:
+        raise MalformedLegacyRetirementCommitError(
+            f"{commit} also changed {outside_diff} -- a retirement commit may only change "
+            f"its own work item's fields")
+    trailers = _commit_trailers(repo_root, commit)
+    for key in (LEGACY_RETIREMENT_TRAILER, "Workflow-Work-Item"):
+        if trailers.get(key) != work_item_id:
+            raise MalformedLegacyRetirementCommitError(
+                f"{commit}'s {key} trailer is {trailers.get(key)!r}, not {work_item_id!r}")
+    field_diff = _work_item_field_diff(repo_root, commit, work_item_id)
+    if "phase" not in field_diff or not field_diff <= LEGACY_RETIREMENT_FIELDS:
+        raise MalformedLegacyRetirementCommitError(
+            f"{commit}'s own {work_item_id!r} field changes are {sorted(field_diff)}, not a set "
+            f"containing 'phase' within {sorted(LEGACY_RETIREMENT_FIELDS)}")
+    parent = _run(["git", "rev-parse", f"{commit}^"], cwd=repo_root).strip()
+    before = _read_json_at_commit_or_empty(repo_root, parent, state_rel)
+    after = _read_json_at_commit_or_empty(repo_root, commit, state_rel)
+    before_phase = before.get("work_items", {}).get(work_item_id, {}).get("phase")
+    after_phase = after.get("work_items", {}).get(work_item_id, {}).get("phase")
+    if (before_phase, after_phase) != ("LEGACY_READY", "MILESTONE_COMPLETE"):
+        raise MalformedLegacyRetirementCommitError(
+            f"{commit} moves {work_item_id!r} from {before_phase!r} to {after_phase!r}, not "
+            f"LEGACY_READY to MILESTONE_COMPLETE")
+    body = _run(["git", "log", "-1", "--format=%B", commit], cwd=repo_root)
+    recorded = [line[len(LEGACY_RETIREMENT_CONFIRMATION_PREFIX):].strip() for line in body.splitlines()
+                if line.startswith(LEGACY_RETIREMENT_CONFIRMATION_PREFIX)]
+    if len(recorded) != 1:
+        raise MalformedLegacyRetirementCommitError(
+            f"{commit} records {len(recorded)} {LEGACY_RETIREMENT_CONFIRMATION_PREFIX!r} lines, not exactly one")
+    try:
+        validate_user_only_confirmation(recorded[0], work_item_id=work_item_id, stage="retirement")
+    except UserConfirmationRejectedError as exc:
+        raise MalformedLegacyRetirementCommitError(
+            f"{commit}'s recorded confirmation is invalid: {exc}") from exc
+
+
+# ---------------------------------------------------------------------------
 # WORKFLOW_STATE.json
 # ---------------------------------------------------------------------------
 
@@ -19328,7 +19538,10 @@ def reopen_work_item(state: dict, work_item_id: str, *, cause: str, fact: dict, 
     `AWAITING_FUNCTIONAL_REVIEW` item whose key already caused an entry),
     `incomplete_child`, `reopen_plan_archived` (a `MILESTONE_COMPLETE` item
     whose `plan_path` no longer resolves; restore the plan from
-    `docs/milestones/completed/`). Never touches `active_work_item_id`."""
+    `docs/milestones/completed/`), `reopen_retired_legacy_item` (a
+    `MILESTONE_COMPLETE` item with governing version `1` and a `LEGACY_V1`
+    basis, retired by `/retire-legacy-work-item`; `begin_pr_review` raises it
+    too). Never touches `active_work_item_id`."""
     repo_root = Path(repo_root)
     refuse = gate_policy.EvidenceRefusedError
     work_item = (state.get("work_items") or {}).get(work_item_id)
@@ -19338,6 +19551,9 @@ def reopen_work_item(state: dict, work_item_id: str, *, cause: str, fact: dict, 
     if phase not in gate_policy.REOPENABLE_PHASES:
         raise refuse("reopen_phase_illegal",
                      f"{work_item_id}: a reopen is legal only from {sorted(gate_policy.REOPENABLE_PHASES)}, not {phase!r}")
+    if gate_policy.is_retired_legacy_item(work_item):
+        raise refuse("reopen_retired_legacy_item",
+                     f"{work_item_id}: a retired legacy item is closed by design; start a new work item for further work")
     if not isinstance(fact, dict) or (fact.get("provenance") or {}).get("source") != gate_policy.SOURCE_WORKFLOW_GH:
         raise refuse("pr_fact_not_workflow_gh", "a reopen reads only the Workflow's own (workflow_gh) pull-request fact")
     if fact.get("state") == "merged":
@@ -19470,6 +19686,10 @@ def begin_pr_review(repo_root: Path, work_item_id: str, *, now: str, run_ref: st
             raise gate_policy.EvidenceRefusedError(
                 "reopen_phase_illegal", f"{work_item_id}: /apply-pr-review runs only from "
                 f"{sorted(gate_policy.REOPENABLE_PHASES)}, not {phase!r}")
+        if gate_policy.is_retired_legacy_item(work_item):
+            raise gate_policy.EvidenceRefusedError(
+                "reopen_retired_legacy_item",
+                f"{work_item_id}: a retired legacy item is closed by design; start a new work item for further work")
         policy = gate_policy.effective_policy(repo_root, state)["policy"]
         trigger = gate_policy.pr_query_trigger(state, work_item_id, policy)
         stored = gate_policy.actionable_pr_keys(repo_root, state, work_item_id, policy)

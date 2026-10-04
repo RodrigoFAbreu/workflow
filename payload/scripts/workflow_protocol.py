@@ -1740,6 +1740,8 @@ def _row_28b(ctx):
 
 
 def _row_38d(ctx):
+    if workflow_gate_policy.is_retired_legacy_item(ctx.work_item):
+        return None
     evidence = workflow_gate_policy.gate_evidence_of(ctx.work_item)
     if evidence["pr"] is None and evidence["pr_reported"] is None:
         return None

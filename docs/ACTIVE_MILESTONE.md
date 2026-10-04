@@ -35,7 +35,7 @@ Workflow 2.9.0 on Orchestration Protocol 1.2, a minor release with three parts:
 
 ## Current checkpoint
 
-**Implementing.** The plan (revision 6) is approved; CP1 is complete.
+**Implementing.** The plan (revision 6) is approved; CP1 and CP2 are complete.
 
 `CP1` (new installations default to 2.2) complete: the template
 `templates/docs/ai-workflow/WORKFLOW_CONFIG.json` now defaults to `"2.2"` with
@@ -45,6 +45,27 @@ validates and an item created from it is 2.2. `docs/gates.md`, `docs/overview.md
 and `docs/install.md` and the payload's `IMPLEMENTATION_REVIEW_WORKFLOW.md` carry
 the 2.9.0 default. The template digest and derivation text in `manifest.json` are
 refreshed in CP6, as planned.
+
+`CP2` (retire a dormant legacy item) complete, in the release source only:
+`retire_legacy_work_item(state, id, now, user_confirmation)` (pure, run in
+`state_transaction`; confirmation checked first, then phase exactly
+`LEGACY_READY`, not active, no unfinished children; changes only `phase`,
+`current_checkpoint_id`, `state_revision`, `last_transition`), with
+`USER_ONLY_ACTION_STAGES` and the exact-token `validate_user_only_confirmation`,
+the three refusal classes, `discover_legacy_retirement_commit`,
+`validate_legacy_retirement_commit` and `LEGACY_RETIREMENT_TRAILER`; the
+user-only command `retire-legacy-work-item.md` and its operator-reference
+section. INV-6: `is_retired_legacy_item` (`workflow_gate_policy.py`) is enforced
+in `reopen_work_item` and `begin_pr_review` (`reopen_retired_legacy_item`) and
+in `_row_38d` (a direct call), with the four normative edits (protocol row 38d,
+`apply-pr-review.md`, `GATE_POLICY.md`, the `reopen_work_item` docstring).
+Registration: the command count is 21, `TestCommandSentences.SCOPED` and the
+derivation test cover the new trailer, the phase-writer census lists the new
+writer. One addition the plan did not name: the two child-lifecycle completeness
+tests exempt `retire-legacy-work-item.md` (`_CHILD_SEQUENCE_EXEMPT_COMMANDS`; it
+still must take a work-item id), because a remediation child is never a legacy
+item. The `manifest.json` digests, including the new command and the
+`apply-pr-review.md` roster hash, are refreshed in CP6, as planned.
 
 ## Current blockers
 
