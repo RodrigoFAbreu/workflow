@@ -1198,7 +1198,7 @@ def _row_6a(ctx):
     return _match("v1_state_not_advanced",
                   f"{ctx.phase} at governing_workflow_version \"1\": the \"1\" branch of milestone-plan "
                   f"writes no state, so no \"1\" command publishes the plan",
-                  "none exists: no \"1\" command advances this state (defect v2.6.0-003)")
+                  "none exists: no 2.6.0 \"1\" command advances this state (defect v2.6.0-003)")
 
 
 def _row_7(ctx):

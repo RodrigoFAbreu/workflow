@@ -5487,6 +5487,11 @@ def _normalize_1_2(body: dict) -> dict:
     body = without_release(body)
     result = body.get("result", {})
     row = result.get("row")
+    reason_text = (result.get("reason") or {}).get("text") or ""
+    # row 6a is exempt at IMPLEMENTING only (D-INV1-Proof); PLANNING and
+    # AMENDING_PLAN keep their 2.8.0 text and remedy byte for byte
+    if row == "6a" and not reason_text.startswith("IMPLEMENTING"):
+        return body
     if row in EXEMPT_1_2:
         for key in EXEMPT_1_2[row]:
             result.pop(key, None)
@@ -5525,18 +5530,27 @@ class TestEquivalenceAgainstV280(unittest.TestCase):
                 write_state(repo, h.base_state(wi=minimal_item(phase, version, base_commit=repo.base, **extra)))
             return build
 
-        cases = [(f"legacy-ready@{v}", minimal("LEGACY_READY", v)) for v in wp.SUPPORTED_GOVERNING_VERSIONS]
-        cases.append(("implementing@1 no registry", minimal("IMPLEMENTING", "1", registry_path=None)))
+        # each case: (name, builder, the row it must decide); `next-action` selects the item
+        # with `--work-item`, because `h.base_state` leaves the active pointer null
+        cases = [(f"legacy-ready@{v}", minimal("LEGACY_READY", v), "3") for v in wp.SUPPORTED_GOVERNING_VERSIONS]
+        cases.append(("implementing@1 no registry", minimal("IMPLEMENTING", "1", registry_path=None), "6a"))
         cases.append(("implementing@1 registry",
                       lambda repo: h.seed_bundle_item(repo, governing_workflow_version="1", phase="IMPLEMENTING",
-                                                      registry_checkpoints=CHECKPOINT_C1)))
+                                                      registry_checkpoints=CHECKPOINT_C1), None))
+        for phase in ("PLANNING", "AMENDING_PLAN"):
+            cases.append((f"{phase}@1", minimal(phase, "1", registry_path=None), "6a"))
         return cases
 
     def test_next_action_is_equal_except_on_the_exempt_rows(self):
-        for name, build in [*equivalence_scenarios(), *self.added_scenarios()]:
+        added = [(name, build, row) for name, build, row in self.added_scenarios()]
+        for name, build, expected_row in [*[(n, b, False) for n, b in equivalence_scenarios()], *added]:
             with self.subTest(scenario=name), h.ScratchRepo() as repo:
                 build(repo)
-                old, new = self.compare(repo.root, "next-action")
+                selected = ("--work-item", WI) if expected_row is not False else ()
+                old, new = self.compare(repo.root, "next-action", *selected)
+                if expected_row:
+                    self.assertEqual((old["result"].get("row"), new["result"].get("row")),
+                                     (expected_row, expected_row), name)
                 self.assertEqual(json.dumps(_normalize_1_2(old), sort_keys=True),
                                  json.dumps(_normalize_1_2(new), sort_keys=True))
                 row = new["result"].get("row")
@@ -5544,6 +5558,18 @@ class TestEquivalenceAgainstV280(unittest.TestCase):
                     for key in ("row", "disposition", "action"):
                         self.assertEqual(old["result"].get(key), new["result"].get(key), (name, key))
                     self.assertEqual(old["result"]["reason"]["code"], new["result"]["reason"]["code"])
+
+    def test_row_6a_is_byte_identical_outside_implementing_and_differs_at_it(self):
+        for phase in ("PLANNING", "AMENDING_PLAN", "IMPLEMENTING"):
+            with self.subTest(phase=phase), h.ScratchRepo() as repo:
+                write_state(repo, h.base_state(wi=minimal_item(phase, "1", base_commit=repo.base, registry_path=None)))
+                old, new = self.compare(repo.root, "next-action", "--work-item", WI)
+                self.assertEqual((old["result"]["row"], new["result"]["row"]), ("6a", "6a"))
+                strip = lambda body: json.dumps(without_release(body), sort_keys=True)
+                if phase == "IMPLEMENTING":
+                    self.assertNotEqual(strip(old), strip(new))
+                else:
+                    self.assertEqual(strip(old), strip(new))
 
     def test_row_3_gains_only_the_user_only_alternative(self):
         for version in wp.SUPPORTED_GOVERNING_VERSIONS:
@@ -5571,9 +5597,16 @@ class TestEquivalenceAgainstV280(unittest.TestCase):
                 if not red:
                     self.assertEqual(json.dumps(_normalize_1_2(old), sort_keys=True),
                                      json.dumps(_normalize_1_2(new), sort_keys=True))
+                old_v, new_v = self.compare(ev.root, "verify")
+                for body in (old_v, new_v):
+                    for check in body["result"]["checks"]:
+                        if check["id"] == "installation_release_matches":
+                            check.pop("detail", None)
+                self.assertEqual(json.dumps(without_release(old_v), sort_keys=True),
+                                 json.dumps(without_release(new_v), sort_keys=True))
 
     def test_verify_is_byte_identical_in_every_cell(self):
-        for name, build in [*equivalence_scenarios()[:12], *self.added_scenarios()]:
+        for name, build in [*equivalence_scenarios(), *[(n, b) for n, b, _ in self.added_scenarios()]]:
             with self.subTest(scenario=name), h.ScratchRepo() as repo:
                 build(repo)
                 old, new = self.compare(repo.root, "verify")
