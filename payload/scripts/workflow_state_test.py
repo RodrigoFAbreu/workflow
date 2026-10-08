@@ -18752,6 +18752,39 @@ class TestResumeImplementationCommitValidation(unittest.TestCase):
                 with self.assertRaises(ws.MalformedResumeImplementationCommitError):
                     ws.validate_resume_implementation_commit(repo.root, commit, "wi")
 
+    def test_a_commit_that_rewrites_the_approval_content_is_refused(self):
+        import workflow_test_harness as h
+        edits = {
+            "approved_review_content_id": lambda a: a.update(approved_review_content_id="0" * 64),
+            "reviewed_bundle_id": lambda a: a.update(reviewed_bundle_id="f" * 64),
+            "user_confirmation": lambda a: a.update(user_confirmation="forged"),
+        }
+        for label, edit in edits.items():
+            with self.subTest(label), h.ScratchRepo() as repo:
+                _resume_functional_repo(repo)
+                ws.resume_implementation(repo.root, "wi", "t9", _RESUME_CONFIRMATION)
+                state = h.read_state(repo)
+                edit(state["work_items"]["wi"]["technical_approval"])
+                h.write_state(repo, state)
+                commit = h.commit_state(repo, f"forged resume\n\nResume-Confirmation: {_RESUME_CONFIRMATION}",
+                                        {"Workflow-Work-Item": "wi"})
+                with self.assertRaises(ws.MalformedResumeImplementationCommitError):
+                    ws.validate_resume_implementation_commit(repo.root, commit, "wi")
+
+    def test_a_commit_that_adds_an_approval_record_is_refused(self):
+        import workflow_test_harness as h
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo, technical=None)
+            state = h.read_state(repo)
+            item = state["work_items"]["wi"]
+            item.update(phase="IMPLEMENTING", technical_approval={"status": "STALE"},
+                        state_revision=item["state_revision"] + 1, last_transition="t9")
+            h.write_state(repo, state)
+            commit = h.commit_state(repo, f"invented\n\nResume-Confirmation: {_RESUME_CONFIRMATION}",
+                                    {"Workflow-Work-Item": "wi"})
+            with self.assertRaises(ws.MalformedResumeImplementationCommitError):
+                ws.validate_resume_implementation_commit(repo.root, commit, "wi")
+
     def test_a_commit_that_is_not_a_resume_transition_is_refused(self):
         import workflow_test_harness as h
         with h.ScratchRepo() as repo:

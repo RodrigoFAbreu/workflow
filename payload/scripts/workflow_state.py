@@ -17535,6 +17535,13 @@ def discover_legacy_retirement_commit(
     return matches[0] if matches else None
 
 
+def _require_state_revision_step(commit: str, before_item: dict, after_item: dict, error: type) -> None:
+    """A state-writer commit advances the item's `state_revision` by exactly one."""
+    before_rev, after_rev = before_item.get("state_revision"), after_item.get("state_revision")
+    if not isinstance(before_rev, int) or after_rev != before_rev + 1:
+        raise error(f"{commit} moves state_revision from {before_rev!r} to {after_rev!r}, not by one")
+
+
 def validate_legacy_retirement_commit(repo_root: Path, commit: str, work_item_id: str) -> None:
     """Validates a discovered retirement commit: it touches only
     `WORKFLOW_STATE.json`; changes nothing outside `work_items[work_item_id]`
@@ -17574,6 +17581,13 @@ def validate_legacy_retirement_commit(repo_root: Path, commit: str, work_item_id
         raise MalformedLegacyRetirementCommitError(
             f"{commit} moves {work_item_id!r} from {before_phase!r} to {after_phase!r}, not "
             f"LEGACY_READY to MILESTONE_COMPLETE")
+    after_item = after.get("work_items", {}).get(work_item_id, {})
+    if after_item.get("current_checkpoint_id") is not None:
+        raise MalformedLegacyRetirementCommitError(
+            f"{commit} leaves {work_item_id!r}'s current_checkpoint_id "
+            f"{after_item.get('current_checkpoint_id')!r}, not None")
+    _require_state_revision_step(commit, before.get("work_items", {}).get(work_item_id, {}),
+                                 after_item, MalformedLegacyRetirementCommitError)
     body = _run(["git", "log", "-1", "--format=%B", commit], cwd=repo_root)
     recorded = [line[len(LEGACY_RETIREMENT_CONFIRMATION_PREFIX):].strip() for line in body.splitlines()
                 if line.startswith(LEGACY_RETIREMENT_CONFIRMATION_PREFIX)]
@@ -17661,8 +17675,8 @@ def resume_implementation(repo_root: Path, work_item_id: str, now: str, user_con
     """The public entry of `/resume-implementation` (workflow-2.9.0).
     Validates the confirmation first, then joins the claim side of the
     repository-global lifecycle (`v2.4.0-002`): holds `lifecycle_lock` and
-    runs `_enforce_claim_lifecycle` before any state read, in the order
-    `claim_checkpoint` uses, then performs the single
+    runs `_enforce_claim_lifecycle` inside the transaction's mutator (after
+    the re-read), in the order `claim_checkpoint` uses, then performs the single
     `state_transaction` around `resume_implementation_state`. The refusals
     are the claim side's own, unextended: `AmendmentInFlightError`,
     `StaleLifecycleStateError`, `LaggingWorktreeAmendmentError`,
@@ -17718,9 +17732,15 @@ def validate_resume_implementation_commit(repo_root: Path, commit: str, work_ite
         raise MalformedResumeImplementationCommitError(
             f"{commit} moves {work_item_id!r} from {before_item.get('phase')!r} to "
             f"{after_item.get('phase')!r}, not AWAITING_FUNCTIONAL_REVIEW to IMPLEMENTING")
-    if (after_item.get("technical_approval") or {}).get("status") != "STALE":
+    before_approval = before_item.get("technical_approval")
+    if not isinstance(before_approval, dict):
         raise MalformedResumeImplementationCommitError(
-            f"{commit} leaves {work_item_id!r}'s technical approval not STALE")
+            f"{commit}'s parent holds no technical approval record for {work_item_id!r} to mark STALE")
+    if after_item.get("technical_approval") != {**before_approval, "status": "STALE"}:
+        raise MalformedResumeImplementationCommitError(
+            f"{commit} does not leave {work_item_id!r}'s technical approval as the parent's record "
+            f"with only its status changed to STALE")
+    _require_state_revision_step(commit, before_item, after_item, MalformedResumeImplementationCommitError)
     body = _run(["git", "log", "-1", "--format=%B", commit], cwd=repo_root)
     recorded = [line[len(RESUME_CONFIRMATION_PREFIX):].strip() for line in body.splitlines()
                 if line.startswith(RESUME_CONFIRMATION_PREFIX)]
