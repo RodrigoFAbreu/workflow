@@ -1,6 +1,6 @@
 # How the Workflow works
 
-> For: anyone who wants the big picture. Last checked with: Workflow 2.8.0, Workflow Manager 1.4.0.
+> For: anyone who wants the big picture. Last checked with: Workflow 2.9.0, Workflow Manager 1.5.0.
 
 The Workflow guides one piece of work, a **work item**, from idea to merged
 pull request. You can read this page without knowing any code.
