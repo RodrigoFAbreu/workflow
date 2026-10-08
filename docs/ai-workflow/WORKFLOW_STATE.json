@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "legacy-retire-and-default-version",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -1123,7 +1123,7 @@
       "registry_path": "docs/ai-workflow/registry/legacy-retire-and-default-version-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/legacy-retire-and-default-version-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 6,
       "implementation_revision": 5,
       "functional_review_round": null,
@@ -1494,8 +1494,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 48,
-      "last_transition": "2026-10-08T18:29:18Z",
+      "state_revision": 49,
+      "last_transition": "2026-10-08T19:23:19Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -1542,6 +1542,311 @@
           "run_ref": "session:local.ai-review/legacy-retire-and-default-version/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "w3-f1": {
+            "flow_id": "w3-f1",
+            "status": "passed",
+            "head": "acf8202e12fd81239694c05e550a9f5327294f6d",
+            "ran_at": "2026-10-08T18:36:00Z",
+            "summary": {
+              "flow": "2.2 default for new installations; update leaves an existing config unchanged",
+              "result": "PASS",
+              "checklist_commit": "e09a22c",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "61e41555732c99f28c1e4acbe1ca9931742875cd1f4495a4f4f15331b0924541",
+            "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude-opus-5-5)",
+            "identity": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+            "recorded_at": "2026-10-08T18:55:49Z"
+          },
+          "w3-f2": {
+            "flow_id": "w3-f2",
+            "status": "passed",
+            "head": "acf8202e12fd81239694c05e550a9f5327294f6d",
+            "ran_at": "2026-10-08T18:36:00Z",
+            "summary": {
+              "flow": "/retire-legacy-work-item success and refusals",
+              "result": "PASS",
+              "checklist_commit": "e09a22c",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "f7ad6a38baf078e1c631f0b8b72dbe967a3aedbc28d0490e9e67b91f49aaec91",
+            "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude-opus-5-5)",
+            "identity": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+            "recorded_at": "2026-10-08T18:55:49Z"
+          },
+          "w3-f3": {
+            "flow_id": "w3-f3",
+            "status": "passed",
+            "head": "acf8202e12fd81239694c05e550a9f5327294f6d",
+            "ran_at": "2026-10-08T18:36:00Z",
+            "summary": {
+              "flow": "a retired item stays closed under a red PR fact",
+              "result": "PASS",
+              "checklist_commit": "e09a22c",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "c18e40c9cb43bc3244913a99981960d4840570c38b66b8b0f319bbd55c5d929d",
+            "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude-opus-5-5)",
+            "identity": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+            "recorded_at": "2026-10-08T18:55:49Z"
+          },
+          "w3-f4": {
+            "flow_id": "w3-f4",
+            "status": "passed",
+            "head": "acf8202e12fd81239694c05e550a9f5327294f6d",
+            "ran_at": "2026-10-08T18:36:00Z",
+            "summary": {
+              "flow": "protocol 1.2 next-action alternatives legacy.retire and implementation.resume",
+              "result": "PASS",
+              "checklist_commit": "e09a22c",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "b61f596d5736bafb9b2f6a1ed90d3c5d4b794e0ab82ea76e4b023b803525a793",
+            "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude-opus-5-5)",
+            "identity": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+            "recorded_at": "2026-10-08T18:55:49Z"
+          },
+          "w3-f5": {
+            "flow_id": "w3-f5",
+            "status": "passed",
+            "head": "acf8202e12fd81239694c05e550a9f5327294f6d",
+            "ran_at": "2026-10-08T18:36:00Z",
+            "summary": {
+              "flow": "governing-1 implementation entry and phase-aware message (v2.6.0-003)",
+              "result": "PASS",
+              "checklist_commit": "e09a22c",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "8ee0de236c0466e0a4c6b4af5e77c29b4953fe0e34fc0f802fd00689b0d3bf75",
+            "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude-opus-5-5)",
+            "identity": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+            "recorded_at": "2026-10-08T18:55:49Z"
+          },
+          "w3-f6": {
+            "flow_id": "w3-f6",
+            "status": "passed",
+            "head": "acf8202e12fd81239694c05e550a9f5327294f6d",
+            "ran_at": "2026-10-08T18:36:00Z",
+            "summary": {
+              "flow": "/resume-implementation success and refusals",
+              "result": "PASS",
+              "checklist_commit": "e09a22c",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "a3f273971e2176f42ffc350b07531b3af0d164130ca5e6f4d956ee82335059e4",
+            "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude-opus-5-5)",
+            "identity": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+            "recorded_at": "2026-10-08T18:55:49Z"
+          },
+          "w3-f7": {
+            "flow_id": "w3-f7",
+            "status": "passed",
+            "head": "acf8202e12fd81239694c05e550a9f5327294f6d",
+            "ran_at": "2026-10-08T18:36:00Z",
+            "summary": {
+              "flow": "2.9.0 package build, reproducibility, verify, suites",
+              "result": "PASS",
+              "checklist_commit": "e09a22c",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "33de82532d7653898c16b64a365540d25d19d6b631674dc9635bcace20fc8dbd",
+            "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude-opus-5-5)",
+            "identity": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+            "recorded_at": "2026-10-08T18:55:49Z"
+          },
+          "w3-f8": {
+            "flow_id": "w3-f8",
+            "status": "passed",
+            "head": "acf8202e12fd81239694c05e550a9f5327294f6d",
+            "ran_at": "2026-10-08T18:36:00Z",
+            "summary": {
+              "flow": "repository's own 2.8.0 installation unchanged",
+              "result": "PASS",
+              "checklist_commit": "e09a22c",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "fea5fbd8a5f672d88bd074615ad83b2ce152bbb0853bc767ae8d978e977bac1c",
+            "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude-opus-5-5)",
+            "identity": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+            "recorded_at": "2026-10-08T18:55:49Z"
+          },
+          "w3-f9": {
+            "flow_id": "w3-f9",
+            "status": "passed",
+            "head": "acf8202e12fd81239694c05e550a9f5327294f6d",
+            "ran_at": "2026-10-08T18:36:00Z",
+            "summary": {
+              "flow": "documentation consistency",
+              "result": "PASS (with doc findings)",
+              "checklist_commit": "e09a22c",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "b1b87be321f61f915994586948e38f4a0da1e2985851c297e02b61facf9a52fa",
+            "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude-opus-5-5)",
+            "identity": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+            "recorded_at": "2026-10-08T18:55:49Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 10,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/10"
+          },
+          "state": "open",
+          "head": "4e7f2cc91f31b857dba4c82d23e95b877e35ae9f",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+          "observed_at": "2026-10-08T19:23:19Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "d15264db4dfb8a8f1149dcb18868032860ff7d94",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-10-08T19:23:19Z",
+            "raw_sha256": "d291270bab1c43aa6570890b3b8405c15881035b44448aa6e4f3d260ed3dc388",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "42a7856d6b182b717d8e59612a5d1c6b0e3c1bb707fcd7a57aa64029da75aae1"
+          },
+          "fact_id": "e4715b1ab130523da2a8701425fe745a156ebf663cb7f75f03ce395b5c080652"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['w3-f1', 'w3-f2', 'w3-f3', 'w3-f4', 'w3-f5', 'w3-f6', 'w3-f7', 'w3-f8', 'w3-f9'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #10 at 4e7f2cc91f31b857dba4c82d23e95b877e35ae9f is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "d15264db4dfb8a8f1149dcb18868032860ff7d94",
+          "anchor_identity": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "f6503eb1a231fe8823cf1f4a5d31fbc8b2e0129ca44f9a03d10a625deb41fd69",
+            "recorded_at": "2026-10-08T18:29:18Z"
+          },
+          "functional": {
+            "w3-f1": {
+              "evidence_id": "bb68f1e99ac7c120d2b1d2ee722bf22df7ce003832f8b01dec9f4b7ce53dbce7",
+              "log_digest": "61e41555732c99f28c1e4acbe1ca9931742875cd1f4495a4f4f15331b0924541",
+              "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1"
+            },
+            "w3-f2": {
+              "evidence_id": "a7af8e36dd650bf417e6afebfb30d1234fb67c7c99c55866290ef86d81f1f3f2",
+              "log_digest": "f7ad6a38baf078e1c631f0b8b72dbe967a3aedbc28d0490e9e67b91f49aaec91",
+              "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1"
+            },
+            "w3-f3": {
+              "evidence_id": "85777e126ba922b717d0edf91e4606259ddc0f342d47678e6a67c252d5631b6a",
+              "log_digest": "c18e40c9cb43bc3244913a99981960d4840570c38b66b8b0f319bbd55c5d929d",
+              "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1"
+            },
+            "w3-f4": {
+              "evidence_id": "ad1852ef2ea56077258272bcfa02c4a49299cad7b8969d0189e4858a7fe3754e",
+              "log_digest": "b61f596d5736bafb9b2f6a1ed90d3c5d4b794e0ab82ea76e4b023b803525a793",
+              "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1"
+            },
+            "w3-f5": {
+              "evidence_id": "a716f65a62b6b5ae4f58464b1dc379183e395ab0c38596585245151b311a9929",
+              "log_digest": "8ee0de236c0466e0a4c6b4af5e77c29b4953fe0e34fc0f802fd00689b0d3bf75",
+              "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1"
+            },
+            "w3-f6": {
+              "evidence_id": "deed61c0f83909ff538e24c496e7055e4327304901c81c4ec8618a35ce9df75c",
+              "log_digest": "a3f273971e2176f42ffc350b07531b3af0d164130ca5e6f4d956ee82335059e4",
+              "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1"
+            },
+            "w3-f7": {
+              "evidence_id": "da7872f57b00b5641b130bc05c2027130b68cad42c6cc470843fae9f22caeded",
+              "log_digest": "33de82532d7653898c16b64a365540d25d19d6b631674dc9635bcace20fc8dbd",
+              "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1"
+            },
+            "w3-f8": {
+              "evidence_id": "679e83d14f4ff8ec2feeddd30bfdf08308bb1002e381c2fe9b1b63825d61b88c",
+              "log_digest": "fea5fbd8a5f672d88bd074615ad83b2ce152bbb0853bc767ae8d978e977bac1c",
+              "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1"
+            },
+            "w3-f9": {
+              "evidence_id": "4bea0581230dde880d7a5caf84f2ee73c722ece815f0c48cbc5074198e31aca0",
+              "log_digest": "b1b87be321f61f915994586948e38f4a0da1e2985851c297e02b61facf9a52fa",
+              "run_ref": "manager-orchestrator:runs-workflow/w3-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "e4715b1ab130523da2a8701425fe745a156ebf663cb7f75f03ce395b5c080652",
+            "head": "4e7f2cc91f31b857dba4c82d23e95b877e35ae9f",
+            "provenance": "workflow_gh",
+            "raw_sha256": "d291270bab1c43aa6570890b3b8405c15881035b44448aa6e4f3d260ed3dc388"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-10-08T19:23:19Z",
+        "workflow_release": "2.8.0"
       }
     }
   }

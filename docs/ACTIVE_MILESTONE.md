@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**Self-reviewing the implementation** (CP1 to CP6 complete). W3: `legacy-retire-and-default-version` (`process`, governing
+**Complete** (CP1 to CP6 complete; accepted by policy, `/satisfy-gate acceptance`). W3: `legacy-retire-and-default-version` (`process`, governing
 version `2.2`), branch `milestone/legacy-retire-and-default-version`, base
 `f00c1c3` (the release source is Workflow 2.8.0; this repository's own
 installation is also 2.8.0 with automatic gates and no `GATE_POLICY.json`).
@@ -145,10 +145,14 @@ request's wording: `default_config()` is the fail-safe, default `1`, not 2.1).
 
 ## Next action
 
-The manual functional review below (`/prepare-functional-review` is done); then
-`/accept-milestone` (the only acceptance command), or `/apply-functional-review`
-for findings placed at the feedback directory's `FUNCTIONAL_REVIEW.md`. The
-sections after the checklist are the completed W2 and W1 milestones' records.
+None for this milestone: it is `MILESTONE_COMPLETE`, accepted by policy
+(`/satisfy-gate acceptance`; policy digest `bae758b4f4ce`, source `default`).
+`docs/ROADMAP.md` is deliberately left to `main`'s rewrite (`4e7f2cc`); the W3
+roadmap entries return in `main`'s new format in a follow-up docs pull request.
+After the pull request merges, the owner publishes Workflow 2.9.0 and adds the
+`workflow-manager` pin. Then `/milestone-plan` for the next incomplete
+milestone. The sections after this one are the milestone's functional checklist
+and the completed W2 and W1 records.
 
 ## Functional review checklist
 
