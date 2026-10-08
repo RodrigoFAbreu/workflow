@@ -1,6 +1,6 @@
 # Troubleshooting
 
-> For: anyone who hit an error or a blocked work item. Last checked with: Workflow 2.8.0, Workflow Manager 1.4.0.
+> For: anyone who hit an error or a blocked work item. Last checked with: Workflow 2.9.0, Workflow Manager 1.4.0.
 
 Each problem has a one-line fix. The exact rules are in the shipped documents
 under `payload/docs/ai-workflow/`.
@@ -56,3 +56,20 @@ The record of the adopted policy no longer checks out, which the Workflow's own 
 
 Run `/apply-pr-review <id>` with the work item id. It reopens the same work
 item. A merged pull request is refused; the follow-up is a new work item.
+
+### A legacy work item is stuck at LEGACY_READY
+
+An imported legacy item that is already finished can be closed with the
+user-only `/retire-legacy-work-item <id>`. Your own message must name the id and
+the word `retirement`. It refuses any other phase, the active item and an item
+with unfinished children. A retired item stays closed. Workflow 2.8.0 and
+earlier have no such guard: on those releases a red pull-request report for a
+retired item can reopen it, so do not report pull-request facts for it there, or
+stay on 2.9.0.
+
+### A work item sits at the functional gate with a checkpoint outstanding
+
+Run the user-only `/resume-implementation <id>`; your own message names the id
+and the word `resumption`. It returns a 2.1 or 2.2 item to `IMPLEMENTING` and
+marks its technical approval stale; then `/milestone-implement` continues. An
+item governed by version `1` is not handled by this command.
