@@ -171,6 +171,18 @@ Evidence base: branch `milestone/legacy-retire-and-default-version`,
 implementation revision 5, release source `2.9.0`. The expected values below are
 those of the preparation run at commit `acb4b3a`.
 
+**Round 1 outcome** (`FUNCTIONAL_REVIEW.md`): all nine flows PASS; no defect in
+behavior. Findings 1 and 2 were documentation-only corrections on excluded
+paths, fixed with no code change (`technical_approval` untouched): `docs/ROADMAP.md`
+now names row 38b in the three `v2.6.0-003` summaries, and `CLAUDE.md` (below the
+managed block) now names Workflow 2.8.0 and the tags `v2.3.1` to `v2.8.0`.
+Findings 3-5 (the "Last checked with" headers of `docs/install.md`,
+`docs/gates.md` and `docs/overview.md`; `docs/install.md` naming only
+`/retire-legacy-work-item`; the unknown-id error type) are enhancements deferred
+to a `docs:` pull request after merge (no remediation child). Finding 6 is
+expected behavior (checklist wording). Nothing was deferred to a child work
+item. Re-test: read the two edits.
+
 **Setup**
 
 S1. From the repository root, on the milestone branch with a clean tree. The
