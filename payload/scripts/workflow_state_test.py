@@ -18276,6 +18276,19 @@ class TestUserOnlyConfirmation(unittest.TestCase):
             self.check("retirement of milestone-8-b", item="milestone-8")
         self.check("retirement of milestone-8-b", item="milestone-8-b")
 
+    def test_an_item_id_never_supplies_the_stage_word_for_the_opposite_action(self):
+        self.check("I confirm resumption of legacy-retirement", item="legacy-retirement", stage="resumption")
+        with self.assertRaises(ws.UserConfirmationRejectedError):
+            self.check("I confirm resumption of legacy-retirement", item="legacy-retirement", stage="retirement")
+        with self.assertRaises(ws.UserConfirmationRejectedError):
+            self.check("I confirm retirement of implementation-resumption", item="implementation-resumption",
+                       stage="resumption")
+        self.check("I confirm retirement of implementation-resumption", item="implementation-resumption",
+                   stage="retirement")
+        with self.assertRaises(ws.UserConfirmationRejectedError):
+            self.check("retire legacy-retirement", item="legacy-retirement")
+        self.check("legacy-retirement retirement", item="legacy-retirement")
+
     def test_missing_empty_wrong_stage_and_unknown_stage_are_refused(self):
         for text in (None, "", "   ", "milestone-8 only", "retirement only", "retirements of milestone-8",
                      "approve milestone-8 acceptance"):
@@ -18471,6 +18484,27 @@ class TestLegacyRetirementCommit(unittest.TestCase):
         with ScratchRepo() as repo:
             self.seeded(repo)
             commit = self.retire_commit(repo, mutate=lambda s: s.update(active_work_item_id="milestone-8"))
+            with self.assertRaises(ws.MalformedLegacyRetirementCommitError):
+                ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
+
+    def test_a_null_added_key_is_refused_at_every_scope(self):
+        # an absent key is not a null value: the scope check must tell them apart
+        mutations = {
+            "null field on the item": lambda s: s["work_items"]["milestone-8"].update(feedback_layout=None),
+            "null cross-item entry": lambda s: s["work_items"].update(ghost=None),
+            "null top-level field": lambda s: s.update(ghost=None),
+        }
+        for label, mutate in mutations.items():
+            with self.subTest(label), ScratchRepo() as repo:
+                self.seeded(repo)
+                commit = self.retire_commit(repo, mutate=mutate)
+                with self.assertRaises(ws.MalformedLegacyRetirementCommitError):
+                    ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
+
+    def test_a_confirmation_naming_the_opposite_stage_in_the_id_is_refused(self):
+        with ScratchRepo() as repo:
+            self.seeded(repo)
+            commit = self.retire_commit(repo, confirmation="I confirm resumption of milestone-8")
             with self.assertRaises(ws.MalformedLegacyRetirementCommitError):
                 ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
 
@@ -18767,6 +18801,25 @@ class TestResumeImplementationCommitValidation(unittest.TestCase):
                 edit(state["work_items"]["wi"]["technical_approval"])
                 h.write_state(repo, state)
                 commit = h.commit_state(repo, f"forged resume\n\nResume-Confirmation: {_RESUME_CONFIRMATION}",
+                                        {"Workflow-Work-Item": "wi"})
+                with self.assertRaises(ws.MalformedResumeImplementationCommitError):
+                    ws.validate_resume_implementation_commit(repo.root, commit, "wi")
+
+    def test_a_null_added_key_is_refused_at_every_scope(self):
+        import workflow_test_harness as h
+        edits = {
+            "null field on the item": lambda s: s["work_items"]["wi"].update(feedback_layout=None),
+            "null cross-item entry": lambda s: s["work_items"].update(ghost=None),
+            "null top-level field": lambda s: s.update(ghost=None),
+        }
+        for label, edit in edits.items():
+            with self.subTest(label), h.ScratchRepo() as repo:
+                _resume_functional_repo(repo)
+                ws.resume_implementation(repo.root, "wi", "t9", _RESUME_CONFIRMATION)
+                state = h.read_state(repo)
+                edit(state)
+                h.write_state(repo, state)
+                commit = h.commit_state(repo, f"resume\n\nResume-Confirmation: {_RESUME_CONFIRMATION}",
                                         {"Workflow-Work-Item": "wi"})
                 with self.assertRaises(ws.MalformedResumeImplementationCommitError):
                     ws.validate_resume_implementation_commit(repo.root, commit, "wi")

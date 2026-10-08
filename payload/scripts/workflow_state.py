@@ -13393,7 +13393,10 @@ def validate_user_only_confirmation(text: str, *, work_item_id: str, stage: str)
         raise UserConfirmationRejectedError(
             f"user_confirmation does not name work_item_id {work_item_id!r} as an exact token: {text!r}"
         )
-    if not re.search(rf"(?<![A-Za-z]){re.escape(stage)}(?![A-Za-z])", text, re.IGNORECASE):
+    # The stage word must stand outside every occurrence of the item id, or an
+    # id such as `legacy-retirement` would supply the word for the other action.
+    outside_id = id_token.sub(" ", text)
+    if not re.search(rf"(?<![A-Za-z]){re.escape(stage)}(?![A-Za-z])", outside_id, re.IGNORECASE):
         raise UserConfirmationRejectedError(
             f"user_confirmation does not name {stage!r} as a whole word: {text!r}"
         )
@@ -14490,7 +14493,11 @@ def _work_item_field_diff(repo_root: Path, commit: str, work_item_id: str) -> se
     before_item = before.get("work_items", {}).get(work_item_id, {})
     after_item = after.get("work_items", {}).get(work_item_id, {})
     keys = set(before_item) | set(after_item)
-    return {k for k in keys if before_item.get(k) != after_item.get(k)}
+    # A key present with a null value differs from an absent key.
+    return {
+        k for k in keys
+        if (k in before_item) != (k in after_item) or before_item.get(k) != after_item.get(k)
+    }
 
 
 def _forbidden_state_mutation(repo_root: Path, commit: str, work_item_id: str) -> str | None:
@@ -14510,7 +14517,8 @@ def _forbidden_state_mutation(repo_root: Path, commit: str, work_item_id: str) -
     before_top = {k: v for k, v in before.items() if k != "work_items"}
     after_top = {k: v for k, v in after.items() if k != "work_items"}
     changed_top = sorted(
-        k for k in set(before_top) | set(after_top) if before_top.get(k) != after_top.get(k)
+        k for k in set(before_top) | set(after_top)
+        if (k in before_top) != (k in after_top) or before_top.get(k) != after_top.get(k)
     )
     if changed_top:
         return f"top-level field(s) {changed_top}"
@@ -14518,7 +14526,9 @@ def _forbidden_state_mutation(repo_root: Path, commit: str, work_item_id: str) -
     after_items = after.get("work_items", {})
     other_ids = (set(before_items) | set(after_items)) - {work_item_id}
     changed_others = sorted(
-        wid for wid in other_ids if before_items.get(wid) != after_items.get(wid)
+        wid for wid in other_ids
+        if (wid in before_items) != (wid in after_items)
+        or before_items.get(wid) != after_items.get(wid)
     )
     if changed_others:
         return f"other work item(s) {changed_others}"
