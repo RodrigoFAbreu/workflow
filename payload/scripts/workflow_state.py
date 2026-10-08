@@ -12678,6 +12678,34 @@ def work_item_completion_status(repo_root: Path, work_item: dict) -> tuple[bool,
     return (is_terminal and satisfied, outstanding_checkpoint_id, outstanding_obligations)
 
 
+def _incomplete_own_checkpoints_route(work_item: dict) -> str:
+    """The phase- and version-aware way forward `IncompleteOwnCheckpointsError`
+    names (`v2.6.0-003` (c), workflow-2.9.0 CP4). `complete_work_item` raises it
+    for every governing version and phase, so the text cannot always advise
+    `/milestone-implement`: that command cannot start a checkpoint once the item
+    has left `IMPLEMENTING`. Pure; writes no state."""
+    finding = (
+        "for a functional-review finding, use /apply-functional-review -- its bounded "
+        "branch for a same-scope fix, or its broad branch, which creates a "
+        "remediation child work item, for new or wider scope"
+    )
+    phase = work_item.get("phase")
+    version = work_item.get("governing_workflow_version")
+    if phase == "IMPLEMENTING":
+        return f"Finish it with /milestone-implement if it is still part of this milestone; {finding}"
+    if version == "1":
+        return (
+            "No command completes a checkpoint of a governing-\"1\" item, and the item "
+            "cannot be accepted until its registry is terminal (a residual of "
+            f"v2.6.0-003); {finding}"
+        )
+    return (
+        f"No command completes a checkpoint from {phase}, so /milestone-implement cannot "
+        f"finish it. A 2.1/2.2 item with a CURRENT plan approval can be returned to "
+        f"IMPLEMENTING with the user-only /resume-implementation; {finding}"
+    )
+
+
 def complete_work_item(state: dict, work_item_id: str, now: str, *, repo_root: Path) -> dict:
     """D1's completion/reset text: on `MILESTONE_COMPLETE` (or
     process-completion archival), the entry's phase becomes terminal and,
@@ -12728,11 +12756,8 @@ def complete_work_item(state: dict, work_item_id: str, now: str, *, repo_root: P
     if not is_terminal:
         raise IncompleteOwnCheckpointsError(
             f"{work_item_id!r} cannot reach MILESTONE_COMPLETE -- its own checkpoint "
-            f"{outstanding_checkpoint_id!r} is not COMPLETE. Finish it with "
-            f"/milestone-implement if it is still part of this milestone; for a "
-            f"functional-review finding, use /apply-functional-review -- its bounded "
-            f"branch for a same-scope fix, or its broad branch, which creates a "
-            f"remediation child work item, for new or wider scope"
+            f"{outstanding_checkpoint_id!r} is not COMPLETE. "
+            + _incomplete_own_checkpoints_route(work_item)
         )
 
     verdicts = resolve_completion_obligations(repo_root, work_item)
@@ -14138,7 +14163,8 @@ def record_bundle_generation(
     transition (OPUS-R101-001, widened by workflow-v2-3-followups's own
     continued scope): legality is stage-specific
     (`BUNDLE_GENERATION_LEGAL_SOURCE_PHASES_BY_STAGE`) -- `"implementation"`
-    only from `SELF_REVIEWING_IMPLEMENTATION`; `"post-fix"` from
+    only from `SELF_REVIEWING_IMPLEMENTATION` (and, for a governing-`"1"`
+    item alone, from `IMPLEMENTING`, `v2.6.0-003` (a)); `"post-fix"` from
     `APPLYING_REVIEW_FEEDBACK`, or from `AWAITING_FUNCTIONAL_REVIEW` when
     (and only when) `technical_approval.status == "STALE"`, the bounded-fix
     marker `/apply-functional-review`'s own branch writes before its first
@@ -14196,6 +14222,17 @@ def record_bundle_generation(
     work_item = new_state["work_items"][work_item_id]
     current_phase = work_item.get("phase")
     legal_phases_for_stage = BUNDLE_GENERATION_LEGAL_SOURCE_PHASES_BY_STAGE[stage]
+    # `v2.6.0-003` (a), workflow-2.9.0 CP4: the `"1"` branch of
+    # `/milestone-implement` step 4 is documented to call this from
+    # `IMPLEMENTING` (it has no `SELF_REVIEWING_IMPLEMENTATION` write), so that
+    # one source phase is legal for that one version at that one stage. Every
+    # other version and stage refuses exactly as before; the table is unchanged.
+    if (
+        stage == "implementation"
+        and current_phase == "IMPLEMENTING"
+        and work_item.get("governing_workflow_version") == "1"
+    ):
+        legal_phases_for_stage = legal_phases_for_stage | {"IMPLEMENTING"}
     if current_phase not in legal_phases_for_stage:
         raise IllegalBundleGenerationSourcePhaseError(
             f"record_bundle_generation invoked from phase {current_phase!r} for stage "

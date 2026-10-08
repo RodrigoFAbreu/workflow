@@ -4585,6 +4585,7 @@ class TestEnterSelfReviewingImplementation(unittest.TestCase):
         stage="implementation")` must accept the resulting state, and must
         have refused the one it started from."""
         state = self._state(phase="IMPLEMENTING")
+        state["work_items"]["wi"]["governing_workflow_version"] = "2.1"
         with self.assertRaises(ws.IllegalBundleGenerationSourcePhaseError):
             ws.record_bundle_generation(
                 state, "wi", stage="implementation", head="h", now="t",
@@ -4984,12 +4985,43 @@ class TestRecordBundleGeneration(unittest.TestCase):
         message for it must name only that, never `APPLYING_REVIEW_FEEDBACK`
         (a `post-fix`-only source since the widening, never legal for a
         round's first bundle)."""
-        state = _base_state(wi=_base_work_item(phase="IMPLEMENTING"))
+        state = _base_state(wi=_base_work_item(phase="IMPLEMENTING", governing_workflow_version="2.1"))
         with self.assertRaises(ws.IllegalBundleGenerationSourcePhaseError) as ctx:
             ws.record_bundle_generation(state, "wi", stage="implementation", head="abc123", now="t1")
         self.assertIn("IMPLEMENTING", str(ctx.exception))
         self.assertIn("SELF_REVIEWING_IMPLEMENTATION", str(ctx.exception))
         self.assertNotIn("APPLYING_REVIEW_FEEDBACK", str(ctx.exception))
+
+    def test_v1_item_reaches_review_from_implementing_writing_exactly_the_five_ordinary_fields(self):
+        """`v2.6.0-003` (a), workflow-2.9.0 CP4: the `"1"` `/milestone-implement`
+        step 4 calls this from `IMPLEMENTING`. The write is a subset of
+        `ORDINARY_BUNDLE_GENERATION_RECORD_FIELDS` and touches no checkpoint
+        status."""
+        state = _base_state(wi=_base_work_item(
+            phase="IMPLEMENTING", governing_workflow_version="1",
+            reviewed_implementation_head=None, implementation_revision=None,
+            checkpoints={"A": {"status": "IN_PROGRESS"}},
+        ))
+        new_state = ws.record_bundle_generation(state, "wi", stage="implementation", head="abc123", now="t1")
+        before, after = state["work_items"]["wi"], new_state["work_items"]["wi"]
+        changed = {key for key in set(before) | set(after) if before.get(key) != after.get(key)}
+        self.assertEqual(changed, {
+            "phase", "reviewed_implementation_head", "implementation_revision",
+            "state_revision", "last_transition",
+        })
+        self.assertLessEqual(changed, ws.ORDINARY_BUNDLE_GENERATION_RECORD_FIELDS)
+        self.assertEqual(after["phase"], "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW")
+        self.assertEqual(after["implementation_revision"], 1)
+
+    def test_implementing_stays_illegal_for_two_stage_versions_and_for_post_fix(self):
+        for version in ("2.1", "2.2"):
+            with self.subTest(version=version):
+                state = _base_state(wi=_base_work_item(phase="IMPLEMENTING", governing_workflow_version=version))
+                with self.assertRaises(ws.IllegalBundleGenerationSourcePhaseError):
+                    ws.record_bundle_generation(state, "wi", stage="implementation", head="h", now="t")
+        state = _base_state(wi=_base_work_item(phase="IMPLEMENTING", governing_workflow_version="1"))
+        with self.assertRaises(ws.IllegalBundleGenerationSourcePhaseError):
+            ws.record_bundle_generation(state, "wi", stage="post-fix", head="h", now="t")
 
     def test_post_fix_illegal_source_phase_names_its_own_legal_phases(self):
         """The `stage="post-fix"` counterpart: its own legal set is
@@ -5079,6 +5111,39 @@ class TestRecordBundleGeneration(unittest.TestCase):
             self.assertEqual(
                 fresh_session["work_items"]["wi"]["phase"], "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW",
             )
+
+    def test_v1_implementing_entry_record_commit_validates_and_the_interval_is_reachable(self):
+        """`v2.6.0-003` (a), workflow-2.9.0 CP4: a governing-`"1"` item at
+        `IMPLEMENTING` (with an unfinished checkpoint status, as a hand-run `1`
+        item with a registry has) reaches review through a real
+        `Workflow-Bundle-Generation-Record` commit that passes the ordinary
+        role validator and the provenance interval `/approve-review
+        implementation` checks."""
+        with ScratchRepo() as repo:
+            _write_test_artifacts_declaration(repo, "wi")
+            pre_item = {
+                "work_item_id": "wi",
+                "governing_workflow_version": "1",
+                "reviewed_implementation_head": None,
+                "implementation_revision": 0,
+                "phase": "IMPLEMENTING",
+                "state_revision": 0,
+                "last_transition": "t0",
+            }
+            _commit_state_only(repo, "wi", pre_item, "seed base state")
+            p = repo.commit("protected fix", filename="src/Foo.kt")
+            pre_state = _base_state(wi=pre_item)
+            post_state = ws.record_bundle_generation(
+                pre_state, "wi", stage="implementation", head=p, now="t1",
+            )
+            wi_after = post_state["work_items"]["wi"]
+            s = _commit_state_only(
+                repo, "wi", wi_after, "record gen",
+                trailers=_record_trailers("wi", wi_after["implementation_revision"]),
+            )
+            ws.validate_bundle_generation_record_commit(repo.root, s, "wi")  # must not raise
+            work_item = wi_after | {"work_item_id": "wi"}
+            self.assertEqual(ws.verify_implementation_provenance_interval(repo.root, work_item, repo.base), s)
 
     def test_post_fix_end_to_end_round_converges_on_the_same_target_phase(self):
         """Item 274 (`WF8c`): the same end-to-end flow as item 273,
@@ -7931,12 +7996,73 @@ class TestCompleteWorkItemOwnRegistryGuard(unittest.TestCase):
             message = str(ctx.exception)
             self.assertNotIn("accept-scoped-remediation", message)
             self.assertNotIn("scoped_remediation", message)
-            self.assertIn("/milestone-implement", message)
+            # This fixture is a governing-"1" item: its text names no checkpoint
+            # command (`O2`); the phase- and version-aware variants are pinned in
+            # `test_message_is_phase_and_version_aware`.
+            self.assertNotIn("/milestone-implement", message)
             self.assertIn("/apply-functional-review", message)
             self.assertIn("bounded", message)
             self.assertIn("remediation child work item", message)
             # And it still names the checkpoint that actually blocks.
             self.assertIn("'B'", message)
+
+    def test_v1_item_acceptance_step_2a_registry_less_passes_and_registry_residual_refuses(self):
+        """`v2.6.0-003` (a), workflow-2.9.0 CP4: a governing-`"1"` item that has
+        reached review without a registry passes `/accept-milestone` step 2a
+        (vacuously terminal); one with a non-terminal registry is still refused
+        there -- the stated residual, since no `"1"` command writes statuses."""
+        with ScratchRepo() as repo:
+            item = _base_work_item(
+                phase="AWAITING_FUNCTIONAL_REVIEW", governing_workflow_version="1", registry_path=None,
+            )
+            self.assertEqual(ws.resolve_own_registry_completion_status(repo.root, item), (True, None))
+            _write(repo, self.REGISTRY_PATH, json.dumps(self._registry()))
+            _commit_paths(repo, [self.REGISTRY_PATH], "registry")
+            state = self._state(
+                b_complete=False, plan_approval=_current_plan_approval_covering(repo, self.REGISTRY_PATH),
+            )
+            state["work_items"]["wi"]["governing_workflow_version"] = "1"
+            is_terminal, outstanding = ws.resolve_own_registry_completion_status(
+                repo.root, state["work_items"]["wi"],
+            )
+            self.assertEqual((is_terminal, outstanding), (False, "B"))
+
+    def _refusal_message(self, phase, version):
+        with ScratchRepo() as repo:
+            _write(repo, self.REGISTRY_PATH, json.dumps(self._registry()))
+            _commit_paths(repo, [self.REGISTRY_PATH], "registry")
+            state = self._state(
+                b_complete=False, plan_approval=_current_plan_approval_covering(repo, self.REGISTRY_PATH),
+            )
+            work_item = state["work_items"]["wi"]
+            work_item["phase"] = phase
+            work_item["governing_workflow_version"] = version
+            with self.assertRaises(ws.IncompleteOwnCheckpointsError) as ctx:
+                ws.complete_work_item(state, "wi", now="t", repo_root=repo.root)
+            return str(ctx.exception)
+
+    def test_message_is_phase_and_version_aware(self):
+        """`v2.6.0-003` (c), workflow-2.9.0 CP4: the advice depends on the phase
+        and the governing version, and every variant keeps the substrings the
+        2.8.0 test pins and never names the retired command."""
+        at_implementing = self._refusal_message("IMPLEMENTING", "2.2")
+        self.assertIn("Finish it with /milestone-implement", at_implementing)
+        self.assertNotIn("/resume-implementation", at_implementing)
+        for phase in ("AWAITING_FUNCTIONAL_REVIEW", "AWAITING_USER_ACCEPTANCE"):
+            with self.subTest(phase=phase):
+                message = self._refusal_message(phase, "2.1")
+                self.assertNotIn("Finish it with /milestone-implement", message)
+                self.assertIn("cannot finish it", message)
+                self.assertIn("/resume-implementation", message)
+        v1 = self._refusal_message("AWAITING_FUNCTIONAL_REVIEW", "1")
+        self.assertNotIn("/resume-implementation", v1)
+        self.assertNotIn("/milestone-implement", v1)
+        self.assertIn("until its registry is terminal", v1)
+        for message in (at_implementing, v1, self._refusal_message("AWAITING_FUNCTIONAL_REVIEW", "2.2")):
+            self.assertIn("/apply-functional-review", message)
+            self.assertIn("bounded", message)
+            self.assertIn("remediation child work item", message)
+            self.assertNotIn("accept-scoped-remediation", message)
 
     def test_registry_coverage_missing_file(self):
         with ScratchRepo() as repo:

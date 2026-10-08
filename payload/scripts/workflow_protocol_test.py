@@ -617,6 +617,17 @@ class TestVerify(unittest.TestCase):
         self.assertTrue(body["result"]["healthy"])
         self.assertEqual(checks_by_id(body)["checkpoint_completions_provable"]["status"], "pass")
 
+    def test_v1_item_past_its_implementation_entry_stays_healthy(self):
+        """`v2.6.0-003` (a), workflow-2.9.0 CP4: the `"1"` implementation entry
+        writes no checkpoint status, so check 5 passes vacuously."""
+        with h.ScratchRepo() as repo:
+            write_state(repo, h.base_state(wi=item(
+                governing_workflow_version="1", phase="AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW",
+                base_commit=repo.base, checkpoints={"CP1": {"status": "IN_PROGRESS"}})))
+            body = self.verify(repo)
+        self.assertTrue(body["result"]["healthy"])
+        self.assertEqual(checks_by_id(body)["checkpoint_completions_provable"]["status"], "pass")
+
     def test_terminal_items_are_not_proven(self):
         with h.ScratchRepo() as repo:
             write_state(repo, h.base_state(wi=item(
@@ -1163,7 +1174,31 @@ class TestFixedRows(unittest.TestCase):
                 self.assertEqual((result["row"], result["disposition"], result["reason"]["code"]),
                                  ("6a", "blocked", "v1_state_not_advanced"))
                 self.assertIsNone(result["action"])
-                self.assertIn("v2.6.0-003", result["reason"]["remedy"])
+                if phase == "IMPLEMENTING":
+                    # workflow-2.9.0 CP4 (`B1`): reported blocked, naming the hand-run command
+                    self.assertIn("/milestone-implement", result["reason"]["remedy"])
+                    self.assertEqual(wp.ROWS_BY_ID["6a"].remedy_commands_for(phase, "1"), ("milestone-implement",))
+                else:
+                    self.assertIn("v2.6.0-003", result["reason"]["remedy"])
+                    self.assertEqual(wp.ROWS_BY_ID["6a"].remedy_commands_for(phase, "1"), ("none_exists",))
+
+    def test_v1_implementing_without_a_registry_is_the_same_blocked_row(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo, governing_workflow_version="1", phase="IMPLEMENTING")
+            result = next_action(repo)
+            self.assertEqual((result["row"], result["disposition"], result["reason"]["code"]),
+                             ("6a", "blocked", "v1_state_not_advanced"))
+            self.assertIsNone(result["action"])
+            self.assertIn("/milestone-implement", result["reason"]["remedy"])
+
+    def test_no_edge_legalizes_a_v1_move_out_of_implementing(self):
+        """A `"1"` item at `IMPLEMENTING` is reported `blocked` (no action), so
+        a state that later moved to review has no action to reconcile: no
+        automatic action's edge starts at `IMPLEMENTING` for version `"1"`."""
+        for action, spec in wp.EDGES.items():
+            for edge in spec["edges"]:
+                if edge["from"] == "IMPLEMENTING":
+                    self.assertNotIn("1", edge["versions"], action)
 
     def test_v1_self_reviewing_implementation_is_row_4(self):
         self.assertEqual(self.decide_minimal("SELF_REVIEWING_IMPLEMENTATION", "1")["row"], "4")
@@ -4313,8 +4348,11 @@ class TestAllHumanEquivalence(unittest.TestCase):
                 new, new_code = run_new(repo.root, "next-action")
                 self.assertEqual(old_code, new_code, (old, new))
                 assert_valid(new)
-                self.assertEqual(json.dumps(without_release(old), sort_keys=True),
-                                 json.dumps(without_release(new), sort_keys=True))
+                # the 1.2 text-only exemptions (workflow-2.9.0, rows 6a and 38b's
+                # `v2.6.0-003` text), enumerated in `EXEMPT_1_2`; row, disposition,
+                # action and reason code still must match
+                self.assertEqual(json.dumps(_normalize_1_2(old), sort_keys=True),
+                                 json.dumps(_normalize_1_2(new), sort_keys=True))
 
     def test_verify_differs_only_by_the_advisory_gate_policy_check(self):
         for name, build in equivalence_scenarios()[:12]:

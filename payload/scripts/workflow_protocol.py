@@ -1185,15 +1185,15 @@ def _row_6(ctx):
 
 
 def _row_6a(ctx):
-    failing = (
-        "the \"1\" branch of milestone-plan writes no state, so no \"1\" command publishes the plan"
-        if ctx.phase in ("PLANNING", "AMENDING_PLAN") else
-        "record_bundle_generation(stage=\"implementation\") refuses from IMPLEMENTING "
-        "(IllegalBundleGenerationSourcePhaseError)"
-    )
+    if ctx.phase == "IMPLEMENTING":
+        return _match("v1_state_not_advanced",
+                      "IMPLEMENTING at governing_workflow_version \"1\": the \"1\" /milestone-implement "
+                      "runs by hand; the orchestrator does not drive governing \"1\"",
+                      "run /milestone-implement by hand")
     return _match("v1_state_not_advanced",
-                  f"{ctx.phase} at governing_workflow_version \"1\": {failing}",
-                  "none exists: no 2.6.0 \"1\" command advances this state (defect v2.6.0-003)")
+                  f"{ctx.phase} at governing_workflow_version \"1\": the \"1\" branch of milestone-plan "
+                  f"writes no state, so no \"1\" command publishes the plan",
+                  "none exists: no \"1\" command advances this state (defect v2.6.0-003)")
 
 
 def _row_7(ctx):
@@ -1664,8 +1664,10 @@ def _row_38b(ctx):
     return _match(
         "v1_state_not_advanced",
         f"checkpoint {outstanding} is not COMPLETE and no \"1\" command writes checkpoint statuses, so "
-        f"/accept-milestone can never pass its pre-flight for this item (defect v2.6.0-003)",
-        "none exists in 2.6.0 (defect v2.6.0-003)", alternatives=_FUNCTIONAL_ALTERNATIVES)
+        f"the item cannot be accepted until its registry is terminal (the open residual of defect "
+        f"v2.6.0-003)",
+        "none exists: the item cannot be accepted until its registry is terminal (defect v2.6.0-003)",
+        alternatives=_FUNCTIONAL_ALTERNATIVES)
 
 
 def _row_38c(ctx):
@@ -1916,7 +1918,7 @@ CATALOGUE = [
         remedy_commands=lambda phase, version: (
             ("milestone-plan",) if version in TWO_STAGE_VERSIONS and phase in TWO_STAGE_PLAN_PHASES else ())),
     Row("6a", ("PLANNING", "AMENDING_PLAN", "IMPLEMENTING"), _V1, "blocked", None, _row_6a, unconditional=True,
-        remedy_commands=("none_exists",)),
+        remedy_commands=lambda phase, version: ("milestone-implement",) if phase == "IMPLEMENTING" else ("none_exists",)),
     Row("7", ("PLANNING", "AMENDING_PLAN"), TWO_STAGE_VERSIONS, "automatic", "plan.author", _row_7, unconditional=True),
     Row("7a", ("REVISING_PLAN",), TWO_STAGE_VERSIONS, "blocked", None, _row_7a,
         remedy_commands=("milestone-plan",), refusing_commands=("apply-plan-review",)),

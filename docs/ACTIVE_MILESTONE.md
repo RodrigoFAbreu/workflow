@@ -35,7 +35,21 @@ Workflow 2.9.0 on Orchestration Protocol 1.2, a minor release with three parts:
 
 ## Current checkpoint
 
-**Implementing.** The plan (revision 6) is approved; CP1, CP2 and CP3 are complete.
+**Implementing.** The plan (revision 6) is approved; CP1 to CP4 are complete.
+
+`CP4` (`v2.6.0-003` (a, implementation entry) and (c)) complete, in the release
+source only: `record_bundle_generation` accepts `implementation` from
+`IMPLEMENTING` for a governing-`1` item alone (the five ordinary fields, no
+checkpoint-status write; the record commit validates and the provenance interval
+is reachable); `IncompleteOwnCheckpointsError` is phase- and version-aware
+(`_incomplete_own_checkpoints_route`); row 6a keeps its shape (`blocked`,
+unconditional, no `EDGES`) with phase-aware text and a `milestone-implement`
+remedy at `IMPLEMENTING`; row 38b's text states the residual; the protocol
+document matches. Tests: the `1` entry, the commit/interval, `IMPLEMENTING`
+staying illegal for 2.1/2.2 and `post-fix`, step 2a for a registry-less `1` item
+(passes) and a non-terminal registry (refused), `verify` healthy past the entry,
+no edge from `IMPLEMENTING` at `1`, the message variants, and the `V280`
+equivalence with the 6a/38b exemptions. No command text is edited.
 
 `CP1` (new installations default to 2.2) complete: the template
 `templates/docs/ai-workflow/WORKFLOW_CONFIG.json` now defaults to `"2.2"` with

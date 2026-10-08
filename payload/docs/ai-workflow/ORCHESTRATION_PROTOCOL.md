@@ -703,7 +703,7 @@ are a summary, and the code and its tests are the detail.
 | 4 | `AWAITING_EXTERNAL_PLAN_REVIEW` at `2.1`/`2.2`, `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` at `1`/`2.1`, `AWAITING_LOCAL_PLAN_REVIEW` at `1`, `AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW` at `1`/`2.1`, `AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW` at `1`, `AWAITING_PLAN_APPROVAL` at `1`, `REVISING_PLAN` at `1`, `SELF_REVIEWING_IMPLEMENTATION` at `1` | as listed | — (no writer persists the phase at that `gv`) | blocked | — | `phase_not_legal_for_governing_version` |
 | 5 | `AMENDING_PLAN`, `AWAITING_LOCAL_PLAN_REVIEW`, `AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW`, `AWAITING_PLAN_APPROVAL`, `PLANNING`, `REVISING_PLAN` | `2.1`, `2.2` | the publication status raises `PlanReviewBindingInconsistentError` | blocked | — | `plan_review_binding_inconsistent`, the error in the text; remedy: withdraw with `/milestone-plan <id>` at a ready phase (alternative `plan.withdraw`), otherwise none exists (repair the record by hand) |
 | 6 | `APPLYING_REVIEW_FEEDBACK`, `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`, `AWAITING_EXTERNAL_PLAN_REVIEW`, `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`, `AWAITING_LOCAL_PLAN_REVIEW`, `AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW`, `AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW`, `AWAITING_PLAN_APPROVAL`, `REVISING_PLAN` | `1`, `2.1`, `2.2` | `assert_bundle_not_rejected` refuses | blocked | — | `bundle_rejected`; the marker's detail; at a two-stage plan phase, alternative `plan.withdraw` |
-| 6a | `AMENDING_PLAN`, `IMPLEMENTING`, `PLANNING` | `1` | — | blocked | — | `v1_state_not_advanced`: no 2.6.0 `1` command advances this state (`v2.6.0-003`) |
+| 6a | `AMENDING_PLAN`, `IMPLEMENTING`, `PLANNING` | `1` | — | blocked | — | `v1_state_not_advanced`; at `IMPLEMENTING` the `1` `/milestone-implement` runs by hand (remedy `/milestone-implement`, the orchestrator does not drive governing `1`); at `PLANNING`/`AMENDING_PLAN` no `1` command advances the state (`v2.6.0-003`) |
 | 7 | `AMENDING_PLAN`, `PLANNING` | `2.1`, `2.2` | — | automatic | `plan.author` | `/milestone-plan <id>` |
 | 7a | `REVISING_PLAN` | `2.1`, `2.2` | fb passes `assert_apply_plan_review_feedback` in `"bundle"` mode, and `assert_apply_review_feedback_binding` raises a bundle-integrity class | blocked | — | `bundle_unverified`: restore the reviewed plan bundle; alternative `plan.withdraw` |
 | 8 | `REVISING_PLAN` | `2.1`, `2.2` | fb passes `/apply-plan-review`'s step-1 acceptance (by content for a `REVISE` that states a `review_content_id`, by bundle otherwise) | automatic | `plan.apply_review` | `/apply-plan-review <id>` |
@@ -751,7 +751,7 @@ are a summary, and the code and its tests are the detail.
 | 37 | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | no current checklist evidence | automatic | `functional.prepare` | `/prepare-functional-review <id>` |
 | 38 | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | an unconsumed `FUNCTIONAL_REVIEW.md` exists | automatic | `functional.apply_findings` | `/apply-functional-review <id>` |
 | 38a | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | `resolve_own_registry_completion_status` raises | blocked | — | `plan_content_drifted` or `registry_unreadable`; alternative `functional.review.advisory` |
-| 38b | `AWAITING_FUNCTIONAL_REVIEW` | `1` | the registry is not terminal | blocked | — | `v1_state_not_advanced` (`v2.6.0-003`) |
+| 38b | `AWAITING_FUNCTIONAL_REVIEW` | `1` | the registry is not terminal | blocked | — | `v1_state_not_advanced`: the item cannot be accepted until its registry is terminal (the open residual of `v2.6.0-003`) |
 | 38c | `AWAITING_FUNCTIONAL_REVIEW` | `2.1`, `2.2` | the registry is not terminal | blocked | — | `registry_incomplete`: no 2.6.0 command completes it here |
 | 38d | `AWAITING_FUNCTIONAL_REVIEW`, `MILESTONE_COMPLETE` | `1`, `2.1`, `2.2` | the query trigger holds (a reported pull-request fact differs from the stored `workflow_gh` fact), or the stored `workflow_gh` fact has an unapplied cause actionable under the policy; no gate-mode condition | automatic | `pr.apply_review` | `pr_query_due` or `pr_review_actionable`; `/apply-pr-review <id>`; its first step is the Workflow's own query; matches a completed item too, except a retired legacy item (`is_retired_legacy_item`: `MILESTONE_COMPLETE`, governing `1`, `LEGACY_V1`), which no row matches for it and which is never reopened (`reopen_retired_legacy_item`) |
 | 38e | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | the acceptance gate is `automatic`, its checkpoints and technical approval are current, and `functional_flows_passed` is unmet for want of evidence | external_gate | `functional.evidence.external` | `functional_evidence_needed`; `satisfied_by: functional_evidence` |
@@ -768,10 +768,12 @@ Notes on the catalogue:
   `work_items` entry (a remediation child created under a `1` default, a
   legacy import, the bootstrap's item); no `1` command creates one, so a
   `1` default gives row 1a, never `plan.start`. Two `1` states cannot be
-  advanced by any 2.6.0 command, and row 6a reports them as `blocked`:
+  advanced by any `1` command, and row 6a reports them as `blocked`:
   `PLANNING`/`AMENDING_PLAN` (`/milestone-plan`'s `1` branch writes no
-  state) and `IMPLEMENTING` (`/milestone-implement`'s `1` step 4 calls
-  `record_bundle_generation` from `IMPLEMENTING`, which refuses). At the
+  state) and `IMPLEMENTING` (from 2.9.0 the hand-run `/milestone-implement`
+  reaches review, since `record_bundle_generation` accepts `implementation`
+  from `IMPLEMENTING` for a governing-`1` item; the orchestrator still does
+  not drive `1`, so row 6a names that command as the remedy). At the
   functional gate, row 38b reports a `1` item whose registry is not
   terminal, which `/accept-milestone` can never accept. Row 38c is the
   `2.1`/`2.2` counterpart, reachable from a legacy promotion or a
