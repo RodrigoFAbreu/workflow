@@ -1,6 +1,6 @@
 # Troubleshooting
 
-> For: anyone who hit an error or a blocked work item. Last checked with: Workflow 2.9.0, Workflow Manager 1.4.0.
+> For: anyone who hit an error or a blocked work item. Last checked with: Workflow 2.9.0, Workflow Manager 1.5.0.
 
 Each problem has a one-line fix. The exact rules are in the shipped documents
 under `payload/docs/ai-workflow/`.
