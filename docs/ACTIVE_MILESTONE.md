@@ -2,12 +2,12 @@
 
 ## Milestone
 
-**Implementing** (CP1 to CP6 complete). W3: `legacy-retire-and-default-version` (`process`, governing
+**Self-reviewing the implementation** (CP1 to CP6 complete). W3: `legacy-retire-and-default-version` (`process`, governing
 version `2.2`), branch `milestone/legacy-retire-and-default-version`, base
 `f00c1c3` (the release source is Workflow 2.8.0; this repository's own
 installation is also 2.8.0 with automatic gates and no `GATE_POLICY.json`).
 The plan is `docs/ai-workflow/LEGACY_RETIRE_AND_DEFAULT_VERSION_PLAN.md`
-(revision 1). W3 goes first, ahead of the update tools, to unblock RepFlow.
+(revision 6). W3 goes first, ahead of the update tools, to unblock RepFlow.
 
 ## Goal
 
@@ -35,7 +35,10 @@ Workflow 2.9.0 on Orchestration Protocol 1.2, a minor release with three parts:
 
 ## Current checkpoint
 
-**Implementing.** The plan (revision 6) is approved; CP1 to CP6 are complete.
+**Self-review** (`SELF_REVIEWING_IMPLEMENTATION`). The plan (revision 6) is
+approved; CP1 to CP6 are complete. The whole-milestone self-review found no
+blocking or important defect; this record's header was stale (plan revision 1,
+phase `Implementing`) and is corrected.
 
 `CP6` (documentation, roadmap and release 2.9.0) complete, in the release source only:
 `manifest.json` names `2.9.0`, lists the two new commands (`retire-legacy-work-item`,
@@ -128,9 +131,13 @@ item. The `manifest.json` digests, including the new command and the
 
 ## Current blockers
 
-None. Open decisions for the reviewer and the user are in the plan's section 4
-(`OD-W3-2` is a correction of the request's wording: `default_config()` is the
-fail-safe, default `1`, not 2.1).
+None for the review. One owner action before the pull request: `origin/main`
+gained `e0494fe` ("a readable roadmap") after this branch's base `f00c1c3`, and
+it conflicts with this branch's `docs/ROADMAP.md` edits (`git merge-tree`
+reports a content conflict in that one file). Bringing `main` in is the
+owner's (the Workflow never merges or rebases). Open decisions for the reviewer
+and the user are in the plan's section 4 (`OD-W3-2` is a correction of the
+request's wording: `default_config()` is the fail-safe, default `1`, not 2.1).
 
 ## Active plan
 
@@ -138,9 +145,9 @@ fail-safe, default `1`, not 2.1).
 
 ## Next action
 
-Plan review (`/review-plan legacy-retire-and-default-version`), then the user's
-plan approval (`/approve-review plan legacy-retire-and-default-version`) unless
-the plan gate is automatic. The sections below are the completed W2 and W1
+The implementation review of the bundle `/milestone-implement` generates (local
+model review, then manual external review, governing version 2.2), then the
+technical approval. The sections below are the completed W2 and W1
 milestones' records.
 
 ## Functional review checklist
