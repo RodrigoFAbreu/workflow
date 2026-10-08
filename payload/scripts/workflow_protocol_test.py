@@ -1148,6 +1148,45 @@ class TestFixedRows(unittest.TestCase):
                 self.assertTrue(alternative["worker"]["user_only"])
                 self.assertIn("/retire-legacy-work-item", result["reason"]["remedy"])
 
+    def test_an_outstanding_checkpoint_at_the_functional_gate_is_row_38c_with_a_user_only_resume(self):
+        """Protocol 1.2 (D-Fix-003 (b)): row 38c stays `blocked` and reports
+        `implementation.resume` first among its alternatives."""
+        for version in ("2.1", "2.2"):
+            with self.subTest(version=version), h.ScratchRepo() as repo:
+                functional_item(repo, version, complete=False)
+                result = next_action(repo)
+                self.assertEqual((result["row"], result["disposition"], result["action"]), ("38c", "blocked", None))
+                self.assertEqual(result["reason"]["code"], "registry_incomplete")
+                ids = [alternative["id"] for alternative in result["alternatives"]]
+                self.assertEqual(ids, ["implementation.resume", "functional.apply_findings",
+                                       "functional.review.advisory"])
+                resume = result["alternatives"][0]
+                self.assertEqual(resume["invocation"], f"/resume-implementation {WI}")
+                self.assertEqual(resume["worker"]["role"], "user")
+                self.assertTrue(resume["worker"]["user_only"])
+                self.assertIn(f"/resume-implementation {WI}", result["reason"]["remedy"])
+                self.assertNotIn("legacy promotion", result["reason"]["text"])
+                row = next(r for r in wp.CATALOGUE if r.row_id == "38c")
+                self.assertEqual(row.remedy_commands_for("AWAITING_FUNCTIONAL_REVIEW", version),
+                                 ("resume-implementation", "apply-functional-review", "review-functional"))
+                self.assertEqual(row.refusing_commands,
+                                 ("milestone-implement", "request-plan-amendment", "accept-milestone"))
+
+    def test_row_37_precedes_row_38c_and_a_committed_checklist_reaches_it(self):
+        with h.ScratchRepo() as repo:
+            functional_item(repo, "2.2", complete=False, evidence=False)
+            self.assertEqual(next_action(repo)["row"], "37")
+            commit_checklist_evidence(repo, 1)
+            self.assertEqual(next_action(repo)["row"], "38c")
+
+    def test_implementation_resume_is_user_only_never_automatic_and_has_no_edge(self):
+        self.assertTrue(wp.ACTIONS["implementation.resume"]["user_only"])
+        self.assertEqual(wp.ACTIONS["implementation.resume"]["role"], "user")
+        self.assertNotIn("implementation.resume", wp.EDGES)
+        self.assertNotIn("implementation.resume", wp.AUTOMATIC_ACTION_IDS)
+        self.assertNotIn("implementation.resume", NEW_ACTION_IDS)
+        self.assertEqual(set(NEW_ACTION_IDS) - set(wp.EDGES), {"functional.evidence.external", "pr.review.external"})
+
     def test_legacy_retire_is_user_only_and_has_no_edge(self):
         self.assertTrue(wp.ACTIONS["legacy.retire"]["user_only"])
         self.assertNotIn("legacy.retire", wp.EDGES)
@@ -2214,9 +2253,10 @@ class TestFunctionalRows(unittest.TestCase):
                 functional_item(repo, version, complete=False)
                 result = next_action(repo)
                 self.assertEqual((result["row"], result["reason"]["code"]), ("38c", "registry_incomplete"))
-                self.assertIn("v2.6.0-003", result["reason"]["remedy"])
+                self.assertIn("v2.6.0-003", result["reason"]["text"])
+                self.assertIn(f"/resume-implementation {WI}", result["reason"]["remedy"])
                 self.assertNotIn("/request-plan-amendment", result["reason"]["remedy"])
-                self.assertIn("none_exists", wp.ROWS_BY_ID["38c"].remedy_commands_for("AWAITING_FUNCTIONAL_REVIEW", version))
+                self.assertIn("resume-implementation", wp.ROWS_BY_ID["38c"].remedy_commands_for("AWAITING_FUNCTIONAL_REVIEW", version))
                 self.assertNotIn("implementation.checkpoint", [a["id"] for a in result["alternatives"]])
 
     def test_a_promoted_legacy_item_with_an_incomplete_registry_is_row_38c(self):
@@ -2749,6 +2789,8 @@ COMMAND_PHASE_GATES = {
     "accept-milestone": lambda phase, version: phase == "AWAITING_FUNCTIONAL_REVIEW",
     "milestone-implement": lambda phase, version: phase in ws.CHECKPOINT_START_LEGAL_PHASES,
     "retire-legacy-work-item": lambda phase, version: phase == "LEGACY_READY",
+    "resume-implementation": lambda phase, version: (
+        phase == "AWAITING_FUNCTIONAL_REVIEW" and version in ws.TWO_STAGE_PLAN_REVIEW_VERSIONS),
 }
 
 _SLASH_COMMAND_RE = re.compile(r"(?<![\w./-])/([a-z][a-z-]+)\b")
@@ -2778,7 +2820,8 @@ class TestRemedyCommands(unittest.TestCase):
                 self.assertFalse(set(row.remedy_commands_for(phase, version)) & set(row.refusing_commands), row.row_id)
 
     def test_the_rows_without_a_route_say_so(self):
-        for row_id in ("6a", "38b", "38c"):
+        # Row 38c names `/resume-implementation` since 2.9.0, so it is no longer a "none exists" row.
+        for row_id in ("6a", "38b"):
             row = wp.ROWS_BY_ID[row_id]
             phase, version = sorted(row.pairs)[0]
             self.assertIn("none_exists", row.remedy_commands_for(phase, version))
@@ -3772,15 +3815,16 @@ class TestOperatorDocuments(unittest.TestCase):
     def test_accept_milestone_offers_no_command_that_cannot_run_here(self):
         """`v2.6.0-003`, `LPR-R5-003`, `LPR-R6-001`: step 2a names neither
         `/milestone-implement` nor `/request-plan-amendment` as a way
-        forward from `AWAITING_FUNCTIONAL_REVIEW`; it says no 2.6.0 command
-        completes the checkpoint there, and keeps the functional routing."""
+        forward from `AWAITING_FUNCTIONAL_REVIEW`; it says no command
+        completes the checkpoint there (from 2.9.0 it names the user-only `/resume-implementation`), and keeps the functional routing."""
         step = self.accept_step_2a()
         self.assertNotIn("/request-plan-amendment", step)
         self.assertNotIn("finish it with `/milestone-implement`", step)
         for sentence in re.split(r"(?<=[.:;])\s+", step):
             if "/milestone-implement" in sentence:
                 self.assertRegex(sentence, r"cannot", sentence)
-        self.assertIn("no 2.6.0 command completes one here", " ".join(step.split()))
+        self.assertIn("no command completes one here", " ".join(step.split()))
+        self.assertIn("`/resume-implementation <id>`", step)
         self.assertIn("v2.6.0-003", step)
         self.assertIn("route that\n      finding through `/apply-functional-review` instead", step)
 
@@ -4242,7 +4286,7 @@ NEW_ACTION_IDS = ("plan.satisfy", "implementation.satisfy", "acceptance.satisfy"
                   "functional.evidence.external", "pr.review.external")
 #: The 1.1 to 1.2 delta against v2.8.0 (workflow-2.9.0, `I1`). CP3 adds
 #: `legacy.retire`; CP5 adds `implementation.resume`.
-NEW_1_2_ACTION_IDS = ("legacy.retire",)
+NEW_1_2_ACTION_IDS = ("legacy.retire", "implementation.resume")
 
 
 class V270:
@@ -5228,6 +5272,20 @@ class TestUnaware1_1Consumer(unittest.TestCase):
                     self.assertNotIn(alternative["id"], self.KNOWN_1_1_ACTIONS)
                     self.assertEqual(self.consumer_1_1({"action": alternative, "disposition": "blocked"}), "blocked")
         self.assertEqual(self.consumer_1_1({"action": {"id": "legacy.retire"}, "disposition": "automatic"}), "blocked")
+
+    def test_an_outstanding_checkpoint_stalls_and_the_resume_is_unknown_to_it(self):
+        for version in ("2.1", "2.2"):
+            with self.subTest(version=version), h.ScratchRepo() as repo:
+                functional_item(repo, version, complete=False)
+                decision = next_action(repo)
+                self.assertEqual(decision["row"], "38c")
+                self.assertEqual(self.consumer_1_1(decision), "stalled")
+                resume = [a for a in decision["alternatives"] if a["id"] == "implementation.resume"]
+                self.assertEqual(len(resume), 1)
+                self.assertNotIn("implementation.resume", self.KNOWN_1_1_ACTIONS)
+                self.assertEqual(self.consumer_1_1({"action": resume[0], "disposition": "blocked"}), "blocked")
+        self.assertEqual(
+            self.consumer_1_1({"action": {"id": "implementation.resume"}, "disposition": "automatic"}), "blocked")
 
     def test_the_new_envelope_fields_are_additive(self):
         """A `1.0` consumer ignores unknown response fields (obligation 2):

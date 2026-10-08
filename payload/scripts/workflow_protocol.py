@@ -171,6 +171,11 @@ ACTIONS = {
     # legacy item is a user-only alternative of blocked row 3, never an edge.
     "legacy.retire": _action_spec(
         "retire-legacy-work-item", "/retire-legacy-work-item {id}", "user", user_only=True),
+    # workflow-2.9.0 (protocol 1.2, D-Fix-003 (b)): the user-only way back from
+    # an outstanding checkpoint at the functional gate, an alternative of
+    # blocked row 38c, never an edge.
+    "implementation.resume": _action_spec(
+        "resume-implementation", "/resume-implementation {id}", "user", user_only=True),
 }
 
 #: The action catalogue's ids (D-OP-Next).
@@ -1676,12 +1681,14 @@ def _row_38c(ctx):
         return None
     return _match(
         "registry_incomplete",
-        f"checkpoint {outstanding} is not COMPLETE at AWAITING_FUNCTIONAL_REVIEW. No 2.6.0 command completes "
+        f"checkpoint {outstanding} is not COMPLETE at AWAITING_FUNCTIONAL_REVIEW. No command completes "
         f"a checkpoint from this phase: /milestone-implement cannot start one here, /request-plan-amendment "
         f"refuses at this phase, and /accept-milestone's step 2a refuses. Ordinary flow cannot leave "
-        f"IMPLEMENTING with a checkpoint outstanding; the reachable origins are a legacy promotion "
-        f"(promote_legacy_work_item) or a hand-constructed state (defect v2.6.0-003)",
-        "none exists in 2.6.0 (defect v2.6.0-003)", alternatives=_FUNCTIONAL_ALTERNATIVES)
+        f"IMPLEMENTING with a checkpoint outstanding; the only origin is a hand-constructed or hand-edited "
+        f"state that carries a CURRENT plan approval covering its registry (defect v2.6.0-003)",
+        f"resume implementation with /resume-implementation {ctx.work_item_id} (user-only; it returns the "
+        f"item to IMPLEMENTING and marks its technical approval STALE), then run /milestone-implement",
+        alternatives=[_alt("implementation.resume")] + _FUNCTIONAL_ALTERNATIVES)
 
 
 # -- workflow-2.8.0: the rows a gate policy adds (D-GP-Rows). Each row of a gate
@@ -1996,7 +2003,7 @@ CATALOGUE = [
         remedy_commands=("none_exists", "apply-functional-review", "review-functional"),
         refusing_commands=("accept-milestone",)),
     Row("38c", _AFR, TWO_STAGE_VERSIONS, "blocked", None, _row_38c,
-        remedy_commands=("none_exists", "apply-functional-review", "review-functional"),
+        remedy_commands=("resume-implementation", "apply-functional-review", "review-functional"),
         refusing_commands=("milestone-implement", "request-plan-amendment", "accept-milestone")),
     Row("38d", _AFR + ("MILESTONE_COMPLETE",), ALL_VERSIONS, "automatic", "pr.apply_review", _row_38d),
     Row("38e", _AFR, ALL_VERSIONS, "external_gate", "functional.evidence.external", _row_38e),

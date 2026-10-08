@@ -913,6 +913,33 @@ test fails and is authoritative about which one moved.
 - **Refuses**: a missing or wrong confirmation; an unknown id; any phase other
   than `LEGACY_READY`; the active item; unfinished children.
 
+### `/resume-implementation <work-item-id>` — user-only
+- **When**: a `2.1`/`2.2` item sits at `AWAITING_FUNCTIONAL_REVIEW` with a registry
+  checkpoint still outstanding (`next-action` row 38c, `registry_incomplete`;
+  `v2.6.0-003`). Only a hand-constructed or hand-edited state with a `CURRENT`
+  plan approval gets there; ordinary flow cannot, and a promoted legacy item has
+  no plan approval, so the writer refuses it. It is reported as an alternative
+  of row 38c (`workflow-2.9.0`), never as an automatic action.
+- **Expects**: the id in `$ARGUMENTS` (never the active item) and your
+  current-turn confirmation naming the id as an exact token and the word
+  `resumption`. The writer validates it itself.
+- **Does**: `workflow_state.resume_implementation` holds the repository-global
+  lifecycle lock and joins the claim side of the amendment-race guard
+  (`v2.4.0-002`), then moves the item to `IMPLEMENTING` and marks its technical
+  approval `STALE`, changing only `phase`, `technical_approval.status`,
+  `state_revision` and `last_transition`. It clears nothing: earlier evidence is
+  bound to the content identity it reviewed and cannot satisfy a gate for the new
+  content. An already-`STALE` approval is accepted as it is.
+- **Writes**: one state-only commit (staged item-scoped) with a
+  `Resume-Confirmation:` line and the `Workflow-Work-Item` trailer;
+  `validate_resume_implementation_commit` checks it.
+- **Next**: `/milestone-implement <id>` runs unchanged (claim, completion,
+  self-review, bundle, both reviews, technical approval, functional review).
+- **Refuses**: a missing or wrong confirmation; an amendment in flight anywhere in
+  the repository (the claim side's lifecycle refusals); any phase other than
+  `AWAITING_FUNCTIONAL_REVIEW`; a `1` item; a missing or not `CURRENT` plan
+  approval; a terminal registry; no technical approval to stale.
+
 ### `/prepare-review <base-sha> <stage> [work-item-id]`
 - **When**: a one-off review of work that is not part of a tracked milestone
   checkpoint.

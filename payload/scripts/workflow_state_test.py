@@ -10714,7 +10714,9 @@ class TestPersistedPhaseWriterCensus(unittest.TestCase):
             "record_local_plan_review", "record_manual_plan_review", "withdraw_plan_review",
         },
         "AWAITING_PLAN_APPROVAL": {"record_manual_plan_review"},
-        "IMPLEMENTING": {"apply_plan_approval"},
+        # workflow-2.9.0 (D-Fix-003 (b)): `/resume-implementation`'s pure
+        # mutator returns an outstanding-checkpoint item from the functional gate.
+        "IMPLEMENTING": {"apply_plan_approval", "resume_implementation_state"},
         "SELF_REVIEWING_IMPLEMENTATION": {
             "complete_checkpoint", "enter_self_reviewing_implementation",
         },
@@ -18520,6 +18522,368 @@ class TestLegacyRetirementCommit(unittest.TestCase):
             ws.validate_state(_read_state(repo.root))
             ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
             self.assertEqual(ws.discover_legacy_retirement_commit(repo.root, "milestone-8"), commit)
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.9.0, D-Fix-003 (b): `/resume-implementation`
+# ---------------------------------------------------------------------------
+
+_RESUME_CONFIRMATION = "resume wi: resumption confirmed"
+
+
+def _resume_technical_approval(status="CURRENT") -> dict:
+    record = ws.build_approval_record(
+        basis="EXTERNAL_APPROVE", stage="implementation", user_confirmation="approve wi implementation",
+        now="t0", reviewed_bundle_id="b" * 64, approved_review_content_id="c" * 64,
+        review_content_manifest=[{"path": "x", "exists": True, "mode": "100644", "blob": "y" * 40}],
+        reviewed_content_commit="d" * 40,
+    )
+    record["status"] = status
+    return record
+
+
+def _resume_functional_repo(repo, version="2.2", *, complete=False, technical="CURRENT", plan_approved=True):
+    """A real repository with `wi` at `AWAITING_FUNCTIONAL_REVIEW`, a registry
+    of one checkpoint `C1` (outstanding unless `complete`), a covering `CURRENT`
+    plan approval and a technical approval -- the hand-constructed state row
+    38c reports."""
+    import workflow_test_harness as h
+    h.seed_bundle_item(repo, governing_workflow_version=version, phase="AWAITING_FUNCTIONAL_REVIEW",
+                       registry_checkpoints=[{"id": "C1", "depends_on": []}], implementation_revision=1)
+    if plan_approved:
+        h.approve_plan(repo)
+    state = h.read_state(repo)
+    item = state["work_items"]["wi"]
+    if complete:
+        item["checkpoints"] = {"C1": {"status": "COMPLETE", "start_commit": repo.base}}
+    if technical is not None:
+        item["technical_approval"] = _resume_technical_approval(technical)
+    h.write_state(repo, state)
+    try:
+        h.commit_state(repo, "functional gate state")
+    except subprocess.CalledProcessError:
+        pass  # nothing changed relative to the seeded state
+    return h
+
+
+class TestResumeImplementationWriter(unittest.TestCase):
+    def resume(self, h, repo, confirmation=_RESUME_CONFIRMATION):
+        return ws.resume_implementation_state(h.read_state(repo), repo.root, "wi", "t9", confirmation)
+
+    def test_success_changes_exactly_the_four_fields_for_both_two_stage_versions(self):
+        import workflow_test_harness as h
+        for version in ("2.1", "2.2"):
+            with self.subTest(version=version), h.ScratchRepo() as repo:
+                _resume_functional_repo(repo, version)
+                state = h.read_state(repo)
+                before = json.loads(json.dumps(state))
+                new_state = self.resume(h, repo)
+                self.assertEqual(state, before, "the mutator is pure")
+                old, new = before["work_items"]["wi"], new_state["work_items"]["wi"]
+                changed = {k for k in set(old) | set(new) if old.get(k) != new.get(k)}
+                self.assertEqual(changed, {"phase", "technical_approval", "state_revision", "last_transition"})
+                self.assertLessEqual(changed, ws.RESUME_IMPLEMENTATION_FIELDS)
+                self.assertEqual((new["phase"], new["last_transition"]), ("IMPLEMENTING", "t9"))
+                self.assertEqual(new["state_revision"], old.get("state_revision", 1) + 1)
+                self.assertEqual(new["technical_approval"]["status"], "STALE")
+                self.assertEqual({k: v for k, v in new["technical_approval"].items() if k != "status"},
+                                 {k: v for k, v in old["technical_approval"].items() if k != "status"})
+                for untouched in ("plan_approval", "current_checkpoint_id", "gate_evidence", "reopenings",
+                                  "implementation_review_stages", "checkpoints", "implementation_revision"):
+                    self.assertEqual(new.get(untouched), old.get(untouched), untouched)
+                self.assertEqual(new_state["active_work_item_id"], before["active_work_item_id"])
+                ws.validate_state(new_state)
+
+    def test_an_already_stale_technical_approval_is_accepted_idempotently(self):
+        import workflow_test_harness as h
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo, technical="STALE")
+            old = h.read_state(repo)["work_items"]["wi"]["technical_approval"]
+            new = self.resume(h, repo)["work_items"]["wi"]
+            self.assertEqual(new["technical_approval"], old)
+            self.assertEqual(new["phase"], "IMPLEMENTING")
+
+    def test_a_state_with_no_technical_approval_is_refused_writing_nothing(self):
+        import workflow_test_harness as h
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo, technical=None)
+            with self.assertRaises(ws.ResumeWithoutTechnicalApprovalError):
+                self.resume(h, repo)
+
+    def test_every_other_phase_a_one_item_and_a_terminal_registry_are_refused(self):
+        import workflow_test_harness as h
+        for phase in sorted(ws.KNOWN_PHASES - {"AWAITING_FUNCTIONAL_REVIEW"}):
+            with self.subTest(phase=phase), h.ScratchRepo() as repo:
+                _resume_functional_repo(repo)
+                state = h.read_state(repo)
+                state["work_items"]["wi"]["phase"] = phase
+                with self.assertRaises(ws.ResumeImplementationWrongPhaseError):
+                    ws.resume_implementation_state(state, repo.root, "wi", "t9", _RESUME_CONFIRMATION)
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo, "1")
+            with self.assertRaises(ws.ResumeImplementationUnsupportedVersionError):
+                self.resume(h, repo)
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo, complete=True)
+            with self.assertRaises(ws.ResumeImplementationRegistryTerminalError):
+                self.resume(h, repo)
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo)
+            with self.assertRaises(ws.ResumeImplementationWrongPhaseError):
+                ws.resume_implementation_state(h.read_state(repo), repo.root, "other", "t9", "resumption of other")
+
+    def test_a_promoted_legacy_shape_with_no_plan_approval_is_refused_by_the_registry_read(self):
+        """`I1`: a promoted legacy item has no `plan_approval`, so row 38a reports it
+        and the writer refuses with the same error, writing nothing."""
+        import workflow_test_harness as h
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo, "2.1", plan_approved=False, technical="CURRENT")
+            with self.assertRaises(ws.StalePlanApprovalRegistryReadError):
+                self.resume(h, repo)
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo)
+            state = h.read_state(repo)
+            state["work_items"]["wi"]["plan_approval"]["status"] = "STALE"
+            with self.assertRaises(ws.StalePlanApprovalRegistryReadError):
+                ws.resume_implementation_state(state, repo.root, "wi", "t9", _RESUME_CONFIRMATION)
+
+    def test_a_bad_confirmation_refuses_first_from_the_writer_and_the_public_entry(self):
+        import workflow_test_harness as h
+        bad = (None, "", "   ", "yes", "confirm", "resumption", "wi", "resume wi", "resumption of wi-2",
+               "resumption of wi_x", "resumption of xwi", "retirement of wi", "amendment of wi",
+               "approve wi acceptance", "resumptions of wi")
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo)
+            path = repo.root / "docs/ai-workflow/WORKFLOW_STATE.json"
+            before = path.read_bytes()
+            for text in bad:
+                with self.assertRaises(ws.UserConfirmationRejectedError, msg=repr(text)):
+                    self.resume(h, repo, text)
+                with self.assertRaises(ws.UserConfirmationRejectedError, msg=repr(text)):
+                    ws.resume_implementation(repo.root, "wi", "t9", text)
+            # Before any state read: a state that would raise something else still reports the confirmation.
+            with self.assertRaises(ws.UserConfirmationRejectedError):
+                ws.resume_implementation_state({}, repo.root, "wi", "t9", "yes")
+            self.assertEqual(path.read_bytes(), before)
+            self.assertFalse(ws.lifecycle_lock_held(repo.root, "wi"))
+
+    def test_the_public_entry_resumes_a_real_state_and_a_cycle_leaves_the_evidence_untouched(self):
+        import workflow_test_harness as h
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo)
+            state = h.read_state(repo)
+            item = state["work_items"]["wi"]
+            item["gate_evidence"] = {"functional": {}, "pr": None, "pr_reported": None, "pr_keys": {
+                "applied": [], "reopened_for": [], "ingest_seq": 3}}
+            h.write_state(repo, state)
+            h.commit_state(repo, "evidence")
+            before = h.read_state(repo)["work_items"]["wi"]
+            result = ws.resume_implementation(repo.root, "wi", "t9", _RESUME_CONFIRMATION)
+            after = h.read_state(repo)["work_items"]["wi"]
+            self.assertEqual(result["work_items"]["wi"], after)
+            for kept in ("gate_evidence", "reopenings", "implementation_review_stages", "plan_approval"):
+                self.assertEqual(after.get(kept), before.get(kept), kept)
+            self.assertEqual((after["phase"], after["technical_approval"]["status"]), ("IMPLEMENTING", "STALE"))
+            ws.validate_state(h.read_state(repo))
+
+    def test_a_resumed_item_reaches_a_claim_a_completion_and_self_review_and_acceptance_still_refuses(self):
+        import workflow_test_harness as h
+        for version in ("2.1", "2.2"):
+            with self.subTest(version=version), h.ScratchRepo() as repo:
+                _resume_functional_repo(repo, version)
+                ws.resume_implementation(repo.root, "wi", "t9", _RESUME_CONFIRMATION)
+                item = h.read_state(repo)["work_items"]["wi"]
+                registry = json.loads((repo.root / item["registry_path"]).read_text())
+                self.assertEqual(ws.select_next_checkpoint(item, registry), "C1")
+                with self.assertRaises(Exception):
+                    ws.complete_work_item(h.read_state(repo), "wi", now="t10", repo_root=repo.root)
+                outcome, checkpoint, _ = ws.resolve_checkpoint_ownership(repo.root, item, "wi", "C1", now="t10")
+                self.assertEqual((outcome, checkpoint), ("FRESH", "C1"))
+                ws.write_worktree_identity(repo.root, "wi", now="t10")
+                claim = ws.claim_checkpoint(repo.root, "wi", "C1", now="t10")
+                ws.state_transaction(repo.root, lambda st: ws.transition_checkpoint_in_progress(
+                    st, "wi", "C1", start_commit=repo.head(), now="t11"))
+                ws.state_transaction(repo.root, lambda st: ws.complete_checkpoint(
+                    st, "wi", "C1", registry, now="t12", repo_root=repo.root))
+                done = h.read_state(repo)["work_items"]["wi"]
+                self.assertEqual(done["phase"], "SELF_REVIEWING_IMPLEMENTATION")
+                self.assertEqual(done["technical_approval"]["status"], "STALE")
+                self.assertIsNotNone(claim["owner_token"])
+
+
+class TestResumeImplementationCommitValidation(unittest.TestCase):
+    def resume_commit(self, repo, h, *, message=None, extra_path=None):
+        ws.resume_implementation(repo.root, "wi", "t9", _RESUME_CONFIRMATION)
+        h.git(repo, "add", "--", "docs/ai-workflow/WORKFLOW_STATE.json")
+        if extra_path:
+            (repo.root / extra_path).write_text("x\n")
+            h.git(repo, "add", "--", extra_path)
+        message = message or (f"resume\n\nResume-Confirmation: {_RESUME_CONFIRMATION}\n\n"
+                              f"Workflow-Work-Item: wi")
+        h.git(repo, "commit", "-q", "-m", message)
+        return repo.head()
+
+    def test_a_proper_resume_commit_validates(self):
+        import workflow_test_harness as h
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo)
+            commit = self.resume_commit(repo, h)
+            ws.validate_resume_implementation_commit(repo.root, commit, "wi")
+
+    def test_each_malformed_commit_is_refused(self):
+        import workflow_test_harness as h
+        cases = {
+            "no confirmation line": dict(message="resume\n\nWorkflow-Work-Item: wi"),
+            "wrong-item confirmation": dict(
+                message="resume\n\nResume-Confirmation: resumption of wi-2\n\nWorkflow-Work-Item: wi"),
+            "wrong-stage confirmation": dict(
+                message="resume\n\nResume-Confirmation: retirement of wi\n\nWorkflow-Work-Item: wi"),
+            "two confirmation lines": dict(
+                message=f"resume\n\nResume-Confirmation: {_RESUME_CONFIRMATION}\n"
+                        f"Resume-Confirmation: {_RESUME_CONFIRMATION}\n\nWorkflow-Work-Item: wi"),
+            "wrong trailer": dict(
+                message=f"resume\n\nResume-Confirmation: {_RESUME_CONFIRMATION}\n\nWorkflow-Work-Item: other"),
+            "another path": dict(extra_path="other.txt"),
+        }
+        for label, kwargs in cases.items():
+            with self.subTest(label), h.ScratchRepo() as repo:
+                _resume_functional_repo(repo)
+                commit = self.resume_commit(repo, h, **kwargs)
+                with self.assertRaises(ws.MalformedResumeImplementationCommitError):
+                    ws.validate_resume_implementation_commit(repo.root, commit, "wi")
+
+    def test_a_commit_that_is_not_a_resume_transition_is_refused(self):
+        import workflow_test_harness as h
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo)
+            state = h.read_state(repo)
+            state["work_items"]["wi"]["last_transition"] = "t77"
+            h.write_state(repo, state)
+            commit = h.commit_state(repo, f"not a resume\n\nResume-Confirmation: {_RESUME_CONFIRMATION}",
+                                    {"Workflow-Work-Item": "wi"})
+            with self.assertRaises(ws.MalformedResumeImplementationCommitError):
+                ws.validate_resume_implementation_commit(repo.root, commit, "wi")
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo)
+            state = h.read_state(repo)
+            item = state["work_items"]["wi"]
+            item["phase"], item["current_checkpoint_id"] = "IMPLEMENTING", "C1"
+            h.write_state(repo, state)
+            commit = h.commit_state(repo, f"phase only\n\nResume-Confirmation: {_RESUME_CONFIRMATION}",
+                                    {"Workflow-Work-Item": "wi"})
+            with self.assertRaises(ws.MalformedResumeImplementationCommitError):
+                ws.validate_resume_implementation_commit(repo.root, commit, "wi")
+
+
+class TestResumeImplementationLifecycleWitnesses(unittest.TestCase):
+    """`R5-I1` / D-Fix-003, lifecycle bullet: the resume joins the claim side. From a
+    hand-built functional-gate state in a linked worktree, each witness condition the
+    claim side refuses refuses the resume too, writing nothing."""
+
+    def gate_state(self, root):
+        state = _read_state(root)
+        item = state["work_items"]["wi"]
+        item.update(phase="AWAITING_FUNCTIONAL_REVIEW", governing_workflow_version="2.2",
+                    technical_approval=_resume_technical_approval(), checkpoints={})
+        _write_state(root, state)
+
+    def resume(self, root):
+        from unittest import mock
+        with mock.patch.object(ws, "resolve_own_registry_completion_status", return_value=(False, "CP2")):
+            return ws.resume_implementation(Path(root), "wi", "t9", _RESUME_CONFIRMATION)
+
+    def assert_refused_writing_nothing(self, root, error):
+        path = Path(root) / _STATE_REL
+        before, witness = path.read_bytes(), _witness_bytes(root)
+        with self.assertRaises(error) as refused:
+            self.resume(root)
+        self.assertEqual(path.read_bytes(), before)
+        self.assertEqual(_witness_bytes(root), witness)
+        return refused.exception
+
+    def test_an_open_amendment_elsewhere_refuses(self):
+        with ScratchRepo() as repo:
+            _lifecycle_repo(repo)
+            wt_b = repo.worktree("b")
+            _amend(repo.root, commit=False)
+            self.gate_state(wt_b)
+            self.assert_refused_writing_nothing(wt_b, ws.AmendmentInFlightError)
+
+    def test_a_resolution_not_merged_into_head_refuses_and_merging_it_lets_the_resume_through(self):
+        with ScratchRepo() as repo:
+            _lifecycle_repo(repo)
+            wt_b = repo.worktree("b")
+            _amend(repo.root)
+            _resolve_in_head(repo.root)
+            ws.claim_checkpoint(repo.root, "wi", "CP2", now="t1")  # binds the resolution
+            ws.release_checkpoint(repo.root, "wi", "CP2",
+                                  owner_token=ws.resolve_claim(repo.root, "wi")["owner_token"])
+            self.gate_state(wt_b)
+            self.assert_refused_writing_nothing(wt_b, ws.StaleLifecycleStateError)
+
+    def test_a_lagging_worktree_and_a_torn_witness_refuse(self):
+        with ScratchRepo() as repo:
+            _lifecycle_repo(repo)
+            wt_b = repo.worktree("b")
+            _install_release(wt_b, "2.5.1")
+            _amend_without_witness(wt_b, commit=False)
+            self.gate_state(repo.root)
+            self.assert_refused_writing_nothing(repo.root, ws.LaggingWorktreeAmendmentError)
+        with ScratchRepo() as repo:
+            _lifecycle_repo(repo)
+            path = ws.amendment_witness_path(repo.root, "wi")
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"{not json")
+            self.gate_state(repo.root)
+            self.assert_refused_writing_nothing(repo.root, ws.AmendmentWitnessUnavailableError)
+
+    def test_a_bad_confirmation_still_refuses_first_with_a_witness_open(self):
+        with ScratchRepo() as repo:
+            _lifecycle_repo(repo)
+            wt_b = repo.worktree("b")
+            _amend(repo.root, commit=False)
+            self.gate_state(wt_b)
+            path = Path(wt_b) / _STATE_REL
+            before, witness = path.read_bytes(), _witness_bytes(repo.root)
+            with self.assertRaises(ws.UserConfirmationRejectedError):
+                ws.resume_implementation(Path(wt_b), "wi", "t9", "yes")
+            self.assertEqual((path.read_bytes(), _witness_bytes(repo.root)), (before, witness))
+
+    def test_with_no_witness_a_clean_resume_then_a_claim_succeeds(self):
+        with ScratchRepo() as repo:
+            _lifecycle_repo(repo)
+            self.gate_state(repo.root)
+            self.resume(repo.root)
+            self.assertEqual(_read_state(repo.root)["work_items"]["wi"]["phase"], "IMPLEMENTING")
+            claim = ws.claim_checkpoint(repo.root, "wi", "CP2", now="t2")
+            self.assertEqual(claim["checkpoint_id"], "CP2")
+
+
+class TestResumeImplementationCommandFile(unittest.TestCase):
+    PATH = Path(__file__).resolve().parent.parent / ".claude" / "commands" / "resume-implementation.md"
+
+    def test_the_command_is_user_only_and_names_the_guards(self):
+        raw = self.PATH.read_text()
+        frontmatter = raw.split("---")[1]
+        self.assertIn("disable-model-invocation: true", frontmatter)
+        self.assertIn("state_writer: true", frontmatter)
+        text = " ".join(raw.split())
+        for sentence in ("validate_user_only_confirmation", 'stage="resumption"', "stage_scoped_state",
+                         "Resume-Confirmation:", "Workflow-Work-Item: <work_item_id>", "final paragraph",
+                         "state_transaction", "lifecycle_lock", "validate_resume_implementation_commit",
+                         "assert_gate_policy_fields_unchanged_or_tightened", "AmendmentInFlightError",
+                         "StalePlanApprovalRegistryReadError", "the word `resumption`",
+                         "Never fabricate, infer or carry over this text from a previous turn",
+                         "Claude must never invoke this command on the user's behalf",
+                         "never from the confirmation text"):
+            self.assertIn(sentence, text)
+
+    def test_the_command_file_agrees_with_the_protocol_action(self):
+        import workflow_protocol as wp
+        spec = wp.ACTIONS["implementation.resume"]
+        self.assertTrue(spec["user_only"])
+        self.assertEqual(spec["command"], "resume-implementation")
+        self.assertIn("disable-model-invocation: true", self.PATH.read_text().split("---")[1])
 
 
 if __name__ == "__main__":

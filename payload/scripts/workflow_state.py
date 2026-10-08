@@ -1349,6 +1349,37 @@ class AmbiguousLegacyRetirementCommitError(Exception):
     same work item."""
 
 
+class ResumeImplementationWrongPhaseError(Exception):
+    """Raised when `resume_implementation_state` (workflow-2.9.0) names an
+    item that does not exist or whose `phase` is not exactly
+    `AWAITING_FUNCTIONAL_REVIEW`."""
+
+
+class ResumeImplementationUnsupportedVersionError(Exception):
+    """Raised when `resume_implementation_state` names an item whose
+    governing version is not `2.1` or `2.2`: a `1` item has no resume route
+    (the open residual of `v2.6.0-003`)."""
+
+
+class ResumeImplementationRegistryTerminalError(Exception):
+    """Raised when `resume_implementation_state` finds every registry
+    checkpoint `COMPLETE` (or no registry at all): there is nothing to resume."""
+
+
+class ResumeWithoutTechnicalApprovalError(Exception):
+    """Raised when `resume_implementation_state` finds no `technical_approval`
+    record to mark `STALE`: the resume exists to invalidate a gate that was
+    passed, and a state with no such record is not one it can vouch for."""
+
+
+class MalformedResumeImplementationCommitError(Exception):
+    """Raised by `validate_resume_implementation_commit` when a commit is not
+    exactly a resume: it touches a path other than the state file, changes a
+    field outside `RESUME_IMPLEMENTATION_FIELDS` or another item, is not an
+    `AWAITING_FUNCTIONAL_REVIEW` -> `IMPLEMENTING` transition leaving the
+    technical approval `STALE`, or records no valid `Resume-Confirmation`."""
+
+
 class InvalidBundleGenerationStageError(Exception):
     """Raised when `record_bundle_generation` is called with a `stage`
     other than `"implementation"`/`"post-fix"` -- `reviewed_implementation_head`
@@ -17553,6 +17584,153 @@ def validate_legacy_retirement_commit(repo_root: Path, commit: str, work_item_id
         validate_user_only_confirmation(recorded[0], work_item_id=work_item_id, stage="retirement")
     except UserConfirmationRejectedError as exc:
         raise MalformedLegacyRetirementCommitError(
+            f"{commit}'s recorded confirmation is invalid: {exc}") from exc
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.9.0: resuming implementation of an outstanding checkpoint (D-Fix-003 (b))
+# ---------------------------------------------------------------------------
+
+RESUME_CONFIRMATION_PREFIX = "Resume-Confirmation:"
+#: The only fields of the resumed item a resume commit may change.
+RESUME_IMPLEMENTATION_FIELDS = frozenset({
+    "phase", "technical_approval", "state_revision", "last_transition",
+})
+
+
+def resume_implementation_state(
+    state: dict, repo_root: Path, work_item_id: str, now: str, user_confirmation: str,
+) -> dict:
+    """D-Fix-003 (b) (workflow-2.9.0): the pure check-and-write of
+    `/resume-implementation`, the user-only way back from
+    `AWAITING_FUNCTIONAL_REVIEW` to `IMPLEMENTING` for a `2.1`/`2.2` item
+    with a registry checkpoint outstanding. Run inside `state_transaction`
+    (through `resume_implementation`, which adds the lifecycle check).
+
+    Refuses, writing nothing, in this order: a missing, empty, generic or
+    wrong-item confirmation (`UserConfirmationRejectedError`, through
+    `validate_user_only_confirmation` with stage `resumption`, before any
+    other check); an unknown id or a phase other than exactly
+    `AWAITING_FUNCTIONAL_REVIEW` (`ResumeImplementationWrongPhaseError`); a
+    governing version other than `2.1`/`2.2`
+    (`ResumeImplementationUnsupportedVersionError`); a missing or not
+    `CURRENT` plan approval, or a registry the approval does not cover
+    (`StalePlanApprovalRegistryReadError`, from
+    `resolve_own_registry_completion_status`, exactly as row 38a reports it);
+    a terminal registry (`ResumeImplementationRegistryTerminalError`); no
+    `technical_approval` record (`ResumeWithoutTechnicalApprovalError`).
+
+    Writes `phase` `IMPLEMENTING`, `technical_approval.status` `STALE` (an
+    already-`STALE` record is left as it is), `state_revision` and
+    `last_transition`, and nothing else: `current_checkpoint_id` stays
+    `None`, the plan approval, `gate_evidence`, `reopenings` and
+    `implementation_review_stages` are untouched (earlier evidence is
+    identity-bound and cannot satisfy a gate for the new content)."""
+    validate_user_only_confirmation(
+        user_confirmation, work_item_id=work_item_id, stage="resumption")
+    work_item = (state.get("work_items") or {}).get(work_item_id)
+    if not isinstance(work_item, dict):
+        raise ResumeImplementationWrongPhaseError(f"{work_item_id!r} names no work item")
+    if work_item.get("phase") != "AWAITING_FUNCTIONAL_REVIEW":
+        raise ResumeImplementationWrongPhaseError(
+            f"{work_item_id!r} is at phase {work_item.get('phase')!r}, not AWAITING_FUNCTIONAL_REVIEW -- "
+            f"a resume only leaves the functional gate")
+    if work_item.get("governing_workflow_version") not in TWO_STAGE_PLAN_REVIEW_VERSIONS:
+        raise ResumeImplementationUnsupportedVersionError(
+            f"{work_item_id!r} is governed by {work_item.get('governing_workflow_version')!r}; "
+            f"a resume is defined for {sorted(TWO_STAGE_PLAN_REVIEW_VERSIONS)} only")
+    terminal, outstanding = resolve_own_registry_completion_status(Path(repo_root), work_item)
+    if terminal:
+        raise ResumeImplementationRegistryTerminalError(
+            f"{work_item_id!r} has no outstanding checkpoint -- there is nothing to resume")
+    record = work_item.get("technical_approval")
+    if not isinstance(record, dict):
+        raise ResumeWithoutTechnicalApprovalError(
+            f"{work_item_id!r} has no technical_approval record to mark STALE (checkpoint "
+            f"{outstanding} is outstanding)")
+    new_state = copy.deepcopy(state)
+    new_item = new_state["work_items"][work_item_id]
+    new_item["phase"] = "IMPLEMENTING"
+    new_item["technical_approval"]["status"] = "STALE"
+    new_item["state_revision"] = new_item.get("state_revision", 1) + 1
+    new_item["last_transition"] = now
+    return new_state
+
+
+def resume_implementation(repo_root: Path, work_item_id: str, now: str, user_confirmation: str) -> dict:
+    """The public entry of `/resume-implementation` (workflow-2.9.0).
+    Validates the confirmation first, then joins the claim side of the
+    repository-global lifecycle (`v2.4.0-002`): holds `lifecycle_lock` and
+    runs `_enforce_claim_lifecycle` before any state read, in the order
+    `claim_checkpoint` uses, then performs the single
+    `state_transaction` around `resume_implementation_state`. The refusals
+    are the claim side's own, unextended: `AmendmentInFlightError`,
+    `StaleLifecycleStateError`, `LaggingWorktreeAmendmentError`,
+    `AmendmentWitnessUnavailableError` (and the rest of `LifecycleRefusalError`).
+    Returns the new state."""
+    validate_user_only_confirmation(
+        user_confirmation, work_item_id=work_item_id, stage="resumption")
+    repo_root = Path(repo_root)
+
+    def mutator(state: dict) -> dict:
+        _enforce_claim_lifecycle(repo_root, work_item_id)
+        return resume_implementation_state(state, repo_root, work_item_id, now, user_confirmation)
+
+    with lifecycle_lock(repo_root, work_item_id):
+        return state_transaction(repo_root, mutator)
+
+
+def validate_resume_implementation_commit(repo_root: Path, commit: str, work_item_id: str) -> None:
+    """Validates a `/resume-implementation` commit: it touches only
+    `WORKFLOW_STATE.json`; changes nothing outside `work_items[work_item_id]`;
+    changes only that item's `RESUME_IMPLEMENTATION_FIELDS`, including `phase`,
+    from `AWAITING_FUNCTIONAL_REVIEW` to `IMPLEMENTING` with the technical
+    approval `STALE` afterwards; carries a `Workflow-Work-Item` trailer naming
+    the id; and records exactly one `Resume-Confirmation` line that passes
+    `validate_user_only_confirmation` for the id (an exact token). Raises
+    `MalformedResumeImplementationCommitError` naming the mismatch."""
+    state_rel = DEFAULT_STATE_PATH.as_posix()
+    changed_paths = _commit_own_changed_paths(repo_root, commit)
+    if changed_paths != {state_rel}:
+        raise MalformedResumeImplementationCommitError(
+            f"{commit} touches {sorted(changed_paths)}, not exactly {{{state_rel!r}}}")
+    outside_diff = _forbidden_state_mutation(repo_root, commit, work_item_id)
+    if outside_diff is not None:
+        raise MalformedResumeImplementationCommitError(
+            f"{commit} also changed {outside_diff} -- a resume commit may only change "
+            f"its own work item's fields")
+    trailers = _commit_trailers(repo_root, commit)
+    if trailers.get("Workflow-Work-Item") != work_item_id:
+        raise MalformedResumeImplementationCommitError(
+            f"{commit}'s Workflow-Work-Item trailer is {trailers.get('Workflow-Work-Item')!r}, "
+            f"not {work_item_id!r}")
+    field_diff = _work_item_field_diff(repo_root, commit, work_item_id)
+    if "phase" not in field_diff or not field_diff <= RESUME_IMPLEMENTATION_FIELDS:
+        raise MalformedResumeImplementationCommitError(
+            f"{commit}'s own {work_item_id!r} field changes are {sorted(field_diff)}, not a set "
+            f"containing 'phase' within {sorted(RESUME_IMPLEMENTATION_FIELDS)}")
+    parent = _run(["git", "rev-parse", f"{commit}^"], cwd=repo_root).strip()
+    before = _read_json_at_commit_or_empty(repo_root, parent, state_rel)
+    after = _read_json_at_commit_or_empty(repo_root, commit, state_rel)
+    before_item = before.get("work_items", {}).get(work_item_id, {})
+    after_item = after.get("work_items", {}).get(work_item_id, {})
+    if (before_item.get("phase"), after_item.get("phase")) != ("AWAITING_FUNCTIONAL_REVIEW", "IMPLEMENTING"):
+        raise MalformedResumeImplementationCommitError(
+            f"{commit} moves {work_item_id!r} from {before_item.get('phase')!r} to "
+            f"{after_item.get('phase')!r}, not AWAITING_FUNCTIONAL_REVIEW to IMPLEMENTING")
+    if (after_item.get("technical_approval") or {}).get("status") != "STALE":
+        raise MalformedResumeImplementationCommitError(
+            f"{commit} leaves {work_item_id!r}'s technical approval not STALE")
+    body = _run(["git", "log", "-1", "--format=%B", commit], cwd=repo_root)
+    recorded = [line[len(RESUME_CONFIRMATION_PREFIX):].strip() for line in body.splitlines()
+                if line.startswith(RESUME_CONFIRMATION_PREFIX)]
+    if len(recorded) != 1:
+        raise MalformedResumeImplementationCommitError(
+            f"{commit} records {len(recorded)} {RESUME_CONFIRMATION_PREFIX!r} lines, not exactly one")
+    try:
+        validate_user_only_confirmation(recorded[0], work_item_id=work_item_id, stage="resumption")
+    except UserConfirmationRejectedError as exc:
+        raise MalformedResumeImplementationCommitError(
             f"{commit}'s recorded confirmation is invalid: {exc}") from exc
 
 

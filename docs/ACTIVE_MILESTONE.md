@@ -35,7 +35,30 @@ Workflow 2.9.0 on Orchestration Protocol 1.2, a minor release with three parts:
 
 ## Current checkpoint
 
-**Implementing.** The plan (revision 6) is approved; CP1 to CP4 are complete.
+**Implementing.** The plan (revision 6) is approved; CP1 to CP5 are complete.
+
+`CP5` (`v2.6.0-003` (b)) complete, in the release source only: the user-only
+`/resume-implementation <id>` (`disable-model-invocation: true`, `state_writer: true`,
+a current-turn confirmation naming the exact id and `resumption`). The writer
+`workflow_state.resume_implementation` validates the confirmation first
+(`validate_user_only_confirmation`), holds `lifecycle_lock` and runs
+`_enforce_claim_lifecycle` (it joins the claim side, `v2.4.0-002`), then makes one
+`state_transaction` around the pure `resume_implementation_state`. That moves a
+`2.1`/`2.2` item from `AWAITING_FUNCTIONAL_REVIEW` with an outstanding checkpoint
+and a `CURRENT` covering plan approval to `IMPLEMENTING`, marking the technical
+approval `STALE` (an already-`STALE` one is accepted, none is refused), and writes
+only `phase`, `technical_approval.status`, `state_revision` and `last_transition`;
+`validate_resume_implementation_commit` checks its commit (a `Resume-Confirmation:`
+line and the `Workflow-Work-Item` trailer). Protocol `1.2` gains the user-only
+`implementation.resume` action (no edge, never automatic) as the first alternative
+of row 38c, which stays `blocked` with a rewritten text (the hand-constructed
+origin, not a legacy promotion) and remedy. `accept-milestone.md` step 2a and
+`apply-functional-review.md` name the command in their 2.1/2.2 spans; the
+operator reference, protocol document and schema are updated. Tests: writer
+fields, refusals and confirmation order, the real registry and a promoted-shape
+refusal, commit validation, linked-worktree lifecycle witnesses, the resumed item
+reaching a claim and self-review, the census, the command text, row 38c and its
+alternative, and the 1.1-consumer model.
 
 `CP4` (`v2.6.0-003` (a, implementation entry) and (c)) complete, in the release
 source only: `record_bundle_generation` accepts `implementation` from

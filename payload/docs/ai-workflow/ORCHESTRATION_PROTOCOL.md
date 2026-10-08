@@ -3,7 +3,8 @@
 The normative specification of Orchestration Protocol v1, version `1.2`
 (`1.0` first shipped in Workflow 2.7.0; `1.1` adds the gate-policy rows and
 actions in Workflow 2.8.0; `1.2` adds the user-only `legacy.retire`
-alternative of row 3 in Workflow 2.9.0). An orchestrator (for example the Workflow
+alternative of row 3 and `implementation.resume` alternative of row 38c in
+Workflow 2.9.0). An orchestrator (for example the Workflow
 Controller) drives a repository's Workflow through this protocol only. It
 copies no Workflow phases, artifact paths, helper names or transition
 rules: the Workflow owns what the lifecycle means, and the orchestrator owns
@@ -437,6 +438,7 @@ by `ACTIONS`:
 | `implementation.checkpoint` | `milestone-implement` | `/milestone-implement {id}` | `implementer` | no | — | no |
 | `implementation.record_external` | `record-manual-implementation-review` | `/record-manual-implementation-review {id}` | `applier` | no | — | no |
 | `implementation.recover_provenance` | `recover-implementation-provenance` | `/recover-implementation-provenance {id}` | `implementer` | no | — | no |
+| `implementation.resume` | `resume-implementation` | `/resume-implementation {id}` | `user` | no | — | yes |
 | `implementation.review.external` | — | — | `external` | no | — | no |
 | `implementation.review.local` | `review-implementation` | `/review-implementation {id}` | `independent_reviewer` | yes | `implementer`, `self_reviewer` | no |
 | `implementation.satisfy` | `satisfy-gate` | `/satisfy-gate implementation {id}` | `validator` | no | — | no |
@@ -752,7 +754,7 @@ are a summary, and the code and its tests are the detail.
 | 38 | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | an unconsumed `FUNCTIONAL_REVIEW.md` exists | automatic | `functional.apply_findings` | `/apply-functional-review <id>` |
 | 38a | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | `resolve_own_registry_completion_status` raises | blocked | — | `plan_content_drifted` or `registry_unreadable`; alternative `functional.review.advisory` |
 | 38b | `AWAITING_FUNCTIONAL_REVIEW` | `1` | the registry is not terminal | blocked | — | `v1_state_not_advanced`: the item cannot be accepted until its registry is terminal (the open residual of `v2.6.0-003`) |
-| 38c | `AWAITING_FUNCTIONAL_REVIEW` | `2.1`, `2.2` | the registry is not terminal | blocked | — | `registry_incomplete`: no 2.6.0 command completes it here |
+| 38c | `AWAITING_FUNCTIONAL_REVIEW` | `2.1`, `2.2` | the registry is not terminal | blocked | — | `registry_incomplete`: no command completes it here; hand-constructed state only; remedy `/resume-implementation <id>`, alternative `implementation.resume` (`user_only`, never automatic, protocol `1.2`) |
 | 38d | `AWAITING_FUNCTIONAL_REVIEW`, `MILESTONE_COMPLETE` | `1`, `2.1`, `2.2` | the query trigger holds (a reported pull-request fact differs from the stored `workflow_gh` fact), or the stored `workflow_gh` fact has an unapplied cause actionable under the policy; no gate-mode condition | automatic | `pr.apply_review` | `pr_query_due` or `pr_review_actionable`; `/apply-pr-review <id>`; its first step is the Workflow's own query; matches a completed item too, except a retired legacy item (`is_retired_legacy_item`: `MILESTONE_COMPLETE`, governing `1`, `LEGACY_V1`), which no row matches for it and which is never reopened (`reopen_retired_legacy_item`) |
 | 38e | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | the acceptance gate is `automatic`, its checkpoints and technical approval are current, and `functional_flows_passed` is unmet for want of evidence | external_gate | `functional.evidence.external` | `functional_evidence_needed`; `satisfied_by: functional_evidence` |
 | 38f | `AWAITING_FUNCTIONAL_REVIEW` | `1`, `2.1`, `2.2` | automatic acceptance, the stored `workflow_gh` fact at least as new as the reported one, and `pr_fact_current` or `ci_green` unmet with a pull-request fact obtainable | external_gate | `pr.review.external` | `pr_evidence_needed`; `satisfied_by: pr_review_result` is a trigger, never evidence |
@@ -776,10 +778,14 @@ Notes on the catalogue:
   not drive `1`, so row 6a names that command as the remedy). At the
   functional gate, row 38b reports a `1` item whose registry is not
   terminal, which `/accept-milestone` can never accept. Row 38c is the
-  `2.1`/`2.2` counterpart, reachable from a legacy promotion or a
-  hand-constructed state: no 2.6.0 command completes an outstanding
-  checkpoint from `AWAITING_FUNCTIONAL_REVIEW`. All three are the defect
-  `v2.6.0-003`, reported here and not fixed in 2.7.0.
+  `2.1`/`2.2` counterpart, reachable only from a hand-constructed or
+  hand-edited state with a `CURRENT` plan approval (a promoted legacy item
+  has none, so row 38a reports it first). No command completes an
+  outstanding checkpoint from `AWAITING_FUNCTIONAL_REVIEW`; from 2.9.0 the
+  user-only `/resume-implementation` returns the item to `IMPLEMENTING`
+  with its technical approval `STALE`, reported as the `implementation.resume`
+  alternative of row 38c. All three are the defect `v2.6.0-003`, reported
+  in 2.7.0 and addressed in 2.9.0 as the earlier rows describe.
 - **`BLOCK`.** Only a two-stage `BLOCK` (rows 11 and 25) is a gate: no
   command applies it, and it needs the user's resolution. A `1`/`2.1`
   `BLOCK` (rows 17 and 31) is applied by `/apply-plan-review` or

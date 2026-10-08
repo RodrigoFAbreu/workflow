@@ -1933,7 +1933,7 @@ class TestCommandSentences(unittest.TestCase):
     SCOPED = {"approve-review.md", "milestone-implement.md", "apply-implementation-review.md",
               "apply-functional-review.md", "recover-implementation-provenance.md",
               "adopt-gate-policy.md", "satisfy-gate.md", "apply-pr-review.md",
-              "retire-legacy-work-item.md"}
+              "retire-legacy-work-item.md", "resume-implementation.md"}
     #: `bootstrap-workflow-v2.md` is the one-time driver for `workflow-v2-1-core`
     #: and is not part of any 2.8.0 flow.
     NOT_PART_OF_THE_FLOW = {"bootstrap-workflow-v2.md"}
@@ -1956,7 +1956,7 @@ class TestCommandSentences(unittest.TestCase):
                 "stage exactly" in text and "WORKFLOW_STATE.json" in text
                 and re.search(r"Workflow-Bundle-Generation-Record:\s*<work_item_id>", text))
             if (commits_generation or "Workflow-Technical-Approval:" in text
-                    or "Workflow-Legacy-Retirement:" in text):
+                    or "Workflow-Legacy-Retirement:" in text or "Resume-Confirmation:" in text):
                 committing.add(path.name)
         self.assertEqual(committing - self.NOT_PART_OF_THE_FLOW - {"adopt-gate-policy.md"}, self.SCOPED - {"adopt-gate-policy.md"})
 
