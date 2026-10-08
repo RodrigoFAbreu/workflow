@@ -18303,6 +18303,17 @@ class TestUserOnlyConfirmation(unittest.TestCase):
         with self.assertRaises(ws.UserConfirmationRejectedError):
             self.check('I confirm the resumption of "resumption".', item="resumption", stage="retirement")
 
+    def test_a_foreign_compound_token_never_supplies_the_stage_word(self):
+        for stage, other in (("retirement", "resumption"), ("resumption", "retirement")):
+            for foreign in (f"legacy-{stage}", f"{stage}-2", f"{stage}_x", f"2{stage}"):
+                for text in (f"I confirm the {other} of milestone-8 (not {foreign})",
+                             f"I confirm {other} of milestone-8 {foreign}"):
+                    with self.assertRaises(ws.UserConfirmationRejectedError, msg=text):
+                        self.check(text, stage=stage)
+        # A genuine stage word beside a foreign compound token still counts.
+        self.check("I confirm the retirement of milestone-8 (not retirement-2)")
+        self.check("I confirm the resumption of milestone-8 (not legacy-resumption)", stage="resumption")
+
     def test_missing_empty_wrong_stage_and_unknown_stage_are_refused(self):
         for text in (None, "", "   ", "milestone-8 only", "retirement only", "retirements of milestone-8",
                      "approve milestone-8 acceptance"):
@@ -18499,6 +18510,17 @@ class TestLegacyRetirementCommit(unittest.TestCase):
             commit = repo.head()
             self.assertEqual(ws.discover_legacy_retirement_commit(repo.root, "retirement"), commit)
             ws.validate_legacy_retirement_commit(repo.root, commit, "retirement")
+
+    def test_a_recorded_confirmation_with_a_foreign_compound_stage_word_is_refused(self):
+        for confirmation in ("I confirm the resumption of milestone-8 (not legacy-retirement)",
+                             "resumption of milestone-8 retirement-2"):
+            with ScratchRepo() as repo:
+                self.seeded(repo)
+                with self.assertRaises(ws.UserConfirmationRejectedError, msg=confirmation):
+                    ws.retire_legacy_work_item(_read_state(repo.root), "milestone-8", "t9", confirmation)
+                commit = self.retire_commit(repo, confirmation=confirmation)
+                with self.assertRaises(ws.MalformedLegacyRetirementCommitError, msg=confirmation):
+                    ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
 
     def test_a_commit_that_changed_anything_else_is_refused(self):
         with ScratchRepo() as repo:
@@ -18808,6 +18830,19 @@ class TestResumeImplementationCommitValidation(unittest.TestCase):
             h.git(repo, "commit", "-q", "-m", f"resume\n\nResume-Confirmation: {confirmation}\n\n"
                   f"Workflow-Work-Item: resumption")
             ws.validate_resume_implementation_commit(repo.root, repo.head(), "resumption")
+
+    def test_a_foreign_compound_stage_word_is_refused_by_the_writer_and_the_validator(self):
+        import workflow_test_harness as h
+        for confirmation in ("I confirm the retirement of wi (not implementation-resumption)",
+                             "retirement of wi resumption-2"):
+            with h.ScratchRepo() as repo:
+                _resume_functional_repo(repo)
+                with self.assertRaises(ws.UserConfirmationRejectedError, msg=confirmation):
+                    ws.resume_implementation(repo.root, "wi", "t9", confirmation)
+                commit = self.resume_commit(repo, h, message=(
+                    f"resume\n\nResume-Confirmation: {confirmation}\n\nWorkflow-Work-Item: wi"))
+                with self.assertRaises(ws.MalformedResumeImplementationCommitError, msg=confirmation):
+                    ws.validate_resume_implementation_commit(repo.root, commit, "wi")
 
     def test_each_malformed_commit_is_refused(self):
         import workflow_test_harness as h

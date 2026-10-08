@@ -13398,7 +13398,10 @@ def validate_user_only_confirmation(text: str, *, work_item_id: str, stage: str)
     # An id that is itself the stage word (`retirement`) is masked only at its
     # first occurrence, so a separate, explicit stage word still counts.
     outside_id = id_token.sub(" ", text, count=1 if work_item_id.lower() == stage.lower() else 0)
-    if not re.search(rf"(?<![A-Za-z]){re.escape(stage)}(?![A-Za-z])", outside_id, re.IGNORECASE):
+    # The stage word takes the same id-alphabet boundary as the id: a foreign
+    # compound token (`legacy-retirement`, `retirement-2`) cannot supply it.
+    if not re.search(
+            rf"(?<![{_ID_ALPHABET}]){re.escape(stage)}(?![{_ID_ALPHABET}])", outside_id, re.IGNORECASE):
         raise UserConfirmationRejectedError(
             f"user_confirmation does not name {stage!r} as a whole word: {text!r}"
         )
