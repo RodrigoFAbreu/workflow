@@ -1123,7 +1123,7 @@
       "registry_path": "docs/ai-workflow/registry/legacy-retire-and-default-version-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/legacy-retire-and-default-version-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 6,
       "implementation_revision": 3,
       "functional_review_round": null,
@@ -1273,8 +1273,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 40,
-      "last_transition": "2026-10-08T16:18:19Z",
+      "state_revision": 42,
+      "last_transition": "2026-10-08T16:37:25Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -1302,13 +1302,13 @@
         "c30db452b5534268444ad8f9e7253783bfaf0ceccce2e38dc53260bf6079851c"
       ],
       "implementation_review_stages": {
-        "review_content_id": "77aa25c7743f32998f08a4c1f070920c1252b4d89293a08706d1d69230c31bc5",
+        "review_content_id": "44a83c0b946db34e590b523558e688af9a9e957684186fc46e0c482a0c9486b4",
         "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "6ed57adc90a9520f652381727f90501b43d8297644188e4e1d2db73beb6fd57d",
+          "bundle_id": "d36cc7378a22fa4a23b8e003e989f3b985bb8539ee260354b26acdf6f3f2e3a3",
           "verdict": "APPROVE",
-          "round": 2,
-          "completed_at": "2026-10-08T15:23:07Z",
-          "verdict_sha256": "00cd83b328f56b4daac8f928e610cb6fba472e8daf7d28b43191d638d3e4fb37",
+          "round": 3,
+          "completed_at": "2026-10-08T16:27:32Z",
+          "verdict_sha256": "85aaaf839269a00306083e3d25b6fe0a6ab05f77a47ce222e24637ad24e5a5e3",
           "run_ref": "session:local .ai-review/legacy-retire-and-default-version/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "anthropic/claude-opus-5-5"
         },
