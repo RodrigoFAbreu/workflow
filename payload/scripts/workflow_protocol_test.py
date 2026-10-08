@@ -5400,7 +5400,7 @@ class TestProtocolSchemaAndDescribe(unittest.TestCase):
         body, code = call("describe")
         self.assertEqual(code, wp.EXIT_OK)
         result = body["result"]
-        self.assertEqual((result["protocol_version"], result["workflow_release"]), ("1.2", "2.8.0"))
+        self.assertEqual((result["protocol_version"], result["workflow_release"]), ("1.2", "2.9.0"))
         caps = result["capabilities"]
         self.assertEqual(sorted(set(NEW_ACTION_IDS + NEW_1_2_ACTION_IDS) - set(caps["action_ids"])), [])
         self.assertEqual(caps["reserved_result_kinds"], [])
@@ -5410,7 +5410,7 @@ class TestProtocolSchemaAndDescribe(unittest.TestCase):
         self.assertIn("validation", caps["dispositions"])
 
     def test_the_release_constant_and_the_protocol_version(self):
-        self.assertEqual((wp.WORKFLOW_RELEASE, wp.PROTOCOL_VERSION, wp.PROTOCOL_MAJOR), ("2.8.0", "1.2", 1))
+        self.assertEqual((wp.WORKFLOW_RELEASE, wp.PROTOCOL_VERSION, wp.PROTOCOL_MAJOR), ("2.9.0", "1.2", 1))
         self.assertIn("validator", wp.WORKER_ROLES)
         self.assertEqual(wp.ACTIONS["acceptance.satisfy"]["role"], "validator")
         self.assertEqual(wp.ACTIONS["pr.apply_review"]["role"], "applier")
@@ -5591,13 +5591,14 @@ class TestEquivalenceAgainstV280(unittest.TestCase):
             old, new = self.compare(repo.root, "describe")
         old_result, new_result = old["result"], new["result"]
         self.assertEqual((old_result["protocol_version"], new_result["protocol_version"]), ("1.1", "1.2"))
+        self.assertEqual((old_result["workflow_release"], new_result["workflow_release"]), ("2.8.0", "2.9.0"))
         old_caps, new_caps = old_result["capabilities"], new_result["capabilities"]
         added = sorted(set(new_caps["action_ids"]) - set(old_caps["action_ids"]))
         self.assertEqual(added, sorted(NEW_1_2_ACTION_IDS))
         self.assertLessEqual(set(old_caps["action_ids"]), set(new_caps["action_ids"]))
         for key in set(old_caps) - {"action_ids"}:
             self.assertEqual(new_caps[key], old_caps[key], key)
-        for key in set(old_result) - {"protocol_version", "capabilities"}:
+        for key in set(old_result) - {"protocol_version", "workflow_release", "capabilities"}:
             self.assertEqual(new_result[key], old_result[key], key)
 
 
@@ -5814,7 +5815,7 @@ class TestUpdateSimulation27To28(unittest.TestCase):
                                  json.dumps(without_release(new), sort_keys=True))
                 self.assertNotIn("policy", new["result"])
                 self.assertEqual((old["protocol"]["version"], new["protocol"]["version"]), ("1.0", "1.2"))
-                self.assertEqual(new["workflow_release"], "2.8.0")
+                self.assertEqual(new["workflow_release"], "2.9.0")
 
     # -- the downgrade posture ------------------------------------------------
 

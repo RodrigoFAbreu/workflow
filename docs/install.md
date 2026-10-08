@@ -29,6 +29,11 @@ with `default_workflow_version` `"2.2"`, so a new work item in a fresh repositor
 runs on Workflow version 2.2. `update` never rewrites a configuration that
 already exists, and an existing work item keeps its governing version.
 
+Retirement (`/retire-legacy-work-item`) is guarded by Workflow 2.9: a retired
+legacy item stays closed. A repository later moved back to 2.8.0 or earlier has
+no such guard, so a pull-request report for a retired item can reopen it there;
+do not report pull-request facts for a retired item on those releases.
+
 ## Before you install 2.8.0
 
 Workflow 2.8.0 makes plan approval and milestone acceptance automatic (and

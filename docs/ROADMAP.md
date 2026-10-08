@@ -26,6 +26,7 @@ historical numbers; the table below is the current order.
 | W0 | **COMPLETE** (milestone `workflow-repository-setup`, accepted 2026-10-01; the post-acceptance squash-merge and `main` read-back, `docs/RELEASING.md` "Cutover" steps 5-6, are done: workflow#3 merged as `ef714f3`, and Release run 36906626604 read back `v2.6.0` with "nothing to release") — Set this repository up for development: CI, a release workflow (build the package and `SHA256SUMS`, publish an immutable release), `main` protection with Conventional-Commit titles, `CLAUDE.md`, its own Workflow installation kept apart from the release source, and this roadmap | this table |
 | W1 | **COMPLETE** (milestone `orchestration-protocol-v1`, accepted 2026-10-02; published as Workflow 2.7.0 from `d14e0a7` and pinned in `workflow-manager` by `workflow-manager#13`, Manager v1.3.0) — Workflow 2.7, the first release developed here: Orchestration Protocol v1, and the `v2.6.0-001` and `v2.6.0-002` follow-ups | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
 | W2 | **COMPLETE, pending cutover** (milestone `gate-policy-and-reopening`, accepted 2026-10-03; Workflow 2.8.0 is authored and releasable, and is published and pinned in `workflow-manager` only after acceptance and merge) — Workflow 2.8: declarative gate policy, and a red or changes-requested pull request reopening the same work item | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
+| W3 | **IN PROGRESS** (milestone `legacy-retire-and-default-version`; Workflow 2.9.0 is authored on its branch and is published and pinned in `workflow-manager` only after acceptance and merge) — Workflow 2.9: retire a dormant legacy work item (`/retire-legacy-work-item`), new installations default to governing version 2.2, and `v2.6.0-003` fixed except the two `1` planning phases. It goes first, ahead of the update tools, to unblock RepFlow | [1.9](#19-post-26-controller-integration-and-workflow-orchestration-protocol-foundation) |
 
 The Workflow Controller consumes W1 (its C9, the Controller on the protocol) and W2 (its C10, gate
 policy and automatic acceptance). The Manager-and-Workflow lane drives this repository and
@@ -205,6 +206,21 @@ Delivered:
 - a new conformance suite, `workflow_gate_policy_test.py`, run by `workflow-conformance.yml` (nine suites).
 
 Compatibility: with no policy adopted, the three gates are automatic on their evidence; a person restores the 2.7.0 gates by turning `human_approval` on (the master switch, or per gate). Workflow Controller 1.7.0 (C9, released 2026-10-03) admits 2.8.0 by protocol capability; the Controller's C10 consumes the gate policy.
+
+---
+
+## Workflow 2.9.0
+
+**Status:** Authored release, developed as milestone W3, `legacy-retire-and-default-version`, pending acceptance and cutover: it is published by the `Release` workflow only once the milestone is accepted and its pull request is squash-merged, and pinned in `workflow-manager` afterwards.
+
+Delivered:
+
+- `/retire-legacy-work-item <id>`: a user-only command that moves a dormant `LEGACY_READY` work item to `MILESTONE_COMPLETE` as already finished, guarded by the user's own confirmation naming the exact id and `retirement`, keeping its `LEGACY_V1` approval, auditable through a `Workflow-Legacy-Retirement` commit trailer; a retired item stays closed under later pull-request evidence (`is_retired_legacy_item`). Its motivating case is RepFlow's `milestone-8`;
+- new installations default to governing version 2.2: the bootstrap template's `default_workflow_version` is `"2.2"`; `default_config()`, every existing configuration and every existing work item are untouched;
+- `v2.6.0-003` fixed, except the `PLANNING` and `AMENDING_PLAN` phases at governing `1`: a governing-`1` item with a state entry reaches review from `IMPLEMENTING` and passes acceptance when it has no registry; `IncompleteOwnCheckpointsError` is phase-aware; and the user-only `/resume-implementation <id>` returns a 2.1/2.2 item with an outstanding checkpoint from `AWAITING_FUNCTIONAL_REVIEW` to `IMPLEMENTING`;
+- Orchestration Protocol 1.2: the user-only actions `legacy.retire` (an alternative of blocked row 3) and `implementation.resume` (an alternative of blocked row 38c), never automatic.
+
+Compatibility: with all gates human, `next-action`, `verify` and `describe` are byte-equal to 2.8.0 apart from the enumerated exemptions (`TestEquivalenceAgainstV280`). An older release has no retirement guard: on 2.8.0 or earlier a pull-request report for a retired item can reopen it (see `docs/install.md`). Unblocks RepFlow: after updating to 2.9.0, `/retire-legacy-work-item milestone-8`.
 
 ---
 
@@ -829,7 +845,7 @@ Potential future work:
 | `v2.4.0-003-amendment-diff-anchored-at-head-is-always-empty`                 | Closed in 2.6.0                               | Regression protection only |
 | `v2.6.0-001-withdrawn-plan-content-can-rebind-after-a-detour`                | Fixed in 2.7.0                                | Regression protection only |
 | `v2.6.0-002-review-content-id-label-not-pinned`                              | Fixed in 2.7.0                                | Regression protection only |
-| `v2.6.0-003-v1-state-tracked-item-cannot-advance`                            | Open; reported as `blocked` by the protocol   | Follow-up in a later Workflow release |
+| `v2.6.0-003-v1-state-tracked-item-cannot-advance`                            | Fixed in 2.9.0, except the two `1` planning phases (`PLANNING`, `AMENDING_PLAN`), still reported as `blocked` | Regression protection; the `1` planning phases in a later release |
 
 `v2.6.0-003` (`OD-W1-10`): a work item governed by `"1"` that has a state entry cannot be advanced
 by any 2.6.0 or 2.7.0 command. `/milestone-plan`'s `"1"` branch writes no state at `PLANNING` or
@@ -848,6 +864,14 @@ any governing version (`/request-plan-amendment` refuses at that phase, and neit
 hand-constructed state reaches it (protocol row 38c, LPR-R6-001). 2.7.0 reports these states as
 `blocked` and fixes none of them: fixing the `"1"` branches changes their v1-inert contract and
 golden-output test (`WF8a-ii`).
+
+**2.9.0 disposition (milestone W3).** The origin recorded above is corrected: the
+`AWAITING_FUNCTIONAL_REVIEW` state with an outstanding checkpoint is reached by a hand-constructed
+or hand-edited state, never by a legacy promotion (`promote_legacy_work_item` adds no plan
+approval, so row 38a precedes row 38c). 2.9.0 lets a `"1"` item with a state entry reach review
+from `IMPLEMENTING`, makes the checkpoint-incomplete message phase-aware, and adds the user-only
+`/resume-implementation` for `2.1`/`2.2`. Still reported: `PLANNING` and `AMENDING_PLAN` at
+governing `1`, and a `"1"` item with a non-terminal registry at the functional gate (row 38b).
 
 Additional hardening items delivered in milestone 1 (Workflow 2.6.0):
 

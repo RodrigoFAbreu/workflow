@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**In planning.** W3: `legacy-retire-and-default-version` (`process`, governing
+**Implementing** (CP1 to CP6 complete). W3: `legacy-retire-and-default-version` (`process`, governing
 version `2.2`), branch `milestone/legacy-retire-and-default-version`, base
 `f00c1c3` (the release source is Workflow 2.8.0; this repository's own
 installation is also 2.8.0 with automatic gates and no `GATE_POLICY.json`).
@@ -35,7 +35,17 @@ Workflow 2.9.0 on Orchestration Protocol 1.2, a minor release with three parts:
 
 ## Current checkpoint
 
-**Implementing.** The plan (revision 6) is approved; CP1 to CP5 are complete.
+**Implementing.** The plan (revision 6) is approved; CP1 to CP6 are complete.
+
+`CP6` (documentation, roadmap and release 2.9.0) complete, in the release source only:
+`manifest.json` names `2.9.0`, lists the two new commands (`retire-legacy-work-item`,
+`resume-implementation`), refreshes every changed `sha256`/`size` (including the
+template) and `counts`, and carries W3 rationales; `WORKFLOW_RELEASE` is `2.9.0`;
+`MILESTONE_WORKFLOW.md` describes the resume and retire entries; `docs/troubleshooting.md`
+and `docs/install.md` state the older-release limit of retirement and the two new
+commands; `docs/ROADMAP.md` gains the W3 row, a "Workflow 2.9.0" entry and the
+`v2.6.0-003` disposition (corrected origin; fixed except the two `1` planning phases).
+`tools/release/manager-pin.json` is unchanged (Manager 1.4.0).
 
 `CP5` (`v2.6.0-003` (b)) complete, in the release source only: the user-only
 `/resume-implementation <id>` (`disable-model-invocation: true`, `state_writer: true`,
