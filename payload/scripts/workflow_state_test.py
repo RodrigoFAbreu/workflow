@@ -18289,6 +18289,20 @@ class TestUserOnlyConfirmation(unittest.TestCase):
             self.check("retire legacy-retirement", item="legacy-retirement")
         self.check("legacy-retirement retirement", item="legacy-retirement")
 
+    def test_an_item_id_equal_to_the_stage_word_needs_a_separate_stage_word(self):
+        for item, stage in (("retirement", "retirement"), ("resumption", "resumption")):
+            self.check(f'I confirm the {stage} of "{item}".', item=item, stage=stage)
+            self.check(f"{item} {stage}", item=item, stage=stage)
+            self.check(f"{stage.upper()} of {item.title()}", item=item, stage=stage)
+            for text in (item, f'confirm "{item}"', f"{item}."):
+                with self.assertRaises(ws.UserConfirmationRejectedError, msg=text):
+                    self.check(text, item=item, stage=stage)
+        # The opposite action is still not supplied by the id.
+        with self.assertRaises(ws.UserConfirmationRejectedError):
+            self.check('I confirm the retirement of "retirement".', item="retirement", stage="resumption")
+        with self.assertRaises(ws.UserConfirmationRejectedError):
+            self.check('I confirm the resumption of "resumption".', item="resumption", stage="retirement")
+
     def test_missing_empty_wrong_stage_and_unknown_stage_are_refused(self):
         for text in (None, "", "   ", "milestone-8 only", "retirement only", "retirements of milestone-8",
                      "approve milestone-8 acceptance"):
@@ -18469,6 +18483,23 @@ class TestLegacyRetirementCommit(unittest.TestCase):
             self.assertIsNone(ws.discover_legacy_retirement_commit(repo.root, "milestone-9"))
             ws.validate_legacy_retirement_commit(repo.root, commit, "milestone-8")
 
+    def test_an_item_named_retirement_retires_and_validates_with_a_separate_stage_word(self):
+        confirmation = 'I confirm the retirement of "retirement".'
+        message = self.MESSAGE.format(confirmation=confirmation).replace("milestone-8", "retirement")
+        with ScratchRepo() as repo:
+            _write_state(repo.root, _legacy_state("retirement"))
+            _git_in(repo.root, "add", _STATE_REL)
+            _git_in(repo.root, "commit", "-q", "-m", "import legacy item")
+            state = ws.retire_legacy_work_item(_read_state(repo.root), "retirement", "t9", confirmation)
+            with self.assertRaises(ws.UserConfirmationRejectedError):
+                ws.retire_legacy_work_item(_read_state(repo.root), "retirement", "t9", 'retire "retirement"')
+            _write_state(repo.root, state)
+            _git_in(repo.root, "add", _STATE_REL)
+            _git_in(repo.root, "commit", "-q", "-m", message)
+            commit = repo.head()
+            self.assertEqual(ws.discover_legacy_retirement_commit(repo.root, "retirement"), commit)
+            ws.validate_legacy_retirement_commit(repo.root, commit, "retirement")
+
     def test_a_commit_that_changed_anything_else_is_refused(self):
         with ScratchRepo() as repo:
             self.seeded(repo)
@@ -18576,18 +18607,19 @@ def _resume_technical_approval(status="CURRENT") -> dict:
     return record
 
 
-def _resume_functional_repo(repo, version="2.2", *, complete=False, technical="CURRENT", plan_approved=True):
+def _resume_functional_repo(repo, version="2.2", *, complete=False, technical="CURRENT", plan_approved=True,
+                            work_item_id="wi"):
     """A real repository with `wi` at `AWAITING_FUNCTIONAL_REVIEW`, a registry
     of one checkpoint `C1` (outstanding unless `complete`), a covering `CURRENT`
     plan approval and a technical approval -- the hand-constructed state row
     38c reports."""
     import workflow_test_harness as h
-    h.seed_bundle_item(repo, governing_workflow_version=version, phase="AWAITING_FUNCTIONAL_REVIEW",
+    h.seed_bundle_item(repo, work_item_id, governing_workflow_version=version, phase="AWAITING_FUNCTIONAL_REVIEW",
                        registry_checkpoints=[{"id": "C1", "depends_on": []}], implementation_revision=1)
     if plan_approved:
-        h.approve_plan(repo)
+        h.approve_plan(repo, work_item_id)
     state = h.read_state(repo)
-    item = state["work_items"]["wi"]
+    item = state["work_items"][work_item_id]
     if complete:
         item["checkpoints"] = {"C1": {"status": "COMPLETE", "start_commit": repo.base}}
     if technical is not None:
@@ -18763,6 +18795,19 @@ class TestResumeImplementationCommitValidation(unittest.TestCase):
             _resume_functional_repo(repo)
             commit = self.resume_commit(repo, h)
             ws.validate_resume_implementation_commit(repo.root, commit, "wi")
+
+    def test_an_item_named_resumption_resumes_and_validates_with_a_separate_stage_word(self):
+        import workflow_test_harness as h
+        confirmation = 'I confirm the resumption of "resumption".'
+        with h.ScratchRepo() as repo:
+            _resume_functional_repo(repo, work_item_id="resumption")
+            with self.assertRaises(ws.UserConfirmationRejectedError):
+                ws.resume_implementation(repo.root, "resumption", "t9", 'resume "resumption"')
+            ws.resume_implementation(repo.root, "resumption", "t9", confirmation)
+            h.git(repo, "add", "--", "docs/ai-workflow/WORKFLOW_STATE.json")
+            h.git(repo, "commit", "-q", "-m", f"resume\n\nResume-Confirmation: {confirmation}\n\n"
+                  f"Workflow-Work-Item: resumption")
+            ws.validate_resume_implementation_commit(repo.root, repo.head(), "resumption")
 
     def test_each_malformed_commit_is_refused(self):
         import workflow_test_harness as h

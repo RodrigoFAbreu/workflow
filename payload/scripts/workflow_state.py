@@ -13395,7 +13395,9 @@ def validate_user_only_confirmation(text: str, *, work_item_id: str, stage: str)
         )
     # The stage word must stand outside every occurrence of the item id, or an
     # id such as `legacy-retirement` would supply the word for the other action.
-    outside_id = id_token.sub(" ", text)
+    # An id that is itself the stage word (`retirement`) is masked only at its
+    # first occurrence, so a separate, explicit stage word still counts.
+    outside_id = id_token.sub(" ", text, count=1 if work_item_id.lower() == stage.lower() else 0)
     if not re.search(rf"(?<![A-Za-z]){re.escape(stage)}(?![A-Za-z])", outside_id, re.IGNORECASE):
         raise UserConfirmationRejectedError(
             f"user_confirmation does not name {stage!r} as a whole word: {text!r}"
