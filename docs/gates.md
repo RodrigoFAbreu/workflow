@@ -1,6 +1,6 @@
 # Approval gates
 
-> For: anyone who decides who approves a work item's plan, code and acceptance. Last checked with: Workflow 2.8.0, Workflow Manager 1.4.0.
+> For: anyone who decides who approves a work item's plan, code and acceptance. Last checked with: Workflow 2.9.0, Workflow Manager 1.5.0.
 
 An approval gate is a point where a work item cannot move on until a decision
 is recorded. There are three: plan approval, implementation approval and

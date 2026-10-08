@@ -1,6 +1,6 @@
 # Install and update the Workflow
 
-> For: anyone adding the Workflow to a repository. Last checked with: Workflow 2.8.0, Workflow Manager 1.4.0.
+> For: anyone adding the Workflow to a repository. Last checked with: Workflow 2.9.0, Workflow Manager 1.5.0.
 
 The Workflow is installed, updated and checked with the
 [Workflow Manager](https://github.com/RodrigoFAbreu/workflow-manager#readme).
@@ -33,6 +33,10 @@ Retirement (`/retire-legacy-work-item`) is guarded by Workflow 2.9: a retired
 legacy item stays closed. A repository later moved back to 2.8.0 or earlier has
 no such guard, so a pull-request report for a retired item can reopen it there;
 do not report pull-request facts for a retired item on those releases.
+
+Workflow 2.9 also adds the user-only `/resume-implementation`, which returns a
+work item stuck at the functional gate with a checkpoint outstanding to
+implementation; see [Troubleshooting](troubleshooting.md).
 
 ## Before you install 2.8.0
 
