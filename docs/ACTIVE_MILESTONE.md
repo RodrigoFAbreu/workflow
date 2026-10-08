@@ -145,12 +145,429 @@ request's wording: `default_config()` is the fail-safe, default `1`, not 2.1).
 
 ## Next action
 
-The implementation review of the bundle `/milestone-implement` generates (local
-model review, then manual external review, governing version 2.2), then the
-technical approval. The sections below are the completed W2 and W1
-milestones' records.
+The manual functional review below (`/prepare-functional-review` is done); then
+`/accept-milestone` (the only acceptance command), or `/apply-functional-review`
+for findings placed at the feedback directory's `FUNCTIONAL_REVIEW.md`. The
+sections after the checklist are the completed W2 and W1 milestones' records.
 
 ## Functional review checklist
+
+W3 is a `process` milestone: the "product" is Workflow 2.9.0 (retire a dormant
+legacy item, new installations default to governing version 2.2, the
+`v2.6.0-003` fix, and Orchestration Protocol 1.2). Every flow runs **offline in
+a disposable scratch directory or clone under `/tmp`**, never in this checkout.
+Nothing here pushes, opens a pull request, calls GitHub (the red pull-request
+fact is the test seam), changes settings or publishes a release; the release
+and the Manager pin are the owner's, after acceptance (plan section 7). Never
+use `git stash`. Never edit a verdict or a state file of this checkout. The two
+user-only commands (`/retire-legacy-work-item`, `/resume-implementation`) are
+never run as slash commands from this review: the flows call their writers
+(`workflow_state.retire_legacy_work_item` inside `state_transaction`, and
+`workflow_state.resume_implementation`) in a scratch installation with the
+confirmation text a user would type, which is what a scratch test of the
+behavior needs.
+
+Evidence base: branch `milestone/legacy-retire-and-default-version`,
+implementation revision 5, release source `2.9.0`. The expected values below are
+those of the preparation run at commit `acb4b3a`.
+
+**Setup**
+
+S1. From the repository root, on the milestone branch with a clean tree. The
+    pinned runtime (Python 3.12, `zlib-ng` 1.0.0, Workflow Manager 1.2.0) and a
+    scratch directory:
+    ```bash
+    git status --short                      # expected: empty
+    V=/home/rodrigo/.claude/projects/-home-rodrigo-Workspace-workflow-manager/orchestrator-files/runs-workflow/w0-ext-impl-r1/venv
+    S=$(mktemp -d /tmp/w3-review.XXXX); echo $S
+    REPO=$PWD; R=tools/release/release.py
+    WM=$V/bin/workflow-manager
+    new_repo() { D=$S/$1; mkdir $D && git -C $D init -q \
+        && git -C $D -c user.name=t -c user.email=t@t commit -q --allow-empty -m init; }
+    ```
+    Run every step from the repository root unless it says `cd`. The Manager
+    pins no 2.8.0 or 2.9.0 release, so every Manager call uses `--release-dir`.
+S2. Build the 2.9.0 package and the 2.8.0 baseline (from the `v2.8.0` tag) and
+    unpack both:
+    ```bash
+    $V/bin/python $R build --commit HEAD --out $S/build
+    $WM package verify $S/build/workflow-2.9.0.tar.gz \
+        --sha256 "$(grep tar.gz $S/build/SHA256SUMS | cut -d' ' -f1)"
+    mkdir $S/rel && tar -xzf $S/build/workflow-2.9.0.tar.gz -C $S/rel
+    $V/bin/python $R build --commit v2.8.0 --out $S/b280 | grep -E 'files|archive|manifest'
+    mkdir $S/rel28 && tar -xzf $S/b280/workflow-2.8.0.tar.gz -C $S/rel28
+    ```
+    Expected: the 2.9.0 build prints `version=2.9.0`, `files=83`, `zlib_ng=2.2.5`;
+    `package verify` prints `release 2.9.0, 82 files, verified`; the 2.8.0 build
+    prints `files=81`, `archive_sha256=c3c005b6...`, `manifest_sha256=c11fcbc4...`
+    (the published 2.8.0 bytes, reproduced).
+S3. A scratch installation of 2.9.0 and the protocol shorthand:
+    ```bash
+    new_repo t1 && $WM --release-dir $S/rel/workflow-2.9.0 bootstrap $S/t1 | head -2
+    P() { (cd $S/t1 && python3 scripts/workflow_protocol.py "$@"); }
+    ```
+    Expected: `bootstrapped workflow 2.9.0 (full) into .../t1` and `75 managed
+    files, 3 state files, 2 merged files`.
+S4. A disposable clone with tags (the INV-1 equivalence tests read the `v2.8.0`
+    tag from git and are skipped without it):
+    ```bash
+    git clone -q --no-hardlinks . $S/clone
+    git -C $S/clone checkout -q milestone/legacy-retire-and-default-version
+    git -C $S/clone tag | grep -x v2.8.0       # expected: v2.8.0
+    ```
+
+Test data: none to seed beyond the scripts below, which build their own work
+items in the scratch installation (`workflow_state_test._legacy_state`,
+`_resume_functional_repo`) and their own scratch repositories.
+
+**Flows**
+
+F1. A fresh installation's config defaults to 2.2; an update leaves an existing
+    config and state alone.
+    ```bash
+    cat $S/t1/docs/ai-workflow/WORKFLOW_CONFIG.json
+    $WM --release-dir $S/rel/workflow-2.9.0 verify $S/t1
+    P describe | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['protocol'], d['result']['workflow_release'])"
+    # update: a 2.8.0 installation (config default 2.1) updated to 2.9.0
+    new_repo t28 && $WM --release-dir $S/rel28/workflow-2.8.0 bootstrap $S/t28 | head -1
+    cat $S/t28/docs/ai-workflow/WORKFLOW_CONFIG.json
+    (cd $S/t28 && sha256sum docs/ai-workflow/WORKFLOW_STATE.json docs/ai-workflow/WORKFLOW_CONFIG.json) > $S/before.sum
+    $WM --release-dir $S/rel/workflow-2.9.0 update $S/t28 | head -2
+    $WM --release-dir $S/rel/workflow-2.9.0 verify $S/t28
+    (cd $S/t28 && sha256sum docs/ai-workflow/WORKFLOW_STATE.json docs/ai-workflow/WORKFLOW_CONFIG.json) \
+        | diff $S/before.sum - && echo STATE_AND_CONFIG_UNCHANGED
+    grep default_workflow $S/t28/docs/ai-workflow/WORKFLOW_CONFIG.json
+    ```
+    Expected: the fresh config is `"default_workflow_version": "2.2"` with
+    `"supported_versions": ["1", "2.1", "2.2"]`; `verify` prints `installation
+    matches workflow 2.9.0`; `describe` prints protocol `version: 1.2` and
+    release `2.9.0`. The 2.8.0 bootstrap's config is `"2.1"` with supported
+    `["1", "2.1"]`; after the update `updated ... to workflow 2.9.0`, `verify`
+    matches 2.9.0, `STATE_AND_CONFIG_UNCHANGED` prints and the config still says
+    `"2.1"` (an update never rewrites an existing config; items keep their
+    version). Then the tests, in the S3 installation:
+    ```bash
+    (cd $S/t1/scripts && python3 workflow_state_test.py TestNewInstallationDefaultsToTwoPointTwo 2>&1 | tail -3
+     python3 workflow_integration_test.py TestTemplateDefaultCreatesTwoPointTwoItem 2>&1 | tail -3)
+    ```
+    Expected: `OK` for both (the template validates, an item created from it is
+    governed by 2.2, `default_config()` is unchanged at the fail-safe `1`).
+F2. `/retire-legacy-work-item` on a dormant `LEGACY_READY` item: success, the
+    refusals, and the commit. Save and run in the S3 installation:
+    ```bash
+    cat > $S/retire_flow.py <<'PY'
+    import json, subprocess, sys
+    sys.path.insert(0, "scripts")
+    import workflow_state as ws
+    import workflow_state_test as T
+    from pathlib import Path
+    root = Path(".").resolve(); STATE = root / "docs/ai-workflow/WORKFLOW_STATE.json"
+    CONF = "retirement of milestone-8 confirmed"
+    def git(*a):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", *a],
+                              cwd=root, capture_output=True, text=True, check=True).stdout.strip()
+    def put(state):
+        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n"); git("add", "-A"); git("commit", "-q", "--allow-empty", "-m", "seed")
+    def fresh(**extra):
+        s = T._legacy_state(**extra); put(s); return s
+    def retire(label, id_="milestone-8", conf=CONF):
+        try:
+            ws.state_transaction(root, lambda st: ws.retire_legacy_work_item(st, id_, "2026-10-08T20:00:00Z", conf))
+            print(f"{label:46} RETIRED"); return True
+        except Exception as e:
+            print(f"{label:46} refused {type(e).__name__}"); return False
+    def item(i="milestone-8"): return json.loads(STATE.read_text())["work_items"][i]
+    print("== success")
+    fresh(); before = item()
+    assert retire("exact confirmation")
+    after = item()
+    print("phase", before["phase"], "->", after["phase"], "| approval kept:", before["technical_approval"] == after["technical_approval"],
+          "| basis", after["technical_approval"]["basis"], "| governing", after["governing_workflow_version"],
+          "| changed:", sorted(k for k in set(before) | set(after) if before.get(k) != after.get(k)))
+    git("add", "docs/ai-workflow/WORKFLOW_STATE.json")
+    git("commit", "-q", "-m", f"retire milestone-8\n\nRetirement-Confirmation: {CONF}\n\nWorkflow-Legacy-Retirement: milestone-8\nWorkflow-Work-Item: milestone-8")
+    c = ws.discover_legacy_retirement_commit(root, "milestone-8"); ws.validate_legacy_retirement_commit(root, c, "milestone-8")
+    print("discovered and validated:", c[:12])
+    print("== refusals (each leaves the state file byte-identical)")
+    for label, id_, conf in (("wrong id (prefix milestone-80)", "milestone-8", "retirement of milestone-80"),
+                             ("wrong id (suffix milestone-8-b)", "milestone-8", "retirement of milestone-8-b"),
+                             ("wrong stage word (acceptance)", "milestone-8", "acceptance of milestone-8"),
+                             ("compound stage token (legacy-retirement)", "milestone-8", "milestone-8 legacy-retirement"),
+                             ("missing stage word", "milestone-8", "milestone-8"),
+                             ("empty confirmation", "milestone-8", ""),
+                             ("unknown id", "milestone-9", "retirement of milestone-9")):
+        fresh(); b = STATE.read_bytes(); retire(label, id_, conf); assert STATE.read_bytes() == b and item()["phase"] == "LEGACY_READY"
+    for ph in ("MILESTONE_COMPLETE", "IMPLEMENTING", "AWAITING_FUNCTIONAL_REVIEW", "PLANNING"):
+        s = fresh(); s["work_items"]["milestone-8"]["phase"] = ph; put(s); b = STATE.read_bytes(); retire(f"phase {ph}"); assert STATE.read_bytes() == b
+    s = fresh(); s["active_work_item_id"] = "milestone-8"; put(s); b = STATE.read_bytes(); retire("active item"); assert STATE.read_bytes() == b
+    ch = T._base_work_item(work_item_id="milestone-8-child", parent_work_item_id="milestone-8", phase="IMPLEMENTING")
+    fresh(**{"milestone-8-child": ch}); b = STATE.read_bytes(); retire("unfinished child"); assert STATE.read_bytes() == b
+    PY
+    (cd $S/t1 && python3 $S/retire_flow.py)
+    ```
+    (Remove the heredoc's indentation if pasting.) Expected, in order:
+    - `== success`: `exact confirmation  RETIRED`; `phase LEGACY_READY ->
+      MILESTONE_COMPLETE | approval kept: True | basis LEGACY_V1 | governing 1 |
+      changed: ['last_transition', 'phase', 'state_revision']` (exactly those
+      three: the writer also resets `current_checkpoint_id`, already `None`);
+      `discovered and validated: <12 hex>` (one commit carries
+      `Workflow-Legacy-Retirement` and `Workflow-Work-Item`, touching only the
+      state file).
+    - `wrong id (prefix milestone-80)`, `wrong id (suffix milestone-8-b)`,
+      `wrong stage word (acceptance)`, `compound stage token
+      (legacy-retirement)`, `missing stage word` and `empty confirmation`:
+      each `refused UserConfirmationRejectedError` (the confirmation is checked
+      first). `unknown id`: `refused LegacyRetirementWrongPhaseError`.
+    - `phase MILESTONE_COMPLETE`, `IMPLEMENTING`, `AWAITING_FUNCTIONAL_REVIEW`,
+      `PLANNING`: each `refused LegacyRetirementWrongPhaseError`.
+    - `active item`: `refused LegacyRetirementActiveItemError`;
+      `unfinished child`: `refused LegacyRetirementUnfinishedChildrenError`.
+    - The script's `assert`s hold after every refusal: nothing was written. Any
+      `RETIRED` on a refusal line, or an `AssertionError`, is a finding.
+    The writer's own tests, and the command text, in the S3 installation:
+    ```bash
+    (cd $S/t1/scripts && python3 workflow_state_test.py TestUserOnlyConfirmation TestRetireLegacyWorkItem \
+        TestRetireLegacyWorkItemLifecycleWitnesses TestLegacyRetirementCommit 2>&1 | tail -3)
+    ```
+    Expected: `OK`. Read `payload/.claude/commands/retire-legacy-work-item.md`:
+    `disable-model-invocation: true`, the confirmation naming the exact id and
+    `retirement`, the commit's final paragraph carrying both trailers, no
+    promotion or stale-approval check.
+F3. A retired item stays closed under a red pull-request fact (INV-6).
+    ```bash
+    (cd $S/t1/scripts && python3 workflow_gate_policy_test.py -v TestRetiredLegacyItemStaysClosed 2>&1 | grep -E "ok$|FAIL|ERROR|^Ran|^OK")
+    ```
+    Expected: `Ran 6 tests`, `OK`, in particular
+    `test_pull_request_evidence_is_recorded_but_never_reopens_a_retired_item`
+    (`reopen_work_item` and `begin_pr_review` both refuse with
+    `reopen_retired_legacy_item` and write nothing),
+    `test_the_store_time_route_stores_the_fact_and_reports_the_refusal` (the red
+    fact stays stored, the phase stays `MILESTONE_COMPLETE`, no `reopenings`),
+    `test_decide_never_offers_the_automatic_pull_request_action_for_a_retired_item`
+    (not row `38d`) and `test_a_promoted_then_accepted_item_still_reopens_as_before`.
+F4. Protocol 1.2 `next-action` for the two new alternatives.
+    (a) `legacy.retire`, row 3, on the `LEGACY_READY` item (the state F2 left is
+    retired; reseed it first):
+    ```bash
+    cat > $S/seed_legacy.py <<'PY'
+    import json, sys
+    sys.path.insert(0, "scripts")
+    import workflow_state_test as T
+    from pathlib import Path
+    Path("docs/ai-workflow/WORKFLOW_STATE.json").write_text(json.dumps(T._legacy_state(), indent=2, sort_keys=True) + "\n")
+    PY
+    (cd $S/t1 && python3 $S/seed_legacy.py && git -c user.name=t -c user.email=t@t commit -qam "legacy item")
+    P next-action --work-item milestone-8 | python3 -c "import json,sys; r=json.load(sys.stdin)['result']; \
+        print(r['row'], r['disposition'], r['action'], r['reason']['code']); \
+        print([(a['id'], a['invocation'], a['worker']['role'], a['worker']['user_only']) for a in r['alternatives']]); \
+        print(r['reason']['remedy'])"
+    ```
+    Expected: `3 blocked None legacy_item_not_activated`; one alternative
+    `('legacy.retire', '/retire-legacy-work-item milestone-8', 'user', True)`;
+    the remedy `promote it (D-Legacy phase 2) before driving it, or retire it as
+    already finished with /retire-legacy-work-item milestone-8`. The action is
+    never `automatic` and has no edge.
+    (b) `implementation.resume`, row 38c (the tests build the functional-gate
+    state and a committed checklist; row 37 precedes 38c until the checklist
+    evidence exists):
+    ```bash
+    (cd $S/t1/scripts && python3 workflow_protocol_test.py -v \
+        TestFixedRows.test_an_outstanding_checkpoint_at_the_functional_gate_is_row_38c_with_a_user_only_resume \
+        TestFixedRows.test_row_37_precedes_row_38c_and_a_committed_checklist_reaches_it \
+        TestFixedRows.test_implementation_resume_is_user_only_never_automatic_and_has_no_edge \
+        TestFixedRows.test_legacy_retire_is_user_only_and_has_no_edge 2>&1 | grep -E "ok$|FAIL|ERROR|^Ran|^OK")
+    ```
+    Expected: `Ran 4 tests`, `OK`. Row 38c is `blocked`, action `None`, reason
+    `registry_incomplete`, alternatives in order `implementation.resume`
+    (invocation `/resume-implementation wi`, role `user`, `user_only` true),
+    `functional.apply_findings`, `functional.review.advisory`; the remedy names
+    `/resume-implementation wi`; the text no longer says "legacy promotion".
+    Then the protocol suites and the 1.1 consumer, in the S4 clone:
+    ```bash
+    (cd $S/clone/payload/scripts && $V/bin/python workflow_protocol_test.py TestFixedRows \
+        TestUnaware1_1Consumer TestUnawareConsumer TestEquivalenceAgainstV280 \
+        TestAllHumanEquivalence 2>&1 | tail -4)
+    ```
+    Expected: `OK`, no `skipped` line (about 70 s; the equivalence tests need the
+    `v2.8.0` tag): the 2.8.0 modules and the 2.9.0 modules agree on
+    `next-action`, `verify` and `describe` in every scenario except the
+    enumerated exemptions (INV-1); a `1.1` consumer fails closed on both new
+    action ids (INV-8). `P describe` in the S3 installation shows protocol
+    `1.2` and the action ids `legacy.retire` and `implementation.resume`.
+F5. The governing-`1` implementation entry and the phase-aware message
+    (`v2.6.0-003`, parts (a) and (c)). Tests, in the S3 installation:
+    ```bash
+    (cd $S/t1/scripts && python3 workflow_state_test.py -v \
+        TestRecordBundleGeneration.test_v1_item_reaches_review_from_implementing_writing_exactly_the_five_ordinary_fields \
+        TestRecordBundleGeneration.test_implementing_stays_illegal_for_two_stage_versions_and_for_post_fix \
+        TestRecordBundleGeneration.test_v1_implementing_entry_record_commit_validates_and_the_interval_is_reachable \
+        TestCompleteWorkItemOwnRegistryGuard.test_message_is_phase_and_version_aware 2>&1 | grep -E "ok$|FAIL|ERROR|^Ran|^OK"
+     python3 workflow_protocol_test.py -v TestVerify.test_v1_item_past_its_implementation_entry_stays_healthy \
+        TestFixedRows.test_v1_implementing_without_a_registry_is_the_same_blocked_row \
+        TestFixedRows.test_no_edge_legalizes_a_v1_move_out_of_implementing 2>&1 | grep -E "ok$|FAIL|ERROR|^Ran|^OK")
+    ```
+    Expected: `OK` for each run (4 and 3 tests). A governing-`1` item with a
+    state entry reaches review from `IMPLEMENTING` writing exactly the five
+    ordinary bundle-generation fields (no checkpoint-status write), its record
+    commit validates and its provenance interval is reachable; `IMPLEMENTING`
+    stays illegal for `2.1`/`2.2` and for `post-fix`; `verify` is healthy past
+    the entry; no protocol edge leaves `IMPLEMENTING` at `1`. The
+    `IncompleteOwnCheckpointsError` message names `/milestone-implement` only at
+    `IMPLEMENTING`, names the `1` residual ("No command completes a checkpoint
+    of a governing-\"1\" item ...") for a `1` item elsewhere, and names
+    `/resume-implementation` for a `2.1`/`2.2` item at the functional gate. The
+    row-6a text is covered by `TestEquivalenceAgainstV280.
+    test_row_6a_is_byte_identical_outside_implementing_and_differs_at_it` (F4).
+    Also read `docs/ROADMAP.md`'s `v2.6.0-003` disposition: fixed except the
+    two governing-`1` planning phases (`PLANNING`/`AMENDING_PLAN`), which stay
+    reported (`OD-W3-7`).
+F6. `/resume-implementation`: success, refusals, user-only. Save and run in the
+    S3 installation:
+    ```bash
+    cat > $S/resume_flow.py <<'PY'
+    import sys
+    sys.path.insert(0, "scripts")
+    import workflow_state as ws
+    import workflow_state_test as T
+    import workflow_test_harness as h
+    CONF = "resume wi: resumption confirmed"
+    def attempt(label, repo, conf=CONF, id_="wi"):
+        b = h.read_state(repo)
+        try:
+            ws.resume_implementation(repo.root, id_, "2026-10-08T20:00:00Z", conf); print(f"{label:46} RESUMED"); return True
+        except Exception as e:
+            print(f"{label:46} refused {type(e).__name__}"); assert h.read_state(repo) == b; return False
+    for version in ("2.1", "2.2"):
+        print("== success at", version)
+        with h.ScratchRepo() as repo:
+            T._resume_functional_repo(repo, version)
+            old = h.read_state(repo)["work_items"]["wi"]
+            assert attempt("exact confirmation", repo)
+            new = h.read_state(repo)["work_items"]["wi"]
+            print("phase", old["phase"], "->", new["phase"], "| technical", old["technical_approval"]["status"], "->", new["technical_approval"]["status"],
+                  "| changed:", sorted(k for k in set(old) | set(new) if old.get(k) != new.get(k)))
+    print("== refusals (each leaves the state byte-identical)")
+    with h.ScratchRepo() as repo:
+        T._resume_functional_repo(repo)
+        for label, conf, id_ in (("missing stage word", "wi", "wi"), ("wrong stage word (retirement)", "retirement of wi", "wi"),
+                                 ("empty", "", "wi"), ("prefix id (wi2)", "resumption of wi2", "wi"), ("unknown id", "resumption of nope", "nope")):
+            attempt(label, repo, conf, id_)
+    for label, kw in (("governing 1", dict(version="1")), ("registry terminal", dict(complete=True)), ("no technical approval", dict(technical=None)),
+                      ("no covering plan approval", dict(plan_approved=False))):
+        with h.ScratchRepo() as repo:
+            T._resume_functional_repo(repo, **kw); attempt(label, repo)
+    with h.ScratchRepo() as repo:
+        T._resume_functional_repo(repo); s = h.read_state(repo); s["work_items"]["wi"]["phase"] = "IMPLEMENTING"; h.write_state(repo, s); attempt("phase IMPLEMENTING", repo)
+    PY
+    (cd $S/t1 && python3 $S/resume_flow.py)
+    ```
+    Expected, in order: for both `2.1` and `2.2`, `exact confirmation  RESUMED`
+    and `phase AWAITING_FUNCTIONAL_REVIEW -> IMPLEMENTING | technical CURRENT ->
+    STALE | changed: ['last_transition', 'phase', 'state_revision',
+    'technical_approval']`. Refusals: `missing stage word`, `wrong stage word
+    (retirement)`, `empty`, `prefix id (wi2)`: `refused
+    UserConfirmationRejectedError`; `unknown id`: `refused
+    ResumeImplementationWrongPhaseError`; `governing 1`: `refused
+    ResumeImplementationUnsupportedVersionError`; `registry terminal`: `refused
+    ResumeImplementationRegistryTerminalError`; `no technical approval`:
+    `refused ResumeWithoutTechnicalApprovalError`; `no covering plan approval`
+    (what a promoted legacy item lacks): `refused StalePlanApprovalRegistryReadError`;
+    `phase IMPLEMENTING`: `refused ResumeImplementationWrongPhaseError`. The
+    `assert`s hold: nothing is written by a refusal. Then:
+    ```bash
+    (cd $S/t1/scripts && python3 workflow_state_test.py TestResumeImplementationWriter \
+        TestResumeImplementationCommitValidation TestResumeImplementationLifecycleWitnesses \
+        TestResumeImplementationCommandFile 2>&1 | tail -3)
+    grep -E "disable-model-invocation|state_writer" $S/t1/.claude/commands/resume-implementation.md
+    ```
+    Expected: `OK`; the command has `disable-model-invocation: true` and
+    `state_writer: true`. User-only: read `payload/.claude/commands/resume-implementation.md`
+    (a current-turn confirmation naming the exact id and `resumption`; Claude
+    never invokes it, including as a step of another command) and confirm that
+    no automatic path reaches it: `P next-action` offers it only as an
+    alternative (F4b), and `implementation.resume` has no `EDGES` entry.
+F7. The 2.9.0 package: build, reproducibility, verify, and the digests.
+    ```bash
+    $V/bin/python $R build --commit HEAD --out $S/build2
+    diff $S/build/SHA256SUMS $S/build2/SHA256SUMS && echo REPRODUCIBLE
+    $V/bin/python $R build --commit HEAD --out $S/build2 | grep -E '^(files|tar_sha256|archive_sha256|manifest_sha256)'
+    $WM package verify $S/build2/workflow-2.9.0.tar.gz --sha256 "$(grep tar.gz $S/build2/SHA256SUMS | cut -d' ' -f1)"
+    $V/bin/python $R stage-conformance --commit HEAD --out $S/fx
+    $V/bin/python tools/release/release_test.py 2>&1 | tail -3
+    ```
+    Expected: `REPRODUCIBLE`; `files=83`; `package verify` prints `release 2.9.0, 82
+    files, verified`; at commit `acb4b3a` (the preparation run) `tar_sha256=
+    b52dd606...`, `archive_sha256=0f0af156...`, `manifest_sha256=c59d9169...`.
+    The evidence commit of this checklist changes only `docs/ACTIVE_MILESTONE.md`,
+    which is not in the release source, so these digests must not move: report
+    the digests the run prints, and any difference from these is a finding.
+    `release_test.py` ends `OK`. The staged conformance fixture builds with no
+    error. The release source's suites, as CI runs them (the tag-dependent
+    tests skip in the fixture and run in F4's clone):
+    ```bash
+    (cd $S/fx/scripts && for f in workflow_fingerprint workflow_state workflow_test_harness \
+        workflow_integration workflow_acceptance_matrix workflow_state_completion_obligations \
+        workflow_fingerprint_generalization workflow_protocol workflow_gate_policy; do
+      echo "$f"; $V/bin/python ${f}_test.py 2>&1 | grep -E '^(Ran|OK|FAILED)'; done)
+    ```
+    Expected: every suite `OK`, none `FAILED` (several minutes). Report each
+    `Ran` count.
+F8. This repository's own installation is unchanged and still 2.8.0
+    (`workflow-manager verify`), and the scratch work wrote nothing here:
+    ```bash
+    $WM --release-dir $S/rel28/workflow-2.8.0 verify .
+    git status --short
+    git diff --stat f00c1c3..HEAD -- .claude scripts docs/ai-workflow/WORKFLOW_CONFIG.json .workflow-manager .github | tail -3
+    ```
+    Expected: `.: installation matches workflow 2.8.0`; `git status --short`
+    empty (after the evidence commit); the `git diff --stat` over the installed
+    paths is empty (the branch changed only the release source and the
+    milestone's own records: `docs/ai-workflow/WORKFLOW_STATE.json`, the plan,
+    registry, mapping, artifacts and review files, `docs/ACTIVE_MILESTONE.md`
+    and `docs/ROADMAP.md`). `docs/ai-workflow/WORKFLOW_CONFIG.json` in this
+    checkout is its own installed 2.2 default and is unchanged by W3. (A plain
+    `workflow-manager verify .` without `--release-dir` errors `release 2.8.0 is
+    not published`: the Manager has no 2.8.0 pin; that is expected.)
+F9. Documents (read-only). `docs/ROADMAP.md`: the W3 row, the `Workflow 2.9.0`
+    entry and the `v2.6.0-003` disposition agree with F1 to F6;
+    `docs/install.md` and `docs/troubleshooting.md` state the older-release
+    limit of retirement (2.8.0 and earlier have no `reopen_retired_legacy_item`
+    guard) and the two new commands; `docs/gates.md` and `docs/overview.md`
+    state the 2.2 default for new installations;
+    `payload/docs/ai-workflow/MILESTONE_WORKFLOW.md` describes the resume and
+    retire entries; `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md` and
+    the schema describe protocol 1.2 with `legacy.retire` and
+    `implementation.resume` as user-only, never automatic.
+
+**Known limitations / out of scope**
+
+- Nothing is published: no push, no pull request, no GitHub settings, no
+  release. The first real CI and `Release` run is the owner's cutover (plan
+  section 7). `origin/main` gained `e0494fe` after this branch's base and
+  conflicts with this branch's `docs/ROADMAP.md` edits; bringing `main` in is
+  the owner's (the Workflow never merges or rebases).
+- The Workflow Manager has no 2.8.0 or 2.9.0 pin; every install uses
+  `--release-dir`. The Manager pin pull request is an owner action after
+  publication, and RepFlow cannot retire `milestone-8` until it lands.
+- This repository's own installation stays 2.8.0; installing 2.9.0 here is a
+  later pull request.
+- A retirement on 2.8.0 or earlier has no `reopen_retired_legacy_item` guard
+  (the older release is not changed): the guarantee holds from 2.9.0.
+- `/resume-implementation` is reachable only from a hand-constructed or
+  hand-edited state; ordinary flow cannot leave `IMPLEMENTING` with a checkpoint
+  outstanding. A promoted legacy item (no plan approval) and a governing-`1`
+  item are refused.
+- Governing-`1` `PLANNING` and `AMENDING_PLAN` remain reported, not fixed
+  (`OD-W3-7`); no governing-`1` command text changed.
+- `default_config()` (the pre-activation fail-safe) still defaults to `1`
+  (`OD-W3-2`); only the bootstrap template defaults to `2.2`.
+- The two user-only slash commands are not run; their writers are.
+
+---
+
+# Previous milestone record: W2 `gate-policy-and-reopening`
+
+### Functional review checklist
 
 W2 is a `process` milestone: the "product" is Workflow 2.8.0 (the gate policy,
 automatic approvals and acceptance, reopening, protocol 1.1, and the package).
@@ -691,6 +1108,7 @@ F12. Installation untouched and documents. In this checkout: `$V/bin/workflow-ma
 - `distinct_reviewer_models` families are declared, not verified.
 - `/adopt-gate-policy` is user-only; F2 and F3 call its function in a
   disposable repository, never the slash command.
+
 
 ---
 
