@@ -83,7 +83,8 @@ want a person to approve, set that up first.
 - [Approval gates](docs/gates.md): who approves, and how to change it.
 - [Install and update](docs/install.md)
 - [Glossary](docs/glossary.md)
-- [Troubleshooting](docs/troubleshooting.md)
-- [Release history](docs/releases/README.md)
+- [Common problems](docs/common-problems.md)
+- [Exit codes](docs/exit-codes.md)
+- [Release history](docs/release-history.md)
 - [Releasing](docs/RELEASING.md): for maintainers, how a release is built and
   published.

@@ -1,6 +1,6 @@
 # Documentation map
 
-> For: anyone looking for the right page. Last checked with: Workflow 2.8.0, Workflow Manager 1.4.0.
+> For: anyone looking for the right page. Last checked with: Workflow 2.9.0.
 
 | I want to... | Go to |
 | --- | --- |
@@ -9,8 +9,9 @@
 | decide who approves plans, code and acceptance | [Approval gates](gates.md) |
 | install or update the Workflow in a repository | [Install and update](install.md) |
 | look up a term | [Glossary](glossary.md) |
-| fix an error message | [Troubleshooting](troubleshooting.md) |
-| see what changed in each release | [Release history](releases/README.md) |
+| fix an error message | [Common problems](common-problems.md) |
+| look up what a script's exit status means | [Exit codes](exit-codes.md) |
+| see what changed in each release | [Release history](release-history.md) |
 | run the lifecycle automatically | [Workflow Controller](https://github.com/RodrigoFAbreu/workflow-controller#readme) |
 | install the tooling | [Workflow Manager](https://github.com/RodrigoFAbreu/workflow-manager#readme) |
 | build and publish a release (maintainers) | [Releasing](RELEASING.md) |

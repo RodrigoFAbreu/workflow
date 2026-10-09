@@ -7,7 +7,7 @@ The full text of earlier versions is in this file's git history; the last long v
 ## How to read this roadmap
 
 - **What's next** is one ordered table. Work top to bottom; the first row that is not done is the current one.
-- **Done** is the short history, newest first. The per-release list is in [the release history](releases/README.md).
+- **Done** is the short history, newest first. The per-release list is in [the release history](release-history.md).
 - **Later (open items)** explains the larger ideas that are not scheduled, with the direction to take when they are.
 - **Open defects** lists the known problems that are not fixed yet.
 - Status words: **Done** (shipped), **Next** (the item to start when the one above it is done), **Later** (agreed, not scheduled), **Waiting on ...** (blocked on something outside this repository).
