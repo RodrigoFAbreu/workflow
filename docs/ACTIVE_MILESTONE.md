@@ -123,7 +123,8 @@ command and its output. A step passes only if the stated result holds.
    file): seed, enable `2.2` in `WORKFLOW_CONFIG.json`, `milestone_plan`,
    `generate_plan_bundle`, plan APPROVE, `record_plan_reviews`, `approve_plan`,
    `implement_checkpoint("CP1", ...)`, `generate_impl_bundle("implementation")`.
-   Result: phase `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`, `generation_head` = `HEAD`.
+   Result: phase `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`, `generation_head` (in the
+   bundle's `MANIFEST.md`, not in the state) = `HEAD`.
    Review writes use `ws.record_local_implementation_review` /
    `ws.record_manual_implementation_review` inside `ws.state_transaction`, exactly as
    the class's `local_review` / `manual_review` do; the REVISE-branch commit is
@@ -178,7 +179,7 @@ arguments it names; do not call the helper anywhere the text does not.
    (texts: `review-implementation.md` A6 / `record-manual-implementation-review.md`
    step 7 `APPROVE` branches, which say to leave the write uncommitted).
 2. Expect: phase `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`; `git rev-parse HEAD` equals
-   the `generation_head` recorded in the state; commit count unchanged since
+   the `generation_head` recorded in the bundle's `MANIFEST.md`; commit count unchanged since
    generation; `ws.technical_approval_gate_status(root, state, wid)` returns
    `reachable: True`.
 3. Counter-check (the trap, scratch only): commit the state file alone with
@@ -265,8 +266,8 @@ Record `git rev-parse HEAD`, `git diff --cached --name-only` and
    then `workflow-manager --release-dir <same> verify <repo>` reports
    `installation matches workflow 2.9.1`. `manifest.json` records' `sha256`/`size`
    match the files (`package verify` covers it).
-6. `python3 tools/release/release_test.py` and `python3 tools/docs/check_docs.py`
-   from the clone: both clean.
+6. `release_test.py` with the zlib-ng venv's Python (not the system `python3`)
+   and `python3 tools/docs/check_docs.py` from the clone: both clean.
 
 ### F9. Documentation accuracy
 
@@ -293,7 +294,8 @@ Record `git rev-parse HEAD`, `git diff --cached --name-only` and
 In `/home/rodrigo/Workspace/workflow` (read-only commands only):
 `workflow-manager --version` is 1.6.0 (the PATH one);
 `workflow-manager verify .` prints `.: installation matches workflow 2.9.0`;
-`git diff v2.9.0..HEAD --stat -- .claude scripts docs/ai-workflow/*.md .workflow-manager .github`
+`git diff 9a532e5..HEAD --stat -- .claude scripts docs/ai-workflow/*.md .workflow-manager .github`
+(`9a532e5` is the 2.9.0 install commit; the `v2.9.0` tag carries the 2.8.0 installation)
 shows no change to the installation files except this item's own plan, registry,
 mapping, artifacts and `WORKFLOW_STATE.json` (work-item state, not the installation).
 
