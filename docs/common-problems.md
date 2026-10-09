@@ -74,3 +74,31 @@ Run the user-only `/resume-implementation <id>`; your own message names the id
 and the word `resumption`. It returns a 2.1 or 2.2 item to `IMPLEMENTING` and
 marks its technical approval stale; then `/milestone-implement` continues. An
 item governed by version `1` is not handled by this command.
+
+### A REVISE round is refused with "must always transition phase"
+
+The `REVISE` write of the review stage was never committed on its own, so the
+post-fix generation-record commit swept it up and showed no `phase` change. On
+Workflow 2.9.1 the review commands commit it, and `/apply-implementation-review`
+commits a pending one before its first fix commit. On an item that already hit
+it, run `/apply-implementation-review <id>` again on 2.9.1, or commit the
+state file alone with a `Workflow-Work-Item: <id>` trailer before the fix
+commits. Workflow 2.9.0 and earlier have no such step.
+
+### An approve or gate check is refused with bundle_generation_mismatch after a review
+
+An `APPROVE` write was committed on its own, which puts `HEAD` past the bundle's
+generation head. Leave an `APPROVE` write (and every plan-stage write)
+uncommitted: `/approve-review` or `/satisfy-gate` takes it. A bundle is bound to
+the `HEAD` it was generated at, so a stray commit past it means the bundle has to
+be generated again at the current `HEAD` by the Workflow's own commands; never
+edit the recorded generation head by hand.
+
+### The write-commit helper refuses with ReviewStageWriteNotCommittableError
+
+`commit_pending_applying_review_feedback_entry` commits only the entry into
+`APPLYING_REVIEW_FEEDBACK`, and only fields a review write may change. It
+refuses an uncommitted `APPROVE` (leave it) and any other field, such as a
+persisted but uncommitted `technical_review_block_pins` entry left by a crash.
+Commit that pin alone, as `/apply-implementation-review` step 1 does, then
+re-run the command.

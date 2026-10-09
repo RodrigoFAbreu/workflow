@@ -36,7 +36,7 @@ accepts no commit shape 2.9.0 refuses.
 
 ## Current checkpoint
 
-**Implementing** (`IMPLEMENTING`). CP1, CP2 and CP3 are complete. CP1:
+**Implementing** (`IMPLEMENTING`). CP1 to CP4 are complete. CP1:
 `payload/scripts/workflow_state.py` gains
 `commit_pending_applying_review_feedback_entry`,
 `REVIEW_STAGE_WRITE_COMMIT_FIELDS` and `ReviewStageWriteNotCommittableError`
@@ -61,7 +61,16 @@ opt-in `scoped_staging` that stages through `stage_scoped_state`. Verified: the
 36 new tests green and the nine payload suites green in a scratch conformance
 fixture built from the checkpoint's tree (327 acceptance-matrix tests, 18
 skipped as before).
-CP4 and CP5 are not started: the documentation and the 2.9.1 release.
+CP4: `REVIEW_PROTOCOL.md` gains "Which review-stage writes are committed"
+(the commit-rule table, the helper and its refusals); `IMPLEMENTATION_REVIEW_WORKFLOW.md`,
+`PLAN_REVIEW_WORKFLOW.md` and the operator reference carry one paragraph each
+pointing at it; `docs/common-problems.md` gains three entries (REVISE refused
+with "must always transition phase", the APPROVE counterpart, and the helper's
+`ReviewStageWriteNotCommittableError`). Verified: `tools/docs/check_docs.py`
+clean; the integration, protocol, fingerprint and gate-policy suites green in a
+scratch conformance fixture (the operator-reference symbol check caught a
+backticked `bundle_generation_mismatch` in the first draft, reworded).
+CP5 is not started: the 2.9.1 release.
 
 ## Open decisions
 
