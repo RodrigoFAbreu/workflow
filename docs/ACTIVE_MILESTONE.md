@@ -36,9 +36,15 @@ accepts no commit shape 2.9.0 refuses.
 
 ## Current checkpoint
 
-**Plan review** (`AWAITING_LOCAL_PLAN_REVIEW`) once the plan bundle is bound.
-CP1 to CP5 are not started: the helper, the command texts, the regression
-tests, the documentation and the 2.9.1 release.
+**Implementing** (`IMPLEMENTING`). CP1 is complete: `payload/scripts/workflow_state.py`
+gains `commit_pending_applying_review_feedback_entry`,
+`REVIEW_STAGE_WRITE_COMMIT_FIELDS` and `ReviewStageWriteNotCommittableError`
+(the scoped-state construction is extracted from `stage_scoped_state` into
+`_scoped_state_from`, behavior unchanged), with 15 unit tests in
+`workflow_state_test.py`. Verified: the new tests green, the payload suites
+green in a scratch conformance fixture, `workflow-manager verify .` clean.
+CP2 to CP5 are not started: the command texts, the regression tests, the
+documentation and the 2.9.1 release.
 
 ## Open decisions
 
