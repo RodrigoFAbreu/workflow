@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-stage-write-durability",
+  "plan_revision": 4,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The committing helper: commit_pending_applying_review_feedback_entry, its field allow-list and its refusals",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Command texts: REVISE commits its own write, APPROVE is left uncommitted, /apply-implementation-review safety net, plan-stage wording",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Regression tests: REVISE and APPROVE at both stages through the commit steps, already-committed REVISE, strict read side",
+      "depends_on": [
+        "CP1",
+        "CP2"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP4",
+      "name": "Documentation: the written commit rule for review-stage writes, troubleshooting, operator reference",
+      "depends_on": [
+        "CP2"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP5",
+      "name": "Release 2.9.1: manifest, release constant, roadmap and conformance",
+      "depends_on": [
+        "CP1",
+        "CP2",
+        "CP3",
+        "CP4"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}
