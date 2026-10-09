@@ -1,5 +1,0 @@
-# Troubleshooting
-
-> For: anyone following an old link. Last checked with: Workflow 2.9.0.
-
-This page moved. Read [Common problems](common-problems.md).
