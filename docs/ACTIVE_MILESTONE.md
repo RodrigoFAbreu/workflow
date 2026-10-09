@@ -2,12 +2,12 @@
 
 ## Milestone
 
-**Planning** (`PLANNING`, then plan review). W4: `review-stage-write-durability`
+**Implementation self-review** (`SELF_REVIEWING_IMPLEMENTATION`). W4: `review-stage-write-durability`
 (`process`, governing version `2.2`), branch
 `milestone/review-stage-write-durability`, base `576dfd5` (the release source is
 Workflow 2.9.0; this repository's own installation is also 2.9.0 with automatic
 gates and no `GATE_POLICY.json`). The plan is
-`docs/ai-workflow/REVIEW_STAGE_WRITE_DURABILITY_PLAN.md` (revision 1). The
+`docs/ai-workflow/REVIEW_STAGE_WRITE_DURABILITY_PLAN.md` (revision 4, approved). The
 previous milestone, W3 (`legacy-retire-and-default-version`, Workflow 2.9.0),
 is complete.
 
@@ -36,7 +36,7 @@ accepts no commit shape 2.9.0 refuses.
 
 ## Current checkpoint
 
-**Implementing** (`IMPLEMENTING`). CP1 to CP5 are complete. CP1:
+**Implementation self-review** (`SELF_REVIEWING_IMPLEMENTATION`). CP1 to CP5 are complete. CP1:
 `payload/scripts/workflow_state.py` gains
 `commit_pending_applying_review_feedback_entry`,
 `REVIEW_STAGE_WRITE_COMMIT_FIELDS` and `ReviewStageWriteNotCommittableError`
@@ -78,6 +78,14 @@ changed records (counts unchanged, `tools/release/manager-pin.json` untouched);
 `docs/release-history.md` gains the 2.9.1 row. `docs/ROADMAP.md` marks W4 Done
 at acceptance. Verification: see the CP5 commit and the implementation bundle's
 `TEST_RESULTS.md`.
+Self-review of the whole milestone diff: one documentation fix. The
+`docs/common-problems.md` remedy for a REVISE round already refused with "must
+always transition phase" said to re-run `/apply-implementation-review`; a probe
+in a disposable repository showed that does nothing once the refused record
+commit exists (the helper returns `None` and post-fix generation refuses the
+source phase), so the entry now says what 2.9.1 prevents and points at the
+forward repair in issue #13. The APPROVE entry now names
+`/recover-implementation-provenance` and its cost (stale verdicts).
 
 ## Open decisions
 
