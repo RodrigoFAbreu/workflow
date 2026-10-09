@@ -329,8 +329,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/REVIEW_PROTOCOL\\.md$",
       "rationale": "D-Tooling-Ambient-Classification (CP1): the Computing review_content_id section gains the classification paragraph naming the one release-derived fallback, where it sits in the classification order, and what stays fail-closed. D-Plan-Amendment-5 revision (CP2): \"Bundle structure\" restates AMENDMENT_DIFF.patch to the working-tree anchor -- the base-plus-current-plus-declaration pathspec union, --no-renames, the provenance preamble, and its placement after MANIFEST.md -- and states it stays convenience only. D-Feedback-Layout (CP3): \"Bundle location\" gains the normative \"Feedback directory\" subsection -- the durable stamp, the scoped/legacy/refused resolution, ensure_feedback_dir, the --resolve-feedback-path contract for external tools, the bounded ownership-guard relaxation and the manual-record binding; the flat-fallback sentences are narrowed to the bundle directory and the Feedback protocol's location note is restated. D-Plan-Review-Bundle-Binding (CP4): the plan-inputs/ layout, the new \"Plan-stage staging generation and <plan_inputs_dir>\" subsection, and the plan-stage revision of WFR-67 (a failed plan generation withdraws nothing and writes no REJECTED marker), stated as deliberate. W1 (workflow-2.7.0, orchestration-protocol-v1): 'Required structure' pins the 'Reviewed review_content_id:' label, accepts the legacy alias, reads it from the header block only, and notes the compatibility change (v2.6.0-002, CP1); a two-stage REVISE is applied by its review_content_id, the bundle fields advisory (D-Apply-Binding, CP4). W2 (workflow-2.8.0, gate-policy-and-reopening). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "cf71b92e4419dadfc66db6447693ce5ba1ed23cc5a076c21e4538fcfa2a7c7de",
-      "size": 58309,
+      "sha256": "9c65511f1ee391fec919c269db437fd7d99ebc611666ce1139d18d01485405e6",
+      "size": 58550,
       "executable": false
     },
     {
