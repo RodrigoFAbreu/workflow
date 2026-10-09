@@ -1858,14 +1858,14 @@
       "registry_path": "docs/ai-workflow/registry/review-stage-write-durability-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/review-stage-write-durability-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 4,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "576dfd51c12d002477832a251abc3ad696858d8b",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP4",
+      "last_completed_checkpoint_id": "CP5",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
@@ -1882,6 +1882,10 @@
         "CP4": {
           "status": "COMPLETE",
           "start_commit": "55c1c11e7f15fe672720ebdfa53a96fb5462b94d"
+        },
+        "CP5": {
+          "status": "COMPLETE",
+          "start_commit": "835ccc20a91e7d86a7b6c0fc9f0ee3ee765e87c2"
         }
       },
       "current_bundle_id": "3440a0bcee4903210148adc2a9df4fe40eef43d0fee42388201983f3b9d25f41",
@@ -2000,8 +2004,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 24,
-      "last_transition": "2026-10-09T19:17:44Z",
+      "state_revision": 26,
+      "last_transition": "2026-10-09T19:39:23Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",

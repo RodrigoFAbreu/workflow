@@ -36,7 +36,7 @@ accepts no commit shape 2.9.0 refuses.
 
 ## Current checkpoint
 
-**Implementing** (`IMPLEMENTING`). CP1 to CP4 are complete. CP1:
+**Implementing** (`IMPLEMENTING`). CP1 to CP5 are complete. CP1:
 `payload/scripts/workflow_state.py` gains
 `commit_pending_applying_review_feedback_entry`,
 `REVIEW_STAGE_WRITE_COMMIT_FIELDS` and `ReviewStageWriteNotCommittableError`
@@ -70,7 +70,14 @@ with "must always transition phase", the APPROVE counterpart, and the helper's
 clean; the integration, protocol, fingerprint and gate-policy suites green in a
 scratch conformance fixture (the operator-reference symbol check caught a
 backticked `bundle_generation_mismatch` in the first draft, reworded).
-CP5 is not started: the 2.9.1 release.
+CP5: `WORKFLOW_RELEASE` is `2.9.1` (`PROTOCOL_VERSION` stays `1.2`; `ORCHESTRATION_PROTOCOL.md` names 2.9.1 among
+the tested releases and `workflow_protocol_test.py` pins `2.9.1`, both beyond
+the plan's file list, required by the protocol suite);
+`manifest.json` names `2.9.1` with the refreshed `sha256`/`size` of the 17
+changed records (counts unchanged, `tools/release/manager-pin.json` untouched);
+`docs/release-history.md` gains the 2.9.1 row. `docs/ROADMAP.md` marks W4 Done
+at acceptance. Verification: see the CP5 commit and the implementation bundle's
+`TEST_RESULTS.md`.
 
 ## Open decisions
 
