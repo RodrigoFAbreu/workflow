@@ -1,9 +1,10 @@
-# Troubleshooting
+# Common problems
 
-> For: anyone who hit an error or a blocked work item. Last checked with: Workflow 2.9.0, Workflow Manager 1.5.0.
+> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.9.0.
 
 Each problem has a one-line fix. The exact rules are in the shipped documents
-under `payload/docs/ai-workflow/`.
+under `payload/docs/ai-workflow/`. What a script's exit status means is in
+[exit codes](exit-codes.md).
 
 ### An approval became stale after a change
 

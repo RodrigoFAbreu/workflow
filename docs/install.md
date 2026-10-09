@@ -36,7 +36,7 @@ do not report pull-request facts for a retired item on those releases.
 
 Workflow 2.9 also adds the user-only `/resume-implementation`, which returns a
 work item stuck at the functional gate with a checkpoint outstanding to
-implementation; see [Troubleshooting](troubleshooting.md).
+implementation; see [Common problems](common-problems.md).
 
 ## Before you install 2.8.0
 

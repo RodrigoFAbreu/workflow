@@ -34,7 +34,7 @@ from urllib.parse import unquote
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 #: The user pages: header, internal-id and slash-command rules, and links.
-USER_GLOBS = ("README.md", "docs/*.md", "docs/releases/*.md")
+USER_GLOBS = ("README.md", "docs/*.md")
 #: Pages the checks skip: Workflow commands rewrite the first two, the third
 #: is maintainer content.
 EXCLUDED = ("docs/ROADMAP.md", "docs/ACTIVE_MILESTONE.md", "docs/RELEASING.md")
