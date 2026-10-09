@@ -36,15 +36,25 @@ accepts no commit shape 2.9.0 refuses.
 
 ## Current checkpoint
 
-**Implementing** (`IMPLEMENTING`). CP1 is complete: `payload/scripts/workflow_state.py`
-gains `commit_pending_applying_review_feedback_entry`,
+**Implementing** (`IMPLEMENTING`). CP1 and CP2 are complete. CP1:
+`payload/scripts/workflow_state.py` gains
+`commit_pending_applying_review_feedback_entry`,
 `REVIEW_STAGE_WRITE_COMMIT_FIELDS` and `ReviewStageWriteNotCommittableError`
 (the scoped-state construction is extracted from `stage_scoped_state` into
-`_scoped_state_from`, behavior unchanged), with 15 unit tests in
-`workflow_state_test.py`. Verified: the new tests green, the payload suites
-green in a scratch conformance fixture, `workflow-manager verify .` clean.
-CP2 to CP5 are not started: the command texts, the regression tests, the
-documentation and the 2.9.1 release.
+`_scoped_state_from`, behavior unchanged), with 15 unit tests. CP2: the REVISE
+branches of `review-implementation.md` (A6) and
+`record-manual-implementation-review.md` (step 7) commit through the helper and
+their APPROVE branches say to leave the write uncommitted;
+`apply-implementation-review.md` step 1 calls the helper after the binding check
+and before the `BLOCK` pin; `review-plan.md`, `record-manual-plan-review.md` and
+`apply-plan-review.md` carry the plan-stage sentence. Golden hashes updated and
+`TestReviewStageWriteCommitRuleConformance` added in
+`workflow_integration_test.py`. Verified: the nine payload suites green in a
+scratch conformance fixture (the two `*_demo_test.py` files need this
+repository's history and are not among them), whole-file diff against `v2.9.0`
+shows only the listed hunks, `workflow-manager verify .` clean.
+CP3 to CP5 are not started: the regression tests, the documentation and the
+2.9.1 release.
 
 ## Open decisions
 
