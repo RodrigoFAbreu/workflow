@@ -954,8 +954,15 @@ commit, is repaired and exactly one entry commit ever exists. It refuses
 with `ReviewStageWriteNotCommittableError` for an uncommitted `APPROVE` (the
 row above says to leave it) and for any field outside
 `REVIEW_STAGE_WRITE_COMMIT_FIELDS`, for example `reviewed_implementation_head`
-or a persisted but uncommitted `technical_review_block_pins` entry; commit a
-leftover pin alone first, then re-run.
+or a persisted but uncommitted `technical_review_block_pins` entry. It
+raises `DirtyIndexBeforeStagingError` when another path, or a different
+state-file blob, is already staged; unstage that unrelated content, then
+re-run. For a leftover pin, `/apply-implementation-review` step 1 stops on the
+refusal and its own pin commit stages the whole state file, so the remedy is
+to commit the whole `docs/ai-workflow/WORKFLOW_STATE.json` deliberately
+(stage exactly that path, with a `Workflow-Work-Item` trailer as the final
+paragraph); the helper then returns `None` and the post-fix generation
+proceeds.
 
 The read side is unchanged and strict: `bundle_generation_mismatch` and the
 provenance-interval check do not tolerate a state-only commit past the

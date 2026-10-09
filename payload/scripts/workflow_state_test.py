@@ -19175,13 +19175,17 @@ class TestCommitPendingApplyingReviewFeedbackEntry(unittest.TestCase):
             with self.assertRaises(ws.ReviewStageWriteNotCommittableError) as ctx:
                 ws.commit_pending_applying_review_feedback_entry(repo.root, self.WID)
             self.assertIn("technical_review_block_pins", str(ctx.exception))
-            self.assertIn("committed alone first", str(ctx.exception))
+            self.assertIn("committing the whole", str(ctx.exception))
+            self.assertNotIn("committed alone", str(ctx.exception))
 
-    def test_a_stray_field_refuses(self):
+    def test_a_stray_field_refuses_without_the_block_pin_remedy(self):
         with ScratchRepo() as repo:
             self._setup(repo, self.LOCAL, self.APPLYING, working_extra={"reviewed_implementation_head": "abc"})
-            with self.assertRaises(ws.ReviewStageWriteNotCommittableError):
+            with self.assertRaises(ws.ReviewStageWriteNotCommittableError) as ctx:
                 ws.commit_pending_applying_review_feedback_entry(repo.root, self.WID)
+            self.assertIn("reviewed_implementation_head", str(ctx.exception))
+            self.assertIn("not a pure review-stage entry", str(ctx.exception))
+            self.assertNotIn("technical_review_block_pins entry", str(ctx.exception))
 
     def _assert_refuses_untouched(self, repo):
         count = self._count(repo)

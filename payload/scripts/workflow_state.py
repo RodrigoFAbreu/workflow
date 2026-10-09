@@ -19211,11 +19211,18 @@ def commit_pending_applying_review_feedback_entry(
     }
     if not field_diff <= REVIEW_STAGE_WRITE_COMMIT_FIELDS:
         stray = sorted(field_diff - REVIEW_STAGE_WRITE_COMMIT_FIELDS)
+        if "technical_review_block_pins" in stray:
+            remedy = (
+                "a crash-left technical_review_block_pins entry is committed by committing the "
+                f"whole {state_rel} deliberately (stage exactly that path, with a "
+                "Workflow-Work-Item trailer as the final paragraph), then re-run this step")
+        else:
+            remedy = (
+                "the write is not a pure review-stage entry; investigate those fields, and "
+                "commit or revert them deliberately, then re-run this step")
         raise ReviewStageWriteNotCommittableError(
             f"the pending write also changes {stray} of {work_item_id!r}, outside "
-            f"{sorted(REVIEW_STAGE_WRITE_COMMIT_FIELDS)}; a crash-left technical_review_block_pins "
-            f"entry is committed alone first (as /apply-implementation-review step 1 does), then "
-            f"re-run this step")
+            f"{sorted(REVIEW_STAGE_WRITE_COMMIT_FIELDS)}; {remedy}")
     outside_equal = _scoped_state_from(head_state, working, work_item_id) == working
     if outside_equal:
         expected = _hash_object(repo_root, (repo_root / DEFAULT_STATE_PATH).read_bytes())

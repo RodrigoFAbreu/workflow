@@ -1,6 +1,6 @@
 # Common problems
 
-> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.9.0.
+> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.9.1.
 
 Each problem has a one-line fix. The exact rules are in the shipped documents
 under `payload/docs/ai-workflow/`. What a script's exit status means is in
@@ -110,5 +110,10 @@ recorded generation head by hand.
 `APPLYING_REVIEW_FEEDBACK`, and only fields a review write may change. It
 refuses an uncommitted `APPROVE` (leave it) and any other field, such as a
 persisted but uncommitted `technical_review_block_pins` entry left by a crash.
-Commit that pin alone, as `/apply-implementation-review` step 1 does, then
-re-run the command.
+For a leftover pin, commit the whole state file deliberately: stage exactly
+`docs/ai-workflow/WORKFLOW_STATE.json` and commit it with a
+`Workflow-Work-Item: <id>` trailer as the final paragraph. The helper then
+returns `None` and the post-fix generation proceeds. For any other field, the
+write is not a pure review-stage entry: investigate it, then commit or revert
+it deliberately. If another path is staged, the helper raises
+`DirtyIndexBeforeStagingError`; unstage the unrelated content first.

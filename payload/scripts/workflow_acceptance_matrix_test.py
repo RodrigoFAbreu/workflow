@@ -8002,7 +8002,8 @@ class ReviewStageWriteDurabilityProcess(unittest.TestCase):
         item.milestone_plan()
         item.generate_plan_bundle()
         item.write_feedback("APPROVE")
-        item.record_plan_reviews()
+        if governing != "1":
+            item.record_plan_reviews()
         item.approve_plan()
         item.implement_checkpoint("CP1", {item.deliverable: "// round 1\n"})
         _, durability, _ = item.generate_impl_bundle("implementation", expect_outcome="ordinary")
@@ -8182,6 +8183,19 @@ class ReviewStageWriteDurabilityProcess(unittest.TestCase):
 
     def test_s10b_a_2_1_item_without_the_helper_is_refused(self):
         self.start("2.1")
+        self.enter_applying()
+        self.fix_commit()
+        self.assert_generation_refused_for_missing_phase_transition()
+
+    def test_s10_a_1_item_through_the_ordinary_step_0_route(self):
+        self.start("1")
+        self.enter_applying()
+        self.assertIsNotNone(self.commit_entry())
+        self.fix_commit()
+        self.regenerate()
+
+    def test_s10b_a_1_item_without_the_helper_is_refused(self):
+        self.start("1")
         self.enter_applying()
         self.fix_commit()
         self.assert_generation_refused_for_missing_phase_transition()

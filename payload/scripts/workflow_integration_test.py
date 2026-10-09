@@ -1121,7 +1121,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # assert_apply_review_feedback_binding (D-Apply-Binding): a two-stage
     # REVISE stating a review_content_id is bound by content --
     # intentional content change.
-    "apply-plan-review.md": "e49446d62acf1033c4b24a7784cb21b897003c819b7789392fab26442f39e74c",
+    "apply-plan-review.md": "878527ae17e3cc2cb207a90ee6de20b414e8a702eb6c3edb4da8374d96c66821",
     # apply-implementation-review.md (WF8c item (c)): step 7's
     # record_bundle_generation call site widened to first resolve the
     # outcome (resolve_bundle_generation_outcome) and write the matching
@@ -1194,7 +1194,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-plan.md further updated, D-Consumed-History (workflow-2.7.0,
     # CP2, v2.6.0-001): REVISE also adds the id to the durable
     # consumed_plan_review_content_ids history -- intentional content change.
-    "review-plan.md": "1b7df08e58134ed641500f9aef5cd88548ce4ff27c38b9a4c985e39aef2fd379",
+    "review-plan.md": "d7615154b539dbd74ac08fe06245f3137fffb7d1af83a600eed7207690cfa43a",
     # record-manual-plan-review.md further updated, D-Feedback-Layout
     # (workflow-2.6.0, CP3): preamble states feedback_layout-keyed
     # resolution; step 4 prints the exact resolved paste path and adds the
@@ -1213,7 +1213,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # ingest_manual_review_verdict (two_stage_only=True), which holds
     # state_lock through the publication; the required header fields,
     # Round: and the absent-bundle-id advisory -- intentional content change.
-    "record-manual-plan-review.md": "5d5e0506a38dfccde9d030c3b14e69b01c5b7a5637ae05fdecb7bde0a26bddbe",
+    "record-manual-plan-review.md": "3a3a5fd42430430c67a8d13a4ede47a8bb8a8332dbd4769e66d99a658550fe70",
     # bootstrap-workflow-v2.md (WF8c scope clauses (l)/(p)/(q), GPT-R108-002/
     # OPUS-R109-004): the driver-range text made checkpoint-agnostic
     # (OPUS-R102-009), a NO_CHECKPOINT terminal-wrap-up branch added to step
