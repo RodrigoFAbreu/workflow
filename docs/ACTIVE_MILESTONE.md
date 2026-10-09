@@ -90,8 +90,9 @@ forward repair in issue #13. The APPROVE entry now names
 ## Functional review checklist
 
 Item: `review-stage-write-durability` (Workflow 2.9.1, issue #13), implementation
-revision 3. Automated verification is current; this list is the manual,
-independent run. Everything runs in disposable places; nothing is pushed.
+revision 4. Automated verification is current; this list is the manual,
+independent run. This is round 2 of functional review: every flow is re-run,
+not only the ones round 1 touched. Everything runs in disposable places; nothing is pushed.
 
 **Rules for the executor.** Work only in a disposable clone of this repository
 (`git clone --no-hardlinks /home/rodrigo/Workspace/workflow $W/clone`, then
@@ -229,6 +230,10 @@ Record `git rev-parse HEAD`, `git diff --cached --name-only` and
    fix.)
 5. A crash-left `technical_review_block_pins` entry: refusal naming it; committing that
    pin alone and re-running then succeeds.
+6. The refusal's two message shapes: when `technical_review_block_pins` is stray, the
+   message's remedy is to commit the whole state file; otherwise (e.g. F5.3/F5.4) the
+   message says the write is 'not a pure review-stage entry'. Check both texts appear
+   in the right cases and neither in the other.
 
 ### F6. 2.1 and 1 step-0 entry route
 
@@ -245,7 +250,8 @@ Record `git rev-parse HEAD`, `git diff --cached --name-only` and
 
 1. `review-plan.md`, `record-manual-plan-review.md`, `apply-plan-review.md` each carry
    the one added sentence and no commit call; `git diff v2.9.0..HEAD -- payload/.claude/commands/{review-plan,record-manual-plan-review,apply-plan-review}.md`
-   shows only that sentence per file (3 insertions).
+   shows only that sentence per file (15 insertions across the three files, one
+   sentence each).
 2. Drive a plan stage: local plan APPROVE, manual plan APPROVE, then plan approval.
    Expect state writes uncommitted until the approval commit, commit count +1 only
    for it, the plan gate reachable. Counter-check: a state-only commit before the
@@ -271,13 +277,16 @@ Record `git rev-parse HEAD`, `git diff --cached --name-only` and
 
 ### F9. Documentation accuracy
 
-1. `REVIEW_PROTOCOL.md` "Which review-stage writes are committed": every row of the
+1. `REVIEW_PROTOCOL.md` "Which review-stage writes are committed" (it names
+   `DirtyIndexBeforeStagingError`; the two summaries, `review-implementation.md`'s and
+   `record-manual-implementation-review.md`'s, say "or step 0's own entry"): every row of the
    table matches the behavior observed in F1-F7 (REVISE yes-alone; step-0 entry
    yes-alone; APPROVE no; BLOCK nothing; plan no), and the helper description
    (subject, trailer, `None`, refusals, `REVIEW_STAGE_WRITE_COMMIT_FIELDS`) matches
    `workflow_state.py`. The recovered-`"2.2"`-HEAD qualification in row 2 is
    exercised by matrix `s09`.
-2. `docs/common-problems.md`: three new entries; the 2.9.0 remedy text
+2. `docs/common-problems.md`: three new entries, carrying the 2.9.1 stamp and the
+   docs' new remedy text; the 2.9.0 remedy text
    (commit the state file alone before the first fix commit) works on a scratch
    built without the helper; the claim that re-running `/apply-implementation-review`
    after a refused record commit does nothing is reproduced (helper `None`, post-fix
