@@ -19204,7 +19204,11 @@ def commit_pending_applying_review_feedback_entry(
             f"{working_phase!r} (working tree), not into APPLYING_REVIEW_FEEDBACK from one of "
             f"{sorted(legal)}; an APPROVE-shaped review-stage write is never committed on its own "
             f"-- leave it uncommitted for the approval commit (REVIEW_PROTOCOL.md, commit rule)")
-    field_diff = {k for k in set(head_item) | set(work_item) if head_item.get(k) != work_item.get(k)}
+    # A key present with a null value differs from an absent key.
+    field_diff = {
+        k for k in set(head_item) | set(work_item)
+        if (k in head_item) != (k in work_item) or head_item.get(k) != work_item.get(k)
+    }
     if not field_diff <= REVIEW_STAGE_WRITE_COMMIT_FIELDS:
         stray = sorted(field_diff - REVIEW_STAGE_WRITE_COMMIT_FIELDS)
         raise ReviewStageWriteNotCommittableError(

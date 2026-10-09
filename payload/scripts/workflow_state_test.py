@@ -19183,6 +19183,30 @@ class TestCommitPendingApplyingReviewFeedbackEntry(unittest.TestCase):
             with self.assertRaises(ws.ReviewStageWriteNotCommittableError):
                 ws.commit_pending_applying_review_feedback_entry(repo.root, self.WID)
 
+    def _assert_refuses_untouched(self, repo):
+        count = self._count(repo)
+        head = _git_out(repo, ["rev-parse", "HEAD"])
+        with self.assertRaises(ws.ReviewStageWriteNotCommittableError):
+            ws.commit_pending_applying_review_feedback_entry(repo.root, self.WID)
+        self.assertEqual(self._count(repo), count)
+        self.assertEqual(_git_out(repo, ["rev-parse", "HEAD"]), head)
+        self.assertEqual(_git_out(repo, ["diff", "--cached", "--name-only"]), "")
+
+    def test_a_null_valued_field_added_outside_the_allow_list_refuses(self):
+        # An absent key and a present JSON null are different (EIR-R1-001).
+        with ScratchRepo() as repo:
+            self._setup(repo, self.LOCAL, self.APPLYING, working_extra={"feedback_layout": None})
+            self._assert_refuses_untouched(repo)
+
+    def test_a_null_valued_field_removed_outside_the_allow_list_refuses(self):
+        with ScratchRepo() as repo:
+            self._setup(repo, self.LOCAL, self.APPLYING)
+            working = self._item(self.APPLYING)
+            working["state_revision"] = 2
+            self.assertIsNone(working.pop("parent_work_item_id"))
+            self._write(repo, self._state(working))
+            self._assert_refuses_untouched(repo)
+
     def test_a_dirty_index_refuses(self):
         with ScratchRepo() as repo:
             self._setup(repo, self.LOCAL, self.APPLYING)
