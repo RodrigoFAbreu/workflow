@@ -9,7 +9,7 @@ code in `payload/scripts/` and the shipped documents.
 
 | Script | Code | Meaning | What to do |
 |---|---|---|---|
-| `python3 scripts/workflow_protocol.py` | 0 | `ok: true`: the operation succeeded | read `result` in the JSON envelope |
+| `python3 scripts/workflow_protocol.py` | 0 | `ok: true`: the operation succeeded | read `result` in the JSON envelope; `verify` exits 0 even when `result.healthy` is `false` |
 | | 1 | `internal_error`: an unexpected exception, also printed as a traceback on stderr | report it as a defect; the envelope is still printed |
 | | 2 | `invalid_request`: bad arguments, or a malformed input document | fix the command line or the input |
 | | 3 | a refusal with a stable error code, including `unsupported_protocol` | read `error.code` and `error.retryable` in the envelope; the codes are listed in [the protocol](../payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md#3-error-codes) |
