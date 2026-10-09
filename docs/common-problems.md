@@ -77,13 +77,17 @@ item governed by version `1` is not handled by this command.
 
 ### A REVISE round is refused with "must always transition phase"
 
-The `REVISE` write of the review stage was never committed on its own, so the
-post-fix generation-record commit swept it up and showed no `phase` change. On
-Workflow 2.9.1 the review commands commit it, and `/apply-implementation-review`
-commits a pending one before its first fix commit. On Workflow 2.9.0 and
-earlier, which have no such step, commit the state file alone, with a
-`Workflow-Work-Item: <id>` trailer as the final paragraph, after the review
-writes `REVISE` and before any fix commit.
+Either the review stage's `REVISE` write, or `/apply-implementation-review`'s
+own entry into `APPLYING_REVIEW_FEEDBACK` (the ordinary route for `"1"` and
+`"2.1"` items, where no review stage writes `REVISE`), was never committed on
+its own, so the post-fix generation-record commit swept it up and showed no
+`phase` change. On Workflow 2.9.1 the review commands commit the `REVISE`
+write, and `/apply-implementation-review` commits a pending one, or its own
+entry, before its first fix commit. On Workflow 2.9.0 and earlier, which have no
+such step, commit the state file alone, with a `Workflow-Work-Item: <id>`
+trailer as the final paragraph, after the review writes `REVISE` and before any
+fix commit, or, after `/apply-implementation-review` has entered
+`APPLYING_REVIEW_FEEDBACK`, before its first fix commit.
 
 Both prevent the refusal; neither repairs a generation-record commit that was
 already refused. Re-running `/apply-implementation-review` then does nothing:
