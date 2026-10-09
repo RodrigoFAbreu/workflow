@@ -131,7 +131,8 @@ command and its output. A step passes only if the stated result holds.
    the class's `local_review` / `manual_review` do; the REVISE-branch commit is
    `ws.commit_pending_applying_review_feedback_entry(root, wid)`.
 5. Cross-check, once: `cd $W/conf/scripts && python3 workflow_acceptance_matrix_test.py ReviewStageWriteDurabilityProcess ReviewStageWriteDurabilityProduct`
-   expects 36 tests, `OK`. Failures here end the review as FAIL.
+   expects 40 tests (18 scenarios each, plus the `1` variants of `s10`/`s10b`), `OK`;
+   the mixed-message test lives in `workflow_state_test.py`, not in this class. Failures here end the review as FAIL.
 
 For every flow below, "follow the command text literally" means: read the named
 `.md` step by step and perform exactly its calls, in its order, with the
@@ -228,12 +229,16 @@ Record `git rev-parse HEAD`, `git diff --cached --name-only` and
    commit before F1.2), delete it from the working state file after F1.2; the same
    refusal. (An absent key and a null key are different; this is the 2d2fd7e/bcf2a42
    fix.)
-5. A crash-left `technical_review_block_pins` entry: refusal naming it; committing that
-   pin alone and re-running then succeeds.
-6. The refusal's two message shapes: when `technical_review_block_pins` is stray, the
-   message's remedy is to commit the whole state file; otherwise (e.g. F5.3/F5.4) the
-   message says the write is 'not a pure review-stage entry'. Check both texts appear
-   in the right cases and neither in the other.
+5. A crash-left `technical_review_block_pins` entry: refusal naming it. The documented
+   remedy is to stage the state file with `workflow_state.stage_scoped_state(repo_root,
+   <id>)` (exactly that path when it returns `False`) and commit it with a
+   `Workflow-Work-Item` trailer as the final paragraph; the helper then returns `None`.
+6. The refusal's message shapes: when only `technical_review_block_pins` is stray, the
+   message gives the scoped-staging pin remedy; when it is stray together with another
+   field, the message leads with the other fields and 'not a pure review-stage entry;
+   investigate', and gives the pin remedy only 'once [those] are resolved'; otherwise
+   (e.g. F5.3/F5.4) the message says the write is 'not a pure review-stage entry'. Check
+   each text appears in the right cases and not in the others.
 
 ### F6. 2.1 and 1 step-0 entry route
 
@@ -278,8 +283,8 @@ Record `git rev-parse HEAD`, `git diff --cached --name-only` and
 ### F9. Documentation accuracy
 
 1. `REVIEW_PROTOCOL.md` "Which review-stage writes are committed" (it names
-   `DirtyIndexBeforeStagingError`; the two summaries, `review-implementation.md`'s and
-   `record-manual-implementation-review.md`'s, say "or step 0's own entry"): every row of the
+   `DirtyIndexBeforeStagingError`; the two summaries, `IMPLEMENTATION_REVIEW_WORKFLOW.md`'s and
+   `WORKFLOW_V2_1_OPERATOR_REFERENCE.md`'s, say "or step 0's own entry"): every row of the
    table matches the behavior observed in F1-F7 (REVISE yes-alone; step-0 entry
    yes-alone; APPROVE no; BLOCK nothing; plan no), and the helper description
    (subject, trailer, `None`, refusals, `REVIEW_STAGE_WRITE_COMMIT_FIELDS`) matches
@@ -309,8 +314,7 @@ shows no change to the installation files except this item's own plan, registry,
 mapping, artifacts and `WORKFLOW_STATE.json` (work-item state, not the installation).
 
 **Known limits.** The review commands are prose for an agent; the helper's calls are
-driven in the order the texts name, not by a live model. `s10`/`1` coverage depends on
-the harness seeding a `"1"` item. The two `*_demo_test.py` suites need this
+driven in the order the texts name, not by a live model. The two `*_demo_test.py` suites need this
 repository's history and are not part of the fixture run. No release is published here.
 
 ## Open decisions
