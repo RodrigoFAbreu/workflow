@@ -19211,15 +19211,23 @@ def commit_pending_applying_review_feedback_entry(
     }
     if not field_diff <= REVIEW_STAGE_WRITE_COMMIT_FIELDS:
         stray = sorted(field_diff - REVIEW_STAGE_WRITE_COMMIT_FIELDS)
-        if "technical_review_block_pins" in stray:
-            remedy = (
-                "a crash-left technical_review_block_pins entry is committed by committing the "
-                f"whole {state_rel} deliberately (stage exactly that path, with a "
-                "Workflow-Work-Item trailer as the final paragraph), then re-run this step")
+        pin_remedy = (
+            "a crash-left technical_review_block_pins entry is committed by staging the state "
+            f"file with workflow_state.stage_scoped_state(repo_root, {work_item_id!r}) (when it "
+            f"returns False, stage exactly {state_rel}), committing it with a "
+            "Workflow-Work-Item trailer as the final paragraph, then re-running this step; "
+            "never stage the whole file while another work item holds uncommitted state")
+        not_pure = (
+            "the write is not a pure review-stage entry; investigate those fields, and "
+            "commit or revert them deliberately, then re-run this step")
+        other = [f for f in stray if f != "technical_review_block_pins"]
+        if "technical_review_block_pins" not in stray:
+            remedy = not_pure
+        elif not other:
+            remedy = pin_remedy
         else:
             remedy = (
-                "the write is not a pure review-stage entry; investigate those fields, and "
-                "commit or revert them deliberately, then re-run this step")
+                f"{not_pure}; only once {other} are resolved, {pin_remedy}")
         raise ReviewStageWriteNotCommittableError(
             f"the pending write also changes {stray} of {work_item_id!r}, outside "
             f"{sorted(REVIEW_STAGE_WRITE_COMMIT_FIELDS)}; {remedy}")

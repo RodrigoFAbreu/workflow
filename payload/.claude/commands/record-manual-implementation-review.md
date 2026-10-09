@@ -213,8 +213,9 @@ and refuses before writing anything.
      session is told to add, or ()>)`; any uncommitted local `APPROVE`
      ledger rides in with it. It stages only this work item's state and
      commits it with a `Workflow-Work-Item` trailer as the final paragraph,
-     before any fix commit; it returns `None` when already committed. Never
-     a broader `git add`.
+     before any fix commit; it returns `None` when already committed. Report a
+     `ReviewStageWriteNotCommittableError` or a `DirtyIndexBeforeStagingError`
+     (unstage the unrelated content) and stop. Never a broader `git add`.
    - `BLOCK`: nothing (a true no-op; the work item stays at
      `AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW`).
    Never the plan, registry, mapping, command, product, or bundle-content

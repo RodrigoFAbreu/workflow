@@ -133,8 +133,8 @@ rule for an item without the field.
    session is told to add, or ()>)`. It commits step 0's own entry, or a
    REVISE write that was persisted and never committed, alone; it resumes an
    interrupted staging of that commit; and it returns `None` when the write
-   is already committed. Report a `ReviewStageWriteNotCommittableError` and
-   stop.
+   is already committed. Report a `ReviewStageWriteNotCommittableError` or a
+   `DirtyIndexBeforeStagingError` (unstage the unrelated content) and stop.
    **Durable `BLOCK`-verdict pin** (`D2a`, `WF8c` item (a)): once the
    feedback is confirmed current, bundle-matching, and parse-valid, and
    before taking any other action, check its `status` field. If it is

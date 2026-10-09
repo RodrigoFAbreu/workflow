@@ -110,10 +110,13 @@ recorded generation head by hand.
 `APPLYING_REVIEW_FEEDBACK`, and only fields a review write may change. It
 refuses an uncommitted `APPROVE` (leave it) and any other field, such as a
 persisted but uncommitted `technical_review_block_pins` entry left by a crash.
-For a leftover pin, commit the whole state file deliberately: stage exactly
-`docs/ai-workflow/WORKFLOW_STATE.json` and commit it with a
-`Workflow-Work-Item: <id>` trailer as the final paragraph. The helper then
+For a leftover pin, stage the state file with
+`workflow_state.stage_scoped_state(repo_root, <id>)` (when it returns `False`,
+stage exactly `docs/ai-workflow/WORKFLOW_STATE.json`) and commit it with a
+`Workflow-Work-Item: <id>` trailer as the final paragraph; never stage the
+whole file while another work item holds uncommitted state. The helper then
 returns `None` and the post-fix generation proceeds. For any other field, the
 write is not a pure review-stage entry: investigate it, then commit or revert
-it deliberately. If another path is staged, the helper raises
+it deliberately. When a pin and another field are both left, resolve the
+other field first and commit the pin only afterwards. If another path is staged, the helper raises
 `DirtyIndexBeforeStagingError`; unstage the unrelated content first.

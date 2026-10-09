@@ -1156,7 +1156,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.8.0 (gate-policy-and-reopening, CP1): the generation-record
     # commit stages item-scoped (stage_scoped_state) -- intentional content
     # change.
-    "apply-implementation-review.md": "8094968af4089da7b58e04b553497cda4426f108696f936e18ed5923f212c6d8",
+    "apply-implementation-review.md": "dc72c3fa36b1dabdedc64fd4428f6a04754a8431780d415c73f43c3f6186f10d",
     # review-plan.md/record-manual-plan-review.md further updated,
     # workflow-v2-3-followups CP3 (REQ-8/-9): the `Reviewer role:` template
     # literal, the round-computation prose, the exact-match-expectation
@@ -1307,7 +1307,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-implementation.md further updated, workflow-2.7.0
     # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 4's bundle check is
     # verify_implementation_review_bundle -- intentional content change.
-    "review-implementation.md": "d5a081e59267fca44e0f25b707da08456287ed94586e093fec36d8e8e09c21f6",
+    "review-implementation.md": "7af3603cf6834223968258e8256cde95a0ef5e9a9e71a89e41ad1414d671be62",
     # review-functional.md: new, workflow-v2-3 CP2 -- the first recorded
     # hash, not a change.
     #

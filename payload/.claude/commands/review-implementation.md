@@ -514,7 +514,9 @@ A6. **Write set, exact.** **`REJECTED`-bundle refusal, second of two, under
       and commits it with a `Workflow-Work-Item` trailer as the final
       paragraph, before any fix commit, so the post-fix generation record
       still transitions `phase`; it returns `None` when the write is already
-      committed. Never a broader `git add`.
+      committed. Report a `ReviewStageWriteNotCommittableError` or a
+      `DirtyIndexBeforeStagingError` (unstage the unrelated content) and stop.
+      Never a broader `git add`.
     - `BLOCK`: `REVIEW_FEEDBACK.md` only --
       `record_local_implementation_review(..., verdict="BLOCK", ...)` is a
       true no-op; the work item stays at `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`.

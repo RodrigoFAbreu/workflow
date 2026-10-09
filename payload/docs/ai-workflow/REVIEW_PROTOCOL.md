@@ -958,11 +958,14 @@ or a persisted but uncommitted `technical_review_block_pins` entry. It
 raises `DirtyIndexBeforeStagingError` when another path, or a different
 state-file blob, is already staged; unstage that unrelated content, then
 re-run. For a leftover pin, `/apply-implementation-review` step 1 stops on the
-refusal and its own pin commit stages the whole state file, so the remedy is
-to commit the whole `docs/ai-workflow/WORKFLOW_STATE.json` deliberately
-(stage exactly that path, with a `Workflow-Work-Item` trailer as the final
-paragraph); the helper then returns `None` and the post-fix generation
-proceeds.
+refusal. The remedy is to stage the state file with
+`workflow_state.stage_scoped_state(repo_root, <id>)` (when it returns `False`,
+stage exactly `docs/ai-workflow/WORKFLOW_STATE.json`) and commit it with a
+`Workflow-Work-Item` trailer as the final paragraph; never stage the whole
+file while another work item holds uncommitted state. The helper then returns
+`None` and the post-fix generation proceeds. When a pin and another field are
+both left, resolve the other field first (it is not a pure review-stage
+entry) and commit the pin only afterwards.
 
 The read side is unchanged and strict: `bundle_generation_mismatch` and the
 provenance-interval check do not tolerate a state-only commit past the

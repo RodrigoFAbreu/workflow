@@ -102,9 +102,9 @@ generation record still transitions `phase`; an `APPROVE` is left uncommitted
 for the approval commit to take, because a commit of its own puts `HEAD` past
 the bundle's `generation_head`. `/apply-implementation-review` step 1 commits
 a still-pending `REVISE` write (or step 0's own entry) as a safety net and
-does nothing when it is already committed. The full rule, with the helper and its refusals, is in
-`REVIEW_PROTOCOL.md` ("Which review-stage writes are committed"); it does not
-depend on the governing version.
+does nothing when it is already committed. The full rule, with the helper
+and its refusals, is in `REVIEW_PROTOCOL.md` ("Which review-stage writes are
+committed"); it does not depend on the governing version.
 
 ## Staleness, in one line
 
