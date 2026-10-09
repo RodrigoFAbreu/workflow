@@ -36,7 +36,7 @@ accepts no commit shape 2.9.0 refuses.
 
 ## Current checkpoint
 
-**Implementing** (`IMPLEMENTING`). CP1 and CP2 are complete. CP1:
+**Implementing** (`IMPLEMENTING`). CP1, CP2 and CP3 are complete. CP1:
 `payload/scripts/workflow_state.py` gains
 `commit_pending_applying_review_feedback_entry`,
 `REVIEW_STAGE_WRITE_COMMIT_FIELDS` and `ReviewStageWriteNotCommittableError`
@@ -52,9 +52,16 @@ and before the `BLOCK` pin; `review-plan.md`, `record-manual-plan-review.md` and
 `workflow_integration_test.py`. Verified: the nine payload suites green in a
 scratch conformance fixture (the two `*_demo_test.py` files need this
 repository's history and are not among them), whole-file diff against `v2.9.0`
-shows only the listed hunks, `workflow-manager verify .` clean.
-CP3 to CP5 are not started: the regression tests, the documentation and the
-2.9.1 release.
+shows only the listed hunks, `workflow-manager verify .` clean. CP3:
+`workflow_acceptance_matrix_test.py` gains `ReviewStageWriteDurabilityProcess`
+and `...Product` (18 scenarios each, plan CP3 scenarios 1 to 15 plus the
+helper-removed negatives `s06b` and `s10b`, which show 2.9.0's texts are refused
+by the generator with OPUS-R101-001) and `Item.generate_impl_bundle` gains an
+opt-in `scoped_staging` that stages through `stage_scoped_state`. Verified: the
+36 new tests green and the nine payload suites green in a scratch conformance
+fixture built from the checkpoint's tree (327 acceptance-matrix tests, 18
+skipped as before).
+CP4 and CP5 are not started: the documentation and the 2.9.1 release.
 
 ## Open decisions
 
