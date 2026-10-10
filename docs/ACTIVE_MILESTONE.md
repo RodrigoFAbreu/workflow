@@ -87,3 +87,59 @@ Full milestone diff self-reviewed (no blocking or important finding; the
 roadmap's W6 status now reads "implementation in review"). Next: the full
 verification and the implementation-review bundle, then the local and manual
 implementation reviews.
+
+## Functional review checklist
+
+Process milestone: no app to run. Everything is checked in the repository (the
+working tree at the checklist-evidence commit).
+
+### Setup
+
+- Branch `milestone/functional-fix-commit-order`, clean tree, Python 3.
+- Seed nothing. The scenarios below use the acceptance-matrix fixtures.
+
+### Flows
+
+1. **#19 order, command text.** Read `payload/.claude/commands/apply-functional-review.md`,
+   bounded branch. Expect: (a) the stale technical-approval write is committed
+   before the first edit; (b) then the fix; (c) then narrative and checklist
+   (steps 5 and 6); (d) the generation record last; (e) an explicit statement
+   that no commit follows the record.
+2. **#19 behaviour.** Run
+   `python3 -m unittest workflow_acceptance_matrix_test.FunctionalFixCommitOrderProcess workflow_acceptance_matrix_test.FunctionalFixCommitOrderProduct`
+   (from the directory the suite lives in). Expect 22 scenarios, all pass: the
+   issue's `"2.2"` case, `"2.1"`, `same_content`, two findings, mixed round,
+   Manager-lane order, and both traps (checklist after the record gives
+   `bundle_generation_mismatch`; an uncommitted stale write refuses the record).
+3. **#20 wording.** `grep -l OPUS-R129-001 payload/.claude/commands/*.md`
+   lists 14 commands. In each, expect the `Workflow-*` trailers are the final
+   paragraph alone, with `Co-Authored-By:`/`Claude-Session:` in an earlier
+   paragraph. The six generation-record writers also say why (the trailer set
+   is checked exactly).
+4. **#20 refusal message.** Trigger or read the trailer-set refusal: it names the
+   cause (extra trailer in the paragraph) and the remedy (move co-author lines
+   to their own paragraph).
+5. **Docs.** `REVIEW_PROTOCOL.md` section "A generation record is the last
+   commit, and its trailer paragraph"; `MILESTONE_WORKFLOW.md` and the operator
+   reference name the bounded fix's order; `docs/common-problems.md` has the two
+   new entries. `python3 scripts/check_docs.py` is clean.
+6. **Release 2.9.2.** `manifest.json` version 2.9.2, digests match bytes,
+   `WORKFLOW_RELEASE` is `2.9.2`, `PROTOCOL_VERSION` still `1.2`, release
+   history row and downgrade paragraph present, ROADMAP W6 status reads
+   "implementation in review".
+7. **Installation untouched.** `workflow-manager verify .` is clean and
+   `.claude/`, `scripts/`, `docs/ai-workflow/` (except this item's own files)
+   have no hand edits.
+
+### Expected result
+
+Every flow above matches its expectation; no new state or commit shape; read
+side still strict.
+
+### Known limitations / out of scope
+
+- The two demo suites need real-repository history and were not run in the
+  scratch fixture.
+- The 2.9.1 installation here is not upgraded until 2.9.2 is published and its
+  pin is added to `workflow-manager`.
+- No command records acceptance of a partial round.
