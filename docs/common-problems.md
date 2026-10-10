@@ -118,5 +118,6 @@ whole file while another work item holds uncommitted state. The helper then
 returns `None` and the post-fix generation proceeds. For any other field, the
 write is not a pure review-stage entry: investigate it, then commit or revert
 it deliberately. When a pin and another field are both left, resolve the
-other field first and commit the pin only afterwards. If another path is staged, the helper raises
-`DirtyIndexBeforeStagingError`; unstage the unrelated content first.
+other field first and commit the pin only afterwards. If another path is
+staged, the helper raises `DirtyIndexBeforeStagingError`; unstage the unrelated
+content first.
