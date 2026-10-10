@@ -38,15 +38,21 @@ the record) keeps working.
 
 ## Current checkpoint
 
-CP1 complete (`/apply-functional-review`'s bounded branch commits the stale
-technical-approval write before the first edit, runs steps 5 and 6 before the
-one regeneration, and says no commit follows the record; golden hash and
-`TestFunctionalFixCommitOrderConformance` added). Verified in a scratch
-conformance fixture: the integration, acceptance-matrix, state, protocol,
-fingerprint, generalization, gate-policy, completion-obligations and harness
-suites pass; the two demo suites need real-repository history the fixture
-lacks and fail there for that reason only. CP2 to CP5 remain.
+CP1 and CP2 complete. CP1: `/apply-functional-review`'s bounded branch
+commits the stale technical-approval write before the first edit, runs steps 5
+and 6 before the one regeneration, and says no commit follows the record. CP2:
+all 14 commands that state `OPUS-R129-001` say the trailers are the final
+paragraph and nothing else is in it, with `Co-Authored-By:`/`Claude-Session:`
+lines in an earlier paragraph; the six generation-record writers add why (the
+record's trailer set is checked exactly); the trailer-set refusal names the
+cause and remedy; golden hashes, the two trailer-shape classes (now with the
+`ordinary`/`recovered`/`None` role check) and a static wording test updated or
+added. Verified in a scratch conformance fixture (v2.9.1 plus the working-tree
+payload): the integration, acceptance-matrix, state, protocol, fingerprint,
+generalization, gate-policy, completion-obligations and harness suites pass;
+the two demo suites need real-repository history the fixture lacks and were
+not run. CP3 to CP5 remain.
 
 ## Next action
 
-`/milestone-implement functional-fix-commit-order` (CP2).
+`/milestone-implement functional-fix-commit-order` (CP3).
