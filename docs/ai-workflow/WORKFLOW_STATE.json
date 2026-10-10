@@ -2595,7 +2595,7 @@
       "registry_path": "docs/ai-workflow/registry/functional-fix-commit-order-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/functional-fix-commit-order-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 1,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -2716,7 +2716,246 @@
           "workflow_release": "2.9.1"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "247ae3ed63f84f1cc7f6975633076d02ef9f7f9c621d6efc8fb134f1feb8411e",
+        "approved_review_content_id": "e76b3d76be624533b38ffe6314e39fb7fe3325ace5d5d15c355eb5b936aba28d",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/functional-fix-commit-order-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "10424714f7c835c736b61ccc3f431ffa67fa6671"
+          },
+          {
+            "path": "docs/common-problems.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f2dd89e8f6994dfffa3a67e04d477028a47d0786"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e0ef9b35dfe7b1ad3400c8ee2a83051327a84778"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0ee6900ae852b5708fda1badee82dd306dca0d89"
+          },
+          {
+            "path": "payload/.claude/commands/accept-milestone.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b52f1bb501871702233fbe9771820946a842a0b2"
+          },
+          {
+            "path": "payload/.claude/commands/adopt-gate-policy.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2701f54afd8453b069da54fa17e37b9d310d5c1b"
+          },
+          {
+            "path": "payload/.claude/commands/apply-functional-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "121a630db9f15278ff9aca249cb9cd74951a495e"
+          },
+          {
+            "path": "payload/.claude/commands/apply-implementation-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ec332cb7277d67f1917925e5a9e2b16ae63a9bf8"
+          },
+          {
+            "path": "payload/.claude/commands/apply-pr-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "df636787f6283c3a69b20a3ab415aa9766057059"
+          },
+          {
+            "path": "payload/.claude/commands/approve-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "90c95661ff3ed9d76f20b271ec675ae6a692936f"
+          },
+          {
+            "path": "payload/.claude/commands/bootstrap-workflow-v2.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "48a3a2bdf7474ecaa390e1b06e512f66cb469dd4"
+          },
+          {
+            "path": "payload/.claude/commands/milestone-implement.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "421a09be53cee49649cecf80ae4acb51f633b812"
+          },
+          {
+            "path": "payload/.claude/commands/prepare-functional-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9010b00792b937a46f4c350b52b3e0473284dec3"
+          },
+          {
+            "path": "payload/.claude/commands/recover-implementation-provenance.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cdcd1e0ca81848fd2c54ddb6fb9f9b0564719a46"
+          },
+          {
+            "path": "payload/.claude/commands/request-plan-amendment.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "fbaed404fb3267ac87b74b2c00feffb60a08049e"
+          },
+          {
+            "path": "payload/.claude/commands/resume-implementation.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9b1f9a2cea623c9a8b02ebc01d125db90bfb86f4"
+          },
+          {
+            "path": "payload/.claude/commands/retire-legacy-work-item.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1bccd7928f84dee61c1097fcf14c32bb9674a075"
+          },
+          {
+            "path": "payload/.claude/commands/satisfy-gate.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "945fec30e569c5c8ad91cc3a4f999a9e64a92792"
+          },
+          {
+            "path": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b991c0ff5887d705fd4db80675adb41c61e3035d"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cf6a5d98b3da430f469bb11a7182b16f5acdbbf7"
+          },
+          {
+            "path": "payload/docs/ai-workflow/REVIEW_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4aea7198933601394e9c65d066f5994980d2dc49"
+          },
+          {
+            "path": "payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "70eceb381bcf4af04310963dd36938543e2bed8b"
+          },
+          {
+            "path": "payload/scripts/workflow_acceptance_matrix_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "04e306cba1f3294a850753ba93b3b4a56884e334"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5cf8ccb9ff22abb485eafe5d212050dcc9ca256d"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "00b39eb883299c60b15823a8324b51fe371f0e0f"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a588dd9adce8d5fb346c0fee67ab7fc0a9cb5d8b"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d9ad42d969052702f47335b5e1e212ad762712a1"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1f5978bf8a661818f0e0bbdd2877a7009b630d85"
+          }
+        ],
+        "reviewed_content_commit": "01e64da1bcdbc6ba906dd944401b435e832817d0",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-10T23:51:10Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "e76b3d76be624533b38ffe6314e39fb7fe3325ace5d5d15c355eb5b936aba28d",
+            "ledger": {
+              "local": {
+                "bundle_id": "247ae3ed63f84f1cc7f6975633076d02ef9f7f9c621d6efc8fb134f1feb8411e",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "aec3bc9066ceb296ca725a670a0008feb2252a42dd7eae5ee8f1f3595418e072",
+                "ledger_entry_sha256": "c15cf1393a478daec9ba208067857224ec39d728a4ea49ab10aeffce480dffa5",
+                "run_ref": "session:local .ai-review/functional-fix-commit-order/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "247ae3ed63f84f1cc7f6975633076d02ef9f7f9c621d6efc8fb134f1feb8411e",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "f7657a095f1ff383ec7b6cba62cb0764fb0b9d42afcf5ba04caec22ae4938825",
+                "ledger_entry_sha256": "d08d19f1e9f09559dc9817a5acb65caf26fd38abc5d33d328c893a7fee03f791",
+                "run_ref": "session:local .ai-review/functional-fix-commit-order/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-10T23:51:10Z",
+          "workflow_release": "2.9.1"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "55ac5433c1e0a2fada460e9c87ce80daa6b8c9dc6972bd5fe8c0d673ed9a0a12",
@@ -2741,8 +2980,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 19,
-      "last_transition": "2026-10-10T23:32:19Z",
+      "state_revision": 22,
+      "last_transition": "2026-10-10T23:51:10Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -2756,6 +2995,27 @@
           "review_content_id": "55ac5433c1e0a2fada460e9c87ce80daa6b8c9dc6972bd5fe8c0d673ed9a0a12",
           "bundle_id": "71c803dbb61580e3b266d49f66bc144c696b7e8be6906894411898cc6b558c1b",
           "plan_revision": 1
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "e76b3d76be624533b38ffe6314e39fb7fe3325ace5d5d15c355eb5b936aba28d",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "247ae3ed63f84f1cc7f6975633076d02ef9f7f9c621d6efc8fb134f1feb8411e",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-10T23:38:05Z",
+          "verdict_sha256": "aec3bc9066ceb296ca725a670a0008feb2252a42dd7eae5ee8f1f3595418e072",
+          "run_ref": "session:local .ai-review/functional-fix-commit-order/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "247ae3ed63f84f1cc7f6975633076d02ef9f7f9c621d6efc8fb134f1feb8411e",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-10T23:50:48Z",
+          "verdict_sha256": "f7657a095f1ff383ec7b6cba62cb0764fb0b9d42afcf5ba04caec22ae4938825",
+          "run_ref": "session:local .ai-review/functional-fix-commit-order/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
