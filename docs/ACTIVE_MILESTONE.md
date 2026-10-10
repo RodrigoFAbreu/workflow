@@ -90,9 +90,9 @@ forward repair in issue #13. The APPROVE entry now names
 ## Functional review checklist
 
 Item: `review-stage-write-durability` (Workflow 2.9.1, issue #13), implementation
-revision 4. Automated verification is current; this list is the manual,
-independent run. This is round 2 of functional review: every flow is re-run,
-not only the ones round 1 touched. Everything runs in disposable places; nothing is pushed.
+revision 5. Automated verification is current; this list is the manual,
+independent run. This is round 3 of functional review: every flow is re-run,
+not only the ones round 2 touched. Everything runs in disposable places; nothing is pushed.
 
 **Rules for the executor.** Work only in a disposable clone of this repository
 (`git clone --no-hardlinks /home/rodrigo/Workspace/workflow $W/clone`, then
@@ -233,10 +233,12 @@ Record `git rev-parse HEAD`, `git diff --cached --name-only` and
    remedy is to stage the state file with `workflow_state.stage_scoped_state(repo_root,
    <id>)` (exactly that path when it returns `False`) and commit it with a
    `Workflow-Work-Item` trailer as the final paragraph; the helper then returns `None`.
+   Also with another item's residue in the working file: scoped staging commits only
+   this item's scope and leaves that residue uncommitted.
 6. The refusal's message shapes: when only `technical_review_block_pins` is stray, the
    message gives the scoped-staging pin remedy; when it is stray together with another
-   field, the message leads with the other fields and 'not a pure review-stage entry;
-   investigate', and gives the pin remedy only 'once [those] are resolved'; otherwise
+   field, the message names the stray fields, then says 'not a pure review-stage entry;
+   investigate those fields' (before any pin remedy), and gives the pin remedy only 'once [those] are resolved'; otherwise
    (e.g. F5.3/F5.4) the message says the write is 'not a pure review-stage entry'. Check
    each text appears in the right cases and not in the others.
 
