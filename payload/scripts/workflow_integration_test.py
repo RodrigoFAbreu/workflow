@@ -1394,7 +1394,11 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # exists" bullet names the user-only /resume-implementation for an outstanding
     # checkpoint at this phase -- intentional content change, outside every
     # "1"-inert span.
-    "apply-functional-review.md": "2e1518c67823d41b3ae2a1776c5f0e95931a45d2728cf68dcd0983d94d45ead2",
+    # workflow-2.9.2 (functional-fix-commit-order, CP1): the bounded branch commits
+    # the stale technical-approval write before the first edit, runs steps 5 and 6
+    # before the regeneration, and says no commit follows the record (#19) --
+    # intentional content change.
+    "apply-functional-review.md": "dafe87f673d4fe30124254e47814124c916f17cc9a4506f005c0db7a29886852",
 }
 
 
@@ -2682,6 +2686,45 @@ class TestGoldenCommandFileHashes(unittest.TestCase):
                     f"{filename} content changed since this golden hash was recorded -- "
                     f"if intentional, update _GOLDEN_COMMAND_FILE_SHA256",
                 )
+
+
+class TestFunctionalFixCommitOrderConformance(unittest.TestCase):
+    """workflow-2.9.2 (functional-fix-commit-order, CP1): in
+    `/apply-functional-review`'s bounded branch the stale write and the
+    checklist are committed before the regeneration, and the generation
+    record is the round's last commit."""
+
+    def _bounded(self) -> str:
+        text = _command_text("apply-functional-review.md")
+        start = text.index("- **Bounded code change**")
+        return text[start:text.index("- **Broad/multi-finding remediation**", start)]
+
+    def test_sub_step_1_commits_the_stale_write_state_only(self):
+        branch = self._bounded()
+        sub1 = branch[branch.index("  1. **Stale-before-edit"):branch.index("  2. Make the fix")]
+        self.assertIn("state-only commit", sub1)
+        self.assertIn("stage_scoped_state", sub1)
+        self.assertIn("git diff --cached --quiet", sub1)
+        self.assertIn("nothing to commit", sub1)
+
+    def test_steps_5_and_6_precede_the_regeneration(self):
+        branch = self._bounded()
+        marker = "run top-level steps 5 and 6 for the\n     whole round"
+        self.assertIn(marker, branch)
+        self.assertLess(branch.index(marker), branch.index("record_bundle_generation("))
+        self.assertLess(branch.index(marker), branch.index("  4. Regenerate the bundle"))
+
+    def test_no_commit_may_follow_the_record(self):
+        branch = self._bounded()
+        sentence = "**No commit may follow this record in this invocation;"
+        self.assertEqual(branch.count(sentence), 1)
+        self.assertLess(branch.index("prepare-ai-review.sh <base-sha> post-fix"), branch.index(sentence))
+        self.assertLess(branch.index(sentence), branch.index("  5. **Mark this round's"))
+
+    def test_top_level_steps_5_and_6_carry_the_bounded_round_sentence(self):
+        text = _command_text("apply-functional-review.md")
+        tail = text[text.index("\n5. Commit coherent fixes"):text.index("\n7. **Mark this round's")]
+        self.assertEqual(tail.count("already ran inside it, before"), 2)
 
 
 class TestReviewStageWriteCommitRuleConformance(unittest.TestCase):

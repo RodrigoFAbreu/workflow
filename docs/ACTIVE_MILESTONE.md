@@ -38,8 +38,15 @@ the record) keeps working.
 
 ## Current checkpoint
 
-None yet: the plan (CP1 to CP5) is in plan review.
+CP1 complete (`/apply-functional-review`'s bounded branch commits the stale
+technical-approval write before the first edit, runs steps 5 and 6 before the
+one regeneration, and says no commit follows the record; golden hash and
+`TestFunctionalFixCommitOrderConformance` added). Verified in a scratch
+conformance fixture: the integration, acceptance-matrix, state, protocol,
+fingerprint, generalization, gate-policy, completion-obligations and harness
+suites pass; the two demo suites need real-repository history the fixture
+lacks and fail there for that reason only. CP2 to CP5 remain.
 
 ## Next action
 
-`/review-plan functional-fix-commit-order`.
+`/milestone-implement functional-fix-commit-order` (CP2).

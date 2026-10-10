@@ -93,10 +93,35 @@ all in the same invocation.
      longer matches the working tree. If an edit already landed before
      this call ran, that is a process violation: make the stale write
      now, before continuing, rather than backfilling it after the fact.
+     **Then commit that write alone, before the first edit**, exactly as
+     `/apply-pr-review`'s "Durable ordering of every branch that stales"
+     step 2 does (`LPR-R4-001`): the generation-record validators do not
+     admit `technical_approval`, so a post-fix record commit that swept the
+     `STALE` write up would be refused. A plain **state-only commit**, with no
+     trailer, staging exactly that one path with
+     `workflow_state.stage_scoped_state(repo_root, <work_item_id>)` (it
+     returns `False`, and the ordinary single-path `git add` runs, unless
+     another work item holds uncommitted residue in the state file). When
+     nothing is staged afterwards (`git diff --cached --quiet`: an
+     orchestrator already committed the write, or this is a re-run), there is
+     nothing to commit and this does nothing. This still precedes the first
+     source or test edit.
   2. Make the fix (step 4's normal work: regression test included).
   3. Commit the fix (one coherent commit; do not bundle it with an
-     unrelated finding's fix).
-  4. Regenerate the bundle at the `post-fix` stage. **`REJECTED`-bundle
+     unrelated finding's fix). Each bounded finding of the round runs
+     sub-steps 1 to 3 in turn; a second stale write is legal and is
+     committed the same way.
+
+     **Then, before the regeneration, run top-level steps 5 and 6 for the
+     whole round**: commit the "no code change" fixes (step 5) and the
+     functional-review checklist update in `docs/ACTIVE_MILESTONE.md`
+     (step 6: what changed, any deferral to a remediation child by id, what
+     needs re-testing). This is the last ordinary commit of the round: a
+     commit that lands after the generation record in sub-step 4 moves
+     `HEAD` past the bundle's `generation_head`, and the next implementation
+     review stops with `bundle_generation_mismatch`.
+  4. Regenerate the bundle at the `post-fix` stage, **once per round**, after
+     the last fix and the step 5 and 6 commits. **`REJECTED`-bundle
      refusal, this branch's sole assertion, immediately preceding
      `record_bundle_generation`** (`WFR-67`, one of the three named writer
      call sites; this branch is a consumer scoped by act, since it creates
@@ -187,6 +212,11 @@ all in the same invocation.
      corrected, at the `assert_stage_completeness` withdrawal above. Then
      run `./scripts/prepare-ai-review.sh <base-sha> post-fix
      [work_item_id]`.
+
+     **No commit may follow this record in this invocation;**
+     anything still to commit belongs before it.** What turns up after it
+     belongs to the next round, or to `/recover-implementation-provenance`
+     when it is excluded-only.
   5. **Mark this round's `FUNCTIONAL_REVIEW.md` consumed** (O3): call
      `workflow_fingerprint.mark_functional_review_consumed(repo_root,
      work_item_id)` — every finding this round classified now has a
@@ -292,10 +322,14 @@ all in the same invocation.
 5. Commit coherent fixes for any "no code change"/narrative-only findings
    resolved in step 4 (the bounded branch already committed its own fix
    above; a round that is entirely bounded- or broad-branch findings may
-   have nothing left to commit here).
+   have nothing left to commit here). In a round where a finding took the
+   bounded branch, this step already ran inside it, before the
+   regeneration, and is not repeated.
 6. Update the functional-review checklist in `docs/ACTIVE_MILESTONE.md` to
    reflect what changed, what was deferred to a remediation child (name the
-   child work-item id), and what still needs re-testing.
+   child work-item id), and what still needs re-testing. In a round where a
+   finding took the bounded branch, this step already ran inside it, before
+   the regeneration, and is not repeated.
 7. **Mark this round's `FUNCTIONAL_REVIEW.md` consumed** (O3): call
    `workflow_fingerprint.mark_functional_review_consumed(repo_root,
    work_item_id)` — every finding this round classified now has a
