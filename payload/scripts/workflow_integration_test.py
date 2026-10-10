@@ -1398,7 +1398,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # the stale technical-approval write before the first edit, runs steps 5 and 6
     # before the regeneration, and says no commit follows the record (#19) --
     # intentional content change.
-    "apply-functional-review.md": "0dcf51a29da68ae466627c005040a9a9ca53cba22cae9604d9b4137500698e23",
+    "apply-functional-review.md": "65faf0593956522826e423d01d8607bb0080456dc7f295efb0f831fe090134ca",
 }
 
 

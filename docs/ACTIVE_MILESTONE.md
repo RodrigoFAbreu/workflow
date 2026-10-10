@@ -38,7 +38,7 @@ the record) keeps working.
 
 ## Current checkpoint
 
-CP1 to CP3 complete. CP1: `/apply-functional-review`'s bounded branch
+CP1 to CP4 complete. CP1: `/apply-functional-review`'s bounded branch
 commits the stale technical-approval write before the first edit, runs steps 5
 and 6 before the one regeneration, and says no commit follows the record. CP2:
 all 14 commands that state `OPUS-R129-001` say the trailers are the final
@@ -61,8 +61,19 @@ validated after the message rewrite. Verified in a scratch conformance fixture
 (353), state, protocol (314), fingerprint (257), generalization (105),
 gate-policy (292), completion-obligations (106) and harness (22) suites pass;
 the two demo suites need real-repository history the fixture lacks and were
-not run. CP4 and CP5 remain.
+not run. CP4: `REVIEW_PROTOCOL.md` gains "A generation record is the last
+commit, and its trailer paragraph" (D-Last-Commit with the bounded fix's order
+as the example, D-Trailers' paragraph rule, the strict read side and the
+2.9.1 downgrade posture); `MILESTONE_WORKFLOW.md` and the operator reference
+name the bounded fix's order; `docs/common-problems.md` gains the
+`bundle_generation_mismatch`-after-a-functional-fix and trailer-set entries.
+A stray `**` in `apply-functional-review.md`'s no-commit-after-the-record
+paragraph (CP1) is fixed and its golden hash updated. `check_docs.py` is clean;
+the protocol (314), state (1090), integration (289), acceptance-matrix (353),
+fingerprint (257), generalization, gate-policy, completion-obligations and
+harness suites pass in a scratch fixture (working tree over the repository).
+CP5 remains.
 
 ## Next action
 
-`/milestone-implement functional-fix-commit-order` (CP3).
+`/milestone-implement functional-fix-commit-order` (CP5).

@@ -212,7 +212,7 @@ all in the same invocation.
      run `./scripts/prepare-ai-review.sh <base-sha> post-fix
      [work_item_id]`.
 
-     **No commit may follow this record in this invocation;**
+     **No commit may follow this record in this invocation;
      anything still to commit belongs before it.** What turns up after it
      belongs to the next round, or to `/recover-implementation-provenance`
      when it is excluded-only.

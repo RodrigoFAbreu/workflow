@@ -831,8 +831,10 @@ committed"); if a round was refused with "must always transition phase", see
   - *no code change* → back to `AWAITING_FUNCTIONAL_REVIEW`,
     `technical_approval` untouched;
   - *bounded fix* → marks `technical_approval` `STALE` **before** the first
-    edit, fixes, commits, regenerates the `post-fix` bundle, and stops at a
-    fresh `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`;
+    edit and commits that write alone, fixes and commits, commits the
+    checklist update, then regenerates the `post-fix` bundle once and commits
+    the generation record **last** (nothing is committed after it), and stops
+    at a fresh `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`;
   - *broad* → creates a child work item `<parent-id>-remediation-<n>` and
     hands you its whole own command sequence, starting `/milestone-plan
     <child-id>`; nothing is implemented inline. See [Remediation

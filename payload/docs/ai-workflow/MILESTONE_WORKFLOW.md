@@ -621,8 +621,12 @@ to `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`.
   - **Bounded code change**: a normal, contained fix. **Stale-before-edit
     ordering, hard requirement**: `technical_approval.status` is set to
     `STALE` and persisted to `WORKFLOW_STATE.json` *before* the first
-    edit — never after. The fix is made, committed, and the bundle is
-    regenerated at the `post-fix` stage; regeneration is the step that
+    edit — never after, and committed alone before the first edit, because
+    a generation record cannot sweep that write up. The fix is made and
+    committed, the "no code change" fixes and the functional-review checklist
+    are committed, and only then is the bundle regenerated once at the
+    `post-fix` stage, with the record as the last commit of the invocation
+    (see `REVIEW_PROTOCOL.md`'s "A generation record is the last commit"); regeneration is the step that
     writes the new `reviewed_implementation_head` (D-Approval-Commits'
     sole writer for that field), which is what makes `/approve-review
     implementation` reachable again. This re-enters

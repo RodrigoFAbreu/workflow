@@ -104,6 +104,28 @@ the `HEAD` it was generated at. Once a stray commit is past it, the remedy is
 review verdicts go stale and need another review round. Never edit the
 recorded generation head by hand.
 
+### The next review stops with bundle_generation_mismatch after a functional fix
+
+A commit landed after the post-fix generation record, typically the checklist
+update in `docs/ACTIVE_MILESTONE.md`, which moved `HEAD` past the bundle's
+generation head. From 2.9.2, `/apply-functional-review`'s bounded branch commits
+the stale `technical_approval` write, the fix, the narrative and the checklist
+first, and the generation record last. On 2.9.1, do that order by hand: commit
+the checklist before the record and commit nothing after it. If it already
+happened, `/recover-implementation-provenance <id>` repairs it; it changes the
+bundle id, so both review verdicts go stale and need another round. Never edit
+the recorded generation head by hand.
+
+### A generation record is refused for its trailer set
+
+The record's final paragraph holds more than the `Workflow-*` trailers, usually
+a `Co-Authored-By:` line, and the trailer set is checked exactly. Put
+`Co-Authored-By:`/`Claude-Session:` lines in an earlier paragraph, separated by
+a blank line, and keep only the `Workflow-*` trailers in the last one. While the
+refused commit is still the unpublished `HEAD`, rewrite its message in that
+layout (same tree); a later recovery cannot supersede it. Once it is published
+or built on, ask the repository owner.
+
 ### The write-commit helper refuses with ReviewStageWriteNotCommittableError
 
 `commit_pending_applying_review_feedback_entry` commits only the entry into
