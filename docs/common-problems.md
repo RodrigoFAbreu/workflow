@@ -1,6 +1,6 @@
 # Common problems
 
-> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.9.0.
+> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.9.1.
 
 Each problem has a one-line fix. The exact rules are in the shipped documents
 under `payload/docs/ai-workflow/`. What a script's exit status means is in
@@ -74,3 +74,49 @@ Run the user-only `/resume-implementation <id>`; your own message names the id
 and the word `resumption`. It returns a 2.1 or 2.2 item to `IMPLEMENTING` and
 marks its technical approval stale; then `/milestone-implement` continues. An
 item governed by version `1` is not handled by this command.
+
+### A REVISE round is refused with "must always transition phase"
+
+Either the review stage's `REVISE` write, or `/apply-implementation-review`'s
+own entry into `APPLYING_REVIEW_FEEDBACK` (the ordinary route for `"1"` and
+`"2.1"` items, where no review stage writes `REVISE`), was never committed on
+its own, so the post-fix generation-record commit swept it up and showed no
+`phase` change. On Workflow 2.9.1 the review commands commit the `REVISE`
+write, and `/apply-implementation-review` commits a pending one, or its own
+entry, before its first fix commit. On Workflow 2.9.0 and earlier, which have no
+such step, commit the state file alone, with a `Workflow-Work-Item: <id>`
+trailer as the final paragraph, after the review writes `REVISE` and before any
+fix commit, or, after `/apply-implementation-review` has entered
+`APPLYING_REVIEW_FEEDBACK`, before its first fix commit.
+
+Both prevent the refusal; neither repairs a generation-record commit that was
+already refused. Re-running `/apply-implementation-review` then does nothing:
+the record commit already holds the state. The forward repair used so far is
+in [issue #13](https://github.com/RodrigoFAbreu/workflow/issues/13).
+
+### An approve or gate check is refused with bundle_generation_mismatch after a review
+
+An `APPROVE` write was committed on its own, which puts `HEAD` past the bundle's
+generation head. Leave an `APPROVE` write (and every plan-stage write)
+uncommitted: `/approve-review` or `/satisfy-gate` takes it. A bundle is bound to
+the `HEAD` it was generated at. Once a stray commit is past it, the remedy is
+`/recover-implementation-provenance <id>`. It changes the bundle id, so both
+review verdicts go stale and need another review round. Never edit the
+recorded generation head by hand.
+
+### The write-commit helper refuses with ReviewStageWriteNotCommittableError
+
+`commit_pending_applying_review_feedback_entry` commits only the entry into
+`APPLYING_REVIEW_FEEDBACK`, and only fields a review write may change. It
+refuses an uncommitted `APPROVE` (leave it) and any other field, such as a
+persisted but uncommitted `technical_review_block_pins` entry left by a crash.
+For a leftover pin, stage the state file with
+`workflow_state.stage_scoped_state(repo_root, <id>)` (when it returns `False`,
+stage exactly `docs/ai-workflow/WORKFLOW_STATE.json`) and commit it with a
+`Workflow-Work-Item: <id>` trailer as the final paragraph; never stage the
+whole file while another work item holds uncommitted state. The helper then
+returns `None` and the post-fix generation proceeds. For any other field, the
+write is not a pure review-stage entry: investigate it, then commit or revert
+it deliberately. When a pin and another field are both left, resolve the
+other field first and commit the pin only afterwards. If another path is staged, the helper raises
+`DirtyIndexBeforeStagingError`; unstage the unrelated content first.

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-stage-write-durability",
+  "requirements": {
+    "REQ-1": {
+      "description": "Implementation stage: /review-implementation and /record-manual-implementation-review commit a REVISE write alone (Workflow-Work-Item trailer only) through one helper; an APPROVE write is left uncommitted and the command text says so",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "REQ-2": {
+      "description": "/apply-implementation-review commits a still-pending REVISE write, and its own step-0 entry into APPLYING_REVIEW_FEEDBACK for every governing version, alone before any fix commit or BLOCK pin, resumes an interrupted staging of that commit without a refusal, and does nothing when the write is already committed (idempotent with orchestrators that commit it themselves)",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "REQ-3": {
+      "description": "The plan stage is checked for the same gap (review-plan, record-manual-plan-review, apply-plan-review and every other review-stage writer); the result and its rule (plan-stage writes stay uncommitted until the plan-approval commit) are written down and pinned by tests",
+      "checkpoint_ids": [
+        "CP2",
+        "CP3",
+        "CP4"
+      ]
+    },
+    "REQ-4": {
+      "description": "Following the command texts in order reaches the next gate for REVISE and for APPROVE, at both stages, and the read side stays strict (HEAD past the generation record still refuses); regression tests drive each path and the already-committed case",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    },
+    "REQ-5": {
+      "description": "The commit rule for review-stage writes is written down in the shipped documents, and the downgrade posture and the unchanged protocol version are stated",
+      "checkpoint_ids": [
+        "CP4",
+        "CP5"
+      ]
+    },
+    "REQ-6": {
+      "description": "Workflow 2.9.1 is releasable: manifest digests committed before the generation record, release constant, conformance",
+      "checkpoint_ids": [
+        "CP5"
+      ]
+    }
+  }
+}
