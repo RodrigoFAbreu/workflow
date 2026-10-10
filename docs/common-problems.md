@@ -111,7 +111,10 @@ update in `docs/ACTIVE_MILESTONE.md`, which moved `HEAD` past the bundle's
 generation head. From 2.9.2, `/apply-functional-review`'s bounded branch commits
 the stale `technical_approval` write, the fix, the narrative and the checklist
 first, and the generation record last. On 2.9.1, do that order by hand: commit
-the checklist before the record and commit nothing after it. If it already
+the stale `technical_approval` write alone before the first fix edit, commit
+the checklist before the record and commit nothing after it. An uncommitted
+stale write left for the record to sweep up shows instead as a refused
+generation record that names `technical_approval`. If it already
 happened, `/recover-implementation-provenance <id>` repairs it; it changes the
 bundle id, so both review verdicts go stale and need another round. Never edit
 the recorded generation head by hand.

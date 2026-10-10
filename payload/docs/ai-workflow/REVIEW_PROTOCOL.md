@@ -1000,8 +1000,9 @@ it.
 
 The read side stays strict, the Orchestration Protocol version is unchanged
 (1.2), and no state field or commit shape is added. A project on 2.9.1 keeps
-the old order and must follow it by hand: commit the checklist before the
-record and keep `Co-Authored-By:` out of the trailer paragraph. Downgrading to
+the old order and must follow it by hand: commit the stale `technical_approval`
+write alone before the first fix edit, commit the checklist before the record,
+and keep `Co-Authored-By:` out of the trailer paragraph. Downgrading to
 2.9.1 loses nothing but the corrected command text.
 
 ## Context-efficiency rules

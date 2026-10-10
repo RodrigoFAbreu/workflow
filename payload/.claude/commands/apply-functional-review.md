@@ -113,7 +113,9 @@ all in the same invocation.
      committed the same way.
 
      **Then, before the regeneration, run top-level steps 5 and 6 for the
-     whole round**: commit the "no code change" fixes (step 5) and the
+     whole round**: route every broad finding of the round first (its child
+     is created, so step 6 can name its id), then commit the "no code change"
+     fixes (step 5) and the
      functional-review checklist update in `docs/ACTIVE_MILESTONE.md`
      (step 6: what changed, any deferral to a remediation child by id, what
      needs re-testing). This is the last ordinary commit of the round: a
