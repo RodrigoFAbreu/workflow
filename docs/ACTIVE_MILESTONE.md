@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**Planning** (plan revision 1, in plan review). W6: `functional-fix-commit-order`
+**Implementing** (plan revision 1, plan approved; CP1 to CP5 complete). W6: `functional-fix-commit-order`
 (`process`, governing version `2.2`), branch
 `milestone/functional-fix-commit-order`, base `04d155a` (the release source is
 Workflow 2.9.1; this repository's own installation is also 2.9.1 with automatic
@@ -72,8 +72,16 @@ paragraph (CP1) is fixed and its golden hash updated. `check_docs.py` is clean;
 the protocol (314), state (1090), integration (289), acceptance-matrix (353),
 fingerprint (257), generalization, gate-policy, completion-obligations and
 harness suites pass in a scratch fixture (working tree over the repository).
-CP5 remains.
+CP5: release 2.9.2: `manifest.json` names 2.9.2 with every changed `sha256`/`size`
+refreshed from the bytes (`counts` and the derivation text are unchanged: no
+artifact is added), `WORKFLOW_RELEASE` is `2.9.2` (`PROTOCOL_VERSION` stays
+`1.2`, `manager-pin.json` untouched), `ORCHESTRATION_PROTOCOL.md` lists 2.9.2
+among the tested releases, the protocol test pins the release, and
+`docs/release-history.md` has the 2.9.2 row with the downgrade paragraph. The
+stock `release.py stage-conformance` accepts the tree, and the nine suites pass
+in that fixture. `ROADMAP.md` marks W6 Done at acceptance.
 
 ## Next action
 
-`/milestone-implement functional-fix-commit-order` (CP5).
+Self-review of the full milestone diff, full verification, then the
+implementation-review bundle (`/milestone-implement functional-fix-commit-order`).
