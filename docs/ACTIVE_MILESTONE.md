@@ -38,20 +38,30 @@ the record) keeps working.
 
 ## Current checkpoint
 
-CP1 and CP2 complete. CP1: `/apply-functional-review`'s bounded branch
+CP1 to CP3 complete. CP1: `/apply-functional-review`'s bounded branch
 commits the stale technical-approval write before the first edit, runs steps 5
 and 6 before the one regeneration, and says no commit follows the record. CP2:
 all 14 commands that state `OPUS-R129-001` say the trailers are the final
 paragraph and nothing else is in it, with `Co-Authored-By:`/`Claude-Session:`
 lines in an earlier paragraph; the six generation-record writers add why (the
 record's trailer set is checked exactly); the trailer-set refusal names the
-cause and remedy; golden hashes, the two trailer-shape classes (now with the
-`ordinary`/`recovered`/`None` role check) and a static wording test updated or
-added. Verified in a scratch conformance fixture (v2.9.1 plus the working-tree
-payload): the integration, acceptance-matrix, state, protocol, fingerprint,
-generalization, gate-policy, completion-obligations and harness suites pass;
+cause and remedy; golden hashes, the two trailer-shape classes and a static
+wording test updated or added. CP3: `FunctionalFixCommitOrderProcess` and
+`...Product` in `workflow_acceptance_matrix_test.py` (11 scenarios each) drive
+the bounded branch through the command's own commits to the next review and the
+technical approval: the issue's case for a `"2.2"` item, a `"2.1"` item, a
+`same_content` round, two findings in one round, a mixed round with a child's
+uncommitted entry, the Manager lane's order and a committed stale write
+(compatibility pins), both traps pinned (checklist after the record gives row
+25a `bundle_generation_mismatch`; an uncommitted stale write makes the record
+refused), and recovery plus an ordinary record in the corrected trailer layout,
+each also refused with `Co-Authored-By:` in the trailer paragraph and then
+validated after the message rewrite. Verified in a scratch conformance fixture
+(v2.9.1 plus the working-tree payload): the integration (289), acceptance-matrix
+(353), state, protocol (314), fingerprint (257), generalization (105),
+gate-policy (292), completion-obligations (106) and harness (22) suites pass;
 the two demo suites need real-repository history the fixture lacks and were
-not run. CP3 to CP5 remain.
+not run. CP4 and CP5 remain.
 
 ## Next action
 
