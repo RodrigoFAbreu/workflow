@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**Implementing** (plan revision 1, plan approved; CP1 to CP5 complete). W6: `functional-fix-commit-order`
+**Self-reviewing implementation** (plan revision 1, plan approved; CP1 to CP5 complete). W6: `functional-fix-commit-order`
 (`process`, governing version `2.2`), branch
 `milestone/functional-fix-commit-order`, base `04d155a` (the release source is
 Workflow 2.9.1; this repository's own installation is also 2.9.1 with automatic
@@ -83,5 +83,7 @@ in that fixture. `ROADMAP.md` marks W6 Done at acceptance.
 
 ## Next action
 
-Self-review of the full milestone diff, full verification, then the
-implementation-review bundle (`/milestone-implement functional-fix-commit-order`).
+Full milestone diff self-reviewed (no blocking or important finding; the
+roadmap's W6 status now reads "implementation in review"). Next: the full
+verification and the implementation-review bundle, then the local and manual
+implementation reviews.
