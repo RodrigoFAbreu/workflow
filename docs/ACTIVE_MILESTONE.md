@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**Planning** (plan revision 1). W5: `retire-21-for-new-work` (`process`,
+**Implementing** (plan revision 2). W5: `retire-21-for-new-work` (`process`,
 governing version `2.2`), branch `milestone/retire-21-for-new-work`, base
 `b854a0b` (the release source is Workflow 2.9.2; this repository's own
 installation is also 2.9.2 with automatic gates and no `GATE_POLICY.json`). The
@@ -40,12 +40,20 @@ D-Manager-Handoff says exactly what.
 
 ## Current checkpoint
 
-None yet: the plan is at its first review.
+Implementing (plan revision 2, approved). CP1 (the refusal at creation, and the
+fixtures that seed existing "2.1" items) is complete: `workflow_state.py` gains
+`NEW_WORK_RETIRED_VERSIONS`, `RETIRED_DEFAULT_NEXT_STEP`,
+`DefaultWorkflowVersionRetiredError` and `assert_default_admits_new_work_item`,
+which `route_work_item`'s fresh branch and `create_remediation_child_work_item`
+call; the harness gains `seed_existing_work_item` and
+`seed_existing_remediation_child`; the acceptance matrix creates its items
+through one `route_item` helper, and the three real-creator child scenarios run
+under a `Workflow-Activation: 2.2` default. CP2 to CP7 are not started.
 
 ## Next action
 
-The plan (revision 1) goes to `AWAITING_LOCAL_PLAN_REVIEW` (a "2.2" item's plan
-review starts with the local model): `/review-plan retire-21-for-new-work`.
+`/milestone-implement retire-21-for-new-work` again: it implements CP2, one
+checkpoint per invocation.
 
 ## Functional review checklist
 

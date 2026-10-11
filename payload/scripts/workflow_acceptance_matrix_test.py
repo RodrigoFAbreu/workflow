@@ -56,6 +56,7 @@ from unittest import mock
 
 import workflow_fingerprint as fingerprint
 import workflow_state as ws
+import workflow_test_harness as harness
 
 SCRIPT_FILES = (
     "workflow_state.py",
@@ -210,6 +211,56 @@ def plan_anchors(registry):
     )
 
 
+def route_item(item, config, plan_revision):
+    """`/milestone-plan`'s routing write for `item`, in one state transaction.
+
+    Since workflow-2.10.0 `route_work_item` refuses to create a work item
+    under a "2.1" default, and every scenario here drives an *existing* "2.1"
+    item (one an earlier release created). When the item has no entry yet and
+    the configuration's default is retired for new work, the entry is seeded
+    exactly as the fresh branch would write it (`seed_existing_work_item`,
+    pinned against the real creator by `workflow_test_harness_test.py`) and
+    consumes the same single `now()` tick, so every later revision and
+    timestamp is as before. Every other call, every resume included, goes
+    through `route_work_item` unchanged."""
+    now = item.now()
+
+    def mutator(state):
+        if (item.wid not in state.get("work_items", {})
+                and config["default_workflow_version"] in ws.NEW_WORK_RETIRED_VERSIONS):
+            return harness.seed_existing_work_item(
+                state, work_item_id=item.wid,
+                governing_workflow_version=config["default_workflow_version"],
+                work_item_type=item.wtype, work_item_kind=item.wtype,
+                plan_path=item.plan_path, registry_path=item.registry_path,
+                plan_revision=plan_revision, now=now,
+                mapping_path=item.mapping_path, base_commit=item.base_commit,
+            )
+        return ws.route_work_item(
+            state, config, work_item_id=item.wid, work_item_type=item.wtype,
+            work_item_kind=item.wtype, plan_path=item.plan_path,
+            registry_path=item.registry_path, plan_revision=plan_revision,
+            now=now, mapping_path=item.mapping_path, base_commit=item.base_commit,
+            repo_root=item.root,
+        )
+    item.tx(mutator)
+
+
+def activate_two_stage_default(scratch):
+    """The edit workflow-2.10.0 prescribes before a *new* work item (a broad
+    remediation child) can be created: `default_workflow_version` "2.2", with
+    "2.2" in `supported_versions`, in a `Workflow-Activation: 2.2` commit.
+    Returns the configuration. Existing items keep their stored version."""
+    path = "docs/ai-workflow/WORKFLOW_CONFIG.json"
+    config = json.loads(scratch.read(path))
+    config["default_workflow_version"] = "2.2"
+    config["supported_versions"] = sorted({*config["supported_versions"], "2.2"})
+    scratch.write(path, json.dumps(config, indent=2) + "\n")
+    scratch.commit("chore: activate 2.2 for new work items",
+                   {"Workflow-Activation": "2.2"}, paths=[path])
+    return config
+
+
 class Item:
     """One work item's lifecycle, driven exactly the way the owning
     `.claude/commands/*.md` file says to drive it."""
@@ -361,13 +412,7 @@ class Item:
         config = json.loads(self.sim.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
         checkpoints = CHECKPOINTS if checkpoints is None else checkpoints
         requirements = REQUIREMENTS if requirements is None else requirements
-        self.tx(lambda state: ws.route_work_item(
-            state, config, work_item_id=self.wid, work_item_type=self.wtype,
-            work_item_kind=self.wtype, plan_path=self.plan_path,
-            registry_path=self.registry_path, plan_revision=plan_revision,
-            now=self.now(), mapping_path=self.mapping_path, base_commit=self.base_commit,
-            repo_root=self.root,
-        ))
+        route_item(self, config, plan_revision)
         registry = ws.generate_registry(self.wid, plan_revision, checkpoints)
         mapping = ws.generate_mapping(self.wid, requirements, registry=registry)
         ws.write_registry_and_mapping(
@@ -749,13 +794,7 @@ class Item:
         checkpoints = CHECKPOINTS if checkpoints is None else checkpoints
         requirements = REQUIREMENTS if requirements is None else requirements
         self.tx(lambda state: ws.ensure_plan_review_binding_marker(state, self.wid, self.now()))
-        self.tx(lambda state: ws.route_work_item(
-            state, config, work_item_id=self.wid, work_item_type=self.wtype,
-            work_item_kind=self.wtype, plan_path=self.plan_path,
-            registry_path=self.registry_path, plan_revision=plan_revision,
-            now=self.now(), mapping_path=self.mapping_path, base_commit=self.base_commit,
-            repo_root=self.root,
-        ))
+        route_item(self, config, plan_revision)
         registry = ws.generate_registry(self.wid, plan_revision, checkpoints)
         mapping = ws.generate_mapping(self.wid, requirements, registry=registry)
         ws.write_registry_and_mapping(
@@ -2290,7 +2329,8 @@ class FunctionalLifecycleProcess(MatrixCase):
         self.reach_technical_approved()
         item.prepare_functional_review()
         item.write_functional_findings("Finding 1: this needs its own milestone.\n")
-        config = json.loads(self.scratch.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
+        # A child is new work: from 2.10.0 it needs the "2.2" default first.
+        config = activate_two_stage_default(self.scratch)
         child_holder = {}
 
         def create(state):
@@ -2996,12 +3036,14 @@ class RemediationChildFullCycle(MatrixCase):
         parent = self.item
         self.reach_technical_approved()
         parent.prepare_functional_review()
-        config = json.loads(self.scratch.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
         holder = {}
 
         def create(state):
-            new_state, child_id = ws.create_remediation_child_work_item(
-                state, config, parent_work_item_id=parent.wid,
+            # An existing "2.1" child, as an earlier release created it
+            # (creating one is refused from 2.10.0): this scenario's subject
+            # is the child's whole cycle, not its creation.
+            new_state, child_id = harness.seed_existing_remediation_child(
+                state, parent.wid, governing_workflow_version="2.1",
                 plan_path=f"docs/milestones/{parent.wid}-remediation-1-execution.md",
                 registry_path=(
                     f"docs/ai-workflow/registry/{parent.wid}-remediation-1-registry.json"
@@ -4004,7 +4046,7 @@ class FirstAttemptPlanBundleResolution(unittest.TestCase):
         already created, resolving nothing for the child."""
         scratch, parent = self.new_item("product")
         self.author_plan_bundle_and_generate(scratch, parent)
-        config = json.loads(scratch.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
+        config = activate_two_stage_default(scratch)
         holder = {}
 
         def create(state):
@@ -5164,13 +5206,7 @@ def cp4_publish(item, plan_revision=None, review_content_id=None):
 
 def cp4_route(item, plan_revision):
     config = json.loads(item.sim.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
-    item.tx(lambda state: ws.route_work_item(
-        state, config, work_item_id=item.wid, work_item_type=item.wtype,
-        work_item_kind=item.wtype, plan_path=item.plan_path,
-        registry_path=item.registry_path, plan_revision=plan_revision,
-        now=item.now(), mapping_path=item.mapping_path, base_commit=item.base_commit,
-        repo_root=item.root,
-    ))
+    route_item(item, config, plan_revision)
 
 
 def cp4_open_plan_approval_journal(item):
@@ -6291,7 +6327,7 @@ class PlanReviewPhaseAllowList(_PlanReviewBindingCase):
     def test_remediation_child_re_declaration_at_planning_still_succeeds(self):
         parent = self.item
         self.reach_plan_approved()
-        config = json.loads(self.scratch.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
+        config = activate_two_stage_default(self.scratch)
         holder = {}
 
         def create(state):
