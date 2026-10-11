@@ -90,12 +90,21 @@ commit it. `check_docs.py` is clean; in a scratch fixture of the working tree
 (refreshed digests) seven of the nine suites are green, and
 `workflow_fingerprint_demo_test` and `workflow_state_demo_test` fail identically
 on the unmodified CP5 commit (they need the repository's full history, which the
-fixture lacks). CP7 is not started.
+fixture lacks). CP7 (release 2.10.0) is complete: `manifest.json` names
+2.10.0 with every changed digest and the conformance template's derivation text
+refreshed, `WORKFLOW_RELEASE` is `2.10.0` (the protocol suite's release pin
+follows), and `docs/release-history.md` gains the 2.10.0 row; the roadmap row 7
+is marked Done at acceptance. In a scratch clone of the CP7 tree the full
+`release_test.py` (86 tests) is green, the stock `stage-conformance` fixture
+runs the nine suites green, `check_docs.py` is clean, `check-title --agree`
+accepts a `feat:` title for 2.9.2 to 2.10.0, and `workflow-manager verify .`
+is clean.
 
 ## Next action
 
-`/milestone-implement retire-21-for-new-work` again: it implements CP7, one
-checkpoint per invocation.
+`/milestone-implement retire-21-for-new-work` again: every checkpoint is
+complete, so it enters `SELF_REVIEWING_IMPLEMENTATION`, runs the full
+verification and prepares the implementation review bundle.
 
 ## Functional review checklist
 
