@@ -28,6 +28,12 @@ bootstrapped earlier keeps the version in its own `WORKFLOW_CONFIG.json`, which
 an update never rewrites, and its existing items keep their governing version.
 Updating a repository changes no state file by itself.
 
+From Workflow 2.10, a configuration whose default is still `"2.1"` is refused
+for any new work item, so change it to `"2.2"` before the next one. For
+`/apply-functional-review` the edit unblocks the whole round, because the
+command checks the default before its first sub-step. Existing `"2.1"` items
+keep their gates.
+
 ## What evidence each gate needs
 
 | Gate | Evidence the Workflow checks |

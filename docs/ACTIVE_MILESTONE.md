@@ -79,12 +79,22 @@ time, longest first, each in its own checkout copy with its own `TMPDIR` and
 `release_test.py` gains `ConformanceTemplate` (7 tests). Verified in a scratch
 clone with refreshed digests: the full `release_test.py` (86 tests, Python 3.12)
 green; the step body on the nine real suites green in 4m09s wall against 572s
-sequential. The committed manifest digests are refreshed at CP7. CP6 and CP7 are
-not started.
+sequential. The committed manifest digests are refreshed at CP7. CP6
+(documentation) is complete: `IMPLEMENTATION_REVIEW_WORKFLOW.md`, the operator
+reference and `MILESTONE_WORKFLOW.md` (the `PLANNING` entry) gain one paragraph
+each on the retired "2.1" default; the two D-Wording fixes land in
+`recover-implementation-provenance.md`'s introduction and
+`MILESTONE_WORKFLOW.md`'s broad-branch bullet; `docs/install.md`,
+`docs/gates.md` and `docs/common-problems.md` state the next step and where to
+commit it. `check_docs.py` is clean; in a scratch fixture of the working tree
+(refreshed digests) seven of the nine suites are green, and
+`workflow_fingerprint_demo_test` and `workflow_state_demo_test` fail identically
+on the unmodified CP5 commit (they need the repository's full history, which the
+fixture lacks). CP7 is not started.
 
 ## Next action
 
-`/milestone-implement retire-21-for-new-work` again: it implements CP6, one
+`/milestone-implement retire-21-for-new-work` again: it implements CP7, one
 checkpoint per invocation.
 
 ## Functional review checklist
