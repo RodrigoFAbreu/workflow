@@ -118,4 +118,71 @@ The implementation review of the bundle `/milestone-implement` prepares.
 
 ## Functional review checklist
 
-Written at `/prepare-functional-review`.
+Automated verification is current: the working tree is unchanged since the
+implementation bundle (only state-recording commits follow the last code
+commit, `d2d2091`).
+
+### Setup
+
+- Branch `milestone/retire-21-for-new-work`, clean tree. Python 3.12. No build
+  step; no feature flags. The release source (`payload/`, `templates/`,
+  `manifest.json`, `tools/release/`) is what changed; this repository's own
+  installation stays 2.9.2.
+- Scratch work only in a throwaway directory (`mktemp -d`), never in this tree.
+
+### Test data
+
+- A scratch fixture repository from the harness
+  (`payload/scripts/workflow_test_harness.py`: `seed_existing_work_item`,
+  `seed_existing_remediation_child`) or the acceptance matrix's
+  `RetiredDefaultVersionProcess` scenarios; one config with
+  `default_workflow_version: "2.1"`, one with `"2.2"`.
+
+### Flows
+
+1. **Refusal at creation under a "2.1" default.** In a fixture whose
+   `WORKFLOW_CONFIG.json` default is `"2.1"`, run `/milestone-plan` for a fresh
+   milestone. Expected: stops at step 0 before any write, raises
+   `DefaultWorkflowVersionRetiredError`, one next step: set the default to
+   "2.2" in a `Workflow-Activation: 2.2` commit. `WORKFLOW_STATE.json` unchanged.
+2. **Broad remediation children refuse too.** Under the same default, a broad
+   `/apply-functional-review` finding and a broad `/apply-pr-review` fix.
+   Expected: the same refusal before the first write (for `apply-pr-review`,
+   step 1's reopen write stands and the re-run resumes from `already_reopened`).
+   Bounded functional fixes are unaffected.
+3. **After activating "2.2".** Edit the default to "2.2", commit with
+   `Workflow-Activation: 2.2`, repeat flows 1-2. Expected: items are created as
+   "2.2" and run through their cycle.
+4. **Existing "2.1" items, legacy adoption and other defaults unchanged.** An
+   already-seeded "2.1" item completes under a "2.1" default and under a "2.2"
+   default; legacy adoption still lands on `"2.1"`; "2.1" remains in
+   `supported_versions`; "2.2" and "1" defaults behave as before.
+5. **Orchestration Protocol 1.3.** Under a "2.1" default the protocol returns
+   row 1b (`blocked`, `plan_start_default_retired`) with the remedy text; under
+   "2.2" row 1 applies. `verify` shows the advisory `default_workflow_version`
+   warning (and none under "2.2").
+6. **Managed conformance job.** Read
+   `templates/.github/workflows/workflow-conformance.yml`: `concurrency`
+   cancels a pull request's superseded run but never a push run; one
+   `Run the conformance suites` step runs the nine suites in parallel, each in
+   its own checkout copy with its own `TMPDIR`/`HOME`; every failure is shown
+   and annotated with `::error` even if one suite's copy fails.
+7. **Wording fixes.** `recover-implementation-provenance.md`'s introduction and
+   `MILESTONE_WORKFLOW.md`'s broad-branch bullet read correctly for both "2.1"
+   and "2.2" items. `docs/install.md`, `docs/gates.md` and
+   `docs/common-problems.md` state the next step and where to commit it, and
+   attribute the `default_workflow_version` warning to the Workflow's own
+   `verify`.
+8. **Release 2.10.0.** `manifest.json` names 2.10.0, `WORKFLOW_RELEASE` is
+   `2.10.0`, `docs/release-history.md` has the 2.10.0 row; `python3
+   tools/release/release_test.py` and `check_docs.py` are clean.
+
+### Known limitations / out of scope
+
+- The `workflow-manager doctor` warning and the Manager's template test pattern
+  ship in the Manager pin pull request (D-Manager-Handoff), not here.
+- This repository's own installation is not updated until 2.10.0 is published
+  and installed; roadmap row 7 is marked Done at acceptance.
+- `workflow_fingerprint_demo_test` and `workflow_state_demo_test` need full
+  repository history and fail in history-less scratch fixtures (identically on
+  the unmodified CP5 commit).
