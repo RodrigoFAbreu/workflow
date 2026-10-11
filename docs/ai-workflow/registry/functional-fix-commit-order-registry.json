@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "work_item_id": "functional-fix-commit-order",
+  "plan_revision": 1,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "Bounded functional fix: the stale write and the checklist are committed before the regeneration, and the generation record is the round's last commit",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Trailer paragraph wording (OPUS-R129-001) made explicit in every command, and the generation-record refusal names the cause",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Regression tests: a bounded functional fix with a checklist change through the command's own commits to the next review, compatible orders, the trap pins and a recovery commit",
+      "depends_on": [
+        "CP1",
+        "CP2"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP4",
+      "name": "Documentation: the last-commit rule, the trailer paragraph, troubleshooting",
+      "depends_on": [
+        "CP1",
+        "CP2"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP5",
+      "name": "Release 2.9.2: manifest, release constant, roadmap and conformance",
+      "depends_on": [
+        "CP1",
+        "CP2",
+        "CP3",
+        "CP4"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}

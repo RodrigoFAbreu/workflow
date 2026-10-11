@@ -2,91 +2,164 @@
 
 ## Milestone
 
-**Complete** (CP1 to CP5 complete; accepted by policy, `/satisfy-gate acceptance`). W4: `review-stage-write-durability`
+**Self-reviewing implementation** (plan revision 1, plan approved; CP1 to CP5 complete; accepted by policy, complete). W6: `functional-fix-commit-order`
 (`process`, governing version `2.2`), branch
-`milestone/review-stage-write-durability`, base `576dfd5` (the release source is
-Workflow 2.9.0; this repository's own installation is also 2.9.0 with automatic
+`milestone/functional-fix-commit-order`, base `04d155a` (the release source is
+Workflow 2.9.1; this repository's own installation is also 2.9.1 with automatic
 gates and no `GATE_POLICY.json`). The plan is
-`docs/ai-workflow/REVIEW_STAGE_WRITE_DURABILITY_PLAN.md` (revision 4, approved). The
-previous milestone, W3 (`legacy-retire-and-default-version`, Workflow 2.9.0),
-is complete.
+`docs/ai-workflow/FUNCTIONAL_FIX_COMMIT_ORDER_PLAN.md`. The previous milestone,
+W4 (`review-stage-write-durability`, Workflow 2.9.1), is complete. W5
+(`retire-21-for-new-work`) is paused at its plan review in another worktree and
+resumes after this release.
 
 ## Goal
 
-Workflow 2.9.1, a patch release that fixes
-[RodrigoFAbreu/workflow#13](https://github.com/RodrigoFAbreu/workflow/issues/13):
+Workflow 2.9.2, a patch release that fixes
+[RodrigoFAbreu/workflow#19](https://github.com/RodrigoFAbreu/workflow/issues/19)
+and [#20](https://github.com/RodrigoFAbreu/workflow/issues/20):
 
-1. **REVISE.** A review stage that returns REVISE persists its phase write and
-   never commits it; `/apply-implementation-review`'s post-fix
-   generation-record commit then picks it up, shows no `phase` change and is
-   refused ("must always transition phase", OPUS-R101-001). The REVISE branches
-   of `/review-implementation` and `/record-manual-implementation-review`
-   commit their write alone (a `Workflow-Work-Item` trailer), and
-   `/apply-implementation-review` commits a still-pending one before its first
-   fix commit, doing nothing when an orchestrator already committed it.
-2. **APPROVE.** The opposite rule is written down: an APPROVE write is never
-   committed on its own, because HEAD past the generation record makes
-   `/satisfy-gate` and `/approve-review` refuse (`bundle_generation_mismatch`).
-3. **Plan stage.** Checked for the same gap; none (no generation-record
-   commit), so its rule (writes stay uncommitted until the plan-approval
-   commit) is written down and tested.
+1. **#19.** `/apply-functional-review`'s bounded branch commits the post-fix
+   generation record, then updates the checklist in `docs/ACTIVE_MILESTONE.md`
+   after it. That commit moves `HEAD` past the bundle's generation head, and the
+   next implementation review stops with `bundle_generation_mismatch`. The
+   bounded branch now commits the stale technical-approval write before the
+   first edit (it was persisted only, and a record commit that sweeps it up is
+   refused), then the fix, then the narrative and checklist, and the
+   generation record last. Nothing is committed after it.
+2. **#20.** Every command that states the trailer rule (`OPUS-R129-001`) says
+   plainly that `Co-Authored-By:`/`Claude-Session:` lines go in their own
+   paragraph before the `Workflow-*` trailers, because a generation record's
+   trailer set is checked exactly. The refusal message names the cause and the
+   remedy.
 
-The read side stays strict, the Orchestration Protocol stays 1.2, and 2.9.1
-accepts no commit shape 2.9.0 refuses.
+The read side stays strict, the Orchestration Protocol stays 1.2, no state or
+commit shape is added, and the Manager lane's order (checklist committed before
+the record) keeps working.
 
 ## Current checkpoint
 
-**Complete.** CP1 to CP5 are complete; functional review (flows w4-f1 to w4-f10, round 3) passed. CP1:
-`payload/scripts/workflow_state.py` gains
-`commit_pending_applying_review_feedback_entry`,
-`REVIEW_STAGE_WRITE_COMMIT_FIELDS` and `ReviewStageWriteNotCommittableError`
-(the scoped-state construction is extracted from `stage_scoped_state` into
-`_scoped_state_from`, behavior unchanged), with 15 unit tests. CP2: the REVISE
-branches of `review-implementation.md` (A6) and
-`record-manual-implementation-review.md` (step 7) commit through the helper and
-their APPROVE branches say to leave the write uncommitted;
-`apply-implementation-review.md` step 1 calls the helper after the binding check
-and before the `BLOCK` pin; `review-plan.md`, `record-manual-plan-review.md` and
-`apply-plan-review.md` carry the plan-stage sentence. Golden hashes updated and
-`TestReviewStageWriteCommitRuleConformance` added in
-`workflow_integration_test.py`. Verified: the nine payload suites green in a
-scratch conformance fixture (the two `*_demo_test.py` files need this
-repository's history and are not among them), whole-file diff against `v2.9.0`
-shows only the listed hunks, `workflow-manager verify .` clean. CP3:
-`workflow_acceptance_matrix_test.py` gains `ReviewStageWriteDurabilityProcess`
-and `...Product` (18 scenarios each, plan CP3 scenarios 1 to 15 plus the
-helper-removed negatives `s06b` and `s10b`, which show 2.9.0's texts are refused
-by the generator with OPUS-R101-001) and `Item.generate_impl_bundle` gains an
-opt-in `scoped_staging` that stages through `stage_scoped_state`. Verified: the
-36 new tests green and the nine payload suites green in a scratch conformance
-fixture built from the checkpoint's tree (327 acceptance-matrix tests, 18
-skipped as before).
-CP4: `REVIEW_PROTOCOL.md` gains "Which review-stage writes are committed"
-(the commit-rule table, the helper and its refusals); `IMPLEMENTATION_REVIEW_WORKFLOW.md`,
-`PLAN_REVIEW_WORKFLOW.md` and the operator reference carry one paragraph each
-pointing at it; `docs/common-problems.md` gains three entries (REVISE refused
-with "must always transition phase", the APPROVE counterpart, and the helper's
-`ReviewStageWriteNotCommittableError`). Verified: `tools/docs/check_docs.py`
-clean; the integration, protocol, fingerprint and gate-policy suites green in a
-scratch conformance fixture (the operator-reference symbol check caught a
-backticked `bundle_generation_mismatch` in the first draft, reworded).
-CP5: `WORKFLOW_RELEASE` is `2.9.1` (`PROTOCOL_VERSION` stays `1.2`; `ORCHESTRATION_PROTOCOL.md` names 2.9.1 among
-the tested releases and `workflow_protocol_test.py` pins `2.9.1`, both beyond
-the plan's file list, required by the protocol suite);
-`manifest.json` names `2.9.1` with the refreshed `sha256`/`size` of the 17
-changed records (counts unchanged, `tools/release/manager-pin.json` untouched);
-`docs/release-history.md` gains the 2.9.1 row. `docs/ROADMAP.md` marks W4 Done
-at acceptance. Verification: see the CP5 commit and the implementation bundle's
-`TEST_RESULTS.md`.
-Self-review of the whole milestone diff: one documentation fix. The
-`docs/common-problems.md` remedy for a REVISE round already refused with "must
-always transition phase" said to re-run `/apply-implementation-review`; a probe
-in a disposable repository showed that does nothing once the refused record
-commit exists (the helper returns `None` and post-fix generation refuses the
-source phase), so the entry now says what 2.9.1 prevents and points at the
-forward repair in issue #13. The APPROVE entry now names
-`/recover-implementation-provenance` and its cost (stale verdicts).
+CP1 to CP4 complete. CP1: `/apply-functional-review`'s bounded branch
+commits the stale technical-approval write before the first edit, runs steps 5
+and 6 before the one regeneration, and says no commit follows the record. CP2:
+all 14 commands that state `OPUS-R129-001` say the trailers are the final
+paragraph and nothing else is in it, with `Co-Authored-By:`/`Claude-Session:`
+lines in an earlier paragraph; the six generation-record writers add why (the
+record's trailer set is checked exactly); the trailer-set refusal names the
+cause and remedy; golden hashes, the two trailer-shape classes and a static
+wording test updated or added. CP3: `FunctionalFixCommitOrderProcess` and
+`...Product` in `workflow_acceptance_matrix_test.py` (11 scenarios each) drive
+the bounded branch through the command's own commits to the next review and the
+technical approval: the issue's case for a `"2.2"` item, a `"2.1"` item, a
+`same_content` round, two findings in one round, a mixed round with a child's
+uncommitted entry, the Manager lane's order and a committed stale write
+(compatibility pins), both traps pinned (checklist after the record gives row
+25a `bundle_generation_mismatch`; an uncommitted stale write makes the record
+refused), and recovery plus an ordinary record in the corrected trailer layout,
+each also refused with `Co-Authored-By:` in the trailer paragraph and then
+validated after the message rewrite. Verified in a scratch conformance fixture
+(v2.9.1 plus the working-tree payload): the integration (289), acceptance-matrix
+(353), state, protocol (314), fingerprint (257), generalization (105),
+gate-policy (292), completion-obligations (106) and harness (22) suites pass;
+the two demo suites need real-repository history the fixture lacks and were
+not run. CP4: `REVIEW_PROTOCOL.md` gains "A generation record is the last
+commit, and its trailer paragraph" (D-Last-Commit with the bounded fix's order
+as the example, D-Trailers' paragraph rule, the strict read side and the
+2.9.1 downgrade posture); `MILESTONE_WORKFLOW.md` and the operator reference
+name the bounded fix's order; `docs/common-problems.md` gains the
+`bundle_generation_mismatch`-after-a-functional-fix and trailer-set entries.
+A stray `**` in `apply-functional-review.md`'s no-commit-after-the-record
+paragraph (CP1) is fixed and its golden hash updated. `check_docs.py` is clean;
+the protocol (314), state (1090), integration (289), acceptance-matrix (353),
+fingerprint (257), generalization, gate-policy, completion-obligations and
+harness suites pass in a scratch fixture (working tree over the repository).
+CP5: release 2.9.2: `manifest.json` names 2.9.2 with every changed `sha256`/`size`
+refreshed from the bytes (`counts` and the derivation text are unchanged: no
+artifact is added), `WORKFLOW_RELEASE` is `2.9.2` (`PROTOCOL_VERSION` stays
+`1.2`, `manager-pin.json` untouched), `ORCHESTRATION_PROTOCOL.md` lists 2.9.2
+among the tested releases, the protocol test pins the release, and
+`docs/release-history.md` has the 2.9.2 row with the downgrade paragraph. The
+stock `release.py stage-conformance` accepts the tree, and the nine suites pass
+in that fixture. `ROADMAP.md` marks W6 Done at acceptance.
 
 ## Next action
 
-W4 is accepted. Publish Workflow 2.9.1 through the pull request (RodrigoFAbreu/workflow#15), then pin it in `workflow-manager`. The next incomplete roadmap milestone is item 4 (`workflow-manager` update ergonomics), ready for `/milestone-plan`.
+W6 (`functional-fix-commit-order`) is complete, accepted by policy. The release
+(Workflow 2.9.2) follows the merge of pull request #21. Next: W5
+(`retire-21-for-new-work`) resumes at its plan review; plan it with
+`/milestone-plan`.
+
+## Functional review checklist
+
+Process milestone: no app to run. Everything is checked in the repository (the
+working tree at the checklist-evidence commit).
+
+### Setup
+
+- Branch `milestone/functional-fix-commit-order`, clean tree, Python 3.
+- Seed nothing. The scenarios below use the acceptance-matrix fixtures.
+
+### Flows
+
+1. **#19 order, command text.** Read `payload/.claude/commands/apply-functional-review.md`,
+   bounded branch. Expect: (a) the stale technical-approval write is committed
+   before the first edit; (b) then the fix; (c) then narrative and checklist
+   (steps 5 and 6); (d) the generation record last; (e) an explicit statement
+   that no commit follows the record.
+2. **#19 behaviour.** Run
+   `python3 -m unittest workflow_acceptance_matrix_test.FunctionalFixCommitOrderProcess workflow_acceptance_matrix_test.FunctionalFixCommitOrderProduct`
+   (from the directory the suite lives in). Expect 22 scenarios, all pass: the
+   issue's `"2.2"` case, `"2.1"`, `same_content`, two findings, mixed round,
+   Manager-lane order, and both traps (checklist after the record gives
+   `bundle_generation_mismatch`; an uncommitted stale write refuses the record).
+3. **#20 wording.** `grep -l OPUS-R129-001 payload/.claude/commands/*.md`
+   lists 14 commands. In each, expect the `Workflow-*` trailers are the final
+   paragraph alone, with `Co-Authored-By:`/`Claude-Session:` in an earlier
+   paragraph. The six generation-record writers also say why (the trailer set
+   is checked exactly).
+4. **#20 refusal message.** Trigger or read the trailer-set refusal: it names the
+   cause (extra trailer in the paragraph) and the remedy (move co-author lines
+   to their own paragraph).
+5. **Docs.** `REVIEW_PROTOCOL.md` section "A generation record is the last
+   commit, and its trailer paragraph"; `MILESTONE_WORKFLOW.md` and the operator
+   reference name the bounded fix's order; `docs/common-problems.md` has the two
+   new entries. `python3 tools/docs/check_docs.py` is clean (exit 0).
+6. **Release 2.9.2.** `manifest.json` version 2.9.2, digests match bytes,
+   `WORKFLOW_RELEASE` is `2.9.2`, `PROTOCOL_VERSION` still `1.2`, release
+   history row and downgrade paragraph present, ROADMAP W6 status reads
+   "functional review".
+7. **Installation untouched.** `workflow-manager verify .` is clean and
+   `.claude/`, `scripts/`, `docs/ai-workflow/` (except this item's own files)
+   have no hand edits.
+
+### Expected result
+
+Every flow above matches its expectation; no new state or commit shape; read
+side still strict.
+
+### Known limitations / out of scope
+
+- The two demo suites need real-repository history and were not run in the
+  scratch fixture.
+- The 2.9.1 installation here is not upgraded until 2.9.2 is published and its
+  pin is added to `workflow-manager`.
+- No command records acceptance of a partial round.
+
+### Functional review round 1
+
+Flows 1-8 passed (flow 8, the 2.9.2 stage-conformance run, was added by the
+orchestrator in `FUNCTIONAL_REVIEW.md`, not listed in the checklist above). Findings 1-3 (version-blind post-fix target phase, mixed
+round's uncommitted child entry, stale-write rerun wording) are fixed in the
+release payload's docs and command text, wording only. Finding 4 corrected flow
+5's checker path (`python3 tools/docs/check_docs.py`) and flow 6's ROADMAP
+expectation ("functional review"). Re-test: flows 1, 5 and 6, and the
+`FunctionalFixCommitOrder` classes.
+
+### Functional review round 2
+
+Flows 1-8 passed. The one finding (the version-blind post-fix target phase
+still stated in the operator reference's `/apply-functional-review` "Expects"
+bullet, its vocabulary table and `APPLYING_REVIEW_FEEDBACK` row, and
+`MILESTONE_WORKFLOW.md`'s three places) is fixed, wording only: each now names
+`AWAITING_LOCAL_IMPLEMENTATION_REVIEW` for a `"2.2"` item and
+`AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a `"1"`/`"2.1"` item, and a sweep
+of the payload found no other unqualified statement. Re-test: flows 1 and 5.

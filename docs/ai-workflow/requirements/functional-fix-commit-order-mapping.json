@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "work_item_id": "functional-fix-commit-order",
+  "requirements": {
+    "REQ-1": {
+      "description": "/apply-functional-review's bounded branch, followed in order, works with no hidden orchestrator rule: the stale technical-approval write is committed alone before the first edit, the narrative and checklist commits (steps 5 and 6) come before the one post-fix regeneration of the round, and nothing is committed after the generation record",
+      "checkpoint_ids": [
+        "CP1",
+        "CP3"
+      ]
+    },
+    "REQ-2": {
+      "description": "Every other generation-record writer (/milestone-implement, /apply-implementation-review, /apply-pr-review, /recover-implementation-provenance) is checked for the same ordering trap; the result and the rule (a generation record is the last commit of the invocation that writes it) are written down once",
+      "checkpoint_ids": [
+        "CP1",
+        "CP4"
+      ]
+    },
+    "REQ-3": {
+      "description": "Issue #20: every command text that states the OPUS-R129-001 trailer rule says explicitly that Co-Authored-By/Claude-Session lines go in their own earlier paragraph; the generation-record trailer-set refusal names that cause; the read side stays strict",
+      "checkpoint_ids": [
+        "CP2",
+        "CP3"
+      ]
+    },
+    "REQ-4": {
+      "description": "Orchestrators that already commit the checklist before the record, or carry the stale write in the fix commit, keep working unchanged",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    },
+    "REQ-5": {
+      "description": "Regression tests drive a bounded functional fix with a checklist change through the command text's own commit steps to the next review without bundle_generation_mismatch, for both item types and the two-stage and one-stage implementation review, pin both traps, and validate a recovery commit formatted as the corrected text says",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    },
+    "REQ-6": {
+      "description": "The shipped documents state the last-commit rule and the trailer paragraph, with troubleshooting entries; the downgrade posture and the unchanged protocol version are stated",
+      "checkpoint_ids": [
+        "CP4",
+        "CP5"
+      ]
+    },
+    "REQ-7": {
+      "description": "Workflow 2.9.2 is releasable: manifest digests committed before the bundle-generation record, release constant, conformance",
+      "checkpoint_ids": [
+        "CP5"
+      ]
+    }
+  }
+}

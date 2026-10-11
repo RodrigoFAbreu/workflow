@@ -1,6 +1,6 @@
 # Release history
 
-> For: anyone choosing or reviewing a Workflow release. Last checked with: Workflow 2.9.1.
+> For: anyone choosing or reviewing a Workflow release. Last checked with: Workflow 2.9.2.
 
 One line per release, newest first. Every release is immutable: a wrong one is
 replaced by a new version, never edited. Each notes link is the release page,
@@ -10,6 +10,7 @@ before updating a repository the Controller drives.
 
 | Release | Date | What changed | Notes |
 |---|---|---|---|
+| 2.9.2 | 2026-10-10 | A fix so a bounded functional-review fix no longer needs a person: `/apply-functional-review` now commits the stale technical-approval write, the fix and the functional-review checklist first and the bundle-generation record last, so the next implementation review no longer stops with `bundle_generation_mismatch`. The trailer rule is stated plainly in every command: `Co-Authored-By:` and `Claude-Session:` lines go in their own paragraph before the `Workflow-*` trailers, and a refused generation record names that cause. Read-side checks stay strict. 2.9.2 accepts no commit shape that 2.9.1 refuses and writes none that 2.9.1 would refuse, so 2.9.1 reads everything 2.9.2 writes; on a move back to 2.9.1, whose command keeps the old order, commit the stale technical-approval write alone before the first fix edit, commit the checklist before the generation record, and keep `Co-Authored-By:` out of the trailer paragraph, all by hand. Orchestration Protocol unchanged at 1.2. | [2.9.2](https://github.com/RodrigoFAbreu/workflow/releases/tag/v2.9.2) |
 | 2.9.1 | 2026-10-09 | A fix for the dead end after an implementation review returns REVISE: the review now commits its own REVISE write, `/apply-implementation-review` commits a still-pending one, and also commits its own entry into the applying-feedback phase, for every governing version, and the rule that an APPROVE write is never committed on its own is written down. 2.9.1 accepts no commit shape that 2.9.0 refuses and writes none that 2.9.0 would refuse, so 2.9.0 reads everything 2.9.1 writes; on a move back to 2.9.0, whose commands do not commit these writes, commit the state file alone by hand, before the first fix commit. Orchestration Protocol unchanged at 1.2. | [2.9.1](https://github.com/RodrigoFAbreu/workflow/releases/tag/v2.9.1) |
 | 2.9.0 | 2026-10-08 | New installations default to governing version 2.2. The user-only `/retire-legacy-work-item` closes a finished legacy work item for good, and `/resume-implementation` returns an item to implementation. A version-1 item can now enter implementation review. Orchestration Protocol 1.2. | [2.9.0](https://github.com/RodrigoFAbreu/workflow/releases/tag/v2.9.0) |
 | 2.8.0 | 2026-10-03 | A gate policy: approval gates are automatic by default (all three only for version-2.2 items), and a person can be turned on for all of them or one. A red or changes-requested pull request reopens the same work item. Orchestration Protocol 1.1. | [2.8.0](https://github.com/RodrigoFAbreu/workflow/releases/tag/v2.8.0) |
