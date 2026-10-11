@@ -1402,7 +1402,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # the bounded branch names the version's post-fix target phase, says a mixed
     # round's new child entry stays uncommitted, and words the stale-write rerun
     # by state_revision -- intentional content change.
-    "apply-functional-review.md": "c44808b97196ffa118a2daceefa7511a5dcb012021b780f8ea4b2b26b1ad6b70",
+    "apply-functional-review.md": "15fbf8e3d9f788345a269b5f820f5a82d800312289dbd679e48302f5571413da",
 }
 
 

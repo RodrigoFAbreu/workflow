@@ -55,8 +55,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/apply-functional-review\\.md$",
       "rationale": "D-Feedback-Layout (CP3): the <feedback_dir> preamble states the durable feedback_layout resolution (scoped by construction for a stamped item, the unchanged legacy rule otherwise, REVIEW_PROTOCOL.md normative); step 1 prints the exact resolved path when FUNCTIONAL_REVIEW.md is absent. D-Plan-Review-Bundle-Binding (CP4): a two-stage remediation child's publish is mirror-only and its /milestone-plan step-6 bind writes AWAITING_LOCAL_PLAN_REVIEW. W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version).",
-      "sha256": "c44808b97196ffa118a2daceefa7511a5dcb012021b780f8ea4b2b26b1ad6b70",
-      "size": 24187,
+      "sha256": "15fbf8e3d9f788345a269b5f820f5a82d800312289dbd679e48302f5571413da",
+      "size": 24261,
       "executable": false
     },
     {
@@ -329,8 +329,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/REVIEW_PROTOCOL\\.md$",
       "rationale": "D-Tooling-Ambient-Classification (CP1): the Computing review_content_id section gains the classification paragraph naming the one release-derived fallback, where it sits in the classification order, and what stays fail-closed. D-Plan-Amendment-5 revision (CP2): \"Bundle structure\" restates AMENDMENT_DIFF.patch to the working-tree anchor -- the base-plus-current-plus-declaration pathspec union, --no-renames, the provenance preamble, and its placement after MANIFEST.md -- and states it stays convenience only. D-Feedback-Layout (CP3): \"Bundle location\" gains the normative \"Feedback directory\" subsection -- the durable stamp, the scoped/legacy/refused resolution, ensure_feedback_dir, the --resolve-feedback-path contract for external tools, the bounded ownership-guard relaxation and the manual-record binding; the flat-fallback sentences are narrowed to the bundle directory and the Feedback protocol's location note is restated. D-Plan-Review-Bundle-Binding (CP4): the plan-inputs/ layout, the new \"Plan-stage staging generation and <plan_inputs_dir>\" subsection, and the plan-stage revision of WFR-67 (a failed plan generation withdraws nothing and writes no REJECTED marker), stated as deliberate. W1 (workflow-2.7.0, orchestration-protocol-v1): 'Required structure' pins the 'Reviewed review_content_id:' label, accepts the legacy alias, reads it from the header block only, and notes the compatibility change (v2.6.0-002, CP1); a two-stage REVISE is applied by its review_content_id, the bundle fields advisory (D-Apply-Binding, CP4). W2 (workflow-2.8.0, gate-policy-and-reopening). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "9a4d05e93684f99b09c5b2090b9beb1e5920267b784a59e1134a8106221580ef",
-      "size": 61705,
+      "sha256": "20633d6d65a27dc5197d53d7599af4f180fbea7181bda6a62a6a89105aec5704",
+      "size": 61785,
       "executable": false
     },
     {
@@ -733,7 +733,7 @@
       "category": "distribution",
       "rule": "^scripts/workflow_integration_test\\.py$",
       "rationale": "D-Feedback-Layout (CP3): the ten command-file content hashes CP3 changes are updated, each with an intentional-content-change comment, and TestReviewPlanStep8OwnershipGuardIsPresent's guard-call pin is re-pointed to require state=. No pin is deleted; the v1 golden hashes are unchanged. D-Plan-Review-Bundle-Binding (CP4): re-points test_a_real_committed_plan_edit_after_local_approval_invalidates_the_stage (the retired transition now refuses; a manual REVISE, publish and bind drive the same edge), the operator-reference phase-writer expectations, and registers the acceptance matrix's new amendment helper section in _MATRIX_HELPER_SECTION_OWNERS; the golden command-file hashes are re-recorded for the command files CP4 restates. None deleted. D-Plan-Approval-Closure (CP5): three pre-existing tests that pinned 2.5.1's fixed four/five-member set are re-pointed to the declared protected set (their fixture protects two further documents), none deleted; approve-review.md's and milestone-plan.md's golden hashes are re-recorded. D-Repo-Global-Lifecycle (CP6): adds TestApproveReviewLifecycleEntryTable (test 29) -- section 5.6's entry table asserted row by row over the live approve-review.md (4d directly after 4c and named nowhere else, 4b still skipping 4c-6, step 5's first_commit mode, 6a1's held check before its amend_recovery staging, 6b capturing journal_tokens before the rollback and releasing after it, 6c1's advance directly before 6d, and the table's rows). The approve-review.md and milestone-implement.md golden hashes are re-recorded with annotations. Implementation review round 1: the golden hashes of approve-review.md and apply-plan-review.md are updated for their documented round-1 additions. Implementation review round 2 (I1): the golden hashes of approve-review.md and milestone-plan.md are re-recorded for their literal/NUL-safe path instructions. W1 (workflow-2.7.0, orchestration-protocol-v1): golden hashes of the command files W1 changes, with their reasons; the operator-reference symbol allowlist; workflow_state.py as an assert_local_generation_matches call site (CP1, CP2, CP4, CP5, CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "113304daaa638c9f89130e40ce4adcfae900038ef6ebf1361d142bbbce4cd29e",
+      "sha256": "116a8885541fc601978349154e8303b56f630377112bd32fdebbfd5122160467",
       "size": 436090,
       "executable": false
     },

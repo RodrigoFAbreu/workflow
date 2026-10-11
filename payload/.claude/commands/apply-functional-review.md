@@ -119,7 +119,8 @@ all in the same invocation.
      whole round**: route every broad finding of the round first (its child
      is created, so step 6 can name its id). The new child's entry in
      `WORKFLOW_STATE.json` stays uncommitted in this round: the child's own
-     `/milestone-plan <child-id>` commits it, and `stage_scoped_state` keeps it
+     plan-approval commit (`/approve-review plan <child-id>` or
+     `/satisfy-gate plan <child-id>`) first commits it, and `stage_scoped_state` keeps it
      out of every commit of the parent's round, the generation record
      included. Then commit the "no code change"
      fixes (step 5) and the
