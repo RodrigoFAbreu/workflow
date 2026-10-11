@@ -70,11 +70,21 @@ classes and the `verify` warning), the same paths after the
 run to completion under a "2.1" default and under a "2.2" default, a "2.2" and
 a "1" default unchanged, legacy adoption unchanged, and the shipped templates.
 `Item.approve_implementation` gains an opt-in `scoped_staging`. The matrix runs
-381 tests (353 + 28), all green. CP5 to CP7 are not started.
+381 tests (353 + 28), all green. CP5 (managed conformance job) is complete: the
+template gains the `concurrency` block (a pull request's runs share one group
+and cancel; any other run is keyed by `run_id`/`run_attempt`) and one
+`Run the conformance suites` step that runs the nine suites `min(4, nproc)` at a
+time, longest first, each in its own checkout copy with its own `TMPDIR` and
+`HOME`, every suite always run, failures unfolded with an `::error` line;
+`release_test.py` gains `ConformanceTemplate` (7 tests). Verified in a scratch
+clone with refreshed digests: the full `release_test.py` (86 tests, Python 3.12)
+green; the step body on the nine real suites green in 4m09s wall against 572s
+sequential. The committed manifest digests are refreshed at CP7. CP6 and CP7 are
+not started.
 
 ## Next action
 
-`/milestone-implement retire-21-for-new-work` again: it implements CP5, one
+`/milestone-implement retire-21-for-new-work` again: it implements CP6, one
 checkpoint per invocation.
 
 ## Functional review checklist
