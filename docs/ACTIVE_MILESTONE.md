@@ -122,11 +122,11 @@ working tree at the checklist-evidence commit).
 5. **Docs.** `REVIEW_PROTOCOL.md` section "A generation record is the last
    commit, and its trailer paragraph"; `MILESTONE_WORKFLOW.md` and the operator
    reference name the bounded fix's order; `docs/common-problems.md` has the two
-   new entries. `python3 scripts/check_docs.py` is clean.
+   new entries. `python3 tools/docs/check_docs.py` is clean (exit 0).
 6. **Release 2.9.2.** `manifest.json` version 2.9.2, digests match bytes,
    `WORKFLOW_RELEASE` is `2.9.2`, `PROTOCOL_VERSION` still `1.2`, release
    history row and downgrade paragraph present, ROADMAP W6 status reads
-   "implementation in review".
+   "functional review".
 7. **Installation untouched.** `workflow-manager verify .` is clean and
    `.claude/`, `scripts/`, `docs/ai-workflow/` (except this item's own files)
    have no hand edits.
@@ -143,3 +143,12 @@ side still strict.
 - The 2.9.1 installation here is not upgraded until 2.9.2 is published and its
   pin is added to `workflow-manager`.
 - No command records acceptance of a partial round.
+
+### Functional review round 1
+
+Flows 1-8 passed. Findings 1-3 (version-blind post-fix target phase, mixed
+round's uncommitted child entry, stale-write rerun wording) are fixed in the
+release payload's docs and command text, wording only. Finding 4 corrected flow
+5's checker path (`python3 tools/docs/check_docs.py`) and flow 6's ROADMAP
+expectation ("functional review"). Re-test: flows 1, 5 and 6, and the
+`FunctionalFixCommitOrder` classes.
