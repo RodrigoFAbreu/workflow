@@ -48,11 +48,17 @@ which `route_work_item`'s fresh branch and `create_remediation_child_work_item`
 call; the harness gains `seed_existing_work_item` and
 `seed_existing_remediation_child`; the acceptance matrix creates its items
 through one `route_item` helper, and the three real-creator child scenarios run
-under a `Workflow-Activation: 2.2` default. CP2 to CP7 are not started.
+under a `Workflow-Activation: 2.2` default. CP2 (Orchestration Protocol 1.3) is
+complete: `workflow_protocol.py` narrows row 1 to a default that is not retired,
+adds row 1b (`plan_start_default_retired`, remedy `RETIRED_DEFAULT_NEXT_STEP`,
+evaluated between rows 1 and 1a) and the advisory `default_workflow_version`
+`verify` check, and `PROTOCOL_VERSION` is `1.3`; the protocol document, the
+schema's check-id list and the protocol suite's mirror and release-comparison
+tests follow. CP3 to CP7 are not started.
 
 ## Next action
 
-`/milestone-implement retire-21-for-new-work` again: it implements CP2, one
+`/milestone-implement retire-21-for-new-work` again: it implements CP3, one
 checkpoint per invocation.
 
 ## Functional review checklist
