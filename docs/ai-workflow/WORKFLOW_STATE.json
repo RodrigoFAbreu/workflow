@@ -2595,7 +2595,7 @@
       "registry_path": "docs/ai-workflow/registry/functional-fix-commit-order-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/functional-fix-commit-order-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 1,
       "implementation_revision": 5,
       "functional_review_round": null,
@@ -2980,8 +2980,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 31,
-      "last_transition": "2026-10-11T01:45:14Z",
+      "state_revision": 33,
+      "last_transition": "2026-10-11T01:57:21Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -2998,25 +2998,17 @@
         }
       },
       "implementation_review_stages": {
-        "review_content_id": "8e8dcf6fad81e8bcdf0b5663de46295c95db49a5b0818005ce1c78a18c2695c0",
+        "review_content_id": "859bdaec3bccaf0d5bad9580194d9ac2b6e376faefb839066564eae283620b3d",
         "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "2d97bef72c89f9fa3b9b2391253198cf2915d0b87ba2ff9e526e8bc9c8c39d1e",
+          "bundle_id": "38dffbf649fdc0ca0cee989fd13215b0db33e400d8843287ad1b73d938649c41",
           "verdict": "APPROVE",
-          "round": 4,
-          "completed_at": "2026-10-11T00:49:22Z",
-          "verdict_sha256": "7210743ea61852ca69d0320ad6a470f102dc49e2a936accc7e43c3fb2993d119",
-          "run_ref": "session:local /home/rodrigo/Workspace/workflow-w6/.ai-review/functional-fix-commit-order/feedback/REVIEW_FEEDBACK.md",
+          "round": 5,
+          "completed_at": "2026-10-11T01:52:34Z",
+          "verdict_sha256": "cf0e68340969981ac39342839eb9eb65149cf5e01e3632e31e9c1684c1f2cc64",
+          "run_ref": "session:local .ai-review/functional-fix-commit-order/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "anthropic/claude-opus-5-5"
         },
-        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "2d97bef72c89f9fa3b9b2391253198cf2915d0b87ba2ff9e526e8bc9c8c39d1e",
-          "verdict": "APPROVE",
-          "round": 4,
-          "completed_at": "2026-10-11T01:03:14Z",
-          "verdict_sha256": "9a939cfe163cba85e86b660a07aea9f46df12e33e3b2ab4672e75037a14fc142",
-          "run_ref": "session:local .ai-review/functional-fix-commit-order/feedback/REVIEW_FEEDBACK.md",
-          "reviewer_model": "openai/gpt-6.1-sol"
-        }
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
       }
     }
   }
