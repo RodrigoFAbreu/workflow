@@ -129,6 +129,10 @@ commit, `d2d2091`).
   `manifest.json`, `tools/release/`) is what changed; this repository's own
   installation stays 2.9.2.
 - Scratch work only in a throwaway directory (`mktemp -d`), never in this tree.
+- Flow 8 needs the pinned compression runtime: `pip install --require-hashes
+  -r tools/release/deflate-requirements.txt` (a virtual environment is fine).
+  Without `zlib_ng`, `tools/release/release_test.py` fails 25 tests with
+  `zlib_ng is not installed`; with it, all 87 pass.
 
 ### Test data
 
@@ -175,7 +179,26 @@ commit, `d2d2091`).
    `verify`.
 8. **Release 2.10.0.** `manifest.json` names 2.10.0, `WORKFLOW_RELEASE` is
    `2.10.0`, `docs/release-history.md` has the 2.10.0 row; `python3
-   tools/release/release_test.py` and `check_docs.py` are clean.
+   tools/release/release_test.py` (in the environment from Setup) and
+   `check_docs.py` are clean.
+
+### Functional review round 1
+
+Flows 1-8 passed; three wording findings, no code defect.
+
+- **Fixed (wording only, commit `393a80e`):** `docs/gates.md` now says to set
+  `default_workflow_version` to `"2.2"` (with `"2.2"` in `supported_versions`)
+  in a commit carrying `Workflow-Activation: 2.2`, that the Workflow's own
+  `verify` warns `default_workflow_version` while the default is `"2.1"`, and
+  links to `common-problems.md` for where to commit it.
+  `MILESTONE_WORKFLOW.md`'s broad-branch bullet no longer says the default
+  "can no longer be `"2.1"`": while it is `"2.1"`, creating the child refuses
+  with `DefaultWorkflowVersionRetiredError`, writing nothing. A sweep of the
+  release payload and `docs/` found no other such sentence.
+- **Checklist correction (no code change):** Setup now names the compression
+  runtime flow 8 needs.
+- **Re-test:** flow 7 (the three documents and the `MILESTONE_WORKFLOW.md`
+  bullet) and flow 8 with the prerequisite installed. Flows 1-6 are unaffected.
 
 ### Known limitations / out of scope
 
