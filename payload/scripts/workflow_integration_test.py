@@ -1156,7 +1156,10 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.8.0 (gate-policy-and-reopening, CP1): the generation-record
     # commit stages item-scoped (stage_scoped_state) -- intentional content
     # change.
-    "apply-implementation-review.md": "e68d13e574ff8e6971b2d375688bd92f89816ea8254402750ce0545ab5ab26e7",
+    # functional-fix-commit-order implementation review: step 8 is
+    # version-aware (a "2.2" post-fix round re-enters local review) --
+    # intentional content change.
+    "apply-implementation-review.md": "bad7a8fde2b5ded6658abb6faffcdfead9d45e136b8211d59aab9f98c378c0b8",
     # review-plan.md/record-manual-plan-review.md further updated,
     # workflow-v2-3-followups CP3 (REQ-8/-9): the `Reviewer role:` template
     # literal, the round-computation prose, the exact-match-expectation
