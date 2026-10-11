@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retire-21-for-new-work",
+  "requirements": {
+    "REQ-1": {
+      "description": "Creating a new work item under a \"2.1\" default refuses before any write, with a named error and one next step, on every configuration-derived path",
+      "checkpoint_ids": [
+        "CP1",
+        "CP3",
+        "CP4"
+      ]
+    },
+    "REQ-2": {
+      "description": "Existing \"2.1\" items, legacy adoption, and \"2.2\" and \"1\" defaults behave as in 2.9.2; nothing persisted changes",
+      "checkpoint_ids": [
+        "CP1",
+        "CP4"
+      ]
+    },
+    "REQ-3": {
+      "description": "\"2.1\" stays supported; the protocol reports the refusal (row 1b) and the Workflow's own checks warn",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "REQ-4": {
+      "description": "The managed conformance job cancels superseded pull-request runs and runs every suite in parallel inside the one workflow-conformance job, isolated, with each failure shown",
+      "checkpoint_ids": [
+        "CP5"
+      ]
+    },
+    "REQ-5": {
+      "description": "The rule, the next step, the two version-aware wording fixes, the downgrade posture and the Manager handoff are written down",
+      "checkpoint_ids": [
+        "CP6",
+        "CP7"
+      ]
+    },
+    "REQ-6": {
+      "description": "2.10.0 is releasable",
+      "checkpoint_ids": [
+        "CP7"
+      ]
+    }
+  }
+}

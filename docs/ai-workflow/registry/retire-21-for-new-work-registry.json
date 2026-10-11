@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retire-21-for-new-work",
+  "plan_revision": 2,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The refusal at creation, and the test fixtures that seed existing 2.1 items",
+      "depends_on": [],
+      "complexity": 4,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Orchestration Protocol 1.3: row 1b and the advisory verify check",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Command texts: /milestone-plan, /apply-functional-review and /apply-pr-review stop before any write",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP4",
+      "name": "Regression scenarios end to end: every creation path, existing 2.1 items, a 2.2 default, legacy adoption",
+      "depends_on": [
+        "CP1",
+        "CP2",
+        "CP3"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP5",
+      "name": "The managed conformance job: cancel superseded pull-request runs, run the suites in parallel",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP6",
+      "name": "Documentation: the rule, the next step, the warning, and the two version-aware wording fixes",
+      "depends_on": [
+        "CP2",
+        "CP3"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP7",
+      "name": "Release 2.10.0: manifest, release constant, release history and roadmap",
+      "depends_on": [
+        "CP1",
+        "CP2",
+        "CP3",
+        "CP4",
+        "CP5",
+        "CP6"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}
