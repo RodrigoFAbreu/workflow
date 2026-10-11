@@ -153,3 +153,13 @@ release payload's docs and command text, wording only. Finding 4 corrected flow
 5's checker path (`python3 tools/docs/check_docs.py`) and flow 6's ROADMAP
 expectation ("functional review"). Re-test: flows 1, 5 and 6, and the
 `FunctionalFixCommitOrder` classes.
+
+### Functional review round 2
+
+Flows 1-8 passed. The one finding (the version-blind post-fix target phase
+still stated in the operator reference's `/apply-functional-review` "Expects"
+bullet, its vocabulary table and `APPLYING_REVIEW_FEEDBACK` row, and
+`MILESTONE_WORKFLOW.md`'s three places) is fixed, wording only: each now names
+`AWAITING_LOCAL_IMPLEMENTATION_REVIEW` for a `"2.2"` item and
+`AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a `"1"`/`"2.1"` item, and a sweep
+of the payload found no other unqualified statement. Re-test: flows 1 and 5.
