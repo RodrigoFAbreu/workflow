@@ -579,8 +579,10 @@ whether the gate is open.
   - functional testing produced a finding fixable inside the approved
     scope → `/apply-functional-review`'s **bounded** branch, which marks
     `technical_approval` `STALE`, lands the fix, regenerates the `post-fix`
-    bundle and returns the item to a fresh
-    `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`;
+    bundle and returns the item to a fresh implementation-review round at
+    the version's post-fix target phase (`AWAITING_LOCAL_IMPLEMENTATION_REVIEW`
+    for a `"2.2"` item, `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a
+    `"1"`/`"2.1"` item);
   - the finding is new or wider scope → `/apply-functional-review`'s
     **broad** branch, which creates a `<parent-id>-remediation-<n>` child
     work item that runs its own full cycle, and blocks the parent's
@@ -602,7 +604,9 @@ whether the gate is open.
 *Vocabulary state — never persisted (see "Vocabulary states" above).*
 `/apply-functional-review` runs from `AWAITING_FUNCTIONAL_REVIEW`; its
 bounded branch's own `record_bundle_generation` is what moves the item,
-to `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`.
+to the version's post-fix target phase: `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`
+for a `"2.2"` item, `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a
+`"1"`/`"2.1"` item.
 
 - **Entry**: `<feedback_dir>/FUNCTIONAL_REVIEW.md` exists.
 - **Allowed actions**: classify each finding (defect, usability issue,
@@ -657,8 +661,9 @@ to `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`.
   (a deferral to a remediation child counts as a rationale).
 - **Stop for user/reviewer?** Returns to `AWAITING_FUNCTIONAL_REVIEW` for
   another pass unless the user explicitly waives it — except a round with
-  any bounded-code-change finding, which stops at the fresh
-  `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` gate instead (above).
+  any bounded-code-change finding, which stops at the fresh implementation-review
+  gate instead (above): `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` for a `"2.2"`
+  item, `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a `"1"`/`"2.1"` item.
 
 ### AWAITING_USER_ACCEPTANCE
 

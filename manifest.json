@@ -299,8 +299,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/MILESTONE_WORKFLOW\\.md$",
       "rationale": "D-Feedback-Layout (CP3): every hard-coded .ai-review/feedback/ path (REVIEWING_PLAN exit, REVISING_PLAN entry, implementation-review allowed actions and exit, functional-review exit and entry, the optional-reviewer paragraph, Feedback file locations) becomes <feedback_dir>, with one normative definition under Feedback file locations pointing at REVIEW_PROTOCOL.md \"Feedback directory\". D-Plan-Review-Bundle-Binding (CP4): the bind, not the publish, writes AWAITING_LOCAL_PLAN_REVIEW; the withdrawal edge from each ready phase; plan-stage BLOCK resolved by re-review of unchanged content or an edit plus withdrawal. W1 (workflow-2.7.0, orchestration-protocol-v1): the durable consumed plan-review history (v2.6.0-001, CP2); 'Hard gates summary' states that the Orchestration Protocol reports the same gates and adds none (CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version).",
-      "sha256": "833485f09904490906e6fe1edec738d47a0f44e5f67d85f94035d3feb6941093",
-      "size": 53204,
+      "sha256": "1a687dda22a4c0f202ade0ae31f843b6e8a8fc7b2710ae4122f2cbffad9e5892",
+      "size": 53595,
       "executable": false
     },
     {
@@ -339,8 +339,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE\\.md$",
       "rationale": "D-Feedback-Layout (CP3): the invariants list gains a Feedback location bullet (scoped-by-construction for new items, legacy resolution kept, the --resolve-feedback-path CLI). D-Plan-Review-Bundle-Binding (CP4): the persisted-phase writers (bind_plan_review_bundle; withdraw_plan_review), the /milestone-plan, /review-plan, /record-manual-plan-review, /apply-plan-review and /approve-review entries, next-command rows for the withdrawal and PUBLISHED_UNBOUND, and three known discrepancies this release fixes removed. W1 (workflow-2.7.0, orchestration-protocol-v1): the durable consumed plan-review history (v2.6.0-001, CP2); a next-action row in 'Which command do I run next?', the 'Driving the Workflow by protocol' section, and the outstanding-checkpoint row corrected as accept-milestone.md step 2a is (CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "36567afa83dbe2f861f80efe4d317e18ef71965d196720a7bb4b8cb66044b9ef",
-      "size": 85346,
+      "sha256": "12b9fa5e52c2ce75ec847d3a5b1c5a221f11c9fde9331ff2dd9f109842e0d14e",
+      "size": 85716,
       "executable": false
     },
     {
