@@ -630,7 +630,10 @@ to `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`.
     writes the new `reviewed_implementation_head` (D-Approval-Commits'
     sole writer for that field), which is what makes `/approve-review
     implementation` reachable again. This re-enters
-    `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`: a fresh implementation-
+    the version's post-fix target phase,
+    `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` for a `"2.2"` item (both
+    implementation-review stages run again) and
+    `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a `"1"`/`"2.1"` item: a fresh implementation-
     review round and a fresh `/approve-review implementation` are
     required before `AWAITING_FUNCTIONAL_REVIEW` is reachable again for
     this item — Claude stops here, it does not loop back into functional

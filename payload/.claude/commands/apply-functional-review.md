@@ -103,9 +103,12 @@ all in the same invocation.
      returns `False`, and the ordinary single-path `git add` runs, unless
      another work item holds uncommitted residue in the state file). When
      nothing is staged afterwards (`git diff --cached --quiet`: an
-     orchestrator already committed the write, or this is a re-run), there is
-     nothing to commit and this does nothing. This still precedes the first
-     source or test edit.
+     orchestrator already committed the write), there is nothing to commit and
+     this does nothing. A repeated `mark_technical_approval_stale` call
+     advances `state_revision`, so it is a new state change and gives one more
+     state-only commit before the fix, which is valid; only re-staging a write
+     that is already committed leaves nothing staged. This still precedes the
+     first source or test edit.
   2. Make the fix (step 4's normal work: regression test included).
   3. Commit the fix (one coherent commit; do not bundle it with an
      unrelated finding's fix). Each bounded finding of the round runs
@@ -114,7 +117,11 @@ all in the same invocation.
 
      **Then, before the regeneration, run top-level steps 5 and 6 for the
      whole round**: route every broad finding of the round first (its child
-     is created, so step 6 can name its id), then commit the "no code change"
+     is created, so step 6 can name its id). The new child's entry in
+     `WORKFLOW_STATE.json` stays uncommitted in this round: the child's own
+     `/milestone-plan <child-id>` commits it, and `stage_scoped_state` keeps it
+     out of every commit of the parent's round, the generation record
+     included. Then commit the "no code change"
      fixes (step 5) and the
      functional-review checklist update in `docs/ACTIVE_MILESTONE.md`
      (step 6: what changed, any deferral to a remediation child by id, what
@@ -225,9 +232,13 @@ all in the same invocation.
      change"/"broad" branch in this same invocation), so this exact
      content must never be re-read as fresh on a later pass. This finding
      now requires a fresh implementation-review round: report readiness
-     and **stop** — this re-enters
-     `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` exactly like an ordinary
-     post-fix round (`/apply-implementation-review` drives it from here).
+     and **stop** — this re-enters the version's post-fix target phase
+     (`bundle_generation_target_phase("post-fix", <version>)`):
+     `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` for a `"2.2"` item (both
+     implementation-review stages run again) and
+     `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a `"1"`/`"2.1"` item,
+     exactly like an ordinary post-fix round for that version
+     (`/apply-implementation-review` drives it from here).
      A fresh `/approve-review implementation` must succeed before
      `AWAITING_FUNCTIONAL_REVIEW` is reachable again for this item. Do not
      proceed to step 6/7 in this same invocation once any finding takes

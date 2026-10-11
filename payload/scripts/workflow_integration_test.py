@@ -1398,7 +1398,11 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # the stale technical-approval write before the first edit, runs steps 5 and 6
     # before the regeneration, and says no commit follows the record (#19) --
     # intentional content change.
-    "apply-functional-review.md": "af578530b96932a921ecb52b6e6aec6af5889b3d0ff82a06ad44dff1dc668ec8",
+    # Implementation review / functional review round 1 (functional-fix-commit-order):
+    # the bounded branch names the version's post-fix target phase, says a mixed
+    # round's new child entry stays uncommitted, and words the stale-write rerun
+    # by state_revision -- intentional content change.
+    "apply-functional-review.md": "c44808b97196ffa118a2daceefa7511a5dcb012021b780f8ea4b2b26b1ad6b70",
 }
 
 

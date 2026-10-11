@@ -834,7 +834,9 @@ committed"); if a round was refused with "must always transition phase", see
     edit and commits that write alone, fixes and commits, commits the
     checklist update, then regenerates the `post-fix` bundle once and commits
     the generation record **last** (nothing is committed after it), and stops
-    at a fresh `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`;
+    at the version's post-fix target phase: `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`
+    for a `"2.2"` item (both implementation-review stages run again),
+    `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a `"1"`/`"2.1"` item;
   - *broad* → creates a child work item `<parent-id>-remediation-<n>` and
     hands you its whole own command sequence, starting `/milestone-plan
     <child-id>`; nothing is implemented inline. See [Remediation

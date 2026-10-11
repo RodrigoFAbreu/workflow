@@ -984,7 +984,10 @@ is the example: it commits the stale `technical_approval` write alone before
 the first edit, then each fix, then the "no code change" fixes and the
 functional-review checklist in `docs/ACTIVE_MILESTONE.md`, and only then
 regenerates the bundle once and commits the record. Nothing is committed after
-it. `/milestone-implement`, `/apply-implementation-review`, `/apply-pr-review`
+it. In a mixed round, the new remediation child's entry in
+`WORKFLOW_STATE.json` stays uncommitted: the child's own `/milestone-plan`
+commits it, and the scoped staging keeps it out of every commit of the
+parent's round, the record included. `/milestone-implement`, `/apply-implementation-review`, `/apply-pr-review`
 and `/recover-implementation-provenance` already end on their record.
 
 **Trailer paragraph.** Every command that writes a `Workflow-*` trailer (the
