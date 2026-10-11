@@ -241,9 +241,17 @@ rule for an item without the field.
    run `./scripts/prepare-ai-review.sh <base-sha> post-fix [work_item_id]`
    — required before `AWAITING_TECHNICAL_APPROVAL` can be reachable again.
 8. If any Blocking finding remains unresolved, or the fix was structurally
-   significant, stay in `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` and stop
-   for another review round. Otherwise report readiness and that
-   `AWAITING_TECHNICAL_APPROVAL` is the next state, and stop — do not
+   significant, stay at the post-fix phase step 7 wrote --
+   `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` for a `"2.2"` item,
+   `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a `"1"`/`"2.1"` item -- and
+   stop for another review round. Otherwise report readiness and that
+   `AWAITING_TECHNICAL_APPROVAL` is the next state. For a `"2.2"` item the
+   item is never at the terminal phase after step 7: `/review-implementation`
+   (local review) and then `/record-manual-implementation-review` (manual
+   external review) must both run again before `/approve-review
+   implementation` is reachable -- name `/review-implementation` as the next
+   command, never a manual-verdict ingest (it refuses at
+   `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`). Then stop — do not
    auto-run `/approve-review` or `/prepare-functional-review`. Only the user
    invokes `/approve-review implementation`; let the user decide when to
    proceed.

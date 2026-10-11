@@ -65,8 +65,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/apply-implementation-review\\.md$",
       "rationale": "D-Feedback-Layout (CP3): the <feedback_dir> preamble states the durable feedback_layout resolution (scoped by construction for a stamped item, the unchanged legacy rule otherwise, REVIEW_PROTOCOL.md normative); step 1 prints the exact resolved path when feedback is absent. W1 (workflow-2.7.0, orchestration-protocol-v1): step 1 binds through assert_apply_review_feedback_binding (a two-stage REVISE applied by its review_content_id, the bundle fields advisory, D-Apply-Binding) and reports its advisory and refusals by class (CP4). W2 (workflow-2.8.0, gate-policy-and-reopening). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "e68d13e574ff8e6971b2d375688bd92f89816ea8254402750ce0545ab5ab26e7",
-      "size": 17880,
+      "sha256": "bad7a8fde2b5ded6658abb6faffcdfead9d45e136b8211d59aab9f98c378c0b8",
+      "size": 18426,
       "executable": false
     },
     {
