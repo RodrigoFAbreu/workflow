@@ -54,7 +54,13 @@ adds row 1b (`plan_start_default_retired`, remedy `RETIRED_DEFAULT_NEXT_STEP`,
 evaluated between rows 1 and 1a) and the advisory `default_workflow_version`
 `verify` check, and `PROTOCOL_VERSION` is `1.3`; the protocol document, the
 schema's check-id list and the protocol suite's mirror and release-comparison
-tests follow. CP3 to CP7 are not started.
+tests follow. CP3 (command texts) is complete: `milestone-plan.md` step 0 stops a fresh
+milestone under a "2.1" default before step 1, `apply-functional-review.md`
+checks `assert_default_admits_new_work_item` before the first bounded sub-step,
+and `apply-pr-review.md`'s broad fix names the refusal, that step 1's write
+stands, and the re-run from `already_reopened`; the integration suite updates
+two golden hashes, pins `apply-pr-review.md`, and adds static conformance tests.
+CP4 to CP7 are not started.
 
 ## Next action
 
