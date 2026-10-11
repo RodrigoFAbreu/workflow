@@ -659,8 +659,10 @@ for a `"2.2"` item, `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a
     work item, because it is one. A `"2.1"` or `"2.2"` child's first plan
     review is `AWAITING_LOCAL_PLAN_REVIEW` (two-stage plan review); a `"1"`
     child's is `AWAITING_EXTERNAL_PLAN_REVIEW`. From 2.10.0 a new child
-    cannot be `"2.1"`: it takes the configuration's default, which can no
-    longer be `"2.1"`. The parent's own registry, mapping, and completed-checkpoint
+    cannot be `"2.1"`: it takes the configuration's default, and while that
+    default is `"2.1"` its creation refuses with
+    `DefaultWorkflowVersionRetiredError`, writing nothing (set the default to
+    `"2.2"` in a `Workflow-Activation: 2.2` commit). The parent's own registry, mapping, and completed-checkpoint
     history are never mutated by this branch; the deferral is recorded in
     the parent's own functional-review checklist, naming the child id.
 - **Artifacts**: fixed diff with regression tests; revised functional

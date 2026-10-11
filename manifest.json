@@ -299,8 +299,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/MILESTONE_WORKFLOW\\.md$",
       "rationale": "D-Feedback-Layout (CP3): every hard-coded .ai-review/feedback/ path (REVIEWING_PLAN exit, REVISING_PLAN entry, implementation-review allowed actions and exit, functional-review exit and entry, the optional-reviewer paragraph, Feedback file locations) becomes <feedback_dir>, with one normative definition under Feedback file locations pointing at REVIEW_PROTOCOL.md \"Feedback directory\". D-Plan-Review-Bundle-Binding (CP4): the bind, not the publish, writes AWAITING_LOCAL_PLAN_REVIEW; the withdrawal edge from each ready phase; plan-stage BLOCK resolved by re-review of unchanged content or an edit plus withdrawal. W1 (workflow-2.7.0, orchestration-protocol-v1): the durable consumed plan-review history (v2.6.0-001, CP2); 'Hard gates summary' states that the Orchestration Protocol reports the same gates and adds none (CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version).",
-      "sha256": "b8ac7fcae6e19a063bf256665d67f59d66e17f7e9a79152aecdc6bfa281b116c",
-      "size": 54213,
+      "sha256": "db4bcddcb2b92d08210ed588944a181257f0228dbfea458e61d369bc69e51b93",
+      "size": 54372,
       "executable": false
     },
     {
