@@ -57,8 +57,10 @@ The record of the adopted policy no longer checks out, which the Workflow's own 
 
 `/milestone-plan`, `/apply-functional-review` (a broad fix) or `/apply-pr-review`
 stopped with `DefaultWorkflowVersionRetiredError`, or `next-action` reports
-`plan_start_default_retired`, or `workflow-manager verify` warns
-`default_workflow_version`. Nothing was written. Set `default_workflow_version`
+`plan_start_default_retired`, or the Workflow's own `verify` check (not
+`workflow-manager verify`) warns `default_workflow_version`. Nothing was
+written (for `/apply-pr-review`, nothing after its first step, which may have
+reopened the item). Set `default_workflow_version`
 to `"2.2"` in `docs/ai-workflow/WORKFLOW_CONFIG.json` (with `"2.2"` in
 `supported_versions`), commit it with the trailer `Workflow-Activation: 2.2`,
 then run the command again. Existing `"2.1"` items are not affected.

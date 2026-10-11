@@ -100,11 +100,21 @@ runs the nine suites green, `check_docs.py` is clean, `check-title --agree`
 accepts a `feat:` title for 2.9.2 to 2.10.0, and `workflow-manager verify .`
 is clean.
 
+Self-review (`SELF_REVIEWING_IMPLEMENTATION`) of the full milestone diff fixed
+two defects. In the template's step body, Actions runs `bash -eo pipefail`, so
+a suite whose checkout copy failed (and so wrote no result) made the throttle's
+`wait -n`, and then the failure branch's `cat` of its missing log, end the
+step before any other suite was reported; both now tolerate it, and a new
+`ConformanceTemplate` test (an uncopyable checkout) pins that all nine are
+still reported, with the manifest's template digest refreshed. And
+`docs/common-problems.md` and `docs/install.md` named `workflow-manager verify`
+as the source of the `default_workflow_version` warning, which is the
+Workflow's own `verify` check; `common-problems.md` also says that
+`/apply-pr-review`'s first-step write stands.
+
 ## Next action
 
-`/milestone-implement retire-21-for-new-work` again: every checkpoint is
-complete, so it enters `SELF_REVIEWING_IMPLEMENTATION`, runs the full
-verification and prepares the implementation review bundle.
+The implementation review of the bundle `/milestone-implement` prepares.
 
 ## Functional review checklist
 

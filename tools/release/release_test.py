@@ -668,13 +668,16 @@ class ConformanceTemplate(unittest.TestCase):
         self.assertEqual(sorted(self.suites()), shipped)
         self.assertEqual(len(self.suites()), 9)
 
-    def run_body(self, fail=()):
+    def run_body(self, fail=(), uncopyable=False):
         tmp = Path(tempfile.mkdtemp(prefix="conformance-job-"))
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
         ws, runner, counter = tmp / "ws", tmp / "runner", tmp / "counter"
         (ws / "scripts").mkdir(parents=True)
         counter.mkdir()
         (ws / "MARKER").write_text("original\n")
+        if uncopyable:
+            (ws / "UNREADABLE").write_text("x\n")
+            (ws / "UNREADABLE").chmod(0)
         for name in self.suites():
             (ws / "scripts" / name).write_text(
                 "import os, sys, time, pathlib\n"
@@ -720,6 +723,18 @@ class ConformanceTemplate(unittest.TestCase):
             if name != bad:
                 self.assertIn(f"::group::{name} passed in", out)
         self.assertIn("1 suite(s) failed", out)
+        self.assertEqual(summary.count("\n| workflow_"), 9)
+
+    @unittest.skipIf(os.geteuid() == 0, "root reads a mode-0 file, so the copy cannot fail")
+    def test_step_body_reports_every_suite_whose_setup_failed(self):
+        # Under Actions' `bash -eo pipefail`, a suite whose copy fails exits
+        # before writing its result; the throttle's `wait -n` must not end
+        # the step there, so every suite is still reported, logs and summary.
+        proc, ws, runner, counter, summary = self.run_body(uncopyable=True)
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        for name in self.suites():
+            self.assertIn(f"::error title={name} failed::exit missing after", proc.stdout)
+        self.assertIn("9 suite(s) failed", proc.stdout)
         self.assertEqual(summary.count("\n| workflow_"), 9)
 
     def test_step_body_is_parallel_and_isolated(self):

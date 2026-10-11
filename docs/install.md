@@ -31,8 +31,8 @@ already exists, and an existing work item keeps its governing version.
 
 From Workflow 2.10, a configuration that still names `"2.1"` as the default
 cannot start a new work item: `/milestone-plan`, `/apply-functional-review` (a
-broad fix) and `/apply-pr-review` refuse before any write, and
-`workflow-manager verify` warns. Change it to `"2.2"` (with `"2.2"` in
+broad fix) and `/apply-pr-review` refuse before creating it, and the
+Workflow's own `verify` check warns. Change it to `"2.2"` (with `"2.2"` in
 `supported_versions`) in a commit carrying `Workflow-Activation: 2.2` before the
 next new item. Existing `"2.1"` items finish unchanged. See
 [Common problems](common-problems.md).

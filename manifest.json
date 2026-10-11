@@ -825,8 +825,8 @@
     {
       "target_path": ".github/workflows/workflow-conformance.yml",
       "location": "templates/.github/workflows/workflow-conformance.yml",
-      "sha256": "41a27ab12fb3f8b2519913b72c2fd7dcc9c6f4d78d5dbbc719ee0bbd4147e3f5",
-      "size": 3228,
+      "sha256": "0c78939c1d4216d653862d54d4e4024e68ea56e768783a398b3849dbbf96911c",
+      "size": 3244,
       "derivation": "generated: the frozen ci.yml's seven hermetic Workflow suite steps, lifted out of RepFlow's interleaved Gradle jobs; W1 (workflow-2.7.0) adds an eighth step, workflow_protocol_test.py; W2 (workflow-2.8.0) adds a ninth, workflow_gate_policy_test.py; W5 (workflow-2.10.0) cancels a pull request's superseded run and runs the nine suites in parallel inside the one job"
     },
     {

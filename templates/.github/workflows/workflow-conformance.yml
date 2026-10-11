@@ -48,7 +48,7 @@ jobs:
             echo "done  $1 exit $status in $((SECONDS - start))s"
           }
           for s in $suites; do
-            while [ "$(jobs -rp | wc -l)" -ge "$width" ]; do wait -n; done
+            while [ "$(jobs -rp | wc -l)" -ge "$width" ]; do wait -n || true; done
             ( run_suite "$s" ) &
           done
           wait
@@ -61,7 +61,7 @@ jobs:
               echo "| $s | passed | $secs |" >>"$GITHUB_STEP_SUMMARY"
             else
               failed=$((failed + 1))
-              echo "::error title=$s failed::exit $status after ${secs}s"; cat "$d/log" 2>/dev/null
+              echo "::error title=$s failed::exit $status after ${secs}s"; cat "$d/log" 2>/dev/null || true
               echo "| $s | FAILED (exit $status) | $secs |" >>"$GITHUB_STEP_SUMMARY"
             fi
           done
