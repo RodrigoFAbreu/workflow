@@ -60,11 +60,21 @@ checks `assert_default_admits_new_work_item` before the first bounded sub-step,
 and `apply-pr-review.md`'s broad fix names the refusal, that step 1's write
 stands, and the re-run from `already_reopened`; the integration suite updates
 two golden hashes, pins `apply-pr-review.md`, and adds static conformance tests.
-CP4 to CP7 are not started.
+CP4 (regression scenarios) is complete: the acceptance matrix gains
+`RetiredDefaultVersionProcess`/`...Product` (14 scenarios each): the refusal on
+every creation path under a "2.1" default (fresh milestone, row 1b, a broad
+functional-review child, a broad pull-request child, with the `reconcile`
+classes and the `verify` warning), the same paths after the
+`Workflow-Activation: 2.2` edit (the "2.2" child driven through its own cycle to
+`MILESTONE_COMPLETE`, then the "2.1" parent accepted), an existing "2.1" item
+run to completion under a "2.1" default and under a "2.2" default, a "2.2" and
+a "1" default unchanged, legacy adoption unchanged, and the shipped templates.
+`Item.approve_implementation` gains an opt-in `scoped_staging`. The matrix runs
+381 tests (353 + 28), all green. CP5 to CP7 are not started.
 
 ## Next action
 
-`/milestone-implement retire-21-for-new-work` again: it implements CP3, one
+`/milestone-implement retire-21-for-new-work` again: it implements CP5, one
 checkpoint per invocation.
 
 ## Functional review checklist
