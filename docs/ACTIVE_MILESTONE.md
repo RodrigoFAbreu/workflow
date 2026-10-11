@@ -146,7 +146,8 @@ side still strict.
 
 ### Functional review round 1
 
-Flows 1-8 passed. Findings 1-3 (version-blind post-fix target phase, mixed
+Flows 1-8 passed (flow 8, the 2.9.2 stage-conformance run, was added by the
+orchestrator in `FUNCTIONAL_REVIEW.md`, not listed in the checklist above). Findings 1-3 (version-blind post-fix target phase, mixed
 round's uncommitted child entry, stale-write rerun wording) are fixed in the
 release payload's docs and command text, wording only. Finding 4 corrected flow
 5's checker path (`python3 tools/docs/check_docs.py`) and flow 6's ROADMAP
