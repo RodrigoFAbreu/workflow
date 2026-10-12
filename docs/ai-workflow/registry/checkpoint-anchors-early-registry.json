@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "work_item_id": "checkpoint-anchors-early",
+  "plan_revision": 4,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "One anchor check for every plan revision, reusing validate_post_anchor_coverage",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Plan-stage bundle generation refuses a plan without anchors, on the pinned bytes",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Command texts: write anchors from revision 1, check at publish and at bind",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP4",
+      "name": "Regression scenarios end to end: refusals before review, anchored amendments, in-flight plans without anchors",
+      "depends_on": [
+        "CP1",
+        "CP2",
+        "CP3"
+      ],
+      "complexity": 4,
+      "session_target": 1
+    },
+    {
+      "id": "CP5",
+      "name": "Documentation: the rule, the refusal and its next step, the downgrade posture",
+      "depends_on": [
+        "CP2",
+        "CP3"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP6",
+      "name": "Release 2.11.0: manifest, release constant, release history",
+      "depends_on": [
+        "CP1",
+        "CP2",
+        "CP3",
+        "CP4",
+        "CP5"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}
