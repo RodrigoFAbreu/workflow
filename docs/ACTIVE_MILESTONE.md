@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**Implementing** (plan revision 2). W5: `retire-21-for-new-work` (`process`,
+**Complete** (accepted by policy; the release follows the merge). W5: `retire-21-for-new-work` (`process`,
 governing version `2.2`), branch `milestone/retire-21-for-new-work`, base
 `b854a0b` (the release source is Workflow 2.9.2; this repository's own
 installation is also 2.9.2 with automatic gates and no `GATE_POLICY.json`). The
@@ -114,7 +114,10 @@ Workflow's own `verify` check; `common-problems.md` also says that
 
 ## Next action
 
-The implementation review of the bundle `/milestone-implement` prepares.
+W5 is accepted. Merge pull request #24 (squash, `feat:` title); the `Release`
+workflow then publishes Workflow 2.10.0. The next roadmap item (row 8,
+Controller C10) waits on the Controller, so there is no milestone to
+`/milestone-plan` yet.
 
 ## Functional review checklist
 
