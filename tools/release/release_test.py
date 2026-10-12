@@ -569,6 +569,191 @@ class ConformanceFixtureTest(unittest.TestCase):
             "scripts/tool.py"])
 
 
+class ConformanceTemplate(unittest.TestCase):
+    """The managed conformance job (D-Conformance-Job): concurrency, parallel step."""
+
+    GROUP = ("workflow-conformance-${{ github.event_name == 'pull_request' && github.ref "
+             "|| format('{0}-{1}', github.run_id, github.run_attempt) }}")
+    CANCEL = "${{ github.event_name == 'pull_request' }}"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = (REPO_ROOT / "templates/.github/workflows/workflow-conformance.yml").read_text()
+
+    def step_body(self):
+        lines = self.text.splitlines()
+        start = lines.index("        run: |") + 1
+        return "\n".join(l[10:] for l in lines[start:]) + "\n"
+
+    def suites(self):
+        for line in self.step_body().splitlines():
+            if line.startswith("suites="):
+                return line[len("suites="):].strip('"').split()
+        self.fail("no suites= line")
+
+    @staticmethod
+    def evaluate(expr, ctx):
+        """The constructs the expressions use: ==, &&, ||, format, github.*, literals."""
+        import re
+
+        def atom(t):
+            t = t.strip()
+            if t.startswith("'"):
+                return t[1:-1]
+            if t.startswith("github."):
+                return ctx[t[7:]]
+            m = re.fullmatch(r"format\('([^']*)',(.*)\)", t)
+            if m:
+                args = [atom(a) for a in m.group(2).split(",")]
+                return re.sub(r"\{(\d)\}", lambda g: str(args[int(g.group(1))]), m.group(1))
+            raise AssertionError(f"unsupported expression {t!r}")
+
+        def eq(t):
+            if "==" in t:
+                a, b = t.split("==")
+                return atom(a) == atom(b)
+            return atom(t)
+
+        def conj(t):
+            parts = t.split("&&")
+            for p in parts[:-1]:
+                if not eq(p):
+                    return False
+            return eq(parts[-1])
+
+        # "||" only separates the and-expression from the fallback atom here.
+        left, sep, right = expr.partition("||")
+        value = conj(left)
+        return value if value or not sep else atom(right)
+
+    def inner(self, line):
+        self.assertTrue(line.startswith("${{ ") or "${{ " in line)
+        return line[line.index("${{ ") + 4:line.rindex(" }}")]
+
+    def group_for(self, **ctx):
+        prefix = "workflow-conformance-"
+        expr = self.inner(self.GROUP)
+        return prefix + str(self.evaluate(expr, ctx))
+
+    def test_one_job_without_a_name(self):
+        jobs = self.text.split("\njobs:\n", 1)[1]
+        ids = [l for l in jobs.splitlines() if l.startswith("  ") and not l.startswith("   ")]
+        self.assertEqual(ids, ["  workflow-conformance:"])
+        self.assertNotIn("\n    name:", jobs)
+
+    def test_concurrency_expressions_are_exact(self):
+        self.assertIn("\nconcurrency:\n  group: " + self.GROUP + "\n  cancel-in-progress: "
+                      + self.CANCEL + "\n", self.text)
+
+    def test_group_semantics(self):
+        push = dict(event_name="push", ref="refs/heads/main")
+        a = self.group_for(run_id="1", run_attempt="1", **push)
+        b = self.group_for(run_id="2", run_attempt="1", **push)
+        c = self.group_for(run_id="1", run_attempt="2", **push)
+        self.assertEqual(len({a, b, c}), 3)
+        pr = dict(event_name="pull_request", ref="refs/pull/7/merge", run_attempt="1")
+        self.assertEqual(self.group_for(run_id="1", **pr), self.group_for(run_id="9", **pr))
+        self.assertNotIn(self.group_for(run_id="1", **pr), {a, b, c})
+        cancel = self.inner(self.CANCEL)
+        self.assertTrue(self.evaluate(cancel, dict(event_name="pull_request")))
+        self.assertFalse(self.evaluate(cancel, dict(event_name="push")))
+
+    def test_suite_list_is_the_shipped_conformance_suites(self):
+        manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        shipped = sorted(
+            Path(a["target_path"]).name for a in manifest["artifacts"]
+            if a["target_path"].startswith("scripts/workflow_")
+            and a["target_path"].endswith("_test.py")
+            and not a["target_path"].endswith("_demo_test.py"))
+        self.assertEqual(sorted(self.suites()), shipped)
+        self.assertEqual(len(self.suites()), 9)
+
+    def run_body(self, fail=(), uncopyable=False):
+        tmp = Path(tempfile.mkdtemp(prefix="conformance-job-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        ws, runner, counter = tmp / "ws", tmp / "runner", tmp / "counter"
+        (ws / "scripts").mkdir(parents=True)
+        counter.mkdir()
+        (ws / "MARKER").write_text("original\n")
+        if uncopyable:
+            (ws / "UNREADABLE").write_text("x\n")
+            (ws / "UNREADABLE").chmod(0)
+        for name in self.suites():
+            (ws / "scripts" / name).write_text(
+                "import os, sys, time, pathlib\n"
+                f"name = {name!r}\n"
+                f"c = pathlib.Path({str(counter)!r})\n"
+                "(c / name).write_text('')\n"
+                "time.sleep(0.4)\n"
+                "running = len([p for p in c.iterdir() if not p.name.startswith('peak-')])\n"
+                "(c / ('peak-' + name)).write_text(str(running))\n"
+                "(c / name).unlink()\n"
+                "pathlib.Path('..', 'MARKER-' + name).write_text(name)\n"
+                "pathlib.Path(os.environ['TMPDIR'], 'T-' + name).write_text(name)\n"
+                "pathlib.Path(os.environ['HOME'], 'H-' + name).write_text(name)\n"
+                f"print('output of ' + name)\n"
+                f"sys.exit({1 if name in fail else 0})\n")
+        runner.mkdir()
+        summary = tmp / "summary.md"
+        env = dict(os.environ, GITHUB_WORKSPACE=str(ws), RUNNER_TEMP=str(runner),
+                   GITHUB_STEP_SUMMARY=str(summary))
+        proc = subprocess.run(["bash", "-eo", "pipefail", "-c", self.step_body()],
+                              env=env, capture_output=True, text=True, cwd=tmp)
+        return proc, ws, runner, counter, summary.read_text()
+
+    def test_step_body_all_pass(self):
+        proc, ws, runner, counter, summary = self.run_body()
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        for name in self.suites():
+            self.assertIn(f"::group::{name} passed in", proc.stdout)
+            self.assertIn(f"| {name} | passed |", summary)
+        self.assertNotIn("::error", proc.stdout)
+
+    def test_step_body_failure_runs_everything_and_unfolds_the_failure(self):
+        bad = "workflow_state_test.py"
+        proc, ws, runner, counter, summary = self.run_body(fail=(bad,))
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        out = proc.stdout
+        self.assertIn(f"::error title={bad} failed::exit 1 after", out)
+        after = out.split(f"::error title={bad} failed::", 1)[1].splitlines()
+        self.assertEqual(after[1], f"output of {bad}")
+        self.assertNotIn(f"::group::{bad}", out)
+        for name in self.suites():
+            self.assertTrue((runner / "workflow-conformance" / name / "result").exists())
+            if name != bad:
+                self.assertIn(f"::group::{name} passed in", out)
+        self.assertIn("1 suite(s) failed", out)
+        self.assertEqual(summary.count("\n| workflow_"), 9)
+
+    @unittest.skipIf(os.geteuid() == 0, "root reads a mode-0 file, so the copy cannot fail")
+    def test_step_body_reports_every_suite_whose_setup_failed(self):
+        # Under Actions' `bash -eo pipefail`, a suite whose copy fails exits
+        # before writing its result; the throttle's `wait -n` must not end
+        # the step there, so every suite is still reported, logs and summary.
+        proc, ws, runner, counter, summary = self.run_body(uncopyable=True)
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        for name in self.suites():
+            self.assertIn(f"::error title={name} failed::exit missing after", proc.stdout)
+        self.assertIn("9 suite(s) failed", proc.stdout)
+        self.assertEqual(summary.count("\n| workflow_"), 9)
+
+    def test_step_body_is_parallel_and_isolated(self):
+        proc, ws, runner, counter, _ = self.run_body()
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        peaks = [int((counter / f"peak-{n}").read_text()) for n in self.suites()]
+        self.assertLessEqual(max(peaks), 4)
+        self.assertGreater(max(peaks), 1)
+        self.assertEqual(sorted(p.name for p in ws.iterdir()), ["MARKER", "scripts"])
+        self.assertEqual(sorted(p.name for p in (ws / "scripts").iterdir()),
+                         sorted(self.suites()))
+        for name in self.suites():
+            d = runner / "workflow-conformance" / name
+            self.assertEqual([p.name for p in (d / "tmp").iterdir()], [f"T-{name}"])
+            self.assertEqual([p.name for p in (d / "home").iterdir()], [f"H-{name}"])
+            markers = sorted(p.name for p in d.joinpath("repo").glob("MARKER*"))
+            self.assertEqual(markers, ["MARKER", f"MARKER-{name}"])
+
+
 class MainHistoryCase(ScratchTestCase):
     """`main`: v2.6.0 published at `base`; `C_V` bumps to 2.7.0; two ci: commits."""
 
