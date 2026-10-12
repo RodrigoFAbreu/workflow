@@ -53,5 +53,8 @@ step 6's check before the bind and the generator-refusal sentence),
 bind) and `request-plan-amendment.md` (the anchor paragraph) name
 `assert_plan_checkpoint_anchors` and `PLAN_ANCHOR_NEXT_STEP`; the two golden
 hashes are updated and `TestCheckpointAnchorsEarlyCommandConformance` pins the
-ordering. The `"1"` golden output of `/milestone-plan` is unchanged. Next is
-CP4 (regression scenarios).
+ordering. The `"1"` golden output of `/milestone-plan` is unchanged. CP4
+complete: `CheckpointAnchorsEarlyProcess`/`Product` in
+`workflow_acceptance_matrix_test.py` (seven scenarios, plus the 2.10.0
+stand-in helper and its pins); the matrix suite passes (415 tests, 20
+skipped). Next is CP5 (documentation).
