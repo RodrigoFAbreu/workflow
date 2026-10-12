@@ -34,6 +34,10 @@ nothing new is persisted; Orchestration Protocol stays 1.3.
 
 ## Current checkpoint
 
-Planning (plan revision 1): plan, registry, mapping and artifacts declaration
-written; next is the plan-stage bundle and `/review-plan
-checkpoint-anchors-early`.
+Implementing, plan revision 4 approved. CP1 complete: `PLAN_ANCHOR_NEXT_STEP`,
+`_assert_post_registry_well_formed` (moved verbatim out of
+`apply_plan_approval`) and `assert_plan_checkpoint_anchors` in
+`payload/scripts/workflow_state.py`, with `TestAssertPlanCheckpointAnchors`
+in `workflow_state_test.py`. The nine suites pass in a scratch conformance
+fixture and `workflow-manager verify .` is clean. Next is CP2 (plan-stage
+bundle generation).
