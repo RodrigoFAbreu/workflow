@@ -466,7 +466,11 @@ test fails and is authoritative about which one moved.
   `<!-- CPn -->`/`<!-- /CPn -->` anchor pair (`n` is the same widened
   `CP<digits>[A-Z]?` shape named above), or `/approve-review plan`
   step 4c's `validate_post_anchor_coverage` refuses approval naming the
-  first uncovered id.
+  first uncovered id. From 2.11.0 the same check
+  (`assert_plan_checkpoint_anchors`) also refuses the plan earlier, at
+  publish, at bind and in plan-stage bundle generation, before any review
+  round; every plan revision of a `"2.1"`/`"2.2"` item carries the pairs, the
+  first included.
 - **Refuses**: the wrong phase
   (`WrongPhaseForAmendmentRequestError`); a checkpoint still `IN_PROGRESS`
   or an outstanding checkpoint claim (`AmendmentCheckpointActiveError`,

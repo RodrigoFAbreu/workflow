@@ -57,4 +57,11 @@ ordering. The `"1"` golden output of `/milestone-plan` is unchanged. CP4
 complete: `CheckpointAnchorsEarlyProcess`/`Product` in
 `workflow_acceptance_matrix_test.py` (seven scenarios, plus the 2.10.0
 stand-in helper and its pins); the matrix suite passes (415 tests, 20
-skipped). Next is CP5 (documentation).
+skipped). CP5 complete: the rule, the early refusal and its one next step are
+written in `MILESTONE_WORKFLOW.md` (`PLANNING`, `AMENDING_PLAN`),
+`PLAN_REVIEW_WORKFLOW.md`, `REVIEW_PROTOCOL.md` and the operator reference, and
+`docs/common-problems.md` has "A plan revision is refused for a missing
+checkpoint anchor" with the downgrade posture. Run in place, the payload
+suites show the same failures with and without the CP5 edits (they read the
+installed 2.9.2 command files); the scratch conformance fixture was not
+staged. Next is CP6 (release 2.11.0).

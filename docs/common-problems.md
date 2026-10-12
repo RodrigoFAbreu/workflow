@@ -139,6 +139,21 @@ happened, `/recover-implementation-provenance <id>` repairs it; it changes the
 bundle id, so both review verdicts go stale and need another round. Never edit
 the recorded generation head by hand.
 
+### A plan revision is refused for a missing checkpoint anchor
+
+`/milestone-plan`, `/apply-plan-review` or `/request-plan-amendment` stopped
+(or `prepare-ai-review.sh` exited 1 at the plan stage) naming a checkpoint
+whose plan section has no well-formed `<!-- CPn -->`/`<!-- /CPn -->` pair. The
+cause is a plan revision that does not delimit every registry checkpoint. The
+one fix: put the pair around that checkpoint's section (every checkpoint, `n`
+of the shape `CP<digits>[A-Z]?`), then run the same command again. It happens
+before review now, instead of at `/approve-review plan` after the reviews,
+because the check runs at publish, bind and plan-stage generation. A plan
+approved before 2.11.0 without anchors is not affected until its next revision.
+Moving back to 2.10.0 loses only these early refusals (nothing new is written):
+a plan without anchors is accepted again, and an amendment of it is refused
+first at plan approval, after both plan reviews.
+
 ### A generation record is refused for its trailer set
 
 The record's final paragraph holds more than the `Workflow-*` trailers, usually
