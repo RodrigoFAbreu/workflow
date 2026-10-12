@@ -45,5 +45,13 @@ branch of `payload/scripts/prepare-ai-review.sh` calls
 and exits 1 through `cleanup` on an anchor error; the harness's default plan
 carries an anchor pair per checkpoint, `workflow_protocol_test.py`'s lifecycle
 ids are `CP1`/`CP2`, and the matrix's pre-repair test now asserts the refusal.
-New tests: `TestPrepareAiReviewShEarlyAnchorCheck` and two harness pins. Next is
-CP3 (command texts).
+New tests: `TestPrepareAiReviewShEarlyAnchorCheck` and two harness pins. CP3
+complete: `milestone-plan.md` (step 3's anchor instruction, step 4's `[2.1]`
+self-review bullet, the publication point's new item 4 before the publish,
+step 6's check before the bind and the generator-refusal sentence),
+`apply-plan-review.md` (step 5 check before the publish, step 7' before the
+bind) and `request-plan-amendment.md` (the anchor paragraph) name
+`assert_plan_checkpoint_anchors` and `PLAN_ANCHOR_NEXT_STEP`; the two golden
+hashes are updated and `TestCheckpointAnchorsEarlyCommandConformance` pins the
+ordering. The `"1"` golden output of `/milestone-plan` is unchanged. Next is
+CP4 (regression scenarios).
