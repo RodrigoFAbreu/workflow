@@ -3908,7 +3908,7 @@ class TestOperatorDocuments(unittest.TestCase):
 # The lifecycle end to end, by protocol only (CP6)
 # ---------------------------------------------------------------------------
 
-LIFECYCLE_CHECKPOINTS = [{"id": "C1", "depends_on": []}, {"id": "C2", "depends_on": ["C1"]}]
+LIFECYCLE_CHECKPOINTS = [{"id": "CP1", "depends_on": []}, {"id": "CP2", "depends_on": ["CP1"]}]
 _PLAN_DOC = "docs/ai-workflow/WORKFLOW_V2_PLAN.md"
 
 
@@ -4256,13 +4256,13 @@ class TestLifecycleEndToEnd2_2(unittest.TestCase):
             decision = run.drive(until="human_gate")  # the plan approval gate
             decision = run.run(decision)
             self.assertEqual((decision["row"], decision["action"]["arguments"]),
-                             ("23", {"work_item_id": WI, "checkpoint_id": "C1"}))
+                             ("23", {"work_item_id": WI, "checkpoint_id": "CP1"}))
             run.implementation_checkpoint(decision["action"]["arguments"])
             result = reconciled(self, repo, decision)
             self.assertEqual((result["class"], result["from"]["phase"], result["to"]["phase"],
                               result["evidence"]["completed_checkpoints"]),
-                             ("progress", "IMPLEMENTING", "IMPLEMENTING", ["C1"]))
-            self.assertEqual(result["next"]["action"]["arguments"]["checkpoint_id"], "C2")
+                             ("progress", "IMPLEMENTING", "IMPLEMENTING", ["CP1"]))
+            self.assertEqual(result["next"]["action"]["arguments"]["checkpoint_id"], "CP2")
 
     def test_a_gates_own_decision_is_refused_by_reconcile(self):
         with h.ScratchRepo() as repo:

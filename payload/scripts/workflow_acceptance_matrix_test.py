@@ -4726,9 +4726,14 @@ class PlanDocumentRegistryTableFreshness(MatrixCase):
         item.publish()
         return registry
 
-    def test_the_pre_repair_sequence_publishes_a_table_the_registry_contradicts(self):
+    def test_the_pre_repair_sequence_is_refused_before_a_bundle_publishes(self):
         """The defect itself, executed: the document omits a checkpoint the
-        registry declares, and the plan bundle publishes anyway."""
+        registry declares. Until workflow-2.11.0 the plan bundle published
+        anyway (the stage's completeness check passes on the `(Revision N)`
+        marker alone); the generator now checks the pinned plan against the
+        registry's checkpoint anchors and refuses, naming CP2, before any
+        review round can be spent on it. This is the one assertion the
+        early-anchor milestone deliberately reverses."""
         item = self.item
         item.milestone_plan()
         item.generate_plan_bundle()
@@ -4745,15 +4750,10 @@ class PlanDocumentRegistryTableFreshness(MatrixCase):
         self.assertNotIn("CP2", document)
         self.assertNotIn(ws.render_registry_markdown(registry), document)
 
-        # And nothing stops it: the bundle publishes, and the stage's own
-        # completeness check passes on the `(Revision N)` marker alone.
         proc = item.generate_plan_bundle(check=False)
-        self.assertEqual(proc.returncode, 0, proc.stderr)
-        metadata = fingerprint.resolve_plan_stage_metadata(item.root, item.wid)
-        self.assertEqual(metadata.plan_revision, 2)
-        fingerprint.assert_stage_completeness(
-            item.bundle_dir(stage="plan"), "plan", plan_revision=2,
-        )
+        self.assertEqual(proc.returncode, 1, proc.stderr)
+        self.assertIn("AmendmentAnchorCoverageError", proc.stderr)
+        self.assertIn("CP2", proc.stderr)
 
     def test_the_repaired_sequence_keeps_the_table_and_the_registry_in_agreement(self):
         """The repair: the same revision, with step 5's re-embed performed

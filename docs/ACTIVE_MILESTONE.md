@@ -39,5 +39,11 @@ Implementing, plan revision 4 approved. CP1 complete: `PLAN_ANCHOR_NEXT_STEP`,
 `apply_plan_approval`) and `assert_plan_checkpoint_anchors` in
 `payload/scripts/workflow_state.py`, with `TestAssertPlanCheckpointAnchors`
 in `workflow_state_test.py`. The nine suites pass in a scratch conformance
-fixture and `workflow-manager verify .` is clean. Next is CP2 (plan-stage
-bundle generation).
+fixture and `workflow-manager verify .` is clean. CP2 complete: the plan-stage
+branch of `payload/scripts/prepare-ai-review.sh` calls
+`assert_plan_checkpoint_anchors` on the staging pin (`allow_bound_regeneration`)
+and exits 1 through `cleanup` on an anchor error; the harness's default plan
+carries an anchor pair per checkpoint, `workflow_protocol_test.py`'s lifecycle
+ids are `CP1`/`CP2`, and the matrix's pre-repair test now asserts the refusal.
+New tests: `TestPrepareAiReviewShEarlyAnchorCheck` and two harness pins. Next is
+CP3 (command texts).
