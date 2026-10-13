@@ -391,8 +391,11 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
         publish. It reads the registry items 1-2 just regenerated, so a
         checkpoint a self-review removed is not asked for, and one it added
         without a pair is refused here. A refusal
-        (`ws.AmendmentAnchorCoverageError`, `ws.AmendmentAnchorMalformedError`
-        or `ws.AmendmentCheckpointIdShapeError`) ends with
+        (`workflow_state.AmendmentAnchorCoverageError`,
+        `workflow_state.AmendmentAnchorMalformedError`,
+        `workflow_state.AmendmentCheckpointIdShapeError` or
+        `workflow_state.AmendmentPostRegistryMalformedError`, together
+        `workflow_state._PLAN_ANCHOR_ERRORS`) ends with
         `workflow_state.PLAN_ANCHOR_NEXT_STEP`: report it and stop, with
         nothing written;
      5. call `workflow_state.state_transaction(repo_root, lambda state:

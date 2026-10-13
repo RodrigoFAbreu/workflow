@@ -2760,6 +2760,16 @@ class TestCheckpointAnchorsEarlyCommandConformance(unittest.TestCase):
         text = _command_text("request-plan-amendment.md")
         self.assertIn("workflow-2.11.0", text)
         self.assertIn("plan-stage bundle generation", text)
+        self.assertIn("PLAN_ANCHOR_NEXT_STEP", text)
+
+    def test_all_three_commands_name_the_next_step_and_every_refusal_class(self):
+        for name in ("milestone-plan.md", "apply-plan-review.md", "request-plan-amendment.md"):
+            self.assertIn("PLAN_ANCHOR_NEXT_STEP", _command_text(name), name)
+        for name in ("milestone-plan.md", "apply-plan-review.md"):
+            text = _command_text(name)
+            for cls in ("AmendmentAnchorCoverageError", "AmendmentAnchorMalformedError",
+                        "AmendmentCheckpointIdShapeError", "AmendmentPostRegistryMalformedError"):
+                self.assertIn(cls, text, (name, cls))
 
 
 class TestRetiredDefaultCommandConformance(unittest.TestCase):

@@ -212,8 +212,9 @@ normative definition.
    work_item_id)`. It reads the registry and plan document this step just
    wrote, so every checkpoint of this revision needs its well-formed
    `<!-- CPn -->`/`<!-- /CPn -->` pair. A refusal
-   (`AmendmentAnchorCoverageError`, `AmendmentAnchorMalformedError` or
-   `AmendmentCheckpointIdShapeError`) ends with
+   (`AmendmentAnchorCoverageError`, `AmendmentAnchorMalformedError`,
+   `AmendmentCheckpointIdShapeError` or `AmendmentPostRegistryMalformedError`,
+   together `workflow_state._PLAN_ANCHOR_ERRORS`) ends with
    `workflow_state.PLAN_ANCHOR_NEXT_STEP`: report it and stop, with nothing
    published.
    Then publish, in the same operation and before the bundle below is

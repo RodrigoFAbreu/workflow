@@ -107,8 +107,10 @@ the design; operationally:
   generator builds the bundle in a staging directory and swaps it in only
   on success, so a failed generation leaves the previous bundle intact and
   writes no `REJECTED` marker.
-- **A plan without checkpoint anchors fails generation** (2.11.0). The
-  plan-stage generator checks the pinned plan bytes with
+- **A new or unbound plan revision without checkpoint anchors fails
+  generation** (2.11.0). Regenerating an already-bound review at a ready
+  phase does not re-judge anchors; a withdrawal or a new revision brings the
+  check back. The plan-stage generator checks the pinned plan bytes with
   `assert_plan_checkpoint_anchors` and refuses, naming the first uncovered
   checkpoint, when a registry checkpoint lacks a well-formed
   `<!-- CPn -->`/`<!-- /CPn -->` pair. Like any failed plan-stage generation it
