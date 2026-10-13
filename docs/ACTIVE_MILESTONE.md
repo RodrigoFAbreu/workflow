@@ -76,7 +76,8 @@ commit succeeds and `check_docs.py` is clean. All checkpoints are complete.
 ## Functional review checklist
 
 Milestone `checkpoint-anchors-early` (Workflow 2.11.0), implementation
-revision 1. This is a process milestone with no UI: the "user flows" are
+revision 2 (after functional review round 1; see the round note below for the
+flows to re-test). This is a process milestone with no UI: the "user flows" are
 command-line and command-text checks on the release source. All commands run
 from the repository root on branch `milestone/checkpoint-anchors-early`.
 
