@@ -64,4 +64,11 @@ written in `MILESTONE_WORKFLOW.md` (`PLANNING`, `AMENDING_PLAN`),
 checkpoint anchor" with the downgrade posture. Run in place, the payload
 suites show the same failures with and without the CP5 edits (they read the
 installed 2.9.2 command files); the scratch conformance fixture was not
-staged. Next is CP6 (release 2.11.0).
+staged. CP6 complete: `manifest.json` is 2.11.0 with every `artifacts` and
+`templates` digest and size refreshed, `WORKFLOW_RELEASE = "2.11.0"` (protocol
+stays 1.3) with the two release strings in `workflow_protocol_test.py`, the
+tested-releases list in `ORCHESTRATION_PROTOCOL.md`, a 2.11.0 row in
+`docs/release-history.md` carrying the downgrade paragraph, and the "Last
+checked with" lines of the two docs this milestone changed. The nine suites pass
+in the stock `release.py stage-conformance` fixture, `release.py build` of the
+commit succeeds and `check_docs.py` is clean. All checkpoints are complete.
