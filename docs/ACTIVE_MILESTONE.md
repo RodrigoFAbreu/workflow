@@ -165,3 +165,15 @@ Deferred follow-ups: `docs/RELEASING.md:378` has the same stale
 no next step (`workflow_state.py`, pre-existing, finding 5).
 
 Re-test: flows 1, 7 and 8.
+
+### Functional review round 2
+
+Fixed (wording only, no code change; `technical_approval` staled first):
+`milestone-plan.md` step 6 (generator failure) said
+`AmendmentAnchorCoverageError` "and its two siblings"; it now says "or any
+other `workflow_state._PLAN_ANCHOR_ERRORS` class", which is all four refusal
+classes the generator catches (finding 1). A sweep of `payload/` found no other
+count or list of the refusal classes that is not all four. Round-1 finding 5
+and the `docs/RELEASING.md` example stay deferred.
+
+Re-test: flow 7.
