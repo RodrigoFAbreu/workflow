@@ -883,7 +883,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.10.0 (retire-21-for-new-work, CP3): step 0 stops a fresh milestone
     # under a "2.1" default with DefaultWorkflowVersionRetiredError -- intentional
     # content change.
-    "milestone-plan.md": "e9e2179cc2892aed7b180c56c8d41ba9ad60d3f80f7a24500e3ab85137895c97",
+    "milestone-plan.md": "168f4b80fd8a31d376d2fcac626b5649bc89705708610c8ed7f19bb0e52644a1",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the

@@ -474,7 +474,7 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
      never re-advancing the revision) -- never a review command, since
      `/review-plan` refuses at a non-ready phase. Stop. A generator refusal
      of a plan without checkpoint anchors (`error: AmendmentAnchorCoverageError:`
-     and its two siblings) is the same case: nothing was promoted, and the
+     or any other `workflow_state._PLAN_ANCHOR_ERRORS` class) is the same case: nothing was promoted, and the
      message ends with `workflow_state.PLAN_ANCHOR_NEXT_STEP` -- add the
      pairs, then run that re-run.
    - **[2.1] Bind, straight after the generator succeeds**
