@@ -141,9 +141,9 @@ the recorded generation head by hand.
 
 ### A plan revision is refused for a missing checkpoint anchor
 
-`/milestone-plan`, `/apply-plan-review` or `/request-plan-amendment` stopped
-(or `prepare-ai-review.sh` exited 1 at the plan stage) naming a checkpoint
-whose plan section has no well-formed `<!-- CPn -->`/`<!-- /CPn -->` pair. The
+`/milestone-plan` or `/apply-plan-review` stopped (or `prepare-ai-review.sh`
+exited 1 at the plan stage) naming a checkpoint whose plan section has no
+well-formed `<!-- CPn -->`/`<!-- /CPn -->` pair. The
 cause is a plan revision that does not delimit every registry checkpoint. The
 one fix: put the pair around that checkpoint's section (every checkpoint, `n`
 of the shape `CP<digits>[A-Z]?`), then run the same command again. It happens
