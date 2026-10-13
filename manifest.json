@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "workflow_version": "2.10.0",
+  "workflow_version": "2.11.0",
   "upstream": {
     "repository": "repflow-android",
     "tag": "workflow-v2.3.1",
@@ -75,8 +75,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/apply-plan-review\\.md$",
       "rationale": "D-Feedback-Layout (CP3): the <feedback_dir> preamble states the durable feedback_layout resolution (scoped by construction for a stamped item, the unchanged legacy rule otherwise, REVIEW_PROTOCOL.md normative); step 1 prints the exact resolved path when REVIEW_FEEDBACK.md is absent. D-Plan-Review-Bundle-Binding (CP4): the [2.1] entry (row-1 refusal, marker, status routing), step 1's REVISE-only acceptance and durable CONSUMED feedback check (assert_apply_plan_review_feedback), step 5's staging-before-publish and publish on every two-stage round, <plan_inputs_dir>, the single-generation rule, step 6 restated as \"1\"-only (its own bytes unchanged), and step 7' as verify-plus-bind with 2.5.1's 7'.2 regeneration and transition_to_awaiting_local_plan_review removed. Implementation review round 1: step 5 states that an item carrying the fail-closed legacy marker must advance plan_revision this round. W1 (workflow-2.7.0, orchestration-protocol-v1): step 1 binds through assert_apply_review_feedback_binding (a two-stage REVISE applied by its review_content_id, the bundle fields advisory, D-Apply-Binding) and reports its advisory and refusals by class (CP4). W2 (workflow-2.8.0, gate-policy-and-reopening). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "878527ae17e3cc2cb207a90ee6de20b414e8a702eb6c3edb4da8374d96c66821",
-      "size": 23309,
+      "sha256": "d43282b2e7405ee232e552586d8a066aa4a6ac15dceaa8c3b54e1522d2566ca9",
+      "size": 24142,
       "executable": false
     },
     {
@@ -126,8 +126,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/milestone-plan\\.md$",
       "rationale": "D-Feedback-Layout (CP3): the <feedback_dir> preamble states the durable feedback_layout resolution (scoped by construction for a stamped item, the unchanged legacy rule otherwise, REVIEW_PROTOCOL.md normative); step 7 prints the exact resolved feedback path. D-Plan-Review-Bundle-Binding (CP4): the [2.1] plan-review entry (row-1 refusal via assert_plan_review_entry_phase; the ready-phase withdrawal via assert_plan_review_withdrawal_allowed + withdraw_plan_review, which never computes the fresh id and needs an explicit id; ensure_plan_review_binding_marker; plan_review_publication_status evaluated once), step 3 without its publish, the step-5 publication point (regenerate, re-embed, re-stage, mirror-only publish with the fresh id), <plan_inputs_dir>, and step 6's verify-plus-bind with a row-9 explicit-id re-run report. D-Plan-Approval-Closure (CP5): step 3's staging note names the approval commit's member set as every declared protected path rather than four-or-five members. Implementation review round 2 (I1): step 3's intent-to-add staging is git --literal-pathspecs add -N. W1 (workflow-2.7.0, orchestration-protocol-v1): the durable consumed plan-review history: withdrawn, revised or amended content never re-binds, and an edit re-enters review (v2.6.0-001, CP2). W2 (workflow-2.8.0, gate-policy-and-reopening).",
-      "sha256": "aede94f75d7c4091311e39b200bd24261188fd33970a3dfd83187cff14619508",
-      "size": 32786,
+      "sha256": "168f4b80fd8a31d376d2fcac626b5649bc89705708610c8ed7f19bb0e52644a1",
+      "size": 34803,
       "executable": false
     },
     {
@@ -187,8 +187,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/request-plan-amendment\\.md$",
       "rationale": "D-Plan-Amendment-5 revision (CP2): step 4's note on AMENDMENT_DIFF.patch states the working-tree anchor, so the patch shows the still-uncommitted amended plan. The generator-mention wording workflow_integration_test.py's census pins (mention-only, no run/rerun invocation) is kept. D-Plan-Review-Bundle-Binding (CP4): one sentence noting the request also writes the CONSUMED plan_review_binding record for a two-stage item. D-Repo-Global-Lifecycle (CP6): step 1's race paragraph describes the closure across every linked worktree (the lifecycle lock and the amendment witness) and the mixed-release residual; step 2 calls request_plan_amendment_transaction (a direct state_transaction of the pure mutator is refused) and names each lifecycle refusal and its remedy, including the evidence-bound clear literal. The mention-only generator wording is unchanged. W1 (workflow-2.7.0, orchestration-protocol-v1): the amended-away content joins the durable consumed plan-review history (v2.6.0-001, CP2). W2 (workflow-2.8.0, gate-policy-and-reopening).",
-      "sha256": "4cea9415b27938c7750f6c58c03735b1dcff3828b3a4d6446897eb436feabf3e",
-      "size": 15633,
+      "sha256": "ade16eb77df365f5b97daf76c21ccd7903b75332a442acab384bad3ab51fa390",
+      "size": 15973,
       "executable": false
     },
     {
@@ -299,8 +299,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/MILESTONE_WORKFLOW\\.md$",
       "rationale": "D-Feedback-Layout (CP3): every hard-coded .ai-review/feedback/ path (REVIEWING_PLAN exit, REVISING_PLAN entry, implementation-review allowed actions and exit, functional-review exit and entry, the optional-reviewer paragraph, Feedback file locations) becomes <feedback_dir>, with one normative definition under Feedback file locations pointing at REVIEW_PROTOCOL.md \"Feedback directory\". D-Plan-Review-Bundle-Binding (CP4): the bind, not the publish, writes AWAITING_LOCAL_PLAN_REVIEW; the withdrawal edge from each ready phase; plan-stage BLOCK resolved by re-review of unchanged content or an edit plus withdrawal. W1 (workflow-2.7.0, orchestration-protocol-v1): the durable consumed plan-review history (v2.6.0-001, CP2); 'Hard gates summary' states that the Orchestration Protocol reports the same gates and adds none (CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version).",
-      "sha256": "db4bcddcb2b92d08210ed588944a181257f0228dbfea458e61d369bc69e51b93",
-      "size": 54372,
+      "sha256": "a5558e093eeeb3d04c1d3d9403ae1dd8a0e6cd045c208c3c8648e350f1661739",
+      "size": 55389,
       "executable": false
     },
     {
@@ -309,8 +309,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/ORCHESTRATION_PROTOCOL\\.md$",
       "rationale": "The normative Orchestration Protocol v1 specification: versioning, envelope, error codes, state identity, each operation, the catalogue, condition-call, edge and proof tables (rendered from, and tested against, the code's own), consumer obligations and compatibility notes. W1 (workflow-2.7.0, orchestration-protocol-v1, CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "b5b4be9bebc6292fe4c557a3202be4de3b9eed7101cc9b2c18a7d999cdc21920",
-      "size": 85943,
+      "sha256": "b2d8088c577a7ca451f5cd26240672f5ac9c9e1dece156aab33e370c8b51e17e",
+      "size": 85972,
       "executable": false
     },
     {
@@ -319,8 +319,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/PLAN_REVIEW_WORKFLOW\\.md$",
       "rationale": "D-Feedback-Layout (CP3): a note after the normal-flow diagram states where REVIEW_FEEDBACK.md is pasted (<feedback_dir>) and how to print the exact path. D-Plan-Review-Bundle-Binding (CP4): a \"Publication, binding and withdrawal\" section (publish then bind, plan-inputs, the row-9 re-run, readers, withdrawal, BLOCK, the status CLI). W1 (workflow-2.7.0, orchestration-protocol-v1): the durable consumed plan-review history and the edit-to-re-enter rule (v2.6.0-001, CP2). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "269a679d6e46034b372c3e1095db4323438afeae16e7229df01349853f7ed68b",
-      "size": 8438,
+      "sha256": "a26bf4dc30f0f4ef562daf762e31c20cb7b980691a57bfad61e96975d62d093f",
+      "size": 9058,
       "executable": false
     },
     {
@@ -329,8 +329,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/REVIEW_PROTOCOL\\.md$",
       "rationale": "D-Tooling-Ambient-Classification (CP1): the Computing review_content_id section gains the classification paragraph naming the one release-derived fallback, where it sits in the classification order, and what stays fail-closed. D-Plan-Amendment-5 revision (CP2): \"Bundle structure\" restates AMENDMENT_DIFF.patch to the working-tree anchor -- the base-plus-current-plus-declaration pathspec union, --no-renames, the provenance preamble, and its placement after MANIFEST.md -- and states it stays convenience only. D-Feedback-Layout (CP3): \"Bundle location\" gains the normative \"Feedback directory\" subsection -- the durable stamp, the scoped/legacy/refused resolution, ensure_feedback_dir, the --resolve-feedback-path contract for external tools, the bounded ownership-guard relaxation and the manual-record binding; the flat-fallback sentences are narrowed to the bundle directory and the Feedback protocol's location note is restated. D-Plan-Review-Bundle-Binding (CP4): the plan-inputs/ layout, the new \"Plan-stage staging generation and <plan_inputs_dir>\" subsection, and the plan-stage revision of WFR-67 (a failed plan generation withdraws nothing and writes no REJECTED marker), stated as deliberate. W1 (workflow-2.7.0, orchestration-protocol-v1): 'Required structure' pins the 'Reviewed review_content_id:' label, accepts the legacy alias, reads it from the header block only, and notes the compatibility change (v2.6.0-002, CP1); a two-stage REVISE is applied by its review_content_id, the bundle fields advisory (D-Apply-Binding, CP4). W2 (workflow-2.8.0, gate-policy-and-reopening). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "20633d6d65a27dc5197d53d7599af4f180fbea7181bda6a62a6a89105aec5704",
-      "size": 61785,
+      "sha256": "4b0f54b5c507c93673d7a5052ceb57f7ccca9faf773a5a85e2a22b6b2b023d18",
+      "size": 62000,
       "executable": false
     },
     {
@@ -339,8 +339,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE\\.md$",
       "rationale": "D-Feedback-Layout (CP3): the invariants list gains a Feedback location bullet (scoped-by-construction for new items, legacy resolution kept, the --resolve-feedback-path CLI). D-Plan-Review-Bundle-Binding (CP4): the persisted-phase writers (bind_plan_review_bundle; withdraw_plan_review), the /milestone-plan, /review-plan, /record-manual-plan-review, /apply-plan-review and /approve-review entries, next-command rows for the withdrawal and PUBLISHED_UNBOUND, and three known discrepancies this release fixes removed. W1 (workflow-2.7.0, orchestration-protocol-v1): the durable consumed plan-review history (v2.6.0-001, CP2); a next-action row in 'Which command do I run next?', the 'Driving the Workflow by protocol' section, and the outstanding-checkpoint row corrected as accept-milestone.md step 2a is (CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "50d66da19ab4439fc8972a48c1c3a21166af0290b512bc428f99146431b9cf42",
-      "size": 86153,
+      "sha256": "532c43de37784ec63de987efdcdb3cb6709c98bfa337db23f7793496e9830d14",
+      "size": 86525,
       "executable": false
     },
     {
@@ -642,8 +642,8 @@
       "category": "distribution",
       "rule": "^scripts/prepare-ai-review\\.sh$",
       "rationale": "D-Plan-Amendment-5 revision (CP2, v2.4.0-003): the AMENDMENT_DIFF.patch block drops ..HEAD and diffs amendment_base_commit against the working tree (--no-renames), over the sorted union of the plan_stage.protected_paths declared at amendment_base_commit, the ones declared now and <id>-artifacts.json itself; it gains a provenance preamble (work_item_id, amendment_id, amendment_base_commit, plan_revision, review_content_id) and moves after --write-manifest so the preamble can carry the manifest's review_content_id. The file stays outside current/ and outside both identities; the archive line and every other block are unchanged. D-Plan-Review-Bundle-Binding (CP4): the plan stage assembles into .ai-review/<id>/current.staging-<token>/current/ with a .pin.staging-<token>/ pin, its archive and AMENDMENT_DIFF.patch inside the staging area (the archive's member root stays the bare literal current, item 341), copies the author files from plan-inputs/ (seed_plan_review_inputs), finalizes with --staging-token, and removes the staging area on any exit before promotion; leftovers of an interrupted generation are removed at the start. The implementation, post-fix and functional-review stages are unchanged. Implementation review round 1 fixes: the AMENDMENT_DIFF.patch diff is captured and written as bytes (a non-UTF-8 protected file no longer aborts the plan-stage generation), with every configuration-sensitive option pinned on the command line (--literal-pathspecs, --no-ext-diff, --no-textconv, --no-color, explicit a/ b/ prefixes, --no-renames, --binary), and the archive includes AMENDMENT_DIFF.patch only at the plan stage, so an implementation or post-fix archive never ships a stale plan-stage copy. Implementation review round 2: the untracked-file intent-to-add marking and its exit-trap reset run under --literal-pathspecs (a file named *.md or :x names only itself), and AMENDMENT_DIFF.patch pins -U3 and drops GIT_DIFF_OPTS from its environment (O1).",
-      "sha256": "02f00913744fb2a45bb13635b5dc6b9fd253729954d495910581c8c2fad6cbe0",
-      "size": 41420,
+      "sha256": "c552d1a5e1b3d1a5c190ba630da4495eaac74a393c3d4388f9ff79112beffd86",
+      "size": 42717,
       "executable": true
     },
     {
@@ -652,8 +652,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_acceptance_matrix_test\\.py$",
       "rationale": "D-Feedback-Layout (CP3): the feedback_dir() helper is re-pointed -- the matrix item is created through route_work_item, so it asserts the scoped layout and creates the directory through ensure_feedback_dir, the same call every production writer makes. No scenario changes. D-Plan-Review-Bundle-Binding (CP4): the Item driver follows 2.6.0's command order -- stage, publish the fresh id, write author inputs to plan-inputs/, generate, verify and bind -- gains request_amendment/amend_plan and amendment-aware approve_plan, and gives every plan document one anchor pair per checkpoint. Rows that re-planned mid-implementation through 2.5.1's in-place re-publish (B13, B14, F4) are re-pointed through /request-plan-amendment, the one route 2.6.0 sanctions (B13 also asserts the in-place route's refusal); A1-A4 and C7 assert the bind, not the publish, writes AWAITING_LOCAL_PLAN_REVIEW; A4 asserts the revised WFR-67 (staging discarded, no REJECTED marker). New scenario classes cover the CP4 test list against real repositories. None deleted. D-Plan-Approval-Closure (CP5): Item.approve_plan becomes a command-shaped driver of /approve-review plan steps 2-6d with the command's real data flow (step 2's bound-bundle check, step 4a's fresh member set, step 5's re-resolution, step 6.3a's proof, step 6a's verify_plan_approval_commit and amend gate, step 6b's rollback) and a resumable complete_plan_approval -- no hand-built post-state; every pre-existing row runs through it unchanged. Adds PlanApprovalClosureMembers, PlanApprovalClosureFreshness, PlanApprovalClosureProof and PlanApprovalCommittedTruth covering every CP5 test bullet, including real pre-commit hooks for the amend gate. D-Repo-Global-Lifecycle (CP6): the command-shaped driver gains step 4d (reserve_amendment_resolution, rolled back through 6b on refusal), stage_plan_approval_members in first_commit mode at step 5 and amend_recovery mode at 6a1 after assert_amendment_resolution_held, 6b's journal-token capture before the rollback and release_amendment_resolution after it, and the 6c1 advance before 6d, with hook seams at each step boundary; request_amendment goes through request_plan_amendment_transaction (optionally committing the state, request-plan-amendment.md step 3); Scratch.attach/Scratch.worktree and Item.attach drive linked worktrees and worker processes. Every pre-existing row runs through the extended driver unchanged. New RepoGlobalLifecycleAcrossWorktrees (tests 8, 17 in both orders with real processes, 18 for a different and an identical plan, 22(a)/(b)/(e), 23, 25 in four variants, 26, 28 attached/detached with the only-current-token regression), driving /approve-review plan in real worker processes that pause or SIGKILL at a named step. Implementation review round 2 (I1): PlanApprovalClosureLiteralPaths drives /approve-review plan with ASCII-control, glob-metacharacter, bracket, leading-colon and non-ASCII protected members, plus an absent *.md removal member, asserting the exact committed member set and an untouched worktree-edited decoy; the driver's step 6.3 calls assert_staged_path_set_within and its intent-to-add staging is literal. W1 (workflow-2.7.0, orchestration-protocol-v1): cp4_make_legacy drops the 2.7.0 consumed_plan_review_content_ids key, and the legacy amending-plan case expects publication-status row 10 (CP2). W2 (workflow-2.8.0, gate-policy-and-reopening). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "7a80198775cc4e88fb24e99f302b8e8c46ad47f56b4c68eb26a4c53538b2a1ec",
-      "size": 476367,
+      "sha256": "406ebf2f4bc37ba0e8815046a9c1ab1186ff2cfb4dab868d1e0a8e4486b6879b",
+      "size": 501935,
       "executable": false
     },
     {
@@ -683,8 +683,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_fingerprint_generalization_test\\.py$",
       "rationale": "D-Plan-Amendment-5 revision (CP2): adds TestPrepareAiReviewShAmendmentDiffWorkingTreeAnchor, driving the real prepare-ai-review.sh in scratch repositories -- uncommitted plan edit (with a ..HEAD control arm), untracked new protected file with the index restored, dropped-and-deleted path, rename as deletion plus new file, dropped-but-kept changed and unchanged paths, artifacts declaration absent at the base, non-protected edits absent, archive member byte-identity, bundle_id invariance, removal after resolution, preamble fields, and git apply --check at amendment_base_commit. Additive only: every pre-existing test is unmodified. D-Plan-Review-Bundle-Binding (CP4): adds TestPrepareAiReviewShPlanStageStaging -- promotion from plan-inputs/, both section 3.3 failure variants leaving the previous current/, archive and .pin byte-identical with no REJECTED marker or staging leftover, a pre-existing REJECTED marker surviving failure and cleared by success, current/ seeding with a location-independent bundle_id, seed sources/mode/symlink refusal, leftover removal, and staging-token validation. Additive only. Implementation review round 1: adds non-UTF-8 and binary protected content (an applicable patch), byte-stability under a hostile GIT_CONFIG_GLOBAL, and an implementation-stage archive that excludes a stale AMENDMENT_DIFF.patch; the class's _generate/_assert_applies_at helpers gain byte and environment parameters. Implementation review round 2: a mid-file amendment edit under diff.context=0 and GIT_DIFF_OPTS=--unified=0 stays byte-identical and applicable (O1), and the current-only-form oracle pins the implementation's own diff options (O2). W2 (workflow-2.8.0, gate-policy-and-reopening).",
-      "sha256": "641542726c46eee80ffd942217d762314d3c30cc1db0c9774bd288dc9c6f5336",
-      "size": 158498,
+      "sha256": "01ac98cf6a49eec3acd0aaa6783f8f6f1b84b941f652a166886d838397844807",
+      "size": 166243,
       "executable": false
     },
     {
@@ -733,8 +733,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_integration_test\\.py$",
       "rationale": "D-Feedback-Layout (CP3): the ten command-file content hashes CP3 changes are updated, each with an intentional-content-change comment, and TestReviewPlanStep8OwnershipGuardIsPresent's guard-call pin is re-pointed to require state=. No pin is deleted; the v1 golden hashes are unchanged. D-Plan-Review-Bundle-Binding (CP4): re-points test_a_real_committed_plan_edit_after_local_approval_invalidates_the_stage (the retired transition now refuses; a manual REVISE, publish and bind drive the same edge), the operator-reference phase-writer expectations, and registers the acceptance matrix's new amendment helper section in _MATRIX_HELPER_SECTION_OWNERS; the golden command-file hashes are re-recorded for the command files CP4 restates. None deleted. D-Plan-Approval-Closure (CP5): three pre-existing tests that pinned 2.5.1's fixed four/five-member set are re-pointed to the declared protected set (their fixture protects two further documents), none deleted; approve-review.md's and milestone-plan.md's golden hashes are re-recorded. D-Repo-Global-Lifecycle (CP6): adds TestApproveReviewLifecycleEntryTable (test 29) -- section 5.6's entry table asserted row by row over the live approve-review.md (4d directly after 4c and named nowhere else, 4b still skipping 4c-6, step 5's first_commit mode, 6a1's held check before its amend_recovery staging, 6b capturing journal_tokens before the rollback and releasing after it, 6c1's advance directly before 6d, and the table's rows). The approve-review.md and milestone-implement.md golden hashes are re-recorded with annotations. Implementation review round 1: the golden hashes of approve-review.md and apply-plan-review.md are updated for their documented round-1 additions. Implementation review round 2 (I1): the golden hashes of approve-review.md and milestone-plan.md are re-recorded for their literal/NUL-safe path instructions. W1 (workflow-2.7.0, orchestration-protocol-v1): golden hashes of the command files W1 changes, with their reasons; the operator-reference symbol allowlist; workflow_state.py as an assert_local_generation_matches call site (CP1, CP2, CP4, CP5, CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "bc32d15e64d9c2250a8528b88a54e0dd4073c6102f7537101f6b0503b03cfe2f",
-      "size": 438692,
+      "sha256": "f222d68af0ce6592b424df784dca584bdb34ea9d60feaaba7d962ee5bc0c4f8a",
+      "size": 442555,
       "executable": false
     },
     {
@@ -743,7 +743,7 @@
       "category": "distribution",
       "rule": "^scripts/workflow_protocol\\.py$",
       "rationale": "Orchestration Protocol v1's one CLI (describe, verify, next-action, reconcile, record-external-result, resolve-artifact): one JSON envelope, versioned, with stable error codes, the total action catalogue and the legal-edge table. WORKFLOW_RELEASE names this release; the release build refuses a mismatch with the manifest version. W1 (workflow-2.7.0, orchestration-protocol-v1, CP3-CP5). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "47050d874145122010c05dc52e84d40244ea0ad8f3c5c86bc95c947925347b44",
+      "sha256": "a5ee701a1617f8098f906af4b094f76f4a8fd00f97855fffabb1479d52701787",
       "size": 136148,
       "executable": false
     },
@@ -753,8 +753,8 @@
       "category": "conformance",
       "rule": "^scripts/workflow_protocol_test\\.py$",
       "rationale": "The Orchestration Protocol v1 suite: envelope and schema, the catalogue's totality and every row from a real state, the edge table and reconcile, record-external-result, the specification's tables against the code, and the protocol-only lifecycle end-to-end. Run by workflow-conformance.yml. W1 (workflow-2.7.0, orchestration-protocol-v1, CP3-CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "c9fcd5a3eb77415ed1738f77b834554b0314a95842db234cda267fc9c7dbe5c6",
-      "size": 383867,
+      "sha256": "bb10c7f4980224be3d2545389d2fb5c911f0f4c3f8ce463137e38a085458db57",
+      "size": 383873,
       "executable": false
     },
     {
@@ -763,8 +763,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_state\\.py$",
       "rationale": "D-Feedback-Layout (CP3; first overlay replacement of workflow_state.py): route_work_item's fresh-id branch and create_remediation_child_work_item stamp feedback_layout: \"scoped\" at creation (never on resume, never back-filled), and _validate_work_item (validate_state) refuses any present feedback_layout value other than \"scoped\" with UnknownFeedbackLayoutError. Nothing else changes. D-Plan-Review-Bundle-Binding (CP4): separates \"the revision exists\" from \"the revision is review-ready\" for TWO_STAGE_PLAN_REVIEW_VERSIONS items. publish_plan_revision becomes mirror-only (phase unchanged) and writes the new plan_review_binding record's PUBLISHED fact from a required review_content_id keyword; it and route_work_item's resume branch run only at PLANNING/REVISING_PLAN/AMENDING_PLAN (PlanReviewInProgressError at a ready phase, PlanReviewPhaseNotPlanStageError elsewhere). record_local_plan_review/record_manual_plan_review REVISE and request_plan_amendment write CONSUMED from their own inputs. New: bind_plan_review_bundle (the sole writer of AWAITING_LOCAL_PLAN_REVIEW, legitimate only against the freshly re-read record), withdraw_plan_review, ensure_plan_review_binding_marker (the INV-7 legacy entry marker), verify_plan_review_bundle with cause-named refusals, plan_review_publication_status (section 5.3 item 6's total table) and its read-only --plan-review-publication-status CLI, the readers' assert_plan_review_bundle_bound/validate_local_plan_review_preconditions_bound, assert_plan_review_withdrawal_allowed, assert_apply_plan_review_feedback, and validate_state's INV-3 shape check of the record. transition_to_awaiting_local_plan_review is retired (always raises PlanReviewWriterRetiredError). \"1\"-governed behavior is byte-for-byte unchanged. D-Plan-Approval-Closure (CP5): resolve_fresh_plan_approval_members (empty-index precondition naming the staged-git-mv remedy, the member set, per-member freshness against the bound bundle's capture or its MANIFEST base_commit blob, removal members neither captured nor declared; every failure ReviewedContentDriftError), assert_plan_approval_member_set_unchanged (step 5's in-window re-resolution), prove_plan_approval_index_closure (git write-tree plus the plan-stage identity at that tree, before any commit), verify_plan_approval_commit (the one post-commit verification, deriving the work item from the committed state; two-sided path-set check via assert_committed_plan_approval_closure), classify_post_commit_verification_failure (the amend gate: TREE_CONTENT vs RECORD_OR_INPUT), verify_post_approval_manifest_match's MissingApprovalRecordError and optional explicit expected_review_content_id (CommittedApprovalRecordMismatchError), stage_plan_approval_commit_paths staging an absent member as a deletion, and the journal's optional removal_paths. 5 named errors. D-Repo-Global-Lifecycle (CP6; closes v2.4.0-002): primitive (9), lifecycle_lock -- a per-work-item flock at <git-common-dir>/ai-workflow/checkpoint-claims/<token>.lifecycle.lock, a pure source enforced by a process-local held-set (_held_primitives) every existing flock and lease now registers in (LifecycleLockOrderError). The amendment witness <token>.amendment.json (OPEN/RESOLVING/RESOLVED/NONE; tempfile plus os.replace; torn, symlinked or unknown-shaped refuses) with amendment_request_projection_sha256 and amendment_resolution_projection_sha256; the mixed-release lag probe (installation-record workflow_version compared numerically by workflow_release_version_key; bare entries skipped); the upgrade-bootstrap scan (request and resolution fork checks at every shared seq, the legacy Workflow-Plan-Approval trailer comparison, the NONE sentinel suppressed while any worktree lags); the provable-orphan tests for OPEN and RESOLVING with the evidence-bound clear literals (clear_amendment_witness, clear_amendment_resolution); and the fixed predicate list (_evaluate_lifecycle). claim_checkpoint now runs (9) -> state_lock -> witness check -> phase check -> _claim_or_refuse; adopt_claim and absent-claim take_over_claim take (9) before (6)/(5) (the takeover's guarded window is extracted unchanged into _take_over_claim_window). request_plan_amendment refuses unless (9) is held (LifecycleLockNotHeldError); request_plan_amendment_transaction is the one entry point and publishes the OPEN witness before the state. The resolution side: reserve_amendment_resolution (step 4d), assert_amendment_resolution_held (6a1), advance_amendment_witness (6c1), release_amendment_resolution (after 6b), and stage_plan_approval_members with first_commit/amend_recovery modes. apply_plan_approval records resolved_review_content_id (2.5.1's validate_state has no amendment_history entry-key check, so it ignores the key); open_plan_approval_journal refuses an amendment-resolving transaction while a checkpoint claim is live. 12 named errors under LifecycleRefusalError (the twelfth is AmendmentWitnessClearRefusedError). The IllegalCheckpointStartPhaseError, AmendmentCheckpointActiveError and claim_checkpoint docstrings restate the closed residual. Review fixes before commit: an unreadable state file makes the OPEN orphan test undecidable (literal offered, and clearable), the impossible same-token reservation case refuses as INV-3 (AmendmentWitnessUnavailableError), a rollback always restores previous (never absent), and _unrecorded_local_amendment names a pre-2.6.0 amendment in the evaluating worktree's own state that the witness does not record. Implementation review round 1 fixes: apply_plan_approval refuses a TWO_STAGE_PLAN_REVIEW_VERSIONS item outside AWAITING_PLAN_APPROVAL (PlanApprovalPhaseError), so re-bound, previously consumed content never reaches approval from local review; an unreadable committed state in another worktree (the RESOLVING predicate's step 1 and step 2a reads, the OPEN orphan test's branch-tip and requester reads, and clear_amendment_resolution's scan) is a test that cannot be completed -- undecidable, refused with the evidence-bound literal the literal then clears -- never a bare LifecycleStateUnreadableError; while the witness is absent, a lagging worktree's unresolved entry that the bootstrap would record from a 2.6.0 worktree (any non-lagging worktree, or the evaluating one) counts as recorded, and a lagging worktree whose working tree already carries the update is told to commit it; the witness publish fsyncs its directory; request_plan_amendment_transaction rolls the OPEN witness back if the state publish raises; and the plan-approval empty-index and post-staging checks read the staged diff with --no-renames. Implementation review round 2 (I1): plan-approval staging (git add / git rm --cached) runs under --literal-pathspecs, and the empty-index, post-staging and post-commit path-set checks read NUL-delimited names through _git_path_set; new assert_staged_path_set_within backs /approve-review step 6.3. W1 (workflow-2.7.0, orchestration-protocol-v1): the durable consumed_plan_review_content_ids history, migrated from a 2.6.0 item at read time (v2.6.0-001, CP2); implementing_entry_status, plan_approval_gate_status, technical_approval_gate_status, read_review_feedback, verify_implementation_review_bundle and the content-bound apply binding assert_apply_review_feedback_binding (CP4); state_transaction's before_publish hook, select_manual_verdict_row, parse_manual_verdict and ingest_manual_review_verdict, the one manual-verdict ingest the record-manual commands and record-external-result share (CP5). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "694aa51f9f48cc74265f4cf228caa23166674941bfe4de1a619dd9d5a74aa1ff",
-      "size": 1077293,
+      "sha256": "2830d8f2763ff94b455a1609e40955effb5f6527e0976c6546a566d6532479d8",
+      "size": 1081423,
       "executable": false
     },
     {
@@ -794,8 +794,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_state_test\\.py$",
       "rationale": "D-Tooling-Ambient-Classification (CP1): adds TestImplementingEntryReachableAfterInstallationRecordUpdate -- a 2.3.1-shaped item stays implementing_entry_reachable after a committed installation-record change, with a 2.5.1 control arm that raises UnclassifiedPathError. Additive only: every pre-existing test is unmodified. D-Feedback-Layout (CP3): adds TestFeedbackLayoutStamp -- fresh items and remediation children are stamped \"scoped\", resume never stamps or changes the field, validate_state accepts absent/\"scoped\" and refuses any other value. D-Plan-Review-Bundle-Binding (CP4): adds TestPlanReviewBindingValidation, TestPublishPlanRevisionTwoStage, TestRouteWorkItemPlanStageAllowList, TestBindPlanReviewBundle, TestWithdrawPlanReview, TestConsumedPlanReviewBindingWriters, TestEnsurePlanReviewBindingMarker and TestAssertApplyPlanReviewFeedback. NOT additive only: pre-existing tests that pinned the 2.5.1 behavior this checkpoint deliberately changes are re-pointed, none deleted -- the publish's phase flip (now mirror-only for \"2.1\"/\"2.2\", the bind writes the phase), transition_to_awaiting_local_plan_review (now asserted to refuse, with the bind driving the same edge), route_work_item resume fixtures moved from IMPLEMENTING to a plan-stage phase, and TestPersistedPhaseWriterCensus (AWAITING_LOCAL_PLAN_REVIEW's sole writer is bind_plan_review_bundle; withdraw_plan_review writes REVISING_PLAN/AMENDING_PLAN). D-Plan-Approval-Closure (CP5): adds TestPlanApprovalClosureUnits (the amend gate's classification, the named errors at both stages, the explicit expected id, journal removal_paths validation including a 2.5.1 journal without the field, the manifest readers, staging a deletion, the git-mv remedy). Additive only. D-Repo-Global-Lifecycle (CP6): TestCrossWorktreeAmendmentClaimResidualXModelR9B1, which pinned the open v2.4.0-002 boundary, is inverted and renamed TestCrossWorktreeAmendmentClaimRaceIsClosed (tests 1-4, real linked worktrees and real processes racing in both orders). TestAmendmentClaimRaceRealProcesses keeps both same-worktree races through the new entry point (test 16; a claim refused because the amendment won now reports AmendmentInFlightError). TestRequestPlanAmendment's unit tests call the pure mutator holding (9), plus a no-bypass test. New: TestRepoGlobalLifecycleClaimAndAmendment (5, 6, 11, 12, 13a, 13e), TestAmendmentWitnessCrashRecovery (7 with SIGKILL, 7a, 9 with SIGKILL, 10), TestLifecycleLockIsAPureSource (23), TestAmendmentWitnessUpgradeBootstrap (13, 13b-13i; the version helper pinned against a verbatim copy of release._version_key and against the real one when importable), TestAmendmentBootstrapResolutionFork (20, 21's bootstrap half) and TestAmendmentResolutionReservation (8, 13i, 17's core, 19, 21, 22(c)-(e), 24, 27, 28, and the journal's live-claim refusal) against real plan-approval journals. NOT additive only: four pre-existing tests that acquired a lease to stand in for a live holder now release it at the end (the process-local held-set would otherwise carry it into later tests), and TestGlobalLockOrderItem372h's docstrings restate the census counts; no assertion is removed. Plus two regression tests for the review fixes (the unreadable-requester literal, and the updated worktree naming its own unrecorded amendment). Implementation review round 1: adds TestPlanApprovalPhaseGate (the withdraw-detour-restore re-bind never reaches approval), TestPlanApprovalStagedDiffIgnoresRenames, unreadable committed states in another worktree under OPEN and RESOLVING witnesses, the two upgrade topologies (an amendment predating the update carried into a lagging worktree; an uncommitted update in the amending worktree) and the commit-the-update remedy, and the in-process witness rollback on a failed state publish. W1 (workflow-2.7.0, orchestration-protocol-v1): TestConsumedPlanReviewHistory (CP2); the gate wrappers and verify_implementation_review_bundle (CP4); the manual-verdict ingest, its refusals, crash window, before_publish and concurrency tests (CP5). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability).",
-      "sha256": "b5d5a4639c098333f80987b368653750726a67217021e1c37c26d39aa3bd705a",
-      "size": 1085684,
+      "sha256": "215c7de9e56de958358550068e957f88fdc4d290d6f346c750c86b06f86044bf",
+      "size": 1097072,
       "executable": false
     },
     {
@@ -805,8 +805,8 @@
       "rationale": "Canonical Workflow implementation modules; every command entry point names them. W1 (workflow-2.7.0, orchestration-protocol-v1): real-bundle fixtures for the protocol suite (seed_bundle_item, generate_plan_bundle, publish_and_bind_plan_bundle, generate_implementation_bundle, approve_plan) (CP4); generate_plan_bundle writes the item's current plan_revision (CP6). W2 (workflow-2.8.0, gate-policy-and-reopening).",
       "location": "payload/scripts/workflow_test_harness.py",
       "target_path": "scripts/workflow_test_harness.py",
-      "sha256": "538a327c9119da63cb1b25cd3229aaca78efb922c91f9175e0204d1232fc6dd9",
-      "size": 32059,
+      "sha256": "cf0c4c7dc40b50a025ba8783930f67fb3d013326424e22703ba380add9eee73d",
+      "size": 32643,
       "executable": false
     },
     {
@@ -816,8 +816,8 @@
       "rationale": "The v2.3.1 conformance suite. CI-gated upstream; it is the Workflow's own executable specification and ships with it. W1 (workflow-2.7.0, orchestration-protocol-v1): self-tests of the CP4 real-bundle fixtures (CP4).",
       "location": "payload/scripts/workflow_test_harness_test.py",
       "target_path": "scripts/workflow_test_harness_test.py",
-      "sha256": "524b14a204041f2abccb4b9ac66e19e0f6c85316736e26142c48b509ded162a1",
-      "size": 15570,
+      "sha256": "2511a11aa92060627b77750a8b88ed98f22b8c3ebaf87f7cd847e551deffe685",
+      "size": 16811,
       "executable": false
     }
   ],

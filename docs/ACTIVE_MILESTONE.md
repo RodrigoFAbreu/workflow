@@ -2,213 +2,185 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; the release follows the merge). W5: `retire-21-for-new-work` (`process`,
-governing version `2.2`), branch `milestone/retire-21-for-new-work`, base
-`b854a0b` (the release source is Workflow 2.9.2; this repository's own
-installation is also 2.9.2 with automatic gates and no `GATE_POLICY.json`). The
-plan is `docs/ai-workflow/RETIRE_21_FOR_NEW_WORK_PLAN.md`. The previous
-milestone, W6 (`functional-fix-commit-order`, Workflow 2.9.2), is complete.
-This is a re-plan: W5 was planned once on 2.9.1 and paused at its plan review
-while W6 went first; that work was never committed.
+**Complete** (accepted by policy; the release follows the merge). W7: `checkpoint-anchors-early` (`process`, governing version `2.2`), branch
+`milestone/checkpoint-anchors-early`, base `a5da36c` (main after W5: the
+release source is Workflow 2.10.0; this repository's own installation is 2.9.2
+with automatic gates and no `GATE_POLICY.json`). Issue
+RodrigoFAbreu/workflow#23, high priority. The plan is
+`docs/ai-workflow/CHECKPOINT_ANCHORS_EARLY_PLAN.md`. The previous milestone,
+W5 (`retire-21-for-new-work`, Workflow 2.10.0), is complete.
 
 ## Goal
 
-Workflow 2.10.0, a minor release (`feat:`), roadmap row 7:
+Workflow 2.11.0, a minor release (`feat:`), roadmap row 8:
 
-1. **New work items stop starting on "2.1".** While `WORKFLOW_CONFIG.json`
-   names "2.1" as the default, creating a new work item (a fresh
-   `/milestone-plan`, or a broad remediation child from
-   `/apply-functional-review` or `/apply-pr-review`) refuses before any write
-   with `DefaultWorkflowVersionRetiredError` and one next step: set the default
-   to "2.2" in a `Workflow-Activation: 2.2` commit. Existing "2.1" items keep
-   working to completion, legacy adoption still targets "2.1", "2.1" stays in
-   `supported_versions`, and nothing persisted changes. Orchestration Protocol
-   1.3 adds row 1b (`blocked`, `plan_start_default_retired`) and an advisory
-   `verify` check, `default_workflow_version`.
-2. **A faster managed conformance job.** `workflow-conformance.yml` cancels a
-   pull request's superseded run on a new push (push runs are never cancelled)
-   and runs the nine suites in parallel inside the one `workflow-conformance`
-   job, each in its own copy of the checkout with its own `TMPDIR` and `HOME`,
-   every failure shown and annotated.
-3. **Two version-aware wording fixes** W6 deferred:
-   `recover-implementation-provenance.md`'s introduction and
-   `MILESTONE_WORKFLOW.md`'s broad-branch line.
+1. **Check anchors early.** The plan-approval check that every registry
+   checkpoint has a well-formed `<!-- CPn -->`/`<!-- /CPn -->` pair in the
+   plan (`validate_post_anchor_coverage`) also runs, through one wrapper
+   (`assert_plan_checkpoint_anchors`), when a plan revision is published, when
+   it is bound, and in plan-stage bundle generation on the pinned bytes. An
+   amending plan without anchors is refused before any review round, with the
+   same error classes as approval and one next step. The approval-time check
+   is unchanged.
+2. **Write anchors from the start.** `/milestone-plan` tells the author to put
+   a pair around every checkpoint section in every revision, and the same
+   check requires them for every new plan revision of a "2.1" or "2.2" item,
+   so a later amendment reconciles checkpoint by checkpoint instead of
+   re-checking every completed one.
 
-The Manager side (the `workflow-manager doctor` warning, and the Manager's
-template test pattern) ships in the Manager pin pull request; the plan's
-D-Manager-Handoff says exactly what.
+Approved plans without anchors keep driving implementation, reviews and
+acceptance until their next plan revision; version-"1" items are unchanged;
+nothing new is persisted; Orchestration Protocol stays 1.3.
 
 ## Current checkpoint
 
-Implementing (plan revision 2, approved). CP1 (the refusal at creation, and the
-fixtures that seed existing "2.1" items) is complete: `workflow_state.py` gains
-`NEW_WORK_RETIRED_VERSIONS`, `RETIRED_DEFAULT_NEXT_STEP`,
-`DefaultWorkflowVersionRetiredError` and `assert_default_admits_new_work_item`,
-which `route_work_item`'s fresh branch and `create_remediation_child_work_item`
-call; the harness gains `seed_existing_work_item` and
-`seed_existing_remediation_child`; the acceptance matrix creates its items
-through one `route_item` helper, and the three real-creator child scenarios run
-under a `Workflow-Activation: 2.2` default. CP2 (Orchestration Protocol 1.3) is
-complete: `workflow_protocol.py` narrows row 1 to a default that is not retired,
-adds row 1b (`plan_start_default_retired`, remedy `RETIRED_DEFAULT_NEXT_STEP`,
-evaluated between rows 1 and 1a) and the advisory `default_workflow_version`
-`verify` check, and `PROTOCOL_VERSION` is `1.3`; the protocol document, the
-schema's check-id list and the protocol suite's mirror and release-comparison
-tests follow. CP3 (command texts) is complete: `milestone-plan.md` step 0 stops a fresh
-milestone under a "2.1" default before step 1, `apply-functional-review.md`
-checks `assert_default_admits_new_work_item` before the first bounded sub-step,
-and `apply-pr-review.md`'s broad fix names the refusal, that step 1's write
-stands, and the re-run from `already_reopened`; the integration suite updates
-two golden hashes, pins `apply-pr-review.md`, and adds static conformance tests.
-CP4 (regression scenarios) is complete: the acceptance matrix gains
-`RetiredDefaultVersionProcess`/`...Product` (14 scenarios each): the refusal on
-every creation path under a "2.1" default (fresh milestone, row 1b, a broad
-functional-review child, a broad pull-request child, with the `reconcile`
-classes and the `verify` warning), the same paths after the
-`Workflow-Activation: 2.2` edit (the "2.2" child driven through its own cycle to
-`MILESTONE_COMPLETE`, then the "2.1" parent accepted), an existing "2.1" item
-run to completion under a "2.1" default and under a "2.2" default, a "2.2" and
-a "1" default unchanged, legacy adoption unchanged, and the shipped templates.
-`Item.approve_implementation` gains an opt-in `scoped_staging`. The matrix runs
-381 tests (353 + 28), all green. CP5 (managed conformance job) is complete: the
-template gains the `concurrency` block (a pull request's runs share one group
-and cancel; any other run is keyed by `run_id`/`run_attempt`) and one
-`Run the conformance suites` step that runs the nine suites `min(4, nproc)` at a
-time, longest first, each in its own checkout copy with its own `TMPDIR` and
-`HOME`, every suite always run, failures unfolded with an `::error` line;
-`release_test.py` gains `ConformanceTemplate` (7 tests). Verified in a scratch
-clone with refreshed digests: the full `release_test.py` (86 tests, Python 3.12)
-green; the step body on the nine real suites green in 4m09s wall against 572s
-sequential. The committed manifest digests are refreshed at CP7. CP6
-(documentation) is complete: `IMPLEMENTATION_REVIEW_WORKFLOW.md`, the operator
-reference and `MILESTONE_WORKFLOW.md` (the `PLANNING` entry) gain one paragraph
-each on the retired "2.1" default; the two D-Wording fixes land in
-`recover-implementation-provenance.md`'s introduction and
-`MILESTONE_WORKFLOW.md`'s broad-branch bullet; `docs/install.md`,
-`docs/gates.md` and `docs/common-problems.md` state the next step and where to
-commit it. `check_docs.py` is clean; in a scratch fixture of the working tree
-(refreshed digests) seven of the nine suites are green, and
-`workflow_fingerprint_demo_test` and `workflow_state_demo_test` fail identically
-on the unmodified CP5 commit (they need the repository's full history, which the
-fixture lacks). CP7 (release 2.10.0) is complete: `manifest.json` names
-2.10.0 with every changed digest and the conformance template's derivation text
-refreshed, `WORKFLOW_RELEASE` is `2.10.0` (the protocol suite's release pin
-follows), and `docs/release-history.md` gains the 2.10.0 row; the roadmap row 7
-is marked Done at acceptance. In a scratch clone of the CP7 tree the full
-`release_test.py` (86 tests) is green, the stock `stage-conformance` fixture
-runs the nine suites green, `check_docs.py` is clean, `check-title --agree`
-accepts a `feat:` title for 2.9.2 to 2.10.0, and `workflow-manager verify .`
-is clean.
-
-Self-review (`SELF_REVIEWING_IMPLEMENTATION`) of the full milestone diff fixed
-two defects. In the template's step body, Actions runs `bash -eo pipefail`, so
-a suite whose checkout copy failed (and so wrote no result) made the throttle's
-`wait -n`, and then the failure branch's `cat` of its missing log, end the
-step before any other suite was reported; both now tolerate it, and a new
-`ConformanceTemplate` test (an uncopyable checkout) pins that all nine are
-still reported, with the manifest's template digest refreshed. And
-`docs/common-problems.md` and `docs/install.md` named `workflow-manager verify`
-as the source of the `default_workflow_version` warning, which is the
-Workflow's own `verify` check; `common-problems.md` also says that
-`/apply-pr-review`'s first-step write stands.
+Implementing, plan revision 4 approved. CP1 complete: `PLAN_ANCHOR_NEXT_STEP`,
+`_assert_post_registry_well_formed` (moved verbatim out of
+`apply_plan_approval`) and `assert_plan_checkpoint_anchors` in
+`payload/scripts/workflow_state.py`, with `TestAssertPlanCheckpointAnchors`
+in `workflow_state_test.py`. The nine suites pass in a scratch conformance
+fixture and `workflow-manager verify .` is clean. CP2 complete: the plan-stage
+branch of `payload/scripts/prepare-ai-review.sh` calls
+`assert_plan_checkpoint_anchors` on the staging pin (`allow_bound_regeneration`)
+and exits 1 through `cleanup` on an anchor error; the harness's default plan
+carries an anchor pair per checkpoint, `workflow_protocol_test.py`'s lifecycle
+ids are `CP1`/`CP2`, and the matrix's pre-repair test now asserts the refusal.
+New tests: `TestPrepareAiReviewShEarlyAnchorCheck` and two harness pins. CP3
+complete: `milestone-plan.md` (step 3's anchor instruction, step 4's `[2.1]`
+self-review bullet, the publication point's new item 4 before the publish,
+step 6's check before the bind and the generator-refusal sentence),
+`apply-plan-review.md` (step 5 check before the publish, step 7' before the
+bind) and `request-plan-amendment.md` (the anchor paragraph) name
+`assert_plan_checkpoint_anchors` and `PLAN_ANCHOR_NEXT_STEP`; the two golden
+hashes are updated and `TestCheckpointAnchorsEarlyCommandConformance` pins the
+ordering. The `"1"` golden output of `/milestone-plan` is unchanged. CP4
+complete: `CheckpointAnchorsEarlyProcess`/`Product` in
+`workflow_acceptance_matrix_test.py` (seven scenarios, plus the 2.10.0
+stand-in helper and its pins); the matrix suite passes (415 tests, 20
+skipped). CP5 complete: the rule, the early refusal and its one next step are
+written in `MILESTONE_WORKFLOW.md` (`PLANNING`, `AMENDING_PLAN`),
+`PLAN_REVIEW_WORKFLOW.md`, `REVIEW_PROTOCOL.md` and the operator reference, and
+`docs/common-problems.md` has "A plan revision is refused for a missing
+checkpoint anchor" with the downgrade posture. Run in place, the payload
+suites show the same failures with and without the CP5 edits (they read the
+installed 2.9.2 command files); the scratch conformance fixture was not
+staged. CP6 complete: `manifest.json` is 2.11.0 with every `artifacts` and
+`templates` digest and size refreshed, `WORKFLOW_RELEASE = "2.11.0"` (protocol
+stays 1.3) with the two release strings in `workflow_protocol_test.py`, the
+tested-releases list in `ORCHESTRATION_PROTOCOL.md`, a 2.11.0 row in
+`docs/release-history.md` carrying the downgrade paragraph, and the "Last
+checked with" lines of the two docs this milestone changed. The nine suites pass
+in the stock `release.py stage-conformance` fixture, `release.py build` of the
+commit succeeds and `check_docs.py` is clean. All checkpoints are complete.
 
 ## Next action
 
-W5 is accepted. Merge pull request #24 (squash, `feat:` title); the `Release`
-workflow then publishes Workflow 2.10.0. The next roadmap item (row 8,
+W7 is accepted. Merge pull request #25 (squash, `feat:` title); the `Release`
+workflow then publishes Workflow 2.11.0. The next roadmap item (row 9,
 Controller C10) waits on the Controller, so there is no milestone to
 `/milestone-plan` yet.
 
 ## Functional review checklist
 
-Automated verification is current: the working tree is unchanged since the
-implementation bundle (only state-recording commits follow the last code
-commit, `d2d2091`).
+Milestone `checkpoint-anchors-early` (Workflow 2.11.0), implementation
+revision 2 (after functional review round 1; see the round note below for the
+flows to re-test). This is a process milestone with no UI: the "user flows" are
+command-line and command-text checks on the release source. All commands run
+from the repository root on branch `milestone/checkpoint-anchors-early`.
 
 ### Setup
 
-- Branch `milestone/retire-21-for-new-work`, clean tree. Python 3.12. No build
-  step; no feature flags. The release source (`payload/`, `templates/`,
-  `manifest.json`, `tools/release/`) is what changed; this repository's own
-  installation stays 2.9.2.
-- Scratch work only in a throwaway directory (`mktemp -d`), never in this tree.
-- Flow 8 needs the pinned compression runtime: `pip install --require-hashes
-  -r tools/release/deflate-requirements.txt` (a virtual environment is fine).
-  Without `zlib_ng`, `tools/release/release_test.py` fails 25 tests with
-  `zlib_ng is not installed`; with it, all 87 pass.
+- Python 3 and `git` only; no feature flags, no seeded data.
+- Do not edit this repository's own installation (`.claude/`, `scripts/`,
+  `docs/ai-workflow/`); the changes under test live in `payload/`,
+  `manifest.json` and `docs/`.
+- Scratch fixture for the suites (never run them from inside an extracted
+  tree): `python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)/fixture"`.
 
 ### Test data
 
-- A scratch fixture repository from the harness
-  (`payload/scripts/workflow_test_harness.py`: `seed_existing_work_item`,
-  `seed_existing_remediation_child`) or the acceptance matrix's
-  `RetiredDefaultVersionProcess` scenarios; one config with
-  `default_workflow_version: "2.1"`, one with `"2.2"`.
+None to seed. The suites build their own temporary repositories; the plan
+under test is `docs/ai-workflow/CHECKPOINT_ANCHORS_EARLY_PLAN.md`.
 
-### Flows
+### Flows and expected results
 
-1. **Refusal at creation under a "2.1" default.** In a fixture whose
-   `WORKFLOW_CONFIG.json` default is `"2.1"`, run `/milestone-plan` for a fresh
-   milestone. Expected: stops at step 0 before any write, raises
-   `DefaultWorkflowVersionRetiredError`, one next step: set the default to
-   "2.2" in a `Workflow-Activation: 2.2` commit. `WORKFLOW_STATE.json` unchanged.
-2. **Broad remediation children refuse too.** Under the same default, a broad
-   `/apply-functional-review` finding and a broad `/apply-pr-review` fix.
-   Expected: the same refusal before the first write (for `apply-pr-review`,
-   step 1's reopen write stands and the re-run resumes from `already_reopened`).
-   Bounded functional fixes are unaffected.
-3. **After activating "2.2".** Edit the default to "2.2", commit with
-   `Workflow-Activation: 2.2`, repeat flows 1-2. Expected: items are created as
-   "2.2" and run through their cycle.
-4. **Existing "2.1" items, legacy adoption and other defaults unchanged.** An
-   already-seeded "2.1" item completes under a "2.1" default and under a "2.2"
-   default; legacy adoption still lands on `"2.1"`; "2.1" remains in
-   `supported_versions`; "2.2" and "1" defaults behave as before.
-5. **Orchestration Protocol 1.3.** Under a "2.1" default the protocol returns
-   row 1b (`blocked`, `plan_start_default_retired`) with the remedy text; under
-   "2.2" row 1 applies. `verify` shows the advisory `default_workflow_version`
-   warning (and none under "2.2").
-6. **Managed conformance job.** Read
-   `templates/.github/workflows/workflow-conformance.yml`: `concurrency`
-   cancels a pull request's superseded run but never a push run; one
-   `Run the conformance suites` step runs the nine suites in parallel, each in
-   its own checkout copy with its own `TMPDIR`/`HOME`; every failure is shown
-   and annotated with `::error` even if one suite's copy fails.
-7. **Wording fixes.** `recover-implementation-provenance.md`'s introduction and
-   `MILESTONE_WORKFLOW.md`'s broad-branch bullet read correctly for both "2.1"
-   and "2.2" items. `docs/install.md`, `docs/gates.md` and
-   `docs/common-problems.md` state the next step and where to commit it, and
-   attribute the `default_workflow_version` warning to the Workflow's own
-   `verify`.
-8. **Release 2.10.0.** `manifest.json` names 2.10.0, `WORKFLOW_RELEASE` is
-   `2.10.0`, `docs/release-history.md` has the 2.10.0 row; `python3
-   tools/release/release_test.py` (in the environment from Setup) and
-   `check_docs.py` are clean.
-
-### Functional review round 1
-
-Flows 1-8 passed; three wording findings, no code defect.
-
-- **Fixed (wording only, commit `393a80e`):** `docs/gates.md` now says to set
-  `default_workflow_version` to `"2.2"` (with `"2.2"` in `supported_versions`)
-  in a commit carrying `Workflow-Activation: 2.2`, that the Workflow's own
-  `verify` warns `default_workflow_version` while the default is `"2.1"`, and
-  links to `common-problems.md` for where to commit it.
-  `MILESTONE_WORKFLOW.md`'s broad-branch bullet no longer says the default
-  "can no longer be `"2.1"`": while it is `"2.1"`, creating the child refuses
-  with `DefaultWorkflowVersionRetiredError`, writing nothing. A sweep of the
-  release payload and `docs/` found no other such sentence.
-- **Checklist correction (no code change):** Setup now names the compression
-  runtime flow 8 needs.
-- **Re-test:** flow 7 (the three documents and the `MILESTONE_WORKFLOW.md`
-  bullet) and flow 8 with the prerequisite installed. Flows 1-6 are unaffected.
+1. **Release source is consistent.**
+   Run `python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)/fixture"`,
+   then the nine suites inside the staged fixture (per `docs/RELEASING.md`).
+   Expected: all nine pass; `manifest.json` says 2.11.0 and its digests match.
+2. **Installation untouched.** Run `workflow-manager verify .`.
+   Expected: clean.
+3. **Docs check.** Run `python tools/docs/check_docs.py`. Expected: clean.
+4. **Early check, direct.** In a Python session with `payload/scripts` on the
+   path, call `workflow_state.assert_plan_checkpoint_anchors` with a plan whose
+   registry has `CP1`/`CP2` but only a `CP1` anchor pair.
+   Expected: the same error class as plan approval, message ending with
+   `PLAN_ANCHOR_NEXT_STEP` (one next step). With both pairs present: no error.
+5. **Bundle generation refuses early.** Targeted tests:
+   `python -m unittest workflow_fingerprint_generalization_test.TestPrepareAiReviewShEarlyAnchorCheck`
+   and `workflow_state_test.TestAssertPlanCheckpointAnchors` (run in the
+   staged fixture). Expected: pass; an anchorless plan makes the plan-stage
+   branch of `prepare-ai-review.sh` exit 1 before any review round.
+6. **End-to-end scenarios.** `workflow_acceptance_matrix_test`
+   `CheckpointAnchorsEarlyProcess`/`CheckpointAnchorsEarlyProduct`. Expected:
+   all seven scenarios pass, including: approved anchorless plan still drives
+   implementation/acceptance; new "2.1"/"2.2" revision without anchors is
+   refused at publish, bind and bundle generation; version-"1" unchanged.
+7. **Command texts.** Read `payload/.claude/commands/milestone-plan.md`
+   (step 3, step 4, publication point item 4, step 6),
+   `apply-plan-review.md` (steps 5 and 7') and `request-plan-amendment.md`.
+   Expected: each tells the author to wrap every checkpoint section in
+   `<!-- CPn -->`/`<!-- /CPn -->`; `milestone-plan.md` and `apply-plan-review.md`
+   name `assert_plan_checkpoint_anchors` before the publish/bind, and
+   `request-plan-amendment.md` gives the anchor-authoring and early-refusal
+   guidance (it does not publish or bind); all three name
+   `PLAN_ANCHOR_NEXT_STEP`, with no wording contradicting the plan.
+8. **Docs read right.** Skim `MILESTONE_WORKFLOW.md` (`PLANNING`,
+   `AMENDING_PLAN`), `PLAN_REVIEW_WORKFLOW.md`, `REVIEW_PROTOCOL.md`, the
+   operator reference, `docs/common-problems.md` ("A plan revision is refused
+   for a missing checkpoint anchor") and the 2.11.0 row of
+   `docs/release-history.md`. Expected: rule, refusal, one next step and the
+   downgrade posture are described consistently; commands named exist.
+9. **Release build.** `python tools/release/release.py build` of the commit
+   succeeds (see `docs/RELEASING.md`). Expected: builds 2.11.0 artifacts, no
+   changes to any published tag or asset.
 
 ### Known limitations / out of scope
 
-- The `workflow-manager doctor` warning and the Manager's template test pattern
-  ship in the Manager pin pull request (D-Manager-Handoff), not here.
-- This repository's own installation is not updated until 2.10.0 is published
-  and installed; roadmap row 7 is marked Done at acceptance.
-- `workflow_fingerprint_demo_test` and `workflow_state_demo_test` need full
-  repository history and fail in history-less scratch fixtures (identically on
-  the unmodified CP5 commit).
+- Approved plans without anchors keep working until their next plan revision.
+- Run in place, some payload suites read the installed 2.9.2 command files and
+  show failures unrelated to this milestone; use the staged fixture.
+- Nothing new is persisted; Orchestration Protocol stays 1.3.
+- Publishing the release and the `workflow-manager` pin are separate steps,
+  not part of this milestone's functional review.
+
+### Functional review round 1
+
+Fixed (wording only, no code change; `technical_approval` staled first):
+`request-plan-amendment.md` names `PLAN_ANCHOR_NEXT_STEP` and the static
+conformance test checks all three commands for it (finding 3);
+`PLAN_REVIEW_WORKFLOW.md` (and the same statement in `MILESTONE_WORKFLOW.md`,
+`REVIEW_PROTOCOL.md`, the operator reference) now limits the generation rule to
+a new or unbound revision (finding 4); `milestone-plan.md` and
+`apply-plan-review.md` name all four refusal classes and write `workflow_state.`
+(finding 6). Checklist corrections: `--out "$(mktemp -d)/fixture"` (finding 1)
+and flow 7 (finding 2).
+
+Deferred follow-ups: `docs/RELEASING.md:378` has the same stale
+`--out "$(mktemp -d)"` example (outside this item's classified paths); the
+`/review-plan` phase-gate refusal at a published, unbound `PLANNING` item names
+no next step (`workflow_state.py`, pre-existing, finding 5).
+
+Re-test: flows 1, 7 and 8.
+
+### Functional review round 2
+
+Fixed (wording only, no code change; `technical_approval` staled first):
+`milestone-plan.md` step 6 (generator failure) said
+`AmendmentAnchorCoverageError` "and its two siblings"; it now says "or any
+other `workflow_state._PLAN_ANCHOR_ERRORS` class", which is all four refusal
+classes the generator catches (finding 1). A sweep of `payload/` found no other
+count or list of the refusal classes that is not all four. Round-1 finding 5
+and the `docs/RELEASING.md` example stay deferred.
+
+Re-test: flow 7.

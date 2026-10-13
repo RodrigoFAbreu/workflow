@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "work_item_id": "checkpoint-anchors-early",
+  "requirements": {
+    "REQ-1": {
+      "description": "While an amendment is open, the amending plan revision is refused before any review round when a checkpoint lacks a well-formed anchor pair: at publish and bind, and at plan-stage bundle generation, with the same named error as approval and one next step; the approval-time check is unchanged",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2",
+        "CP3",
+        "CP4"
+      ]
+    },
+    "REQ-2": {
+      "description": "Every new plan revision of a two-stage work item carries a well-formed anchor pair around every checkpoint: /milestone-plan says so, and the same check refuses a revision without them at publish, bind and plan-stage bundle generation",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2",
+        "CP3",
+        "CP4"
+      ]
+    },
+    "REQ-3": {
+      "description": "In-flight work is not broken: a plan approved without anchors keeps driving implementation, reviews and acceptance until its next plan revision, a plan review bound before the update survives an unchanged regeneration of its bundle, and version-1 items are unchanged",
+      "checkpoint_ids": [
+        "CP2",
+        "CP4"
+      ]
+    },
+    "REQ-4": {
+      "description": "An amendment that only adds a checkpoint keeps the other checkpoints COMPLETE when both plans carry anchors",
+      "checkpoint_ids": [
+        "CP4"
+      ]
+    },
+    "REQ-5": {
+      "description": "The rule, the refusal and its next step, the downgrade posture and the unchanged protocol are written down, with a common-problems entry",
+      "checkpoint_ids": [
+        "CP5",
+        "CP6"
+      ]
+    },
+    "REQ-6": {
+      "description": "2.11.0 is releasable",
+      "checkpoint_ids": [
+        "CP6"
+      ]
+    }
+  }
+}
