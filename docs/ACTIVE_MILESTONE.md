@@ -87,7 +87,7 @@ from the repository root on branch `milestone/checkpoint-anchors-early`.
   `docs/ai-workflow/`); the changes under test live in `payload/`,
   `manifest.json` and `docs/`.
 - Scratch fixture for the suites (never run them from inside an extracted
-  tree): `python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)"`.
+  tree): `python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)/fixture"`.
 
 ### Test data
 
@@ -97,7 +97,7 @@ under test is `docs/ai-workflow/CHECKPOINT_ANCHORS_EARLY_PLAN.md`.
 ### Flows and expected results
 
 1. **Release source is consistent.**
-   Run `python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)"`,
+   Run `python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)/fixture"`,
    then the nine suites inside the staged fixture (per `docs/RELEASING.md`).
    Expected: all nine pass; `manifest.json` says 2.11.0 and its digests match.
 2. **Installation untouched.** Run `workflow-manager verify .`.
@@ -122,8 +122,11 @@ under test is `docs/ai-workflow/CHECKPOINT_ANCHORS_EARLY_PLAN.md`.
    (step 3, step 4, publication point item 4, step 6),
    `apply-plan-review.md` (steps 5 and 7') and `request-plan-amendment.md`.
    Expected: each tells the author to wrap every checkpoint section in
-   `<!-- CPn -->`/`<!-- /CPn -->` and names `assert_plan_checkpoint_anchors`
-   before the publish/bind, with no wording contradicting the plan.
+   `<!-- CPn -->`/`<!-- /CPn -->`; `milestone-plan.md` and `apply-plan-review.md`
+   name `assert_plan_checkpoint_anchors` before the publish/bind, and
+   `request-plan-amendment.md` gives the anchor-authoring and early-refusal
+   guidance (it does not publish or bind); all three name
+   `PLAN_ANCHOR_NEXT_STEP`, with no wording contradicting the plan.
 8. **Docs read right.** Skim `MILESTONE_WORKFLOW.md` (`PLANNING`,
    `AMENDING_PLAN`), `PLAN_REVIEW_WORKFLOW.md`, `REVIEW_PROTOCOL.md`, the
    operator reference, `docs/common-problems.md` ("A plan revision is refused
@@ -142,3 +145,22 @@ under test is `docs/ai-workflow/CHECKPOINT_ANCHORS_EARLY_PLAN.md`.
 - Nothing new is persisted; Orchestration Protocol stays 1.3.
 - Publishing the release and the `workflow-manager` pin are separate steps,
   not part of this milestone's functional review.
+
+### Functional review round 1
+
+Fixed (wording only, no code change; `technical_approval` staled first):
+`request-plan-amendment.md` names `PLAN_ANCHOR_NEXT_STEP` and the static
+conformance test checks all three commands for it (finding 3);
+`PLAN_REVIEW_WORKFLOW.md` (and the same statement in `MILESTONE_WORKFLOW.md`,
+`REVIEW_PROTOCOL.md`, the operator reference) now limits the generation rule to
+a new or unbound revision (finding 4); `milestone-plan.md` and
+`apply-plan-review.md` name all four refusal classes and write `workflow_state.`
+(finding 6). Checklist corrections: `--out "$(mktemp -d)/fixture"` (finding 1)
+and flow 7 (finding 2).
+
+Deferred follow-ups: `docs/RELEASING.md:378` has the same stale
+`--out "$(mktemp -d)"` example (outside this item's classified paths); the
+`/review-plan` phase-gate refusal at a published, unbound `PLANNING` item names
+no next step (`workflow_state.py`, pre-existing, finding 5).
+
+Re-test: flows 1, 7 and 8.
