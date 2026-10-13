@@ -771,7 +771,9 @@ class AmendmentAnchorCoverageError(Exception):
     when a checkpoint id present in `post_registry` has zero well-formed
     `<!-- CP<n> -->`/`<!-- /CP<n> -->` anchor pairs in `post_plan_text` --
     a forgotten anchor on the side where a refusal is always actionable
-    (D-Plan-Amendment-4, B5-new)."""
+    (D-Plan-Amendment-4, B5-new). Since workflow-2.11.0 also raised, with
+    the same class, by `assert_plan_checkpoint_anchors` when a plan
+    revision is published, bound or turned into a plan-review bundle."""
 
 
 class AmendmentAnchorMalformedError(Exception):
@@ -779,7 +781,10 @@ class AmendmentAnchorMalformedError(Exception):
     only for `post_plan_text`) when a checkpoint id's own anchor tags are
     not a closed, non-nesting, per-id balanced grammar: an unmatched open
     tag, an orphan close tag, or a tag nested inside another open span for
-    the same id (D-Plan-Amendment-4, B5-new/I5-new)."""
+    the same id (D-Plan-Amendment-4, B5-new/I5-new). Since
+    workflow-2.11.0 also raised, with the same class, by
+    `assert_plan_checkpoint_anchors` for any new plan revision of a
+    two-stage work item."""
 
 
 class AmendmentPostRegistryMalformedError(Exception):
@@ -802,7 +807,9 @@ class AmendmentCheckpointIdShapeError(Exception):
     `"CP" + digits + one uppercase letter`, so
     `validate_post_anchor_coverage` is unsatisfiable for any such id --
     there is no text an author could write in the amended plan that would
-    ever satisfy it. Raised *before* `plan_approval` is superseded, the
+    ever satisfy it. Since workflow-2.11.0 `assert_plan_checkpoint_anchors`
+    raises it too, for any new plan revision of a two-stage item. Raised
+    *before* `plan_approval` is superseded, the
     same "refuse before any supersede" discipline
     `AmendmentApprovalCommitUnreachableError` already follows, naming
     every offending id at once rather than wedging the item at
@@ -4494,7 +4501,9 @@ def validate_post_anchor_coverage(post_plan_text: str, post_registry: dict) -> N
     """D-Plan-Amendment-4's post-side validation, run by `apply_plan_approval`
     before it computes any reconciliation outcome: every checkpoint id
     present in `post_registry` must have at least one well-formed anchor
-    pair in `post_plan_text`. A missing id raises
+    pair in `post_plan_text`. Since workflow-2.11.0 it is also called, through
+    `assert_plan_checkpoint_anchors`, when a plan revision is published,
+    bound or turned into a plan-review bundle. A missing id raises
     `AmendmentAnchorCoverageError`; a malformed tag anywhere in
     `post_plan_text` raises `AmendmentAnchorMalformedError` (propagated
     from the strict parse below) -- both before any silent partial
@@ -4525,6 +4534,103 @@ def validate_post_anchor_coverage(post_plan_text: str, post_registry: dict) -> N
                 f"{checkpoint_id} has no well-formed anchor pair in the plan document "
                 f"being approved -- every registry checkpoint id must have at least one"
             )
+
+
+def _assert_post_registry_well_formed(work_item_id: str, post_registry: dict) -> None:
+    """The two `AmendmentPostRegistryMalformedError` checks
+    `apply_plan_approval` makes ahead of `validate_post_anchor_coverage`,
+    moved here verbatim (same order, same messages) so
+    `assert_plan_checkpoint_anchors` shares them (workflow-2.11.0)."""
+    # IMPL2-O2: `validate_post_anchor_coverage` reads
+    # `post_registry.get("checkpoints", [])` (vacuously passes a
+    # registry missing the key), but `validate_registry_topological_order`
+    # reads `registry["checkpoints"]` directly and would raise an
+    # unnamed `KeyError` for the same malformed input -- against this
+    # branch's own "refuse and name it" discipline. Named here, once,
+    # before either validator runs.
+    if "checkpoints" not in post_registry:
+        raise AmendmentPostRegistryMalformedError(
+            f"{work_item_id}'s post_registry has no 'checkpoints' key -- cannot "
+            f"validate anchor coverage or topological order for this amendment"
+        )
+    # IMPL4-O1: both `validate_post_anchor_coverage` and
+    # `reconcile_checkpoints_after_amendment` directly read `entry["id"]`
+    # from `post_registry["checkpoints"]` -- a row with no `id` key
+    # would otherwise escape as a bare, unnamed `KeyError` from either
+    # call below. Named here, once, ahead of both call paths, the same
+    # "refuse and name it" discipline the "checkpoints"-key check just
+    # above already applies to the coarser malformation.
+    missing_id_indices = [
+        i for i, entry in enumerate(post_registry.get("checkpoints", []))
+        if "id" not in entry
+    ]
+    if missing_id_indices:
+        raise AmendmentPostRegistryMalformedError(
+            f"{work_item_id}'s post_registry has checkpoint entries with no 'id' "
+            f"key at index/indices {missing_id_indices} -- cannot validate anchor "
+            f"coverage or topological order for this amendment"
+        )
+
+
+PLAN_ANCHOR_NEXT_STEP = (
+    "give every registry checkpoint an id of the shape `CP<digits>[A-Z]?` and a "
+    "well-formed `<!-- CPn -->` ... `<!-- /CPn -->` pair around its section of the "
+    "plan document, then run the command again"
+)
+
+_PLAN_ANCHOR_ERRORS = (
+    AmendmentAnchorCoverageError,
+    AmendmentAnchorMalformedError,
+    AmendmentCheckpointIdShapeError,
+    AmendmentPostRegistryMalformedError,
+)
+
+
+def assert_plan_checkpoint_anchors(
+    repo_root: Path, work_item_id: str, *, state: dict | None = None,
+    pin_dir: Path | None = None, allow_bound_regeneration: bool = False,
+) -> None:
+    """workflow-2.11.0, `D-Check`: the one early anchor check for a plan
+    revision of a two-stage work item. Read-only. Returns at once for a
+    work item whose governing version is not two-stage (a "1" item's plan
+    stage is unchanged) and, only with `allow_bound_regeneration` (the
+    plan-stage generator's call), for an item at a ready plan-review phase
+    whose `plan_review_binding` is `BOUND` (a wrapper-only regeneration of
+    an already-bound review is never re-judged). Otherwise reads the plan
+    document and registry the work item declares, from `pin_dir` when given
+    (the bytes a bundle is derived from) else from the working tree, and
+    runs `_assert_post_registry_well_formed` then
+    `validate_post_anchor_coverage` -- the same rule `apply_plan_approval`
+    applies to an amendment. A refusal re-raises the same error class with
+    the work item, the registry's `plan_revision`, whether an amendment is
+    open, the original message and `PLAN_ANCHOR_NEXT_STEP`, chained from
+    the original."""
+    if state is None:
+        state = _load_json(repo_root / DEFAULT_STATE_PATH) or {}
+    work_item = (state.get("work_items") or {}).get(work_item_id)
+    if work_item is None:
+        raise fingerprint.UnknownWorkItemError(work_item_id)
+    if work_item.get("governing_workflow_version") not in TWO_STAGE_PLAN_REVIEW_VERSIONS:
+        return
+    if allow_bound_regeneration and work_item.get("phase") in PLAN_REVIEW_READY_PHASES:
+        record = _plan_review_binding_record(work_item, work_item_id)
+        if record is not None and record["status"] == PLAN_REVIEW_BINDING_BOUND:
+            return
+    metadata = fingerprint.resolve_plan_stage_metadata(repo_root, work_item_id)
+    base = pin_dir if pin_dir is not None else repo_root
+    plan_text = (base / metadata.plan_path).read_text(encoding="utf-8")
+    registry = json.loads((base / metadata.registry_path).read_text(encoding="utf-8"))
+    revision = registry.get("plan_revision") if isinstance(registry, dict) else None
+    revision_text = f"revision {revision}" if revision is not None else "unknown revision"
+    history = work_item.get("amendment_history") or []
+    amendment = " (amendment open)" if history and history[-1].get("resolved_at_plan_revision") is None else ""
+    try:
+        _assert_post_registry_well_formed(work_item_id, registry)
+        validate_post_anchor_coverage(plan_text, registry)
+    except _PLAN_ANCHOR_ERRORS as exc:
+        raise type(exc)(
+            f"{work_item_id} plan {revision_text}{amendment}: {exc} -- {PLAN_ANCHOR_NEXT_STEP}"
+        ) from exc
 
 
 _RECONCILIATION_ROW_FIELDS = ("name", "depends_on", "complexity", "session_target")
@@ -9518,6 +9624,43 @@ def validate_governing_version(governing_workflow_version: str, config: dict) ->
         )
 
 
+# Governing versions a *new* work item can no longer be created on
+# (workflow-2.10.0, `D-Refuse`). Existing items of these versions keep
+# running to completion; only creation is refused.
+NEW_WORK_RETIRED_VERSIONS = frozenset({"2.1"})
+
+RETIRED_DEFAULT_NEXT_STEP = (
+    'Set `default_workflow_version` to "2.2" in '
+    '`docs/ai-workflow/WORKFLOW_CONFIG.json` (with "2.2" in '
+    '`supported_versions`), commit it with the trailer `Workflow-Activation: '
+    '2.2`, then run the command again. Existing "2.1" work items are not '
+    'affected.'
+)
+
+
+class DefaultWorkflowVersionRetiredError(Exception):
+    """Raised, before any write, when a new work item would be created while
+    `WORKFLOW_CONFIG.json` names a retired version (`NEW_WORK_RETIRED_VERSIONS`)
+    as `default_workflow_version` (workflow-2.10.0, `D-Refuse`). The Workflow
+    never picks a version the configuration does not name and never rewrites
+    the configuration; the message ends with `RETIRED_DEFAULT_NEXT_STEP`."""
+
+
+def assert_default_admits_new_work_item(config: dict) -> str:
+    """Validates the configuration's default against `supported_versions`,
+    refuses with `DefaultWorkflowVersionRetiredError` when it is in
+    `NEW_WORK_RETIRED_VERSIONS`, and otherwise returns it: the governing
+    version a new work item is created on."""
+    default_version = config["default_workflow_version"]
+    validate_governing_version(default_version, config)
+    if default_version in NEW_WORK_RETIRED_VERSIONS:
+        raise DefaultWorkflowVersionRetiredError(
+            f"default_workflow_version is {default_version!r}, and new work "
+            f"items no longer start on it. {RETIRED_DEFAULT_NEXT_STEP}"
+        )
+    return default_version
+
+
 # ---------------------------------------------------------------------------
 # Registry: topological order + registry x mapping bidirectional coverage
 # ---------------------------------------------------------------------------
@@ -10165,7 +10308,9 @@ def route_work_item(
     - A fresh id creates a new `work_items[id]` entry, fixing
       `governing_workflow_version` from the config's current
       `default_workflow_version` (validated against `supported_versions`,
-      `OPUS-R6-024`) and never re-read afterward.
+      `OPUS-R6-024`) and never re-read afterward. A default in
+      `NEW_WORK_RETIRED_VERSIONS` ("2.1") refuses with
+      `DefaultWorkflowVersionRetiredError` before any write (workflow-2.10.0).
     - An id naming an existing *non-terminal* entry resumes it: only
       `plan_revision`/`state_revision`/`last_transition` advance
       unconditionally -- identity fields (`work_item_type`/`kind`/
@@ -10227,12 +10372,12 @@ def route_work_item(
     if existing is None:
         if repo_root is not None:
             identity_reference_admits(repo_root, work_item_id, None)
-        validate_governing_version(config["default_workflow_version"], config)
+        governing_version = assert_default_admits_new_work_item(config)
         work_items[work_item_id] = default_work_item(
             work_item_id=work_item_id, work_item_type=work_item_type,
             work_item_kind=work_item_kind, plan_path=plan_path,
             registry_path=registry_path,
-            governing_workflow_version=config["default_workflow_version"],
+            governing_workflow_version=governing_version,
             plan_revision=plan_revision, last_transition=now,
             mapping_path=mapping_path, base_commit=base_commit,
         )
@@ -12842,7 +12987,9 @@ def create_remediation_child_work_item(
     implementation head at the moment broad remediation was needed), and
     otherwise `default_work_item`'s ordinary fresh-`PLANNING`-phase shape.
     `governing_workflow_version` is fixed from the config's current
-    default, exactly like any other freshly created work item (D1) --
+    default, exactly like any other freshly created work item (D1), and a
+    default in `NEW_WORK_RETIRED_VERSIONS` refuses with
+    `DefaultWorkflowVersionRetiredError` (workflow-2.10.0) --
     because a remediation child *is* one, routed through the full normal
     plan/implement/review/accept cycle by the ordinary commands from here.
 
@@ -12871,12 +13018,12 @@ def create_remediation_child_work_item(
             f"{child_id!r} already exists -- remediation-child numbering should "
             f"never collide; check for a hand-edited state file"
         )
-    validate_governing_version(config["default_workflow_version"], config)
+    governing_version = assert_default_admits_new_work_item(config)
     child = default_work_item(
         work_item_id=child_id, work_item_type=parent["work_item_type"],
         work_item_kind=parent["work_item_kind"], plan_path=plan_path,
         registry_path=registry_path,
-        governing_workflow_version=config["default_workflow_version"],
+        governing_workflow_version=governing_version,
         plan_revision=1, last_transition=now,
     )
     child["parent_work_item_id"] = parent_work_item_id
@@ -13808,35 +13955,7 @@ def apply_plan_approval(
                 f"{work_item_id} has an open amendment -- reconciliation requires all of "
                 f"pre_registry/pre_plan_text/post_registry/post_plan_text; missing: {missing}"
             )
-        # IMPL2-O2: `validate_post_anchor_coverage` reads
-        # `post_registry.get("checkpoints", [])` (vacuously passes a
-        # registry missing the key), but `validate_registry_topological_order`
-        # reads `registry["checkpoints"]` directly and would raise an
-        # unnamed `KeyError` for the same malformed input -- against this
-        # branch's own "refuse and name it" discipline. Named here, once,
-        # before either validator runs.
-        if "checkpoints" not in post_registry:
-            raise AmendmentPostRegistryMalformedError(
-                f"{work_item_id}'s post_registry has no 'checkpoints' key -- cannot "
-                f"validate anchor coverage or topological order for this amendment"
-            )
-        # IMPL4-O1: both `validate_post_anchor_coverage` and
-        # `reconcile_checkpoints_after_amendment` directly read `entry["id"]`
-        # from `post_registry["checkpoints"]` -- a row with no `id` key
-        # would otherwise escape as a bare, unnamed `KeyError` from either
-        # call below. Named here, once, ahead of both call paths, the same
-        # "refuse and name it" discipline the "checkpoints"-key check just
-        # above already applies to the coarser malformation.
-        missing_id_indices = [
-            i for i, entry in enumerate(post_registry.get("checkpoints", []))
-            if "id" not in entry
-        ]
-        if missing_id_indices:
-            raise AmendmentPostRegistryMalformedError(
-                f"{work_item_id}'s post_registry has checkpoint entries with no 'id' "
-                f"key at index/indices {missing_id_indices} -- cannot validate anchor "
-                f"coverage or topological order for this amendment"
-            )
+        _assert_post_registry_well_formed(work_item_id, post_registry)
         validate_post_anchor_coverage(post_plan_text, post_registry)
         validate_registry_topological_order(post_registry)
         reconciliation = reconcile_checkpoints_after_amendment(
