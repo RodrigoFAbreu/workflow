@@ -883,7 +883,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.10.0 (retire-21-for-new-work, CP3): step 0 stops a fresh milestone
     # under a "2.1" default with DefaultWorkflowVersionRetiredError -- intentional
     # content change.
-    "milestone-plan.md": "516f80f61fea85ec30d08857f907028074519c54ab69c42176a362cb28f1d2fa",
+    "milestone-plan.md": "e9e2179cc2892aed7b180c56c8d41ba9ad60d3f80f7a24500e3ab85137895c97",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the
@@ -1128,7 +1128,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # assert_apply_review_feedback_binding (D-Apply-Binding): a two-stage
     # REVISE stating a review_content_id is bound by content --
     # intentional content change.
-    "apply-plan-review.md": "34656954061e0204148ee22b41aa0258f3f20db44827a715c6a3d7876f60745e",
+    "apply-plan-review.md": "d43282b2e7405ee232e552586d8a066aa4a6ac15dceaa8c3b54e1522d2566ca9",
     # apply-implementation-review.md (WF8c item (c)): step 7's
     # record_bundle_generation call site widened to first resolve the
     # outcome (resolve_bundle_generation_outcome) and write the matching
