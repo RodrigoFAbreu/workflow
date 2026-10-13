@@ -2,7 +2,7 @@
 
 ## Milestone
 
-W7: `checkpoint-anchors-early` (`process`, governing version `2.2`), branch
+**Complete** (accepted by policy; the release follows the merge). W7: `checkpoint-anchors-early` (`process`, governing version `2.2`), branch
 `milestone/checkpoint-anchors-early`, base `a5da36c` (main after W5: the
 release source is Workflow 2.10.0; this repository's own installation is 2.9.2
 with automatic gates and no `GATE_POLICY.json`). Issue
@@ -72,6 +72,13 @@ tested-releases list in `ORCHESTRATION_PROTOCOL.md`, a 2.11.0 row in
 checked with" lines of the two docs this milestone changed. The nine suites pass
 in the stock `release.py stage-conformance` fixture, `release.py build` of the
 commit succeeds and `check_docs.py` is clean. All checkpoints are complete.
+
+## Next action
+
+W7 is accepted. Merge pull request #25 (squash, `feat:` title); the `Release`
+workflow then publishes Workflow 2.11.0. The next roadmap item (row 9,
+Controller C10) waits on the Controller, so there is no milestone to
+`/milestone-plan` yet.
 
 ## Functional review checklist
 
