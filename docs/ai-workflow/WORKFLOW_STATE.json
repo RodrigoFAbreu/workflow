@@ -4019,7 +4019,7 @@
       "registry_path": "docs/ai-workflow/registry/checkpoint-anchors-early-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/checkpoint-anchors-early-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 4,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -4145,10 +4145,10 @@
         }
       },
       "technical_approval": {
-        "status": "STALE",
+        "status": "CURRENT",
         "basis": "POLICY_SATISFIED",
-        "reviewed_bundle_id": "34494789d605269c232735e22dd36b2ce1484ac628340eb3fbe06be938731c2c",
-        "approved_review_content_id": "a08cd213b12bd13cffda49ae5edd0240abe2d8957161b1d3d737d1c19e6b4320",
+        "reviewed_bundle_id": "3a8034c7ddf20372583341ef37700ea3a51f4a8acc11f451ba220b6d4695ef71",
+        "approved_review_content_id": "a3c6d9bced6ab1cd162e36455ff3fe4c7ad1113eb33188632d1a2a2e56875483",
         "review_content_manifest": [
           {
             "path": "docs/ai-workflow/registry/checkpoint-anchors-early-artifacts.json",
@@ -4172,31 +4172,31 @@
             "path": "manifest.json",
             "exists": true,
             "mode": "100644",
-            "blob": "217e047e5139534980ef479a67af357884e7eb97"
+            "blob": "13cf05602fe8a085f8450442016724f332508798"
           },
           {
             "path": "payload/.claude/commands/apply-plan-review.md",
             "exists": true,
             "mode": "100644",
-            "blob": "ea2aee1ec9613d90fb353711d692b4b743527723"
+            "blob": "414a63486ad906cbaa31641bbc576be6f5083123"
           },
           {
             "path": "payload/.claude/commands/milestone-plan.md",
             "exists": true,
             "mode": "100644",
-            "blob": "77603c785655763ae42f46ac59831a283d4c65d2"
+            "blob": "d7696ef13debf589fd3943a0d7d27ba68b7c7995"
           },
           {
             "path": "payload/.claude/commands/request-plan-amendment.md",
             "exists": true,
             "mode": "100644",
-            "blob": "a107e4059290091b2ace97395158932132695ff7"
+            "blob": "4dc00f657c2f8242b72bb5be4bf52944a8822699"
           },
           {
             "path": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md",
             "exists": true,
             "mode": "100644",
-            "blob": "624d06bd4dd18a4136091a88d24d66367c4ba642"
+            "blob": "1b40ef481c73ed5a6d92fc52066aa7d8fce6215f"
           },
           {
             "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
@@ -4208,19 +4208,19 @@
             "path": "payload/docs/ai-workflow/PLAN_REVIEW_WORKFLOW.md",
             "exists": true,
             "mode": "100644",
-            "blob": "9fe49ba5b7e3912dd3fb1238bb8c82a35ab60ec1"
+            "blob": "ea2202176736586c05c8621482435528debaddf6"
           },
           {
             "path": "payload/docs/ai-workflow/REVIEW_PROTOCOL.md",
             "exists": true,
             "mode": "100644",
-            "blob": "db427944089debbfa720e2dc01027af38a60b427"
+            "blob": "70b315cb95d937a9970f9d671b7e901a18adbf64"
           },
           {
             "path": "payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
             "exists": true,
             "mode": "100644",
-            "blob": "cb4cf60ec667802e8cc823c7dae06bd2acce8933"
+            "blob": "210e925b8f02af052e1c29c528b5513589751960"
           },
           {
             "path": "payload/scripts/prepare-ai-review.sh",
@@ -4244,7 +4244,7 @@
             "path": "payload/scripts/workflow_integration_test.py",
             "exists": true,
             "mode": "100644",
-            "blob": "307fe9eb1a2d387c539c4f376fa25656c3e1b6cc"
+            "blob": "95d7b20be889d0eb9ce8fab361a767df3825a0fe"
           },
           {
             "path": "payload/scripts/workflow_protocol.py",
@@ -4283,11 +4283,11 @@
             "blob": "8becce06fcded7398e96d88044183e9cb6bc5d69"
           }
         ],
-        "reviewed_content_commit": "cab0e5ac38b1e0ec10bfcb1622c585f428437419",
+        "reviewed_content_commit": "af9fb7cec4f987fea8d36a28654677d2ee43b490",
         "legacy_evidence": null,
         "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
         "waived_guarantees": [],
-        "recorded_at": "2026-10-13T01:01:46Z",
+        "recorded_at": "2026-10-13T02:07:51Z",
         "policy_evidence": {
           "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
           "policy_source": "default",
@@ -4317,24 +4317,24 @@
             }
           ],
           "inputs": {
-            "review_content_id": "a08cd213b12bd13cffda49ae5edd0240abe2d8957161b1d3d737d1c19e6b4320",
+            "review_content_id": "a3c6d9bced6ab1cd162e36455ff3fe4c7ad1113eb33188632d1a2a2e56875483",
             "ledger": {
               "local": {
-                "bundle_id": "34494789d605269c232735e22dd36b2ce1484ac628340eb3fbe06be938731c2c",
+                "bundle_id": "3a8034c7ddf20372583341ef37700ea3a51f4a8acc11f451ba220b6d4695ef71",
                 "verdict": "APPROVE",
-                "round": 1,
-                "verdict_sha256": "01a5e2f735638a46bfd008e72186427e5ec9f5265dd63c2f178565d29360e3b6",
-                "ledger_entry_sha256": "7a7118b083153251221fe705b411334c39e00792b8de6f6150c8a94385ed6de7",
+                "round": 2,
+                "verdict_sha256": "7028f7c6f6cd9582d200d937a5c24f92f128f819a906fda93567717ca3f46d8c",
+                "ledger_entry_sha256": "eadfbe003cc282c2bce73de2ac333328164cc51c9aa2185a9c42f2bc36f30f12",
                 "run_ref": "session:local .ai-review/checkpoint-anchors-early/feedback/REVIEW_FEEDBACK.md",
                 "reviewer_model": "anthropic/claude-opus-5-5"
               },
               "manual": {
-                "bundle_id": "34494789d605269c232735e22dd36b2ce1484ac628340eb3fbe06be938731c2c",
+                "bundle_id": "3a8034c7ddf20372583341ef37700ea3a51f4a8acc11f451ba220b6d4695ef71",
                 "verdict": "APPROVE",
-                "round": 1,
-                "verdict_sha256": "5d7b019c83e2ff5bc2bb7afc7b873837b9a4518dcb00ee42fd671de145c7401b",
-                "ledger_entry_sha256": "1ecdc445bb57dfbcc4eb2b4cbd35ea11b90434304ab281f4015d2ae2cef19e5e",
-                "run_ref": "session:local .ai-review/checkpoint-anchors-early/feedback/REVIEW_FEEDBACK.md",
+                "round": 2,
+                "verdict_sha256": "050907ba0de902618f1d3efc7b792189dc8da0c2095088902a4f0e6f13fdcdf1",
+                "ledger_entry_sha256": "cf9d16529feeebe8effcbea04d269d891cff75e44977ba81ae5fd7f8e06d1a01",
+                "run_ref": "session:local.ai-review/checkpoint-anchors-early/feedback/REVIEW_FEEDBACK.md",
                 "reviewer_model": "openai/gpt-6.1-sol"
               }
             },
@@ -4344,7 +4344,7 @@
           "trust": {
             "review_verdicts": "orchestrator"
           },
-          "evaluated_at": "2026-10-13T01:01:46Z",
+          "evaluated_at": "2026-10-13T02:07:51Z",
           "workflow_release": "2.9.2"
         }
       },
@@ -4372,8 +4372,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 34,
-      "last_transition": "2026-10-13T01:40:37Z",
+      "state_revision": 37,
+      "last_transition": "2026-10-13T02:07:51Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -4399,23 +4399,23 @@
         "f4d23bead6287a97eca977eeeb532e847f10cd147b7bd590882aac2e40a4a02e"
       ],
       "implementation_review_stages": {
-        "review_content_id": "a08cd213b12bd13cffda49ae5edd0240abe2d8957161b1d3d737d1c19e6b4320",
+        "review_content_id": "a3c6d9bced6ab1cd162e36455ff3fe4c7ad1113eb33188632d1a2a2e56875483",
         "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "34494789d605269c232735e22dd36b2ce1484ac628340eb3fbe06be938731c2c",
+          "bundle_id": "3a8034c7ddf20372583341ef37700ea3a51f4a8acc11f451ba220b6d4695ef71",
           "verdict": "APPROVE",
-          "round": 1,
-          "completed_at": "2026-10-13T00:51:15Z",
-          "verdict_sha256": "01a5e2f735638a46bfd008e72186427e5ec9f5265dd63c2f178565d29360e3b6",
+          "round": 2,
+          "completed_at": "2026-10-13T01:56:02Z",
+          "verdict_sha256": "7028f7c6f6cd9582d200d937a5c24f92f128f819a906fda93567717ca3f46d8c",
           "run_ref": "session:local .ai-review/checkpoint-anchors-early/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "anthropic/claude-opus-5-5"
         },
         "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "34494789d605269c232735e22dd36b2ce1484ac628340eb3fbe06be938731c2c",
+          "bundle_id": "3a8034c7ddf20372583341ef37700ea3a51f4a8acc11f451ba220b6d4695ef71",
           "verdict": "APPROVE",
-          "round": 1,
-          "completed_at": "2026-10-13T01:01:23Z",
-          "verdict_sha256": "5d7b019c83e2ff5bc2bb7afc7b873837b9a4518dcb00ee42fd671de145c7401b",
-          "run_ref": "session:local .ai-review/checkpoint-anchors-early/feedback/REVIEW_FEEDBACK.md",
+          "round": 2,
+          "completed_at": "2026-10-13T02:07:31Z",
+          "verdict_sha256": "050907ba0de902618f1d3efc7b792189dc8da0c2095088902a4f0e6f13fdcdf1",
+          "run_ref": "session:local.ai-review/checkpoint-anchors-early/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
