@@ -56,6 +56,7 @@ from unittest import mock
 
 import workflow_fingerprint as fingerprint
 import workflow_state as ws
+import workflow_test_harness as harness
 
 SCRIPT_FILES = (
     "workflow_state.py",
@@ -210,6 +211,56 @@ def plan_anchors(registry):
     )
 
 
+def route_item(item, config, plan_revision):
+    """`/milestone-plan`'s routing write for `item`, in one state transaction.
+
+    Since workflow-2.10.0 `route_work_item` refuses to create a work item
+    under a "2.1" default, and every scenario here drives an *existing* "2.1"
+    item (one an earlier release created). When the item has no entry yet and
+    the configuration's default is retired for new work, the entry is seeded
+    exactly as the fresh branch would write it (`seed_existing_work_item`,
+    pinned against the real creator by `workflow_test_harness_test.py`) and
+    consumes the same single `now()` tick, so every later revision and
+    timestamp is as before. Every other call, every resume included, goes
+    through `route_work_item` unchanged."""
+    now = item.now()
+
+    def mutator(state):
+        if (item.wid not in state.get("work_items", {})
+                and config["default_workflow_version"] in ws.NEW_WORK_RETIRED_VERSIONS):
+            return harness.seed_existing_work_item(
+                state, work_item_id=item.wid,
+                governing_workflow_version=config["default_workflow_version"],
+                work_item_type=item.wtype, work_item_kind=item.wtype,
+                plan_path=item.plan_path, registry_path=item.registry_path,
+                plan_revision=plan_revision, now=now,
+                mapping_path=item.mapping_path, base_commit=item.base_commit,
+            )
+        return ws.route_work_item(
+            state, config, work_item_id=item.wid, work_item_type=item.wtype,
+            work_item_kind=item.wtype, plan_path=item.plan_path,
+            registry_path=item.registry_path, plan_revision=plan_revision,
+            now=now, mapping_path=item.mapping_path, base_commit=item.base_commit,
+            repo_root=item.root,
+        )
+    item.tx(mutator)
+
+
+def activate_two_stage_default(scratch):
+    """The edit workflow-2.10.0 prescribes before a *new* work item (a broad
+    remediation child) can be created: `default_workflow_version` "2.2", with
+    "2.2" in `supported_versions`, in a `Workflow-Activation: 2.2` commit.
+    Returns the configuration. Existing items keep their stored version."""
+    path = "docs/ai-workflow/WORKFLOW_CONFIG.json"
+    config = json.loads(scratch.read(path))
+    config["default_workflow_version"] = "2.2"
+    config["supported_versions"] = sorted({*config["supported_versions"], "2.2"})
+    scratch.write(path, json.dumps(config, indent=2) + "\n")
+    scratch.commit("chore: activate 2.2 for new work items",
+                   {"Workflow-Activation": "2.2"}, paths=[path])
+    return config
+
+
 class Item:
     """One work item's lifecycle, driven exactly the way the owning
     `.claude/commands/*.md` file says to drive it."""
@@ -361,13 +412,7 @@ class Item:
         config = json.loads(self.sim.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
         checkpoints = CHECKPOINTS if checkpoints is None else checkpoints
         requirements = REQUIREMENTS if requirements is None else requirements
-        self.tx(lambda state: ws.route_work_item(
-            state, config, work_item_id=self.wid, work_item_type=self.wtype,
-            work_item_kind=self.wtype, plan_path=self.plan_path,
-            registry_path=self.registry_path, plan_revision=plan_revision,
-            now=self.now(), mapping_path=self.mapping_path, base_commit=self.base_commit,
-            repo_root=self.root,
-        ))
+        route_item(self, config, plan_revision)
         registry = ws.generate_registry(self.wid, plan_revision, checkpoints)
         mapping = ws.generate_mapping(self.wid, requirements, registry=registry)
         ws.write_registry_and_mapping(
@@ -749,13 +794,7 @@ class Item:
         checkpoints = CHECKPOINTS if checkpoints is None else checkpoints
         requirements = REQUIREMENTS if requirements is None else requirements
         self.tx(lambda state: ws.ensure_plan_review_binding_marker(state, self.wid, self.now()))
-        self.tx(lambda state: ws.route_work_item(
-            state, config, work_item_id=self.wid, work_item_type=self.wtype,
-            work_item_kind=self.wtype, plan_path=self.plan_path,
-            registry_path=self.registry_path, plan_revision=plan_revision,
-            now=self.now(), mapping_path=self.mapping_path, base_commit=self.base_commit,
-            repo_root=self.root,
-        ))
+        route_item(self, config, plan_revision)
         registry = ws.generate_registry(self.wid, plan_revision, checkpoints)
         mapping = ws.generate_mapping(self.wid, requirements, registry=registry)
         ws.write_registry_and_mapping(
@@ -1028,8 +1067,14 @@ class Item:
 
     # ---------------- /approve-review implementation ----------------
 
-    def approve_implementation(self, user_confirmation=None, expect_basis="EXTERNAL_APPROVE"):
-        """`expect_basis` (convergence pass 12, ledger `O35`) makes the
+    def approve_implementation(self, user_confirmation=None, expect_basis="EXTERNAL_APPROVE",
+                               scoped_staging=False):
+        """`scoped_staging=True` stages the state file through
+        `stage_scoped_state`, as `/approve-review` step 6 does, so another
+        work item's uncommitted residue (a remediation child created in the
+        same functional-review round) stays out of the approval commit.
+
+        `expect_basis` (convergence pass 12, ledger `O35`) makes the
         `USER_OVERRIDE` basis reachable from this helper at all.
 
         `/approve-review` step 2 says a missing or mismatched binding
@@ -1103,11 +1148,16 @@ class Item:
             reviewed_content_commit=entry["reviewed_implementation_head"],
         )
         self.tx(lambda state: ws.apply_technical_approval(state, self.wid, record, self.now()))
-        commit = self.sim.commit(
-            f"chore({self.wid}): record technical approval",
-            {"Workflow-Technical-Approval": review_content_id, "Workflow-Work-Item": self.wid},
-            paths=["docs/ai-workflow/WORKFLOW_STATE.json"],
-        )
+        subject = f"chore({self.wid}): record technical approval"
+        trailers = {"Workflow-Technical-Approval": review_content_id, "Workflow-Work-Item": self.wid}
+        if scoped_staging:
+            if not ws.stage_scoped_state(self.root, self.wid):
+                self.sim.git("add", "--", "docs/ai-workflow/WORKFLOW_STATE.json")
+            body = subject + "\n\n" + "\n".join(f"{k}: {v}" for k, v in trailers.items())
+            self.sim.git("commit", "-q", "-m", body)
+            commit = self.sim.head()
+        else:
+            commit = self.sim.commit(subject, trailers, paths=["docs/ai-workflow/WORKFLOW_STATE.json"])
         ws.validate_technical_approval_commit(self.root, commit, self.wid)
         ws.verify_post_approval_manifest_match(
             self.root, self.entry(), stage="implementation",
@@ -2290,7 +2340,8 @@ class FunctionalLifecycleProcess(MatrixCase):
         self.reach_technical_approved()
         item.prepare_functional_review()
         item.write_functional_findings("Finding 1: this needs its own milestone.\n")
-        config = json.loads(self.scratch.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
+        # A child is new work: from 2.10.0 it needs the "2.2" default first.
+        config = activate_two_stage_default(self.scratch)
         child_holder = {}
 
         def create(state):
@@ -2996,12 +3047,14 @@ class RemediationChildFullCycle(MatrixCase):
         parent = self.item
         self.reach_technical_approved()
         parent.prepare_functional_review()
-        config = json.loads(self.scratch.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
         holder = {}
 
         def create(state):
-            new_state, child_id = ws.create_remediation_child_work_item(
-                state, config, parent_work_item_id=parent.wid,
+            # An existing "2.1" child, as an earlier release created it
+            # (creating one is refused from 2.10.0): this scenario's subject
+            # is the child's whole cycle, not its creation.
+            new_state, child_id = harness.seed_existing_remediation_child(
+                state, parent.wid, governing_workflow_version="2.1",
                 plan_path=f"docs/milestones/{parent.wid}-remediation-1-execution.md",
                 registry_path=(
                     f"docs/ai-workflow/registry/{parent.wid}-remediation-1-registry.json"
@@ -4004,7 +4057,7 @@ class FirstAttemptPlanBundleResolution(unittest.TestCase):
         already created, resolving nothing for the child."""
         scratch, parent = self.new_item("product")
         self.author_plan_bundle_and_generate(scratch, parent)
-        config = json.loads(scratch.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
+        config = activate_two_stage_default(scratch)
         holder = {}
 
         def create(state):
@@ -4673,9 +4726,14 @@ class PlanDocumentRegistryTableFreshness(MatrixCase):
         item.publish()
         return registry
 
-    def test_the_pre_repair_sequence_publishes_a_table_the_registry_contradicts(self):
+    def test_the_pre_repair_sequence_is_refused_before_a_bundle_publishes(self):
         """The defect itself, executed: the document omits a checkpoint the
-        registry declares, and the plan bundle publishes anyway."""
+        registry declares. Until workflow-2.11.0 the plan bundle published
+        anyway (the stage's completeness check passes on the `(Revision N)`
+        marker alone); the generator now checks the pinned plan against the
+        registry's checkpoint anchors and refuses, naming CP2, before any
+        review round can be spent on it. This is the one assertion the
+        early-anchor milestone deliberately reverses."""
         item = self.item
         item.milestone_plan()
         item.generate_plan_bundle()
@@ -4692,15 +4750,10 @@ class PlanDocumentRegistryTableFreshness(MatrixCase):
         self.assertNotIn("CP2", document)
         self.assertNotIn(ws.render_registry_markdown(registry), document)
 
-        # And nothing stops it: the bundle publishes, and the stage's own
-        # completeness check passes on the `(Revision N)` marker alone.
         proc = item.generate_plan_bundle(check=False)
-        self.assertEqual(proc.returncode, 0, proc.stderr)
-        metadata = fingerprint.resolve_plan_stage_metadata(item.root, item.wid)
-        self.assertEqual(metadata.plan_revision, 2)
-        fingerprint.assert_stage_completeness(
-            item.bundle_dir(stage="plan"), "plan", plan_revision=2,
-        )
+        self.assertEqual(proc.returncode, 1, proc.stderr)
+        self.assertIn("AmendmentAnchorCoverageError", proc.stderr)
+        self.assertIn("CP2", proc.stderr)
 
     def test_the_repaired_sequence_keeps_the_table_and_the_registry_in_agreement(self):
         """The repair: the same revision, with step 5's re-embed performed
@@ -5164,13 +5217,7 @@ def cp4_publish(item, plan_revision=None, review_content_id=None):
 
 def cp4_route(item, plan_revision):
     config = json.loads(item.sim.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
-    item.tx(lambda state: ws.route_work_item(
-        state, config, work_item_id=item.wid, work_item_type=item.wtype,
-        work_item_kind=item.wtype, plan_path=item.plan_path,
-        registry_path=item.registry_path, plan_revision=plan_revision,
-        now=item.now(), mapping_path=item.mapping_path, base_commit=item.base_commit,
-        repo_root=item.root,
-    ))
+    route_item(item, config, plan_revision)
 
 
 def cp4_open_plan_approval_journal(item):
@@ -6291,7 +6338,7 @@ class PlanReviewPhaseAllowList(_PlanReviewBindingCase):
     def test_remediation_child_re_declaration_at_planning_still_succeeds(self):
         parent = self.item
         self.reach_plan_approved()
-        config = json.loads(self.scratch.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
+        config = activate_two_stage_default(self.scratch)
         holder = {}
 
         def create(state):
@@ -8807,6 +8854,1048 @@ class FunctionalFixCommitOrderProduct(FunctionalFixCommitOrderProcess):
     """The same scenarios for a `product` work item."""
 
     work_item_type = "product"
+
+
+
+# ===========================================================================
+# workflow-2.10.0: new work items stop starting on "2.1"
+# ===========================================================================
+
+#: The shipped `templates/docs/ai-workflow/WORKFLOW_CONFIG.json`: not part of
+#: the payload, so mirrored here (`workflow_state_test.py` mirrors it too) and
+#: compared with the file whenever the release source's `templates/` exists.
+SHIPPED_TEMPLATE_CONFIG = {
+    "schema_version": 1,
+    "default_workflow_version": "2.2",
+    "supported_versions": ["1", "2.1", "2.2"],
+}
+SHIPPED_TEMPLATE_STATE = {"schema_version": 1, "active_work_item_id": None, "work_items": {}}
+CONFIG_PATH = "docs/ai-workflow/WORKFLOW_CONFIG.json"
+STATE_PATH = "docs/ai-workflow/WORKFLOW_STATE.json"
+FAKE_GH = {"path": "/usr/local/bin/gh", "sha256": "a" * 64}
+
+
+def pr_record(head, *, decision="", reviews=None, checks="success"):
+    """One `gh pr list --json ...` record, as `workflow_forge` parses it."""
+    rollup = [{"name": "ci", "status": "COMPLETED",
+               "conclusion": "SUCCESS" if checks == "success" else "FAILURE"}]
+    return {"number": 7, "url": "https://github.com/o/r/pull/7", "state": "OPEN",
+            "headRefOid": head, "reviewDecision": decision, "reviews": reviews or [],
+            "statusCheckRollup": rollup}
+
+
+def changes_requested(head, review_id="R1", body="please fix x"):
+    return [{"id": review_id, "state": "CHANGES_REQUESTED", "body": body, "commit": {"oid": head}}]
+
+
+class RetiredDefaultVersionProcess(MatrixCase):
+    """CP4 of `retire-21-for-new-work`: while `WORKFLOW_CONFIG.json` names
+    "2.1" as the default, a new work item (a fresh `/milestone-plan`, or a
+    broad remediation child from `/apply-functional-review` or
+    `/apply-pr-review`) is refused before any write; the one edit the error
+    names makes every path create a "2.2" item; an existing "2.1" item keeps
+    working to completion under either default; legacy adoption and a
+    "2.2" default behave as in 2.9.2. Each scenario drives the functions and
+    commits the command texts name, in the texts' order.
+
+    Scenario numbers follow the plan's CP4 section. Scenarios 1 and 2 fail
+    against 2.9.2 (they expect the refusal); 3 to 6 and the bootstrap half of
+    7 pass against 2.9.2 and are named `regression_pin`."""
+
+    work_item_type = "process"
+    LOCAL = "AWAITING_LOCAL_IMPLEMENTATION_REVIEW"
+    TERMINAL = "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW"
+
+    # --- plumbing ---------------------------------------------------------
+
+    def config(self, scratch=None):
+        return json.loads((scratch or self.scratch).read(CONFIG_PATH))
+
+    def state_bytes(self, scratch=None):
+        return ((scratch or self.scratch).root / STATE_PATH).read_bytes()
+
+    def protocol(self, scratch, *argv):
+        import workflow_protocol as protocol
+        body, code = protocol.run(["--repo-root", str(scratch.root), *argv])
+        return body, code
+
+    def next_action(self, scratch, work_item_id=None):
+        argv = ["next-action"] + (["--work-item", work_item_id] if work_item_id else [])
+        body, code = self.protocol(scratch, *argv)
+        self.assertEqual(code, 0, body)
+        return body["result"]
+
+    def reconcile(self, scratch, decision):
+        path = scratch.root.parent / (scratch.root.name + "-decision.json")
+        path.write_text(json.dumps(decision))
+        try:
+            body, code = self.protocol(scratch, "reconcile", "--decision", str(path))
+        finally:
+            path.unlink()
+        self.assertEqual(code, 0, body)
+        return body["result"]
+
+    def default_check(self, scratch):
+        body, _ = self.protocol(scratch, "verify")
+        checks = {c["id"]: c for c in body["result"]["checks"]}
+        return checks["default_workflow_version"]
+
+    def assert_refused_with_next_step(self, raised):
+        self.assertTrue(str(raised.exception).endswith(ws.RETIRED_DEFAULT_NEXT_STEP), str(raised.exception))
+
+    def route_fresh(self, item, config):
+        item.tx(lambda state: ws.route_work_item(
+            state, config, work_item_id=item.wid, work_item_type=item.wtype,
+            work_item_kind=item.wtype, plan_path=item.plan_path,
+            registry_path=item.registry_path, plan_revision=1, now=item.now(),
+            mapping_path=item.mapping_path, base_commit=item.base_commit, repo_root=item.root,
+        ))
+
+    def create_child(self, item, config, scratch):
+        """`/apply-functional-review` step 5's broad branch, in one mutator."""
+        holder = {}
+
+        def create(state):
+            new_state, holder["id"] = ws.create_remediation_child_work_item(
+                state, config, parent_work_item_id=item.wid,
+                plan_path=f"docs/ai-workflow/{item.wid}-remediation-1-plan.md",
+                registry_path=f"docs/ai-workflow/registry/{item.wid}-remediation-1-registry.json",
+                base_commit=scratch.head(), now=item.now())
+            return new_state
+
+        item.tx(create)
+        return holder["id"]
+
+    def bind_child(self, scratch, parent, child_id, governing):
+        """An `Item` bound to the remediation child, as `test_c7` binds it."""
+        created = parent.state()["work_items"][child_id]
+        child = Item(scratch, parent.wtype, governing=governing)
+        child.wid = child_id
+        child.plan_path = created["plan_path"]
+        child.registry_path = created["registry_path"]
+        child.mapping_path = f"docs/ai-workflow/requirements/{child_id}-mapping.json"
+        child.artifacts_path = f"docs/ai-workflow/registry/{child_id}-artifacts.json"
+        child.deliverable = parent.deliverable
+        child.excluded_note = f"docs/ai-workflow/requirements/{child_id}-ledger.md"
+        child.base_commit = created["base_commit"]
+        child._clock = parent._clock + 1000
+        return child
+
+    def functional_round(self, governing="2.1"):
+        """The functional-review fixtures of 2.9.2's commit-order suite: a
+        technically approved item, its checklist committed and one finding
+        written. The suite's own instance is reused, never its scenarios."""
+        helper = FunctionalFixCommitOrderProcess("test_s01_the_issues_case_a_2_2_item")
+        helper.work_item_type = self.work_item_type
+        helper.setUp()
+        self.addCleanup(helper.doCleanups)
+        helper.start(governing)
+        return helper
+
+    def review_in_two_stages(self, item, round_number):
+        """The local and the manual implementation-review records of a "2.2"
+        item (the suite's `local_review` and `manual_review` bodies)."""
+        content_id, _ = item.impl_review_content_id(item.sim.head())
+        bundle_id = item.bundle_id()
+        item.tx(lambda state: ws.record_local_implementation_review(
+            state, item.wid, verdict="APPROVE", bundle_id=bundle_id,
+            review_content_id=content_id, round=round_number, now=item.now()))
+        item.tx(lambda state: ws.record_manual_implementation_review(
+            state, item.wid, verdict="APPROVE", bundle_id=bundle_id, round=round_number,
+            now=item.now(), current_review_content_id=content_id,
+            feedback_role=ws.MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW,
+            feedback_review_content_id=content_id))
+
+    # --- scenario 1: new items under a "2.1" default, every path ------------
+
+    def test_r01_a_fresh_milestone_is_refused_before_any_write(self):
+        item = self.item
+        state, head = self.state_bytes(), self.scratch.head()
+        with self.assertRaises(ws.DefaultWorkflowVersionRetiredError) as raised:
+            self.route_fresh(item, self.config())
+        self.assert_refused_with_next_step(raised)
+        self.assertEqual(self.state_bytes(), state)
+        self.assertEqual(self.scratch.head(), head)
+
+    def test_r02_next_action_reports_row_1b_and_never_plan_start(self):
+        item = self.item
+        state, head = self.state_bytes(), self.scratch.head()
+        result = self.next_action(self.scratch)
+        self.assertEqual((result["row"], result["disposition"], result["reason"]["code"]),
+                         ("1b", "blocked", "plan_start_default_retired"))
+        self.assertIsNone(result["action"])
+        self.assertEqual(result["reason"]["remedy"], ws.RETIRED_DEFAULT_NEXT_STEP)
+        check = self.default_check(self.scratch)
+        self.assertEqual(check["status"], "warn")
+        self.assertTrue(check["detail"].endswith(ws.RETIRED_DEFAULT_NEXT_STEP))
+        self.assertEqual((self.state_bytes(), self.scratch.head()), (state, head))
+
+    def test_r03_a_functional_review_round_with_a_broad_finding_is_refused_whole(self):
+        """The check at the branch decision, in a round that also has a
+        bounded finding: no stale write, no commit, no child, and the
+        consumed marker is not set, so the same row matches again."""
+        helper = self.functional_round("2.1")
+        item, scratch = helper.item, helper.scratch
+        state, head = self.state_bytes(scratch), scratch.head()
+        with self.assertRaises(ws.DefaultWorkflowVersionRetiredError) as raised:
+            ws.assert_default_admits_new_work_item(self.config(scratch))
+        self.assert_refused_with_next_step(raised)
+        self.assertEqual((self.state_bytes(scratch), scratch.head()), (state, head))
+        self.assertEqual(item.entry()["technical_approval"]["status"], "CURRENT")
+        self.assertEqual([i for i in item.state()["work_items"] if i != item.wid], [])
+        decision = self.next_action(scratch, item.wid)
+        self.assertEqual((decision["row"], decision["action"]["id"]), ("38", "functional.apply_findings"))
+        result = self.reconcile(scratch, decision)
+        self.assertEqual(result["class"], "no_progress")
+        self.assertEqual(self.next_action(scratch, item.wid)["row"], "38")
+        self.assertEqual(self.default_check(scratch)["status"], "warn")
+
+    def pr_round(self):
+        """A "2.1" item accepted at `MILESTONE_COMPLETE`, plus the helpers for
+        the Workflow's own pull-request query answering `CHANGES_REQUESTED`."""
+        item = self.item
+        self.scratch.git("remote", "add", "origin", "https://github.com/o/r.git")
+        self.reach_technical_approved()
+        item.prepare_functional_review()
+        item.accept_milestone()
+        self.assertEqual(item.entry()["phase"], "MILESTONE_COMPLETE")
+        anchor = item.entry()["technical_approval"]["reviewed_content_commit"]
+        body = json.dumps([pr_record(anchor, decision="CHANGES_REQUESTED", reviews=changes_requested(anchor))])
+        # The poll after the acceptance finds the pull request red: the
+        # Workflow's own query stores the fact, which is what arms row 38d.
+        ws.query_and_store_pr_fact(item.root, item.wid, now=item.now(),
+                                   run=lambda argv, timeout: body, resolve=lambda r: dict(FAKE_GH))
+        return anchor, body
+
+    def begin(self, item, body):
+        return ws.begin_pr_review(item.root, item.wid, now=item.now(), run=lambda argv, timeout: body,
+                                  resolve=lambda r: dict(FAKE_GH))
+
+    def pr_broad_branch(self, item, config, key):
+        """`/apply-pr-review` step 2's broad branch: the child and the applied
+        key composed in one mutator."""
+        holder = {}
+
+        def mutator(state):
+            new_state, holder["id"] = ws.create_remediation_child_work_item(
+                state, config, parent_work_item_id=item.wid,
+                plan_path=f"docs/ai-workflow/{item.wid}-remediation-1-plan.md",
+                registry_path=f"docs/ai-workflow/registry/{item.wid}-remediation-1-registry.json",
+                base_commit=self.scratch.head(), now=item.now())
+            return ws.mark_pr_key_applied(new_state, item.wid, key, item.now())
+
+        item.tx(mutator)
+        return holder["id"]
+
+    def test_r04_a_broad_pull_request_child_is_refused_and_rerun_after_the_edit(self):
+        item = self.item
+        _, body = self.pr_round()
+        decision = self.next_action(self.scratch, item.wid)
+        self.assertEqual((decision["row"], decision["action"]["id"]), ("38d", "pr.apply_review"))
+        # Run 1 (from `MILESTONE_COMPLETE`): the reopen alone, then the invocation ends.
+        first = self.begin(item, body)
+        self.assertEqual((first["result"], first["phase"]), ("reopened", "AWAITING_FUNCTIONAL_REVIEW"))
+        key = first["key"]
+        self.assertEqual(self.reconcile(self.scratch, decision)["class"], "progress")
+        # Run 2: step 1 continues into the broad branch, which the check refuses
+        # inside the one mutator, so neither the child nor `applied` is written.
+        decision = self.next_action(self.scratch, item.wid)
+        self.assertEqual(decision["row"], "38d")
+        second = self.begin(item, body)
+        self.assertEqual(second["result"], "already_reopened")
+        after_step_1 = self.state_bytes()
+        head = self.scratch.head()
+        with self.assertRaises(ws.DefaultWorkflowVersionRetiredError) as raised:
+            self.pr_broad_branch(item, self.config(), key)
+        self.assert_refused_with_next_step(raised)
+        self.assertEqual((self.state_bytes(), self.scratch.head()), (after_step_1, head))
+        evidence = item.entry()["gate_evidence"]["pr_keys"]
+        self.assertIn(key, evidence["reopened_for"])
+        self.assertNotIn(key, evidence["applied"])
+        self.assertEqual(item.entry()["phase"], "AWAITING_FUNCTIONAL_REVIEW")
+        self.assertEqual(self.reconcile(self.scratch, decision)["class"], "no_progress")
+        self.assertEqual(self.next_action(self.scratch, item.wid)["row"], "38d")
+        self.assertEqual(self.default_check(self.scratch)["status"], "warn")
+        # The edit, then the re-run: `already_reopened`, and the child is a "2.2" item.
+        config = activate_two_stage_default(self.scratch)
+        self.assertEqual(self.default_check(self.scratch)["status"], "pass")
+        rerun = self.begin(item, body)
+        self.assertEqual((rerun["result"], rerun["key"]), ("already_reopened", key))
+        child_id = self.pr_broad_branch(item, config, key)
+        state = item.state()
+        self.assertEqual(state["work_items"][child_id]["governing_workflow_version"], "2.2")
+        self.assertEqual(state["work_items"][child_id]["parent_work_item_id"], item.wid)
+        self.assertEqual(state["work_items"][item.wid]["governing_workflow_version"], "2.1")
+        self.assertIn(key, state["work_items"][item.wid]["gate_evidence"]["pr_keys"]["applied"])
+        self.assertNotEqual(self.next_action(self.scratch, item.wid)["row"], "38d")
+
+    # --- scenario 2: the edit, then the same paths ---------------------------
+
+    def test_r05_after_the_edit_a_fresh_milestone_is_a_2_2_item_and_next_action_starts_it(self):
+        item = self.item
+        with self.assertRaises(ws.DefaultWorkflowVersionRetiredError):
+            self.route_fresh(item, self.config())
+        config = activate_two_stage_default(self.scratch)
+        self.assertEqual(config["default_workflow_version"], "2.2")
+        self.assertEqual(self.next_action(self.scratch)["row"], "1")
+        self.assertEqual(self.default_check(self.scratch)["status"], "pass")
+        item.governing = "2.2"
+        item.milestone_plan()
+        self.assertEqual(item.entry()["governing_workflow_version"], "2.2")
+        self.assertEqual(item.entry()["phase"], "PLANNING")
+        item.generate_plan_bundle()
+        self.assertEqual(item.entry()["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
+
+    def test_r06_a_broad_functional_review_child_after_the_edit_runs_its_own_two_stage_cycle(self):
+        helper = self.functional_round("2.1")
+        item, scratch = helper.item, helper.scratch
+        with self.assertRaises(ws.DefaultWorkflowVersionRetiredError):
+            ws.assert_default_admits_new_work_item(self.config(scratch))
+        config = activate_two_stage_default(scratch)
+        self.assertEqual(ws.assert_default_admits_new_work_item(config), "2.2")
+        before = helper.commit_count()
+        # The re-run, in 2.9.2's commit order: the bounded finding's stale
+        # write alone, its fix, the broad finding's child (its entry left
+        # uncommitted), the checklist, and the generation record last.
+        helper.stale_write()
+        helper.fix_commit()
+        child_id = self.create_child(item, config, scratch)
+        helper.checklist_commit(f"round 2: finding 2 deferred to {child_id}\n")
+        record = helper.regenerate()
+        self.assertEqual(helper.commit_count(), before + 4)
+        ws.validate_bundle_generation_record_commit(item.root, record, item.wid)
+        committed = helper.committed_state()["work_items"]
+        self.assertNotIn(child_id, committed)
+        self.assertEqual(item.state()["work_items"][child_id]["governing_workflow_version"], "2.2")
+        self.assertEqual(item.entry()["governing_workflow_version"], "2.1")
+        helper.assert_next_review_passes()
+        item.write_feedback("APPROVE")
+        item.approve_implementation(scoped_staging=True)
+        self.assertEqual(item.entry()["phase"], "AWAITING_FUNCTIONAL_REVIEW")
+        self.assertNotIn(child_id, helper.committed_state()["work_items"])
+
+        # The "2.2" child, through its own full cycle to `MILESTONE_COMPLETE`.
+        child = self.bind_child(scratch, item, child_id, "2.2")
+        child.milestone_plan()
+        self.assertEqual(child.entry()["governing_workflow_version"], "2.2")
+        child.generate_plan_bundle()
+        self.assertEqual(child.entry()["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
+        child.write_feedback("APPROVE")
+        child.record_plan_reviews()
+        child.approve_plan()
+        child.implement_checkpoint("CP1", {child.deliverable: "// remediation\n"})
+        child.generate_impl_bundle("implementation", expect_outcome="ordinary")
+        self.assertEqual(child.entry()["phase"], self.LOCAL)
+        self.review_in_two_stages(child, 1)
+        self.assertEqual(child.entry()["phase"], self.TERMINAL)
+        child.write_feedback("APPROVE")
+        child.approve_implementation()
+        child.prepare_functional_review()
+        child.accept_milestone()
+        self.assertEqual(child.entry()["phase"], "MILESTONE_COMPLETE")
+        self.assertEqual(child.entry()["governing_workflow_version"], "2.2")
+
+        # Only now can the parent be accepted (it refuses while a child is open).
+        self.assertEqual(ws.incomplete_children(item.state(), item.wid), [])
+        fingerprint.mark_functional_review_consumed(item.root, item.wid)
+        item.prepare_functional_review()
+        item.accept_milestone()
+        self.assertEqual(item.entry()["phase"], "MILESTONE_COMPLETE")
+        self.assertEqual(item.entry()["governing_workflow_version"], "2.1")
+
+
+    # --- scenarios 3 and 4: an existing "2.1" item keeps working -----------
+
+    def run_existing_item(self, default_after=None):
+        """An existing "2.1" item, through every remaining step of its life
+        in one run: plan REVISE and revision, plan approval, implementation, a
+        plan amendment from `IMPLEMENTING`, the "2.1" implementation review
+        and the technical approval, the functional gate with a bounded fix in
+        2.9.2's order, and acceptance. `default_after`, when given, is the
+        point at which the configuration is edited to "2.2"."""
+        item, scratch = self.item, self.scratch
+        steps = []
+
+        def stays(step):
+            steps.append(step)
+            self.assertEqual(item.entry()["governing_workflow_version"], "2.1", step)
+            if default_after is not None and default_after in steps[:-1]:
+                self.assertEqual(self.config()["default_workflow_version"], "2.2", step)
+
+        item.milestone_plan(checkpoints=CHECKPOINTS_TWO, requirements=REQUIREMENTS_TWO)
+        self.assertEqual(item.entry()["phase"], "PLANNING")
+        stays("planning")
+        if default_after == "planning":
+            activate_two_stage_default(scratch)
+        item.generate_plan_bundle()
+        item.write_feedback("REVISE")
+        item.record_plan_reviews(local="REVISE")
+        self.assertEqual(item.entry()["phase"], "REVISING_PLAN")
+        stays("plan-revise")
+        item.apply_plan_review(2, CHECKPOINTS_TWO, REQUIREMENTS_TWO)
+        item.generate_plan_bundle()
+        self.assertEqual(item.entry()["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
+        item.write_feedback("APPROVE")
+        item.record_plan_reviews(round=2)
+        item.approve_plan()
+        self.assertEqual(item.entry()["phase"], "IMPLEMENTING")
+        stays("plan-approved")
+        item.implement_checkpoint("CP1", {item.deliverable: "// CP1\n"})
+        stays("implementing")
+
+        item.request_amendment("a plan correction found while implementing")
+        item.amend_plan(3, CHECKPOINTS_TWO, REQUIREMENTS_TWO, plan_body="Plan body, amended.\n")
+        item.generate_plan_bundle()
+        item.write_feedback("APPROVE")
+        item.record_plan_reviews(round=3)
+        item.approve_plan()
+        self.assertEqual((item.entry()["phase"], item.entry()["plan_revision"]), ("IMPLEMENTING", 3))
+        stays("amended")
+        item.implement_checkpoint("CP2", {item.deliverable: "// CP1 + CP2\n"})
+        item.generate_impl_bundle("implementation", expect_outcome="ordinary")
+        self.assertEqual(item.entry()["phase"], self.TERMINAL)
+        stays("implementation-review")
+        item.write_feedback("APPROVE")
+        item.approve_implementation()
+        self.assertEqual(item.entry()["phase"], "AWAITING_FUNCTIONAL_REVIEW")
+        stays("technical-approval")
+
+        item.prepare_functional_review()
+        item.write_functional_findings("Finding 1: the label is wrong.\n")
+        stays("functional-gate")
+        if default_after == "functional":
+            activate_two_stage_default(scratch)
+        helper = FunctionalFixCommitOrderProcess("test_s01_the_issues_case_a_2_2_item")
+        helper.work_item_type = self.work_item_type
+        helper.setUp()
+        self.addCleanup(helper.doCleanups)
+        helper.scratch, helper.item = scratch, item
+        helper.stale_write()
+        helper.fix_commit()
+        helper.checklist_commit()
+        record = helper.regenerate()
+        ws.validate_bundle_generation_record_commit(item.root, record, item.wid)
+        self.assertEqual(item.entry()["phase"], self.TERMINAL)
+        stays("functional-fix")
+        helper.assert_reaches_technical_approval()
+        item.prepare_functional_review()
+        item.accept_milestone()
+        self.assertEqual(item.entry()["phase"], "MILESTONE_COMPLETE")
+        stays("accepted")
+        self.assertEqual(item.entry()["implementation_revision"], 2)
+        return steps
+
+    def test_r07_regression_pin_an_existing_2_1_item_runs_to_completion_under_a_2_1_default(self):
+        steps = self.run_existing_item()
+        self.assertEqual(self.config()["default_workflow_version"], "2.1")
+        self.assertEqual(self.default_check(self.scratch)["status"], "warn")
+        self.assertIn("accepted", steps)
+
+    def test_r08_regression_pin_the_same_item_stays_2_1_when_the_default_moves_to_2_2_early(self):
+        self.run_existing_item(default_after="planning")
+        self.assertEqual(self.config()["default_workflow_version"], "2.2")
+        self.assertEqual(self.default_check(self.scratch)["status"], "pass")
+
+    def test_r09_regression_pin_the_same_item_stays_2_1_when_the_default_moves_at_the_functional_gate(self):
+        self.run_existing_item(default_after="functional")
+        self.assertEqual(self.default_check(self.scratch)["status"], "pass")
+
+    # --- scenario 5: a "2.2" default is unchanged -----------------------------
+
+    def test_r10_regression_pin_a_2_2_default_creates_2_2_items(self):
+        helper = self.functional_round("2.1")
+        item, scratch = helper.item, helper.scratch
+        config = activate_two_stage_default(scratch)
+        child_id = self.create_child(item, config, scratch)
+        child = item.state()["work_items"][child_id]
+        self.assertEqual((child["governing_workflow_version"], child["phase"], child["parent_work_item_id"]),
+                         ("2.2", "PLANNING", item.wid))
+        fresh = Item(scratch, self.work_item_type, governing="2.2")
+        fresh.wid = "fresh-item"
+        fresh.plan_path = "docs/ai-workflow/fresh-item-plan.md"
+        fresh.registry_path = "docs/ai-workflow/registry/fresh-item-registry.json"
+        fresh.mapping_path = "docs/ai-workflow/requirements/fresh-item-mapping.json"
+        fresh.base_commit = scratch.head()
+        self.route_fresh(fresh, config)
+        entry = fresh.entry()
+        self.assertEqual((entry["governing_workflow_version"], entry["phase"]), ("2.2", "PLANNING"))
+        # `seed_existing_work_item` is the fresh branch's entry field for field.
+        seeded = harness.seed_existing_work_item(
+            harness.base_state(), work_item_id=fresh.wid, governing_workflow_version="2.2",
+            work_item_type=fresh.wtype, work_item_kind=fresh.wtype, plan_path=fresh.plan_path,
+            registry_path=fresh.registry_path, plan_revision=1, now="t",
+            mapping_path=fresh.mapping_path, base_commit=fresh.base_commit)
+        self.assertEqual(
+            {k: v for k, v in seeded["work_items"][fresh.wid].items() if k not in ("last_transition",)},
+            {k: v for k, v in entry.items() if k not in ("last_transition",)})
+
+    def test_r11_regression_pin_a_1_default_creates_1_items(self):
+        config = self.config()
+        config["default_workflow_version"] = "1"
+        item = self.item
+        self.route_fresh(item, config)
+        self.assertEqual(item.entry()["governing_workflow_version"], "1")
+
+    # --- scenario 6: legacy adoption is unchanged -----------------------------
+
+    def test_r12_regression_pin_legacy_adoption_still_targets_2_1_under_either_default(self):
+        for default in ("2.1", "2.2"):
+            with self.subTest(default=default):
+                legacy = LegacyAdoption("test_e13_legacy_adoption_uses_the_adopted_items_own_declarations")
+                legacy.setUp()
+                self.addCleanup(legacy.doCleanups)
+                state, _ = legacy._seed()
+                legacy.scratch.write(CONFIG_PATH, json.dumps({
+                    "schema_version": 1, "default_workflow_version": default,
+                    "supported_versions": ["1", "2.1", "2.2"]}, indent=2) + "\n")
+                promoted = ws.promote_legacy_work_item(
+                    state, legacy.scratch.root, work_item_id=legacy.LEGACY_ID,
+                    required_active_milestone_substring="accepted and closed",
+                    artifacts_path=fingerprint.artifacts_path_for_work_item(legacy.LEGACY_ID), now="t1")
+                entry = promoted["work_items"][legacy.LEGACY_ID]
+                self.assertEqual(entry["governing_workflow_version"], "2.1")
+                self.assertEqual(entry["phase"], "AWAITING_FUNCTIONAL_REVIEW")
+
+    # --- scenario 7: a repository seeded from the shipped templates -----------
+
+    def test_r13_regression_pin_the_shipped_templates_seed_a_2_2_item(self):
+        templates = Path(__file__).resolve().parents[2] / "templates" / "docs" / "ai-workflow"
+        if (templates / "WORKFLOW_CONFIG.json").is_file():
+            self.assertEqual(json.loads((templates / "WORKFLOW_CONFIG.json").read_text()),
+                             SHIPPED_TEMPLATE_CONFIG)
+            self.assertEqual(json.loads((templates / "WORKFLOW_STATE.json").read_text()),
+                             SHIPPED_TEMPLATE_STATE)
+        scratch = Scratch("wf-template")
+        self.addCleanup(scratch.cleanup)
+        scratch.write(CONFIG_PATH, json.dumps(SHIPPED_TEMPLATE_CONFIG, indent=2) + "\n")
+        scratch.write(STATE_PATH, json.dumps(SHIPPED_TEMPLATE_STATE, indent=2) + "\n")
+        scratch.write("docs/ACTIVE_MILESTONE.md", "# Active milestone\n")
+        item = Item(scratch, self.work_item_type, governing="2.2")
+        item.base_commit = scratch.commit("base: shipped templates")
+        self.assertEqual(self.next_action(scratch)["row"], "1")
+        item.milestone_plan()
+        self.assertEqual(item.entry()["governing_workflow_version"], "2.2")
+
+    def test_r14_verify_passes_the_default_version_check_on_the_shipped_templates(self):
+        scratch = Scratch("wf-template")
+        self.addCleanup(scratch.cleanup)
+        scratch.write(CONFIG_PATH, json.dumps(SHIPPED_TEMPLATE_CONFIG, indent=2) + "\n")
+        scratch.write(STATE_PATH, json.dumps(SHIPPED_TEMPLATE_STATE, indent=2) + "\n")
+        scratch.commit("base: shipped templates")
+        self.assertEqual(self.default_check(scratch)["status"], "pass")
+
+
+class RetiredDefaultVersionProduct(RetiredDefaultVersionProcess):
+    """The same scenarios for a `product` work item."""
+
+    work_item_type = "product"
+
+
+# ===========================================================================
+# workflow-2.11.0: every plan revision carries its checkpoint anchors early
+# ===========================================================================
+
+CAE_BEGIN = "# --- BEGIN early checkpoint-anchor check"
+CAE_END = "# --- END early checkpoint-anchor check"
+
+CAE_THREE = CHECKPOINTS_TWO + [
+    {"id": "CP3", "name": "third", "depends_on": ["CP2"], "complexity": "S", "session_target": 1},
+]
+CAE_THREE_REQ = {
+    **REQUIREMENTS_TWO,
+    "R3": {"description": "and a third thing", "checkpoint_ids": ["CP3"]},
+}
+CAE_FOUR = CAE_THREE + [
+    {"id": "CP4", "name": "fourth", "depends_on": ["CP3"], "complexity": "S", "session_target": 1},
+]
+CAE_FOUR_REQ = {
+    **CAE_THREE_REQ,
+    "R4": {"description": "and a fourth thing", "checkpoint_ids": ["CP4"]},
+}
+
+
+def cae_standin_text(text):
+    """The shipped `prepare-ai-review.sh` with CP2's marked block removed,
+    marker lines included -- 2.10.0's generator, for scenarios 3, 5 and 7.
+    Refuses unless each marker appears exactly once, in order."""
+    lines = text.splitlines(keepends=True)
+    begins = [i for i, line in enumerate(lines) if line.startswith(CAE_BEGIN)]
+    ends = [i for i, line in enumerate(lines) if line.startswith(CAE_END)]
+    if len(begins) != 1 or len(ends) != 1 or begins[0] >= ends[0]:
+        raise AssertionError(f"expected exactly one marked block, found begin={begins} end={ends}")
+    return "".join(lines[:begins[0]] + lines[ends[0] + 1:])
+
+
+def cae_write_standin(directory):
+    """Writes the 2.10.0 stand-in generator into `directory`, which must be
+    outside every scratch repository (the script runs against the repository
+    it is run in, and loads its Python from that repository's `scripts/`)."""
+    source = (_tooling_dir() / "prepare-ai-review.sh").read_text()
+    path = Path(directory) / "prepare-ai-review-2.10.0.sh"
+    path.write_text(cae_standin_text(source))
+    os.chmod(path, 0o755)
+    return path
+
+
+def cae_write_plan(item, revision, checkpoints=None, requirements=None, *, kind="first",
+                   anchored=None, anchor_text=None, plan_body="Plan body.\n"):
+    """The writes of `/milestone-plan` steps 1-3 (`kind="first"`), of an
+    amending `/milestone-plan` (`"amend"`) or of `/apply-plan-review` steps
+    3-5 (`"revise"`), up to but excluding the staging, the check and the
+    publish. `anchored` limits the anchor pairs to those checkpoint ids
+    (default: all); `anchor_text` replaces the anchors outright. Returns the
+    regenerated registry."""
+    config = json.loads(item.sim.read("docs/ai-workflow/WORKFLOW_CONFIG.json"))
+    checkpoints = CHECKPOINTS if checkpoints is None else checkpoints
+    requirements = REQUIREMENTS if requirements is None else requirements
+    if kind != "first":
+        item.tx(lambda state: ws.ensure_plan_review_binding_marker(state, item.wid, item.now()))
+    if kind != "revise":
+        route_item(item, config, revision)
+    registry = ws.generate_registry(item.wid, revision, checkpoints)
+    mapping = ws.generate_mapping(item.wid, requirements, registry=registry)
+    ws.write_registry_and_mapping(
+        item.root, Path(item.registry_path), Path(item.mapping_path), registry, mapping,
+    )
+    if kind == "first":
+        declarations = ws.generate_artifacts_declarations(
+            item.wid, item.plan_path, item.registry_path, item.mapping_path,
+            work_item_type=item.wtype,
+        )
+        item.sim.write(item.artifacts_path, json.dumps(declarations, indent=2) + "\n")
+    if anchor_text is None:
+        kept = {"checkpoints": [c for c in registry["checkpoints"]
+                                if anchored is None or c["id"] in anchored]}
+        anchor_text = plan_anchors(kept)
+    item.sim.write(
+        item.plan_path,
+        f"# {item.wid} plan (Revision {revision})\n\n{plan_body}\n"
+        + anchor_text + ws.render_registry_markdown(registry) + "\n",
+    )
+    return registry
+
+
+def cae_publish(item, check=True):
+    """The publication point: staging, then (when `check`) the 2.11.0
+    anchor check, then the publish. A caller that skips the check is the
+    2.10.0 command, or a session that ignored the refusal."""
+    item.stage_plan_files()
+    if check:
+        ws.assert_plan_checkpoint_anchors(item.root, item.wid)
+    item.publish()
+
+
+class CheckpointAnchorsEarlyProcess(MatrixCase):
+    """CP4 of `checkpoint-anchors-early`: a plan revision without a checkpoint
+    anchor pair is refused at publish, at bind and at generation, for a new
+    plan and for an amendment, while a bundle or an approved plan an earlier
+    release left behind keeps working. Each scenario drives the functions,
+    generator and commits the command texts name; scenarios 3, 5 and 7 run
+    their first plan generation through the 2.10.0 stand-in
+    (`cae_write_standin`). Numbers follow the plan's CP4 section."""
+
+    work_item_type = "process"
+
+    def setUp(self):
+        super().setUp()
+        directory = Path(tempfile.mkdtemp(prefix="wf-standin-"))
+        self.addCleanup(shutil.rmtree, directory, True)
+        self.standin = cae_write_standin(directory)
+
+    # --- plumbing ---------------------------------------------------------
+
+    def generate_standin(self, item=None, **kwargs):
+        """`generate_plan_bundle` through the 2.10.0 stand-in generator."""
+        item = item or self.item
+        script = self.standin
+
+        def prepare(base, stage, work_item_id=None, check=True):
+            args = [str(script), base, stage] + ([work_item_id] if work_item_id else [])
+            return _run(args, cwd=item.root, check=check)
+
+        with mock.patch.object(item.sim, "prepare", prepare):
+            return item.generate_plan_bundle(**kwargs)
+
+    def standin_round(self, checkpoints=None, requirements=None, bind=True):
+        """A first plan revision without pairs, published and generated the
+        way 2.10.0 did: no check at the publish, no check at the bind."""
+        item = self.item
+        cae_write_plan(item, 1, checkpoints, requirements, anchored=())
+        cae_publish(item, check=False)
+        proc = self.generate_standin(bind=bind)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        return proc
+
+    def reach_approved_with_anchors(self, checkpoints, requirements, complete):
+        item = self.item
+        item.milestone_plan(checkpoints=checkpoints, requirements=requirements)
+        item.generate_plan_bundle()
+        item.write_feedback("APPROVE")
+        item.record_plan_reviews()
+        item.approve_plan()
+        self.assertEqual(item.entry()["phase"], "IMPLEMENTING")
+        for checkpoint_id in complete:
+            item.implement_checkpoint(checkpoint_id, {item.deliverable: f"// {checkpoint_id}\n"})
+            self.assertEqual(item.entry()["checkpoints"][checkpoint_id]["status"], "COMPLETE")
+
+    def reach_approved_without_anchors(self, checkpoints=None, requirements=None):
+        item = self.item
+        self.standin_round(checkpoints, requirements)
+        self.assertEqual(item.entry()["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
+        item.write_feedback("APPROVE")
+        item.record_plan_reviews()
+        item.approve_plan()
+        self.assertEqual(item.entry()["phase"], "IMPLEMENTING")
+
+    def assert_check_refuses(self, exc_type, *needles):
+        item = self.item
+        before = cp4_state_bytes(item)
+        with self.assertRaises(exc_type) as ctx:
+            ws.assert_plan_checkpoint_anchors(item.root, item.wid)
+        message = str(ctx.exception)
+        self.assertIn(ws.PLAN_ANCHOR_NEXT_STEP, message)
+        for needle in needles:
+            self.assertIn(needle, message)
+        self.assertEqual(cp4_state_bytes(item), before, "the check wrote state")
+        return message
+
+    def assert_generator_refuses(self, exc_name, *needles, standin=False):
+        """The generator refuses before any bundle is promoted: exit 1, the
+        error named on stderr, no staging or rejected leftovers, `current/`
+        as it was, and not a byte of state written."""
+        item = self.item
+        root = cp4_item_root(item)
+        state = cp4_state_bytes(item)
+        current = cp4_snapshot(root / "current") if (root / "current").exists() else None
+        proc = item.generate_plan_bundle(check=False, bind=False)
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn(exc_name, proc.stderr)
+        self.assertIn(ws.PLAN_ANCHOR_NEXT_STEP, proc.stderr)
+        for needle in needles:
+            self.assertIn(needle, proc.stderr)
+        self.assertEqual(list(root.glob("current.staging-*")), [])
+        self.assertEqual(list(root.glob(".pin.staging-*")), [])
+        self.assertEqual(list(root.glob("current.rejected-*")), [])
+        self.assertFalse((root / "REJECTED").exists())
+        after = cp4_snapshot(root / "current") if (root / "current").exists() else None
+        self.assertEqual(after, current)
+        self.assertEqual(cp4_state_bytes(item), state)
+        return proc
+
+    def assert_row(self, row, item=None):
+        self.assertEqual(cp4_status(item or self.item)["row"], row, cp4_status(item or self.item))
+
+    # --- the 2.10.0 stand-in ---------------------------------------------
+
+    def test_standin_differs_from_the_shipped_script_only_by_the_marked_block(self):
+        shipped = (_tooling_dir() / "prepare-ai-review.sh").read_text()
+        copy = self.standin.read_text()
+        lines = shipped.splitlines(keepends=True)
+        begins = [i for i, line in enumerate(lines) if line.startswith(CAE_BEGIN)]
+        ends = [i for i, line in enumerate(lines) if line.startswith(CAE_END)]
+        self.assertEqual((len(begins), len(ends)), (1, 1))
+        self.assertLess(begins[0], ends[0])
+        block = "".join(lines[begins[0]:ends[0] + 1])
+        self.assertEqual(shipped.count(block), 1)
+        self.assertEqual(copy, "".join(lines[:begins[0]] + lines[ends[0] + 1:]))
+        self.assertNotIn("assert_plan_checkpoint_anchors", copy)
+        self.assertIn("assert_plan_checkpoint_anchors", block)
+        self.assertNotIn(CAE_BEGIN, copy)
+        self.assertNotIn(CAE_END, copy)
+        self.assertEqual(shipped.count("assert_plan_checkpoint_anchors"),
+                         block.count("assert_plan_checkpoint_anchors"))
+        self.assertEqual(_run(["bash", "-n", str(self.standin)], cwd=self.standin.parent).returncode, 0)
+        self.assertFalse(str(self.standin).startswith(str(self.scratch.root)))
+
+    def test_standin_text_refuses_a_script_without_exactly_one_block(self):
+        shipped = (_tooling_dir() / "prepare-ai-review.sh").read_text()
+        with self.assertRaises(AssertionError):
+            cae_standin_text(shipped.replace(CAE_END, "# gone"))
+        with self.assertRaises(AssertionError):
+            cae_standin_text(shipped + CAE_BEGIN + "\n" + CAE_END + "\n")
+
+    # --- 1. a new plan without anchors ---------------------------------------
+
+    def test_s01a_a_new_plan_without_a_pair_is_refused_at_publish(self):
+        item = self.item
+        cae_write_plan(item, 1, CHECKPOINTS_TWO, REQUIREMENTS_TWO, anchored={"CP1"})
+        item.stage_plan_files()
+        before = cp4_state_bytes(item)
+        message = self.assert_check_refuses(ws.AmendmentAnchorCoverageError, "CP2")
+        self.assertIn(f"{item.wid} plan revision 1", message)
+        with self.assertRaises(ws.AmendmentAnchorCoverageError):
+            cae_publish(item)
+        self.assertEqual(cp4_state_bytes(item), before)
+        self.assertNotIn("plan_review_binding", item.entry())
+
+    def test_s01b_a_self_review_that_removes_a_checkpoint_and_its_pair_is_not_refused(self):
+        item = self.item
+        cae_write_plan(item, 1, CHECKPOINTS_TWO, REQUIREMENTS_TWO)
+        item.stage_plan_files()
+        ws.assert_plan_checkpoint_anchors(item.root, item.wid)
+        # Step 4 drops CP2 from the registry and its pair from the plan.
+        registry = cae_write_plan(item, 1, CHECKPOINTS, REQUIREMENTS)
+        self.assertEqual([c["id"] for c in registry["checkpoints"]], ["CP1"])
+        self.assertNotIn("<!-- CP2 -->", item.sim.read(item.plan_path))
+        cae_publish(item)
+        self.assertEqual(item.entry()["plan_review_binding"]["status"], "PUBLISHED")
+        item.generate_plan_bundle()
+        self.assertEqual(item.entry()["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
+
+    def test_s01c_a_self_review_that_adds_a_checkpoint_without_a_pair_is_refused_at_publish(self):
+        item = self.item
+        cae_write_plan(item, 1, CHECKPOINTS, REQUIREMENTS)
+        item.stage_plan_files()
+        ws.assert_plan_checkpoint_anchors(item.root, item.wid)
+        cae_write_plan(item, 1, CHECKPOINTS_TWO, REQUIREMENTS_TWO, anchored={"CP1"})
+        before = cp4_state_bytes(item)
+        with self.assertRaises(ws.AmendmentAnchorCoverageError) as ctx:
+            cae_publish(item)
+        self.assertIn("CP2", str(ctx.exception))
+        self.assertEqual(cp4_state_bytes(item), before)
+        # Refused by the check, not first by the generator: the generator
+        # never ran, so there is no bundle and nothing was published.
+        self.assertFalse(item.bundle_dir(stage="plan").exists())
+        self.assertNotIn("plan_review_binding", item.entry())
+
+    def test_s01d_publishing_anyway_is_refused_by_the_generator_and_recovers(self):
+        item = self.item
+        cae_write_plan(item, 1, CHECKPOINTS_TWO, REQUIREMENTS_TWO, anchored={"CP1"})
+        cae_publish(item, check=False)
+        self.assert_generator_refuses("AmendmentAnchorCoverageError", "CP2")
+        self.assertFalse(item.bundle_dir(stage="plan").exists())
+        self.assertEqual(item.entry()["phase"], "PLANNING")
+        self.assertEqual(item.entry()["plan_review_binding"]["status"], "PUBLISHED")
+        self.assert_row("9")
+        # /review-plan's entry refuses a non-ready phase.
+        with self.assertRaises(ws.WrongPhaseForPlanReviewStageError):
+            ws.validate_local_plan_review_preconditions_bound(item.root, item.entry())
+        # Adding the pair and running the command again binds the bundle.
+        cae_write_plan(item, 1, CHECKPOINTS_TWO, REQUIREMENTS_TWO)
+        cae_publish(item)
+        item.generate_plan_bundle()
+        self.assertEqual(item.entry()["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
+        self.assertEqual(item.entry()["plan_review_binding"]["status"], "BOUND")
+        self.assert_row("2")
+
+    # --- 2. an amendment without anchors -----------------------------------------
+
+    def amending_item(self):
+        item = self.item
+        self.reach_approved_with_anchors(CHECKPOINTS_TWO, REQUIREMENTS_TWO, ["CP1"])
+        item.request_amendment("a plan correction found while implementing")
+        self.assertEqual(item.entry()["phase"], "AMENDING_PLAN")
+        return item
+
+    def review_ledgers(self, item):
+        entry = item.entry()
+        return json.loads(json.dumps({
+            key: value for key, value in entry.items()
+            if key == "plan_review_stages" or "ledger" in key or "review_round" in key
+        }))
+
+    def test_s02a_an_amendment_that_drops_a_pair_is_refused_at_publish_and_generation(self):
+        item = self.amending_item()
+        ledgers = self.review_ledgers(item)
+        cae_write_plan(item, 2, CHECKPOINTS_TWO, REQUIREMENTS_TWO, kind="amend", anchored={"CP1"})
+        item.stage_plan_files()
+        message = self.assert_check_refuses(ws.AmendmentAnchorCoverageError, "CP2")
+        self.assertIn("(amendment open)", message)
+        self.assertEqual(item.entry()["phase"], "AMENDING_PLAN")
+        # Publishing anyway: the generator refuses exactly as in scenario 1.
+        item.publish()
+        published = item.entry()
+        self.assert_generator_refuses("AmendmentAnchorCoverageError", "CP2")
+        self.assertEqual(item.entry(), published)
+        self.assertEqual(item.entry()["phase"], "AMENDING_PLAN")
+        self.assertEqual(self.review_ledgers(item), ledgers)
+        # With the pair, the amendment proceeds to review.
+        item.amend_plan(2, CHECKPOINTS_TWO, REQUIREMENTS_TWO)
+        ws.assert_plan_checkpoint_anchors(item.root, item.wid)
+        item.generate_plan_bundle()
+        self.assertEqual(item.entry()["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
+
+    def test_s02b_a_malformed_tag_is_refused_the_same_way(self):
+        item = self.amending_item()
+        ledgers = self.review_ledgers(item)
+        registry = ws.generate_registry(item.wid, 2, CHECKPOINTS_TWO)
+        broken = plan_anchors(registry).replace("<!-- /CP2 -->", "<!-- /CP9 -->")
+        self.assertNotEqual(broken, plan_anchors(registry))
+        cae_write_plan(item, 2, CHECKPOINTS_TWO, REQUIREMENTS_TWO, kind="amend", anchor_text=broken)
+        item.stage_plan_files()
+        self.assert_check_refuses(ws.AmendmentAnchorMalformedError)
+        item.publish()
+        self.assert_generator_refuses("AmendmentAnchorMalformedError")
+        self.assertEqual(item.entry()["phase"], "AMENDING_PLAN")
+        self.assertEqual(self.review_ledgers(item), ledgers)
+
+    # --- 3. a bundle left by 2.10.0 -------------------------------------------
+
+    def test_s03_a_bundle_left_unbound_by_2_10_0_is_refused_at_bind_and_recovers(self):
+        item = self.item
+        self.standin_round(bind=False)
+        self.assertEqual(item.entry()["phase"], "PLANNING")
+        self.assert_row("9")
+        self.assertTrue((item.bundle_dir(stage="plan") / "MANIFEST.md").is_file())
+        # /milestone-plan's check before the bind refuses; nothing is bound.
+        self.assert_check_refuses(ws.AmendmentAnchorCoverageError, "CP1")
+        self.assertEqual(item.entry()["plan_review_binding"]["status"], "PUBLISHED")
+        self.assertEqual(item.entry()["phase"], "PLANNING")
+        # Recovery to the end: the pair is added, the steps run again.
+        cae_write_plan(item, 1)
+        self.assert_row("11")
+        cae_publish(item)
+        proc = item.generate_plan_bundle(bind=False)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        ws.assert_plan_checkpoint_anchors(item.root, item.wid)
+        item.bind_plan_bundle()
+        self.assertEqual(item.entry()["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
+        self.assertEqual(item.entry()["plan_review_binding"]["status"], "BOUND")
+        self.assert_row("2")
+
+    # --- 4. an anchored amendment that only adds a checkpoint ----------------------
+
+    def test_s04_an_anchored_amendment_that_only_adds_a_checkpoint(self):
+        item = self.item
+        self.reach_approved_with_anchors(CAE_THREE, CAE_THREE_REQ, ["CP1", "CP2", "CP3"])
+        item.request_amendment("add a fourth checkpoint")
+        item.amend_plan(2, CAE_FOUR, CAE_FOUR_REQ)
+        ws.assert_plan_checkpoint_anchors(item.root, item.wid)
+        item.generate_plan_bundle()
+        item.write_feedback("APPROVE")
+        item.record_plan_reviews(round=2)
+        item.approve_plan()
+        entry = item.entry()
+        self.assertEqual(entry["phase"], "IMPLEMENTING")
+        for checkpoint_id in ("CP1", "CP2", "CP3"):
+            self.assertEqual(entry["checkpoints"][checkpoint_id]["status"], "COMPLETE")
+        self.assertEqual(entry["amendment_history"][-1]["reconciliation_outcome"],
+                         {"CP1": "retained", "CP2": "retained", "CP3": "retained", "CP4": "new"})
+        self.assertEqual(ws.select_next_checkpoint(entry, item.registry()), "CP4")
+        item.implement_checkpoint("CP4", {item.deliverable: "// CP4\n"})
+        self.assertEqual(item.entry()["checkpoints"]["CP4"]["status"], "COMPLETE")
+
+    # --- 5. an approved plan without anchors keeps working ----------------------
+
+    def test_s05a_an_approved_plan_without_anchors_runs_to_milestone_complete(self):
+        item = self.item
+        self.reach_approved_without_anchors()
+        self.assertNotIn("<!-- CP1 -->", item.sim.read(item.plan_path))
+        item.implement_checkpoint("CP1", {item.deliverable: "// CP1\n"})
+        item.generate_impl_bundle("implementation", expect_outcome="ordinary")
+        item.write_feedback("APPROVE")
+        item.approve_implementation()
+        self.assertEqual(item.entry()["phase"], "AWAITING_FUNCTIONAL_REVIEW")
+        item.prepare_functional_review()
+        item.accept_milestone()
+        self.assertEqual(item.entry()["phase"], "MILESTONE_COMPLETE")
+
+    def test_s05b_an_amendment_of_an_anchorless_plan_needs_pairs_and_revalidates(self):
+        item = self.item
+        self.reach_approved_without_anchors()
+        item.implement_checkpoint("CP1", {item.deliverable: "// CP1\n"})
+        item.request_amendment("a plan correction found while implementing")
+        ledgers = self.review_ledgers(item)
+        cae_write_plan(item, 2, kind="amend", anchored=())
+        item.stage_plan_files()
+        self.assert_check_refuses(ws.AmendmentAnchorCoverageError, "CP1")
+        item.publish()
+        self.assert_generator_refuses("AmendmentAnchorCoverageError", "CP1")
+        self.assertEqual(item.entry()["phase"], "AMENDING_PLAN")
+        self.assertEqual(self.review_ledgers(item), ledgers)
+        item.amend_plan(2)
+        item.generate_plan_bundle()
+        item.write_feedback("APPROVE")
+        item.record_plan_reviews(round=2)
+        item.approve_plan()
+        entry = item.entry()
+        self.assertEqual(entry["phase"], "IMPLEMENTING")
+        self.assertEqual(entry["checkpoints"]["CP1"]["status"], "NEEDS_REVALIDATION")
+        self.assertEqual(entry["amendment_history"][-1]["reconciliation_outcome"],
+                         {"CP1": "needs_revalidation"})
+
+    # --- 6. version "1" unchanged ---------------------------------------------
+
+    def test_s06_a_version_1_plan_without_pairs_generates_as_in_2_10_0(self):
+        scratch = Scratch("wf-v1")
+        self.addCleanup(scratch.cleanup)
+        item = Item(scratch, self.work_item_type, governing="1")
+        item.seed()
+        cae_write_plan(item, 1, anchored=())
+        item.stage_plan_files()
+        self.assertEqual(item.entry()["governing_workflow_version"], "1")
+        self.assertIsNone(ws.assert_plan_checkpoint_anchors(item.root, item.wid))
+        proc = item.generate_plan_bundle(bind=False)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertTrue((item.bundle_dir(stage="plan") / "MANIFEST.md").is_file())
+        # The same plan through the 2.10.0 stand-in generates too: for a
+        # "1" item the early check changes nothing.
+        twin = Scratch("wf-v1-twin")
+        self.addCleanup(twin.cleanup)
+        twin_item = Item(twin, self.work_item_type, governing="1")
+        twin_item.seed()
+        cae_write_plan(twin_item, 1, anchored=())
+        twin_item.stage_plan_files()
+        self.assertEqual(self.generate_standin(twin_item, bind=False).returncode, 0)
+        self.assertEqual(
+            sorted(p.name for p in item.bundle_dir(stage="plan").iterdir()),
+            sorted(p.name for p in twin_item.bundle_dir(stage="plan").iterdir()),
+        )
+
+    # --- 7. a review bound before the update survives a regeneration (row 4b) -----
+
+    def test_s07a_a_bound_anchorless_review_regenerates_and_proceeds(self):
+        item = self.item
+        self.standin_round()
+        bound = item.entry()["plan_review_binding"]["bound"]
+        self.assert_row("2")
+        (item.bundle_dir(stage="plan") / "CONTEXT_FILES.txt").write_text("damaged\n")
+        self.assert_row("4b")
+        proc = item.generate_plan_bundle(bind=True)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(item.entry()["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
+        self.assertEqual(item.entry()["plan_review_binding"]["bound"]["review_content_id"],
+                         bound["review_content_id"])
+        self.assert_row("2")
+        item.write_feedback("APPROVE")
+        item.record_plan_reviews()
+        item.approve_plan()
+        self.assertEqual(item.entry()["phase"], "IMPLEMENTING")
+
+    def test_s07b_a_withdrawn_anchorless_plan_is_refused_by_the_generator(self):
+        item = self.item
+        self.standin_round()
+        item.tx(lambda state: ws.withdraw_plan_review(state, item.wid, item.now()))
+        self.assertEqual(item.entry()["phase"], "REVISING_PLAN")
+        self.assert_generator_refuses("AmendmentAnchorCoverageError", "CP1")
+
+    def test_s07c_an_anchorless_plan_at_revising_plan_is_refused_by_the_generator(self):
+        item = self.item
+        self.standin_round()
+        item.record_plan_reviews(local="REVISE")
+        self.assertEqual(item.entry()["phase"], "REVISING_PLAN")
+        self.assert_generator_refuses("AmendmentAnchorCoverageError", "CP1")
+
+    def test_s07d_a_ready_item_with_no_binding_record_is_refused_by_the_generator(self):
+        item = self.item
+        self.standin_round()
+        cp4_hand_edit(item, cp4_make_legacy)
+        shutil.rmtree(item.bundle_dir(stage="plan"))
+        self.assert_row("4c")
+        self.assert_generator_refuses("AmendmentAnchorCoverageError", "CP1")
+        self.assertEqual(item.entry()["phase"], "AWAITING_LOCAL_PLAN_REVIEW")
+
+
+class CheckpointAnchorsEarlyProduct(CheckpointAnchorsEarlyProcess):
+    """The same scenarios for a `product` work item."""
+
+    work_item_type = "product"
+
+    def test_standin_differs_from_the_shipped_script_only_by_the_marked_block(self):
+        raise unittest.SkipTest("the stand-in pin is type-independent; run once, on the process item")
+
+    def test_standin_text_refuses_a_script_without_exactly_one_block(self):
+        raise unittest.SkipTest("the stand-in pin is type-independent; run once, on the process item")
 
 
 if __name__ == "__main__":

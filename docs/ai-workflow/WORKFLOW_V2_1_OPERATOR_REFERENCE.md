@@ -466,7 +466,12 @@ test fails and is authoritative about which one moved.
   `<!-- CPn -->`/`<!-- /CPn -->` anchor pair (`n` is the same widened
   `CP<digits>[A-Z]?` shape named above), or `/approve-review plan`
   step 4c's `validate_post_anchor_coverage` refuses approval naming the
-  first uncovered id.
+  first uncovered id. From 2.11.0 the same check
+  (`assert_plan_checkpoint_anchors`) also refuses the plan earlier, at
+  publish, at bind and in plan-stage bundle generation (of a new or unbound
+  revision; an already-bound review regenerated at a ready phase is not
+  re-judged), before any review round; every plan revision of a `"2.1"`/`"2.2"` item carries the pairs, the
+  first included.
 - **Refuses**: the wrong phase
   (`WrongPhaseForAmendmentRequestError`); a checkpoint still `IN_PROGRESS`
   or an outstanding checkpoint claim (`AmendmentCheckpointActiveError`,
@@ -1151,6 +1156,13 @@ depends on the policy as well as on the version.
 parent's `work_item_type`/`work_item_kind`, its own
 `plan_path`/`registry_path`/`base_commit`, `parent_work_item_id` set, and
 `governing_workflow_version` fixed from the config default at creation.
+
+A child is a new work item, so its creation takes the configuration's default
+and, from 2.10.0, refuses with `DefaultWorkflowVersionRetiredError` before any
+write while that default is `"2.1"`; the same holds for a fresh
+`/milestone-plan`. Set the default to `"2.2"` in a `Workflow-Activation: 2.2`
+commit (see `docs/common-problems.md` in the repository, or
+`IMPLEMENTATION_REVIEW_WORKFLOW.md`). Existing `"2.1"` items are unaffected.
 
 Two consequences drive everything else:
 

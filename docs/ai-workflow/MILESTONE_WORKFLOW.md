@@ -42,7 +42,23 @@ system audit, convergence pass 12, ledger row `O34`).
 - **Artifacts**: draft execution plan (and reference plan, if new decisions
   are introduced).
 - **Exit**: a concrete, checkpointed plan exists.
+- **Checkpoint anchors** (2.11.0): every plan revision of a `"2.1"` or `"2.2"`
+  item, the first included, carries a well-formed `<!-- CPn -->`/`<!-- /CPn -->`
+  pair around each registry checkpoint's section. The plan is refused without
+  one at publish, at bind and in plan-stage bundle generation, before any
+  review round, with the error classes `/approve-review plan` uses and one next
+  step: add the pair, then run the command again. Plan-stage generation
+  re-judges a new or unbound revision only: regenerating an already-bound
+  review at a ready phase does not. The approval-time check is
+  unchanged. A plan approved before 2.11.0 without anchors keeps driving
+  implementation, reviews and acceptance; the requirement applies from its next
+  plan revision.
 - **Stop for user/reviewer?** No.
+- **New work item** (2.10.0): a fresh plan creates a new work item, and that
+  refuses with `DefaultWorkflowVersionRetiredError` while
+  `WORKFLOW_CONFIG.json` still names a retired version as the default. Nothing
+  is written. The next step is to set the default to `"2.2"` in a
+  `Workflow-Activation: 2.2` commit; existing work items are not affected.
 
 ### AMENDING_PLAN (`workflow-2.4.0`, `D-Plan-Amendment-1`)
 
@@ -113,7 +129,11 @@ branches on governing version, unchanged.
   more, non-overlapping, around that checkpoint's own content; `n` is the
   same widened `CP<digits>[A-Z]?` shape the entry condition above checks) --
   add the anchors now, not after `/approve-review plan` step 4c's
-  `validate_post_anchor_coverage` refuses naming the first uncovered id.
+  `validate_post_anchor_coverage` refuses naming the first uncovered id. From
+  2.11.0 the amended plan is already refused without them at publish, at bind
+  and in plan-stage bundle generation of a new or unbound revision
+  (`assert_plan_checkpoint_anchors`), before any review round; the
+  approval-time check stays.
   `validate_post_anchor_coverage` consults the identical
   `checkpoint_id_supports_anchor` predicate the entry condition above uses,
   so the post-side check accepts exactly the same widened shape, never a
@@ -649,10 +669,15 @@ for a `"2.2"` item, `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a
     deterministically) is created — same `work_item_type` as the parent,
     carrying `parent_work_item_id`, with its own registry/mapping and its
     own `base_commit` (the parent's implementation head at branch time).
-    It routes through the full normal cycle
-    (`AWAITING_EXTERNAL_PLAN_REVIEW` → ... → `MILESTONE_COMPLETE`) via the
-    ordinary commands, exactly like any other work item, because it is
-    one. The parent's own registry, mapping, and completed-checkpoint
+    It routes through the full normal cycle (first plan review through
+    `MILESTONE_COMPLETE`) via the ordinary commands, exactly like any other
+    work item, because it is one. A `"2.1"` or `"2.2"` child's first plan
+    review is `AWAITING_LOCAL_PLAN_REVIEW` (two-stage plan review); a `"1"`
+    child's is `AWAITING_EXTERNAL_PLAN_REVIEW`. From 2.10.0 a new child
+    cannot be `"2.1"`: it takes the configuration's default, and while that
+    default is `"2.1"` its creation refuses with
+    `DefaultWorkflowVersionRetiredError`, writing nothing (set the default to
+    `"2.2"` in a `Workflow-Activation: 2.2` commit). The parent's own registry, mapping, and completed-checkpoint
     history are never mutated by this branch; the deferral is recorded in
     the parent's own functional-review checklist, naming the child id.
 - **Artifacts**: fixed diff with regression tests; revised functional
