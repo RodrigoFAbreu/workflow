@@ -72,3 +72,73 @@ tested-releases list in `ORCHESTRATION_PROTOCOL.md`, a 2.11.0 row in
 checked with" lines of the two docs this milestone changed. The nine suites pass
 in the stock `release.py stage-conformance` fixture, `release.py build` of the
 commit succeeds and `check_docs.py` is clean. All checkpoints are complete.
+
+## Functional review checklist
+
+Milestone `checkpoint-anchors-early` (Workflow 2.11.0), implementation
+revision 1. This is a process milestone with no UI: the "user flows" are
+command-line and command-text checks on the release source. All commands run
+from the repository root on branch `milestone/checkpoint-anchors-early`.
+
+### Setup
+
+- Python 3 and `git` only; no feature flags, no seeded data.
+- Do not edit this repository's own installation (`.claude/`, `scripts/`,
+  `docs/ai-workflow/`); the changes under test live in `payload/`,
+  `manifest.json` and `docs/`.
+- Scratch fixture for the suites (never run them from inside an extracted
+  tree): `python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)"`.
+
+### Test data
+
+None to seed. The suites build their own temporary repositories; the plan
+under test is `docs/ai-workflow/CHECKPOINT_ANCHORS_EARLY_PLAN.md`.
+
+### Flows and expected results
+
+1. **Release source is consistent.**
+   Run `python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)"`,
+   then the nine suites inside the staged fixture (per `docs/RELEASING.md`).
+   Expected: all nine pass; `manifest.json` says 2.11.0 and its digests match.
+2. **Installation untouched.** Run `workflow-manager verify .`.
+   Expected: clean.
+3. **Docs check.** Run `python tools/docs/check_docs.py`. Expected: clean.
+4. **Early check, direct.** In a Python session with `payload/scripts` on the
+   path, call `workflow_state.assert_plan_checkpoint_anchors` with a plan whose
+   registry has `CP1`/`CP2` but only a `CP1` anchor pair.
+   Expected: the same error class as plan approval, message ending with
+   `PLAN_ANCHOR_NEXT_STEP` (one next step). With both pairs present: no error.
+5. **Bundle generation refuses early.** Targeted tests:
+   `python -m unittest workflow_fingerprint_generalization_test.TestPrepareAiReviewShEarlyAnchorCheck`
+   and `workflow_state_test.TestAssertPlanCheckpointAnchors` (run in the
+   staged fixture). Expected: pass; an anchorless plan makes the plan-stage
+   branch of `prepare-ai-review.sh` exit 1 before any review round.
+6. **End-to-end scenarios.** `workflow_acceptance_matrix_test`
+   `CheckpointAnchorsEarlyProcess`/`CheckpointAnchorsEarlyProduct`. Expected:
+   all seven scenarios pass, including: approved anchorless plan still drives
+   implementation/acceptance; new "2.1"/"2.2" revision without anchors is
+   refused at publish, bind and bundle generation; version-"1" unchanged.
+7. **Command texts.** Read `payload/.claude/commands/milestone-plan.md`
+   (step 3, step 4, publication point item 4, step 6),
+   `apply-plan-review.md` (steps 5 and 7') and `request-plan-amendment.md`.
+   Expected: each tells the author to wrap every checkpoint section in
+   `<!-- CPn -->`/`<!-- /CPn -->` and names `assert_plan_checkpoint_anchors`
+   before the publish/bind, with no wording contradicting the plan.
+8. **Docs read right.** Skim `MILESTONE_WORKFLOW.md` (`PLANNING`,
+   `AMENDING_PLAN`), `PLAN_REVIEW_WORKFLOW.md`, `REVIEW_PROTOCOL.md`, the
+   operator reference, `docs/common-problems.md` ("A plan revision is refused
+   for a missing checkpoint anchor") and the 2.11.0 row of
+   `docs/release-history.md`. Expected: rule, refusal, one next step and the
+   downgrade posture are described consistently; commands named exist.
+9. **Release build.** `python tools/release/release.py build` of the commit
+   succeeds (see `docs/RELEASING.md`). Expected: builds 2.11.0 artifacts, no
+   changes to any published tag or asset.
+
+### Known limitations / out of scope
+
+- Approved plans without anchors keep working until their next plan revision.
+- Run in place, some payload suites read the installed 2.9.2 command files and
+  show failures unrelated to this milestone; use the staged fixture.
+- Nothing new is persisted; Orchestration Protocol stays 1.3.
+- Publishing the release and the `workflow-manager` pin are separate steps,
+  not part of this milestone's functional review.
