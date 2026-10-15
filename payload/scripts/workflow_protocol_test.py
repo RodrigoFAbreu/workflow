@@ -3520,6 +3520,16 @@ class TestRecordExternalResultTwoStage(unittest.TestCase):
                 refusal(self, repo, kind, verdict("APPROVE", **ok).replace(
                     "Status: APPROVE\n", "Status: APPROVE\nReview scope: changes\n"), "refused",
                     "MalformedVerdictError")
+                for scope in ("changes.", "changes only"):
+                    refusal(self, repo, kind, verdict("APPROVE", **ok).replace(
+                        "Status: APPROVE\n", f"Status: APPROVE\nReview scope: {scope}\n"), "refused",
+                        "MalformedVerdictError")
+                refusal(self, repo, kind, verdict("APPROVE", **ok).replace(
+                    "Status: APPROVE\n", "Status: APPROVE\nReview scope: full\nReview scope: changes\n"),
+                    "refused", "MalformedVerdictError")
+                refusal(self, repo, kind, verdict("REVISE", **ok).replace(
+                    "- a finding that must change", "- None,\n\n## Important findings\n\nNone.\n\n"
+                    "## Optional findings\n\n- a suggestion"), "refused", "MalformedVerdictError")
                 reject_bundle(repo)
                 refusal(self, repo, kind, verdict("APPROVE", **ok), "refused", "BundleRejectedError")
 
@@ -6903,6 +6913,65 @@ class TestReviewRoundField(unittest.TestCase):
         self.assertEqual(wp._review_round(complete, "REVISING_PLAN", "2.2")["plan"], 3,
                          "C = 2 >= R = 2, plus the PUBLISHED record")
         self.assertIsNone(wp._review_round({"plan_revision": 1}, "PLANNING", "2.2")["plan"])
+
+    @staticmethod
+    def _set_plan_revision(repo, revision):
+        registry = repo.root / "docs" / "ai-workflow" / "registry" / f"{WI}-registry.json"
+        registry.write_text(re.sub(r'"plan_revision": \d+', f'"plan_revision": {revision}', registry.read_text()))
+        plan = repo.root / "docs" / "ai-workflow" / "WORKFLOW_V2_PLAN.md"
+        plan.write_text(re.sub(r"\(Revision \d+\)", f"(Revision {revision})", plan.read_text()))
+        h.git(repo, "commit", "-q", "-am", f"plan revision {revision}")
+
+    def _drive_legacy_item(self, repo, shape):
+        """A schema-valid legacy-history item taken through the real writers
+        and the real generator: withdrawal (or its REVISE equivalent), a
+        publication, the binding, a local `REVISE` and the following
+        `REVISING_PLAN`. Returns the `review_round.plan` read at each phase."""
+        plan_item_at(repo, "REVISING_PLAN" if shape == "2.6.0-shaped" else "AWAITING_LOCAL_PLAN_REVIEW")
+        key = ws.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY
+        state = h.read_state(repo)
+        item = state["work_items"][WI]
+        if shape == "2.6.0-shaped":
+            item.pop(key, None)
+            item["plan_revision"] = 5
+            item["plan_review_binding"]["consumed"]["plan_revision"] = 5
+            self._set_plan_revision(repo, 5)
+        else:
+            item["plan_review_binding"] = None
+            item.pop(key, None)
+        h.write_state(repo, state)
+        trace = {}
+        if shape == "legacy marker":
+            mutate(repo, ws.withdraw_plan_review, "t-withdraw")
+            marker = h.read_state(repo)["work_items"][WI]["plan_review_binding"]["consumed"]
+            self.assertEqual((marker["review_content_id"], marker["legacy"]), (None, True))
+            trace["withdrawn"] = plan_round(repo)
+            self._set_plan_revision(repo, 2)
+            edit_item(repo, plan_revision=2)
+        else:
+            trace["revising"] = plan_round(repo)
+        edit_plan_and_commit(repo, f"{shape} edit")
+        digest, _ = fingerprint.compute_review_content_id_plan_stage_for_work_item(repo.root, WI)
+        mutate(repo, ws.publish_plan_revision, h.read_state(repo)["work_items"][WI]["plan_revision"], "t-pub",
+               review_content_id=digest)
+        trace["published"] = plan_round(repo)
+        h.generate_plan_bundle(repo, WI)
+        binding = ws.verify_plan_review_bundle(repo.root, WI)
+        mutate(repo, ws.bind_plan_review_bundle, binding=binding, now="t-bind")
+        trace["bound"] = plan_round(repo)
+        mutate(repo, ws.record_local_plan_review, verdict="REVISE", bundle_id=binding["bundle_id"],
+               review_content_id=binding["review_content_id"], round=1, now="t-revise")
+        trace["following REVISING_PLAN"] = plan_round(repo)
+        return trace
+
+    def test_a_legacy_history_item_reads_null_through_publication_binding_and_the_following_revise(self):
+        """CP3 (EIR-R1-003, LPR-R7-001): a 2.6.0-shaped item (a consumed slot,
+        no history list) and a legacy-marker item read `null` at every phase
+        they pass through -- never a smaller number."""
+        for shape in ("2.6.0-shaped", "legacy marker"):
+            with self.subTest(shape=shape), h.ScratchRepo() as repo:
+                trace = self._drive_legacy_item(repo, shape)
+                self.assertEqual(set(trace.values()), {None}, trace)
 
     def test_a_legacy_marker_item_reads_null_through_the_phases(self):
         with h.ScratchRepo() as repo:

@@ -3722,13 +3722,18 @@ _FEEDBACK_REVIEW_SCOPE_RE = re.compile(
     r"^[ \t]*(?:[-*][ \t]+)?`?Review scope:`?[ \t]*`?(\S+?)`?[ \t]*$", re.MULTILINE | re.IGNORECASE)
 
 
+def _declared_review_scopes(content: str) -> set[str]:
+    """Every distinct `Review scope:` value the header states, lowercased."""
+    header = feedback_header_block(content)
+    return {match.group(1).lower() for match in _FEEDBACK_REVIEW_SCOPE_RE.finditer(header)}
+
+
 def parse_review_scope(content: str) -> str | None:
     """The `Review scope: full|changes` a verdict declares (`D-Changes`),
     header-only exactly like `parse_feedback_reviewer_model`. `None` when
     absent, when it states another value, or when the header states more than
     one distinct value."""
-    header = feedback_header_block(content)
-    values = {match.group(1).lower() for match in _FEEDBACK_REVIEW_SCOPE_RE.finditer(header)}
+    values = _declared_review_scopes(content)
     if len(values) != 1:
         return None
     value = values.pop()
@@ -3742,7 +3747,7 @@ _PLACEHOLDERS = frozenset({"none", "n/a", "-", "none identified"})
 
 def _is_placeholder(text: str) -> bool:
     plain = re.sub(r"[*_`]", "", text).strip()
-    plain = re.sub(r"[.:;!\s]+$", "", plain)
+    plain = re.sub(r"[.,:;!?\s]+$", "", plain)
     plain = re.sub(r"\s+", " ", plain).lower()
     return plain in _PLACEHOLDERS or bool(_NO_FINDINGS_RE.match(plain))
 
@@ -3782,6 +3787,10 @@ def assert_verdict_well_formed(content: str) -> None:
         raise MalformedVerdictError(
             "the verdict is Status: APPROVE but lists a Blocking finding -- an approval cannot contradict "
             "itself. Reissue it as REVISE, or remove the finding. Nothing was written")
+    if status == "APPROVE" and _declared_review_scopes(content) not in (set(), {"full"}, {"changes"}):
+        raise MalformedVerdictError(
+            "the verdict is Status: APPROVE but its header declares a conflicting or unrecognised Review scope "
+            "-- state exactly one 'Review scope: full' line (or none) and reissue it. Nothing was written")
     if status == "APPROVE" and parse_review_scope(content) == "changes":
         raise MalformedVerdictError(
             "the verdict is Status: APPROVE with 'Review scope: changes' -- every APPROVE is a full review of "

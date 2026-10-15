@@ -4468,6 +4468,26 @@ class VerdictWellFormedTest(unittest.TestCase):
                 self._refused(self._verdict("REVISE", blocking=placeholder, important=placeholder,
                                             optional="- a suggestion"))
 
+    def test_trailing_punctuation_on_a_placeholder_is_ignored(self):
+        """EIR-R1-002: `D-Severity` ignores trailing punctuation."""
+        for placeholder in ("- None,", "None,", "- None?", "- None;", "- none.,", "- N/A,", "- No findings!"):
+            with self.subTest(placeholder=placeholder):
+                self._refused(self._verdict("REVISE", blocking=placeholder, important=placeholder,
+                                            optional="- a suggestion"))
+
+    def test_a_conflicting_or_unrecognised_scope_on_an_approve_is_refused(self):
+        """EIR-R1-001: only one `full` (or no) scope line approves; `changes.`,
+        `changes only` and a header stating two scopes never pass as omitted."""
+        for scope in ("changes.", "changes only", "everything", "full."):
+            with self.subTest(scope=scope):
+                self.assertIn("Review scope", self._refused(self._verdict("APPROVE", scope=scope)))
+        both = self._verdict("APPROVE", scope="full").replace(
+            "Review scope: full", "Review scope: full\nReview scope: changes")
+        self._refused(both)
+        wf.assert_verdict_well_formed(self._verdict("APPROVE", scope="full"))
+        wf.assert_verdict_well_formed(self._verdict("APPROVE"))
+        wf.assert_verdict_well_formed(self._verdict("REVISE", blocking="- x", scope="changes"))
+
     def test_a_placeholder_in_one_section_does_not_hide_a_finding_in_the_other(self):
         wf.assert_verdict_well_formed(self._verdict("REVISE", blocking="- None.", important="- a real finding"))
 
