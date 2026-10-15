@@ -3719,7 +3719,7 @@ class MalformedVerdictError(Exception):
 
 
 _FEEDBACK_REVIEW_SCOPE_RE = re.compile(
-    r"^[ \t]*(?:[-*][ \t]+)?`?Review scope:`?[ \t]*`?(\S+?)`?[ \t]*$", re.MULTILINE | re.IGNORECASE)
+    r"^[ \t]*(?:[-*][ \t]+)?`?Review scope:`?[ \t]*`?(\S.*?)`?[ \t]*$", re.MULTILINE | re.IGNORECASE)
 
 
 def _declared_review_scopes(content: str) -> set[str]:
