@@ -63,7 +63,8 @@ as `review_round` in `next-action`.
 
 A verdict header line, `Review scope: full|changes`. `changes` means the
 reviewer checked only what changed since the last reviewed bundle and is valid
-on a `REVISE` or a `BLOCK` only; every `APPROVE` is a full review.
+on a `REVISE` or a `BLOCK` only; every `APPROVE` is a full review, with exactly
+one `Review scope: full` line or none (any other or conflicting value is refused).
 
 ### Functional review
 

@@ -101,7 +101,9 @@ and refuses before writing anything.
    present must be a positive integer.
    **Verdict shape** (workflow-2.12.0, `D-Severity`): a `REVISE` that names
    no Blocking or Important finding, an `APPROVE` that lists a Blocking
-   finding, and an `APPROVE` that declares `Review scope: changes` are
+   finding, an `APPROVE` that declares `Review scope: changes`, and an
+   `APPROVE` whose header has any `Review scope` other than exactly one
+   `Review scope: full` line (or none), or states conflicting values, are
    refused (`MalformedVerdictError`, nothing written). Report the message
    and ask the user to have the reviewer reissue the verdict -- as `APPROVE`
    with the findings under `## Optional findings`, or as `REVISE` with the

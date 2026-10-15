@@ -160,8 +160,10 @@ first at plan approval, after both plan reviews.
 (`/record-manual-plan-review`, `/record-manual-implementation-review`,
 `record-external-result`) refused a verdict as malformed and wrote nothing.
 Either a `REVISE` names no Blocking or Important finding, an `APPROVE` lists a
-Blocking finding, or an `APPROVE` declares `Review scope: changes` (every
-`APPROVE` is a full review). The one fix: have the reviewer reissue the
+Blocking finding, an `APPROVE` declares `Review scope: changes` (every
+`APPROVE` is a full review), or an `APPROVE`'s header states a conflicting or
+unrecognised `Review scope` (for example `full.`, or `full` together with
+`changes`): it needs exactly one `Review scope: full` line, or none. The one fix: have the reviewer reissue the
 verdict, never edit it into a different status. A round with only Optional
 findings is an `APPROVE` with those findings under `## Optional findings`;
 write `None.` in a section with no finding. A verdict already recorded is

@@ -157,8 +157,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/record-manual-implementation-review\\.md$",
       "rationale": "D-Feedback-Layout (CP3): the <feedback_dir> preamble states the durable feedback_layout resolution (scoped by construction for a stamped item, the unchanged legacy rule otherwise, REVIEW_PROTOCOL.md normative); step 4 prints the exact resolved paste path and refuses a foreign Work item: field (assert_manual_feedback_names_work_item) before any state write. W1 (workflow-2.7.0, orchestration-protocol-v1): the reviewer states the pinned 'Reviewed review_content_id:' label in the header block (v2.6.0-002, CP1); steps 2-7 are one call to workflow_state.ingest_manual_review_verdict, the ingest record-external-result shares, holding the lock through the publication, with Round: and the absent-bundle-id advisory (CP5). W2 (workflow-2.8.0, gate-policy-and-reopening). W4 (workflow-2.9.1, review-stage-write-durability). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state.",
-      "sha256": "5a035d6aa64e084772d88dc2ad64ff7812d319323c830e3091b12065fd07cf13",
-      "size": 16603,
+      "sha256": "048addda7e8d9cb6b75040ccc4c98b6d37409e7b7e7ae3c4bc362147a60c3303",
+      "size": 16749,
       "executable": false
     },
     {
@@ -167,8 +167,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/record-manual-plan-review\\.md$",
       "rationale": "D-Feedback-Layout (CP3): the <feedback_dir> preamble states the durable feedback_layout resolution (scoped by construction for a stamped item, the unchanged legacy rule otherwise, REVIEW_PROTOCOL.md normative); step 4 prints the exact resolved paste path and refuses a foreign Work item: field (assert_manual_feedback_names_work_item) before any state write. D-Plan-Review-Bundle-Binding (CP4): the bound-bundle reader assert_plan_review_bundle_bound with its advisory and row remedies, the CONSUMED write on REVISE, and the BLOCK resolution routes. W1 (workflow-2.7.0, orchestration-protocol-v1): the reviewer states the pinned 'Reviewed review_content_id:' label in the header block (v2.6.0-002, CP1); steps 2-7 are one call to workflow_state.ingest_manual_review_verdict, the ingest record-external-result shares, holding the lock through the publication, with Round: and the absent-bundle-id advisory (CP5). W2 (workflow-2.8.0, gate-policy-and-reopening). W4 (workflow-2.9.1, review-stage-write-durability). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state.",
-      "sha256": "4ee4a7f3505d5e829e13d57299a60494d1440638c05ec5547ef4bd4140222d94",
-      "size": 15629,
+      "sha256": "606ac74f1d7d6f3d6abbfbd4376f799b07f8bca7316f0336eb01b8d37aa40341",
+      "size": 15775,
       "executable": false
     },
     {
@@ -329,8 +329,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/REVIEW_PROTOCOL\\.md$",
       "rationale": "D-Tooling-Ambient-Classification (CP1): the Computing review_content_id section gains the classification paragraph naming the one release-derived fallback, where it sits in the classification order, and what stays fail-closed. D-Plan-Amendment-5 revision (CP2): \"Bundle structure\" restates AMENDMENT_DIFF.patch to the working-tree anchor -- the base-plus-current-plus-declaration pathspec union, --no-renames, the provenance preamble, and its placement after MANIFEST.md -- and states it stays convenience only. D-Feedback-Layout (CP3): \"Bundle location\" gains the normative \"Feedback directory\" subsection -- the durable stamp, the scoped/legacy/refused resolution, ensure_feedback_dir, the --resolve-feedback-path contract for external tools, the bounded ownership-guard relaxation and the manual-record binding; the flat-fallback sentences are narrowed to the bundle directory and the Feedback protocol's location note is restated. D-Plan-Review-Bundle-Binding (CP4): the plan-inputs/ layout, the new \"Plan-stage staging generation and <plan_inputs_dir>\" subsection, and the plan-stage revision of WFR-67 (a failed plan generation withdraws nothing and writes no REJECTED marker), stated as deliberate. W1 (workflow-2.7.0, orchestration-protocol-v1): 'Required structure' pins the 'Reviewed review_content_id:' label, accepts the legacy alias, reads it from the header block only, and notes the compatibility change (v2.6.0-002, CP1); a two-stage REVISE is applied by its review_content_id, the bundle fields advisory (D-Apply-Binding, CP4). W2 (workflow-2.8.0, gate-policy-and-reopening). W4 (workflow-2.9.1, review-stage-write-durability). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state.",
-      "sha256": "1e24e12735e7a0e6d95da15c486eb5fd8d41a565c78af508e8504a84edf5d531",
-      "size": 65439,
+      "sha256": "23dc8d8c04ea52d6026ba34cec225c8d93934679d4d2b954304f8822d7cf9eeb",
+      "size": 65611,
       "executable": false
     },
     {
