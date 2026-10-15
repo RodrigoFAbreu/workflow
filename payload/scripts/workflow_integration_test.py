@@ -1230,7 +1230,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # ingest_manual_review_verdict (two_stage_only=True), which holds
     # state_lock through the publication; the required header fields,
     # Round: and the absent-bundle-id advisory -- intentional content change.
-    "record-manual-plan-review.md": "4ee4a7f3505d5e829e13d57299a60494d1440638c05ec5547ef4bd4140222d94",
+    "record-manual-plan-review.md": "606ac74f1d7d6f3d6abbfbd4376f799b07f8bca7316f0336eb01b8d37aa40341",
     # bootstrap-workflow-v2.md (WF8c scope clauses (l)/(p)/(q), GPT-R108-002/
     # OPUS-R109-004): the driver-range text made checkpoint-agnostic
     # (OPUS-R102-009), a NO_CHECKPOINT terminal-wrap-up branch added to step
