@@ -209,7 +209,7 @@ class TestEnvelope(unittest.TestCase):
         self.assertEqual(out.stdout.count("\n"), 1)
         body = json.loads(out.stdout)
         assert_valid(body)
-        self.assertEqual(body["protocol"], {"name": "workflow-orchestration", "version": "1.3"})
+        self.assertEqual(body["protocol"], {"name": "workflow-orchestration", "version": "1.4"})
         self.assertEqual(body["workflow_release"], wp.WORKFLOW_RELEASE)
         self.assertEqual(body["operation"], "verify")
 
@@ -443,7 +443,7 @@ class TestDescribe(unittest.TestCase):
             sorted({"1"} | ws.TWO_STAGE_PLAN_REVIEW_VERSIONS))
 
     def test_the_v1_vocabulary(self):
-        self.assertEqual(wp.PROTOCOL_VERSION, "1.3")
+        self.assertEqual(wp.PROTOCOL_VERSION, "1.4")
         self.assertEqual(wp.PROTOCOL_MAJOR, 1)
         self.assertEqual(
             set(wp.OPERATIONS),
@@ -4411,8 +4411,13 @@ PINNED_NOW = "2026-10-03T12:00:00Z"
 def without_release(body: dict) -> dict:
     """An envelope minus the two fields D-GP-Compat delta 1 changes, and minus
     the advisory `default_workflow_version` check protocol 1.3 adds to `verify`
-    (workflow-2.10.0), which no earlier release reports."""
+    (workflow-2.10.0), which no earlier release reports, and minus the
+    snapshot's `review_round` field protocol 1.4 adds (workflow-2.12.0)."""
     body = copy.deepcopy(body)
+    for node in (body.get("result"), (body.get("result") or {}).get("next")):
+        snapshot = node.get("snapshot") if isinstance(node, dict) else None
+        if isinstance(snapshot, dict):
+            snapshot.pop("review_round", None)
     checks = body.get("result", {}).get("checks")
     if isinstance(checks, list):
         body["result"]["checks"] = [c for c in checks if c.get("id") != "default_workflow_version"]
@@ -4514,7 +4519,7 @@ class TestAllHumanEquivalence(unittest.TestCase):
             new, _ = run_new(repo.root, "describe")
         assert_valid(new)
         old_result, new_result = old["result"], new["result"]
-        self.assertEqual((old_result["protocol_version"], new_result["protocol_version"]), ("1.0", "1.3"))
+        self.assertEqual((old_result["protocol_version"], new_result["protocol_version"]), ("1.0", "1.4"))
         for key in ("supported_protocol_majors", "supported_governing_versions"):
             self.assertEqual(new_result[key], old_result[key])
         old_caps, new_caps = old_result["capabilities"], new_result["capabilities"]
@@ -5473,7 +5478,7 @@ class TestProtocolSchemaAndDescribe(unittest.TestCase):
         body, code = call("describe")
         self.assertEqual(code, wp.EXIT_OK)
         result = body["result"]
-        self.assertEqual((result["protocol_version"], result["workflow_release"]), ("1.3", "2.11.0"))
+        self.assertEqual((result["protocol_version"], result["workflow_release"]), ("1.4", "2.11.0"))
         caps = result["capabilities"]
         self.assertEqual(sorted(set(NEW_ACTION_IDS + NEW_1_2_ACTION_IDS) - set(caps["action_ids"])), [])
         self.assertEqual(caps["reserved_result_kinds"], [])
@@ -5483,7 +5488,7 @@ class TestProtocolSchemaAndDescribe(unittest.TestCase):
         self.assertIn("validation", caps["dispositions"])
 
     def test_the_release_constant_and_the_protocol_version(self):
-        self.assertEqual((wp.WORKFLOW_RELEASE, wp.PROTOCOL_VERSION, wp.PROTOCOL_MAJOR), ("2.11.0", "1.3", 1))
+        self.assertEqual((wp.WORKFLOW_RELEASE, wp.PROTOCOL_VERSION, wp.PROTOCOL_MAJOR), ("2.11.0", "1.4", 1))
         self.assertIn("validator", wp.WORKER_ROLES)
         self.assertEqual(wp.ACTIONS["acceptance.satisfy"]["role"], "validator")
         self.assertEqual(wp.ACTIONS["pr.apply_review"]["role"], "applier")
@@ -5594,7 +5599,7 @@ class TestEquivalenceAgainstV280(unittest.TestCase):
         new, new_code = run_new(repo_root, *argv)
         self.assertEqual(old_code, new_code, (old, new))
         assert_valid(new)
-        self.assertEqual((old["protocol"]["version"], new["protocol"]["version"]), ("1.1", "1.3"))
+        self.assertEqual((old["protocol"]["version"], new["protocol"]["version"]), ("1.1", "1.4"))
         return old, new
 
     def added_scenarios(self) -> list:
@@ -5696,7 +5701,7 @@ class TestEquivalenceAgainstV280(unittest.TestCase):
             write_state(repo, empty_state())
             old, new = self.compare(repo.root, "describe")
         old_result, new_result = old["result"], new["result"]
-        self.assertEqual((old_result["protocol_version"], new_result["protocol_version"]), ("1.1", "1.3"))
+        self.assertEqual((old_result["protocol_version"], new_result["protocol_version"]), ("1.1", "1.4"))
         self.assertEqual((old_result["workflow_release"], new_result["workflow_release"]), ("2.8.0", "2.9.0"))
         old_caps, new_caps = old_result["capabilities"], new_result["capabilities"]
         added = sorted(set(new_caps["action_ids"]) - set(old_caps["action_ids"]))
@@ -5920,7 +5925,7 @@ class TestUpdateSimulation27To28(unittest.TestCase):
                 self.assertEqual(json.dumps(without_release(old), sort_keys=True),
                                  json.dumps(without_release(new), sort_keys=True))
                 self.assertNotIn("policy", new["result"])
-                self.assertEqual((old["protocol"]["version"], new["protocol"]["version"]), ("1.0", "1.3"))
+                self.assertEqual((old["protocol"]["version"], new["protocol"]["version"]), ("1.0", "1.4"))
                 self.assertEqual(new["workflow_release"], "2.9.0")
 
     # -- the downgrade posture ------------------------------------------------
@@ -6754,6 +6759,203 @@ class TestAllHumanLifecycle(unittest.TestCase):
             self.assertEqual((final["row"], run.item()["phase"], len(run.item()["reopenings"])),
                              ("40", "MILESTONE_COMPLETE", 1))
             self.assertNotIn("POLICY_SATISFIED", json.dumps(h.read_state(repo)))
+
+# ---------------------------------------------------------------------------
+# Protocol 1.4: the `review_round` snapshot field (workflow-2.12.0, D-Round)
+# ---------------------------------------------------------------------------
+
+
+def review_round(repo: h.ScratchRepo) -> dict:
+    return next_action(repo)["snapshot"]["review_round"]
+
+
+def plan_round(repo: h.ScratchRepo):
+    return review_round(repo)["plan"]
+
+
+def edit_plan_and_commit(repo: h.ScratchRepo, note: str) -> None:
+    """A protected-path edit that leaves `plan_revision` where it is."""
+    path = repo.root / "docs" / "ai-workflow" / "WORKFLOW_V2_PLAN.md"
+    path.write_text(path.read_text() + f"\n{note}\n")
+    h.git(repo, "commit", "-q", "-am", note)
+
+
+class TestReviewRoundField(unittest.TestCase):
+    """EPR-R1-001, LPR-R4-001, LPR-R6-001, LPR-R7-001, LPR-R8-001."""
+
+    def local_revise(self, repo, P, B):
+        mutate(repo, ws.record_local_plan_review, verdict="REVISE", bundle_id=B, review_content_id=P,
+               round=1, now="t-local")
+
+    def approve_to_implementing(self, repo, P, B):
+        mutate(repo, ws.record_local_plan_review, verdict="APPROVE", bundle_id=B, review_content_id=P,
+               round=1, now="t-local")
+        mutate(repo, ws.record_manual_plan_review, verdict="APPROVE", bundle_id=B, round=1, now="t-manual",
+               current_review_content_id=P, feedback_role="MANUAL_EXTERNAL_PLAN_REVIEW",
+               feedback_review_content_id=P)
+        self.assertEqual(plan_round(repo), 3)
+        h.commit_state(repo, "ready for approval")
+        base = h.read_state(repo)["work_items"][WI]["base_commit"]
+        digest, projection = fingerprint.compute_review_content_id_plan_stage_at_commit_for_work_item(
+            repo.root, WI, "HEAD", base=base)
+        record = ws.build_approval_record(
+            basis="EXTERNAL_APPROVE", stage="plan", user_confirmation=f"I approve {WI} at the plan stage",
+            now="t-approve", reviewed_bundle_id=B, approved_review_content_id=digest,
+            review_content_manifest=projection["review_content_manifest"])
+        ws.state_transaction(repo.root, lambda state: ws.apply_plan_approval(state, WI, record, "t-approve"))
+        h.commit_state(repo, "approve the plan", {"Workflow-Plan-Approval": digest, "Workflow-Work-Item": WI})
+
+    def test_the_generator_driven_drive_with_the_revision_held(self):
+        """Three distinct contents at `plan_revision` 1, through the real
+        generator, then approval, an amendment and a withdrawal."""
+        trace = []
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo, governing_workflow_version="2.2", phase="PLANNING")
+            self.assertIsNone(plan_round(repo), "no round before the first publication")
+            for number in (1, 2, 3):
+                P, B = h.publish_and_bind_plan_bundle(repo)
+                self.assertEqual(h.read_state(repo)["work_items"][WI]["plan_revision"], 1)
+                trace.append(plan_round(repo))
+                self.assertEqual(plan_round(repo), number, "the bound phase")
+                if number < 3:
+                    self.local_revise(repo, P, B)
+                    self.assertEqual(plan_round(repo), number, "the following REVISING_PLAN phase")
+                    trace.append(plan_round(repo))
+                    edit_plan_and_commit(repo, f"edit {number}")
+            self.approve_to_implementing(repo, P, B)
+            self.assertEqual((h.read_state(repo)["work_items"][WI]["phase"], plan_round(repo)),
+                             ("IMPLEMENTING", 3), "no drop at approval")
+            ws.request_plan_amendment_transaction(repo.root, WI, "amend", now="t-amend")
+            self.assertEqual((h.read_state(repo)["work_items"][WI]["phase"], plan_round(repo)),
+                             ("AMENDING_PLAN", 3), "the approved content is consumed, the count continues")
+            edit_plan_and_commit(repo, "amended")
+            h.publish_and_bind_plan_bundle(repo)
+            self.assertEqual(plan_round(repo), 4, "the amended content is the next round")
+            ws.state_transaction(repo.root, lambda state: ws.withdraw_plan_review(state, WI, "t-withdraw"))
+            self.assertEqual(plan_round(repo), 4, "a withdrawn round was spent")
+            edit_plan_and_commit(repo, "after withdrawal")
+            h.publish_and_bind_plan_bundle(repo)
+            self.assertEqual(plan_round(repo), 5)
+        self.assertEqual(trace, sorted(trace), "never decreasing while non-null")
+
+    def test_an_orchestrator_style_cap_check_trips_at_the_cap(self):
+        cap = 2
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo, governing_workflow_version="2.2", phase="PLANNING")
+            stopped_at = None
+            for _ in range(4):
+                P, B = h.publish_and_bind_plan_bundle(repo)
+                value = review_round(repo)["plan"]
+                if value is not None and value >= cap:
+                    stopped_at = value
+                    break
+                self.local_revise(repo, P, B)
+                edit_plan_and_commit(repo, f"edit {_}")
+            self.assertEqual(stopped_at, cap)
+
+    def test_a_row_11_republication_reads_null_and_recovers(self):
+        """LPR-R8-001, pure state against the payload writers."""
+        a, b, c = "a" * 64, "b" * 64, "c" * 64
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo, governing_workflow_version="2.2", phase="PLANNING")
+            state = h.read_state(repo)
+            state = ws.publish_plan_revision(state, WI, 1, "t1", review_content_id=a)
+            state = ws.publish_plan_revision(state, WI, 2, "t2", review_content_id=b)
+            state = ws.bind_plan_review_bundle(
+                state, WI, binding={"review_content_id": b, "bundle_id": "9" * 64, "plan_revision": 2}, now="t3")
+            item = state["work_items"][WI]
+            self.assertEqual(wp._review_round(item, item["phase"], "2.2")["plan"], 1)
+            state = ws.record_local_plan_review(
+                state, WI, verdict="REVISE", bundle_id="9" * 64, review_content_id=b, round=1, now="t4")
+            item = state["work_items"][WI]
+            self.assertEqual((item["phase"], wp._review_round(item, item["phase"], "2.2")["plan"]),
+                             ("REVISING_PLAN", None), "C = 1 < R = 2")
+            state = ws.publish_plan_revision(state, WI, 2, "t5", review_content_id=c)
+            state = ws.bind_plan_review_bundle(
+                state, WI, binding={"review_content_id": c, "bundle_id": "8" * 64, "plan_revision": 2}, now="t6")
+            item = state["work_items"][WI]
+            self.assertIsNone(wp._review_round(item, item["phase"], "2.2")["plan"], "C = 1 < R = 2 still")
+            state = ws.record_local_plan_review(
+                state, WI, verdict="REVISE", bundle_id="8" * 64, review_content_id=c, round=1, now="t7")
+            item = state["work_items"][WI]
+            self.assertEqual(wp._review_round(item, item["phase"], "2.2")["plan"], 2, "C catches up with R")
+
+    def test_shapes_that_are_not_provably_complete_read_null(self):
+        ids = ["1" * 64, "2" * 64]
+        slot = {"review_content_id": ids[0], "plan_revision": 5, "legacy": False}
+        published = {"status": "PUBLISHED", "at": "t", "consumed": slot, "published": None, "bound": None}
+        cases = {
+            "2.6.0-shaped (slot, no list)": {"plan_review_binding": dict(published)},
+            "legacy marker": {"plan_review_binding": {
+                "status": "CONSUMED", "at": "t", "consumed": {"review_content_id": None, "plan_revision": 5,
+                                                              "legacy": True}, "published": None, "bound": None}},
+            "list lacks the slot id": {"plan_review_binding": dict(published),
+                                       "consumed_plan_review_content_ids": [ids[1]]},
+            "history shorter than the slot revision": {"plan_review_binding": dict(published),
+                                                       "consumed_plan_review_content_ids": [ids[0]]},
+        }
+        for name, fields in cases.items():
+            with self.subTest(name):
+                self.assertIsNone(wp._review_round({"plan_revision": 5, **fields}, "REVISING_PLAN", "2.2")["plan"])
+        complete = {"plan_revision": 2, "plan_review_binding": {**published, "consumed": {**slot, "plan_revision": 2}},
+                    "consumed_plan_review_content_ids": ids[:1]}
+        complete["consumed_plan_review_content_ids"] = [ids[0], ids[1]]
+        self.assertEqual(wp._review_round(complete, "REVISING_PLAN", "2.2")["plan"], 3,
+                         "C = 2 >= R = 2, plus the PUBLISHED record")
+        self.assertIsNone(wp._review_round({"plan_revision": 1}, "PLANNING", "2.2")["plan"])
+
+    def test_a_legacy_marker_item_reads_null_through_the_phases(self):
+        with h.ScratchRepo() as repo:
+            plan_item_at(repo, "AWAITING_LOCAL_PLAN_REVIEW")
+            edit_item(repo, plan_review_binding=None)
+            mutate(repo, ws.withdraw_plan_review, "t-withdraw")
+            marker = h.read_state(repo)["work_items"][WI]["plan_review_binding"]["consumed"]
+            self.assertEqual((marker["review_content_id"], marker["legacy"]), (None, True))
+            self.assertIsNone(plan_round(repo))
+
+    def test_current_and_implementation_at_each_review_phase(self):
+        expected = {
+            ("AWAITING_LOCAL_PLAN_REVIEW", "2.2"): "plan_local",
+            ("AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW", "2.2"): "plan_external",
+            ("AWAITING_EXTERNAL_PLAN_REVIEW", "1"): "plan_external",
+            ("AWAITING_LOCAL_IMPLEMENTATION_REVIEW", "2.2"): "implementation_local",
+            ("AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW", "2.2"): "implementation_external",
+            ("AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW", "2.2"): None,
+            ("AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW", "2.1"): "implementation_external",
+            ("AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW", "1"): "implementation_external",
+            ("AWAITING_PLAN_APPROVAL", "2.2"): None,
+            ("IMPLEMENTING", "2.2"): None,
+            ("REVISING_PLAN", "2.2"): None,
+        }
+        for (phase, version), current in expected.items():
+            with self.subTest(phase=phase, version=version):
+                item = {"implementation_revision": 3}
+                field = wp._review_round(item, phase, version)
+                self.assertEqual((field["current"], field["implementation"]), (current, 3))
+                self.assertEqual(schema_errors(field, SCHEMA["$defs"]["snapshot"]["properties"]["review_round"]), [])
+
+    def test_the_field_is_in_every_item_decision_and_absent_without_an_item(self):
+        with h.ScratchRepo() as repo:
+            plan_item_at(repo, "AWAITING_LOCAL_PLAN_REVIEW")
+            result = next_action(repo)
+            self.assertEqual(result["snapshot"]["review_round"],
+                             {"plan": 1, "implementation": None, "current": "plan_local"})
+        with h.ScratchRepo() as repo:
+            write_config(repo, "2.2")
+            write_state(repo, h.base_state())
+            self.assertEqual(next_action(repo)["snapshot"], {"work_item_ids": []})
+
+    def test_describe_reports_1_4_and_the_catalogue_is_unchanged(self):
+        body, code = call("describe")
+        self.assertEqual((code, body["result"]["protocol_version"]), (wp.EXIT_OK, "1.4"))
+        self.assertEqual(wp.PROTOCOL_VERSION, "1.4")
+
+    def test_without_release_strips_the_field(self):
+        stripped = without_release({"result": {"snapshot": {"phase": "x", "review_round": {}},
+                                               "next": {"snapshot": {"review_round": {}}}},
+                                    "protocol": {"version": "1.4"}, "workflow_release": "x"})
+        self.assertEqual(stripped["result"], {"snapshot": {"phase": "x"}, "next": {"snapshot": {}}})
+
 
 
 if __name__ == "__main__":

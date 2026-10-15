@@ -58,8 +58,17 @@ same-content republication leaves it alone); the archive carries it; the
 review and request commands and the three protocol documents state the review
 rule. `load_implementation_stage_classification` gained `at_commit`. Thirteen
 tests in `workflow_fingerprint_generalization_test.py` (`TestChangesSinceReview`).
-CP3 to CP5 are not started.
+CP3 (protocol 1.4) is complete: `workflow_protocol._review_round` adds the
+snapshot's `review_round` (`plan` an exact count from the consumed-content
+history and the binding record, or `null` for every shape not shown complete;
+`implementation`; `current`), `PROTOCOL_VERSION` is `1.4`, the schema gained the
+property, and `ORCHESTRATION_PROTOCOL.md` states the field, the exactness
+boundary, the round cap (8.1), the verdict courier (8.2) and a 1.4 note. Nine
+tests in `workflow_protocol_test.py` (`TestReviewRoundField`), including the
+generator-driven drive; `without_release()` strips the field. The suite's 16
+failures (a stale `workflow_release` of 2.9.0 in the update-simulation tests)
+are the same at the CP2 commit. CP4 and CP5 are not started.
 
 ## Next action
 
-`/milestone-implement review-convergence` (CP3, protocol 1.4).
+`/milestone-implement review-convergence` (CP4, plan-size guidance).
