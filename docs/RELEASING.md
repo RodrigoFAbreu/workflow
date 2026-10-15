@@ -119,25 +119,39 @@ the branch itself.
 
 | job | checks |
 | --- | --- |
-| `tooling` | `tools/release/release_test.py`, including the byte-for-byte reproduction of every published release (`v2.3.1` to `v2.6.0`) in the pinned deflate runtime |
-| `package` | `release.py build --commit HEAD`; the pinned Workflow Manager's `package verify` of the archive; `--release-dir` bootstrap and verify of a scratch repository; uploads the three assets as the `package` artifact |
-| `immutability` | `release.py check-pending` and `check-immutable` against the saved release list; when the manifest version is published, `check-immutable --published` against the downloaded `vV` assets |
-| `installation` | `workflow-manager verify .` with the pinned Manager |
-| `release-source-conformance` | `release.py stage-conformance --commit HEAD`, then the release source's own nine frozen suites in that fixture |
-| `aggregate` | fails unless every job above succeeded |
+| `checks` | one checkout and one install of the pinned tools, then each check as its own named step: `workflow-manager verify .` with the pinned Manager; `release.py build --commit HEAD`, the Manager's `package verify` of the archive, a `--release-dir` bootstrap and verify of a scratch repository, and the three assets uploaded as the `package` artifact; `release.py check-pending` and `check-immutable` against the saved release list (and, when the manifest version is published, `check-immutable --published` against the downloaded `vV` assets); `tools/docs/`'s tests and checker; and `tools/release/release_test.py`, including the byte-for-byte reproduction of every published release (`v2.3.1` to `v2.6.0`) in the pinned deflate runtime |
+| `release-source-conformance` | `release.py stage-conformance --commit HEAD`, then the release source's own nine frozen suites in that fixture, run in parallel |
+| `aggregate` | fails unless both jobs above succeeded |
+
+In `checks`, a failed step does not hide an unrelated one: each later step
+runs unless the run was cancelled or a step it depends on (the deflate
+runtime, the Manager, the build, the release list) did not succeed, and no
+step uses `continue-on-error`. The failing step is named in the log, and the
+job fails.
+
+`release-source-conformance` runs the suites the way the installed
+`workflow-conformance` job does: `min(4, nproc)` at a time, longest first
+(acceptance, protocol, state, gate policy), each in its own complete copy of
+the staged fixture with its own `TMPDIR` and `HOME`. The installed `scripts/`
+are never used. Every suite runs to its end, all results are collected before
+the step decides, and a suite that did not record a result counts as failed.
+A passing suite's log is a collapsed group; a failing suite gets an
+`::error` annotation followed by its full log. The step summary has one row
+per suite with its result and seconds, and the logs are uploaded as the
+`source-conformance-logs` artifact whether the job passed or failed.
 
 `PR title` runs `release.py check-title "$TITLE" --agree` on every pull
 request (`opened`, `edited`, `reopened`, `synchronize`). The installed
 `workflow-conformance` job runs the installation's suites.
 
-The required checks on `main` are `aggregate`, `Conventional Commit title` and
-`workflow-conformance`. Adding a job to `Workflow CI` means adding it to
+The required checks on `main` are unchanged: `aggregate`, `Conventional Commit
+title` and `workflow-conformance`. Adding a job to `Workflow CI` means adding it to
 `aggregate`'s `needs` and its result list, never to the ruleset.
 
 ### A published version never changes
 
 When `main`'s (or a pull request's) manifest version `V` is published, the
-`immutability` job requires both:
+`checks` job's immutability steps requires both:
 
 1. the release source unchanged since the tag: `git diff --quiet v<V> HEAD --
    manifest.json payload fixtures templates`;
@@ -305,7 +319,7 @@ throwaway repository (`docs/ai-workflow/requirements/workflow-repository-setup-l
 A publication can complete while its read-back fails: a missing, extra or
 differing asset, or the tag `vV` somewhere other than `C_V`. A published
 release cannot be repaired, so it is never deleted, edited or re-uploaded.
-Every later `Release` run and every `immutability` job then stays red, naming
+Every later `Release` run and every `checks` run's immutability steps then stay red, naming
 `vV` and what differs, until `V` is superseded:
 
 1. leave `vV` and its tag exactly as they are, and **never add a
@@ -385,7 +399,7 @@ token.
 ## The installation check
 
 This repository's installation must stay exactly the published Workflow
-release it records. The `installation` job installs the pinned Workflow
+release it records. The installation step of the `checks` job installs the pinned Workflow
 Manager and runs `workflow-manager verify .` on every pull request and `main`
 push, under the required `aggregate`. A pull request that edits an installed
 command, a managed block or any other managed file fails it, whatever else it
@@ -416,7 +430,7 @@ sha256sum "$d/workflow_manager-$M-py3-none-any.whl"
 ```
 
 Set `version` to `M`, `wheel` to `workflow_manager-M-py3-none-any.whl` and
-`sha256` to the wheel's digest. The `package` and `installation` jobs
+`sha256` to the wheel's digest. The `checks` job's package and installation steps
 download the wheel from that release and check it with `sha256sum -c` before
 installing it.
 
@@ -510,10 +524,10 @@ states the commands and reads results back. Record each step's evidence in
    gh pr checks <number> --json name,state
    ```
 
-   and, in the `Workflow CI` run's logs, that the `tooling` job reproduced
-   all five archive digests, that the `immutability` job compared against
+   and, in the `Workflow CI` run's logs, that the `checks` job's `release_test.py` step reproduced
+   all five archive digests, that its immutability steps compared against
    the downloaded `v2.6.0` assets ("the rebuilt package equals the published
-   assets of v2.6.0"), and that the `installation` job ran `workflow-manager
+   assets of v2.6.0"), and that its installation step ran `workflow-manager
    verify .` ("installation matches workflow 2.6.0").
 3. Apply `merge-settings.json`, then create the ruleset, and read both back
    (see "Repository settings, as reviewed data").
@@ -530,7 +544,7 @@ states the commands and reads results back. Record each step's evidence in
      --title "test: installation integrity probe" --body "W0 cutover step 4; closed unmerged."
    ```
 
-   Confirm the `installation` job fails naming that file (`modified:
+   Confirm the installation step fails naming that file (`modified:
    .claude/commands/accept-milestone.md`) and the required `aggregate` check
    fails. That failing required check is the evidence that the pull request
    is blocked: a draft's `mergeStateStatus` reads `DRAFT` whatever its
