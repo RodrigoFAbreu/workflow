@@ -754,6 +754,263 @@ class ConformanceTemplate(unittest.TestCase):
             self.assertEqual(markers, ["MARKER", f"MARKER-{name}"])
 
 
+class WorkflowCI(unittest.TestCase):
+    """`Workflow CI`: the consolidated `checks` job, the parallel source suites and `aggregate`."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+        cls.lines = cls.text.splitlines()
+
+    def job(self, name):
+        start = self.lines.index(f"  {name}:")
+        end = next((i for i in range(start + 1, len(self.lines))
+                    if self.lines[i].startswith("  ") and not self.lines[i].startswith("   ")
+                    and self.lines[i].strip().endswith(":")), len(self.lines))
+        return "\n".join(self.lines[start:end])
+
+    def test_three_jobs(self):
+        jobs = self.text.split("\njobs:\n", 1)[1]
+        ids = [l for l in jobs.splitlines() if l.startswith("  ") and not l.startswith("   ")
+               and l.strip().endswith(":")]
+        self.assertEqual(ids, ["  checks:", "  release-source-conformance:", "  aggregate:"])
+
+    def test_triggers_permissions_and_concurrency_are_kept(self):
+        self.assertIn("name: Workflow CI\n", self.text)
+        self.assertIn("on:\n  pull_request:\n  push:\n    branches: [main]\n"
+                      "  workflow_dispatch:\n", self.text)
+        self.assertIn("permissions:\n  contents: read\n", self.text)
+        self.assertIn("  group: workflow-ci-${{ github.event_name }}-${{ github.event_name == "
+                      "'pull_request' && github.ref || github.sha }}\n"
+                      "  cancel-in-progress: ${{ github.event_name == 'pull_request' }}\n",
+                      self.text)
+        self.assertIn("defaults:\n  run:\n    shell: bash\n", self.text)
+        self.assertEqual(self.text.count('python-version: "3.12"'), 2)
+
+    def test_checks_job_keeps_every_command_as_a_named_step(self):
+        checks = self.job("checks")
+        self.assertIn("fetch-depth: 0", checks)
+        self.assertEqual(checks.count("actions/checkout@v4"), 1)
+        self.assertIn("--require-hashes -r tools/release/deflate-requirements.txt", checks)
+        self.assertIn("tools/release/manager-pin.json", checks)
+        self.assertIn('echo "$sha256  $wheel" | sha256sum -c', checks)
+        for name in ("workflow-manager verify .", "Build the package",
+                     "Verify the package with the Workflow Manager",
+                     "Bootstrap and verify a scratch repository", "Save the release list",
+                     "Pending release source is frozen", "Published release source is unchanged",
+                     "Published assets are unchanged", "check_docs_test.py", "check_docs.py",
+                     "release_test.py"):
+            self.assertIn(f"      - name: {name}\n", checks, name)
+        for command in ("release.py check-pending", "release.py check-immutable",
+                        "release.py build --commit HEAD", "package verify",
+                        "tools/docs/check_docs_test.py", "tools/release/release_test.py"):
+            self.assertIn(command, checks)
+        self.assertIn("name: package", checks)
+        self.assertIn("if-no-files-found: error", checks)
+        self.assertNotIn("continue-on-error", self.text)
+
+    def test_checks_blocks_run_after_an_unrelated_failure(self):
+        checks = self.job("checks")
+        steps = checks.split("\n      - ")[1:]
+        conditions = {}
+        for step in steps:
+            head = step.splitlines()[0]
+            cond = next((l.strip()[4:] for l in step.splitlines() if l.startswith("        if: ")), None)
+            conditions[head] = cond
+        # Every step after setup is guarded by !cancelled() and names only its own prerequisites.
+        for head, cond in list(conditions.items())[1:]:
+            if head.startswith("uses: actions/setup-python") or head.startswith("name: Install the pinned deflate"):
+                continue
+            self.assertIsNotNone(cond, head)
+            self.assertIn("!cancelled()", cond, head)
+        docs = conditions["name: check_docs.py"]
+        self.assertNotIn("manager", docs)
+        self.assertNotIn("deflate", docs)
+        self.assertEqual(conditions["name: release_test.py"].count("steps."), 1)
+        self.assertIn("steps.deflate.outcome", conditions["name: release_test.py"])
+        self.assertNotIn("manager", conditions["name: Build the package"])
+        self.assertIn("steps.manager.outcome", conditions["name: workflow-manager verify ."])
+        self.assertNotIn("deflate", conditions["name: workflow-manager verify ."])
+
+    def test_aggregate_requires_both_jobs_to_succeed(self):
+        aggregate = self.job("aggregate")
+        self.assertIn("needs: [checks, release-source-conformance]", aggregate)
+        self.assertIn("if: always()", aggregate)
+        lines = aggregate.splitlines()
+        start = next(i for i, l in enumerate(lines) if l.strip() == "run: |") + 1
+        body = "\n".join(l[10:] for l in lines[start:]) + "\n"
+        for checks, conformance, code in (("success", "success", 0), ("failure", "success", 1),
+                                          ("success", "skipped", 1), ("cancelled", "success", 1),
+                                          ("success", "cancelled", 1), ("skipped", "skipped", 1),
+                                          ("", "success", 1)):
+            with self.subTest(checks=checks, conformance=conformance):
+                proc = subprocess.run(["bash", "-eo", "pipefail", "-c", body],
+                                      env=dict(os.environ, CHECKS=checks, CONFORMANCE=conformance),
+                                      capture_output=True, text=True)
+                self.assertEqual(proc.returncode, code, proc.stdout + proc.stderr)
+
+
+class SourceConformanceRunner(unittest.TestCase):
+    """The source-conformance step of `Workflow CI`, run with stand-in suites."""
+
+    SUITES = ["workflow_acceptance_matrix_test.py", "workflow_protocol_test.py",
+              "workflow_state_test.py", "workflow_gate_policy_test.py",
+              "workflow_fingerprint_generalization_test.py",
+              "workflow_state_completion_obligations_test.py", "workflow_integration_test.py",
+              "workflow_fingerprint_test.py", "workflow_test_harness_test.py"]
+
+    @classmethod
+    def setUpClass(cls):
+        text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+        lines = text.splitlines()
+        marker = lines.index("      - name: Run the source conformance suites")
+        start = lines.index("        run: |", marker) + 1
+        end = next(i for i in range(start, len(lines)) if not lines[i].startswith("          "))
+        cls.body = "\n".join(l[10:] for l in lines[start:end]) + "\n"
+
+    def run_body(self, fail=(), uncopyable=False, nproc=None, drop_result=()):
+        tmp = Path(tempfile.mkdtemp(prefix="source-conformance-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        runner, counter = tmp / "runner", tmp / "counter"
+        fixture = runner / "fixture"
+        (fixture / "scripts").mkdir(parents=True)
+        counter.mkdir()
+        (fixture / "MARKER").write_text("original\n")
+        if uncopyable:
+            (fixture / "UNREADABLE").write_text("x\n")
+            (fixture / "UNREADABLE").chmod(0)
+        for name in self.SUITES:
+            (fixture / "scripts" / name).write_text(
+                "import os, sys, time, pathlib\n"
+                f"name = {name!r}\n"
+                f"c = pathlib.Path({str(counter)!r})\n"
+                "(c / name).write_text('')\n"
+                "time.sleep(0.4)\n"
+                "running = len([p for p in c.iterdir() if not p.name.startswith('peak-')])\n"
+                "(c / ('peak-' + name)).write_text(str(running))\n"
+                "(c / name).unlink()\n"
+                "pathlib.Path('..', 'MARKER-' + name).write_text(name)\n"
+                "pathlib.Path(os.environ['TMPDIR'], 'T-' + name).write_text(name)\n"
+                "pathlib.Path(os.environ['HOME'], 'H-' + name).write_text(name)\n"
+                "print('output of ' + name)\n"
+                f"sys.exit({1 if name in fail else 0})\n")
+        summary = tmp / "summary.md"
+        body = self.body
+        if nproc is not None:
+            body = f"nproc() {{ echo {nproc}; }}\n" + body
+        if drop_result:
+            # A suite that dies without recording a result: its result file never appears.
+            body = body.replace('echo "$status $((SECONDS - start))" >"$logs/$1.result"',
+                                'case " ' + " ".join(drop_result) + ' " in *" $1 "*) ;; '
+                                '*) echo "$status $((SECONDS - start))" >"$logs/$1.result" ;; esac')
+        env = dict(os.environ, RUNNER_TEMP=str(runner), GITHUB_STEP_SUMMARY=str(summary))
+        proc = subprocess.run(["bash", "-eo", "pipefail", "-c", body], env=env,
+                              capture_output=True, text=True, cwd=tmp)
+        return proc, fixture, runner, counter, summary.read_text()
+
+    def peaks(self, counter):
+        return [int((counter / f"peak-{n}").read_text()) for n in self.SUITES]
+
+    def test_all_nine_pass(self):
+        proc, _, runner, _, summary = self.run_body()
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        for name in self.SUITES:
+            self.assertIn(f"::group::{name} passed in", proc.stdout)
+            self.assertIn(f"| {name} | passed |", summary)
+        self.assertNotIn("::error", proc.stdout)
+        self.assertEqual(summary.count("\n| workflow_"), 9)
+        self.assertEqual(sorted(p.name for p in (runner / "source-conformance-logs").glob("*.log")),
+                         sorted(n + ".log" for n in self.SUITES))
+
+    def test_each_suite_failing_alone_fails_the_runner_with_its_log(self):
+        for bad in self.SUITES:
+            with self.subTest(suite=bad):
+                proc, _, runner, _, summary = self.run_body(fail=(bad,))
+                self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+                out = proc.stdout
+                self.assertIn(f"::error title={bad} failed::exit 1 after", out)
+                after = out.split(f"::error title={bad} failed::", 1)[1].splitlines()
+                self.assertEqual(after[1], f"output of {bad}")
+                self.assertNotIn(f"::group::{bad} passed", out)
+                self.assertEqual(out.count("::error"), 1)
+                for name in self.SUITES:
+                    self.assertTrue((runner / "source-conformance-logs" / f"{name}.result").exists())
+                    if name != bad:
+                        self.assertIn(f"::group::{name} passed in", out)
+                self.assertIn("1 suite(s) failed", out)
+                self.assertIn(f"| {bad} | FAILED (exit 1) |", summary)
+                self.assertEqual(summary.count("\n| workflow_"), 9)
+
+    def test_multiple_failures_are_all_named(self):
+        bad = (self.SUITES[0], self.SUITES[4], self.SUITES[8])
+        proc, _, _, _, summary = self.run_body(fail=bad)
+        self.assertEqual(proc.returncode, 1)
+        for name in bad:
+            self.assertIn(f"::error title={name} failed::exit 1 after", proc.stdout)
+        self.assertIn("3 suite(s) failed", proc.stdout)
+        self.assertEqual(summary.count("FAILED"), 3)
+
+    @unittest.skipIf(os.geteuid() == 0, "root reads a mode-0 file, so the copy cannot fail")
+    def test_a_copy_failure_is_reported_for_every_suite(self):
+        proc, _, _, _, summary = self.run_body(uncopyable=True)
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        for name in self.SUITES:
+            self.assertIn(f"::error title={name} failed::exit missing after", proc.stdout)
+        self.assertIn("9 suite(s) failed", proc.stdout)
+        self.assertIn("UNREADABLE", proc.stdout)
+        self.assertEqual(summary.count("\n| workflow_"), 9)
+
+    def test_a_missing_result_fails_the_runner(self):
+        lost = self.SUITES[3]
+        proc, _, _, _, summary = self.run_body(drop_result=(lost,))
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn(f"::error title={lost} failed::exit missing after", proc.stdout)
+        self.assertIn("1 suite(s) failed", proc.stdout)
+        self.assertIn(f"| {lost} | FAILED (exit missing) |", summary)
+
+    def test_width_is_never_exceeded_and_longest_run_first(self):
+        proc, _, _, counter, _ = self.run_body()
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertLessEqual(max(self.peaks(counter)), 4)
+        self.assertGreater(max(self.peaks(counter)), 1)
+        starts = [l.split()[1] for l in proc.stdout.splitlines() if l.startswith("start ")]
+        self.assertEqual(starts, self.SUITES)
+        self.assertEqual(starts[:4], ["workflow_acceptance_matrix_test.py",
+                                      "workflow_protocol_test.py", "workflow_state_test.py",
+                                      "workflow_gate_policy_test.py"])
+
+    def test_width_follows_a_smaller_nproc(self):
+        proc, _, _, counter, _ = self.run_body(nproc=2)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertLessEqual(max(self.peaks(counter)), 2)
+        proc, _, _, counter, _ = self.run_body(nproc=1)
+        self.assertEqual(max(self.peaks(counter)), 1)
+
+    def test_suites_are_isolated_and_the_fixture_is_untouched(self):
+        proc, fixture, runner, _, _ = self.run_body()
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertEqual(sorted(p.name for p in fixture.iterdir()), ["MARKER", "scripts"])
+        self.assertEqual(sorted(p.name for p in (fixture / "scripts").iterdir()),
+                         sorted(self.SUITES))
+        for name in self.SUITES:
+            d = runner / "source-conformance" / name
+            self.assertEqual([p.name for p in (d / "tmp").iterdir()], [f"T-{name}"])
+            self.assertEqual([p.name for p in (d / "home").iterdir()], [f"H-{name}"])
+            self.assertEqual(sorted(p.name for p in d.joinpath("repo").glob("MARKER*")),
+                             ["MARKER", f"MARKER-{name}"])
+
+    def test_the_suites_are_the_shipped_conformance_suites(self):
+        manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        shipped = sorted(
+            Path(a["target_path"]).name for a in manifest["artifacts"]
+            if a["target_path"].startswith("scripts/workflow_")
+            and a["target_path"].endswith("_test.py")
+            and not a["target_path"].endswith("_demo_test.py"))
+        self.assertEqual(sorted(self.SUITES), shipped)
+        self.assertIn('suites="' + " ".join(self.SUITES) + '"', self.body)
+        self.assertNotIn("/scripts/", self.body.replace("/repo/scripts", ""))
+
+
 class MainHistoryCase(ScratchTestCase):
     """`main`: v2.6.0 published at `base`; `C_V` bumps to 2.7.0; two ci: commits."""
 
