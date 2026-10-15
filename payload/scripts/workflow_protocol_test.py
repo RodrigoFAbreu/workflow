@@ -806,7 +806,8 @@ def verdict(status: str | None, *, rcid: str | None = None, bundle: str | None =
         lines.append(f"Work item: {work_item}")
     if rcid is not None:
         lines.append(f"{fingerprint.FEEDBACK_REVIEW_CONTENT_ID_LABEL} {rcid}")
-    lines += ["", "## Blocking findings", "", "None." + extra_body, ""]
+    finding = "- a finding that must change" if status == "REVISE" else "None."
+    lines += ["", "## Blocking findings", "", finding + extra_body, ""]
     return "\n".join(lines)
 
 
@@ -3514,6 +3515,11 @@ class TestRecordExternalResultTwoStage(unittest.TestCase):
                         "WrongReviewerRoleError")
                 refusal(self, repo, kind, verdict("APPROVE", **dict(ok, rcid="e" * 64)), "refused",
                         "StaleReviewContentIdError")
+                refusal(self, repo, kind, verdict("REVISE", **ok).replace("- a finding that must change", "None."),
+                        "refused", "MalformedVerdictError")
+                refusal(self, repo, kind, verdict("APPROVE", **ok).replace(
+                    "Status: APPROVE\n", "Status: APPROVE\nReview scope: changes\n"), "refused",
+                    "MalformedVerdictError")
                 reject_bundle(repo)
                 refusal(self, repo, kind, verdict("APPROVE", **ok), "refused", "BundleRejectedError")
 

@@ -39,10 +39,16 @@ unchanged.
 
 ## Current checkpoint
 
-Planning, plan revision 3: five checkpoints (CP1 verdict shape, CP2 the
-changes file, CP3 protocol 1.4 and the distinct-provider courier
-clarification for workflow#28, CP4 plan size and small fixes, CP5 release).
+Implementing, plan revision 9. CP1 (verdict shape) is complete:
+`assert_verdict_well_formed`, `parse_review_scope` and
+`MalformedVerdictError` in `workflow_fingerprint.py`, called by
+`ingest_manual_review_verdict` at a two-stage row and by the two local review
+commands before they write; the two manual commands report a refusal and ask
+for a reissue; `REVIEW_PROTOCOL.md` states the severity meanings and the
+rule. `workflow_protocol.py` needed no change: a `MalformedVerdictError` maps
+to `refused` by default. Verified in a scratch release fixture: the nine
+conformance suites pass. CP2 to CP5 are not started.
 
 ## Next action
 
-`/review-plan review-convergence` (the local plan review).
+`/milestone-implement review-convergence` (CP2, the changes file).

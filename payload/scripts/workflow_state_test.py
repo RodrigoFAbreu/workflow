@@ -17726,7 +17726,8 @@ def _cp4_verdict(status, *, rcid=None, bundle=None, base=None, work_item=_CP4_WI
         lines.append(f"Work item: {work_item}")
     if rcid:
         lines.append(f"Reviewed review_content_id: {rcid}")
-    return "\n".join(lines + ["", "## Blocking findings", "", "None.", ""])
+    finding = "- a finding that must change" if status == "REVISE" else "None."
+    return "\n".join(lines + ["", "## Blocking findings", "", finding, ""])
 
 
 def _cp4_feedback(repo, text):
@@ -18086,6 +18087,28 @@ class TestManualVerdictIngestRecordsAs260(unittest.TestCase):
                 self.assertNotIn(_harness.read_state(repo)["work_items"][_CP4_WI]["phase"],
                                  ("AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW",
                                   "AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW"))
+
+    def test_a_malformed_verdict_is_refused_and_nothing_is_written(self):
+        """workflow-2.12.0 (`D-Severity`): at a two-stage row a `REVISE` with no
+        Blocking or Important finding, an `APPROVE` listing a Blocking finding
+        and an `APPROVE` declaring `Review scope: changes` are refused with the
+        state and feedback bytes unchanged; the well-formed twin is ingested."""
+        for stage, (build, role, _writer) in _CP5_STAGES.items():
+            with self.subTest(stage=stage), _harness.ScratchRepo() as repo:
+                content_id, bundle_id = build(repo)
+                ok = dict(rcid=content_id, bundle=bundle_id, base=repo.base, role=role)
+                optional_only = _cp4_verdict("REVISE", **ok).replace(
+                    "- a finding that must change", "None.\n\n## Optional findings\n\n- a suggestion")
+                blocking_approve = _cp4_verdict("APPROVE", **ok).replace("None.", "- a blocking finding")
+                changes_approve = _cp4_verdict("APPROVE", **ok).replace(
+                    "Status: APPROVE\n", "Status: APPROVE\nReview scope: changes\n")
+                before = _cp5_files(repo)
+                for text in (optional_only, blocking_approve, changes_approve):
+                    with self.assertRaises(fingerprint.MalformedVerdictError):
+                        _cp5_ingest(repo, stage, text)
+                    self.assertEqual(_cp5_files(repo), before)
+                result = _cp5_ingest(repo, stage, _cp4_verdict("REVISE", **ok))
+                self.assertEqual(result["verdict"], "REVISE")
 
     def test_both_review_content_id_labels_are_accepted(self):
         for stage, (build, role, _writer) in _CP5_STAGES.items():

@@ -3449,6 +3449,84 @@ def parse_review_feedback_header(content: str) -> dict[str, str | None]:
     return fields
 
 
+class MalformedVerdictError(Exception):
+    """Raised by `assert_verdict_well_formed` (workflow-2.12.0,
+    `D-Severity`) when a two-stage verdict contradicts its own severity
+    sections or its declared review scope. Nothing is written; the verdict is
+    reissued, never converted."""
+
+
+_FEEDBACK_REVIEW_SCOPE_RE = re.compile(
+    r"^[ \t]*(?:[-*][ \t]+)?`?Review scope:`?[ \t]*`?(\S+?)`?[ \t]*$", re.MULTILINE | re.IGNORECASE)
+
+
+def parse_review_scope(content: str) -> str | None:
+    """The `Review scope: full|changes` a verdict declares (`D-Changes`),
+    header-only exactly like `parse_feedback_reviewer_model`. `None` when
+    absent, when it states another value, or when the header states more than
+    one distinct value."""
+    header = feedback_header_block(content)
+    values = {match.group(1).lower() for match in _FEEDBACK_REVIEW_SCOPE_RE.finditer(header)}
+    if len(values) != 1:
+        return None
+    value = values.pop()
+    return value if value in ("full", "changes") else None
+
+
+_FINDING_ITEM_RE = re.compile(r"^(?: {0,3})(?:(?:[-*][ \t]+)|(?:\d+[.)][ \t]+)|(?:###[ \t]+))(.*\S)\s*$")
+_NO_FINDINGS_RE = re.compile(r"^no(?: \w+)? findings$")
+_PLACEHOLDERS = frozenset({"none", "n/a", "-", "none identified"})
+
+
+def _is_placeholder(text: str) -> bool:
+    plain = re.sub(r"[*_`]", "", text).strip()
+    plain = re.sub(r"[.:;!\s]+$", "", plain)
+    plain = re.sub(r"\s+", " ", plain).lower()
+    return plain in _PLACEHOLDERS or bool(_NO_FINDINGS_RE.match(plain))
+
+
+def _section_has_finding(content: str, heading: str) -> bool:
+    """Whether the `## <heading>` section of `content` holds a finding: a list
+    item or a `### ` heading whose text is neither empty nor a "none"
+    placeholder (`D-Severity`)."""
+    in_section = False
+    for line in content.splitlines():
+        if line.startswith("## "):
+            in_section = line[3:].strip().lower() == heading.lower()
+            continue
+        if not in_section:
+            continue
+        match = _FINDING_ITEM_RE.match(line)
+        if match is not None and not _is_placeholder(match.group(1)):
+            return True
+    return False
+
+
+def assert_verdict_well_formed(content: str) -> None:
+    """`D-Severity`, workflow-2.12.0: refuses (`MalformedVerdictError`) a
+    `REVISE` that names no Blocking or Important finding, an `APPROVE` that
+    lists a Blocking finding, and an `APPROVE` that declares `Review scope:
+    changes`. `BLOCK` and every other status pass unchecked. Reads the text
+    only."""
+    status = parse_review_feedback_binding_fields(content)["status"]
+    blocking = _section_has_finding(content, "Blocking findings")
+    if status == "REVISE" and not blocking and not _section_has_finding(content, "Important findings"):
+        raise MalformedVerdictError(
+            "the verdict is Status: REVISE but names no Blocking or Important finding -- a round with only "
+            "Optional findings is an APPROVE. Reissue it as APPROVE with the findings under 'Optional "
+            "findings', or as REVISE with the finding that requires a change moved to Blocking or Important. "
+            "Nothing was written")
+    if status == "APPROVE" and blocking:
+        raise MalformedVerdictError(
+            "the verdict is Status: APPROVE but lists a Blocking finding -- an approval cannot contradict "
+            "itself. Reissue it as REVISE, or remove the finding. Nothing was written")
+    if status == "APPROVE" and parse_review_scope(content) == "changes":
+        raise MalformedVerdictError(
+            "the verdict is Status: APPROVE with 'Review scope: changes' -- every APPROVE is a full review of "
+            "the whole bundle. Review the whole bundle and reissue it with 'Review scope: full' (or no "
+            "Review scope line), or reissue it as REVISE. Nothing was written")
+
+
 def assert_manual_feedback_names_work_item(content: str, *, work_item_id: str) -> None:
     """`D-Feedback-Layout`'s manual-record binding: `/record-manual-plan-review`
     and `/record-manual-implementation-review` refuse a pasted

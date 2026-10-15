@@ -95,6 +95,14 @@ writing anything.
    `Work item:`, `Reviewed bundle ID:`, `Reviewed base commit:` and
    `Round:` are optional; a `Round:` that is present must be a positive
    integer.
+   **Verdict shape** (workflow-2.12.0, `D-Severity`): a `REVISE` that names
+   no Blocking or Important finding, an `APPROVE` that lists a Blocking
+   finding, and an `APPROVE` that declares `Review scope: changes` are
+   refused (`MalformedVerdictError`, nothing written). Report the message
+   and ask the user to have the reviewer reissue the verdict -- as `APPROVE`
+   with the findings under `## Optional findings`, or as `REVISE` with the
+   finding that requires a change moved to Blocking or Important. Never
+   edit the verdict or change its `Status:` yourself.
    **Foreign-`Work item:` refusal, before any write**:
    `workflow_fingerprint.assert_manual_feedback_names_work_item` -- a pasted
    file whose `Work item:` field is present and names a different work

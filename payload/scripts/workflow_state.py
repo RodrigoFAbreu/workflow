@@ -17273,7 +17273,9 @@ def ingest_manual_review_verdict(
     2. holds `state_lock` through step 6, so the steps below read the state
        fresh and no other ingest or state writer runs between them;
     3. selects the ingest row (`select_manual_verdict_row`) and checks its
-       required fields (`ManualVerdictHeaderError`);
+       required fields (`ManualVerdictHeaderError`) and, at a two-stage row,
+       the verdict's shape (`fingerprint.assert_verdict_well_formed`,
+       `MalformedVerdictError`, workflow-2.12.0);
     4. runs the row's guards in order, the last `assert_bundle_not_rejected`
        immediately before step 5. A two-stage row then computes
        `record_manual_plan_review`/`record_manual_implementation_review`,
@@ -17328,6 +17330,7 @@ def _ingest_two_stage_manual_verdict(repo_root: Path, work_item_id: str, *, stag
         if not row["two_stage"]:
             raise AssertionError(f"{work_item_id}'s ingest row changed under the lock: {row!r}")
         fields = require_manual_verdict_fields(parsed, two_stage=True)
+        fingerprint.assert_verdict_well_formed(verdict_text)
         guarded = _two_stage_manual_verdict_guards(
             repo_root, state, work_item_id, stage=stage, verdict_text=verdict_text, fields=fields)
         fingerprint.assert_bundle_not_rejected(repo_root, work_item_id)

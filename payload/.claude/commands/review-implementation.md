@@ -448,6 +448,18 @@ A5. **Decide the verdict** (`Status: APPROVE | REVISE | BLOCK`) and write
     - the round/sequence number (one more than the highest prior
       `LOCAL_MODEL_IMPLEMENTATION_REVIEW` round on record, or `1` if none);
     - a completion timestamp.
+    - **Verdict shape** (workflow-2.12.0, `D-Severity`): a `REVISE` names at
+      least one Blocking or Important finding, and an `APPROVE` lists no
+      Blocking finding and declares no `Review scope: changes` (every
+      `APPROVE` is a full review of the whole bundle). Write the literal
+      `None.` in a severity section with no finding. A round whose only
+      findings are Optional is an `APPROVE`, with them under `## Optional
+      findings`. Before writing, call
+      `workflow_fingerprint.assert_verdict_well_formed(<the text about to be
+      written>)`; on a `MalformedVerdictError`, rewrite your own verdict to
+      conform in this same run and call it again -- never write a verdict it
+      refuses, and never change `Status:` to dodge it without changing the
+      findings.
     Malformed prior feedback is reported and stops rather than guessed at.
 A6. **Write set, exact.** **`REJECTED`-bundle refusal, second of two, under
     this step's own mutation guard** (`WFR-67`): immediately before the

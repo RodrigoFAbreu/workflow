@@ -656,6 +656,22 @@ Reviewed review_content_id: <the exact review_content_id this feedback reviewed>
 ## Required acceptance criteria
 ```
 
+**Severity and verdict shape** (workflow-2.12.0). Blocking: the content is
+wrong or unsafe and must change. Important: it must change before approval,
+though it is not wrong in itself. Optional: a suggestion. A `REVISE` names at
+least one Blocking or Important finding; a round with only Optional findings
+is an `APPROVE`, with the findings recorded under `## Optional findings`. An
+`APPROVE` lists no Blocking finding, and every `APPROVE` is a full review of
+the whole bundle: a header line `Review scope: full|changes` is optional, and
+`Review scope: changes` is valid on a `REVISE` only. A finding is a list item
+or a `### ` heading in its section; write `None.` in a section with no
+finding. A verdict that breaks these rules is refused as malformed
+(`workflow_fingerprint.assert_verdict_well_formed`, `MalformedVerdictError`)
+before it becomes state, and is reissued, never converted: the local reviewers
+check their own text before writing it, and the manual ingest
+(`ingest_manual_review_verdict`, so `record-external-result` too) refuses it
+with nothing written. A verdict already recorded is applied as before.
+
 The three binding fields (`Reviewed bundle ID:`, `Reviewed base commit:`,
 `Work item:`) are required on every ordinary review round, not only WF0's
 one-time bootstrap check (`OPUS-R14-002`, generalized here), and they keep
