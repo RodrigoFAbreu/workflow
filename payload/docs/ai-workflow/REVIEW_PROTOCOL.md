@@ -163,7 +163,7 @@ copy. The copy is byte-exact, so `bundle_id` is computed over exactly the
 bytes an in-place generation would have hashed. Only once
 `finalize_staged_plan_bundle_generation`'s closing checks (the same checks
 `finalize_bundle_generation` runs in place) succeed are the pin, `current/`, the archive
-and `AMENDMENT_DIFF.patch` renamed into place, and any `REJECTED` marker
+`AMENDMENT_DIFF.patch` and `CHANGES_SINCE_REVIEW.md` renamed into place, and any `REJECTED` marker
 cleared. So, in the real command order (refresh the inputs, then
 generate), nothing writes `current/` until that final rename.
 
@@ -324,6 +324,31 @@ open. The manual-external-review archive (`review-bundle.tar.gz`) bundles
 it alongside `current/` when present, so both the local and the
 manual-external reviewer see the identical convenience diff.
 
+**`workflow-2.12.0`, `D-Changes`**: `CHANGES_SINCE_REVIEW.md` is a second
+such sibling, at `.ai-review/<work_item_id>/CHANGES_SINCE_REVIEW.md`, outside
+`bundle_id` and `review_content_id` and bundled into `review-bundle.tar.gz`
+when present. `scripts/prepare-ai-review.sh` regenerates it on every ordinary
+generation, at the plan stage and at the implementation and post-fix stages,
+and deletes it when there is nothing to compare with (a first round, or a
+previous round that cannot be identified). It holds a preamble naming the
+previous and the current `review_content_id`, the previous round's findings
+(the text of `REVIEW_FEEDBACK.md` when its header names the previous
+`review_content_id`, else "not available"), and a unified diff of the stage's
+protected content from the previous round to this one. At the plan stage the
+previous round is the outgoing `current/` and `.pin`, used only when its
+`review_content_id` was reviewed and consumed; a wrapper-only regeneration of
+unchanged content carries the live file forward when it names the unchanged
+`review_content_id`. At the implementation stages it is the previous round's
+`reviewed_implementation_head` against the working tree; a same-content
+republication leaves it alone. The file is built by
+`workflow_fingerprint.write_changes_since_review`, which never fails a
+generation: on any error it deletes the file and prints one warning.
+
+A reviewer who finds the file next to `current/`, with a preamble naming this
+bundle's `review_content_id`, may review only the changes and check that each
+previous finding is resolved, declaring `Review scope: changes` (valid on a
+`REVISE` or a `BLOCK`). Any `APPROVE` is a full review of the whole bundle.
+
 **`workflow-2.6.0`** (`v2.4.0-003`): the patch is anchored at the **working
 tree** — `git diff --no-renames <amendment_base_commit> -- <pathspec>` —
 because the amended plan stays uncommitted until `/approve-review plan`
@@ -388,6 +413,14 @@ This is **portability vs. local staleness, split by consumer**:
   `review_content_id` and is not covered by the Reviewed bundle ID above."
   No validator enforces this line's presence — author-written prose like
   every other field on this list.
+  **`workflow-2.12.0`, `D-Changes`**: the request is also worded
+  conditionally about `CHANGES_SINCE_REVIEW.md`, because it is written before
+  the generator decides whether that file exists: "If
+  `CHANGES_SINCE_REVIEW.md` is present next to `current/` and its preamble
+  names this bundle's `review_content_id`, you may review only the changes
+  and check each previous finding is resolved, declaring `Review scope:
+  changes`; any `APPROVE` is a full review of the whole bundle. The file is
+  reviewer convenience only, outside `bundle_id` and `review_content_id`."
 - **PLAN.md** — populated at the `plan` stage: the actual execution plan
   being reviewed. Leave empty (or omit updating it) at later stages. Must
   state the plan's current `(Revision N)` marker — a bundle whose `PLAN.md`

@@ -47,8 +47,19 @@ commands before they write; the two manual commands report a refusal and ask
 for a reissue; `REVIEW_PROTOCOL.md` states the severity meanings and the
 rule. `workflow_protocol.py` needed no change: a `MalformedVerdictError` maps
 to `refused` by default. Verified in a scratch release fixture: the nine
-conformance suites pass. CP2 to CP5 are not started.
+conformance suites pass. CP2 (the changes file) is complete:
+`workflow_fingerprint.write_changes_since_review` builds
+`CHANGES_SINCE_REVIEW.md` (preamble, previous findings, pinned-option diff) at
+the plan stage (outgoing `.pin` against the staging pin, carried forward on a
+wrapper-only regeneration, promoted or removed with `AMENDMENT_DIFF.patch`) and
+at the implementation stages (previous round's reviewed head against the
+working tree, from the outgoing manifest copy `prepare-ai-review.sh` keeps; a
+same-content republication leaves it alone); the archive carries it; the
+review and request commands and the three protocol documents state the review
+rule. `load_implementation_stage_classification` gained `at_commit`. Thirteen
+tests in `workflow_fingerprint_generalization_test.py` (`TestChangesSinceReview`).
+CP3 to CP5 are not started.
 
 ## Next action
 
-`/milestone-implement review-convergence` (CP2, the changes file).
+`/milestone-implement review-convergence` (CP3, protocol 1.4).

@@ -61,6 +61,7 @@ normative definition.
    prior `<feedback_dir>/REVIEW_FEEDBACK.md` (for continuity across
    rounds), and `docs/ai-workflow/REVIEW_PROTOCOL.md`'s feedback-structure
    contract.
+   **Changes since the last reviewed bundle** (workflow-2.12.0, `D-Changes`): when `<bundle_dir>/../CHANGES_SINCE_REVIEW.md` (the file next to `current/`) exists and its preamble's `review_content_id` is the one recomputed in step 5, read it too: it carries the previous round's findings and the diff of the plan content since that round. You may then review only those changes and check that each previous finding is resolved, declaring `Review scope: changes` in the header; that is valid on a `REVISE` or `BLOCK` only. **Any `APPROVE` is a full review of the whole bundle**: when the changes show nothing to fix, go on to the full pass in the same run, and declare `Review scope: full` or omit the line. A file whose preamble names another id is stale: ignore it. 
 5. **Recompute fresh, before writing anything**: the current `bundle_id`
    and the plan-stage `review_content_id`, the latter through the single
    canonical entry point `docs/ai-workflow/REVIEW_PROTOCOL.md`'s
