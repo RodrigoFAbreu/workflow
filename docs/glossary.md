@@ -1,6 +1,6 @@
 # Glossary
 
-> For: anyone reading Workflow documents. Last checked with: Workflow 2.8.0, Workflow Manager 1.4.0.
+> For: anyone reading Workflow documents. Last checked with: Workflow 2.12.0, Workflow Manager 1.4.0.
 
 The shared terms of the Workflow. The other Workflow repositories link here.
 
@@ -52,6 +52,18 @@ See [approval gates](gates.md).
 One step of a review. Plan review and implementation review each have a local
 stage and an external stage. Each stage records a verdict (approve, revise or
 block) for the exact bundle it reviewed.
+
+### Review round
+
+One pass of a review stage over a bundle. A `REVISE` starts the next round on a
+revised bundle. Orchestration Protocol 1.4 reports the current round per stage
+as `review_round` in `next-action`.
+
+### Review scope
+
+A verdict header line, `Review scope: full|changes`. `changes` means the
+reviewer checked only what changed since the last reviewed bundle and is valid
+on a `REVISE` only; every `APPROVE` is a full review.
 
 ### Functional review
 

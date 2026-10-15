@@ -1,6 +1,6 @@
 # Approval gates
 
-> For: anyone who decides who approves a work item's plan, code and acceptance. Last checked with: Workflow 2.9.0, Workflow Manager 1.5.0.
+> For: anyone who decides who approves a work item's plan, code and acceptance. Last checked with: Workflow 2.12.0, Workflow Manager 1.5.0.
 
 An approval gate is a point where a work item cannot move on until a decision
 is recorded. There are three: plan approval, implementation approval and
@@ -54,6 +54,11 @@ human.
 The commands behind this are `/satisfy-gate plan <id>`,
 `/satisfy-gate implementation <id>` and `/satisfy-gate acceptance <id>`.
 `/approve-review` and `/accept-milestone` stay available as the human path.
+
+Workflow 2.12.0 leaves every gate unchanged. A review verdict must now be
+well-formed (a `REVISE` names a Blocking or Important finding; every `APPROVE`
+is a full review of the whole bundle), and an `APPROVE` may carry optional
+findings, which are recorded and do not block the gate.
 
 ## Turn human approval on
 
