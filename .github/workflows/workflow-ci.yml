@@ -64,7 +64,7 @@ defaults:
 jobs:
   checks:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       # Full history and tags: the reproduction tests stage v2.3.1 .. v2.6.0.
       - uses: actions/checkout@v4
