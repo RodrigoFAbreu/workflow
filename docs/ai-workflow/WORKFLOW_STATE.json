@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "review-convergence",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -4813,6 +4813,174 @@
         "evaluated_at": "2026-10-13T14:06:26Z",
         "workflow_release": "2.9.2"
       }
+    },
+    "review-convergence": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "review-convergence",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/REVIEW_CONVERGENCE_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/review-convergence-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/review-convergence-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 9,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "f30e3522e7d39fa86067a5448a1840bc1505d6df",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "b57257b39df73346427f56e387199acb5aad21dccc0144f82bbd277ec3641016",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "b57257b39df73346427f56e387199acb5aad21dccc0144f82bbd277ec3641016",
+        "approved_review_content_id": "35023517a71c31b1a390a594fe42e700117a2e009e39973e712ffe5d10b9d400",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/REVIEW_CONVERGENCE_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0d5dd14787671c6ed01abfd11262803974e2e33d"
+          },
+          {
+            "path": "docs/ai-workflow/registry/review-convergence-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "21d0e79d730365677894137c3028b011a1329649"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/review-convergence-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "47254a7964587729743f0e78dd6013e71acabd27"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-15T09:01:59Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "35023517a71c31b1a390a594fe42e700117a2e009e39973e712ffe5d10b9d400",
+            "ledger": {
+              "local": {
+                "bundle_id": "b57257b39df73346427f56e387199acb5aad21dccc0144f82bbd277ec3641016",
+                "verdict": "APPROVE",
+                "round": 10,
+                "verdict_sha256": "47eb0c9e5f3538a821b6b7dffe75c27794df0ebd40e4bca1b86343d665291c52",
+                "ledger_entry_sha256": "de88bb5ef5b4a1391c708541d980234b4bd3d73b59b4f8bf5a20528a7f2ccac9",
+                "run_ref": "session:local .ai-review/review-convergence/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "b57257b39df73346427f56e387199acb5aad21dccc0144f82bbd277ec3641016",
+                "verdict": "APPROVE",
+                "round": 10,
+                "verdict_sha256": "fb7e11af5d75b172117c818a772d47cbfa409b8b68bc98df001624ed71472f4f",
+                "ledger_entry_sha256": "e4634201caa1fe9bcf22b3e77f6b7a179e9a89f601dae993c54f3448df4712af",
+                "run_ref": "session:local .ai-review/review-convergence/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-15T09:01:59Z",
+          "workflow_release": "2.11.0"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "35023517a71c31b1a390a594fe42e700117a2e009e39973e712ffe5d10b9d400",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "b57257b39df73346427f56e387199acb5aad21dccc0144f82bbd277ec3641016",
+          "verdict": "APPROVE",
+          "round": 10,
+          "completed_at": "2026-10-15T08:54:05Z",
+          "verdict_sha256": "47eb0c9e5f3538a821b6b7dffe75c27794df0ebd40e4bca1b86343d665291c52",
+          "run_ref": "session:local .ai-review/review-convergence/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "b57257b39df73346427f56e387199acb5aad21dccc0144f82bbd277ec3641016",
+          "verdict": "APPROVE",
+          "round": 10,
+          "completed_at": "2026-10-15T09:01:13Z",
+          "verdict_sha256": "fb7e11af5d75b172117c818a772d47cbfa409b8b68bc98df001624ed71472f4f",
+          "run_ref": "session:local .ai-review/review-convergence/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "state_revision": 41,
+      "last_transition": "2026-10-15T09:01:59Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-15T08:51:08Z",
+        "consumed": {
+          "review_content_id": "ec316c94da82cb7dbb4d5be6cc86f804c4c69b51a70f1d38dee2b3cce4160b35",
+          "plan_revision": 8,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "35023517a71c31b1a390a594fe42e700117a2e009e39973e712ffe5d10b9d400",
+          "plan_revision": 9
+        },
+        "bound": {
+          "review_content_id": "35023517a71c31b1a390a594fe42e700117a2e009e39973e712ffe5d10b9d400",
+          "bundle_id": "b57257b39df73346427f56e387199acb5aad21dccc0144f82bbd277ec3641016",
+          "plan_revision": 9
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "0186cbd3c6f406606ada13f8aab37b94430e00f0b0283044ae0ba570f5f644bc",
+        "040192df75a52bf4450bda3f147021a777a8f089841f7d0d8107b8e7d0cc9c54",
+        "0473d476b829b173138a87b1951a17e8f2d5f5529bc601afceb6f6ad69e523bf",
+        "1c9fd817f3340dc4580565a509835b410d7268a2dc2010f8fa6186857cd1808d",
+        "2070d04a920dc3cb99f9d1a278659bd9d8d55ca7712db6d88b7dcb406086e86b",
+        "5cd107c12b91ac00ae424da7b0c7137cbd2ba83e8e6ab5f426af8de73482a601",
+        "8317fcb474301bcbb9326641942c2dbead3b901f9361dfecf757cd84a7ad53a5",
+        "98d719604f6a777b23ca41cfd2a381139cce22f8e9bd47d2ce1ea64a7b4575fb",
+        "ec316c94da82cb7dbb4d5be6cc86f804c4c69b51a70f1d38dee2b3cce4160b35",
+        "f44f2c15e0a54cbf198c48f8df1a8cee21f69cd361ec787414110e6e0e620a30"
+      ]
     }
   }
 }

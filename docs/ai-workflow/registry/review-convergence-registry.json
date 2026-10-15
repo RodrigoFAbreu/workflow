@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-convergence",
+  "plan_revision": 9,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "Verdict shape: a REVISE names a Blocking or Important finding, an APPROVE is a full review",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Changes since the last reviewed bundle, at both stages, in the bundle's sibling file and archive",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 4,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Orchestration Protocol 1.4: the review_round snapshot field and the at-cap hand-off",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP4",
+      "name": "Plan-size guidance, the soft checkpoint-count warning, and three small fixes",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP5",
+      "name": "Release 2.12.0: manifest, release constant, release history, downgrade posture",
+      "depends_on": [
+        "CP1",
+        "CP2",
+        "CP3",
+        "CP4"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}

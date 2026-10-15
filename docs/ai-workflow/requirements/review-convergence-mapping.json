@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-convergence",
+  "requirements": {
+    "R1": {
+      "description": "From round 2 a review gets the changes since the last reviewed bundle and that round's findings, at both stages and both review stages; approvals still bind the full content",
+      "checkpoint_ids": [
+        "CP2",
+        "CP5"
+      ]
+    },
+    "R2": {
+      "description": "A REVISE with no Blocking or Important finding, an APPROVE that lists a Blocking finding, or an APPROVE that declares a changes-only review, is refused as malformed and reissued, never converted",
+      "checkpoint_ids": [
+        "CP1",
+        "CP5"
+      ]
+    },
+    "R3": {
+      "description": "An additive protocol 1.4 field gives the current review round per stage, from existing state; accepting at a cap stays a person's step",
+      "checkpoint_ids": [
+        "CP3",
+        "CP5"
+      ]
+    },
+    "R4": {
+      "description": "/milestone-plan asks for small plans and warns, without blocking, above a checkpoint-count threshold",
+      "checkpoint_ids": [
+        "CP4",
+        "CP5"
+      ]
+    },
+    "R5": {
+      "description": "Small fixes: the RELEASING.md fixture path, the /review-plan refusal's next step, a line wrap in milestone-plan.md",
+      "checkpoint_ids": [
+        "CP4"
+      ]
+    },
+    "R6": {
+      "description": "The Orchestration Protocol states when a distinct-provider verdict courier at an external_gate is admissible, with five conditions, as documentation only (workflow#28)",
+      "checkpoint_ids": [
+        "CP3",
+        "CP5"
+      ]
+    }
+  }
+}
