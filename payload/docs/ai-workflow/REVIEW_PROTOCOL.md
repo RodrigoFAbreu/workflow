@@ -696,7 +696,8 @@ least one Blocking or Important finding; a round with only Optional findings
 is an `APPROVE`, with the findings recorded under `## Optional findings`. An
 `APPROVE` lists no Blocking finding, and every `APPROVE` is a full review of
 the whole bundle: a header line `Review scope: full|changes` is optional, and
-`Review scope: changes` is valid on a `REVISE` only. A finding is a list item
+`Review scope: changes` is valid on a `REVISE` or a `BLOCK` only. A finding is
+a list item
 or a `### ` heading in its section; write `None.` in a section with no
 finding. A verdict that breaks these rules is refused as malformed
 (`workflow_fingerprint.assert_verdict_well_formed`, `MalformedVerdictError`)

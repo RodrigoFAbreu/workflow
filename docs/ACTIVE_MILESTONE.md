@@ -76,8 +76,24 @@ or `/apply-plan-review <id>` at a non-ready phase; `docs/RELEASING.md`'s
 `stage-conformance` example uses `--out "$(mktemp -d)/fixture"`; the over-long
 line in `milestone-plan.md` step 6 is rewrapped. Two tests in
 `workflow_state_test.py`; golden hashes refreshed. Verified in a scratch release
-fixture: the nine conformance suites pass. CP5 is not started.
+fixture: the nine conformance suites pass. CP5 (release 2.12.0) is complete:
+`manifest.json` 2.12.0 with refreshed digests, `WORKFLOW_RELEASE`, the
+tested-releases list, the release-history row with the downgrade posture and
+the courier clarification (closes workflow#28), and the common-problems, gates
+and glossary entries.
+
+Every checkpoint is complete; the phase is `SELF_REVIEWING_IMPLEMENTATION`.
+The self-review of the whole milestone diff fixed three documentation
+defects: `REVIEW_PROTOCOL.md` and the glossary said `Review scope: changes` is
+valid on a `REVISE` only, where the check, the commands and the other documents
+accept it on a `REVISE` or a `BLOCK`; and the protocol's 1.4 compatibility note
+now says that a consumer validating against its own copy of the 1.3 schema
+(whose `snapshot` has `additionalProperties: false`) rejects the new field, as
+the plan's risk section requires. Manifest digests refreshed for the two
+payload documents.
 
 ## Next action
 
-`/milestone-implement review-convergence` (CP5, release 2.12.0).
+The implementation review: the bundle is generated at
+`AWAITING_LOCAL_IMPLEMENTATION_REVIEW`, then `/review-implementation
+review-convergence`.

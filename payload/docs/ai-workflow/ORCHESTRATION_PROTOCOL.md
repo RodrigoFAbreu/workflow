@@ -1152,8 +1152,12 @@ under automatic gates). A courier is admissible when, and only when:
 - **Protocol `1.4`** (Workflow 2.12.0). The snapshot of an item's `next-action`
   decision gains the additive `review_round` field (section 5.4). No row,
   action, reason code, check or error code changed. A `1.3` consumer ignores
-  the unknown field (obligation 2). Section 8.1 (the round cap) and section
-  8.2 (the verdict courier) are consumer guidance only.
+  the unknown field (obligation 2), but the `1.3` schema's `snapshot` object
+  has `additionalProperties: false`, so a consumer that validates a `1.4`
+  response against its own copy of the `1.3` schema rejects it: validate
+  against the `1.4` schema, or drop unknown snapshot fields before
+  validating. Section 8.1 (the round cap) and section 8.2 (the verdict
+  courier) are consumer guidance only.
 - **Protocol `1.3`** (Workflow 2.10.0). New work items are no longer created
   while the config's default is `2.1`. Row `1` now matches only a default that
   is not retired (`2.2`); the new row `1b` reports `blocked` for a `2.1`
