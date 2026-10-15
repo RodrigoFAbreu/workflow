@@ -389,7 +389,7 @@ gh release list --json tagName,isDraft --limit 1000 > /tmp/releases.json
 python tools/release/release.py check-pending --releases /tmp/releases.json
 python tools/release/release.py check-immutable --releases /tmp/releases.json
 python tools/release/release.py next-release --trigger HEAD --releases /tmp/releases.json
-python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)"
+python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)/fixture"
 ```
 
 A token without write access does not see drafts, so locally a draft is

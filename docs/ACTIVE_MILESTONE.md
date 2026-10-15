@@ -67,8 +67,17 @@ boundary, the round cap (8.1), the verdict courier (8.2) and a 1.4 note. Nine
 tests in `workflow_protocol_test.py` (`TestReviewRoundField`), including the
 generator-driven drive; `without_release()` strips the field. The suite's 16
 failures (a stale `workflow_release` of 2.9.0 in the update-simulation tests)
-are the same at the CP2 commit. CP4 and CP5 are not started.
+are the same at the CP2 commit. CP4 (plan-size guidance) is complete:
+`workflow_state.PLAN_CHECKPOINT_SOFT_LIMIT` (6) and `plan_size_advisory`, printed
+at the publication point of `/milestone-plan` and `/apply-plan-review` (a
+`[2.1]` step 3 sentence keeps the `"1"` output unchanged); the
+`validate_local_plan_review_preconditions` refusal names `/milestone-plan <id>`
+or `/apply-plan-review <id>` at a non-ready phase; `docs/RELEASING.md`'s
+`stage-conformance` example uses `--out "$(mktemp -d)/fixture"`; the over-long
+line in `milestone-plan.md` step 6 is rewrapped. Two tests in
+`workflow_state_test.py`; golden hashes refreshed. Verified in a scratch release
+fixture: the nine conformance suites pass. CP5 is not started.
 
 ## Next action
 
-`/milestone-implement review-convergence` (CP4, plan-size guidance).
+`/milestone-implement review-convergence` (CP5, release 2.12.0).

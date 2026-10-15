@@ -237,6 +237,10 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
    unless a specific historical decision is unresolved.
 3. Produce or update the execution/reference plan for this milestone
    (checkpoints, files touched, tests to add, migration needs if any).
+   - **[2.1]** Keep the plan short and the checkpoint count small (about
+     six at most): split a large scope into several milestones, each a
+     release, and state one principle per decision (workflow-2.12.0,
+     `D-Size`).
    - **[2.1]** Build the checkpoint list as `{id, name, depends_on,
      complexity, session_target}` entries and the requirement map as
      `{requirement_id: {description, checkpoint_ids}}`, then call
@@ -417,6 +421,10 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
         allow-list; `ws.PlanReviewBindingInconsistentError` for a `BOUND`
         record at a non-ready phase. Report the refusal and stop.
 
+     At this point also print `workflow_state.plan_size_advisory(registry)`
+     when it returns a warning (workflow-2.12.0, `D-Size`), and continue: it
+     never refuses and writes nothing.
+
      `WFR-65`'s ordering (mirror published before any bundle is generated)
      holds because step 6 follows this point. A later edit to a protected
      path, before step 6 binds, makes the bind refuse
@@ -474,8 +482,8 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
      never re-advancing the revision) -- never a review command, since
      `/review-plan` refuses at a non-ready phase. Stop. A generator refusal
      of a plan without checkpoint anchors (`error: AmendmentAnchorCoverageError:`
-     or any other `workflow_state._PLAN_ANCHOR_ERRORS` class) is the same case: nothing was promoted, and the
-     message ends with `workflow_state.PLAN_ANCHOR_NEXT_STEP` -- add the
+     or any other `workflow_state._PLAN_ANCHOR_ERRORS` class) is the same
+     case: nothing was promoted, and the message ends with `workflow_state.PLAN_ANCHOR_NEXT_STEP` -- add the
      pairs, then run that re-run.
    - **[2.1] Bind, straight after the generator succeeds**
      (`D-Plan-Review-Bundle-Binding`, workflow-2.6.0, section 5.3 item 3):

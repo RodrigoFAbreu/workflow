@@ -14445,6 +14445,38 @@ class TestTwoStagePlanReviewVersionsInheritance(unittest.TestCase):
         wi = _base_work_item(governing_workflow_version="2.2", phase="AWAITING_LOCAL_PLAN_REVIEW")
         ws.validate_local_plan_review_preconditions(wi)  # must not raise
 
+    def test_plan_review_precondition_refusal_names_the_next_step(self):
+        """workflow-2.12.0, CP4: a non-ready plan-stage phase names the command that
+        makes the item reviewable; any other phase keeps its message."""
+        cases = (
+            ("PLANNING", None, "/milestone-plan wi"),
+            ("AMENDING_PLAN", None, "/milestone-plan wi"),
+            ("REVISING_PLAN", None, "/apply-plan-review wi"),
+            ("REVISING_PLAN", {"status": ws.PLAN_REVIEW_BINDING_CONSUMED}, "/apply-plan-review wi"),
+            ("REVISING_PLAN", {"status": ws.PLAN_REVIEW_BINDING_PUBLISHED}, "/milestone-plan wi"),
+        )
+        for phase, record, expected in cases:
+            with self.subTest(phase=phase, record=record):
+                wi = _base_work_item(governing_workflow_version="2.2", phase=phase)
+                if record is not None:
+                    wi["plan_review_binding"] = record
+                with self.assertRaises(ws.WrongPhaseForPlanReviewStageError) as caught:
+                    ws.validate_local_plan_review_preconditions(wi)
+                self.assertIn(f"run {expected} to make the item reviewable", str(caught.exception))
+        wi = _base_work_item(governing_workflow_version="2.2", phase="AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW")
+        with self.assertRaises(ws.WrongPhaseForPlanReviewStageError) as caught:
+            ws.validate_local_plan_review_preconditions(wi)
+        self.assertNotIn("to make the item reviewable", str(caught.exception))
+
+    def test_plan_size_advisory_warns_only_above_the_soft_limit(self):
+        def registry(count):
+            return {"checkpoints": [{"id": f"CP{i}"} for i in range(1, count + 1)]}
+        self.assertEqual(ws.PLAN_CHECKPOINT_SOFT_LIMIT, 6)
+        self.assertIsNone(ws.plan_size_advisory(registry(6)))
+        warning = ws.plan_size_advisory(registry(7))
+        self.assertIsNotNone(warning)
+        self.assertIn("7 checkpoints", warning)
+
     def test_record_local_plan_review_rejects_wrong_version_1(self):
         wi = _base_work_item(governing_workflow_version="1", phase="AWAITING_LOCAL_PLAN_REVIEW")
         with self.assertRaises(ws.WrongGoverningVersionForPlanReviewStageError):

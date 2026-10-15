@@ -15518,12 +15518,40 @@ def validate_local_plan_review_preconditions(work_item: dict) -> None:
     generic check (D-Bundle-Manifest, reused unchanged) run by the command
     itself before this, not duplicated here."""
     _require_v2_1_plan_review(work_item)
-    if work_item.get("phase") != "AWAITING_LOCAL_PLAN_REVIEW":
+    phase = work_item.get("phase")
+    if phase != "AWAITING_LOCAL_PLAN_REVIEW":
+        next_step = ""
+        if phase in PLAN_REVIEW_NON_READY_PHASES:
+            work_item_id = work_item["work_item_id"]
+            record = work_item.get("plan_review_binding")
+            published = isinstance(record, dict) and record.get("status") == PLAN_REVIEW_BINDING_PUBLISHED
+            command = "/apply-plan-review" if phase == "REVISING_PLAN" and not published else "/milestone-plan"
+            next_step = f"; run {command} {work_item_id} to make the item reviewable"
         raise WrongPhaseForPlanReviewStageError(
-            f"{work_item['work_item_id']}: phase is {work_item.get('phase')!r}, "
+            f"{work_item['work_item_id']}: phase is {phase!r}, "
             f"not \"AWAITING_LOCAL_PLAN_REVIEW\" -- /review-plan refuses rather "
-            f"than silently re-running (e.g. already completed this round)"
+            f"than silently re-running (e.g. already completed this round){next_step}"
         )
+
+
+# workflow-2.12.0, `D-Size`: a plan above this many checkpoints draws a warning
+# at the publication point; never a refusal.
+PLAN_CHECKPOINT_SOFT_LIMIT = 6
+
+
+def plan_size_advisory(registry: dict) -> str | None:
+    """`/milestone-plan` and `/apply-plan-review`'s soft plan-size check
+    (workflow-2.12.0, `D-Size`): a warning when the registry holds more than
+    `PLAN_CHECKPOINT_SOFT_LIMIT` checkpoints, else `None`. Pure; it never
+    refuses and writes nothing."""
+    count = len(registry.get("checkpoints") or [])
+    if count <= PLAN_CHECKPOINT_SOFT_LIMIT:
+        return None
+    return (
+        f"warning: this plan has {count} checkpoints, above the soft limit of "
+        f"{PLAN_CHECKPOINT_SOFT_LIMIT}; a large scope reviews slowly and converges "
+        f"slowly -- consider splitting it into several milestones, each a release"
+    )
 
 
 LEDGER_AUDIT_KEYS = ("verdict_sha256", "run_ref", "reviewer_model")

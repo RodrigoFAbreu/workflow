@@ -250,6 +250,9 @@ normative definition.
      with `LegacyPlanReviewBindingUnknownError`,
      `PlanReviewInProgressError`, `PlanReviewPhaseNotPlanStageError` or
      `PlanReviewBindingInconsistentError` as step 0's status would predict.
+   After the publish, print `workflow_state.plan_size_advisory(registry)`
+   when it returns a warning (workflow-2.12.0, `D-Size`) and continue: it
+   never refuses and writes nothing.
 
    This step applies only to a work item with an existing `WORKFLOW_STATE.json`
    entry (`registry_path` non-null); an ordinary `"1"`-governed milestone

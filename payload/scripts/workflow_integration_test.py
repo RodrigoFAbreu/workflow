@@ -767,6 +767,9 @@ class TestVersion21OnlyCommandsRefuseCleanlyForV1(unittest.TestCase):
 # below, for the two files where a real pre-v2.1 copy is actually
 # available to diff against.
 _GOLDEN_COMMAND_FILE_SHA256 = {
+    # workflow-2.12.0 (review-convergence, CP4): `milestone-plan.md` gains the plan-size
+    # guidance, the advisory at the publication point and a rewrapped line;
+    # `apply-plan-review.md` gains the advisory at its publication point (D-Size).
     # workflow-2.12.0 (review-convergence, CP1): `review-plan.md`, `review-implementation.md`
     # and `record-manual-plan-review.md` gain the verdict-shape rule (D-Severity) --
     # intentional content changes, not regressions. CP2 further updates the same three:
@@ -887,7 +890,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.10.0 (retire-21-for-new-work, CP3): step 0 stops a fresh milestone
     # under a "2.1" default with DefaultWorkflowVersionRetiredError -- intentional
     # content change.
-    "milestone-plan.md": "60a7f36ac514fe0d9ca40678b5228bfde47ecac9003bdff2e02e620339ee1306",
+    "milestone-plan.md": "3c5a97edbfa51c19ddcf2f8a8390424f224efc51cc70fe3f04549da32982e8da",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the
@@ -1132,7 +1135,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # assert_apply_review_feedback_binding (D-Apply-Binding): a two-stage
     # REVISE stating a review_content_id is bound by content --
     # intentional content change.
-    "apply-plan-review.md": "4ea0c019b43c6a9779f15a5c2e9d2141a9072297d17c800788f69693cde724a0",
+    "apply-plan-review.md": "b610f688bd19dda3d439dd04a5bc27c44d41d261731c03a31db9f164cf7e1eb4",
     # apply-implementation-review.md (WF8c item (c)): step 7's
     # record_bundle_generation call site widened to first resolve the
     # outcome (resolve_bundle_generation_outcome) and write the matching
