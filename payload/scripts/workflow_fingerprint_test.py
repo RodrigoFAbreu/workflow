@@ -4470,7 +4470,8 @@ class VerdictWellFormedTest(unittest.TestCase):
 
     def test_trailing_punctuation_on_a_placeholder_is_ignored(self):
         """EIR-R1-002: `D-Severity` ignores trailing punctuation."""
-        for placeholder in ("- None,", "None,", "- None?", "- None;", "- none.,", "- N/A,", "- No findings!"):
+        for placeholder in ("- None,", "None,", "- None?", "- None;", "- none.,", "- N/A,", "- No findings!",
+                            "- None —", "- None…", "- None)", "- None -", "- No findings—"):
             with self.subTest(placeholder=placeholder):
                 self._refused(self._verdict("REVISE", blocking=placeholder, important=placeholder,
                                             optional="- a suggestion"))

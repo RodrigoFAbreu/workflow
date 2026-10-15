@@ -3530,6 +3530,9 @@ class TestRecordExternalResultTwoStage(unittest.TestCase):
                 refusal(self, repo, kind, verdict("REVISE", **ok).replace(
                     "- a finding that must change", "- None,\n\n## Important findings\n\nNone.\n\n"
                     "## Optional findings\n\n- a suggestion"), "refused", "MalformedVerdictError")
+                refusal(self, repo, kind, verdict("REVISE", **ok).replace(
+                    "- a finding that must change", "- None \u2014\n\n## Important findings\n\nNone\u2026\n\n"
+                    "## Optional findings\n\n- a suggestion"), "refused", "MalformedVerdictError")
                 reject_bundle(repo)
                 refusal(self, repo, kind, verdict("APPROVE", **ok), "refused", "BundleRejectedError")
 

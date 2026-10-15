@@ -18137,6 +18137,9 @@ class TestManualVerdictIngestRecordsAs260(unittest.TestCase):
                 comma_placeholder = _cp4_verdict("REVISE", **ok).replace(
                     "- a finding that must change", "- None,\n\n## Important findings\n\nNone.\n\n"
                     "## Optional findings\n\n- a suggestion")
+                dash_placeholder = _cp4_verdict("REVISE", **ok).replace(
+                    "- a finding that must change", "- None \u2014\n\n## Important findings\n\nNone)\n\n"
+                    "## Optional findings\n\n- a suggestion")
                 changes_dot = _cp4_verdict("APPROVE", **ok).replace(
                     "Status: APPROVE\n", "Status: APPROVE\nReview scope: changes.\n")
                 changes_only = _cp4_verdict("APPROVE", **ok).replace(
@@ -18144,8 +18147,8 @@ class TestManualVerdictIngestRecordsAs260(unittest.TestCase):
                 both_scopes = _cp4_verdict("APPROVE", **ok).replace(
                     "Status: APPROVE\n", "Status: APPROVE\nReview scope: full\nReview scope: changes\n")
                 before = _cp5_files(repo)
-                for text in (optional_only, blocking_approve, changes_approve, comma_placeholder, changes_dot,
-                             changes_only, both_scopes):
+                for text in (optional_only, blocking_approve, changes_approve, comma_placeholder, dash_placeholder,
+                             changes_dot, changes_only, both_scopes):
                     with self.assertRaises(fingerprint.MalformedVerdictError):
                         _cp5_ingest(repo, stage, text)
                     self.assertEqual(_cp5_files(repo), before)

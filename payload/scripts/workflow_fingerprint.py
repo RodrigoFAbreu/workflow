@@ -213,6 +213,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import unicodedata
 import uuid
 from pathlib import Path
 from types import MappingProxyType
@@ -3747,8 +3748,11 @@ _PLACEHOLDERS = frozenset({"none", "n/a", "-", "none identified"})
 
 def _is_placeholder(text: str) -> bool:
     plain = re.sub(r"[*_`]", "", text).strip()
-    plain = re.sub(r"[.,:;!?\s]+$", "", plain)
     plain = re.sub(r"\s+", " ", plain).lower()
+    if plain in _PLACEHOLDERS:
+        return True
+    while plain and (unicodedata.category(plain[-1])[0] in "PSZ"):
+        plain = plain[:-1]
     return plain in _PLACEHOLDERS or bool(_NO_FINDINGS_RE.match(plain))
 
 
@@ -3772,9 +3776,12 @@ def _section_has_finding(content: str, heading: str) -> bool:
 def assert_verdict_well_formed(content: str) -> None:
     """`D-Severity`, workflow-2.12.0: refuses (`MalformedVerdictError`) a
     `REVISE` that names no Blocking or Important finding, an `APPROVE` that
-    lists a Blocking finding, and an `APPROVE` that declares `Review scope:
-    changes`. `BLOCK` and every other status pass unchecked. Reads the text
-    only."""
+    lists a Blocking finding, an `APPROVE` that declares `Review scope:
+    changes`, and an `APPROVE` whose header states a conflicting or
+    unrecognised `Review scope` (exactly one `Review scope: full` line, or
+    none, is accepted). Trailing punctuation or symbols on a "none"
+    placeholder are ignored. `BLOCK` and every other status pass unchecked.
+    Reads the text only."""
     status = parse_review_feedback_binding_fields(content)["status"]
     blocking = _section_has_finding(content, "Blocking findings")
     if status == "REVISE" and not blocking and not _section_has_finding(content, "Important findings"):
