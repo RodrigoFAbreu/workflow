@@ -700,7 +700,13 @@ the whole bundle: a header line `Review scope: full|changes` is optional, and
 `APPROVE`'s header has exactly one `Review scope: full` line or none; any
 other or conflicting value is refused. A finding is a list item
 or a `### ` heading in its section; write `None.` in a section with no
-finding (trailing punctuation or symbols on `None` are ignored). A verdict that breaks these rules is refused as malformed
+finding (trailing punctuation or symbols on `None` are ignored, and an entry
+made only of punctuation or symbols is also a placeholder). The shape check
+refuses an `APPROVE` that lists a Blocking finding; it does not refuse an
+`APPROVE` whose Important section holds an entry. By the severity meaning that
+is the reviewer's own contradiction: the reviewer should reissue it as a
+`REVISE` (or move the entry to Optional), and an Important entry on an
+accepted `APPROVE` stays recorded in the verdict as written. A verdict that breaks these rules is refused as malformed
 (`workflow_fingerprint.assert_verdict_well_formed`, `MalformedVerdictError`)
 before it becomes state, and is reissued, never converted: the local reviewers
 check their own text before writing it, and the manual ingest

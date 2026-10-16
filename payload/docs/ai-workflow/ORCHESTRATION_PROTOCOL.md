@@ -60,7 +60,7 @@ stdout is exactly one JSON document, the **envelope**
 ```json
 {
   "protocol": {"name": "workflow-orchestration", "version": "1.4"},
-  "workflow_release": "2.8.0",
+  "workflow_release": "2.12.0",
   "operation": "next-action",
   "ok": true,
   "result": { "...": "operation-specific" }
@@ -281,7 +281,7 @@ a **decision**:
               "current_checkpoint_id": null, "next_checkpoint_id": "CP2",
               "registry_complete": false, "plan_approval": "CURRENT",
               "technical_approval": null, "plan_review_publication_status": null,
-              "review_round": {"plan": 3, "implementation": null, "current": "plan_local"}},
+              "review_round": {"plan": 3, "implementation": null, "current": null}},
  "row": "23",
  "disposition": "automatic",
  "action": {"id": "implementation.checkpoint",

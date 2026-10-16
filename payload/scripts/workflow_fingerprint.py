@@ -3780,7 +3780,11 @@ def assert_verdict_well_formed(content: str) -> None:
     changes`, and an `APPROVE` whose header states a conflicting or
     unrecognised `Review scope` (exactly one `Review scope: full` line, or
     none, is accepted). Trailing punctuation or symbols on a "none"
-    placeholder are ignored. `BLOCK` and every other status pass unchecked.
+    placeholder are ignored, and an entry made only of punctuation or
+    symbols is also a placeholder. An `APPROVE` whose Important section
+    holds an entry is not refused: the reviewer should reissue it as a
+    `REVISE` (or move the entry to Optional), and the entry stays recorded as
+    written. `BLOCK` and every other status pass unchecked.
     Reads the text only."""
     status = parse_review_feedback_binding_fields(content)["status"]
     blocking = _section_has_finding(content, "Blocking findings")
