@@ -111,7 +111,9 @@ that this repository's own installation is never touched.
    `python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp -d)/fixture"`
    (`<fixture>` below is the path it prints/creates).
 3. `workflow-manager verify .` must stay clean (this repository's
-   installation is unchanged by the milestone).
+   installation is unchanged by the milestone). With no network it needs an
+   offline release source: point `WORKFLOW_MANAGER_RELEASE_SOURCE` at a local
+   mirror of the published 2.11.0 release.
 4. No feature flags or seed data are needed; tests build their own scratch
    repositories.
 
@@ -133,8 +135,9 @@ that this repository's own installation is never touched.
    of an implementation review (the `TestChangesSinceReview` tests do this).
    *Expected:* the bundle contains `CHANGES_SINCE_REVIEW.md` with preamble,
    previous findings and the diff since the last reviewed bundle; round 1 has
-   none; a same-content republication leaves it unchanged; the archive
-   includes it.
+   none; a same-content republication leaves it unchanged. The file is a
+   sibling of `current/` (at `.ai-review/<id>/CHANGES_SINCE_REVIEW.md`),
+   included at the archive root and outside both identity inputs.
 4. **Round field (CP3).** Run `python3 scripts/workflow_protocol.py
    next-action` (or the `TestReviewRoundField` tests) at a plan-review and an
    implementation-review wait. *Expected:* `protocol_version` is `1.4`;
@@ -148,7 +151,11 @@ that this repository's own installation is never touched.
 6. **Release metadata (CP5).** Check `manifest.json` version `2.12.0`,
    digests current, `WORKFLOW_RELEASE`, release-history row and the
    downgrade posture. *Expected:* consistent; `release.py check-pending`
-   reports 2.12.0 as an unpublished version.
+   validates the version/source transition (it prints `ok: 2.12.0 -> 2.12.0`
+   for an unchanged release source). For the unpublished check, run
+   `release.py check-immutable` with an offline `--releases` inventory
+   (expect `version 2.12.0 is not published`); publishing is a later owner
+   step.
 7. **Docs read-through.** Skim `REVIEW_PROTOCOL.md` (severity meanings,
    review-scope rule), `ORCHESTRATION_PROTOCOL.md` (field, round cap 8.1,
    courier 8.2, 1.4 note) and the three review commands. *Expected:* the
@@ -165,3 +172,17 @@ that this repository's own installation is never touched.
 - A consumer validating against its own copy of the 1.3 schema rejects the
   new field (documented in the 1.4 compatibility note).
 - Publishing 2.12.0 and the `workflow-manager` pin are separate, later steps.
+
+### Functional review round 1
+
+- **Fixed** (documentation only, no behavior change): the
+  `ORCHESTRATION_PROTOCOL.md` examples (envelope release `2.12.0` with
+  protocol `1.4`; the IMPLEMENTING decision shows `review_round.current` null);
+  `REVIEW_PROTOCOL.md` and `assert_verdict_well_formed`'s docstring now state
+  exactly what the shape check enforces (an `APPROVE` with a Blocking finding
+  is refused; one with an Important entry is not, and the entry stays
+  recorded) and that a punctuation-only entry is a "none" placeholder.
+  Checklist flows 3 and 6 and setup step 3 corrected.
+- **Deferred to a later release:** refusing an `APPROVE` that lists Important
+  findings; wrapped or prefixed placeholders such as `- (none)` (LIR-R4-001).
+- **Re-test:** flows 3, 6 and 7.
