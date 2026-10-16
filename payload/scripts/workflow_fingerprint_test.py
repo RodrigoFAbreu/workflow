@@ -4476,6 +4476,13 @@ class VerdictWellFormedTest(unittest.TestCase):
                 self._refused(self._verdict("REVISE", blocking=placeholder, important=placeholder,
                                             optional="- a suggestion"))
 
+    def test_punctuation_only_entry_is_a_placeholder(self):
+        """EIR-R2-001: an entry that is nothing but punctuation or symbols names no finding."""
+        for placeholder in ("- -.", "- --", "- —", "- ...", "- *", "- `-`", "- !?", "1. -"):
+            with self.subTest(placeholder=placeholder):
+                self._refused(self._verdict("REVISE", blocking=placeholder, important="None.",
+                                            optional="- a suggestion"))
+
     def test_a_conflicting_or_unrecognised_scope_on_an_approve_is_refused(self):
         """EIR-R1-001: only one `full` (or no) scope line approves; `changes.`,
         `changes only` and a header stating two scopes never pass as omitted."""

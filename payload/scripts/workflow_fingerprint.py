@@ -3753,7 +3753,7 @@ def _is_placeholder(text: str) -> bool:
         return True
     while plain and (unicodedata.category(plain[-1])[0] in "PSZ"):
         plain = plain[:-1]
-    return plain in _PLACEHOLDERS or bool(_NO_FINDINGS_RE.match(plain))
+    return not plain or plain in _PLACEHOLDERS or bool(_NO_FINDINGS_RE.match(plain))
 
 
 def _section_has_finding(content: str, heading: str) -> bool:
