@@ -181,8 +181,8 @@ mechanical differs by stage (LPR-R1-005):
 
 - **Manual stages: enforced in code.** `ingest_manual_review_verdict`, after
   `require_manual_verdict_fields`, at a two-stage row only (covers both
-  manual stages and `record-external-result`; a feedback-only "1"/"2.1" row
-  is unchanged). Nothing can reach state around it.
+  manual stages and `record-external-result`; a feedback-only row, one that
+  is not two-stage, is unchanged). Nothing can reach state around it.
 - **Local stages: enforced by the command.** `record_local_plan_review` and
   `record_local_implementation_review` are pure state functions that take no
   text, so `/review-plan` step 7 and `/review-implementation`'s "2.2" branch
