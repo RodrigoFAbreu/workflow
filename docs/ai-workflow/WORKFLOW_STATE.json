@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "review-convergence",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -4823,7 +4823,7 @@
       "registry_path": "docs/ai-workflow/registry/review-convergence-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/review-convergence-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 9,
       "implementation_revision": 5,
       "functional_review_round": null,
@@ -5214,8 +5214,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 68,
-      "last_transition": "2026-10-16T11:38:20Z",
+      "state_revision": 69,
+      "last_transition": "2026-10-16T16:30:23Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -5266,6 +5266,209 @@
           "verdict_sha256": "d338373282f68e82ff2c365b5e4e3ea4b0093b7c6746d83411df541b1b4591b5",
           "run_ref": "session:local .ai-review/review-convergence/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "gate_evidence": {
+        "functional": {
+          "w8-r1-f1": {
+            "flow_id": "w8-r1-f1",
+            "status": "passed",
+            "head": "91041c65137146ee1c0fd86fd089c8a69f41743e",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "nine frozen suites green (2,979 tests)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "c1c98869f4460fee5549599721d3080b18f54b6999edfa1643c7367727ac9527",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ede8f6b29cd85ad17780ec40e6fc140bbf844cd579af41c32a8baec5941c2c8f",
+            "recorded_at": "2026-10-16T11:51:55Z"
+          },
+          "w8-r1-f2": {
+            "flow_id": "w8-r1-f2",
+            "status": "passed",
+            "head": "91041c65137146ee1c0fd86fd089c8a69f41743e",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "verdict shape: malformed verdicts refused at both stages, byte-identical refusals",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "8e82633625ae3e19af81c28178cd24e0dfac475671f6dc10a40494cca9bb1520",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ede8f6b29cd85ad17780ec40e6fc140bbf844cd579af41c32a8baec5941c2c8f",
+            "recorded_at": "2026-10-16T11:51:55Z"
+          },
+          "w8-r1-f3": {
+            "flow_id": "w8-r1-f3",
+            "status": "failed",
+            "head": "91041c65137146ee1c0fd86fd089c8a69f41743e",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "changes file correct; checklist wording placed it inside the bundle",
+              "result": "FAILED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "490c279e3e9de9beae2aed40b6878e8c7b63b281a247085976864ead44b39beb",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ede8f6b29cd85ad17780ec40e6fc140bbf844cd579af41c32a8baec5941c2c8f",
+            "recorded_at": "2026-10-16T11:51:55Z"
+          },
+          "w8-r1-f4": {
+            "flow_id": "w8-r1-f4",
+            "status": "passed",
+            "head": "91041c65137146ee1c0fd86fd089c8a69f41743e",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "review_round field (protocol 1.4)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "a2cf4e1ab5a80629e29d0d455def5f22a0341549d42f5328b13347aabec2c954",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ede8f6b29cd85ad17780ec40e6fc140bbf844cd579af41c32a8baec5941c2c8f",
+            "recorded_at": "2026-10-16T11:51:55Z"
+          },
+          "w8-r1-f5": {
+            "flow_id": "w8-r1-f5",
+            "status": "passed",
+            "head": "91041c65137146ee1c0fd86fd089c8a69f41743e",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "plan-size advisory above 6",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "cf2f6fede7170a43e19c96a3030e6cc4c1e938117a4af5be99c1ee048ae929dc",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ede8f6b29cd85ad17780ec40e6fc140bbf844cd579af41c32a8baec5941c2c8f",
+            "recorded_at": "2026-10-16T11:51:55Z"
+          },
+          "w8-r1-f6": {
+            "flow_id": "w8-r1-f6",
+            "status": "failed",
+            "head": "91041c65137146ee1c0fd86fd089c8a69f41743e",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "release metadata correct; checklist check-pending expectation wrong",
+              "result": "FAILED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "50dc85e9fc26158791fd0700914cb3821c18d8a1b3cdf9f94e7977aeeb904717",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ede8f6b29cd85ad17780ec40e6fc140bbf844cd579af41c32a8baec5941c2c8f",
+            "recorded_at": "2026-10-16T11:51:55Z"
+          },
+          "w8-r1-f7": {
+            "flow_id": "w8-r1-f7",
+            "status": "failed",
+            "head": "91041c65137146ee1c0fd86fd089c8a69f41743e",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "docs: protocol examples inconsistent; APPROVE-with-Important contract unstated",
+              "result": "FAILED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "881eab226ad7e0b75e1612aaaaa606803acb3fb39bb809100d88e20fc6ed764c",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ede8f6b29cd85ad17780ec40e6fc140bbf844cd579af41c32a8baec5941c2c8f",
+            "recorded_at": "2026-10-16T11:51:55Z"
+          },
+          "w8-r2-fixes": {
+            "flow_id": "w8-r2-fixes",
+            "status": "passed",
+            "head": "9c1c4d6bc04f0ab16cfead4e9229a7b17096c791",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "round-1 doc and checklist findings resolved; no executable change",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "62ec24d4415ba68afdc714fa5c587a58f32adc05d8fe19439e9dd0fe847f416a",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ef421d7bf3e807acc998ced76ea8c0c8cfcab2cca716bd5bf0fb04a4fb87d173",
+            "recorded_at": "2026-10-16T11:51:56Z"
+          },
+          "w8-r2-f3": {
+            "flow_id": "w8-r2-f3",
+            "status": "passed",
+            "head": "9c1c4d6bc04f0ab16cfead4e9229a7b17096c791",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "changes file (flow 3 re-test)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "ea875bb406420ef3fc76de3467298a4aa1e0fc8c0963c27f78660ff44b779dd6",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ef421d7bf3e807acc998ced76ea8c0c8cfcab2cca716bd5bf0fb04a4fb87d173",
+            "recorded_at": "2026-10-16T11:51:56Z"
+          },
+          "w8-r2-f6": {
+            "flow_id": "w8-r2-f6",
+            "status": "passed",
+            "head": "9c1c4d6bc04f0ab16cfead4e9229a7b17096c791",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "release metadata (flow 6 re-test)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "7bf71a59b61ff64b4029257acb85196ec11de1e6240bae2ac55bd7868c19b121",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ef421d7bf3e807acc998ced76ea8c0c8cfcab2cca716bd5bf0fb04a4fb87d173",
+            "recorded_at": "2026-10-16T11:51:56Z"
+          },
+          "w8-r2-f7": {
+            "flow_id": "w8-r2-f7",
+            "status": "passed",
+            "head": "9c1c4d6bc04f0ab16cfead4e9229a7b17096c791",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "docs read-through (flow 7 re-test)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "428ebf92487a428e16690f749cf3a6325f7eb8da37c4884decaeacda7b6b3b50",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ef421d7bf3e807acc998ced76ea8c0c8cfcab2cca716bd5bf0fb04a4fb87d173",
+            "recorded_at": "2026-10-16T11:51:56Z"
+          },
+          "w8-r2-manifest-suites": {
+            "flow_id": "w8-r2-manifest-suites",
+            "status": "passed",
+            "head": "9c1c4d6bc04f0ab16cfead4e9229a7b17096c791",
+            "ran_at": "2026-10-16T11:51:55Z",
+            "summary": {
+              "flow": "manifest digests + nine fresh-fixture suites (2,979 tests)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "ed53cbed974190f165ee9eb229a22b7342052ed55ecac02b694b75126e4ffe06",
+            "run_ref": "manager-orchestrator:runs-workflow/w8-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "ef421d7bf3e807acc998ced76ea8c0c8cfcab2cca716bd5bf0fb04a4fb87d173",
+            "recorded_at": "2026-10-16T11:51:56Z"
+          }
+        },
+        "pr": null,
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 0
         }
       }
     }
