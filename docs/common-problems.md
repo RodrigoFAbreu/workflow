@@ -1,6 +1,6 @@
 # Common problems
 
-> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.11.0.
+> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.12.0.
 
 Each problem has a one-line fix. The exact rules are in the shipped documents
 under `payload/docs/ai-workflow/`. What a script's exit status means is in
@@ -153,6 +153,21 @@ approved before 2.11.0 without anchors is not affected until its next revision.
 Moving back to 2.10.0 loses only these early refusals (nothing new is written):
 a plan without anchors is accepted again, and an amendment of it is refused
 first at plan approval, after both plan reviews.
+
+### A review verdict is refused as malformed
+
+`/review-plan`, `/review-implementation` or the manual ingest
+(`/record-manual-plan-review`, `/record-manual-implementation-review`,
+`record-external-result`) refused a verdict as malformed and wrote nothing.
+Either a `REVISE` names no Blocking or Important finding, an `APPROVE` lists a
+Blocking finding, an `APPROVE` declares `Review scope: changes` (every
+`APPROVE` is a full review), or an `APPROVE`'s header states a conflicting or
+unrecognised `Review scope` (for example `full.`, or `full` together with
+`changes`): it needs exactly one `Review scope: full` line, or none. The one fix: have the reviewer reissue the
+verdict, never edit it into a different status. A round with only Optional
+findings is an `APPROVE` with those findings under `## Optional findings`;
+write `None.` in a section with no finding. A verdict already recorded is
+applied as before. Moving back to 2.11.0 loses the refusal.
 
 ### A generation record is refused for its trailer set
 
