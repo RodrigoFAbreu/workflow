@@ -392,7 +392,9 @@ def check(manifest: dict, version: str, measured: dict | None, manager_releases:
         elif conformance["suites"] != measured:
             problems.append(f"manager.conformance.suites differs from the measurement: "
                             f"{_suites_diff(conformance['suites'], measured)}; run "
-                            f"release.py manager-block --write")
+                            f"`python3 tools/release/release.py manager-block --commit HEAD "
+                            f"--write` (or `--release-dir <staged-release>` in place of "
+                            f"`--commit HEAD` for an uncommitted release source)")
     minimum = block.get("min_manager_version")
     if minimum is not None:
         evidence = validate_evidence(manager_releases)

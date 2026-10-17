@@ -1682,6 +1682,18 @@ class ManagerCheckTest(unittest.TestCase):
         self.assertIn("a_test.py recorded 2, measured 3", problems)
         self.assertIn("b_test.py recorded absent, measured 1", problems)
 
+    def test_the_count_refusal_names_a_command_the_real_parser_accepts(self):
+        import re
+        message = "\n".join(self.check(self.manifest(), measured={"a_test.py": 3}))
+        printed = re.search(r"`python3 tools/release/release\.py ([^`]+)`", message)
+        self.assertIsNotNone(printed, message)
+        args = release._parser().parse_args(printed.group(1).split())
+        self.assertEqual((args.commit, args.write), ("HEAD", True))
+        self.assertIn("--release-dir <staged-release>", message)
+        args = release._parser().parse_args(
+            ["manager-block", "--release-dir", "staged", "--write"])
+        self.assertEqual((args.release_dir, args.write), (Path("staged"), True))
+
     def test_a_block_without_suites_is_refused_once_measured(self):
         block = valid_block()
         del block["conformance"]
