@@ -86,3 +86,61 @@ checkpoint is complete).
 Publishing 2.13.0 follows the pull request merge; the Manager side is a
 `chore: test Workflow 2.13.0` lock bump in `workflow-manager`. The Manager
 release 1.13.0 must be published before this pull request merges (CP4's CI check).
+
+## Functional review checklist
+
+Item `review-loop-fixes` (process, Workflow 2.13.0), implementation revision 3.
+Findings go to `.ai-review/review-loop-fixes/feedback/FUNCTIONAL_REVIEW.md`.
+
+### Setup
+
+- On branch `milestone/review-loop-fixes`, clean tree. Python 3 only; no feature
+  flags and no external data. Run commands from the repository root.
+- Stage a scratch release from the working tree (never edit this repository's own
+  installation by hand) and keep it outside the repository.
+
+### Test data
+
+- A scratch git repository with a `2.2` work item that has a plan bundle and one
+  manual external plan review already ingested (`REVISE`), then a revised plan.
+- `tools/release/manager-releases.json` as committed (Manager 1.13.0 record).
+
+### Flows
+
+1. **Atomic ready file (CP1, workflow#32).** Run the real-process lock test suite
+   several times in a row (`python3 -m unittest` on the state-lock real-process
+   test). Expected: no flaky "ready file" failure; the holder's ready file appears
+   whole or not at all.
+2. **Governing-version sweep (CP1, workflow#30).** In the scratch repo, edit the
+   plan so its governing version disagrees with the work item's, then run the plan
+   bundle step (`prepare-ai-review.sh` or `/milestone-plan`'s publish step).
+   Expected: refusal naming the governing-version mismatch
+   (`docs/common-problems.md`); with the plan corrected, the step succeeds.
+3. **Baseline record (CP2).** After ingesting a manual `REVISE` verdict, look under
+   `.ai-review/<id>/review-baselines/<ROLE>/`. Expected: a gitignored record; a
+   second ingest replaces it wholesale; deleting or corrupting it makes the reader
+   return a full review (no crash).
+4. **Per-stage changes file (CP3).** Revise the plan and rebuild the bundle.
+   Expected: `CHANGES_SINCE_REVIEW.md` has `## LOCAL_MODEL_PLAN_REVIEW` and
+   `## MANUAL_EXTERNAL_PLAN_REVIEW` sections; the manual one diffs against the
+   content it last reviewed and quotes its own last verdict; with the baseline
+   removed it says `not available (<reason>): review the whole bundle.`; with no
+   basis for either stage, the file is absent. Repeat for the implementation stage.
+5. **Manager block (CP4).** Run `python3 tools/release/release.py manager-block
+   --release-dir <scratch release>` and `check-manager-block`. Expected: the block
+   validates (integer, string and full-match rules); `--write` changes only
+   `suites`; a deliberately wrong authored field or suite count is reported.
+6. **Release bookkeeping (CP5).** Check `manifest.json` names 2.13.0, `WORKFLOW_RELEASE`
+   is 2.13.0, protocol stays 1.4, `manager-pin.json` names Manager 1.13.0, and
+   `docs/release-history.md` has the 2.13.0 row. Run the nine payload suites from
+   the scratch release and the tools tests; expected counts 415, 330, 1133, 292,
+   140, 106, 307, 269, 27.
+
+### Known limitations / out of scope
+
+- Publishing 2.13.0, the `workflow-manager` lock bump and Manager 1.13.0
+  publication happen after merge; CP4's CI check needs Manager 1.13.0 published
+  before the pull request merges.
+- The local review stage's changes file is deliberately unchanged from 2.12.0.
+- `test_round_trip` depends on refreshed digests and is judged on the scratch
+  release, not the raw working tree.
