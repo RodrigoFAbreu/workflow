@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**In implementation (CP1 to CP4 complete).** W9: `review-loop-fixes` (`process`, governing version `2.2`),
+**In implementation (CP1 to CP5 complete).** W9: `review-loop-fixes` (`process`, governing version `2.2`),
 branch `milestone/review-loop-fixes`, base `d911915` (main after #36: the
 release source and this repository's own installation are both Workflow
 2.12.0, with automatic gates, default "2.2" and no `GATE_POLICY.json`).
@@ -66,11 +66,23 @@ The counting method equals each suite's own `Ran N tests` on 2.12.0 (415, 330, 1
 292, 125, 106, 300, 269, 27). `manager-pin.json` is advanced in CP5. Verified: the
 nine payload suites from a scratch release staged from the checkpoint's tree, the
 tools tests (all but `test_round_trip`, which needs CP5's refreshed digests), and
-`tools/docs/`. Next: CP5.
+`tools/docs/`.
+
+CP5 is complete: release 2.13.0 bookkeeping. `manifest.json` names 2.13.0 with every
+digest and size refreshed, the rationale of each changed record extended, and the
+authored `manager` block (minimum Manager 1.13.0, empty downgrade posture, one
+`new_work_only` note); `conformance.suites` was written by `release.py manager-block
+--release-dir` from the working tree staged with refreshed digests (415, 330, 1133, 292,
+140, 106, 307, 269, 27), never by hand. `WORKFLOW_RELEASE` is 2.13.0 and the protocol stays
+1.4 (tested-releases note, envelope example, compatibility note); `manager-pin.json`
+advances to Manager 1.13.0; `docs/release-history.md` has the 2.13.0 row with the
+downward-move paragraph and `docs/common-problems.md` the governing-version refusal.
+All five checkpoints are complete.
 
 ## Next action
 
-`/milestone-implement`, one checkpoint per invocation (CP5 next).
+Self-review, the full verification and the implementation review bundle (every
+checkpoint is complete).
 Publishing 2.13.0 follows the pull request merge; the Manager side is a
 `chore: test Workflow 2.13.0` lock bump in `workflow-manager`. The Manager
 release 1.13.0 must be published before this pull request merges (CP4's CI check).

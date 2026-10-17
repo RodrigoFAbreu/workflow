@@ -1,6 +1,6 @@
 # Common problems
 
-> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.12.0.
+> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.13.0.
 
 Each problem has a one-line fix. The exact rules are in the shipped documents
 under `payload/docs/ai-workflow/`. What a script's exit status means is in
@@ -153,6 +153,22 @@ approved before 2.11.0 without anchors is not affected until its next revision.
 Moving back to 2.10.0 loses only these early refusals (nothing new is written):
 a plan without anchors is accepted again, and an amendment of it is refused
 first at plan approval, after both plan reviews.
+
+### A plan is refused before review because of a list of governing versions
+
+`/milestone-plan` or `/apply-plan-review` stopped (or `prepare-ai-review.sh`
+exited 1 at the plan stage) with `PlanGoverningVersionSweepError`, which lists
+each flagged passage as `<path>:<line> (<form>): <snippet>`. The cause is a plan
+revision under `docs/ai-workflow/` that names a list of governing versions,
+which the repository's conformance sweep rejects. The one fix: reword each
+flagged passage so it names no list of governing versions (say a feedback-only
+item or a two-stage item), then run the same command again. It happens before
+review now, instead of at pull-request time when an approved plan can no longer
+be corrected, because the check runs at publish, bind and plan-stage generation
+(after the anchor check, so a plan without anchors is refused for that cause
+first). A plan approved or bound before 2.13.0 is not affected until its next
+revision. Moving back to 2.12.0 loses only this early refusal (nothing new is
+written).
 
 ### A review verdict is refused as malformed
 
