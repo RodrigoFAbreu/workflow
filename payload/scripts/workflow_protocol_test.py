@@ -3484,6 +3484,21 @@ class TestRecordExternalResultTwoStage(unittest.TestCase):
                              "advisory": None})
                         self.assertEqual(result["basis"], wp.basis(repo.root, after, WI))
 
+    def test_a_revise_records_the_stage_baseline_as_the_command_path_does(self):
+        """workflow-2.13.0 (D-Baseline): `record-external-result` shares the
+        ingest, so it records the role's baseline, which reads back."""
+        for kind, (role, key, build, versions) in _TWO_STAGE_KINDS.items():
+            with self.subTest(kind=kind), h.ScratchRepo() as repo:
+                ids = build(repo, versions[-1])
+                text = verdict("REVISE", rcid=ids[key], bundle=ids["B"], base=repo.base, role=role)
+                recorded(self, repo, kind, text)
+                role_dir = repo.root / ".ai-review" / WI / fingerprint.STAGE_BASELINE_DIR / role
+                self.assertTrue((role_dir / "BASELINE.json").is_file())
+                self.assertEqual((role_dir / "VERDICT.md").read_text(), text)
+                read = fingerprint.read_stage_baseline(repo.root, WI, role)
+                self.assertIsNotNone(read)
+                self.assertEqual((read["verdict_text"], read["review_content_id"]), (text, ids[key]))
+
     def test_the_command_path_and_the_protocol_path_give_the_same_values(self):
         """`round` and `bundle_id` (`LPR-R3-005`): a stated `Round:` and an
         absent bundle id, through both paths."""

@@ -19984,6 +19984,27 @@ class TestStageBaselineRecording(unittest.TestCase):
                     self.assertEqual(read["verdict_text"], text)
                     self.assertEqual(read["review_content_id"], content_id)
 
+    def test_a_feedback_only_row_records_no_baseline_and_leaves_an_earlier_record_byte_identical(self):
+        for stage, version in (("plan", "1"), ("implementation", "1"), ("implementation", "2.1")):
+            with self.subTest(stage=stage, version=version), _harness.ScratchRepo() as repo:
+                bundle_id = _cp5_feedback_only_item(repo, stage, version)
+                text = _cp4_verdict("REVISE", bundle=bundle_id, base=repo.base)
+                baselines = repo.root / ".ai-review" / _CP4_WI / fingerprint.STAGE_BASELINE_DIR
+                ws.ingest_manual_review_verdict(repo.root, _CP4_WI, stage=stage, verdict_text=text, now=_CP5_NOW)
+                self.assertEqual(ws.read_review_feedback(repo.root, _CP4_WI), text)
+                self.assertFalse(baselines.exists())
+                # With an earlier record in place (the shape a two-stage item's has), a feedback-only
+                # ingest leaves it byte-identical and adds none.
+                role = _CP5_PLAN_ROLE if stage == "plan" else _CP5_IMPL_ROLE
+                planted = baselines / role
+                planted.mkdir(parents=True)
+                (planted / "BASELINE.json").write_text('{"planted": true}\n')
+                (planted / "VERDICT.md").write_text("planted\n")
+                ws.ingest_manual_review_verdict(repo.root, _CP4_WI, stage=stage, verdict_text=text, now=_CP5_NOW)
+                self.assertEqual((planted / "BASELINE.json").read_bytes(), b'{"planted": true}\n')
+                self.assertEqual((planted / "VERDICT.md").read_bytes(), b"planted\n")
+                self.assertEqual([p.name for p in baselines.iterdir()], [role])
+
     def test_block_malformed_stale_and_refused_verdicts_record_nothing_and_keep_the_earlier_record(self):
         for stage, (build, role, _writer) in _CP5_STAGES.items():
             with self.subTest(stage=stage), _harness.ScratchRepo() as repo:
