@@ -29,6 +29,7 @@ HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE))
 
+import manager_block  # noqa: E402
 import package  # noqa: E402
 import release  # noqa: E402
 
@@ -1449,6 +1450,702 @@ class RoadmapTest(unittest.TestCase):
         rows = [l for l in self.section("Open defects").splitlines() if l.startswith("| `v")]
         self.assertEqual(len(rows), 1)
         self.assertIn("`v2.6.0-003`", rows[0])
+
+
+# -- the Manager metadata block ----------------------------------------------------
+
+SUITE_TWO = ("import unittest\n\n\nclass T(unittest.TestCase):\n"
+             "    def test_a(self):\n        pass\n\n    def test_b(self):\n        pass\n")
+SUITE_ONE = ("import unittest\n\n\nclass U(unittest.TestCase):\n"
+             "    @unittest.skip('counted all the same')\n"
+             "    def test_a(self):\n        pass\n")
+SUITE_FAILS = ("import unittest\n\n\nclass F(unittest.TestCase):\n"
+               "    def test_a(self):\n        self.fail('frozen suite failure')\n")
+SUITE_LOAD_ERROR = ("import unittest\n\n\nclass T(unittest.TestCase):\n"
+                    "    def test_a(self):\n        pass\n\n\n"
+                    "def load_tests(loader, tests, pattern):\n    raise RuntimeError('boom')\n")
+MAIN_GUARD = "\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+SUITE_TWO, SUITE_ONE, SUITE_FAILS = (s + MAIN_GUARD for s in (SUITE_TWO, SUITE_ONE, SUITE_FAILS))
+SUITE_IMPORT_ERROR = "raise RuntimeError('does not import')\n"
+WORKFLOW_TEMPLATE = ("jobs:\n  workflow-conformance:\n    steps:\n      - run: |\n"
+                     "          suites=\"{suites}\"\n          echo run\n")
+
+
+def conformance_workflow(*names: str) -> str:
+    return WORKFLOW_TEMPLATE.format(suites=" ".join(names))
+
+
+def valid_block(suites: dict[str, int] | None = None, minimum: str = "1.13.0") -> dict:
+    return {
+        "schema_version": 1,
+        "min_manager_version": minimum,
+        "downgrade_boundary": {
+            "posture": "", "undetectable": None,
+            "signals": [{"name": "review-baselines", "label": "a baseline directory",
+                         "detect": {"kind": "state-key", "key": "review_baselines"}}]},
+        "new_work_only": ["the first manual round is a full review"],
+        "gate_default_change": "",
+        "conformance": {"suites": {"a_test.py": 2} if suites is None else suites,
+                        "portability_exceptions": []},
+    }
+
+
+def evidence_for(*records: tuple[str, bool, bool]) -> dict:
+    return {"repository": "RodrigoFAbreu/workflow-manager", "taken": "2026-10-17",
+            "releases": [{"tagName": tag, "isDraft": draft, "isPrerelease": pre,
+                          "publishedAt": "2026-10-17T00:00:00Z"} for tag, draft, pre in records]}
+
+
+def managed_release(root: Path, version: str, suites: dict[str, str], block: dict | None) -> None:
+    """A release source whose conformance workflow names `suites` (file name ->
+    source) and whose manifest carries `block` (or none)."""
+    extra = {f"payload/scripts/{name}": text for name, text in suites.items()}
+    extra["templates/.github/workflows/workflow-conformance.yml"] = conformance_workflow(*suites)
+    write_release(root, version, extra=extra)
+    manifest = json.loads((root / "manifest.json").read_text())
+    if block is not None:
+        manifest["manager"] = block
+    (root / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+
+
+class ManagerBlockContractTest(unittest.TestCase):
+    def problems(self, mutate) -> str:
+        block = valid_block()
+        mutate(block)
+        return "\n".join(manager_block.validate(block))
+
+    def test_a_complete_block_is_valid(self):
+        self.assertEqual(manager_block.validate(valid_block()), [])
+
+    def test_every_top_level_key_is_optional_but_the_schema_version(self):
+        self.assertEqual(manager_block.validate({"schema_version": 1}), [])
+        self.assertIn("manager.schema_version: required", "\n".join(manager_block.validate({})))
+
+    def test_each_rule_fails_naming_its_key(self):
+        signal = lambda b: b["downgrade_boundary"]["signals"][0]
+        cases = [
+            (lambda b: b.pop("schema_version"), "manager.schema_version: required"),
+            (lambda b: b.update(schema_version=2), "manager.schema_version: must be 1"),
+            (lambda b: b.update(schema_version=True), "manager.schema_version"),
+            (lambda b: b.update(extra=1), "manager.extra: unknown key"),
+            (lambda b: b.update(min_manager_version="1.x"), "manager.min_manager_version"),
+            (lambda b: b.update(min_manager_version=1.13), "manager.min_manager_version"),
+            (lambda b: b.update(min_manager_version=""), "manager.min_manager_version"),
+            (lambda b: b["downgrade_boundary"].pop("posture"),
+             "manager.downgrade_boundary.posture: required"),
+            (lambda b: b["downgrade_boundary"].update(undetectable=3),
+             "manager.downgrade_boundary.undetectable"),
+            (lambda b: b["downgrade_boundary"].update(signals={}),
+             "manager.downgrade_boundary.signals: must be a list"),
+            (lambda b: signal(b).update(name="Bad_Name"), "signals[0].name: must be a kebab-case string"),
+            (lambda b: signal(b).pop("label"), "signals[0].label: required"),
+            (lambda b: signal(b).pop("detect"), "signals[0].detect: required"),
+            (lambda b: signal(b).update(detect={"kind": "state-regex", "key": "x"}),
+             "signals[0].detect.kind: 'state-regex' is not a detector kind"),
+            (lambda b: signal(b).update(detect={"kind": "state-key"}),
+             "signals[0].detect.key: required by the 'state-key' detector"),
+            (lambda b: signal(b).update(detect={"kind": "state-value", "key": "k", "value": [1]}),
+             "signals[0].detect.value: must be a JSON scalar"),
+            (lambda b: signal(b).update(detect={"kind": "state-value", "key": "k", "value": 1.5}),
+             "signals[0].detect.value: must be a JSON scalar"),
+            (lambda b: signal(b).update(detect={"kind": "item-phase", "phases": []}),
+             "signals[0].detect.phases: must be a non-empty list of strings"),
+            (lambda b: signal(b).update(detect={"kind": "item-governing", "value": "2.2", "key": "x"}),
+             "signals[0].detect.key: unknown key"),
+            (lambda b: b.update(new_work_only="text"), "manager.new_work_only"),
+            (lambda b: b.update(gate_default_change=None), "manager.gate_default_change"),
+            (lambda b: b["conformance"].pop("portability_exceptions"),
+             "manager.conformance.portability_exceptions: required"),
+            (lambda b: b["conformance"].pop("suites"), "manager.conformance.suites: required"),
+            (lambda b: b.update(conformance={}), "manager.conformance.suites: required"),
+            (lambda b: b["conformance"]["suites"].update({"a_test.py": -1}),
+             "manager.conformance.suites['a_test.py']: must be a non-negative integer"),
+            (lambda b: b["conformance"]["suites"].update({"a_test.py": True}),
+             "manager.conformance.suites['a_test.py']: must be a non-negative integer"),
+            (lambda b: b["conformance"]["suites"].update({"a_test.py": 1.5}),
+             "manager.conformance.suites['a_test.py']"),
+            (lambda b: b["conformance"].update(portability_exceptions={}),
+             "manager.conformance.portability_exceptions: must be a list"),
+            (lambda b: b["conformance"].update(portability_exceptions=[{"suite": "s"}]),
+             "portability_exceptions[0].test: required"),
+        ]
+        for mutate, expected in cases:
+            with self.subTest(expected=expected):
+                self.assertIn(expected, self.problems(mutate))
+
+    def test_each_detector_kind_has_a_passing_form(self):
+        for detect in ({"kind": "state-key", "key": "k"},
+                       {"kind": "state-value", "key": "k", "value": None},
+                       {"kind": "state-value", "key": "k", "value": True},
+                       {"kind": "item-governing", "value": "2.2"},
+                       {"kind": "item-phase", "phases": ["IMPLEMENTING"]},
+                       {"kind": "item-field", "key": "k", "value": 3}):
+            with self.subTest(detect=detect):
+                block = valid_block()
+                block["downgrade_boundary"]["signals"][0]["detect"] = detect
+                self.assertEqual(manager_block.validate(block), [])
+
+    def test_a_portability_exception_with_optional_keys_is_valid(self):
+        block = valid_block()
+        block["conformance"]["portability_exceptions"] = [
+            {"suite": "s_test.py", "test": "C.t", "requires": None, "reason": "r", "defect": None}]
+        self.assertEqual(manager_block.validate(block), [])
+
+    def test_a_non_object_is_refused(self):
+        self.assertEqual(manager_block.validate([]), ["manager: must be an object"])
+
+
+class ManagerEvidenceTest(unittest.TestCase):
+    def test_only_an_exact_published_vxyz_tag_counts(self):
+        evidence = evidence_for(
+            ("v1.12.0", False, False), ("v1.13.0", False, False),
+            ("v1.14.0", True, False), ("v1.15.0", False, True),
+            ("workflow-manager-v1.0.0", False, False), ("v2.0.0-rc1", False, False),
+            ("v9.9", False, False))
+        self.assertEqual(manager_block.validate_evidence(evidence), [])
+        self.assertEqual(manager_block.published_versions(evidence), ["1.12.0", "1.13.0"])
+        self.assertEqual(manager_block.newest_published(evidence), "1.13.0")
+
+    def test_the_newest_is_numeric_not_textual(self):
+        evidence = evidence_for(("v1.9.0", False, False), ("v1.10.0", False, False))
+        self.assertEqual(manager_block.newest_published(evidence), "1.10.0")
+
+    def test_a_record_lacking_a_field_makes_the_evidence_invalid(self):
+        for missing in ("isDraft", "isPrerelease", "publishedAt", "tagName"):
+            with self.subTest(missing=missing):
+                evidence = evidence_for(("v1.13.0", False, False))
+                del evidence["releases"][0][missing]
+                problems = manager_block.validate_evidence(evidence)
+                self.assertTrue(any(f"releases[0].{missing}: required" in p for p in problems),
+                                problems)
+
+    def test_other_malformed_evidence_is_invalid(self):
+        self.assertTrue(manager_block.validate_evidence([]))
+        self.assertTrue(manager_block.validate_evidence(dict(evidence_for(), taken="yesterday")))
+        self.assertTrue(manager_block.validate_evidence(
+            evidence_for(("v1.0.0", False, False), ("v1.0.0", False, False))))
+        bad = evidence_for(("v1.0.0", False, False))
+        bad["releases"][0]["isDraft"] = "no"
+        self.assertTrue(manager_block.validate_evidence(bad))
+
+
+class ManagerCheckTest(unittest.TestCase):
+    EVIDENCE = evidence_for(("v1.12.0", False, False), ("v1.13.0", False, False))
+
+    def manifest(self, block="default"):
+        manifest = {"workflow_version": "2.13.0"}
+        if block is not None:
+            manifest["manager"] = valid_block({"a_test.py": 2}) if block == "default" else block
+        return manifest
+
+    def check(self, manifest, measured=None, version="2.13.0", evidence=None):
+        return manager_block.check(manifest, version, {"a_test.py": 2} if measured is None
+                                   else measured, self.EVIDENCE if evidence is None else evidence)
+
+    def test_a_good_release_has_no_problem(self):
+        self.assertEqual(self.check(self.manifest()), [])
+
+    def test_a_block_in_2_12_0_or_older_is_refused_and_no_block_there_is_fine(self):
+        for version in ("2.12.0", "2.3.1", "1.0.0"):
+            with self.subTest(version=version):
+                self.assertTrue(any("never gain one" in p for p in self.check(
+                    self.manifest(), version=version)))
+                self.assertEqual(self.check(self.manifest(None), version=version), [])
+
+    def test_a_missing_block_in_a_newer_manifest_is_refused(self):
+        for version in ("2.12.1", "2.13.0", "3.0.0"):
+            with self.subTest(version=version):
+                self.assertTrue(any("has no manager block" in p for p in self.check(
+                    self.manifest(None), version=version)))
+
+    def test_an_invalid_block_is_reported_before_anything_else(self):
+        block = valid_block({"a_test.py": 2})
+        block["schema_version"] = 3
+        self.assertIn("manager.schema_version", "\n".join(self.check(self.manifest(block))))
+
+    def test_suites_must_equal_the_measurement(self):
+        problems = "\n".join(self.check(self.manifest(), measured={"a_test.py": 3, "b_test.py": 1}))
+        self.assertIn("a_test.py recorded 2, measured 3", problems)
+        self.assertIn("b_test.py recorded absent, measured 1", problems)
+
+    def test_a_block_without_suites_is_refused_once_measured(self):
+        block = valid_block()
+        del block["conformance"]
+        self.assertIn("manager.conformance", "\n".join(self.check(self.manifest(block))))
+        self.assertIn("manager.conformance.suites: required in a release's block",
+                      "\n".join(self.check(self.manifest({"schema_version": 1}))))
+
+    def test_the_minimum_manager_must_be_published(self):
+        def with_minimum(minimum):
+            return self.manifest(dict(valid_block({"a_test.py": 2}), min_manager_version=minimum))
+        self.assertIn("is newer than the newest published Manager release 1.13.0",
+                      "\n".join(self.check(with_minimum("1.14.0"))))
+        self.assertEqual(self.check(with_minimum("1.13.0")), [])
+        self.assertEqual(self.check(with_minimum("1.2.0")), [])
+
+    def test_a_draft_a_prerelease_and_a_prefixed_tag_do_not_satisfy_the_minimum(self):
+        evidence = evidence_for(("v1.12.0", False, False), ("v1.13.0", True, False),
+                                ("v1.13.1", False, True),
+                                ("workflow-manager-v1.13.2", False, False))
+        self.assertIn("newest published Manager release 1.12.0",
+                      "\n".join(self.check(self.manifest(), evidence=evidence)))
+
+    def test_invalid_evidence_is_a_problem_never_a_pass(self):
+        evidence = evidence_for(("v1.13.0", False, False))
+        del evidence["releases"][0]["isPrerelease"]
+        problems = self.check(self.manifest(), evidence=evidence)
+        self.assertTrue(any("isPrerelease: required" in p for p in problems), problems)
+        self.assertTrue(self.check(self.manifest(), evidence=evidence_for()))
+
+    def test_the_pin_must_equal_the_minimum(self):
+        block = valid_block()
+        self.assertEqual(manager_block.check_pin(block, {"version": "1.13.0"}), [])
+        self.assertIn("pins Manager '1.12.0'", manager_block.check_pin(
+            block, {"version": "1.12.0"})[0])
+        self.assertTrue(manager_block.check_pin(block, None))
+        self.assertEqual(manager_block.check_pin({"schema_version": 1}, None), [])
+
+
+class MeasureSuitesTest(unittest.TestCase):
+    def fixture(self, suites: dict[str, str], names: list[str] | None = None) -> Path:
+        root = Path(tempfile.mkdtemp(prefix="measure-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        (root / ".github/workflows").mkdir(parents=True)
+        (root / "scripts").mkdir()
+        (root / ".github/workflows/workflow-conformance.yml").write_text(
+            conformance_workflow(*(names if names is not None else suites)))
+        for name, text in suites.items():
+            (root / "scripts" / name).write_text(text)
+        return root
+
+    def test_it_counts_what_unittest_loads(self):
+        fixture = self.fixture({"a_test.py": SUITE_TWO, "b_test.py": SUITE_ONE})
+        self.assertEqual(manager_block.measure_suites(fixture), {"a_test.py": 2, "b_test.py": 1})
+        self.assertFalse(list((fixture / "scripts").glob("__pycache__")), "bytecode was written")
+
+    def test_a_demo_suite_the_workflow_does_not_name_is_ignored(self):
+        fixture = self.fixture({"a_test.py": SUITE_TWO, "x_demo_test.py": SUITE_TWO},
+                               names=["a_test.py"])
+        self.assertEqual(manager_block.measure_suites(fixture), {"a_test.py": 2})
+
+    def test_it_agrees_with_a_plain_unittest_run(self):
+        fixture = self.fixture({"a_test.py": SUITE_TWO})
+        proc = subprocess.run([sys.executable, "-B", "-m", "unittest", "a_test"],
+                              cwd=fixture / "scripts", capture_output=True, text=True)
+        self.assertIn("Ran 2 tests", proc.stderr)
+        self.assertEqual(manager_block.measure_suites(fixture), {"a_test.py": 2})
+
+    def test_a_loader_error_is_refused(self):
+        fixture = self.fixture({"a_test.py": SUITE_LOAD_ERROR})
+        with self.assertRaisesRegex(manager_block.MeasureError, "a_test.py has loader errors"):
+            manager_block.measure_suites(fixture)
+
+    def test_a_suite_that_does_not_import_is_refused(self):
+        fixture = self.fixture({"a_test.py": SUITE_IMPORT_ERROR})
+        with self.assertRaisesRegex(manager_block.MeasureError, "counting the suites failed"):
+            manager_block.measure_suites(fixture)
+
+    def test_a_named_suite_that_is_missing_is_refused(self):
+        fixture = self.fixture({"a_test.py": SUITE_TWO}, names=["a_test.py", "gone_test.py"])
+        with self.assertRaisesRegex(manager_block.MeasureError, "gone_test.py"):
+            manager_block.measure_suites(fixture)
+
+    def test_the_workflow_must_name_its_suites_exactly_once(self):
+        fixture = self.fixture({"a_test.py": SUITE_TWO})
+        workflow = fixture / ".github/workflows/workflow-conformance.yml"
+        workflow.write_text(workflow.read_text() * 2)
+        with self.assertRaisesRegex(manager_block.MeasureError, "2 suites"):
+            manager_block.measure_suites(fixture)
+        workflow.write_text("jobs: {}\n")
+        with self.assertRaisesRegex(manager_block.MeasureError, "0 suites"):
+            manager_block.measure_suites(fixture)
+        workflow.unlink()
+        with self.assertRaisesRegex(manager_block.MeasureError, "has no .github"):
+            manager_block.measure_suites(fixture)
+
+
+class ManagerBlockCliTest(ScratchTestCase):
+    SUITES = {"a_test.py": SUITE_TWO, "b_test.py": SUITE_ONE}
+    COUNTS = {"a_test.py": 2, "b_test.py": 1}
+
+    def setUp(self):
+        super().setUp()
+        self.evidence = self.tmp / "manager-releases.json"
+        self.evidence.write_text(json.dumps(evidence_for(("v1.13.0", False, False))))
+
+    def commit_release(self, version="2.13.0", block="default", pin="1.13.0") -> str:
+        managed_release(self.repo.root, version, self.SUITES,
+                        valid_block(self.COUNTS) if block == "default" else block)
+        self.repo.touch("tools/release/manager-pin.json", json.dumps({"version": pin}))
+        return self.repo.commit(f"release {version}")
+
+    def test_check_accepts_a_good_release(self):
+        commit = self.commit_release()
+        out = self.assert_ok("check-manager-block", "--commit", commit,
+                             "--manager-releases", str(self.evidence))
+        self.assertIn("matches the measurement", out)
+
+    def test_check_accepts_a_release_up_to_2_12_0_with_no_block(self):
+        commit = self.commit_release("2.12.0", block=None)
+        out = self.assert_ok("check-manager-block", "--commit", commit,
+                             "--manager-releases", str(self.evidence))
+        self.assertIn("has no manager block", out)
+
+    def test_check_refuses_each_problem(self):
+        wrong = dict(self.COUNTS, **{"a_test.py": 9})
+        cases = {
+            "a block in 2.12.0": dict(version="2.12.0", block=valid_block(self.COUNTS)),
+            "no block in 2.13.0": dict(block=None),
+            "counts differ": dict(block=valid_block(wrong)),
+            "minimum unpublished": dict(
+                block=dict(valid_block(self.COUNTS), min_manager_version="1.14.0"), pin="1.14.0"),
+            "pin differs": dict(pin="1.12.0"),
+            "invalid block": dict(block=dict(valid_block(self.COUNTS), schema_version=2)),
+        }
+        for name, kwargs in cases.items():
+            with self.subTest(name):
+                self.reset_repo()
+                commit = self.commit_release(**kwargs)
+                self.assert_refused("check-manager-block", "--commit", commit,
+                                    "--manager-releases", str(self.evidence),
+                                    naming=("is not valid",))
+
+    def reset_repo(self):
+        shutil.rmtree(self.repo.root)
+        self.repo = ScratchRepo(self.repo.root)
+
+    def test_check_names_the_unreadable_evidence(self):
+        commit = self.commit_release()
+        self.assert_refused("check-manager-block", "--commit", commit,
+                            "--manager-releases", str(self.tmp / "absent.json"),
+                            naming=("cannot read the Manager release list",))
+
+    def test_manager_block_release_dir_equals_commit(self):
+        commit = self.commit_release()
+        by_commit = self.assert_ok("manager-block", "--commit", commit)
+        staged = package.stage(self.repo.root, commit, self.tmp / "staged")
+        by_dir = self.assert_ok("manager-block", "--release-dir", str(staged))
+        self.assertEqual(json.loads(by_commit), self.COUNTS)
+        self.assertEqual(by_commit, by_dir)
+
+    def test_manager_block_measures_a_directory_whose_commit_does_not_exist_yet(self):
+        managed_release(self.tmp / "tree", "2.13.0", self.SUITES, valid_block({}))
+        out = self.assert_ok("manager-block", "--release-dir", str(self.tmp / "tree"))
+        self.assertEqual(json.loads(out), self.COUNTS)
+
+    def test_commit_is_refused_while_its_digests_do_not_match(self):
+        self.commit_release()
+        (self.repo.root / "payload/scripts/a_test.py").write_text(SUITE_ONE)
+        commit = self.repo.commit("drift")
+        self.assert_refused("manager-block", "--commit", commit, naming=("digest mismatch",))
+
+    def test_write_replaces_only_suites_and_keeps_every_other_byte(self):
+        commit = self.commit_release(block=valid_block({"stale_test.py": 7, "a_test.py": 2}))
+        manifest = self.repo.root / "manifest.json"
+        before = manifest.read_text()
+        self.assert_ok("manager-block", "--commit", commit, "--write")
+        after = manifest.read_text()
+        self.assertNotEqual(before, after)
+        old, new = json.loads(before), json.loads(after)
+        self.assertEqual(new["manager"]["conformance"]["suites"], self.COUNTS)
+        old["manager"]["conformance"]["suites"] = new["manager"]["conformance"]["suites"]
+        self.assertEqual(old, new)
+        # Every byte outside the suites object is unchanged.
+        head, _, tail = before.partition('      "suites": ')
+        self.assertTrue(after.startswith(head + '      "suites": '))
+        self.assertEqual(after.partition('      "suites": ')[2].partition("\n      }")[2],
+                         tail.partition("\n      }")[2])
+        self.assertEqual(after, json.dumps(new, indent=2) + "\n")
+        self.assert_ok("manager-block", "--commit", commit, "--write")
+        self.assertEqual(manifest.read_text(), after)
+
+    def test_write_refuses_a_manifest_up_to_2_12_0(self):
+        commit = self.commit_release("2.12.0", block=valid_block(self.COUNTS))
+        before = (self.repo.root / "manifest.json").read_text()
+        self.assert_refused("manager-block", "--commit", commit, "--write",
+                            naming=("never gets a manager block",))
+        self.assertEqual((self.repo.root / "manifest.json").read_text(), before)
+
+    def test_write_refuses_a_manifest_with_no_block_to_fill(self):
+        commit = self.commit_release("2.13.0", block=None)
+        before = (self.repo.root / "manifest.json").read_text()
+        self.assert_refused("manager-block", "--commit", commit, "--write",
+                            naming=("no top-level manager block",))
+        self.assertEqual((self.repo.root / "manifest.json").read_text(), before)
+
+    def test_write_refuses_a_block_with_no_suites_to_replace(self):
+        block = valid_block()
+        del block["conformance"]["suites"]
+        commit = self.commit_release(block=block)
+        self.assert_refused("manager-block", "--commit", commit, "--write",
+                            naming=("no suites to replace",))
+
+    def test_exactly_one_source_is_required(self):
+        code, _, err = self.cli("manager-block")
+        self.assertEqual(code, release.EXIT_USAGE, err)
+        code, _, err = self.cli("manager-block", "--commit", "HEAD", "--release-dir", "x")
+        self.assertEqual(code, release.EXIT_USAGE, err)
+
+
+class ManagerEvidenceCliTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="manager-evidence-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def listing(self, name: str, records) -> Path:
+        path = self.tmp / name
+        path.write_text(json.dumps(records))
+        return path
+
+    def gh(self, *versions, draft=(), pre=()):
+        return [{"tagName": f"v{v}", "isDraft": v in draft, "isPrerelease": v in pre,
+                 "publishedAt": "2026-10-17T00:00:00Z"} for v in versions]
+
+    def record(self, records):
+        out = self.tmp / "saved.json"
+        code, text, err = run_cli("record-manager-releases", "--out", str(out), "--listing",
+                                  str(self.listing("gh.json", records)), "--taken", "2026-10-17")
+        return code, out, err
+
+    def test_record_writes_the_exact_format(self):
+        code, out, err = self.record(self.gh("1.13.0", "1.2.0", draft=("1.2.0",)))
+        self.assertEqual(code, release.EXIT_OK, err)
+        saved = json.loads(out.read_text())
+        self.assertEqual(saved["repository"], "RodrigoFAbreu/workflow-manager")
+        self.assertEqual(saved["taken"], "2026-10-17")
+        self.assertEqual([r["tagName"] for r in saved["releases"]], ["v1.13.0", "v1.2.0"])
+        self.assertEqual(set(saved["releases"][0]),
+                         {"tagName", "isDraft", "isPrerelease", "publishedAt"})
+        self.assertEqual(manager_block.validate_evidence(saved), [])
+        self.assertEqual(manager_block.newest_published(saved), "1.13.0")
+        self.assertTrue(out.read_text().endswith("\n"))
+
+    def test_record_refuses_an_incomplete_listing(self):
+        records = self.gh("1.13.0")
+        del records[0]["isPrerelease"]
+        code, out, err = self.record(records)
+        self.assertEqual(code, release.EXIT_FAIL)
+        self.assertIn("isPrerelease: required", err)
+        self.assertFalse(out.exists())
+
+    def test_record_refuses_a_listing_that_is_not_a_list(self):
+        code, out, err = self.record({"tagName": "v1.0.0"})
+        self.assertEqual(code, release.EXIT_FAIL)
+        self.assertIn("not a JSON list", err)
+
+    def test_validation_needs_no_network(self):
+        # The offline check reads the committed evidence only: with no `gh` and
+        # no way to reach anything, it still decides.
+        evidence = evidence_for(("v1.13.0", False, False))
+        real_run, real_popen = subprocess.run, subprocess.Popen
+
+        def refuse(*args, **kwargs):
+            raise AssertionError(f"the offline check ran a subprocess: {args}")
+        subprocess.run = subprocess.Popen = refuse
+        try:
+            self.assertEqual(manager_block.validate_evidence(evidence), [])
+            self.assertEqual(manager_block.check(
+                {"workflow_version": "2.13.0", "manager": valid_block({"a_test.py": 2})},
+                "2.13.0", {"a_test.py": 2}, evidence), [])
+        finally:
+            subprocess.run, subprocess.Popen = real_run, real_popen
+
+    def compare(self, saved_versions, live) -> tuple[int, str, str]:
+        saved = self.tmp / "committed.json"
+        saved.write_text(json.dumps(
+            evidence_for(*[(f"v{v}", False, False) for v in saved_versions])))
+        args = ["compare-manager-releases", "--manager-releases", str(saved)]
+        if live is not None:
+            args += ["--live", str(live)]
+        return run_cli(*args)
+
+    def test_compare_distinguishes_consistent_behind_and_unavailable(self):
+        code, out, err = self.compare(["1.12.0", "1.13.0"], self.listing(
+            "live.json", self.gh("1.12.0", "1.13.0")))
+        self.assertEqual((code, out.strip()), (release.EXIT_OK, "outcome=consistent"), err)
+
+        code, out, err = self.compare(["1.12.0"], self.listing(
+            "live.json", self.gh("1.12.0", "1.13.0")))
+        self.assertEqual(code, release.EXIT_OK, err)
+        self.assertIn("outcome=snapshot-behind", out)
+        self.assertIn("::warning::", out)
+        self.assertIn("1.13.0", out)
+
+        code, out, err = self.compare(["1.12.0"], self.tmp / "no-such-file.json")
+        self.assertEqual(code, release.EXIT_OK, err)
+        self.assertIn("outcome=unavailable", out)
+        self.assertIn("::notice::", out)
+
+        bad = self.tmp / "bad-live.json"
+        bad.write_text("<html>rate limited</html>")
+        code, out, err = self.compare(["1.12.0"], bad)
+        self.assertEqual(code, release.EXIT_OK, err)
+        self.assertIn("outcome=unavailable", out)
+
+    def test_compare_ignores_a_live_draft_prerelease_and_prefixed_tag(self):
+        live = self.listing("live.json", self.gh(
+            "1.12.0", "1.13.0", "1.14.0", draft=("1.13.0",), pre=("1.14.0",)) + [
+            {"tagName": "workflow-manager-v1.0.0", "isDraft": False, "isPrerelease": False,
+             "publishedAt": "x"}])
+        code, out, err = self.compare(["1.12.0"], live)
+        self.assertEqual((code, out.strip()), (release.EXIT_OK, "outcome=consistent"), err)
+
+    def test_compare_fails_only_on_invalid_saved_evidence(self):
+        saved = self.tmp / "committed.json"
+        records = evidence_for(("v1.13.0", False, False))
+        del records["releases"][0]["isDraft"]
+        saved.write_text(json.dumps(records))
+        code, out, err = run_cli("compare-manager-releases", "--manager-releases", str(saved),
+                                 "--live", str(self.tmp / "none.json"))
+        self.assertEqual(code, release.EXIT_FAIL)
+        self.assertIn("isDraft: required", err)
+
+    def test_the_committed_evidence_is_valid_and_complete(self):
+        evidence = json.loads((HERE / "manager-releases.json").read_text())
+        self.assertEqual(manager_block.validate_evidence(evidence), [])
+        self.assertIsNotNone(manager_block.newest_published(evidence))
+
+
+class UpdateFixtureTest(ScratchTestCase):
+    """The pre-publish update fixture, with a stand-in Manager that records
+    what it was asked and installs a release directory's files."""
+
+    MANAGER = '''#!/usr/bin/env python3
+import json, shutil, sys
+from pathlib import Path
+args = sys.argv[1:]
+assert args[0] == "--release-dir"
+release, command, target = Path(args[1]), args[2], Path(args[3])
+with open(Path(__file__).with_name("calls.log"), "a") as log:
+    log.write(json.dumps([command, release.name]) + "\\n")
+if command == "verify":
+    sys.exit(0)
+manifest = json.loads((release / "manifest.json").read_text())
+for record in manifest["artifacts"] + manifest["templates"]:
+    if record["target_path"].endswith(".workflow-fragment"):
+        continue
+    dest = target / record["target_path"]
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(release / record["location"], dest)
+print(command, "ok")
+'''
+
+    def setUp(self):
+        super().setUp()
+        self.manager = self.tmp / "manager" / "workflow-manager"
+        self.manager.parent.mkdir()
+        self.manager.write_text(self.MANAGER)
+        self.manager.chmod(0o755)
+
+    def previous_assets(self, version="2.12.0") -> Path:
+        source = self.tmp / "previous-source"
+        managed_release(source, version, {"a_test.py": SUITE_ONE}, None)
+        out = self.tmp / "previous-assets"
+        package.build(source, out)
+        return out
+
+    def run_fixture(self, candidate_suites, previous="2.12.0"):
+        managed_release(self.repo.root, "2.13.0", candidate_suites, valid_block({}))
+        commit = self.repo.commit("candidate")
+        return self.cli("update-fixture", "--commit", commit, "--previous-assets",
+                        str(self.previous_assets(previous)), "--previous-version", previous,
+                        "--manager", str(self.manager))
+
+    def calls(self):
+        text = (self.manager.parent / "calls.log").read_text()
+        return [json.loads(line) for line in text.splitlines()]
+
+    def test_it_bootstraps_updates_runs_the_suites_and_verifies(self):
+        code, out, err = self.run_fixture({"a_test.py": SUITE_TWO, "b_test.py": SUITE_ONE})
+        self.assertEqual(code, release.EXIT_OK, out + err)
+        self.assertEqual(self.calls(), [["bootstrap", "workflow-2.12.0"],
+                                        ["update", "candidate"], ["verify", "candidate"]])
+        self.assertIn("ok   a_test.py", out)
+        self.assertIn("ok   b_test.py", out)
+        self.assertIn("2.12.0 -> 2.13.0 updates cleanly and its 2 suites pass", out)
+
+    def test_a_failing_frozen_suite_fails_the_fixture(self):
+        code, out, err = self.run_fixture({"a_test.py": SUITE_TWO, "b_test.py": SUITE_FAILS})
+        self.assertEqual(code, release.EXIT_FAIL, out)
+        self.assertIn("FAIL b_test.py", out)
+        self.assertIn("frozen suites failed in the updated repository: b_test.py", err)
+        self.assertNotIn(["verify", "candidate"], self.calls())
+
+    def test_the_candidates_bytes_are_what_runs_in_the_updated_repository(self):
+        # The previous release has a passing a_test.py; the candidate's, which
+        # `update` installs over it, fails.
+        code, out, err = self.run_fixture({"a_test.py": SUITE_FAILS})
+        self.assertEqual(code, release.EXIT_FAIL, out)
+        self.assertIn("FAIL a_test.py", out)
+
+    def test_a_manager_failure_is_reported(self):
+        self.manager.write_text(self.MANAGER.replace(
+            'print(command, "ok")', 'sys.stderr.write("no\\n"); sys.exit(3)'))
+        code, out, err = self.run_fixture({"a_test.py": SUITE_TWO})
+        self.assertEqual(code, release.EXIT_FAIL)
+        self.assertIn("bootstrapping 2.12.0 failed (exit 3)", err)
+
+    def test_the_previous_version_must_be_x_y_z(self):
+        managed_release(self.repo.root, "2.13.0", {"a_test.py": SUITE_TWO}, valid_block({}))
+        commit = self.repo.commit("candidate")
+        self.assert_refused("update-fixture", "--commit", commit, "--previous-assets",
+                            str(self.tmp), "--previous-version", "latest",
+                            "--manager", str(self.manager), naming=("is not X.Y.Z",))
+
+
+class ManagerBlockCiTest(unittest.TestCase):
+    """The `Workflow CI` steps for the Manager block."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+
+    def test_the_three_steps_follow_the_tooling_step_in_the_checks_job(self):
+        checks = _job_section(self.text, "checks")
+        names = ["release_test.py", "Manager block is valid and measured",
+                 "Manager release list is current", "Update fixture"]
+        positions = [checks.index(f"      - name: {n}\n") for n in names]
+        self.assertEqual(positions, sorted(positions))
+
+    def test_the_offline_check_reads_the_committed_evidence(self):
+        self.assertIn("release.py check-manager-block --commit HEAD --manager-releases "
+                      "tools/release/manager-releases.json", self.text)
+        step = self.text.split("- name: Manager block is valid and measured")[1].split("- name:")[0]
+        self.assertNotIn("GH_TOKEN", step)
+
+    def test_the_live_comparison_is_its_own_step(self):
+        self.assertIn("release.py compare-manager-releases --manager-releases "
+                      "tools/release/manager-releases.json", self.text)
+        self.assertNotIn("continue-on-error", self.text)
+
+    def previous_selection(self) -> str:
+        step = self.text.split("- name: Update fixture")[1]
+        body = step.split("<<'PY'\n", 1)[1].split("\n          PY\n", 1)[0]
+        return "\n".join(line[10:] for line in body.splitlines()) + "\n"
+
+    def run_selection(self, version: str, with_block: bool, releases: list) -> str:
+        tmp = Path(tempfile.mkdtemp(prefix="ci-previous-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        repo = ScratchRepo(tmp / "repo")
+        managed_release(repo.root, version, {"a_test.py": SUITE_TWO},
+                        valid_block({}) if with_block else None)
+        repo.commit("candidate")
+        listing = tmp / "releases.json"
+        listing.write_text(json.dumps([{"tagName": t, "isDraft": d} for t, d in releases]))
+        return subprocess.run([sys.executable, "-", str(listing)], input=self.previous_selection(),
+                              cwd=repo.root, capture_output=True, text=True,
+                              check=True).stdout.strip()
+
+    def test_the_previous_release_is_the_highest_published_below_head(self):
+        releases = [("v2.11.0", False), ("v2.12.0", False), ("v2.13.0", False),
+                    ("v2.12.5", True), ("workflow-manager-v9.0.0", False), ("v2.9.0", False)]
+        self.assertEqual(self.run_selection("2.13.0", True, releases), "2.12.0")
+        self.assertEqual(self.run_selection("2.12.1", True, releases), "2.12.0")
+        self.assertEqual(self.run_selection("2.10.0", True, releases), "2.9.0")
+        self.assertEqual(self.run_selection("2.9.0", True, [("v2.9.0", False)]), "")
+
+    def test_a_release_without_a_block_is_not_update_tested(self):
+        self.assertEqual(self.run_selection("2.12.0", False, [("v2.11.0", False)]), "")
 
 
 if __name__ == "__main__":

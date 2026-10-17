@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**In implementation (CP1, CP2, CP3 complete).** W9: `review-loop-fixes` (`process`, governing version `2.2`),
+**In implementation (CP1 to CP4 complete).** W9: `review-loop-fixes` (`process`, governing version `2.2`),
 branch `milestone/review-loop-fixes`, base `d911915` (main after #36: the
 release source and this repository's own installation are both Workflow
 2.12.0, with automatic gates, default "2.2" and no `GATE_POLICY.json`).
@@ -52,11 +52,25 @@ bundle.`; each section is built and fails on its own, and the file is deleted wh
 neither has a basis. The seven commands that word the changes file name the section
 for the reviewer's role; the protocol and the two stage workflow documents describe
 the layout. Verified from a scratch release staged from the checkpoint's tree: the
-nine payload suites. Next: CP4.
+nine payload suites.
+
+CP4 is complete: the Manager metadata block's tooling. `tools/release/manager_block.py`
+(`validate`, `measure_suites`, `check`, `check_pin`, `replace_suites`) and
+`release.py manager-block` (`--commit` or `--release-dir`, `--write` replaces only
+`suites`), `check-manager-block` (checks (a), (b), (c), (e), (g) against the committed
+`tools/release/manager-releases.json`, recorded from Manager 1.13.0's publication),
+`record-manager-releases`, `compare-manager-releases` and `update-fixture` (verified
+once against the real Manager 1.13.0, v2.11.0 to 2.12.0). Three new steps in
+`workflow-ci.yml`; `docs/RELEASING.md` documents the authored and computed fields.
+The counting method equals each suite's own `Ran N tests` on 2.12.0 (415, 330, 1115,
+292, 125, 106, 300, 269, 27). `manager-pin.json` is advanced in CP5. Verified: the
+nine payload suites from a scratch release staged from the checkpoint's tree, the
+tools tests (all but `test_round_trip`, which needs CP5's refreshed digests), and
+`tools/docs/`. Next: CP5.
 
 ## Next action
 
-`/milestone-implement`, one checkpoint per invocation (CP4 next).
+`/milestone-implement`, one checkpoint per invocation (CP5 next).
 Publishing 2.13.0 follows the pull request merge; the Manager side is a
 `chore: test Workflow 2.13.0` lock bump in `workflow-manager`. The Manager
 release 1.13.0 must be published before this pull request merges (CP4's CI check).
