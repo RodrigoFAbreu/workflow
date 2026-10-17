@@ -1573,6 +1573,20 @@ class ManagerBlockContractTest(unittest.TestCase):
             with self.subTest(expected=expected):
                 self.assertIn(expected, self.problems(mutate))
 
+    def test_the_forms_the_minimum_manager_refuses_are_refused(self):
+        for name, mutate in self.MANAGER_REFUSED.items():
+            with self.subTest(name):
+                self.assertTrue(self.problems(mutate))
+
+    MANAGER_REFUSED = {
+        "a float schema version": lambda b: b.update(schema_version=1.0),
+        "a non-string item-governing value": lambda b: b["downgrade_boundary"]["signals"][0]
+        .update(detect={"kind": "item-governing", "value": 2}),
+        "a signal name ending in a newline": lambda b: b["downgrade_boundary"]["signals"][0]
+        .update(name="signal\n"),
+        "a minimum version ending in a newline": lambda b: b.update(min_manager_version="1.13.0\n"),
+    }
+
     def test_each_detector_kind_has_a_passing_form(self):
         for detect in ({"kind": "state-key", "key": "k"},
                        {"kind": "state-value", "key": "k", "value": None},
@@ -1806,6 +1820,17 @@ class ManagerBlockCliTest(ScratchTestCase):
             with self.subTest(name):
                 self.reset_repo()
                 commit = self.commit_release(**kwargs)
+                self.assert_refused("check-manager-block", "--commit", commit,
+                                    "--manager-releases", str(self.evidence),
+                                    naming=("is not valid",))
+
+    def test_check_refuses_the_forms_the_minimum_manager_refuses(self):
+        for name, mutate in ManagerBlockContractTest.MANAGER_REFUSED.items():
+            with self.subTest(name):
+                self.reset_repo()
+                block = valid_block(self.COUNTS)
+                mutate(block)
+                commit = self.commit_release(block=block)
                 self.assert_refused("check-manager-block", "--commit", commit,
                                     "--manager-releases", str(self.evidence),
                                     naming=("is not valid",))

@@ -109,6 +109,9 @@ def _detector(detect: object, where: str) -> list[str]:
         elif key == "key":
             if not isinstance(detect[key], str) or not detect[key]:
                 problems.append(f"{where}.key: must be a non-empty string")
+        elif key == "value" and kind == "item-governing":
+            if not isinstance(detect[key], str):
+                problems.append(f"{where}.value: must be a string for the {kind!r} detector")
         elif key == "value":
             if not _is_scalar(detect[key]):
                 problems.append(f"{where}.value: must be a JSON scalar "
@@ -138,7 +141,7 @@ def _boundary(boundary: object) -> list[str]:
             continue
         problems += _unknown(signal, _SIGNAL_KEYS, at)
         name = signal.get("name")
-        if not isinstance(name, str) or not _KEBAB_RE.match(name):
+        if not isinstance(name, str) or not _KEBAB_RE.fullmatch(name):
             problems.append(f"{at}.name: must be a kebab-case string, got {name!r}")
         problems += _text(signal, "label", at, required=True)
         if "detect" not in signal:
@@ -195,12 +198,13 @@ def validate(block: object) -> list[str]:
     problems = _unknown(block, _MANAGER_KEYS, "manager")
     if "schema_version" not in block:
         problems.append("manager.schema_version: required")
-    elif block["schema_version"] != SCHEMA_VERSION or isinstance(block["schema_version"], bool):
+    elif (not isinstance(block["schema_version"], int) or isinstance(block["schema_version"], bool)
+          or block["schema_version"] != SCHEMA_VERSION):
         problems.append(f"manager.schema_version: must be {SCHEMA_VERSION}, got "
                         f"{block['schema_version']!r}")
     if "min_manager_version" in block:
         value = block["min_manager_version"]
-        if not isinstance(value, str) or not _MANAGER_VERSION_RE.match(value):
+        if not isinstance(value, str) or not _MANAGER_VERSION_RE.fullmatch(value):
             problems.append(f"manager.min_manager_version: must be digits separated by dots "
                             f"(1.13.0), got {value!r}")
     if "downgrade_boundary" in block:
