@@ -133,8 +133,12 @@ Findings go to `.ai-review/review-loop-fixes/feedback/FUNCTIONAL_REVIEW.md`.
 6. **Release bookkeeping (CP5).** Check `manifest.json` names 2.13.0, `WORKFLOW_RELEASE`
    is 2.13.0, protocol stays 1.4, `manager-pin.json` names Manager 1.13.0, and
    `docs/release-history.md` has the 2.13.0 row. Run the nine payload suites from
-   the scratch release and the tools tests; expected counts 415, 330, 1133, 292,
-   140, 106, 307, 269, 27.
+   the scratch release and the tools tests; expected counts 415, 331, 1134, 292,
+   140, 106, 307, 269, 27 (acceptance matrix, protocol, state, gate policy,
+   fingerprint generalization, completion obligations, integration, fingerprint,
+   harness). Where possible compare them against the manifest's measured map
+   (`release.py manager-block --release-dir <scratch release>`) rather than these
+   fixed numbers.
 
 ### Known limitations / out of scope
 
@@ -144,3 +148,14 @@ Findings go to `.ai-review/review-loop-fixes/feedback/FUNCTIONAL_REVIEW.md`.
 - The local review stage's changes file is deliberately unchanged from 2.12.0.
 - `test_round_trip` depends on refreshed digests and is judged on the scratch
   release, not the raw working tree.
+
+### Functional review round 1
+
+- Fixed (usability): the wrong-count refusal of the Manager block check now names
+  an executable next step, `python3 tools/release/release.py manager-block
+  --commit HEAD --write` (or `--release-dir <staged-release>` for an uncommitted
+  release source), with a test that parses the printed arguments with the real
+  argument parser.
+- Checklist correction (no code change): flow 6's expected suite counts are now
+  415, 331, 1134, 292, 140, 106, 307, 269, 27.
+- Re-test flows 5 and 6.
