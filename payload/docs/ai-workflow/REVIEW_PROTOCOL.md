@@ -330,15 +330,40 @@ such sibling, at `.ai-review/<work_item_id>/CHANGES_SINCE_REVIEW.md`, outside
 when present. `scripts/prepare-ai-review.sh` regenerates it on every ordinary
 generation, at the plan stage and at the implementation and post-fix stages,
 and deletes it when there is nothing to compare with (a first round, or a
-previous round that cannot be identified). It holds a preamble naming the
-previous and the current `review_content_id`, the previous round's findings
-(the text of `REVIEW_FEEDBACK.md` when its header names the previous
-`review_content_id`, else "not available"), and a unified diff of the stage's
-protected content from the previous round to this one. At the plan stage the
+previous round that cannot be identified). It holds a preamble (`work_item_id:`, `stage:`, this
+generation's `review_content_id:` and `revision:`) and, from 2.13.0, one
+section per review stage (`D-Keyed`), with these exact headings in this order:
+`## LOCAL_MODEL_PLAN_REVIEW` then `## MANUAL_EXTERNAL_PLAN_REVIEW` at the plan
+stage, `## LOCAL_MODEL_IMPLEMENTATION_REVIEW` then
+`## MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW` at the implementation stages. A
+section with a basis holds `previous_review_content_id:`, `previous_revision:`
+(and, at the implementation stage, `previous_reviewed_implementation_head:`),
+`### Previous findings` and `### Changes` (a fenced unified diff of the
+stage's protected content, or `(no change to the protected content)`). A
+section without a basis is the single line `not available (<reason>): review
+the whole bundle.`, `<reason>` being `no previous review of this stage is
+recorded` or `the previous round cannot be identified`; the reviewer reads the
+section named for its role, and a role whose section is not available reviews
+the whole bundle. The file is written when at least one section has a basis
+and deleted otherwise; each section is built and fails on its own. The
+*local* section is the 2.12.0 content: the previous findings are the text of
+`REVIEW_FEEDBACK.md` when its header names the previous `review_content_id`,
+else "not available". The *manual* section compares against the stage
+baseline (`D-Baseline`, below): its basis holds when a valid baseline exists
+for the role and its `review_content_id` differs from this generation's, its
+findings are the baseline's stored verdict text (never `REVIEW_FEEDBACK.md`),
+at the plan stage the diff is the baseline's pin against the staging pin, and
+at the implementation stages it is the baseline's reviewed head against the
+working tree over the union of the recorded and the current protected
+classifications. A manual round with no valid baseline (the first one after
+updating to 2.13.0, or after `review-baselines/` was deleted) is a full review.
+The file stays outside `bundle_id` and `review_content_id` and is a reviewer
+aid, never a gate: since every `APPROVE` is a full review, a wrong baseline can
+cost review efficiency, never approval. At the plan stage the
 previous round is the outgoing `current/` and `.pin`, used only when its
 `review_content_id` was reviewed and consumed; a wrapper-only regeneration of
-unchanged content carries the live file forward when it names the unchanged
-`review_content_id`. At the implementation stages it is the previous round's
+unchanged content carries the live file (both sections) forward when it names
+the unchanged `review_content_id`. At the implementation stages it is the previous round's
 `reviewed_implementation_head` against the working tree; a same-content
 republication leaves it alone. The file is built by
 `workflow_fingerprint.write_changes_since_review`, which never fails a
@@ -453,8 +478,10 @@ This is **portability vs. local staleness, split by consumer**:
   `CHANGES_SINCE_REVIEW.md` is present next to `current/` and its preamble
   names this bundle's `review_content_id`, you may review only the changes
   and check each previous finding is resolved, declaring `Review scope:
-  changes`; any `APPROVE` is a full review of the whole bundle. The file is
-  reviewer convenience only, outside `bundle_id` and `review_content_id`."
+  changes` in the section named for your role (a role whose section is not
+  available reviews the whole bundle); any `APPROVE` is a full review of the
+  whole bundle. The file is reviewer convenience only, outside `bundle_id` and
+  `review_content_id`."
 - **PLAN.md** — populated at the `plan` stage: the actual execution plan
   being reviewed. Leave empty (or omit updating it) at later stages. Must
   state the plan's current `(Revision N)` marker — a bundle whose `PLAN.md`

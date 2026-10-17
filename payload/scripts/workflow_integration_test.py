@@ -767,6 +767,10 @@ class TestVersion21OnlyCommandsRefuseCleanlyForV1(unittest.TestCase):
 # below, for the two files where a real pre-v2.1 copy is actually
 # available to diff against.
 _GOLDEN_COMMAND_FILE_SHA256 = {
+    # workflow-2.13.0 (review-loop-fixes, CP3): `review-plan.md`, `review-implementation.md`,
+    # `record-manual-plan-review.md`, `milestone-plan.md`, `apply-plan-review.md` and
+    # `apply-implementation-review.md` name the changes-file section for the reviewer's role
+    # (D-Keyed); `record-manual-implementation-review.md` changes too but carries no golden hash.
     # workflow-2.13.0 (review-loop-fixes, CP1): `milestone-plan.md` and `apply-plan-review.md`
     # gain the early governing-version sweep call after the anchor call (D-Sweep).
     # workflow-2.12.0 (review-convergence, CP4): `milestone-plan.md` gains the plan-size
@@ -892,7 +896,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.10.0 (retire-21-for-new-work, CP3): step 0 stops a fresh milestone
     # under a "2.1" default with DefaultWorkflowVersionRetiredError -- intentional
     # content change.
-    "milestone-plan.md": "f1604aa0e3692ee9dafd6d6b041eef77544c136ccf75b22e48412ba7d24eaa66",
+    "milestone-plan.md": "8162c64a60f7433a11872de348f974f3e85a2b2d6b35ca9eea4669b1aee522c7",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the
@@ -1137,7 +1141,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # assert_apply_review_feedback_binding (D-Apply-Binding): a two-stage
     # REVISE stating a review_content_id is bound by content --
     # intentional content change.
-    "apply-plan-review.md": "827b27547fc83b2963399dc49c5e046b237bf019e0a89f5cf90421b29b83b53a",
+    "apply-plan-review.md": "1b542cffb5a941f1cc657dfc12959944a872bcb610ec92a392149497aeffb757",
     # apply-implementation-review.md (WF8c item (c)): step 7's
     # record_bundle_generation call site widened to first resolve the
     # outcome (resolve_bundle_generation_outcome) and write the matching
@@ -1175,7 +1179,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # functional-fix-commit-order implementation review: step 8 is
     # version-aware (a "2.2" post-fix round re-enters local review) --
     # intentional content change.
-    "apply-implementation-review.md": "e6674c3ffabf6d4ee337d75a00610a8852440b326bcc6f98e1c67be2c22fd57e",
+    "apply-implementation-review.md": "ad935a29c220eb789db8eb162197b43894223fc869c6713ec4ab656bd3785bbe",
     # review-plan.md/record-manual-plan-review.md further updated,
     # workflow-v2-3-followups CP3 (REQ-8/-9): the `Reviewer role:` template
     # literal, the round-computation prose, the exact-match-expectation
@@ -1213,7 +1217,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-plan.md further updated, D-Consumed-History (workflow-2.7.0,
     # CP2, v2.6.0-001): REVISE also adds the id to the durable
     # consumed_plan_review_content_ids history -- intentional content change.
-    "review-plan.md": "1ad6be69bafbecee79bce153d80752698bcd67ce48eaf9a3bce0abc3a3571336",
+    "review-plan.md": "af64845616d3b3d29a2eb461701846b9341a2be52cf11896427ba387d6defa45",
     # record-manual-plan-review.md further updated, D-Feedback-Layout
     # (workflow-2.6.0, CP3): preamble states feedback_layout-keyed
     # resolution; step 4 prints the exact resolved paste path and adds the
@@ -1232,7 +1236,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # ingest_manual_review_verdict (two_stage_only=True), which holds
     # state_lock through the publication; the required header fields,
     # Round: and the absent-bundle-id advisory -- intentional content change.
-    "record-manual-plan-review.md": "606ac74f1d7d6f3d6abbfbd4376f799b07f8bca7316f0336eb01b8d37aa40341",
+    "record-manual-plan-review.md": "56a8bd58e3445865b9f95d9c38c6fe61e738178bd75fa98b089b42ad3e74c1c9",
     # bootstrap-workflow-v2.md (WF8c scope clauses (l)/(p)/(q), GPT-R108-002/
     # OPUS-R109-004): the driver-range text made checkpoint-agnostic
     # (OPUS-R102-009), a NO_CHECKPOINT terminal-wrap-up branch added to step
@@ -1326,7 +1330,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-implementation.md further updated, workflow-2.7.0
     # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 4's bundle check is
     # verify_implementation_review_bundle -- intentional content change.
-    "review-implementation.md": "199974d6f3f44f1a85b4f2009c303b4ec098b707f9d34dd6e6cee12fe437b42d",
+    "review-implementation.md": "56f3ab5e83dd63701af653923467e84998f8abc17c6362322adab2763cd1385f",
     # review-functional.md: new, workflow-v2-3 CP2 -- the first recorded
     # hash, not a change.
     #

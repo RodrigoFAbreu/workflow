@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**In implementation (CP1, CP2 complete).** W9: `review-loop-fixes` (`process`, governing version `2.2`),
+**In implementation (CP1, CP2, CP3 complete).** W9: `review-loop-fixes` (`process`, governing version `2.2`),
 branch `milestone/review-loop-fixes`, base `d911915` (main after #36: the
 release source and this repository's own installation are both Workflow
 2.12.0, with automatic gates, default "2.2" and no `GATE_POLICY.json`).
@@ -42,11 +42,21 @@ manual review role under `.ai-review/<id>/review-baselines/<ROLE>/`, written by
 `APPROVE` and replaced wholesale by the next one; the reader proves a record
 consistent or returns `None` (full review). `REVIEW_PROTOCOL.md` describes the
 directory, its trust boundary and its limits. Verified from a scratch release
-staged from the checkpoint's tree: the nine payload suites. Next: CP3.
+staged from the checkpoint's tree: the nine payload suites.
+
+CP3 is complete: `CHANGES_SINCE_REVIEW.md` holds one section per review stage
+(`## LOCAL_MODEL_*_REVIEW`, `## MANUAL_EXTERNAL_*_REVIEW`). The local section is the
+2.12.0 content; the manual section compares against the stage baseline and quotes
+that stage's own last verdict, or says `not available (<reason>): review the whole
+bundle.`; each section is built and fails on its own, and the file is deleted when
+neither has a basis. The seven commands that word the changes file name the section
+for the reviewer's role; the protocol and the two stage workflow documents describe
+the layout. Verified from a scratch release staged from the checkpoint's tree: the
+nine payload suites. Next: CP4.
 
 ## Next action
 
-`/milestone-implement`, one checkpoint per invocation (CP3 next).
+`/milestone-implement`, one checkpoint per invocation (CP4 next).
 Publishing 2.13.0 follows the pull request merge; the Manager side is a
 `chore: test Workflow 2.13.0` lock bump in `workflow-manager`. The Manager
 release 1.13.0 must be published before this pull request merges (CP4's CI check).

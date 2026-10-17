@@ -165,11 +165,15 @@ tree until approval. The rule for every review stage is in `REVIEW_PROTOCOL.md`
 ## Reviewing only the changes (`workflow-2.12.0`)
 
 From the second round, the generator writes `CHANGES_SINCE_REVIEW.md` next to
-`current/` (and into `review-bundle.tar.gz`): the previous round's findings and
-the diff of the protected plan content from the previous round to this one.
-`/review-plan` and the manual reviewer may then review only the changes and
-check each previous finding is resolved, declaring `Review scope: changes`,
-and return a `REVISE` or `BLOCK`. Any `APPROVE` is a full review of the whole
+`current/` (and into `review-bundle.tar.gz`) with one section per review stage
+(`workflow-2.13.0`): `## LOCAL_MODEL_PLAN_REVIEW` compares against the last
+generation and quotes the last local verdict, `## MANUAL_EXTERNAL_PLAN_REVIEW`
+compares against the content the manual stage last reviewed and quotes its own
+last verdict. A section without a basis says `not available (<reason>): review
+the whole bundle.`; the first manual round after updating to 2.13.0 has none.
+`/review-plan` and the manual reviewer read the section named for their role,
+may review only its changes and check each previous finding is resolved,
+declaring `Review scope: changes`, and return a `REVISE` or `BLOCK`. Any `APPROVE` is a full review of the whole
 bundle, so the round that approves is by rule a full round. The file is
 reviewer convenience, outside `bundle_id` and `review_content_id`; its
 semantics are in `REVIEW_PROTOCOL.md` ("Bundle location").
