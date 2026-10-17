@@ -45,3 +45,20 @@ field sets (`LEGACY_RETIREMENT_FIELDS`, `RESUME_IMPLEMENTATION_FIELDS`,
 `_ACCEPTANCE_SATISFACTION_FIELDS`, `_ACCEPTANCE_INPUT_FIELDS`, `_REOPENING_FIELDS`):
 none concerns a verdict's write; unchanged. `REVIEW_PROTOCOL.md` carries the
 "Optional findings are recorded" paragraph and the declared limits.
+
+CP2 is complete: `workflow_state.read_finding_dispositions`,
+`finding_dispositions_report`, `assert_finding_dispositions_recorded`
+(`UndispositionedFindingsError`, `InvalidFindingDispositionsError`),
+`render_finding_dispositions` and `write_finding_dispositions_record` keep the
+dispositions in `docs/ai-workflow/registry/<id>-dispositions.json`; `complete_work_item`
+calls the check after the completion-obligation check, so `/accept-milestone` and
+`/satisfy-gate acceptance` both refuse (the second writes nothing). The
+completed-milestone record is `docs/milestones/completed/<id>-findings.md`, written by
+the new step 5a of `accept-milestone.md` (a remediation child runs it too; step 2b is
+edited). `python3 scripts/workflow_state.py --finding-dispositions <id>` lists the
+findings and prints a skeleton; it is a required mutually exclusive pair with
+`--plan-review-publication-status`. `MILESTONE_WORKFLOW.md` and `GATE_POLICY.md` state
+the exit condition and that it is not a policy requirement. Golden hash of
+`accept-milestone.md` refreshed. Tests: `TestFindingDispositions` in
+`workflow_gate_policy_test.py`, `TestFindingDispositionsCommandConformance` in
+`workflow_integration_test.py`.

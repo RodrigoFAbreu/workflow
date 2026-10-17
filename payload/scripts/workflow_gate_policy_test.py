@@ -4663,5 +4663,207 @@ class TestReopenCommandText(unittest.TestCase):
             self.assertEqual(len(ev.item()["reopenings"]), 1)
 
 
+# ---------------------------------------------------------------------------
+# workflow-2.14.0 CP2 (`finding-dispositions`): D-Gate, D-Dispositions, D-Record
+# ---------------------------------------------------------------------------
+
+def _findings_text(*entries: str) -> str:
+    return "## Important findings\n\nNone.\n\n## Optional findings\n\n" + "\n".join(f"- {e}" for e in entries) + "\n"
+
+
+class TestFindingDispositions(unittest.TestCase):
+    def record(self, ev, item_id=WI, *entries):
+        import workflow_fingerprint as fingerprint
+        state = ev.state()
+        ws.merge_optional_findings(
+            state["work_items"][item_id], fingerprint.parse_optional_findings(_findings_text(*entries)),
+            {"stage": "plan", "role": "LOCAL_MODEL_PLAN_REVIEW", "round": 2, "review_content_id": "c" * 64,
+             "verdict": "APPROVE", "at": "t1"})
+        h.write_state(ev.repo, state)
+        return sorted(state["work_items"][item_id]["optional_findings"])
+
+    def write_dispositions(self, ev, mapping, item_id=WI, **top):
+        body = {"schema_version": 1, "work_item_id": item_id, "dispositions": mapping, **top}
+        path = ev.root / ws.finding_dispositions_path(item_id)
+        path.write_text(json.dumps(body))
+        return path
+
+    def test_no_key_passes_and_an_undispositioned_finding_refuses_naming_everything(self):
+        with AcceptanceRepo() as ev:
+            ws.assert_finding_dispositions_recorded(ev.root, ev.state(), WI)
+            (key,) = self.record(ev, WI, "O1: add a test")
+            with self.assertRaises(ws.UndispositionedFindingsError) as caught:
+                ws.assert_finding_dispositions_recorded(ev.root, ev.state(), WI)
+            message = str(caught.exception)
+            for needle in (key, "plan LOCAL_MODEL_PLAN_REVIEW round 2", "O1: add a test",
+                           f"{WI}-dispositions.json", "--finding-dispositions"):
+                self.assertIn(needle, message)
+
+    def test_each_valid_disposition_satisfies(self):
+        with AcceptanceRepo() as ev:
+            keys = self.record(ev, WI, "O1: a", "O2: b", "O3: c")
+            self.write_dispositions(ev, {
+                keys[0]: {"disposition": "fixed"},
+                keys[1]: {"disposition": "dropped", "reason": "out of scope"},
+                keys[2]: {"disposition": "follow-up", "link": "owner/repo#12"}})
+            ws.assert_finding_dispositions_recorded(ev.root, ev.state(), WI)
+            self.write_dispositions(ev, {**{k: {"disposition": "fixed"} for k in keys[:2]},
+                                         keys[2]: {"disposition": "follow-up", "link": "https://github.com/o/r/issues/1"}})
+            ws.assert_finding_dispositions_recorded(ev.root, ev.state(), WI)
+
+    def test_invalid_files_refuse_naming_every_problem(self):
+        with AcceptanceRepo() as ev:
+            keys = self.record(ev, WI, "O1: a", "O2: b", "O3: c", "O4: d")
+            bad = {keys[0]: {"disposition": "dropped"},
+                   keys[1]: {"disposition": "follow-up", "link": "not a link"},
+                   keys[2]: {"disposition": "?"},
+                   keys[3]: {"disposition": "ignored"}}
+            self.write_dispositions(ev, bad)
+            with self.assertRaises(ws.InvalidFindingDispositionsError) as caught:
+                ws.assert_finding_dispositions_recorded(ev.root, ev.state(), WI)
+            for key in keys:
+                self.assertIn(key, str(caught.exception))
+            path = self.write_dispositions(ev, {k: {"disposition": "fixed"} for k in keys})
+            body = json.loads(path.read_text())
+            body["work_item_id"] = "other"
+            path.write_text(json.dumps(body))
+            with self.assertRaises(ws.InvalidFindingDispositionsError):
+                ws.assert_finding_dispositions_recorded(ev.root, ev.state(), WI)
+            path.write_text("not json")
+            with self.assertRaises(ws.InvalidFindingDispositionsError):
+                ws.assert_finding_dispositions_recorded(ev.root, ev.state(), WI)
+
+    def test_an_unmatched_key_is_ignored_by_the_gate_and_listed_in_the_record(self):
+        with AcceptanceRepo() as ev:
+            (key,) = self.record(ev, WI, "O1: a")
+            self.write_dispositions(ev, {key: {"disposition": "fixed"}, "F-000000000000": {"disposition": "fixed"}})
+            ws.assert_finding_dispositions_recorded(ev.root, ev.state(), WI)
+            self.assertIn("F-000000000000", ws.render_finding_dispositions(ev.root, ev.state(), WI))
+
+    def test_a_finding_raised_in_three_rounds_needs_one_entry(self):
+        with AcceptanceRepo() as ev:
+            for rnd in (1, 2, 3):
+                state = ev.state()
+                import workflow_fingerprint as fingerprint
+                ws.merge_optional_findings(
+                    state["work_items"][WI], fingerprint.parse_optional_findings(_findings_text("O1: same")),
+                    {"stage": "implementation", "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW", "round": rnd,
+                     "review_content_id": "d" * 64, "verdict": "REVISE", "at": f"t{rnd}"})
+                h.write_state(ev.repo, state)
+            (key,) = ev.item()["optional_findings"]
+            self.assertEqual(len(ev.item()["optional_findings"][key]["raised"]), 3)
+            self.write_dispositions(ev, {key: {"disposition": "fixed"}})
+            ws.assert_finding_dispositions_recorded(ev.root, ev.state(), WI)
+
+    def test_complete_work_item_refuses_and_a_follow_up_completes(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            (key,) = self.record(ev, WI, "O1: a")
+            state = ev.state()
+            with self.assertRaises(ws.UndispositionedFindingsError):
+                ws.complete_work_item(state, WI, now(), repo_root=ev.root)
+            self.write_dispositions(ev, {key: {"disposition": "follow-up", "link": "owner/repo#7"}})
+            done = ws.complete_work_item(state, WI, now(), repo_root=ev.root)
+            self.assertEqual(done["work_items"][WI]["phase"], "MILESTONE_COMPLETE")
+
+    def test_the_policy_path_refuses_writing_nothing_and_completes_with_a_disposition(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            (key,) = self.record(ev, WI, "O1: a")
+            before = state_bytes(ev.repo)
+            with self.assertRaises(ws.UndispositionedFindingsError):
+                ev.satisfy()
+            self.assertEqual(state_bytes(ev.repo), before)
+            self.write_dispositions(ev, {key: {"disposition": "follow-up", "link": "owner/repo#7"}})
+            ev.satisfy()
+            self.assertEqual(ev.item()["phase"], "MILESTONE_COMPLETE")
+
+    def test_existing_refusals_keep_their_order(self):
+        with AcceptanceRepo() as ev:
+            self.record(ev, WI, "O1: a")
+            state = ev.state()
+            state["work_items"]["wi-child"] = copy.deepcopy(state["work_items"][WI])
+            state["work_items"]["wi-child"].update(work_item_id="wi-child", parent_work_item_id=WI)
+            with self.assertRaises(ws.IncompleteChildWorkItemError):
+                ws.complete_work_item(state, WI, now(), repo_root=ev.root)
+
+    def test_the_record_is_deterministic_overwritten_and_empty_for_an_empty_ledger(self):
+        with AcceptanceRepo() as ev:
+            self.assertIsNone(ws.render_finding_dispositions(ev.root, ev.state(), WI))
+            self.assertEqual(ws.write_finding_dispositions_record(ev.root, ev.state(), WI), [])
+            self.assertFalse((ev.root / ws.finding_dispositions_record_path(WI)).exists())
+            keys = self.record(ev, WI, "O1: a | b", "O2: c")
+            self.write_dispositions(ev, {keys[0]: {"disposition": "dropped", "reason": "not needed"},
+                                         keys[1]: {"disposition": "fixed"}})
+            first = ws.render_finding_dispositions(ev.root, ev.state(), WI)
+            self.assertEqual(first, ws.render_finding_dispositions(ev.root, ev.state(), WI))
+            self.assertIn("O1: a \\| b", first)
+            paths = ws.write_finding_dispositions_record(ev.root, ev.state(), WI)
+            self.assertEqual(paths, [ws.finding_dispositions_record_path(WI), ws.finding_dispositions_path(WI)])
+            record = ev.root / paths[0]
+            self.assertEqual(record.read_text(), first)
+            record.write_text("stale")
+            ws.write_finding_dispositions_record(ev.root, ev.state(), WI)
+            self.assertEqual(record.read_text(), first)
+            (ev.root / paths[1]).unlink()
+            self.assertEqual(ws.write_finding_dispositions_record(ev.root, ev.state(), WI), [paths[0]])
+
+    def test_a_remediation_child_has_its_own_ledger_record_and_disposition(self):
+        with AcceptanceRepo() as ev:
+            ev.flow()
+            child_id = f"{WI}-remediation-1"
+            state = ev.state()
+            child = copy.deepcopy(state["work_items"][WI])
+            child.update(work_item_id=child_id, parent_work_item_id=WI)
+            state["work_items"][child_id] = child
+            h.write_state(ev.repo, state)
+            (key,) = self.record(ev, child_id, "O1: child finding")
+            self.assertNotIn("optional_findings", ev.item())
+            with self.assertRaises(ws.UndispositionedFindingsError):
+                ws.assert_finding_dispositions_recorded(ev.root, ev.state(), child_id)
+            ws.assert_finding_dispositions_recorded(ev.root, ev.state(), WI)
+            self.write_dispositions(ev, {key: {"disposition": "fixed"}}, item_id=child_id)
+            ws.assert_finding_dispositions_recorded(ev.root, ev.state(), child_id)
+            paths = ws.write_finding_dispositions_record(ev.root, ev.state(), child_id)
+            self.assertEqual(paths, [ws.finding_dispositions_record_path(child_id),
+                                     ws.finding_dispositions_path(child_id)])
+            self.assertEqual(ws.write_finding_dispositions_record(ev.root, ev.state(), WI), [])
+
+    def test_the_listing_option_prints_the_skeleton_and_the_status_option_still_works(self):
+        with AcceptanceRepo() as ev:
+            keys = self.record(ev, WI, "O1: a", "O2: b")
+            self.write_dispositions(ev, {keys[0]: {"disposition": "fixed"}})
+            script = Path(ws.__file__).resolve()
+            ran = subprocess.run([sys.executable, str(script), "--finding-dispositions", WI], cwd=ev.root,
+                                 capture_output=True, text=True)
+            self.assertEqual(ran.returncode, 0, ran.stderr)
+            out = json.loads(ran.stdout)
+            self.assertEqual(out["skeleton"]["dispositions"], {keys[1]: {"disposition": "?"}})
+            self.assertEqual([f["key"] for f in out["findings"]], keys)
+            status = subprocess.run([sys.executable, str(script), "--plan-review-publication-status", WI],
+                                    cwd=ev.root, capture_output=True, text=True)
+            self.assertIn(status.returncode, (0, 1), status.stderr)
+            self.assertTrue(json.loads(status.stdout))
+            neither = subprocess.run([sys.executable, str(script)], cwd=ev.root, capture_output=True, text=True)
+            self.assertNotEqual(neither.returncode, 0)
+
+    def test_the_dispositions_file_is_excluded_at_both_stages_for_both_item_types(self):
+        import workflow_fingerprint as fingerprint
+        for work_item_type in ("process", "product"):
+            with self.subTest(work_item_type=work_item_type):
+                d = ws.generate_artifacts_declarations(
+                    "wi", "docs/p.md", "docs/ai-workflow/registry/wi-registry.json",
+                    "docs/ai-workflow/requirements/wi-mapping.json", work_item_type=work_item_type)
+                path = str(ws.finding_dispositions_path("wi"))
+                plan, impl = d["plan_stage"], d["implementation_stage"]
+                self.assertEqual(fingerprint.classify_path(
+                    path, frozenset(plan["protected_paths"]), plan["excluded_paths"], plan["excluded_prefixes"]),
+                    "excluded")
+                self.assertEqual(fingerprint.classify_path_implementation_stage(
+                    path, impl["protected_paths"], impl["protected_prefixes"], impl["excluded_paths"],
+                    impl["excluded_prefixes"]), "excluded")
+
+
+
 if __name__ == "__main__":
     unittest.main()

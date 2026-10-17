@@ -161,6 +161,12 @@ trailer `Workflow-Gate-Satisfied-By: policy:<digest first 12>`.
 6. `ci_green` (when `require_ci`) and `pr_approved` (when
    `requires_pr_approved`).
 
+**Dispositions are not a policy requirement.** Under every policy, automatic
+or human, acceptance also refuses while a recorded Optional finding has no
+disposition (`workflow_state.assert_finding_dispositions_recorded`, called by
+`complete_work_item`); it is not listed above and `evaluate_gate` does not
+predict it. Record each in `docs/ai-workflow/registry/<id>-dispositions.json`.
+
 **Automatic acceptance needs an open pull request first.** Requirement 4 is
 always required, so open (and push) the pull request before the acceptance
 runs. A repository whose flow opens the pull request after acceptance, as this

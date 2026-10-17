@@ -13026,6 +13026,8 @@ def complete_work_item(state: dict, work_item_id: str, now: str, *, repo_root: P
             f"completion obligation(s): {details}"
         )
 
+    assert_finding_dispositions_recorded(repo_root, state, work_item_id)
+
     new_state = copy.deepcopy(state)
     work_item = new_state["work_items"][work_item_id]
     work_item["phase"] = "MILESTONE_COMPLETE"
@@ -15740,6 +15742,167 @@ def optional_findings_errors(ledger: object) -> list[str]:
             if ref["round"] is not None and not (isinstance(ref["round"], int) and not isinstance(ref["round"], bool)):
                 problems.append(f"{where}.round must be an integer or null")
     return problems
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.14.0 CP2 (`finding-dispositions`, D-Dispositions, D-Gate,
+# D-Record): every recorded Optional finding needs a disposition before
+# acceptance, and the dispositions go into a committed completed-milestone record.
+# ---------------------------------------------------------------------------
+
+FINDING_DISPOSITIONS = ("fixed", "dropped", "follow-up")
+FINDING_DISPOSITIONS_SCHEMA_VERSION = 1
+_FINDING_LINK_RE = re.compile(r"^(https://\S+|[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+#[0-9]+)$")
+
+
+class UndispositionedFindingsError(Exception):
+    """A recorded Optional finding has no valid disposition; acceptance refuses."""
+
+
+class InvalidFindingDispositionsError(Exception):
+    """The dispositions file is not the shape `D-Dispositions` fixes."""
+
+
+def finding_dispositions_path(work_item_id: str) -> Path:
+    return Path("docs/ai-workflow/registry") / f"{work_item_id}-dispositions.json"
+
+
+def finding_dispositions_record_path(work_item_id: str) -> Path:
+    return Path("docs/milestones/completed") / f"{work_item_id}-findings.md"
+
+
+def _finding_disposition_problems(key: str, entry: object) -> list[str]:
+    where = f"dispositions[{key!r}]"
+    if not isinstance(entry, dict):
+        return [f"{where} must be an object"]
+    disposition = entry.get("disposition")
+    if disposition not in FINDING_DISPOSITIONS:
+        return [f"{where}.disposition must be one of {list(FINDING_DISPOSITIONS)}, not {disposition!r}"]
+    if disposition == "dropped":
+        reason = entry.get("reason")
+        if not (isinstance(reason, str) and reason.strip()):
+            return [f"{where}: a dropped finding needs a non-empty reason"]
+    if disposition == "follow-up":
+        link = entry.get("link")
+        if not (isinstance(link, str) and _FINDING_LINK_RE.match(link)):
+            return [f"{where}: a follow-up needs a link, https://... or owner/repo#N, not {link!r}"]
+    return []
+
+
+def read_finding_dispositions(repo_root: Path, work_item_id: str) -> dict:
+    """The `dispositions` object of the item's dispositions file (`{}` when the
+    file does not exist). Raises `InvalidFindingDispositionsError` naming every
+    problem when the file is not JSON, names another work item, or holds an entry
+    that is not a valid disposition."""
+    path = Path(repo_root) / finding_dispositions_path(work_item_id)
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise InvalidFindingDispositionsError(f"{path}: not readable JSON ({exc})") from exc
+    problems: list[str] = []
+    if not isinstance(data, dict):
+        raise InvalidFindingDispositionsError(f"{path}: must be a JSON object")
+    if data.get("schema_version") != FINDING_DISPOSITIONS_SCHEMA_VERSION:
+        problems.append(f"schema_version must be {FINDING_DISPOSITIONS_SCHEMA_VERSION}")
+    if data.get("work_item_id") != work_item_id:
+        problems.append(f"work_item_id must be {work_item_id!r}, not {data.get('work_item_id')!r}")
+    dispositions = data.get("dispositions")
+    if not isinstance(dispositions, dict):
+        problems.append("dispositions must be an object")
+        dispositions = {}
+    for key, entry in dispositions.items():
+        problems.extend(_finding_disposition_problems(key, entry))
+    if problems:
+        raise InvalidFindingDispositionsError(f"{path}: " + "; ".join(problems))
+    return dispositions
+
+
+def finding_dispositions_report(repo_root: Path, state: dict, work_item_id: str) -> list[dict]:
+    """Every recorded finding with its references and disposition (`None` when it
+    has none), in key order. A malformed dispositions file raises."""
+    ledger = state["work_items"][work_item_id].get("optional_findings") or {}
+    dispositions = read_finding_dispositions(repo_root, work_item_id) if ledger else {}
+    return [
+        {"key": key, "text": entry["text"], "raised": entry["raised"], "disposition": dispositions.get(key)}
+        for key, entry in sorted(ledger.items())
+    ]
+
+
+def _finding_label(item: dict) -> str:
+    ref = item["raised"][0]
+    return f"{item['key']} ({ref['stage']} {ref['role']} round {ref['round']}): {item['text']}"
+
+
+def assert_finding_dispositions_recorded(repo_root: Path, state: dict, work_item_id: str) -> None:
+    """`D-Gate`: raises `UndispositionedFindingsError` listing each recorded
+    finding that has no valid disposition. An item with no recorded finding
+    passes; a malformed dispositions file raises `InvalidFindingDispositionsError`."""
+    missing = [item for item in finding_dispositions_report(repo_root, state, work_item_id)
+               if item["disposition"] is None]
+    if not missing:
+        return
+    listing = "; ".join(_finding_label(item) for item in missing)
+    raise UndispositionedFindingsError(
+        f"{work_item_id!r} cannot be accepted -- {len(missing)} recorded Optional finding(s) have no "
+        f"disposition: {listing}. Record a disposition for each in "
+        f"{finding_dispositions_path(work_item_id)} (fixed, dropped with a reason, or follow-up with a link; "
+        f"`python3 scripts/workflow_state.py --finding-dispositions {work_item_id}` lists them and prints a "
+        f"skeleton), save the file, then run the command again"
+    )
+
+
+def finding_dispositions_skeleton(report: list[dict], work_item_id: str) -> dict:
+    return {
+        "schema_version": FINDING_DISPOSITIONS_SCHEMA_VERSION,
+        "work_item_id": work_item_id,
+        "dispositions": {item["key"]: {"disposition": "?"} for item in report if item["disposition"] is None},
+    }
+
+
+def _table_cell(text: object) -> str:
+    return " ".join(str(text).split()).replace("|", "\\|")
+
+
+def render_finding_dispositions(repo_root: Path, state: dict, work_item_id: str) -> str | None:
+    """`D-Record`: the completed-milestone findings record, or `None` when the
+    item recorded no finding. Deterministic for a given ledger and file."""
+    report = finding_dispositions_report(repo_root, state, work_item_id)
+    if not report:
+        return None
+    lines = [
+        f"# Optional findings: {work_item_id}", "",
+        "| Key | Raised | Finding | Disposition | Reason or link |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for item in report:
+        raised = "; ".join(f"{r['stage']} {r['role']} round {r['round']}" for r in item["raised"])
+        disposition = item["disposition"] or {}
+        detail = disposition.get("reason") or disposition.get("link") or disposition.get("note") or ""
+        lines.append("| " + " | ".join(_table_cell(c) for c in (
+            item["key"], raised, item["text"], disposition.get("disposition", "none"), detail)) + " |")
+    known = {item["key"] for item in report}
+    unmatched = sorted(set(read_finding_dispositions(repo_root, work_item_id)) - known)
+    if unmatched:
+        lines += ["", "Dispositions that matched no recorded finding: " + ", ".join(unmatched)]
+    return "\n".join(lines) + "\n"
+
+
+def write_finding_dispositions_record(repo_root: Path, state: dict, work_item_id: str) -> list[Path]:
+    """Writes the record and returns the repository-relative paths the completion
+    commit stages: the record, plus the dispositions file when it exists. Nothing
+    is written, and `[]` returned, for an empty ledger. A re-acceptance overwrites."""
+    text = render_finding_dispositions(repo_root, state, work_item_id)
+    if text is None:
+        return []
+    record = finding_dispositions_record_path(work_item_id)
+    (Path(repo_root) / record).parent.mkdir(parents=True, exist_ok=True)
+    (Path(repo_root) / record).write_text(text, encoding="utf-8")
+    paths = [record]
+    if (Path(repo_root) / finding_dispositions_path(work_item_id)).exists():
+        paths.append(finding_dispositions_path(work_item_id))
+    return paths
 
 
 def record_local_plan_review(
@@ -19203,18 +19366,42 @@ def sweep_applying_review_feedback_version_claims(
     return findings
 
 
+def _finding_dispositions_cli(repo_root: Path, work_item_id: str) -> int:
+    """`--finding-dispositions`: print every recorded Optional finding with its
+    disposition and a skeleton `dispositions` object for the ones without."""
+    state = _load_json(repo_root / DEFAULT_STATE_PATH)
+    if work_item_id not in state["work_items"]:
+        print(json.dumps({"error": "UnknownWorkItem", "message": work_item_id}, sort_keys=True))
+        return 1
+    try:
+        report = finding_dispositions_report(repo_root, state, work_item_id)
+    except InvalidFindingDispositionsError as exc:
+        print(json.dumps({"error": type(exc).__name__, "message": str(exc)}, sort_keys=True))
+        return 1
+    print(json.dumps({
+        "findings": report,
+        "skeleton": finding_dispositions_skeleton(report, work_item_id),
+    }, sort_keys=True, indent=2))
+    return 0
+
+
 def _plan_review_publication_status_cli(argv: list[str] | None = None) -> int:
     """Read-only CLI (`D-Plan-Review-Bundle-Binding`, workflow-2.6.0): print
     `plan_review_publication_status` for one work item as a single JSON
     object -- the contract Controller consumes instead of re-deriving the
     table. Rows 4d and 6 print `{"error": <name>, "message": ...}` and exit
-    1. Writes nothing."""
+    1. Writes nothing. `--finding-dispositions` (workflow-2.14.0) is the second,
+    equally read-only option."""
     import argparse
 
     parser = argparse.ArgumentParser(description=_plan_review_publication_status_cli.__doc__)
-    parser.add_argument("--plan-review-publication-status", metavar="WORK_ITEM_ID", required=True)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--plan-review-publication-status", metavar="WORK_ITEM_ID")
+    group.add_argument("--finding-dispositions", metavar="WORK_ITEM_ID")
     args = parser.parse_args(argv)
     repo_root = Path(_run(["git", "rev-parse", "--show-toplevel"], cwd=Path.cwd()).strip())
+    if args.finding_dispositions:
+        return _finding_dispositions_cli(repo_root, args.finding_dispositions)
     work_item_id = args.plan_review_publication_status
     state = _load_json(repo_root / DEFAULT_STATE_PATH)
     try:

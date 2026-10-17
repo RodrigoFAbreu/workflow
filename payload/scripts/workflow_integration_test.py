@@ -767,6 +767,8 @@ class TestVersion21OnlyCommandsRefuseCleanlyForV1(unittest.TestCase):
 # below, for the two files where a real pre-v2.1 copy is actually
 # available to diff against.
 _GOLDEN_COMMAND_FILE_SHA256 = {
+    # workflow-2.14.0 (finding-dispositions, CP2): `accept-milestone.md` gains the disposition
+    # pre-flight and step 5a (D-Gate, D-Record).
     # workflow-2.14.0 (finding-dispositions, CP1): `review-plan.md` and `review-implementation.md`
     # pass `verdict_text` so the Optional findings are recorded (D-Ledger).
     # workflow-2.13.0 (review-loop-fixes, CP3): `review-plan.md`, `review-implementation.md`,
@@ -1100,7 +1102,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # user-only /resume-implementation for a 2.1/2.2 item and drops the wrong
     # "legacy promotion" origin -- intentional content change, outside every
     # "1"-inert span.
-    "accept-milestone.md": "4095408099b74c1ab226a2a1f2ad7e7e41fa66baca4efcf5310344e2a7594fbf",
+    "accept-milestone.md": "9cf84f6a4f4f0c8be6d09131e36e289dd6443f49dd73f7f2877003313765ff42",
     # prepare-functional-review.md further updated, baseline-portability
     # correctness fix (OPUS-R129-001): step 3a's checklist-evidence
     # provenance commit instruction now states the same "trailers must be
@@ -2701,6 +2703,24 @@ class TestMatrixHelpersDoNotOutrunTheirCommands(unittest.TestCase):
             owner_text = "\n".join(_command_text(name) for name in owners)
             used |= {c for c in calls if c not in owner_text}
         self.assertEqual(used, set(_MATRIX_HELPER_DISCHARGED_BY_REFERENCE))
+
+
+class TestFindingDispositionsCommandConformance(unittest.TestCase):
+    """workflow-2.14.0 (finding-dispositions, CP2): the acceptance commands name the
+    disposition pre-flight and the findings record (D-Gate, D-Record)."""
+
+    def test_accept_milestone_names_the_pre_flight_and_step_5a(self):
+        text = _command_text("accept-milestone.md")
+        for needle in ("assert_finding_dispositions_recorded", "UndispositionedFindingsError",
+                       "InvalidFindingDispositionsError", "--finding-dispositions",
+                       "write_finding_dispositions_record", "5a. **Write the findings record**",
+                       "skip steps 3, 5 and 7, but run step 5a"):
+            self.assertIn(needle, text)
+
+    def test_satisfy_gate_cites_the_pre_flight_and_step_5a(self):
+        text = _command_text("satisfy-gate.md")
+        for needle in ("assert_finding_dispositions_recorded", "5a"):
+            self.assertIn(needle, text)
 
 
 class TestGoldenCommandFileHashes(unittest.TestCase):
