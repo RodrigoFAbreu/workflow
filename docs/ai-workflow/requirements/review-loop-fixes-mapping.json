@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-loop-fixes",
+  "requirements": {
+    "R1": {
+      "description": "A manual external review round compares against the content that stage last reviewed and quotes that stage's own last verdict; a local round is unchanged; both stages; nothing persisted in state",
+      "checkpoint_ids": [
+        "CP2",
+        "CP3",
+        "CP5"
+      ]
+    },
+    "R2": {
+      "description": "The real-process test no longer reads a half-written ready file",
+      "checkpoint_ids": [
+        "CP1",
+        "CP5"
+      ]
+    },
+    "R3": {
+      "description": "A plan revision the installed governing-version sweep would reject is refused when published, bound or turned into a bundle",
+      "checkpoint_ids": [
+        "CP1",
+        "CP5"
+      ]
+    },
+    "R4": {
+      "description": "The release carries a valid manager block with computed suite counts, and CI checks it against the contract",
+      "checkpoint_ids": [
+        "CP4",
+        "CP5"
+      ]
+    },
+    "R5": {
+      "description": "Release 2.13.0 bookkeeping; the Orchestration Protocol stays 1.4",
+      "checkpoint_ids": [
+        "CP5"
+      ]
+    }
+  }
+}
