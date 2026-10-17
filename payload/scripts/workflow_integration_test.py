@@ -767,6 +767,8 @@ class TestVersion21OnlyCommandsRefuseCleanlyForV1(unittest.TestCase):
 # below, for the two files where a real pre-v2.1 copy is actually
 # available to diff against.
 _GOLDEN_COMMAND_FILE_SHA256 = {
+    # workflow-2.14.0 (finding-dispositions, CP1): `review-plan.md` and `review-implementation.md`
+    # pass `verdict_text` so the Optional findings are recorded (D-Ledger).
     # workflow-2.13.0 (review-loop-fixes, CP3): `review-plan.md`, `review-implementation.md`,
     # `record-manual-plan-review.md`, `milestone-plan.md`, `apply-plan-review.md` and
     # `apply-implementation-review.md` name the changes-file section for the reviewer's role
@@ -1217,7 +1219,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-plan.md further updated, D-Consumed-History (workflow-2.7.0,
     # CP2, v2.6.0-001): REVISE also adds the id to the durable
     # consumed_plan_review_content_ids history -- intentional content change.
-    "review-plan.md": "af64845616d3b3d29a2eb461701846b9341a2be52cf11896427ba387d6defa45",
+    "review-plan.md": "b4fc99659cf07e5e4a8977168d5832719915940e174768805c7ccf6ac53f5aa9",
     # record-manual-plan-review.md further updated, D-Feedback-Layout
     # (workflow-2.6.0, CP3): preamble states feedback_layout-keyed
     # resolution; step 4 prints the exact resolved paste path and adds the
@@ -1330,7 +1332,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-implementation.md further updated, workflow-2.7.0
     # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 4's bundle check is
     # verify_implementation_review_bundle -- intentional content change.
-    "review-implementation.md": "56f3ab5e83dd63701af653923467e84998f8abc17c6362322adab2763cd1385f",
+    "review-implementation.md": "e357c7616bbc15ea6a740cb8055958e1b309368f3d4fa978b7e47044f3ebb7ca",
     # review-functional.md: new, workflow-v2-3 CP2 -- the first recorded
     # hash, not a change.
     #

@@ -14559,6 +14559,10 @@ ORDINARY_BUNDLE_GENERATION_RECORD_FIELDS = frozenset({
     # item's own `reopenings` entries (and a reopen's `phase`) sit uncommitted
     # until its next commit, exactly as its `gate_evidence` does.
     "reopenings",
+    # workflow-2.14.0 CP1 (`D-Ledger`, `finding-dispositions`): this item's own
+    # recorded Optional findings sit uncommitted until its next commit,
+    # exactly as its `gate_evidence` does.
+    "optional_findings",
 })
 
 RECOVERED_BUNDLE_GENERATION_RECORD_FIELDS = frozenset({
@@ -14576,6 +14580,8 @@ RECOVERED_BUNDLE_GENERATION_RECORD_FIELDS = frozenset({
     # item's own `reopenings` entries (and a reopen's `phase`) sit uncommitted
     # until its next commit, exactly as its `gate_evidence` does.
     "reopenings",
+    # workflow-2.14.0 CP1 (`D-Ledger`): as in the ordinary set above.
+    "optional_findings",
 })
 
 # workflow-2.9.1 (`D-Helper`, step 3): the item fields a committed entry into
@@ -14585,6 +14591,8 @@ RECOVERED_BUNDLE_GENERATION_RECORD_FIELDS = frozenset({
 REVIEW_STAGE_WRITE_COMMIT_FIELDS = frozenset({
     "phase", "state_revision", "last_transition",
     "implementation_review_stages", "gate_evidence", "reopenings",
+    # workflow-2.14.0 CP1 (`D-Ledger`): a REVISE carrying an Optional finding.
+    "optional_findings",
 })
 
 RECOVERED_BUNDLE_GENERATION_RECORD_LEGAL_SOURCE_PHASES = (
@@ -14782,6 +14790,9 @@ TECHNICAL_APPROVAL_COMMIT_FIELDS = frozenset({
     # item's own `reopenings` entries (and a reopen's `phase`) sit uncommitted
     # until its next commit, exactly as its `gate_evidence` does.
     "reopenings",
+    # workflow-2.14.0 CP1 (`D-Ledger`): an APPROVE that recorded an Optional
+    # finding leaves the ledger pending until this commit.
+    "optional_findings",
 })
 
 
@@ -15656,9 +15667,85 @@ def _validate_ledger_entry_audit(label: str, entry: dict | None) -> None:
         raise InvalidLedgerAuditError(f"{label}.reviewer_model must be a non-empty string")
 
 
+OPTIONAL_FINDING_STAGES = ("plan", "implementation")
+OPTIONAL_FINDING_VERDICTS = ("APPROVE", "REVISE")
+_OPTIONAL_FINDING_KEY_RE = re.compile(r"^F-[0-9a-f]{12}$")
+_OPTIONAL_FINDING_REF_FIELDS = frozenset({"stage", "role", "round", "review_content_id", "verdict", "at"})
+
+
+def merge_optional_findings(work_item: dict, findings: list, ref: dict) -> None:
+    """`D-Ledger`, workflow-2.14.0: merges a verdict's Optional findings into
+    `work_item["optional_findings"]` in place (the caller owns a deep copy).
+    Pure and idempotent: a finding already recorded gains one reference unless
+    an identical `(stage, role, round, review_content_id, verdict)` reference is
+    present, so a re-raised finding is one entry with several references. An
+    empty `findings` list writes nothing, not even the key."""
+    if not findings:
+        return
+    ledger = work_item.setdefault("optional_findings", {})
+    identity = ("stage", "role", "round", "review_content_id", "verdict")
+    for finding in findings:
+        entry = ledger.setdefault(finding.key, {"digest": finding.digest, "text": finding.text, "raised": []})
+        if not any(all(r.get(k) == ref.get(k) for k in identity) for r in entry["raised"]):
+            entry["raised"].append(dict(ref))
+
+
+def _record_optional_findings(work_item: dict, verdict_text: str | None, *, verdict: str, stage: str,
+                              role: str, round: int | None, review_content_id: str, now: str) -> None:
+    if verdict_text is None or verdict not in OPTIONAL_FINDING_VERDICTS:
+        return
+    merge_optional_findings(work_item, fingerprint.parse_optional_findings(verdict_text), {
+        "stage": stage, "role": role, "round": round, "review_content_id": review_content_id,
+        "verdict": verdict, "at": now,
+    })
+
+
+class InvalidOptionalFindingsError(Exception):
+    """`work_items[<id>].optional_findings` is not the shape `D-Ledger` fixes."""
+
+
+def optional_findings_errors(ledger: object) -> list[str]:
+    """Every shape problem of an `optional_findings` value (empty when valid)."""
+    if not isinstance(ledger, dict):
+        return [f"optional_findings must be an object, not {type(ledger).__name__}"]
+    problems: list[str] = []
+    for key, entry in ledger.items():
+        if not (isinstance(key, str) and _OPTIONAL_FINDING_KEY_RE.match(key)):
+            problems.append(f"optional_findings key {key!r} is not F- and 12 lowercase hex characters")
+            continue
+        if not isinstance(entry, dict) or set(entry) != {"digest", "text", "raised"}:
+            problems.append(f"optional_findings[{key!r}] must hold exactly digest, text and raised")
+            continue
+        digest, text, raised = entry["digest"], entry["text"], entry["raised"]
+        if not (isinstance(digest, str) and re.fullmatch(r"[0-9a-f]{64}", digest) and key == "F-" + digest[:12]):
+            problems.append(f"optional_findings[{key!r}].digest must be 64 hex characters matching the key")
+        if not (isinstance(text, str) and text.strip() and len(text) <= fingerprint.OPTIONAL_FINDING_TEXT_LIMIT):
+            problems.append(f"optional_findings[{key!r}].text must be a non-empty string of at most "
+                            f"{fingerprint.OPTIONAL_FINDING_TEXT_LIMIT} characters")
+        if not (isinstance(raised, list) and raised):
+            problems.append(f"optional_findings[{key!r}].raised must be a non-empty list")
+            continue
+        for index, ref in enumerate(raised):
+            where = f"optional_findings[{key!r}].raised[{index}]"
+            if not isinstance(ref, dict) or set(ref) != _OPTIONAL_FINDING_REF_FIELDS:
+                problems.append(f"{where} must hold exactly {sorted(_OPTIONAL_FINDING_REF_FIELDS)}")
+                continue
+            if ref["stage"] not in OPTIONAL_FINDING_STAGES:
+                problems.append(f"{where}.stage must be one of {list(OPTIONAL_FINDING_STAGES)}")
+            if ref["verdict"] not in OPTIONAL_FINDING_VERDICTS:
+                problems.append(f"{where}.verdict must be one of {list(OPTIONAL_FINDING_VERDICTS)}")
+            for name in ("role", "review_content_id", "at"):
+                if not (isinstance(ref[name], str) and ref[name]):
+                    problems.append(f"{where}.{name} must be a non-empty string")
+            if ref["round"] is not None and not (isinstance(ref["round"], int) and not isinstance(ref["round"], bool)):
+                problems.append(f"{where}.round must be an integer or null")
+    return problems
+
+
 def record_local_plan_review(
     state: dict, work_item_id: str, *, verdict: str, bundle_id: str,
     review_content_id: str, round: int, now: str, audit: dict | None = None,
+    verdict_text: str | None = None,
 ) -> dict:
     """`/review-plan`'s sole state write set (D-Plan-Review-Stages transition
     table, resolves `GPT-R12-001`/`-002`):
@@ -15700,6 +15787,9 @@ def record_local_plan_review(
     else:  # BLOCK
         return state
 
+    _record_optional_findings(
+        work_item, verdict_text, verdict=verdict, stage="plan", role=LOCAL_MODEL_PLAN_REVIEW, round=round,
+        review_content_id=review_content_id, now=now)
     work_item["state_revision"] = work_item.get("state_revision", 1) + 1
     work_item["last_transition"] = now
     _validate_plan_review_stages(work_item)
@@ -15786,6 +15876,7 @@ def record_manual_plan_review(
     state: dict, work_item_id: str, *, verdict: str, bundle_id: str, round: int,
     now: str, current_review_content_id: str, feedback_role: str,
     feedback_review_content_id: str, audit: dict | None = None,
+    verdict_text: str | None = None,
 ) -> dict:
     """`/record-manual-plan-review`'s sole state write set (D-Plan-Review-
     Stages transition table, resolves `GPT-R12-002`/`-003`):
@@ -15824,6 +15915,9 @@ def record_manual_plan_review(
     else:  # BLOCK
         return state
 
+    _record_optional_findings(
+        work_item, verdict_text, verdict=verdict, stage="plan", role=MANUAL_EXTERNAL_PLAN_REVIEW, round=round,
+        review_content_id=current_review_content_id, now=now)
     work_item["state_revision"] = work_item.get("state_revision", 1) + 1
     work_item["last_transition"] = now
     _validate_plan_review_stages(work_item)
@@ -16978,6 +17072,7 @@ def validate_local_implementation_review_preconditions(work_item: dict) -> None:
 def record_local_implementation_review(
     state: dict, work_item_id: str, *, verdict: str, bundle_id: str,
     review_content_id: str, round: int, now: str, audit: dict | None = None,
+    verdict_text: str | None = None,
 ) -> dict:
     """`/review-implementation`'s sole state write set in its `"2.2"`
     authoritative role (D-Implementation-Review-Stages transition table),
@@ -17021,6 +17116,9 @@ def record_local_implementation_review(
     else:  # BLOCK
         return state
 
+    _record_optional_findings(
+        work_item, verdict_text, verdict=verdict, stage="implementation", role=LOCAL_MODEL_IMPLEMENTATION_REVIEW, round=round,
+        review_content_id=review_content_id, now=now)
     work_item["state_revision"] = work_item.get("state_revision", 1) + 1
     work_item["last_transition"] = now
     _validate_implementation_review_stages(work_item)
@@ -17092,6 +17190,7 @@ def record_manual_implementation_review(
     state: dict, work_item_id: str, *, verdict: str, bundle_id: str, round: int,
     now: str, current_review_content_id: str, feedback_role: str,
     feedback_review_content_id: str, audit: dict | None = None,
+    verdict_text: str | None = None,
 ) -> dict:
     """`/record-manual-implementation-review`'s sole state write set
     (D-Implementation-Review-Stages transition table), mirroring
@@ -17135,6 +17234,9 @@ def record_manual_implementation_review(
     else:  # BLOCK
         return state
 
+    _record_optional_findings(
+        work_item, verdict_text, verdict=verdict, stage="implementation", role=MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW, round=round,
+        review_content_id=current_review_content_id, now=now)
     work_item["state_revision"] = work_item.get("state_revision", 1) + 1
     work_item["last_transition"] = now
     _validate_implementation_review_stages(work_item)
@@ -17489,7 +17591,7 @@ def _ingest_two_stage_manual_verdict(repo_root: Path, work_item_id: str, *, stag
             state, work_item_id, verdict=fields["status"], bundle_id=fields["reviewed_bundle_id"], round=round_,
             now=now, current_review_content_id=guarded["review_content_id"],
             feedback_role=fields["reviewer_role"], feedback_review_content_id=fields["review_content_id"],
-            audit=audit,
+            audit=audit, verdict_text=verdict_text,
         )
         outcome.update({
             "stage": stage, "verdict": fields["status"], "review_content_id": guarded["review_content_id"],
@@ -18246,6 +18348,11 @@ def _validate_work_item(work_item_id: str, work_item: dict) -> None:
         problems = acceptance_satisfaction_errors(work_item["acceptance_satisfaction"])
         if problems:
             raise InvalidAcceptanceSatisfactionError(f"work_items[{work_item_id!r}]: " + "; ".join(problems))
+
+    if "optional_findings" in work_item:
+        problems = optional_findings_errors(work_item["optional_findings"])
+        if problems:
+            raise InvalidOptionalFindingsError(f"work_items[{work_item_id!r}]: " + "; ".join(problems))
 
     if "reopenings" in work_item:
         problems = reopenings_errors(work_item["reopenings"], work_item.get("gate_evidence"))
