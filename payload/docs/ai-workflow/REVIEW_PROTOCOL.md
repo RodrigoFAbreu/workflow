@@ -344,6 +344,40 @@ republication leaves it alone. The file is built by
 `workflow_fingerprint.write_changes_since_review`, which never fails a
 generation: on any error it deletes the file and prints one warning.
 
+**`workflow-2.13.0`, `D-Baseline`**: the manual review stage keeps a *stage
+baseline*, a gitignored record of what that stage last reviewed, at
+`.ai-review/<work_item_id>/review-baselines/<ROLE>/` (next to `current/`, never
+inside it; `<ROLE>` is `MANUAL_EXTERNAL_PLAN_REVIEW` or
+`MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW`). `workflow_fingerprint.record_stage_baseline`
+writes it, called by the one manual ingest (`ingest_manual_review_verdict`, so
+by `/record-manual-*-review` and the protocol's `record-external-result` alike)
+inside the same state transaction, for a `REVISE` or an `APPROVE` verdict; a
+`BLOCK`, a refused verdict and a feedback-only row record nothing. Each such
+verdict replaces the role's record wholesale (the old one is removed, a sibling
+directory is renamed in, a record with a higher `state_revision` is never
+replaced). It holds `BASELINE.json` (`schema_version`, `state_revision`,
+`work_item_id`, `role`, `verdict`, `review_content_id`, `bundle_id`, `revision`,
+`reviewed_implementation_head`, `classification`, `recorded_at`), `VERDICT.md`
+(the verdict exactly as stored in `REVIEW_FEEDBACK.md`) and, at the plan stage,
+`pin/` (a copy of the item's `.pin`). `workflow_fingerprint.read_stage_baseline`
+returns the record only when it is consistent with itself and the repository:
+the key set and types, the item and role, `VERDICT.md`'s header, the content id
+recomputed from the copied `pin/` (plan stage) or from the reachable recorded
+head (implementation stage) with the record's own revision and classification,
+and the id being known to the item's state; anything else is `None`, the
+explicit full-review fallback.
+
+The baseline is a reviewer aid, never a gate: it is outside `bundle_id` and
+`review_content_id`, and every `APPROVE` is a full review, so a wrong baseline
+costs review efficiency and can never let unreviewed content be approved. In
+supported operation it is the latest accepted manual verdict of its stage.
+Outside that guarantee, stated as limits and not detected: (a) a deliberately
+edited or restored baseline file (these local files are under the operator's
+control); (b) a downgrade below `2.13.0` followed by a manual review and a
+re-upgrade, so delete `.ai-review/<work_item_id>/review-baselines/` when
+downgrading. The first manual round after the first update to `2.13.0` has no
+baseline and is a full review.
+
 A reviewer who finds the file next to `current/`, with a preamble naming this
 bundle's `review_content_id`, may review only the changes and check that each
 previous finding is resolved, declaring `Review scope: changes` (valid on a

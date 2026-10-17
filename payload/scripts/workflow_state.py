@@ -17415,10 +17415,59 @@ def ingest_manual_review_verdict(
         repo_root, work_item_id, stage=stage, verdict_text=verdict_text, parsed=parsed)
 
 
+_STAGE_BASELINE_ROLES = {
+    "plan": MANUAL_EXTERNAL_PLAN_REVIEW,
+    "implementation": MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW,
+}
+
+
+def _record_manual_stage_baseline(
+    repo_root: Path, work_item_id: str, new_state: dict, *, stage: str, status: str, review_content_id: str,
+    bundle_id: str | None, verdict_text: str, now: str,
+) -> int | None:
+    """workflow-2.13.0 (D-Baseline): records what the manual stage just
+    reviewed, from inside the ingest's mutator (under `state_lock`), for the
+    `REVISE` or `APPROVE` the new state records. Returns the `state_revision`
+    the record carries, or `None` when none was written. A failure (one
+    warning) leaves the role with no record: the next manual round is a full
+    review (INV-3); it never fails the ingest."""
+    role = _STAGE_BASELINE_ROLES[stage]
+    work_item = new_state["work_items"][work_item_id]
+    state_revision = work_item["state_revision"]
+    try:
+        head = None
+        if stage == "plan":
+            metadata = fingerprint.resolve_plan_stage_metadata(repo_root, work_item_id)
+            revision = metadata.plan_revision
+            classification = {
+                "protected_paths": sorted(metadata.protected_paths),
+                "excluded_paths": dict(metadata.excluded_paths),
+                "excluded_prefixes": dict(metadata.excluded_prefixes),
+            }
+        else:
+            revision = work_item["implementation_revision"]
+            head = work_item["reviewed_implementation_head"]
+            sets = fingerprint.load_implementation_stage_classification(
+                repo_root, fingerprint.artifacts_path_for_work_item(work_item_id))
+            classification = dict(zip(
+                ("protected_paths", "protected_prefixes", "excluded_paths", "excluded_prefixes"),
+                (dict(mapping) for mapping in sets)))
+    except Exception as exc:  # noqa: BLE001 -- reviewer convenience; never fails the ingest
+        print(f"warning: stage baseline not recorded ({type(exc).__name__}: {exc})", file=sys.stderr)
+        fingerprint.remove_stage_baseline(repo_root, work_item_id, role)
+        return None
+    written = fingerprint.record_stage_baseline(
+        repo_root, work_item_id, stage=stage, role=role, verdict=status, review_content_id=review_content_id,
+        bundle_id=bundle_id, revision=revision, reviewed_implementation_head=head,
+        classification=classification, verdict_text=verdict_text, now=now, state_revision=state_revision)
+    return state_revision if written else None
+
+
 def _ingest_two_stage_manual_verdict(repo_root: Path, work_item_id: str, *, stage: str, verdict_text: str,
                                      parsed: dict, now: str, two_stage_only: bool,
                                      run_ref: str | None = None) -> dict:
     outcome: dict = {}
+    baseline: dict = {"revision": None}  # the state_revision of the baseline this ingest wrote
 
     def mutator(state: dict) -> dict:
         work_item = state["work_items"][work_item_id]
@@ -17447,13 +17496,24 @@ def _ingest_two_stage_manual_verdict(repo_root: Path, work_item_id: str, *, stag
             "round": round_, "bundle_id": fields["reviewed_bundle_id"], "advisory": guarded["advisory"],
             "_state": state,
         })
+        if fields["status"] in ("REVISE", "APPROVE"):
+            baseline["revision"] = _record_manual_stage_baseline(
+                repo_root, work_item_id, new_state, stage=stage, status=fields["status"],
+                review_content_id=guarded["review_content_id"], bundle_id=fields["reviewed_bundle_id"],
+                verdict_text=verdict_text, now=now)
         return new_state
 
     def before_publish(new_state: dict) -> None:
         outcome["feedback_written"] = _store_manual_verdict(
             repo_root, work_item_id, verdict_text, state=outcome.pop("_state"))
 
-    state_transaction(repo_root, mutator, before_publish=before_publish)
+    try:
+        state_transaction(repo_root, mutator, before_publish=before_publish)
+    except BaseException:
+        if baseline["revision"] is not None:
+            fingerprint.remove_stage_baseline(
+                repo_root, work_item_id, _STAGE_BASELINE_ROLES[stage], only_state_revision=baseline["revision"])
+        raise
     return outcome
 
 

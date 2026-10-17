@@ -22,8 +22,10 @@ Stdlib-only. Run: python3 scripts/workflow_state_test.py
 from __future__ import annotations
 
 import ast
+import contextlib
 import copy
 import hashlib
+import io
 import json
 import os
 import subprocess
@@ -19926,6 +19928,244 @@ class TestNewWorkItemsAreRefusedUnderARetiredDefault(unittest.TestCase):
                 ]
                 self.assertTrue(admitted, f"{function.name} passes a version that was not admitted")
         self.assertEqual(callers, 3)  # route_work_item, create_remediation_child_work_item, import_legacy_work_item
+
+class TestStageBaselineRecording(unittest.TestCase):
+    """workflow-2.13.0 (D-Baseline, CP2): the manual ingest records what the
+    manual stage last reviewed, and the reader proves it consistent or returns
+    `None` (the full-review fallback)."""
+
+    BASELINE_KEYS = {
+        "schema_version", "state_revision", "work_item_id", "role", "verdict", "review_content_id", "bundle_id",
+        "revision", "reviewed_implementation_head", "classification", "recorded_at"}
+
+    def _role_dir(self, repo, role):
+        return repo.root / ".ai-review" / _CP4_WI / fingerprint.STAGE_BASELINE_DIR / role
+
+    def _ingest(self, repo, stage, status, content_id, bundle_id, role):
+        text = _cp4_verdict(status, rcid=content_id, bundle=bundle_id, base=repo.base, role=role)
+        _cp5_ingest(repo, stage, text)
+        return text
+
+    def test_revise_and_approve_record_exactly_the_baseline_set(self):
+        for stage, (build, role, _writer) in _CP5_STAGES.items():
+            for status in ("REVISE", "APPROVE"):
+                with self.subTest(stage=stage, status=status), _harness.ScratchRepo() as repo:
+                    content_id, bundle_id = build(repo)
+                    text = self._ingest(repo, stage, status, content_id, bundle_id, role)
+                    role_dir = self._role_dir(repo, role)
+                    record = json.loads((role_dir / "BASELINE.json").read_text())
+                    self.assertEqual(set(record), self.BASELINE_KEYS)
+                    state = _harness.read_state(repo)["work_items"][_CP4_WI]
+                    self.assertEqual(record["state_revision"], state["state_revision"])
+                    self.assertEqual((record["verdict"], record["role"], record["review_content_id"],
+                                      record["bundle_id"], record["work_item_id"]),
+                                     (status, role, content_id, bundle_id, _CP4_WI))
+                    self.assertEqual((role_dir / "VERDICT.md").read_text(), text)
+                    self.assertEqual(ws.read_review_feedback(repo.root, _CP4_WI), text)
+                    if stage == "plan":
+                        self.assertEqual(record["revision"], state["plan_revision"])
+                        self.assertIsNone(record["reviewed_implementation_head"])
+                        pin = repo.root / ".ai-review" / _CP4_WI / ".pin"
+                        names = sorted(p.relative_to(pin).as_posix() for p in pin.rglob("*") if p.is_file())
+                        self.assertEqual(
+                            sorted(p.relative_to(role_dir / "pin").as_posix()
+                                   for p in (role_dir / "pin").rglob("*") if p.is_file()), names)
+                        for name in names:
+                            self.assertEqual((pin / name).read_bytes(), (role_dir / "pin" / name).read_bytes())
+                        self.assertEqual(set(record["classification"]),
+                                         {"protected_paths", "excluded_paths", "excluded_prefixes"})
+                    else:
+                        self.assertEqual(record["revision"], state["implementation_revision"])
+                        self.assertEqual(record["reviewed_implementation_head"], state["reviewed_implementation_head"])
+                        self.assertEqual(set(record["classification"]), {
+                            "protected_paths", "protected_prefixes", "excluded_paths", "excluded_prefixes"})
+                    read = fingerprint.read_stage_baseline(repo.root, _CP4_WI, role)
+                    self.assertIsNotNone(read)
+                    self.assertEqual(read["verdict_text"], text)
+                    self.assertEqual(read["review_content_id"], content_id)
+
+    def test_block_malformed_stale_and_refused_verdicts_record_nothing_and_keep_the_earlier_record(self):
+        for stage, (build, role, _writer) in _CP5_STAGES.items():
+            with self.subTest(stage=stage), _harness.ScratchRepo() as repo:
+                content_id, bundle_id = build(repo)
+                self._ingest(repo, stage, "BLOCK", content_id, bundle_id, role)
+                self.assertFalse(self._role_dir(repo, role).exists())
+                self._ingest(repo, stage, "REVISE", content_id, bundle_id, role)
+                if stage == "plan":
+                    state = _harness.read_state(repo)
+                    state["work_items"][_CP4_WI]["phase"] = "AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW"
+                    _harness.write_state(repo, state)
+                else:
+                    state = _harness.read_state(repo)
+                    state["work_items"][_CP4_WI]["phase"] = "AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW"
+                    _harness.write_state(repo, state)
+                before = (self._role_dir(repo, role) / "BASELINE.json").read_bytes()
+                stale = _cp4_verdict("REVISE", rcid="0" * 64, bundle=bundle_id, role=role)
+                with self.assertRaises(Exception):
+                    _cp5_ingest(repo, stage, stale)
+                malformed = _cp4_verdict("APPROVE", rcid=content_id, bundle=bundle_id, role=role).replace(
+                    "None.", "- a blocking finding")
+                with self.assertRaises(fingerprint.MalformedVerdictError):
+                    _cp5_ingest(repo, stage, malformed)
+                self.assertEqual((self._role_dir(repo, role) / "BASELINE.json").read_bytes(), before)
+
+    def test_the_writer_replaces_and_never_replaces_a_higher_state_revision(self):
+        with _harness.ScratchRepo() as repo:
+            content_id, bundle_id = _cp5_plan_at_manual(repo)
+            self._ingest(repo, "plan", "REVISE", content_id, bundle_id, _CP5_PLAN_ROLE)
+            role_dir = self._role_dir(repo, _CP5_PLAN_ROLE)
+            record = json.loads((role_dir / "BASELINE.json").read_text())
+            kwargs = dict(
+                stage="plan", role=_CP5_PLAN_ROLE, verdict="APPROVE", review_content_id=content_id,
+                bundle_id=bundle_id, revision=record["revision"], reviewed_implementation_head=None,
+                classification=record["classification"], verdict_text="second", now="t2")
+            n = record["state_revision"]
+            self.assertFalse(fingerprint.record_stage_baseline(repo.root, _CP4_WI, state_revision=n - 1, **kwargs))
+            self.assertEqual(json.loads((role_dir / "BASELINE.json").read_text())["state_revision"], n)
+            self.assertTrue(fingerprint.record_stage_baseline(repo.root, _CP4_WI, state_revision=n + 1, **kwargs))
+            self.assertEqual((role_dir / "VERDICT.md").read_text(), "second")
+            self.assertEqual(json.loads((role_dir / "BASELINE.json").read_text())["verdict"], "APPROVE")
+            self.assertEqual([p.name for p in role_dir.parent.iterdir()], [_CP5_PLAN_ROLE])
+
+    def test_the_reader_returns_none_for_each_malformed_form(self):
+        for stage, (build, role, _writer) in _CP5_STAGES.items():
+            def corrupt_json(role_dir, change):
+                record = json.loads((role_dir / "BASELINE.json").read_text())
+                change(record)
+                (role_dir / "BASELINE.json").write_text(json.dumps(record))
+
+            def symlink_record(role_dir):
+                (role_dir / "BASELINE.json").rename(role_dir / "real.json")
+                (role_dir / "BASELINE.json").symlink_to("real.json")
+
+            def other_header(role_dir, old, new):
+                path = role_dir / "VERDICT.md"
+                path.write_text(path.read_text().replace(old, new))
+
+            forms = {
+                "missing file": lambda d: (d / "BASELINE.json").unlink(),
+                "symlink": symlink_record,
+                "extra key": lambda d: corrupt_json(d, lambda r: r.update(extra=1)),
+                "missing key": lambda d: corrupt_json(d, lambda r: r.pop("recorded_at")),
+                "foreign work item": lambda d: corrupt_json(d, lambda r: r.update(work_item_id="other")),
+                "foreign role": lambda d: corrupt_json(d, lambda r: r.update(
+                    role="MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW" if stage == "plan"
+                    else "MANUAL_EXTERNAL_PLAN_REVIEW")),
+                "bad id": lambda d: corrupt_json(d, lambda r: r.update(review_content_id="xyz")),
+                "other id": lambda d: corrupt_json(d, lambda r: r.update(review_content_id="1" * 64)),
+                "verdict header status": lambda d: other_header(d, "Status: REVISE", "Status: APPROVE"),
+                "verdict header role": lambda d: other_header(d, f"Reviewer role: {role}", "Reviewer role: X"),
+                "verdict header id": lambda d: other_header(d, "Reviewed review_content_id:",
+                                                             "Reviewed review_content_id: 2222 "),
+                "unreadable verdict": lambda d: (d / "VERDICT.md").unlink(),
+            }
+            if stage == "plan":
+                forms["missing pin"] = lambda d: shutil.rmtree(d / "pin")
+                forms["changed pin"] = lambda d: next((d / "pin").rglob("*.md")).write_text("changed\n")
+            for name, damage in forms.items():
+                with self.subTest(stage=stage, form=name), _harness.ScratchRepo() as repo:
+                    content_id, bundle_id = build(repo)
+                    self._ingest(repo, stage, "REVISE", content_id, bundle_id, role)
+                    self.assertIsNotNone(fingerprint.read_stage_baseline(repo.root, _CP4_WI, role))
+                    damage(self._role_dir(repo, role))
+                    self.assertIsNone(fingerprint.read_stage_baseline(repo.root, _CP4_WI, role))
+
+    def test_an_unreachable_head_and_an_unknown_id_give_none(self):
+        with _harness.ScratchRepo() as repo:
+            content_id, bundle_id = _cp5_impl_at_manual(repo)
+            self._ingest(repo, "implementation", "REVISE", content_id, bundle_id, _CP5_IMPL_ROLE)
+            role_dir = self._role_dir(repo, _CP5_IMPL_ROLE)
+            original = (role_dir / "BASELINE.json").read_text()
+            record = json.loads(original)
+            record["reviewed_implementation_head"] = "f" * 40
+            (role_dir / "BASELINE.json").write_text(json.dumps(record))
+            self.assertIsNone(fingerprint.read_stage_baseline(repo.root, _CP4_WI, _CP5_IMPL_ROLE))
+            (role_dir / "BASELINE.json").write_text(original)
+            self.assertIsNotNone(fingerprint.read_stage_baseline(repo.root, _CP4_WI, _CP5_IMPL_ROLE))
+            state = _harness.read_state(repo)
+            state["work_items"][_CP4_WI]["implementation_revision"] = 0
+            _harness.write_state(repo, state)
+            self.assertIsNone(fingerprint.read_stage_baseline(repo.root, _CP4_WI, _CP5_IMPL_ROLE))
+        with _harness.ScratchRepo() as repo:
+            content_id, bundle_id = _cp5_plan_at_manual(repo)
+            self._ingest(repo, "plan", "REVISE", content_id, bundle_id, _CP5_PLAN_ROLE)
+            state = _harness.read_state(repo)
+            item = state["work_items"][_CP4_WI]
+            item["consumed_plan_review_content_ids"] = []
+            item["plan_review_binding"] = None
+            _harness.write_state(repo, state)
+            self.assertIsNone(fingerprint.read_stage_baseline(repo.root, _CP4_WI, _CP5_PLAN_ROLE))
+
+    def test_a_plan_baseline_survives_a_plan_revision_bump(self):
+        with _harness.ScratchRepo() as repo:
+            content_id, bundle_id = _cp5_plan_at_manual(repo)
+            self._ingest(repo, "plan", "REVISE", content_id, bundle_id, _CP5_PLAN_ROLE)
+            state = _harness.read_state(repo)
+            state["work_items"][_CP4_WI]["plan_revision"] += 1
+            _harness.write_state(repo, state)
+            read = fingerprint.read_stage_baseline(repo.root, _CP4_WI, _CP5_PLAN_ROLE)
+            self.assertIsNotNone(read)
+            self.assertEqual(read["revision"], state["work_items"][_CP4_WI]["plan_revision"] - 1)
+
+    def test_an_implementation_baseline_survives_a_declaration_change(self):
+        with _harness.ScratchRepo() as repo:
+            content_id, bundle_id = _cp5_impl_at_manual(repo)
+            self._ingest(repo, "implementation", "REVISE", content_id, bundle_id, _CP5_IMPL_ROLE)
+            artifacts = repo.root / fingerprint.artifacts_path_for_work_item(_CP4_WI)
+            data = json.loads(artifacts.read_text())
+            data["implementation_stage"]["excluded_paths"]["newly-excluded.txt"] = "test"
+            artifacts.write_text(json.dumps(data))
+            read = fingerprint.read_stage_baseline(repo.root, _CP4_WI, _CP5_IMPL_ROLE)
+            self.assertIsNotNone(read)
+            self.assertEqual(read["review_content_id"], content_id)
+
+    def test_a_write_failure_publishes_the_state_removes_the_earlier_record_and_warns_once(self):
+        original = Path.write_text
+
+        def failing(self_, *args, **kwargs):
+            if self_.name == "VERDICT.md":
+                raise OSError("disk full")
+            return original(self_, *args, **kwargs)
+
+        for stage, (build, role, _writer) in _CP5_STAGES.items():
+            with self.subTest(stage=stage), _harness.ScratchRepo() as repo:
+                content_id, bundle_id = build(repo)
+                role_dir = self._role_dir(repo, role)
+                role_dir.mkdir(parents=True)
+                (role_dir / "stale").write_text("an earlier record")
+                text = _cp4_verdict("REVISE", rcid=content_id, bundle=bundle_id, base=repo.base, role=role)
+                stderr = io.StringIO()
+                with mock.patch.object(Path, "write_text", failing), contextlib.redirect_stderr(stderr):
+                    result = _cp5_ingest(repo, stage, text)
+                self.assertEqual(result["verdict"], "REVISE")
+                self.assertNotEqual(_harness.read_state(repo)["work_items"][_CP4_WI]["phase"],
+                                    "AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW"
+                                    if stage == "plan" else "AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW")
+                self.assertFalse(role_dir.exists())
+                self.assertEqual(stderr.getvalue().count("warning: stage baseline not recorded"), 1)
+                self.assertEqual(ws.read_review_feedback(repo.root, _CP4_WI), text)
+
+    def test_a_failed_transaction_removes_the_record_it_wrote(self):
+        for stage, (build, role, _writer) in _CP5_STAGES.items():
+            with self.subTest(stage=stage), _harness.ScratchRepo() as repo:
+                content_id, bundle_id = build(repo)
+                text = _cp4_verdict("REVISE", rcid=content_id, bundle=bundle_id, base=repo.base, role=role)
+                with mock.patch.object(ws, "_store_manual_verdict", side_effect=OSError("boom")):
+                    with self.assertRaises(OSError):
+                        _cp5_ingest(repo, stage, text)
+                self.assertFalse(self._role_dir(repo, role).exists())
+
+    def test_the_directory_changes_no_identifier(self):
+        with _harness.ScratchRepo() as repo:
+            content_id, bundle_id = _cp5_plan_at_manual(repo)
+            self._ingest(repo, "plan", "REVISE", content_id, bundle_id, _CP5_PLAN_ROLE)
+            with_dir = fingerprint.compute_bundle_id(_cp4_bundle_dir(repo))[0]
+            computed = fingerprint.compute_review_content_id_plan_stage_for_work_item(repo.root, _CP4_WI)[0]
+            shutil.rmtree(self._role_dir(repo, _CP5_PLAN_ROLE).parent)
+            self.assertEqual(fingerprint.compute_bundle_id(_cp4_bundle_dir(repo))[0], with_dir)
+            self.assertEqual(
+                fingerprint.compute_review_content_id_plan_stage_for_work_item(repo.root, _CP4_WI)[0], computed)
+
 
 def _git_out(repo, args):
     return subprocess.run(["git", *args], cwd=repo.root, check=True, capture_output=True, text=True).stdout
