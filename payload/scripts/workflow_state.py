@@ -4586,6 +4586,27 @@ _PLAN_ANCHOR_ERRORS = (
 )
 
 
+def _plan_early_check_work_item(
+    repo_root: Path, work_item_id: str, state: dict | None, *, allow_bound_regeneration: bool,
+) -> dict | None:
+    """The gate the early plan checks share: the work item's state entry, or
+    `None` when the check does not apply -- the item is not two-stage, or
+    (only with `allow_bound_regeneration`) it sits at a ready plan-review
+    phase whose `plan_review_binding` is `BOUND`."""
+    if state is None:
+        state = _load_json(repo_root / DEFAULT_STATE_PATH) or {}
+    work_item = (state.get("work_items") or {}).get(work_item_id)
+    if work_item is None:
+        raise fingerprint.UnknownWorkItemError(work_item_id)
+    if work_item.get("governing_workflow_version") not in TWO_STAGE_PLAN_REVIEW_VERSIONS:
+        return None
+    if allow_bound_regeneration and work_item.get("phase") in PLAN_REVIEW_READY_PHASES:
+        record = _plan_review_binding_record(work_item, work_item_id)
+        if record is not None and record["status"] == PLAN_REVIEW_BINDING_BOUND:
+            return None
+    return work_item
+
+
 def assert_plan_checkpoint_anchors(
     repo_root: Path, work_item_id: str, *, state: dict | None = None,
     pin_dir: Path | None = None, allow_bound_regeneration: bool = False,
@@ -4605,17 +4626,11 @@ def assert_plan_checkpoint_anchors(
     the work item, the registry's `plan_revision`, whether an amendment is
     open, the original message and `PLAN_ANCHOR_NEXT_STEP`, chained from
     the original."""
-    if state is None:
-        state = _load_json(repo_root / DEFAULT_STATE_PATH) or {}
-    work_item = (state.get("work_items") or {}).get(work_item_id)
+    work_item = _plan_early_check_work_item(
+        repo_root, work_item_id, state, allow_bound_regeneration=allow_bound_regeneration,
+    )
     if work_item is None:
-        raise fingerprint.UnknownWorkItemError(work_item_id)
-    if work_item.get("governing_workflow_version") not in TWO_STAGE_PLAN_REVIEW_VERSIONS:
         return
-    if allow_bound_regeneration and work_item.get("phase") in PLAN_REVIEW_READY_PHASES:
-        record = _plan_review_binding_record(work_item, work_item_id)
-        if record is not None and record["status"] == PLAN_REVIEW_BINDING_BOUND:
-            return
     metadata = fingerprint.resolve_plan_stage_metadata(repo_root, work_item_id)
     base = pin_dir if pin_dir is not None else repo_root
     plan_text = (base / metadata.plan_path).read_text(encoding="utf-8")
@@ -4631,6 +4646,59 @@ def assert_plan_checkpoint_anchors(
         raise type(exc)(
             f"{work_item_id} plan {revision_text}{amendment}: {exc} -- {PLAN_ANCHOR_NEXT_STEP}"
         ) from exc
+
+
+class PlanGoverningVersionSweepError(Exception):
+    """Raised by `assert_plan_governing_version_sweep` (workflow-2.13.0) when
+    the installed governing-version sweep flags the plan document of a new
+    plan revision: the plan names a list of governing versions."""
+
+
+PLAN_SWEEP_NEXT_STEP = (
+    "reword each flagged passage so it names no list of governing versions (say a "
+    "feedback-only item or a two-stage item), then run the command again"
+)
+
+_PLAN_EARLY_CHECK_ERRORS = _PLAN_ANCHOR_ERRORS + (PlanGoverningVersionSweepError,)
+
+
+def assert_plan_governing_version_sweep(
+    repo_root: Path, work_item_id: str, *, state: dict | None = None,
+    pin_dir: Path | None = None, allow_bound_regeneration: bool = False,
+) -> None:
+    """workflow-2.13.0, `D-Sweep`: the early governing-version check for a
+    plan revision of a two-stage work item, called right after
+    `assert_plan_checkpoint_anchors` at the same call sites. Read-only, with
+    the same exemptions (a non-two-stage item; with `allow_bound_regeneration`,
+    a bound regeneration at a ready phase). Runs
+    `sweep_governing_version_enumeration` on the plan document the item
+    declares, read from `pin_dir` when given else from the working tree, under
+    its repository-relative path, only when that path is a top-level `.md`
+    file of `docs/ai-workflow/` (the corpus the installed sweep reads). A
+    finding raises `PlanGoverningVersionSweepError` naming the work item, the
+    plan revision, each finding as `<path>:<line> (<form>): <snippet>` and
+    `PLAN_SWEEP_NEXT_STEP`."""
+    work_item = _plan_early_check_work_item(
+        repo_root, work_item_id, state, allow_bound_regeneration=allow_bound_regeneration,
+    )
+    if work_item is None:
+        return
+    metadata = fingerprint.resolve_plan_stage_metadata(repo_root, work_item_id)
+    relative = Path(metadata.plan_path)
+    if relative.suffix != ".md" or relative.parent != Path("docs/ai-workflow"):
+        return
+    base = pin_dir if pin_dir is not None else repo_root
+    plan_text = (base / relative).read_text(encoding="utf-8")
+    findings = sweep_governing_version_enumeration({relative.as_posix(): plan_text})
+    if not findings:
+        return
+    registry = json.loads((base / metadata.registry_path).read_text(encoding="utf-8"))
+    revision = registry.get("plan_revision") if isinstance(registry, dict) else None
+    revision_text = f"revision {revision}" if revision is not None else "unknown revision"
+    listed = "; ".join(f"{f.path}:{f.line} ({f.form}): {f.snippet}" for f in findings)
+    raise PlanGoverningVersionSweepError(
+        f"{work_item_id} plan {revision_text}: {listed} -- {PLAN_SWEEP_NEXT_STEP}"
+    )
 
 
 _RECONCILIATION_ROW_FIELDS = ("name", "depends_on", "complexity", "session_target")

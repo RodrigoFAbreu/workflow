@@ -216,7 +216,12 @@ normative definition.
    `AmendmentCheckpointIdShapeError` or `AmendmentPostRegistryMalformedError`,
    together `workflow_state._PLAN_ANCHOR_ERRORS`) ends with
    `workflow_state.PLAN_ANCHOR_NEXT_STEP`: report it and stop, with nothing
-   published.
+   published. **Then, [2.13.0] sweep check**: call
+   `workflow_state.assert_plan_governing_version_sweep(repo_root,
+   work_item_id)`; a refusal (`workflow_state.PlanGoverningVersionSweepError`)
+   lists each finding and ends with `workflow_state.PLAN_SWEEP_NEXT_STEP`:
+   report it as `error: PlanGoverningVersionSweepError: ...` and stop, with
+   nothing published.
    Then publish, in the same operation and before the bundle below is
    regenerated (`D-Plan-Revision-Publication`, `WFR-65`), by calling
    `workflow_state.state_transaction(repo_root, lambda state:
@@ -331,7 +336,10 @@ normative definition.
        generation and nothing between the publish and this bind can exit
        unreported): first call `workflow_state.assert_plan_checkpoint_anchors(
        repo_root, work_item_id)` (a refusal ends with
-       `workflow_state.PLAN_ANCHOR_NEXT_STEP`: report it and stop), then call
+       `workflow_state.PLAN_ANCHOR_NEXT_STEP`: report it and stop), then
+       `workflow_state.assert_plan_governing_version_sweep(repo_root,
+       work_item_id)` (a refusal, `PlanGoverningVersionSweepError`, ends with
+       `workflow_state.PLAN_SWEEP_NEXT_STEP`: report it and stop), then call
        `binding = workflow_state.verify_plan_review_bundle(repo_root,
        work_item_id)`, then `workflow_state.state_transaction(repo_root, lambda state:
        workflow_state.bind_plan_review_bundle(state, work_item_id,

@@ -767,6 +767,8 @@ class TestVersion21OnlyCommandsRefuseCleanlyForV1(unittest.TestCase):
 # below, for the two files where a real pre-v2.1 copy is actually
 # available to diff against.
 _GOLDEN_COMMAND_FILE_SHA256 = {
+    # workflow-2.13.0 (review-loop-fixes, CP1): `milestone-plan.md` and `apply-plan-review.md`
+    # gain the early governing-version sweep call after the anchor call (D-Sweep).
     # workflow-2.12.0 (review-convergence, CP4): `milestone-plan.md` gains the plan-size
     # guidance, the advisory at the publication point and a rewrapped line;
     # `apply-plan-review.md` gains the advisory at its publication point (D-Size).
@@ -890,7 +892,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.10.0 (retire-21-for-new-work, CP3): step 0 stops a fresh milestone
     # under a "2.1" default with DefaultWorkflowVersionRetiredError -- intentional
     # content change.
-    "milestone-plan.md": "3c5a97edbfa51c19ddcf2f8a8390424f224efc51cc70fe3f04549da32982e8da",
+    "milestone-plan.md": "f1604aa0e3692ee9dafd6d6b041eef77544c136ccf75b22e48412ba7d24eaa66",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the
@@ -1135,7 +1137,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # assert_apply_review_feedback_binding (D-Apply-Binding): a two-stage
     # REVISE stating a review_content_id is bound by content --
     # intentional content change.
-    "apply-plan-review.md": "b610f688bd19dda3d439dd04a5bc27c44d41d261731c03a31db9f164cf7e1eb4",
+    "apply-plan-review.md": "827b27547fc83b2963399dc49c5e046b237bf019e0a89f5cf90421b29b83b53a",
     # apply-implementation-review.md (WF8c item (c)): step 7's
     # record_bundle_generation call site widened to first resolve the
     # outcome (resolve_bundle_generation_outcome) and write the matching
@@ -2777,6 +2779,56 @@ class TestCheckpointAnchorsEarlyCommandConformance(unittest.TestCase):
             for cls in ("AmendmentAnchorCoverageError", "AmendmentAnchorMalformedError",
                         "AmendmentCheckpointIdShapeError", "AmendmentPostRegistryMalformedError"):
                 self.assertIn(cls, text, (name, cls))
+
+
+class TestGoverningVersionSweepEarlyCommandConformance(unittest.TestCase):
+    """workflow-2.13.0 (review-loop-fixes, CP1): the plan-stage commands call
+    `assert_plan_governing_version_sweep` right after the anchor call, before
+    the publish and before the bind."""
+
+    ANCHORS = "assert_plan_checkpoint_anchors"
+    SWEEP = "assert_plan_governing_version_sweep"
+
+    def _assert_after_anchors_before(self, text, later):
+        anchors = text.index(self.ANCHORS)
+        sweep = text.index(self.SWEEP)
+        self.assertLess(anchors, sweep)
+        self.assertLess(sweep, text.index(later))
+        for needle in ("PlanGoverningVersionSweepError", "PLAN_SWEEP_NEXT_STEP"):
+            self.assertIn(needle, text)
+
+    def test_milestone_plan_sweeps_after_the_anchors_and_before_the_publish(self):
+        steps = _extract_numbered_steps(_command_text("milestone-plan.md"))
+        self._assert_after_anchors_before(steps["5"], "publish_plan_revision")
+
+    def test_milestone_plan_sweeps_before_the_bind(self):
+        steps = _extract_numbered_steps(_command_text("milestone-plan.md"))
+        self._assert_after_anchors_before(steps["6"], "verify_plan_review_bundle")
+
+    def test_milestone_plan_tells_the_author_not_to_list_governing_versions(self):
+        text = _command_text("milestone-plan.md")
+        self.assertIn("Do not write a list of governing versions in the plan", text)
+        self.assertIn("feedback-only item or a two-stage item", text)
+
+    def test_apply_plan_review_sweeps_after_the_anchors_and_before_the_publish(self):
+        step5 = _extract_numbered_steps(_command_text("apply-plan-review.md"))["5"]
+        self._assert_after_anchors_before(step5, "publish_plan_revision")
+
+    def test_apply_plan_review_sweeps_before_the_bind(self):
+        text = _command_text("apply-plan-review.md")
+        step7 = text[text.index("7'. **`governing_workflow_version"):]
+        self._assert_after_anchors_before(step7, "verify_plan_review_bundle")
+
+    def test_the_generator_runs_both_checks_in_one_block(self):
+        script = (_repo_root() / "scripts" / "prepare-ai-review.sh").read_text()
+        block = script[script.index("BEGIN early checkpoint-anchor"):script.index("END early checkpoint-anchor")]
+        self.assertLess(block.index(self.ANCHORS), block.index(self.SWEEP))
+        self.assertIn("_PLAN_EARLY_CHECK_ERRORS", block)
+        self.assertNotIn("_PLAN_ANCHOR_ERRORS", block)
+
+    def test_the_plan_review_workflow_document_describes_it(self):
+        text = _doc_text("PLAN_REVIEW_WORKFLOW.md")
+        self.assertIn("assert_plan_governing_version_sweep", text)
 
 
 class TestRetiredDefaultCommandConformance(unittest.TestCase):

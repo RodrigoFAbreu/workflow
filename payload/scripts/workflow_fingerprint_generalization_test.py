@@ -2892,6 +2892,49 @@ class TestPrepareAiReviewShEarlyAnchorCheck(unittest.TestCase):
             self.assertEqual(
                 (repo.root / "docs" / "ai-workflow" / "WORKFLOW_STATE.json").read_bytes(), state_bytes)
 
+    FLAGGED_LINE = 'Plan review is scoped entirely to "2.1" work items.\n'
+
+    def test_a_plan_the_governing_version_sweep_flags_is_refused_and_the_previous_bundle_is_untouched(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            self.assertEqual(self._generate(repo).returncode, 0)
+            state_bytes = (repo.root / "docs" / "ai-workflow" / "WORKFLOW_STATE.json").read_bytes()
+            plan = (repo.root / "docs" / "ai-workflow" / "WORKFLOW_V2_PLAN.md").read_text()
+            self._write_plan(repo, plan + self.FLAGGED_LINE)
+            self._prepare(repo)
+            before = self._snapshot(repo)
+            result = self._run(repo)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertIn("error: PlanGoverningVersionSweepError:", result.stderr)
+            self.assertIn("docs/ai-workflow/WORKFLOW_V2_PLAN.md:", result.stderr)
+            self.assertIn(ws.PLAN_SWEEP_NEXT_STEP, result.stderr)
+            self.assertEqual(self._snapshot(repo), before)
+            names = sorted(q.name for q in self._item_root(repo).iterdir())
+            self.assertEqual([n for n in names if n.startswith(("current.staging-", ".pin.staging-"))], [], names)
+            self.assertFalse((self._item_root(repo) / "REJECTED").exists())
+            self.assertEqual(list(self._item_root(repo).glob("current.rejected-*")), [])
+            fingerprint.assert_bundle_not_rejected(repo.root, self.WI)
+            self.assertEqual(
+                (repo.root / "docs" / "ai-workflow" / "WORKFLOW_STATE.json").read_bytes(), state_bytes)
+
+    def test_anchors_are_refused_before_the_sweep(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            self._write_plan(repo, self.ANCHORLESS_PLAN + self.FLAGGED_LINE)
+            result = self._generate(repo)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertIn("error: AmendmentAnchorCoverageError:", result.stderr)
+            self.assertNotIn("PlanGoverningVersionSweepError", result.stderr)
+
+    def test_a_bound_ready_item_regenerates_a_flagged_plan_without_the_sweep(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            h.publish_and_bind_plan_bundle(repo, self.WI)
+            h.commit_state(repo, "bound")
+            plan = (repo.root / "docs" / "ai-workflow" / "WORKFLOW_V2_PLAN.md").read_text()
+            self._write_plan(repo, plan + self.FLAGGED_LINE)
+            self.assertEqual(self._generate(repo).returncode, 0)
+
     def test_a_refusal_during_an_open_amendment_says_so(self):
         with h.ScratchRepo() as repo:
             self._seed(repo, phase="AMENDING_PLAN", amendment_history=[{"resolved_at_plan_revision": None}])

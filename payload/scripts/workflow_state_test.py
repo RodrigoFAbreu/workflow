@@ -32,6 +32,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import workflow_fingerprint as fingerprint
@@ -3416,6 +3417,98 @@ class TestAssertPlanCheckpointAnchors(unittest.TestCase):
                 else:
                     with self.assertRaises(error):
                         call()
+
+
+
+class TestAssertPlanGoverningVersionSweep(unittest.TestCase):
+    """workflow-2.13.0 CP1 (D-Sweep): the early governing-version check, through
+    the same scratch repository the anchor check is tested with."""
+
+    _A = TestAssertPlanCheckpointAnchors
+    PLAN_DOC = _A.PLAN_DOC
+    REGISTRY_PATH = _A.REGISTRY_PATH
+    MAPPING_PATH = _A.MAPPING_PATH
+    ARTIFACTS_PATH = _A.ARTIFACTS_PATH
+    STATE_PATH = _A.STATE_PATH
+    GOOD = _A.GOOD
+    BOUND_ID = _A.BOUND_ID
+    _registry = _A._registry
+    _entry = _A._entry
+    _bound = _A._bound
+    _write = _A._write
+    setUp = _A.setUp
+    FLAGGED = (
+        "# Plan (Revision 2)\n<!-- CP1 -->\n### CP1\n<!-- /CP1 -->\n<!-- CP2 -->\n### CP2\n<!-- /CP2 -->\n"
+        'Plan review is scoped entirely to "2.1" work items.\n'
+    )
+
+    def _check(self, **kwargs):
+        return ws.assert_plan_governing_version_sweep(self.repo.root, "wi", **kwargs)
+
+    def test_a_flagged_plan_is_refused_with_line_form_and_next_step(self):
+        self._write(plan=self.FLAGGED)
+        with self.assertRaises(ws.PlanGoverningVersionSweepError) as ctx:
+            self._check()
+        message = str(ctx.exception)
+        self.assertIn("wi plan revision 2:", message)
+        self.assertIn(f"{self.PLAN_DOC}:8 (", message)
+        self.assertIn("bare_21_scoped", message)
+        self.assertTrue(message.endswith(ws.PLAN_SWEEP_NEXT_STEP), message)
+        self.assertIn(ws.PlanGoverningVersionSweepError, ws._PLAN_EARLY_CHECK_ERRORS)
+        for error in ws._PLAN_ANCHOR_ERRORS:
+            self.assertIn(error, ws._PLAN_EARLY_CHECK_ERRORS)
+
+    def test_a_clean_plan_passes(self):
+        self._write(plan=self.GOOD)
+        self._check()
+
+    def test_the_bound_regeneration_exemption(self):
+        for phase in sorted(ws.PLAN_REVIEW_READY_PHASES):
+            self._write(plan=self.FLAGGED, phase=phase, plan_review_binding=self._bound())
+            self._check(allow_bound_regeneration=True)
+            with self.assertRaises(ws.PlanGoverningVersionSweepError):
+                self._check()
+            self._write(plan=self.FLAGGED, phase=phase)
+            with self.assertRaises(ws.PlanGoverningVersionSweepError):
+                self._check(allow_bound_regeneration=True)
+
+    def test_a_feedback_only_item_and_a_plan_outside_the_corpus_pass(self):
+        self._write(plan=self.FLAGGED, governing_workflow_version="1")
+        self._check()
+        outside = "docs/OUTSIDE_PLAN.md"
+        for rel in (outside, "docs/ai-workflow/sub/PLAN.md"):
+            self._write(plan=self.FLAGGED)
+            entry = self.state["work_items"]["wi"]
+            entry["plan_path"] = rel
+            (self.repo.root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.repo.root / rel).write_text(self.FLAGGED)
+            (self.repo.root / self.STATE_PATH).write_text(json.dumps(self.state))
+            artifacts = self.repo.root / self.ARTIFACTS_PATH
+            declared = json.loads(artifacts.read_text())
+            declared["plan_stage"]["protected_paths"].append(rel)
+            artifacts.write_text(json.dumps(declared))
+            _run(["git", "add", "-A"], cwd=self.repo.root)
+            self._check()
+
+    def test_a_pin_is_judged_from_its_own_bytes(self):
+        pin = Path(tempfile.mkdtemp(prefix="wf-pin-"))
+        self.addCleanup(__import__("shutil").rmtree, pin, True)
+        self._write(plan=self.FLAGGED)  # the worktree is flagged...
+        self._write(root=pin)  # ...the pinned bytes are clean
+        self._check(pin_dir=pin)
+        self._write(plan=self.GOOD)
+        self._write(plan=self.FLAGGED, root=pin)
+        with self.assertRaises(ws.PlanGoverningVersionSweepError):
+            self._check(pin_dir=pin)
+
+    def test_reads_only_and_writes_nothing(self):
+        self._write(plan=self.FLAGGED)
+        before = (self.repo.root / self.STATE_PATH).read_bytes()
+        status = subprocess.run(["git", "status", "--porcelain"], cwd=self.repo.root, capture_output=True, text=True).stdout
+        with self.assertRaises(ws.PlanGoverningVersionSweepError):
+            self._check()
+        self.assertEqual(before, (self.repo.root / self.STATE_PATH).read_bytes())
+        self.assertEqual(status, subprocess.run(["git", "status", "--porcelain"], cwd=self.repo.root, capture_output=True, text=True).stdout)
 
 
 class TestImplementationStageApprovalSecondItem(unittest.TestCase):
@@ -9626,7 +9719,23 @@ class TestGlobalLockOrderItem372h(unittest.TestCase):
         self.assertEqual(failures, [], "\n".join(failures))
 
 
-_GUARD_WORKER_SOURCE = """
+# workflow#32: the holder publishes its ready file atomically, so the reader
+# never sees an empty or half-written file. A constant of its own so a test can
+# run the very source the worker runs.
+_PUBLISH_ATOMICALLY_SOURCE = """
+import os
+
+
+def publish_atomically(path, text):
+    temporary = path.with_name(path.name + ".tmp")
+    with open(temporary, "w") as handle:
+        handle.write(text)
+        handle.flush()
+        os.fsync(handle.fileno())
+    os.replace(temporary, path)
+"""
+
+_GUARD_WORKER_SOURCE = _PUBLISH_ATOMICALLY_SOURCE + """
 import json
 import sys
 import time
@@ -9649,7 +9758,7 @@ if mode == "hold":
     lease = ws.acquire_guard(repo_root, work_item_id, holder_owner_token=holder_owner_token,
                              checkpoint_id=checkpoint_id, step="1f-commit", step_class=step_class,
                              now=now)
-    ready_path.write_text(json.dumps(lease))
+    publish_atomically(ready_path, json.dumps(lease))
     deadline = time.monotonic() + 15
     while not release_path.exists():
         if time.monotonic() > deadline:
@@ -9667,6 +9776,40 @@ elif mode == "reclaim":
     except ws.CheckpointOwnershipUnavailableError as exc:
         out_path.write_text(json.dumps({"outcome": "refused", "detail": str(exc)}))
 """
+
+
+class TestPublishAtomically(unittest.TestCase):
+    """workflow#32: the ready file's writer, exercised deterministically."""
+
+    def test_destination_appears_only_complete_through_one_replace(self):
+        namespace = {}
+        exec(_PUBLISH_ATOMICALLY_SOURCE, namespace)
+        publish = namespace["publish_atomically"]
+        with tempfile.TemporaryDirectory(prefix="wf-atomic-") as scratch:
+            destination = Path(scratch) / "ready"
+            text = json.dumps({"lease_id": "x" * 4096})
+            seen = []
+            real_replace = os.replace
+
+            def observing_replace(source, target):
+                seen.append((Path(source), Path(target), Path(target).exists(),
+                             Path(source).read_text()))
+                return real_replace(source, target)
+
+            with mock.patch.object(os, "replace", observing_replace):
+                publish(destination, text)
+            self.assertEqual(len(seen), 1)
+            source, target, existed, content = seen[0]
+            self.assertEqual(target, destination)
+            self.assertNotEqual(source, destination)
+            self.assertFalse(existed, "the destination must not exist before the replace")
+            self.assertEqual(content, text, "the temporary file must be complete at the replace")
+            self.assertEqual(destination.read_text(), text)
+            self.assertEqual(os.listdir(scratch), ["ready"])
+
+    def test_the_worker_source_publishes_through_it(self):
+        self.assertIn("publish_atomically(ready_path, json.dumps(lease))", _GUARD_WORKER_SOURCE)
+        self.assertNotIn("ready_path.write_text(json.dumps(lease))", _GUARD_WORKER_SOURCE)
 
 
 class TestSameWorktreeConcurrencyRealProcesses(unittest.TestCase):
