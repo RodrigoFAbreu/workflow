@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**In implementation (CP1 to CP5 complete).** W9: `review-loop-fixes` (`process`, governing version `2.2`),
+**Complete** (accepted by policy; the release follows the merge). W9: `review-loop-fixes` (`process`, governing version `2.2`),
 branch `milestone/review-loop-fixes`, base `d911915` (main after #36: the
 release source and this repository's own installation are both Workflow
 2.12.0, with automatic gates, default "2.2" and no `GATE_POLICY.json`).
@@ -79,13 +79,32 @@ advances to Manager 1.13.0; `docs/release-history.md` has the 2.13.0 row with th
 downward-move paragraph and `docs/common-problems.md` the governing-version refusal.
 All five checkpoints are complete.
 
+#### Optional review findings: dispositions
+
+**Fixed in this milestone:**
+
+| Finding | Raised by | Fix |
+|---|---|---|
+| The saved Manager release list lacked `isPrerelease` | local plan review, round 2 | plan revision 3 (external round 1, finding 4); CI saves `tagName,isDraft,isPrerelease,publishedAt` |
+| The plan header named a stale revision | local plan review, round 5; Codex plan round 3 | plan revision 6 |
+| The implementation diff used the recorded classification only | local plan review, round 5 | plan revision 6 (external round 3): union of recorded and current |
+| The reader's classification inputs were unstated | local plan reviews, rounds 2 and 3 | plan revision 6: recorded inputs for the id, the union for the diff |
+
+**Dropped, with the reason:**
+- The staging method was unnamed (local plan, round 2): release tooling stages from `git archive` of a commit (`package.stage`), and functional review round 1 confirmed it.
+- "Those four documents" wording (local plan, round 2): plan wording only. The artifacts declaration was right.
+- Where the baseline write sits, and the writer's rule order (local plan, round 3): settled by the implementation and its review. The writer runs under the state lock and replaces atomically.
+- Plan line numbers drift (local plan, round 6): plan text only. The implementation's docs and tests name functions.
+
+**Deferred:** 10 follow-ups in issue #39 (`review-follow-up`).
+
 ## Next action
 
-Self-review, the full verification and the implementation review bundle (every
-checkpoint is complete).
-Publishing 2.13.0 follows the pull request merge; the Manager side is a
-`chore: test Workflow 2.13.0` lock bump in `workflow-manager`. The Manager
-release 1.13.0 must be published before this pull request merges (CP4's CI check).
+Row 11 (optional review findings get a disposition at acceptance, #34) is next once
+the owner schedules it: `/milestone-plan`. Publishing 2.13.0 follows the pull request
+merge; the Manager side is a `chore: test Workflow 2.13.0` lock bump in
+`workflow-manager`. The Manager release 1.13.0 must be published before this pull
+request merges (CP4's CI check).
 
 ## Functional review checklist
 
