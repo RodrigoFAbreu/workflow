@@ -89,7 +89,7 @@ release 1.13.0 must be published before this pull request merges (CP4's CI check
 
 ## Functional review checklist
 
-Item `review-loop-fixes` (process, Workflow 2.13.0), implementation revision 3.
+Item `review-loop-fixes` (process, Workflow 2.13.0), implementation revision 4.
 Findings go to `.ai-review/review-loop-fixes/feedback/FUNCTIONAL_REVIEW.md`.
 
 ### Setup
