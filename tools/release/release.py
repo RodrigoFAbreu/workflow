@@ -26,6 +26,13 @@ Subcommands:
     next-release                  D-W0-Target: state, version and target commit
     check-published               the release job's read-back of vV
     stage-conformance             the release source's conformance fixture
+    manager-block                 measure (and with --write, record) the Manager
+                                  metadata block's suite counts
+    check-manager-block           D-Manager checks (a), (b), (c), (e), (g)
+    record-manager-releases       save the published Manager release list
+    compare-manager-releases      the saved list against the live one
+    update-fixture                bootstrap the previous release, update to the
+                                  candidate, run its suites
 
 Exit codes: 0 success; 1 invalid title or refusal; 2 usage error. Every
 undecidable input refuses.
@@ -34,8 +41,12 @@ undecidable input refuses.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
+import datetime
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -44,6 +55,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import manager_block  # noqa: E402
 import package  # noqa: E402
 
 EXIT_OK = 0
@@ -551,6 +563,258 @@ def cmd_stage_conformance(args) -> int:
     return EXIT_OK
 
 
+# -- the Manager metadata block ----------------------------------------------------
+
+MANAGER_REPOSITORY = "RodrigoFAbreu/workflow-manager"
+MANAGER_LIST_FIELDS = "tagName,isDraft,isPrerelease,publishedAt"
+MANAGER_PIN = "tools/release/manager-pin.json"
+UPDATE_FIXTURE_TIMEOUT = 3600
+
+
+def _measure_release(args) -> tuple[dict[str, int], str]:
+    """The suite counts of `--commit` (through `verify_release`) or of the
+    already-staged `--release-dir`, and the version measured."""
+    with tempfile.TemporaryDirectory(prefix="workflow-manager-block-") as tmp:
+        scratch = Path(tmp)
+        if args.release_dir is not None:
+            source = Path(args.release_dir)
+        else:
+            source = package.stage(args.repo, resolve_commit(args.repo, args.commit),
+                                   scratch / "release")
+        version = package.manifest_version(package.load_manifest(source))
+        fixture = package.stage_conformance(source, scratch / "fixture")
+        try:
+            return manager_block.measure_suites(fixture), version
+        except manager_block.MeasureError as exc:
+            raise ReleaseError(str(exc)) from exc
+
+
+def cmd_manager_block(args) -> int:
+    measured, version = _measure_release(args)
+    print(json.dumps(measured, indent=2))
+    if not args.write:
+        return EXIT_OK
+    path = Path(args.repo) / package.MANIFEST_NAME
+    text = path.read_text()
+    try:
+        written = package.manifest_version(json.loads(text))
+    except (ValueError, package.PackageError) as exc:
+        raise ReleaseError(f"{path} is unreadable: {exc}") from exc
+    if manager_block.version_tuple(written) <= manager_block.LAST_BLOCKLESS:
+        raise ReleaseError(f"{path} names {written}: a manifest up to "
+                           f"{'.'.join(map(str, manager_block.LAST_BLOCKLESS))} never gets a "
+                           f"manager block")
+    try:
+        updated = manager_block.replace_suites(text, measured)
+    except manager_block.MeasureError as exc:
+        raise ReleaseError(str(exc)) from exc
+    before, after = json.loads(text), json.loads(updated)
+    before["manager"]["conformance"]["suites"] = after["manager"]["conformance"]["suites"]
+    if before != after:
+        raise ReleaseError("internal error: writing suites changed more than suites")
+    path.write_text(updated)
+    print(f"wrote manager.conformance.suites for {version} to {path}")
+    return EXIT_OK
+
+
+def _load_json(path: Path, what: str):
+    try:
+        return json.loads(Path(path).read_text())
+    except (OSError, ValueError) as exc:
+        raise ReleaseError(f"cannot read {what} {path}: {exc}") from exc
+
+
+def cmd_check_manager_block(args) -> int:
+    commit = resolve_commit(args.repo, args.commit)
+    version = manifest_version_at(args.repo, commit)
+    manifest = json.loads(_git(args.repo, "show", f"{commit}:{package.MANIFEST_NAME}").stdout)
+    evidence = _load_json(args.manager_releases, "the Manager release list")
+    old = manager_block.version_tuple(version) <= manager_block.LAST_BLOCKLESS
+    measured = None
+    if not old and "manager" in manifest:
+        measured, _ = _measure_release(argparse.Namespace(
+            repo=args.repo, commit=commit, release_dir=None))
+    problems = manager_block.check(manifest, version, measured, evidence)
+    if not old and "manager" in manifest:
+        pin = _git(args.repo, "show", f"{commit}:{MANAGER_PIN}", check=False)
+        try:
+            pinned = json.loads(pin.stdout) if pin.returncode == 0 else None
+        except ValueError:
+            pinned = None
+        problems += manager_block.check_pin(manifest["manager"], pinned)
+    if problems:
+        raise ReleaseError(f"the manager block of {version} at {commit} is not valid: "
+                           + "; ".join(problems))
+    print(f"ok: {version} "
+          + ("has no manager block, as a release up to "
+             f"{'.'.join(map(str, manager_block.LAST_BLOCKLESS))} must not"
+             if old else "carries a valid manager block that matches the measurement"))
+    return EXIT_OK
+
+
+def _gh_listing() -> str:
+    try:
+        proc = subprocess.run(
+            ["gh", "release", "list", "-R", MANAGER_REPOSITORY, "--json", MANAGER_LIST_FIELDS,
+             "--limit", "1000"], capture_output=True, text=True, timeout=GIT_TIMEOUT)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise OSError(f"cannot run gh: {exc}") from exc
+    if proc.returncode != 0:
+        raise OSError(f"gh release list failed: {proc.stderr.strip()}")
+    return proc.stdout
+
+
+def _records(text: str, source: str) -> list:
+    try:
+        records = json.loads(text)
+    except ValueError as exc:
+        raise ReleaseError(f"{source} is not JSON: {exc}") from exc
+    if not isinstance(records, list):
+        raise ReleaseError(f"{source} is not a JSON list")
+    return records
+
+
+def cmd_record_manager_releases(args) -> int:
+    if args.listing is not None:
+        try:
+            text = Path(args.listing).read_text()
+        except OSError as exc:
+            raise ReleaseError(f"cannot read {args.listing}: {exc}") from exc
+    else:
+        try:
+            text = _gh_listing()
+        except OSError as exc:
+            raise ReleaseError(str(exc)) from exc
+    taken = args.taken or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+    evidence = {"repository": MANAGER_REPOSITORY, "taken": taken,
+                "releases": sorted(_records(text, "the release listing"),
+                                   key=lambda r: str(r.get("tagName") if isinstance(r, dict) else r))}
+    problems = manager_block.validate_evidence(evidence)
+    if problems:
+        raise ReleaseError("the release listing is incomplete: " + "; ".join(problems))
+    Path(args.out).write_text(json.dumps(evidence, indent=2) + "\n")
+    newest = manager_block.newest_published(evidence)
+    print(f"recorded {len(evidence['releases'])} releases of {MANAGER_REPOSITORY} "
+          f"(newest published {newest}) in {args.out}")
+    return EXIT_OK
+
+
+def cmd_compare_manager_releases(args) -> int:
+    saved = _load_json(args.manager_releases, "the Manager release list")
+    problems = manager_block.validate_evidence(saved)
+    if problems:
+        raise ReleaseError("the saved Manager release list is invalid: " + "; ".join(problems))
+    try:
+        text = Path(args.live).read_text() if args.live is not None else _gh_listing()
+        live = {"repository": MANAGER_REPOSITORY, "taken": "live", "releases": json.loads(text)}
+        if not isinstance(live["releases"], list):
+            raise ValueError("not a JSON list")
+        bad = [p for p in manager_block.validate_evidence(dict(live, taken="2000-01-01"))]
+        if bad:
+            raise ValueError("; ".join(bad))
+    except (OSError, ValueError) as exc:
+        print("outcome=unavailable")
+        print(f"::notice::the live Manager release list could not be read ({exc}); "
+              f"nothing to compare")
+        return EXIT_OK
+    mine = set(manager_block.published_versions(saved))
+    theirs = set(manager_block.published_versions(dict(live, taken="2000-01-01")))
+    if theirs - mine:
+        print("outcome=snapshot-behind")
+        print(f"::warning::the saved Manager release list lacks published release(s) "
+              f"{', '.join(sorted(theirs - mine, key=manager_block.version_tuple))}: run "
+              f"release.py record-manager-releases and commit the result")
+        return EXIT_OK
+    print("outcome=consistent")
+    if mine - theirs:
+        print(f"::notice::the saved list names {', '.join(sorted(mine - theirs))}, which the "
+              f"live list no longer shows")
+    return EXIT_OK
+
+
+def _run_logged(command: list[str], *, cwd: Path | None = None, env: dict | None = None,
+                what: str) -> None:
+    try:
+        proc = subprocess.run(command, cwd=cwd, env=env, capture_output=True, text=True,
+                              timeout=UPDATE_FIXTURE_TIMEOUT)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise ReleaseError(f"{what} could not run: {exc}") from exc
+    print(f"$ {' '.join(command)}")
+    sys.stdout.write(proc.stdout)
+    if proc.returncode != 0:
+        sys.stderr.write(proc.stderr)
+        raise ReleaseError(f"{what} failed (exit {proc.returncode})")
+
+
+def _run_suite(repo: Path, suite: str, base: Path) -> tuple[str, int, str]:
+    d = base / suite
+    (d / "tmp").mkdir(parents=True)
+    (d / "home").mkdir()
+    shutil.copytree(repo, d / "repo", symlinks=True)
+    env = dict(os.environ, TMPDIR=str(d / "tmp"), HOME=str(d / "home"),
+               PYTHONDONTWRITEBYTECODE="1")
+    proc = subprocess.run([sys.executable, suite], cwd=d / "repo" / "scripts", env=env,
+                          capture_output=True, text=True, timeout=UPDATE_FIXTURE_TIMEOUT)
+    return suite, proc.returncode, proc.stdout + proc.stderr
+
+
+def cmd_update_fixture(args) -> int:
+    """The pre-publish update fixture (the contract's check (f)): a scratch
+    repository bootstrapped from the previous published release, updated to the
+    candidate with the Manager, then the candidate's frozen suites and
+    `verify` in the result."""
+    parse_version(args.previous_version)
+    manager = args.manager.split()
+    with tempfile.TemporaryDirectory(prefix="workflow-update-fixture-") as tmp:
+        scratch = Path(tmp)
+        archive = Path(args.previous_assets) / package.archive_name(args.previous_version)
+        previous = package.extract_tree(archive, scratch / "previous")
+        package.verify_release(previous)
+        if args.release_dir is not None:
+            candidate = Path(args.release_dir)
+        else:
+            candidate = package.stage(args.repo, resolve_commit(args.repo, args.commit),
+                                      scratch / "candidate")
+        candidate_version = package.verify_release(candidate)
+        target = scratch / "target"
+        _git(scratch, "init", "-q", "-b", "main", str(target))
+        for key, value in (("user.email", "fixture@example.invalid"),
+                           ("user.name", "Workflow Fixture"), ("commit.gpgsign", "false"),
+                           ("maintenance.auto", "false"), ("gc.auto", "0")):
+            _git(target, "config", key, value)
+        _run_logged([*manager, "--release-dir", str(previous), "bootstrap", str(target)],
+                    what=f"bootstrapping {args.previous_version}")
+        _git(target, "add", "-A")
+        _git(target, "commit", "-q", "--allow-empty", "-m", "bootstrap")
+        _run_logged([*manager, "--release-dir", str(candidate), "update", str(target)],
+                    what=f"updating to {candidate_version}")
+        _git(target, "add", "-A")
+        _git(target, "commit", "-q", "--allow-empty", "-m", "update")
+        workflow = target / manager_block.CONFORMANCE_TEMPLATE
+        try:
+            suites = manager_block.suite_names(workflow.read_text())
+        except (OSError, manager_block.MeasureError) as exc:
+            raise ReleaseError(f"the updated repository has no usable conformance "
+                               f"workflow: {exc}") from exc
+        width = max(1, min(4, os.cpu_count() or 1))
+        failed = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=width) as pool:
+            for suite, code, output in pool.map(
+                    lambda s: _run_suite(target, s, scratch / "suites"), suites):
+                print(f"{'ok  ' if code == 0 else 'FAIL'} {suite}")
+                if code != 0:
+                    failed.append(suite)
+                    sys.stderr.write(output[-4000:])
+        if failed:
+            raise ReleaseError(f"the frozen suites failed in the updated repository: "
+                               f"{', '.join(failed)}")
+        _run_logged([*manager, "--release-dir", str(candidate), "verify", str(target)],
+                    what="verifying the updated repository")
+    print(f"ok: {args.previous_version} -> {candidate_version} updates cleanly and its "
+          f"{len(suites)} suites pass")
+    return EXIT_OK
+
+
 # -- entry point -----------------------------------------------------------------
 
 
@@ -605,6 +869,38 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--commit", required=True)
     p.add_argument("--out", required=True, type=Path)
     p.set_defaults(func=cmd_stage_conformance)
+
+    p = sub.add_parser("manager-block")
+    source = p.add_mutually_exclusive_group(required=True)
+    source.add_argument("--commit")
+    source.add_argument("--release-dir", type=Path)
+    p.add_argument("--write", action="store_true")
+    p.set_defaults(func=cmd_manager_block)
+
+    p = sub.add_parser("check-manager-block")
+    p.add_argument("--commit", required=True)
+    p.add_argument("--manager-releases", required=True, type=Path)
+    p.set_defaults(func=cmd_check_manager_block)
+
+    p = sub.add_parser("record-manager-releases")
+    p.add_argument("--out", required=True, type=Path)
+    p.add_argument("--listing", type=Path)
+    p.add_argument("--taken")
+    p.set_defaults(func=cmd_record_manager_releases)
+
+    p = sub.add_parser("compare-manager-releases")
+    p.add_argument("--manager-releases", required=True, type=Path)
+    p.add_argument("--live", type=Path)
+    p.set_defaults(func=cmd_compare_manager_releases)
+
+    p = sub.add_parser("update-fixture")
+    source = p.add_mutually_exclusive_group(required=True)
+    source.add_argument("--commit")
+    source.add_argument("--release-dir", type=Path)
+    p.add_argument("--previous-assets", required=True, type=Path)
+    p.add_argument("--previous-version", required=True)
+    p.add_argument("--manager", default="workflow-manager")
+    p.set_defaults(func=cmd_update_fixture)
     return parser
 
 

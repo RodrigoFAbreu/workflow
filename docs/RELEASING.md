@@ -20,8 +20,9 @@ The repository root holds two copies of the Workflow (`CLAUDE.md`):
   changes only through `workflow-manager update` (see "The installation
   check" below).
 
-The release tooling is `tools/release/` (`release.py`, `package.py`, their
-tests and two pins), and the workflows are `.github/workflows/workflow-ci.yml`
+The release tooling is `tools/release/` (`release.py`, `package.py`,
+`manager_block.py`, their tests, two pins and the committed Manager release
+list), and the workflows are `.github/workflows/workflow-ci.yml`
 (`Workflow CI`), `pr-title.yml` (`PR title`) and `release.yml` (`Release`).
 The `D-W0-*` names below are that plan's design decisions.
 
@@ -119,7 +120,7 @@ the branch itself.
 
 | job | checks |
 | --- | --- |
-| `checks` | one checkout and one install of the pinned tools, then each check as its own named step: `workflow-manager verify .` with the pinned Manager; `release.py build --commit HEAD`, the Manager's `package verify` of the archive, a `--release-dir` bootstrap and verify of a scratch repository, and the three assets uploaded as the `package` artifact; `release.py check-pending` and `check-immutable` against the saved release list (and, when the manifest version is published, `check-immutable --published` against the downloaded `vV` assets); `tools/docs/`'s tests and checker; and `tools/release/release_test.py`, including the byte-for-byte reproduction of every published release (`v2.3.1` to `v2.6.0`) in the pinned deflate runtime |
+| `checks` | one checkout and one install of the pinned tools, then each check as its own named step: `workflow-manager verify .` with the pinned Manager; `release.py build --commit HEAD`, the Manager's `package verify` of the archive, a `--release-dir` bootstrap and verify of a scratch repository, and the three assets uploaded as the `package` artifact; `release.py check-pending` and `check-immutable` against the saved release list (and, when the manifest version is published, `check-immutable --published` against the downloaded `vV` assets); `tools/docs/`'s tests and checker; and `tools/release/release_test.py`, including the byte-for-byte reproduction of every published release (`v2.3.1` to `v2.6.0`) in the pinned deflate runtime; and, for a release after 2.12.0, the Manager block checks ("The Manager metadata block" below) |
 | `release-source-conformance` | `release.py stage-conformance --commit HEAD`, then the release source's own nine frozen suites in that fixture, run in parallel |
 | `aggregate` | fails unless both jobs above succeeded |
 
@@ -433,6 +434,75 @@ Set `version` to `M`, `wheel` to `workflow_manager-M-py3-none-any.whl` and
 `sha256` to the wheel's digest. The `checks` job's package and installation steps
 download the wheel from that release and check it with `sha256sum -c` before
 installing it.
+
+## The Manager metadata block
+
+A release after 2.12.0 carries an optional-by-contract, required-by-this-repository
+`manager` block in its `manifest.json`: what the Workflow Manager used to hard-code
+per release (the minimum Manager, the downgrade posture and its signals, the
+notes for new work, a gate default change, the frozen suites' counts and the
+portability exceptions). The Manager's `docs/release-metadata.md` is the contract
+(schema version 1). A manifest at 2.12.0 or older never has one.
+
+The block is written in `manifest.json` itself, not in a separate file copied in by
+the build: the committed manifest is what CI checks and what is published, so one
+file has one author step.
+
+| field | who sets it |
+| --- | --- |
+| `schema_version`, `min_manager_version`, `downgrade_boundary`, `new_work_only`, `gate_default_change`, `conformance.portability_exceptions` | **authored** by hand in the milestone's pull request |
+| `conformance.suites` | **computed**, never written by hand |
+
+`conformance.suites` is the number of test cases each of the nine suites the managed
+conformance workflow names loads (`unittest`'s own loader, in the staged
+conformance fixture; a `*_demo_test.py` file the workflow does not name is not
+counted; a loader error refuses). Print it, or write it, with:
+
+```bash
+python tools/release/release.py manager-block --commit HEAD            # print
+python tools/release/release.py manager-block --release-dir DIR --write  # record
+```
+
+`--commit` stages a commit, so its manifest digests must already match its bytes.
+`--release-dir DIR` measures a directory staged from the working tree whose digests
+are already refreshed, so a release can record its own counts before its commit
+exists. `--write` replaces only the value of `suites` in the working tree's
+`manifest.json`, keeping every other byte, and refuses a manifest at 2.12.0 or
+older or one with no block to fill.
+
+`Workflow CI` runs `release.py check-manager-block --commit HEAD
+--manager-releases tools/release/manager-releases.json`, which refuses when:
+
+- (a) the block is not valid under the contract (schema 1, key types, the closed
+  detector vocabulary, kebab-case signal names, version strings, `suites` a
+  mapping of file names to non-negative integers);
+- (b) `suites` differs from the measurement;
+- (c) `min_manager_version` is newer than the newest published Manager release in
+  `tools/release/manager-releases.json`: the saved output of `gh release list -R
+  RodrigoFAbreu/workflow-manager --json tagName,isDraft,isPrerelease,publishedAt`
+  (complete records, plus the date taken). Only an exact `vX.Y.Z` tag that is
+  neither a draft nor a prerelease counts; a record missing a field makes the
+  evidence invalid. The check is offline: it reads only the committed file;
+- (e) the manifest is at 2.12.0 or older and has a block, or is newer and has none;
+- (g) `tools/release/manager-pin.json` pins a Manager other than the block's
+  `min_manager_version`.
+
+Refresh the evidence with `release.py record-manager-releases --out
+tools/release/manager-releases.json` after a Manager release is published. A
+separate step, `release.py compare-manager-releases`, lists the live releases and
+reports `consistent`, `snapshot-behind` (a warning) or `unavailable` (a notice);
+none of them fails the job. Check (c) is therefore red until the Manager release a
+Workflow release needs is published and recorded, which is the intended order.
+
+The pre-publish **update fixture** (`release.py update-fixture --commit HEAD
+--previous-assets DIR --previous-version V`, a CI step) bootstraps a scratch
+repository from the previous published release, runs `workflow-manager update`
+with the pinned Manager (held equal to the minimum by check (g)) against the
+candidate, runs the candidate's nine frozen suites in the result and then
+`workflow-manager verify`. It runs only for a release that carries a block.
+
+Not checked: that a release which adds a persisted key, phase or status states a
+downgrade posture. That is a judgment no tool can make here.
 
 ## After a release: the `workflow-manager` pin
 

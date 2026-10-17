@@ -21,6 +21,17 @@
 #     tooling                   tools/release/'s tests, including the
 #                               byte-for-byte reproduction of every published
 #                               release in the pinned deflate runtime.
+#     manager block             a release after 2.12.0 carries a valid `manager`
+#                               block whose suite counts equal the measurement
+#                               of its own conformance fixture, whose minimum
+#                               Manager is published (committed evidence,
+#                               offline) and is the pinned one; the committed
+#                               evidence is compared with the live list (never
+#                               failing on unavailability); the pre-publish
+#                               update fixture bootstraps the previous release,
+#                               updates to HEAD with the pinned Manager and
+#                               runs the nine frozen suites (docs/RELEASING.md,
+#                               "The Manager metadata block").
 #   release-source-conformance  the release source's own frozen suites, in its
 #                               conformance fixture: nine suites in parallel
 #                               (min(4, nproc) at a time, longest first), each
@@ -165,6 +176,42 @@ jobs:
       - name: release_test.py
         if: ${{ !cancelled() && steps.deflate.outcome == 'success' }}
         run: python3 tools/release/release_test.py
+
+      # manager block
+      - name: Manager block is valid and measured
+        if: ${{ !cancelled() && steps.python.outcome == 'success' }}
+        run: python3 tools/release/release.py check-manager-block --commit HEAD --manager-releases tools/release/manager-releases.json
+      - name: Manager release list is current
+        if: ${{ !cancelled() && steps.python.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/release/release.py compare-manager-releases --manager-releases tools/release/manager-releases.json
+      # Only a release that carries a block (after 2.12.0) is update-tested:
+      # from the highest published release below HEAD's version, with the pinned
+      # Manager (which check-manager-block holds equal to the block's minimum).
+      - name: Update fixture
+        if: ${{ !cancelled() && steps.releases.outcome == 'success' && steps.manager.outcome == 'success' && steps.deflate.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          previous="$(python3 - "$RUNNER_TEMP/releases.json" <<'PY'
+          import json, re, subprocess, sys
+          head = json.loads(subprocess.check_output(["git", "show", "HEAD:manifest.json"]))
+          key = lambda s: tuple(map(int, s.split(".")))
+          if "manager" not in head:
+              sys.exit(0)
+          tags = [r["tagName"][1:] for r in json.load(open(sys.argv[1]))
+                  if not r["isDraft"] and re.fullmatch(r"v\d+\.\d+\.\d+", r["tagName"])]
+          below = [t for t in tags if key(t) < key(head["workflow_version"])]
+          print(max(below, key=key) if below else "")
+          PY
+          )"
+          if [ -z "$previous" ]; then
+            echo "no manager block, or no earlier published release; nothing to update-test"
+            exit 0
+          fi
+          gh release download "v$previous" --dir "$RUNNER_TEMP/previous"
+          python3 tools/release/release.py update-fixture --commit HEAD --previous-assets "$RUNNER_TEMP/previous" --previous-version "$previous" --manager workflow-manager
 
   release-source-conformance:
     runs-on: ubuntu-latest
