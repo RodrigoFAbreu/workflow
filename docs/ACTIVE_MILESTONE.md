@@ -62,3 +62,17 @@ the exit condition and that it is not a policy requirement. Golden hash of
 `accept-milestone.md` refreshed. Tests: `TestFindingDispositions` in
 `workflow_gate_policy_test.py`, `TestFindingDispositionsCommandConformance` in
 `workflow_integration_test.py`.
+
+CP3 is complete: `workflow_gate_policy.adoption_merge_cause` names the adoption that
+reached the line through a merge commit that does not introduce it (`{commit, sha256,
+parents}`, else `None`); `effective_policy` carries it as `adoption_merge` and no
+evaluation reads it. `verify_check` warns with `adoption_merge_notice` only when the
+effective policy is stricter than the adopted one. `gate_policy_adoption_preview`
+carries `adoption_merge` and `adoption_merge_notice`; `adopt-gate-policy.md` prints the
+notice in step 1 and repeats the squash advice in step 3; `GATE_POLICY.md` states the
+squash requirement. `adopt-gate-policy.md` has no golden hash, so none changed. Tests:
+`TestAdoptionMergeCause` in `workflow_gate_policy_test.py` (merge commit, squash,
+update merge, no-cause cases, preview and command text). Run in a scratch git copy of
+`payload/`: the gate-policy suite (310), state suite (331) and the integration suite
+pass apart from three tests that read `CLAUDE.md`/`ACTIVE_MILESTONE.md` the scratch
+copy lacks.

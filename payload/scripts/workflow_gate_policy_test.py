@@ -2053,6 +2053,113 @@ class TestVerifyCheck(unittest.TestCase):
                 self.assertEqual(self.verify(repo)["gate_policy"]["status"], "fail", body)
 
 
+# ---------------------------------------------------------------------------
+# the cause of an adoption merged with a merge commit (workflow#37, `D-Adoption`)
+# ---------------------------------------------------------------------------
+
+
+class TestAdoptionMergeCause(unittest.TestCase):
+    def verify_detail(self, repo: PolicyRepo) -> tuple[str, str]:
+        g.clear_caches()
+        return g.verify_check(repo.root, repo.state())
+
+    def merged_adoption_repo(self, repo: PolicyRepo) -> str:
+        """`main` holds an older all-human policy file; a branch adopts an
+        all-automatic one and is merged with a merge commit."""
+        repo.commit_policy(HUMAN)
+        repo.branch("feature")
+        repo.adopt(AUTOMATIC)
+        repo.checkout("main")
+        return repo.merge("feature")
+
+    def test_a_merge_commit_adoption_over_an_older_stricter_file_names_the_cause(self):
+        with PolicyRepo() as repo:
+            merge = self.merged_adoption_repo(repo)
+            eff = repo.eff()
+            self.assertEqual(eff["base"]["source"], "adopted")
+            cause = eff["adoption_merge"]
+            self.assertEqual(cause["commit"], merge)
+            self.assertEqual(cause["sha256"], repo.state()[g.ADOPTION_KEY]["sha256"])
+            self.assertEqual(len(cause["parents"]), 2)
+            self.assertEqual(g.adoption_merge_cause(repo.root), cause)
+            self.assertEqual(repo.human_gates(), set(g.GATE_IDS), "the evaluation is unchanged: older versions count")
+            status, detail = self.verify_detail(repo)
+            self.assertEqual(status, "warn")
+            self.assertIn(merge[:12], detail)
+            self.assertIn(cause["sha256"][:12], detail)
+            self.assertIn("squash", detail)
+
+    def test_the_evaluation_apart_from_the_new_key_is_what_it_was(self):
+        with PolicyRepo() as repo:
+            self.merged_adoption_repo(repo)
+            eff = repo.eff()
+            self.assertEqual(set(eff) - {"adoption_merge"}, {
+                "file", "provenance", "gate_lowering", "ignored_fields", "policy", "source",
+                "digest", "base", "floor"})
+            self.assertTrue(eff["provenance"]["ok"])
+
+    def test_the_same_branch_squash_merged_has_no_cause_and_no_warning(self):
+        with PolicyRepo() as repo:
+            repo.commit_policy(HUMAN)
+            repo.branch("feature")
+            repo.adopt(AUTOMATIC)
+            repo.checkout("main")
+            repo.squash("feature")
+            eff = repo.eff()
+            self.assertEqual(eff["source"], "adopted")
+            self.assertIsNone(eff["adoption_merge"])
+            self.assertEqual(repo.human_gates(), set())
+            self.assertEqual(self.verify_detail(repo)[0], "pass")
+
+    def test_an_update_merge_on_a_feature_branch_changes_no_evaluation_field(self):
+        with PolicyRepo() as repo:
+            repo.branch("feature")
+            repo.checkout("main")
+            repo.adopt(HUMAN)
+            repo.checkout("feature")
+            merge = repo.merge("main")
+            eff = repo.eff()
+            self.assertEqual(eff["adoption_merge"]["commit"], merge, "the cause is named")
+            self.assertEqual(eff["source"], "adopted")
+            self.assertEqual(eff["policy"], g.resolve_policy(HUMAN))
+            self.assertTrue(eff["provenance"]["ok"])
+            self.assertEqual(self.verify_detail(repo)[0], "pass",
+                             "the effective policy is not stricter than the adopted one")
+
+    def test_no_adoption_an_introduced_adoption_and_a_later_non_adoption_merge_have_no_cause(self):
+        with PolicyRepo() as repo:
+            self.assertIsNone(repo.eff()["adoption_merge"])
+        with PolicyRepo() as repo:
+            repo.adopt(HUMAN)
+            self.assertIsNone(repo.eff()["adoption_merge"])
+        with PolicyRepo() as repo:
+            self.merged_adoption_repo(repo)
+            self.assertIsNotNone(repo.eff()["adoption_merge"])
+            repo.hand_state_commit(lambda state: state.update(note="x"))
+            self.assertIsNotNone(repo.eff()["adoption_merge"], "the newest adoption change is still the merge")
+            repo.adopt(PLAN_HUMAN)
+            self.assertIsNone(repo.eff()["adoption_merge"], "a later adoption introduced on this line")
+
+    def test_the_preview_carries_the_cause_and_the_command_names_it(self):
+        with PolicyRepo() as repo:
+            self.merged_adoption_repo(repo)
+            repo.commit_policy(PLAN_HUMAN)
+            preview = ws.gate_policy_adoption_preview(repo.root)
+            self.assertEqual(preview["adoption_merge"], repo.eff()["adoption_merge"])
+            self.assertEqual(preview["adoption_merge_notice"], g.adoption_merge_notice(preview["adoption_merge"]))
+        with PolicyRepo() as repo:
+            repo.commit_policy(PLAN_HUMAN)
+            preview = ws.gate_policy_adoption_preview(repo.root)
+            self.assertIsNone(preview["adoption_merge"])
+            self.assertIsNone(preview["adoption_merge_notice"])
+        text = (REPO_ROOT / ".claude/commands/adopt-gate-policy.md").read_text()
+        doc = (REPO_ROOT / "docs/ai-workflow/GATE_POLICY.md").read_text()
+        for needle in ("adoption_merge", "adoption_merge_notice", "squash"):
+            self.assertIn(needle, text)
+        for needle in ("adoption_merge", "squash"):
+            self.assertIn(needle, doc)
+
+
 class TestAllHumanEquivalence(unittest.TestCase):
     def test_an_adopted_all_human_policy_changes_only_the_top_level_fields(self):
         """D-GP-Compat's delta 7: the adoption adds the two top-level keys and

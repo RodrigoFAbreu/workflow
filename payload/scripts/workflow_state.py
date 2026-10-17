@@ -19935,6 +19935,9 @@ def gate_policy_adoption_preview(repo_root: Path) -> dict:
         "floor_before": before["floor"],
         "stales": open_bundles_staled_by_adoption(state),
         "provenance_ok": before["provenance"]["ok"],
+        "adoption_merge": before["adoption_merge"],
+        "adoption_merge_notice": (gate_policy.adoption_merge_notice(before["adoption_merge"])
+                                  if before["adoption_merge"] is not None else None),
     }
 
 
