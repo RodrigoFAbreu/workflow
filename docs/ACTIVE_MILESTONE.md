@@ -79,3 +79,79 @@ directory> --write` from a staging of CP4's own content (protocol 341, state 118
 release constant in `workflow_protocol.py` is 2.15.0, with the protocol document's
 envelope example and the two assertions of `workflow_protocol_test.py`. `docs/release-history.md` has the
 2.15.0 row. `docs/ROADMAP.md` stays Current until acceptance.
+
+## Functional review checklist
+
+Item `review-round-counts`, implementation revision 2, branch
+`milestone/review-round-counts`. All four checkpoints (CP1-CP4) are complete; the
+release source is 2.15.0 (this repository's own installation stays 2.14.0 and is not
+under test).
+
+### Setup
+
+- Work from the repository root on branch `milestone/review-round-counts`, clean tree.
+- Run the release source scripts, not the installed ones: `payload/scripts/`
+  (`workflow_state.py`, `workflow_protocol.py`). Use a scratch copy of the repository
+  or a temp directory for any state you mutate; never write to this repository's
+  `docs/ai-workflow/WORKFLOW_STATE.json`.
+- Automated suites (from `payload/scripts`): `python3 -m unittest workflow_state_test`
+  and `workflow_protocol_test`. The 18 protocol failures that compare release strings
+  and digests need the staged fixture; they are expected outside CP4's staging.
+- `python3 tools/docs/check_docs.py` must be clean.
+
+### Test data
+
+A scratch repository bootstrapped with the release source holding one `2.2` work item
+(two-stage plan and implementation review) and one `2.1` item (plan stage only has two
+stages), plus one item created before 2.15.0 (no `review_round_counts` key).
+
+### Flows and expected results
+
+1. **Fresh `2.2` item.** Run `next-action` for it. Expect `review_round` to carry
+   `plan_local`, `plan_external`, `implementation_local`, `implementation_external`
+   all `0`, alongside unchanged `plan`, `implementation`, `current`; protocol version
+   `1.5`.
+2. **Counting at the plan stage (the C10a case).** Record three local plan-review
+   verdicts (`REVISE`, `REVISE`, `APPROVE` or the equivalent sequence) and one external
+   plan verdict. Expect `plan_local` 3 and `plan_external` 1 in the next snapshot;
+   `plan` unchanged from what 2.14.0 would return.
+3. **BLOCK does not count.** Record a `BLOCK` verdict. Expect no counter change and
+   the ingest otherwise as before.
+4. **Implementation stage.** Record local and external implementation verdicts
+   (`APPROVE`/`REVISE`). Expect `implementation_local`/`implementation_external` to
+   rise by one each, `plan_*` unaffected.
+5. **Pre-2.15.0 item (key absent).** `next-action` returns `null` for all four fields
+   and does not refuse; recording a verdict leaves the absent key absent.
+6. **Item whose stage is `null`** (e.g. a `2.1` item's implementation stage): that
+   stage reads `null`, the other stage counts.
+7. **Malformed counter.** Hand-edit a scratch state so `review_round_counts` is
+   malformed. Expect `next-action` and `record-external-result` still work (fields
+   `null`), the writers leave the value untouched, and `verify` alone reports the
+   malformed key as a `state_valid` failure naming `validate_review_round_counts`.
+8. **Monotonic.** A count never decreases and never returns to `null` once numeric,
+   including across a new plan revision or implementation revision.
+9. **Schema and docs.** `orchestration-protocol-v1.schema.json` requires the four
+   properties in `review_round`; `ORCHESTRATION_PROTOCOL.md` is version 1.5 and its
+   section 5.4 example shows zero counts; the glossary and the three new
+   `docs/common-problems.md` entries read correctly.
+10. **Release bookkeeping.** `manifest.json` is 2.15.0 with a `manager` block
+    (`min_manager_version` 1.13.0, `review-round-counts` state-key signal,
+    one `new_work_only` entry); `docs/release-history.md` has the 2.15.0 row;
+    `docs/ROADMAP.md` row 14 is still Current; `workflow-manager verify .` is clean
+    (installation untouched).
+11. **Downgrade posture.** In the state tests, 2.15.0's helpers accept a committed
+    counter-bearing recovered generation record and 2.14.0's field sets refuse it
+    (`TestReviewRoundCountsDowngrade`); the "Implementation approval fails with
+    `MalformedBundleGenerationRecordCommitError`" entry in common-problems matches.
+
+### Known limitations / out of scope
+
+- Counts are exact only from the verdicts recorded after 2.15.0; earlier verdicts of an
+  existing item cannot be reconstructed (reads `null`, or lower than expected).
+- The round caps (local 6, external 4) are enforced by the Controller
+  (workflow-controller#88), not here.
+- `BLOCK` verdicts are not counted; `plan`, `implementation`, `current` are unchanged.
+- Downgrade to 2.14.0 is supported only to the boundary the manifest's `posture` states;
+  a counter-bearing generation record cannot be approved there.
+- The 18 release-string/digest failures in `workflow_protocol_test` outside the staged
+  fixture are not a defect of this milestone.
