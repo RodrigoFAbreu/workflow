@@ -3826,11 +3826,11 @@
         "workflow_acceptance_matrix_test.py": 415,
         "workflow_protocol_test.py": 331,
         "workflow_state_test.py": 1168,
-        "workflow_gate_policy_test.py": 312,
+        "workflow_gate_policy_test.py": 315,
         "workflow_fingerprint_generalization_test.py": 142,
         "workflow_state_completion_obligations_test.py": 106,
         "workflow_integration_test.py": 317,
-        "workflow_fingerprint_test.py": 279,
+        "workflow_fingerprint_test.py": 280,
         "workflow_test_harness_test.py": 27
       },
       "portability_exceptions": []
