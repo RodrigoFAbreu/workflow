@@ -2140,6 +2140,57 @@ class TestAdoptionMergeCause(unittest.TestCase):
             repo.adopt(PLAN_HUMAN)
             self.assertIsNone(repo.eff()["adoption_merge"], "a later adoption introduced on this line")
 
+    def test_a_merge_that_removes_or_corrupts_the_adoption_has_no_cause_and_never_raises(self):
+        """I1: the walk stops at a merge whose adoption is gone or unusable;
+        `effective_policy` keeps 2.13.0's provenance failure, apart from
+        `adoption_merge: None`."""
+        def drop(ours, theirs, base):
+            return {k: v for k, v in theirs.items() if k not in (g.ADOPTION_KEY, g.FLOOR_KEY)}
+
+        def corrupt(value):
+            def resolve(ours, theirs, base):
+                return {**theirs, g.ADOPTION_KEY: value}
+            return resolve
+
+        resolvers = {"removed": drop, "string": corrupt("x"), "no sha256": corrupt({"policy": {}}),
+                     "non-string sha256": corrupt({"sha256": 1})}
+        for name, resolver in resolvers.items():
+            with self.subTest(name), PolicyRepo() as repo:
+                repo.adopt(HUMAN)
+                repo.branch("feature")
+                repo.hand_state_commit(lambda state: state.update(note="feature"))
+                repo.checkout("main")
+                repo.hand_state_commit(lambda state: state.update(note="main"))
+                merge = repo.merge("feature", resolver)
+                self.assertIsNone(g.adoption_merge_cause(repo.root))
+                eff = repo.eff()
+                self.assertIsNone(eff["adoption_merge"])
+                self.assertEqual(eff["source"], "provenance_failed")
+                self.assertFalse(eff["provenance"]["ok"])
+                status, detail = self.verify_detail(repo)
+                self.assertEqual(status, "fail")
+                self.assertIn(merge[:12], detail)
+                preview = ws.gate_policy_adoption_preview(repo.root)
+                self.assertIsNone(preview["adoption_merge"])
+
+    def test_a_merge_with_an_unparseable_state_has_no_cause_and_never_raises(self):
+        with PolicyRepo() as repo:
+            repo.adopt(HUMAN)
+            repo.branch("feature")
+            repo.hand_state_commit(lambda state: state.update(note="feature"))
+            repo.checkout("main")
+            repo.hand_state_commit(lambda state: state.update(note="main"))
+            subprocess.run(["git", "merge", "--no-ff", "--no-commit", "feature"], cwd=repo.root,
+                           capture_output=True, text=True)
+            (repo.root / STATE_REL).write_text("{not json")
+            repo.git("add", "--", STATE_REL)
+            repo.git("commit", "-q", "-m", "update from feature")
+            self.assertIsNone(g.adoption_merge_cause(repo.root))
+            g.clear_caches()
+            self.assertIsNone(g.effective_policy(repo.root, {})["adoption_merge"])
+            g.clear_caches()
+            self.assertEqual(g.verify_check(repo.root, {})[0], "fail")
+
     def test_the_preview_carries_the_cause_and_the_command_names_it(self):
         with PolicyRepo() as repo:
             self.merged_adoption_repo(repo)

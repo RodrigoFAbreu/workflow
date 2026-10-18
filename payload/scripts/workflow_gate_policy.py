@@ -747,6 +747,8 @@ def adoption_merge_cause(repo_root: Path, head: str | None = None) -> dict | Non
         parent_adoption, _ = history.first_parent_gp(commit)
         if adoption != parent_adoption:
             parents = history.parents[commit]
+            if not isinstance(adoption, dict) or not isinstance(adoption.get("sha256"), str):
+                return None
             if len(parents) > 1 and not _introduces_adoption(history, commit, adoption):
                 return {"commit": commit, "sha256": adoption["sha256"], "parents": list(parents)}
             return None
