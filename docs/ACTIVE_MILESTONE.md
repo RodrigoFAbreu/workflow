@@ -39,3 +39,16 @@ that name `optional_findings`; the audit of the file's other closed sets
 `TestReviewRoundCountsDowngrade` in `workflow_state_test.py`, including the
 downgrade regression (2.15.0's helpers accept a committed counter-bearing recovered
 generation record; helpers with 2.14.0's field sets refuse it).
+
+CP2 is complete: `workflow_protocol.PROTOCOL_VERSION` is `1.5`; `_review_round` adds
+`plan_local`, `plan_external`, `implementation_local` and `implementation_external`
+after `current`, each from `_role_round`, which returns the persisted integer or
+`None` (an absent key, a `null` stage or a malformed key) and never raises, so a
+damaged counter cannot refuse `next-action` or `record-external-result`. `plan`,
+`implementation` and `current` are unchanged. `op_verify` calls
+`validate_review_round_counts` inside the `state_valid` check, so `verify` alone
+reports a malformed key. The schema's `review_round` requires the four properties.
+Tests: `TestPerRoleRoundFields` in `workflow_protocol_test.py` (the C10a sequence,
+a complete implementation approval, `None` cases, the malformed-key fallback through
+`next-action`, `record-external-result` and `verify`, the golden fields, the schema)
+and every protocol-version assertion moved to 1.5.
