@@ -7143,7 +7143,7 @@
       "registry_path": "docs/ai-workflow/registry/review-round-counts-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/review-round-counts-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 3,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -7285,8 +7285,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 23,
-      "last_transition": "2026-10-18T18:51:32Z",
+      "state_revision": 24,
+      "last_transition": "2026-10-18T19:01:54Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -7542,6 +7542,104 @@
               "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
               "verdict": "APPROVE",
               "at": "2026-10-18T16:57:31Z"
+            }
+          ]
+        },
+        "F-21ef31671d3b": {
+          "digest": "21ef31671d3b00a8e095f61aea9eace040e697bc738314952a42d31161eec8c2",
+          "text": "**[apparatus]** `TestReviewRoundCountsDowngrade._release_2_14_helpers` builds 2.14.0's sets\n  as \"2.15.0's sets minus `review_round_counts`\". That is correct today (verified against\n  16c2599), but it drifts silently once a later release adds another key to these sets.\n  Freezing 2.14.0's four sets as literals, as the plan-stage external reviewer suggested,\n  would make the pin independent of future edits.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-74756f810dcd": {
+          "digest": "74756f810dcd7abad1a5633f9ca1fdbb7e602e5c4547ed44e41c6f02162e11af",
+          "text": "**[apparatus]** `test_block_and_a_refused_call_change_nothing` exercises only the\n  wrong-phase refusal. CP1's test list also names a duplicate ingest and a stale content id\n  for the manual writers; a subtest for each would cover what the plan lists.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-e59cc8476f1a": {
+          "digest": "e59cc8476f1ab36807088d8ddd9cc4b66d2dd062b3df5aaf641de4350dcd72a9",
+          "text": "**[apparatus]** `test_the_key_is_outside_both_content_identities` greps\n  `workflow_fingerprint.py` for the key name. A direct check would be stronger: compute\n  `review_content_id`/`bundle_id` before and after changing only the key.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-8959c7cd93a2": {
+          "digest": "8959c7cd93a28a86ec2f3eab3398ff0b7412ffdbd2e4be429346d7beed8b39cb",
+          "text": "**[substantive]** The manifest's `review-round-counts` `state-key` signal fires for every\n  item created under 2.15.0. `default_work_item` writes the key at creation, even\n  `{plan: null, implementation: null}` for a `\"1\"` item. So a hit does not mean either\n  downgrade hazard exists. The label could say \"a work item created under 2.15.0 carries\n  `review_round_counts`\" so the Manager's report is not read as a found hazard.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-6e9594127edd": {
+          "digest": "6e9594127edde8a6c36b79b5376fb90cfcca0399819bdd876be5d514d3b06e70",
+          "text": "**[substantive]** `op_verify`'s `state_valid` pass detail still reads \"validate_state\n  accepts the state\", though the check now also covers the counter shape.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-572f4bd2e833": {
+          "digest": "572f4bd2e833f5fad3d6aa3fd932b20adfb54759a393e22339d332c7d5ca4a79",
+          "text": "**[substantive]** The `docs/release-history.md` 2.15.0 row lists only two `null` causes:\n  an item created before 2.15.0 and a promoted legacy item. Section 5.4 and\n  common-problems also list a feedback-only item and a malformed key.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-6eeb72637504": {
+          "digest": "6eeb72637504a3ba8d46c8a76188923eb38f5f3af5cf2cf3bbce5b4c97517697",
+          "text": "**[apparatus]** CP1 also changed `payload/scripts/workflow_test_harness_test.py` (needed\n  for the new `default_work_item` key). The CP1 Files paragraph does not name it; the file\n  is classified (protected under `payload/`), so this is only a plan-text mismatch.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
             }
           ]
         }
