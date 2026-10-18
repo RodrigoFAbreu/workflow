@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "conformance-sharding",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -8212,6 +8212,375 @@
         },
         "evaluated_at": "2026-10-18T20:36:57Z",
         "workflow_release": "2.14.0"
+      }
+    },
+    "conformance-sharding": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "conformance-sharding",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/CONFORMANCE_SHARDING_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/conformance-sharding-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/conformance-sharding-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 4,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "971ea16c8a3b3e9f8180517a6d45118eceadc4d9",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+        "approved_review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/CONFORMANCE_SHARDING_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d85d9f9eec3c7d6b7cb5e7e750264417671aed81"
+          },
+          {
+            "path": "docs/ai-workflow/registry/conformance-sharding-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c91bd8652dc22626746a708f02170a28ac04e592"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/conformance-sharding-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "65d2789f46c3ad52d0f757cf9a7332393269471f"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-18T23:01:38Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+            "ledger": {
+              "local": {
+                "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "c55b68c885f6e0ee4331932580e6bf5a69e45c82764e7a32a8f2de3b1e46b908",
+                "ledger_entry_sha256": "a4d18092f6fb70061081fcde4074c32f9737c6b1299c51051a0e810ae690313e",
+                "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "f210bea07faadddc430ef5844e037e2cd041f5988befe48407195b745dd3f15f",
+                "ledger_entry_sha256": "9cd5347b5a66a11d115bba8df8d90d25d6d343a86998cd46660242777257ff13",
+                "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-18T23:01:38Z",
+          "workflow_release": "2.15.0"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-10-18T22:57:11Z",
+          "verdict_sha256": "c55b68c885f6e0ee4331932580e6bf5a69e45c82764e7a32a8f2de3b1e46b908",
+          "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-10-18T23:00:53Z",
+          "verdict_sha256": "f210bea07faadddc430ef5844e037e2cd041f5988befe48407195b745dd3f15f",
+          "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 4,
+          "external": 2
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 16,
+      "last_transition": "2026-10-18T23:01:38Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-18T22:54:20Z",
+        "consumed": {
+          "review_content_id": "dafb9608d639048f69803c663274dc29cfab1352891622b07d5963fb27e0affd",
+          "plan_revision": 3,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+          "plan_revision": 4
+        },
+        "bound": {
+          "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+          "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+          "plan_revision": 4
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "097cf209fdeacfddbc14b1a53ac8aba3c7704a04e2d1967c6e419609d7afc335",
+        "738158403449bdf89f4b5dd23d205064a89fd8ca164b3312cea198bdad1e74e3",
+        "dafb9608d639048f69803c663274dc29cfab1352891622b07d5963fb27e0affd"
+      ],
+      "optional_findings": {
+        "F-61025cd4facf": {
+          "digest": "61025cd4facf7367490c0d69fec91d586017920eb4a41e863b71242d868bb7ca",
+          "text": "**LPR-R1-O01 -- Rule 2 can select a variant that does not itself pass rule 1.** The adopted constants are the smallest `W`/`N` within 5% of the best sharded `T(s)`. Only `s` is tested against `0.85 * T(u)` and against the per-repetition condition, so the shipped variant may be up to about 0.89 of `T(u)` and slower than `u` in one repetition. Consider requiring the chosen variant to satisfy rule 1 as well, or state explicitly that it need not.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "097cf209fdeacfddbc14b1a53ac8aba3c7704a04e2d1967c6e419609d7afc335",
+              "verdict": "REVISE",
+              "at": "2026-10-18T22:35:54Z"
+            }
+          ]
+        },
+        "F-6c3d9b6f48a5": {
+          "digest": "6c3d9b6f48a503fb776320d2c6817628aae5d6830f0ab81b0e556f5b1e14fd82",
+          "text": "**LPR-R1-O02 -- `plan` should fail closed on module-level loading or fixture hooks.** `plan` uses `loadTestsFromModule`, which honours `load_tests`. `run` uses `loadTestsFromTestCase`, which ignores it. A `setUpModule` would run once per shard. The module has none today (verified). A `plan` that refuses when the module defines `load_tests`, `setUpModule` or `tearDownModule` keeps a future payload from silently diverging; alternatively, list them in section 2.4.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "097cf209fdeacfddbc14b1a53ac8aba3c7704a04e2d1967c6e419609d7afc335",
+              "verdict": "REVISE",
+              "at": "2026-10-18T22:35:54Z"
+            }
+          ]
+        },
+        "F-568e314662e6": {
+          "digest": "568e314662e613232b273b4d20e68ecccad3e164ebba45e7c47400f5f75ce7e2",
+          "text": "**LPR-R1-O03 -- Section 9's implementation-stage prose omits paths the JSON protects.** The JSON also protects `.claude/commands/`, `scripts/`, `docs/gates.md` and `docs/glossary.md`. The extra entries are harmless, but the prose and the declaration should agree.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "097cf209fdeacfddbc14b1a53ac8aba3c7704a04e2d1967c6e419609d7afc335",
+              "verdict": "REVISE",
+              "at": "2026-10-18T22:35:54Z"
+            }
+          ]
+        },
+        "F-ff93c7e76556": {
+          "digest": "ff93c7e7655640b52f19927c1b119c3f6e34112a08345d47af92b45e103de299",
+          "text": "**LPR-R1-O04 -- CP4's `docs/common-problems.md` text applies under O1 only.** It describes how to read a sharded failure. Under O2 there is no sharding to describe, so mark it O1-only.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "097cf209fdeacfddbc14b1a53ac8aba3c7704a04e2d1967c6e419609d7afc335",
+              "verdict": "REVISE",
+              "at": "2026-10-18T22:35:54Z"
+            }
+          ]
+        },
+        "F-cc86d70ed690": {
+          "digest": "cc86d70ed69015decfd3d17bcf0f8e6bc5f0c9771e5c58b88047ce94159b2b97",
+          "text": "**LPR-R1-O05 -- CP3's CI change rests on a proxy measurement.** CP3 applies O1's scheduling to `release-source-conformance` on the strength of the managed-step measurement. That job runs the same suites on the same runner class, which is a reasonable proxy, but state it as one. Also say what \"the evidence file says the same width helps the CI job\" means under O2, since the CI job itself is never measured.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "097cf209fdeacfddbc14b1a53ac8aba3c7704a04e2d1967c6e419609d7afc335",
+              "verdict": "REVISE",
+              "at": "2026-10-18T22:35:54Z"
+            }
+          ]
+        },
+        "F-fa63873b3922": {
+          "digest": "fa63873b3922fb80680b0b131310b3b2539f460d26bc47138a00aa42d19cbfa9",
+          "text": "**LPR-R1-O06 -- The real-module partition test hard-codes 415.** Comparing with `len(loadTestsFromModule(...))` and with `manifest.json`'s `manager.conformance.suites[\"workflow_acceptance_matrix_test.py\"]` keeps the pin meaningful when a later release changes the module.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "097cf209fdeacfddbc14b1a53ac8aba3c7704a04e2d1967c6e419609d7afc335",
+              "verdict": "REVISE",
+              "at": "2026-10-18T22:35:54Z"
+            }
+          ]
+        },
+        "F-8bfb08c691ab": {
+          "digest": "8bfb08c691ab210a28e2a2bfcd73cd1bb3ae261fac78f8384c4badef1aeb56c8",
+          "text": "**LPR-R2-O01 -- The O3 path's `/request-plan-amendment` is user-only, but section 1 says \"the orchestrator runs\" it.** The command is `disable-model-invocation: true`. It also requires, in the user's own current-turn message, the exact `work_item_id`, the word `amendment` and a non-empty reason. A model-driven orchestrator therefore cannot run it alone. Say that the owner runs it, or that the orchestrator relays the owner's confirmation and reason, and record the reason now: \"the measurement selected O3 (evidence file); CP3 and CP4 are dropped\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "738158403449bdf89f4b5dd23d205064a89fd8ca164b3312cea198bdad1e74e3",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T22:40:42Z"
+            }
+          ]
+        },
+        "F-2448d65be13d": {
+          "digest": "2448d65be13d9d7188339684ea65a976d59662dd8cb542b01e45d41eeb0c417d",
+          "text": "**LPR-R2-O02 -- R4 and goal 3 still say \"where it helps\", but CP3 now applies under both O1 and O2 on a declared proxy.** Under O2 the CI width changes whether or not the CI job itself was shown to gain. To match section 1 and CP3, reword R4 (plan section 8 and the mapping) and goal 3 to \"where the managed-step measurement supports it (a declared proxy)\". Also, CP3 marks the `docs/RELEASING.md` item O1 only. State whether `docs/RELEASING.md` still mentions the CI width under O2, so that a changed width cannot leave stale text behind.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "738158403449bdf89f4b5dd23d205064a89fd8ca164b3312cea198bdad1e74e3",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T22:40:42Z"
+            }
+          ]
+        },
+        "F-7d4bf547d809": {
+          "digest": "7d4bf547d809a9302ada065502166f77e5bd246394e282204c9349790899bb08",
+          "text": "**LPR-R3-O01 -- V2's majority clause names the wrong set.** \"The jobs that differ from the majority of their (variant, repetition) set\" (line 233): a (variant, repetition) has exactly one used job, so there is no majority within it. The intent is evidently the majority across all jobs of the comparison. Say so, so the validator and its self-check implement the same thing.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "dafb9608d639048f69803c663274dc29cfab1352891622b07d5963fb27e0affd",
+              "verdict": "REVISE",
+              "at": "2026-10-18T22:51:04Z"
+            }
+          ]
+        },
+        "F-6368730bcba6": {
+          "digest": "6368730bcba645358fc6f5fc318dfdbc69f00c842a00d7b9ef6aeebafa40838a",
+          "text": "**LPR-R3-O02 -- CP4 under-describes the payload change, against the 2.13.0 and 2.14.0 precedent.** `payload/scripts/workflow_protocol_test.py:3865` asserts `**Workflow {WORKFLOW_RELEASE}**` appears in `ORCHESTRATION_PROTOCOL.md`. So the document's tested-releases list must change under CP4; it is not a conditional \"if pinned\" change. Section 5's statement (lines 295-298) that the only payload change is \"the constant and the two assertions\" is therefore inaccurate.\n\n  The 2.13.0 and 2.14.0 releases (`git show 7176326`, `e7a2ed9`) also bumped the unpinned `\"workflow_release\"` example (line 64) and the \"Protocol `1.4` ... keeps it\" history line. Consider naming all three edits outright: the tested-releases list gains **Workflow 2.16.0** under protocol `1.5`, the example becomes `2.16.0`, and the protocol `1.5` entry notes that 2.16.0 keeps it. Also update section 5's sentence accordingly.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "dafb9608d639048f69803c663274dc29cfab1352891622b07d5963fb27e0affd",
+              "verdict": "REVISE",
+              "at": "2026-10-18T22:51:04Z"
+            }
+          ]
+        },
+        "F-b243c59ea0a6": {
+          "digest": "b243c59ea0a6ed948e3a3104d8775fec3d6b47b4c1949f1ad28739baa651019e",
+          "text": "**LPR-R3-O03 -- V2's same-CPU-model requirement may often end inconclusive.** Hosted `ubuntu-latest` pools mix CPU models. With at least 12 jobs, a strict single-model match, and two replacements per slot, an inconclusive result is a realistic outcome rather than an edge case. The plan handles it safely (it escalates to the owner). Naming this likelihood in section 7 would set the owner's expectation before the run.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "dafb9608d639048f69803c663274dc29cfab1352891622b07d5963fb27e0affd",
+              "verdict": "REVISE",
+              "at": "2026-10-18T22:51:04Z"
+            }
+          ]
+        },
+        "F-21bcc1ed2cbe": {
+          "digest": "21bcc1ed2cbe6b2f274cc51ff59aec39c3afbf8350a761a3cffa49113948aeaa",
+          "text": "**LPR-R4-O01 -- Say how a control's `start` line computes `K`.** In the 2.15.0 step, `run_suite` runs in a backgrounded subshell (`( run_suite \"$s\" ) &`). There, `jobs` does not see the sibling units, so the one changed line must count running units from shared state. For example, it can count per-unit start markers minus `result` files under `$base`. The candidate scheduler may instead print `K` from the parent before the copy. V3 compares both kinds of peak to `min(W, nproc)`. Stating that the control line computes `K` the same way as the candidate (or at least by a stated mechanism) keeps V3's meaning the same across variants, and keeps the kit's \"exactly this line\" diff achievable.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T22:57:11Z"
+            }
+          ]
+        },
+        "F-b028fef11bae": {
+          "digest": "b028fef11bae9b78ee98b9a68bb9453c283fb88b202d551d17faa78ecb6c98a3",
+          "text": "**LPR-R4-O02 -- Two wording slips in section 3.3 and CP1.**\n  - \"A (variant, repetition) invalid under V1 to V3 or V2\" repeats V2, which is already inside \"V1 to V3\". The intent is evidently \"V1, V2 or V3 (a per-job check)\", as distinct from V4.\n  - CP1's kit check \"is exercised against the real 2.15.0 step and the real committed template, where it must pass for v1 and v2\" does not say what role the committed template plays. Presumably it is the negative case: a control step that differs in further lines must fail. Saying so avoids an implementer applying the control diff to the candidate.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T22:57:11Z"
+            }
+          ]
+        },
+        "F-162726069dcc": {
+          "digest": "162726069dcc7dedc5b3bea5cc8e2418feb72fc495adbc3180dc9c43bf08d74f",
+          "text": "**LPR-R4-O03 -- When is V2's reference triple fixed?** Section 3.3 does not say whether the strict-majority triple is taken from the first 12 jobs or recomputed over the used runs after replacements. Recomputing could flip the reference after replacements. Fixing it from the first complete set, with every replacement required to match it, matches \"inconclusive at once\" and leaves nothing for the evidence reviewer to choose.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T22:57:11Z"
+            }
+          ]
+        }
       }
     }
   }

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "work_item_id": "conformance-sharding",
+  "requirements": {
+    "R1": {
+      "description": "A measured decision on GitHub runners (2 vs 4 workers, sharded vs not) taken only from evidence that passed the runner-validity and comparability checks, recorded in the evidence file before any later checkpoint builds on it; no gain is an accepted outcome and ships only what helped",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R2": {
+      "description": "If adopted, acceptance sharding by whole classes inside the one managed job under one global limit, the required check name unchanged, every test id exactly once (inherited tests, skips and subtests included), failures naming the shard and the original ids, and any failed, missing or incomplete shard failing the job",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R3": {
+      "description": "The managed template's width set from the measurement, and PR cancellation of superseded runs (main pushes never cancelled) kept and pinned",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R4": {
+      "description": "The same scheduling in this repository's own release-source conformance where it helps, without weakening any check",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    },
+    "R5": {
+      "description": "Release 2.16.0 bookkeeping: the release constant and its pinning assertions so the package builds, release history, downgrade posture (a template change only, apart from the release constant), the `manager` block (`min_manager_version` 1.13.0)",
+      "checkpoint_ids": [
+        "CP4"
+      ]
+    }
+  }
+}

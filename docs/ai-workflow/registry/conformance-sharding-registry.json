@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_item_id": "conformance-sharding",
+  "plan_revision": 4,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The sharded scheduler as a candidate in the managed template, its tests and the measurement kit",
+      "depends_on": [],
+      "complexity": 4,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Measure, record the evidence and apply the decision to the template",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "The same scheduling in this repository's release-source conformance, and the user document",
+      "depends_on": [
+        "CP2"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP4",
+      "name": "Release 2.16.0: manifest, release history, downgrade posture",
+      "depends_on": [
+        "CP2",
+        "CP3"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}
