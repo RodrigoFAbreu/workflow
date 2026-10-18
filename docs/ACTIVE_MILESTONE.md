@@ -94,9 +94,14 @@ under test).
   (`workflow_state.py`, `workflow_protocol.py`). Use a scratch copy of the repository
   or a temp directory for any state you mutate; never write to this repository's
   `docs/ai-workflow/WORKFLOW_STATE.json`.
-- Automated suites (from `payload/scripts`): `python3 -m unittest workflow_state_test`
-  and `workflow_protocol_test`. The 18 protocol failures that compare release strings
-  and digests need the staged fixture; they are expected outside CP4's staging.
+- Automated suites: run them from the staged fixture, not the source layout. Stage it
+  with `python3 tools/release/release.py stage-conformance --commit HEAD --out
+  "$TMPDIR/fixture"`, then run `python3 -m unittest workflow_state_test` and
+  `workflow_protocol_test` in the fixture's `scripts/`. In the source-layout
+  `payload/scripts` the state suite errors in two tests that read the live
+  `WORKFLOW_STATE.json`, which the source layout lacks (they pass in the fixture), and
+  the 18 protocol failures that compare release strings and digests also appear; all of
+  these are expected outside the staged fixture.
 - `python3 tools/docs/check_docs.py` must be clean.
 
 ### Test data
@@ -126,13 +131,15 @@ stages), plus one item created before 2.15.0 (no `review_round_counts` key).
    stage reads `null`, the other stage counts.
 7. **Malformed counter.** Hand-edit a scratch state so `review_round_counts` is
    malformed. Expect `next-action` and `record-external-result` still work (fields
-   `null`), the writers leave the value untouched, and `verify` alone reports the
-   malformed key as a `state_valid` failure naming `validate_review_round_counts`.
+   `null`), the writers leave the value untouched, and `verify` alone reports
+   `state_valid: fail` with an `InvalidReviewRoundCountsError` naming the malformed key.
 8. **Monotonic.** A count never decreases and never returns to `null` once numeric,
    including across a new plan revision or implementation revision.
 9. **Schema and docs.** `orchestration-protocol-v1.schema.json` requires the four
    properties in `review_round`; `ORCHESTRATION_PROTOCOL.md` is version 1.5 and its
-   section 5.4 example shows zero counts; the glossary and the three new
+   section 5.4 example illustrates an item with earlier plan reviews (`plan_local` 2,
+   `plan_external` 2, implementation 0/0; the all-zero expectation belongs to flow 1
+   only); the glossary and the three new
    `docs/common-problems.md` entries read correctly.
 10. **Release bookkeeping.** `manifest.json` is 2.15.0 with a `manager` block
     (`min_manager_version` 1.13.0, `review-round-counts` state-key signal,
@@ -142,7 +149,12 @@ stages), plus one item created before 2.15.0 (no `review_round_counts` key).
 11. **Downgrade posture.** In the state tests, 2.15.0's helpers accept a committed
     counter-bearing recovered generation record and 2.14.0's field sets refuse it
     (`TestReviewRoundCountsDowngrade`); the "Implementation approval fails with
-    `MalformedBundleGenerationRecordCommitError`" entry in common-problems matches.
+    `MalformedBundleGenerationRecordCommitError`" entry in common-problems matches. The
+    2.14.0 refusal comes from the published 2.14.0 release, which cannot change; the
+    expected next step is that documented troubleshooting entry, not a next step in the
+    refusal message. The 2.15.0 tampered-head/revision refusals are pre-existing messages
+    this milestone does not change (a review-follow-up issue covers adding a next step to
+    the recovered-role refusals).
 
 ### Known limitations / out of scope
 
@@ -155,3 +167,12 @@ stages), plus one item created before 2.15.0 (no `review_round_counts` key).
   a counter-bearing generation record cannot be approved there.
 - The 18 release-string/digest failures in `workflow_protocol_test` outside the staged
   fixture are not a defect of this milestone.
+
+### Functional review round 1
+
+Checklist corrections only; no source, test or bundle change, and `technical_approval`
+is untouched. Setup now runs the suites from the staged fixture (finding 1); flow 7
+expects `state_valid: fail` with `InvalidReviewRoundCountsError` (finding 2); flow 9
+expects the section 5.4 example's earlier-plan-review counts, all-zero stays in flow 1
+(finding 3); flow 11 expects the documented troubleshooting entry (finding 4, expected
+behavior). Re-test flows 7, 9 and 11.
