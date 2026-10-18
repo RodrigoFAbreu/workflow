@@ -112,3 +112,65 @@ conformance fixture staged from the working tree: all nine payload suites pass;
 `tools/docs/check_docs.py` and its tests are clean; `tools/release` tests pass except
 `ReproductionTest.test_round_trip`, which stages the previous commit's manifest and is
 re-run after the CP5 commit. `docs/ROADMAP.md` is marked Done at acceptance.
+
+## Functional review checklist
+
+Reviewed content: branch `milestone/finding-dispositions`, implementation revision 3,
+Workflow 2.14.0 release source (`payload/`, `manifest.json`). This repository's own
+installation is 2.13.0 and is never edited, so every flow below runs against the release
+source in a scratch copy, never in this working tree.
+
+### Setup
+
+1. `git worktree add /tmp/fd-review HEAD` (or `cp -r` the repository to a scratch
+   directory); work only there.
+2. Stage a conformance fixture as the suites do: copy `payload/` over a scratch git
+   repository with `manifest.json` digests refreshed in the scratch copy only.
+   Alternatively run each suite from `payload/scripts/` in the scratch copy.
+3. No feature flags. Python 3 and git only.
+
+### Test data
+
+- A scratch git repository with a two-stage (`2.2`) work item at the implementation
+  stage, and a verdict text whose `## Optional findings` section holds three top-level
+  entries (one labelled `O1:`, one unlabelled, one re-raised later with only a whitespace
+  change), plus a `BLOCK` verdict with findings.
+- A scratch `GATE_POLICY.json` adoption, once merged with `git merge --no-ff` and once
+  with `git merge --squash`.
+- A plan whose `**Files:**` paragraph names a path (e.g. `tools/x.py`) that its artifact
+  declaration does not classify, and a copy whose declaration classifies it.
+
+### Flows and expected results
+
+| # | Flow | Expected |
+|---|---|---|
+| 1 | Record an `APPROVE` verdict with three Optional findings through `record_local_implementation_review(..., verdict_text=...)` (or `ingest_manual_review_verdict`) | The item gains `optional_findings` with three `F-<12 hex>` keys; the stage ledger, phase and `review_content_id` are as without findings |
+| 2 | Record a `REVISE` verdict with Optional findings; then a `BLOCK`; then an `APPROVE` call with no `verdict_text` | `REVISE` records them; `BLOCK` and the no-text call record nothing |
+| 3 | Re-raise a finding in a later round with whitespace-only changes, then with one word changed | Whitespace-only: one entry, two references. Word changed: a new key |
+| 4 | `python3 scripts/workflow_state.py --finding-dispositions <id>` | Lists every finding with its key and prints a skeleton for `registry/<id>-dispositions.json` |
+| 5 | Run `/accept-milestone` logic (`complete_work_item`) with no dispositions file | Refused with `UndispositionedFindingsError` naming every undispositioned key; nothing written. `/satisfy-gate acceptance` refuses the same way and writes nothing |
+| 6 | Add dispositions: one `fixed`, one `dropped` with a reason, one `follow-up` with a link; try `dropped` without a reason and `follow-up` without a link | The malformed ones are refused with `InvalidFindingDispositionsError`; the valid set lets acceptance proceed, a follow-up never blocks it |
+| 7 | After acceptance, open `docs/milestones/completed/<id>-findings.md` | Lists each finding with its disposition; generated, not hand-written |
+| 8 | An item with no Optional findings | Acceptance behaves as in 2.13.0; no findings record is demanded |
+| 9 | Adoption merged with `git merge --no-ff` into the line, then `verify` | `verify` warns with `adoption_merge_notice` naming the merge commit and the squash fix, only while the effective policy is stricter than the adopted one |
+| 10 | Same adoption merged with `--squash` | No notice; effective policy as in 2.13.0 |
+| 11 | `gate_policy_adoption_preview` / `adopt-gate-policy.md` step 1 and 3 | The notice and the squash advice appear in the preview and the command text |
+| 12 | Publish or bind the plan whose declaration leaves `tools/x.py` unclassified (`milestone-plan.md` step 5 and 6; `prepare-ai-review.sh`) | Refused before any publication write with `PlanArtifactDeclarationCoverageError` and one next step (`PLAN_DECLARATION_NEXT_STEP`) |
+| 13 | Same plan with the declaration classifying the path | Accepted; a checkpoint with no `**Files:**` paragraph gets only an advisory |
+| 14 | Backticked non-paths in a Files paragraph: a glob, a URL, `/abs`, `~/x`, `../x`, a version string, an identifier | Ignored or refused with the second remedy exactly as D-Coverage states; `Dockerfile`, `Makefile`, `.env` count as paths |
+| 15 | A plan already `BOUND` at a ready phase | Keeps working (INV-5); a new revision is checked |
+| 16 | Release bookkeeping: `manifest.json` names 2.14.0, digests match, `WORKFLOW_RELEASE` is `2.14.0`, protocol is still 1.4; run `tools/docs/check_docs.py` and `tools/release` tests | Clean, except `ReproductionTest.test_round_trip` which is re-run after the CP5 commit |
+| 17 | `workflow-manager verify .` in this repository | Clean: the installation is untouched |
+
+### Known limitations and out of scope
+
+- "fixed" is a recorded claim, never verified.
+- Recording covers two-stage review verdicts only: not feedback-only items, not the
+  functional review, not verdicts ingested before 2.14.0.
+- Recognition is the reviewer's text read by D-Parse: a finding outside `## Optional
+  findings` is not recorded; any non-whitespace change in a re-raise is a new key.
+- The adoption-merge notice is an aid; the gate-policy evaluation is unchanged (INV-4).
+- workflow#30 part 2, #31, #39, acceptance-matrix sharding and the Controller's work
+  are not in this release.
+- The three tests that read `CLAUDE.md`/`ACTIVE_MILESTONE.md` fail in a scratch copy
+  that lacks them; that is the copy, not the release.
