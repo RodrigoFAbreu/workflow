@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "finding-dispositions",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -6203,7 +6203,7 @@
       "registry_path": "docs/ai-workflow/registry/finding-dispositions-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/finding-dispositions-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 5,
       "implementation_revision": 3,
       "functional_review_round": null,
@@ -6600,8 +6600,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 39,
-      "last_transition": "2026-10-18T02:00:47Z",
+      "state_revision": 40,
+      "last_transition": "2026-10-18T02:37:35Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -6647,6 +6647,491 @@
           "run_ref": "session:local .ai-review/finding-dispositions/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "w10-r1-f1": {
+            "flow_id": "w10-r1-f1",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:43Z",
+            "summary": {
+              "flow": "",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "47faee535fdfa953fbbef83ee1c9a4c50fba2e953d97d6a53e4c3c95b787d1d8",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:43Z"
+          },
+          "w10-r1-f2": {
+            "flow_id": "w10-r1-f2",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:43Z",
+            "summary": {
+              "flow": "Optional findings recorded at ingest (APPROVE, three keys)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "a6ce2d69faeea8bf90e30b1b169d3a94bfeb5b9aa329299fae48761f1151576a",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:43Z"
+          },
+          "w10-r1-f3": {
+            "flow_id": "w10-r1-f3",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:43Z",
+            "summary": {
+              "flow": "REVISE records, BLOCK and no-text calls record nothing",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "1dc4b5f6f7ac29bf0e1b52e43156f4d6c60a7861bc0fb1a881361ce267b03fd9",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:43Z"
+          },
+          "w10-r1-f4": {
+            "flow_id": "w10-r1-f4",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:43Z",
+            "summary": {
+              "flow": "whitespace-only re-raise merges, changed word is a new key",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "7fbf687d3fab7336e15d918e8be18375fa6eeeba017fe554e133a7474bee4b1a",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:44Z"
+          },
+          "w10-r1-f5": {
+            "flow_id": "w10-r1-f5",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:44Z",
+            "summary": {
+              "flow": "finding listing and dispositions skeleton",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "59e035a38614a463aab5ff23091b8f761faebdd0e7083b70a9576725259c40a6",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:44Z"
+          },
+          "w10-r1-f6": {
+            "flow_id": "w10-r1-f6",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:44Z",
+            "summary": {
+              "flow": "both acceptance paths refuse undispositioned findings, no writes",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "bd34de213082cfd68e2ccd14d86fd375dd68e24c134d7878683fa244176291c6",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:44Z"
+          },
+          "w10-r1-f7": {
+            "flow_id": "w10-r1-f7",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:44Z",
+            "summary": {
+              "flow": "malformed dispositions refused, valid set accepts",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "2e20a6bdb6361f54fd1e5eab7c5eb3e8f1e00bb4ee9b3c5c7d8b9aef867aa3b3",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:44Z"
+          },
+          "w10-r1-f8": {
+            "flow_id": "w10-r1-f8",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:44Z",
+            "summary": {
+              "flow": "generated findings record committed with completion",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "95ccbc2910151bd16f0babb9407705794d1c9e0b177c09db5a5f9405451f6aa8",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:44Z"
+          },
+          "w10-r1-f9": {
+            "flow_id": "w10-r1-f9",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:44Z",
+            "summary": {
+              "flow": "no Optional findings: acceptance as in 2.13.0",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "0264a6a777338bd4d38d6dd8d049eb6bc792e9d38754e6edd51f3c7e7f2c37a3",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:44Z"
+          },
+          "w10-r1-f10": {
+            "flow_id": "w10-r1-f10",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:44Z",
+            "summary": {
+              "flow": "adoption merged with a merge commit: verify names the cause",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "cf6402b3bc29396384ecaf0cf00020287e3b299fb6a6eb65af0f06ad01960fdf",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:44Z"
+          },
+          "w10-r1-f11": {
+            "flow_id": "w10-r1-f11",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:44Z",
+            "summary": {
+              "flow": "adoption squash-merged: no notice",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "c4d3d942c2e675330e24e5ad91a33c4c362f583e8c211f7767cd47925affaf0a",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:44Z"
+          },
+          "w10-r1-f12": {
+            "flow_id": "w10-r1-f12",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:44Z",
+            "summary": {
+              "flow": "adoption preview and command text name the cause and squash",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "e45efe9652b70b21ca137ea751173a68cd6e032ce809d70d0047d5560bf6fc59",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:44Z"
+          },
+          "w10-r1-f13": {
+            "flow_id": "w10-r1-f13",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:44Z",
+            "summary": {
+              "flow": "unclassified Files path refused before any publication write",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "e83064cf37a5866ea4ab826b5c676a470fb0df4c8205085a85305bf84cb109af",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:44Z"
+          },
+          "w10-r1-f14": {
+            "flow_id": "w10-r1-f14",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:44Z",
+            "summary": {
+              "flow": "classified path accepted, missing Files paragraph advisory only",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "3697821c12ce3848d232fa0ede45997570ca2f1b4318fa2ada2ce9f919734015",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:45Z"
+          },
+          "w10-r1-f15": {
+            "flow_id": "w10-r1-f15",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:45Z",
+            "summary": {
+              "flow": "backticked non-paths and extensionless root files per D-Coverage",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "133e1d9c69d0f94b0444ac58f6960fc06368899d6d097bb775872d829096b823",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:45Z"
+          },
+          "w10-r1-f16": {
+            "flow_id": "w10-r1-f16",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:45Z",
+            "summary": {
+              "flow": "bound plan keeps working, new revision checked",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "e987bd8e1136094087180c516c2e1eaf9185fe8dc69c95541b0bd7f01bd34a89",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:45Z"
+          },
+          "w10-r1-f17": {
+            "flow_id": "w10-r1-f17",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:36:58Z",
+            "summary": {
+              "flow": "workflow-manager verify . : installation matches 2.13.0 (re-run with the network; the executor's offline attempt failed on name resolution, an environment limit, see RESULTS.md and out/F17.log)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "3079a1f6f64c6b86cfc415a1cd95580a0ef615016f811c83f92b3d22f4c06e08",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (orchestrator re-run of the checklist flow with network)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:36:58Z"
+          },
+          "w10-r1-f17-rerun": {
+            "flow_id": "w10-r1-f17-rerun",
+            "status": "passed",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "ran_at": "2026-10-18T02:08:45Z",
+            "summary": {
+              "flow": "workflow-manager verify . with network: installation matches 2.13.0",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "3079a1f6f64c6b86cfc415a1cd95580a0ef615016f811c83f92b3d22f4c06e08",
+            "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1",
+            "reporter": "manager-orchestrator (orchestrator re-run with network)",
+            "identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:08:45Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 46,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/46"
+          },
+          "state": "open",
+          "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+          "observed_at": "2026-10-18T02:37:35Z",
+          "ingest_seq": 2,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "10b4ab5e19d7fbb992a4fb04a9c2545dfc0ce7ac",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-10-18T02:37:35Z",
+            "raw_sha256": "22f7b0bb5205e352386f0ed647622bf6a9decf42167cefb5b00480d7545b991c",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "42a7856d6b182b717d8e59612a5d1c6b0e3c1bb707fcd7a57aa64029da75aae1"
+          },
+          "fact_id": "ce2fe4a1f59cc3c148fca6c13cea4907d57df38f8e65c22b9798d839696461c5"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 2
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['w10-r1-f1', 'w10-r1-f10', 'w10-r1-f11', 'w10-r1-f12', 'w10-r1-f13', 'w10-r1-f14', 'w10-r1-f15', 'w10-r1-f16', 'w10-r1-f17', 'w10-r1-f17-rerun', 'w10-r1-f2', 'w10-r1-f3', 'w10-r1-f4', 'w10-r1-f5', 'w10-r1-f6', 'w10-r1-f7', 'w10-r1-f8', 'w10-r1-f9'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #46 at 0001d8a072258a5e9f1dafffe92ad29b6395a23c is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "10b4ab5e19d7fbb992a4fb04a9c2545dfc0ce7ac",
+          "anchor_identity": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "00aa4c52296929d1289d14cf00b380b5120ea92656b8d9f4877a4a15b2da957f",
+            "recorded_at": "2026-10-18T02:00:47Z"
+          },
+          "functional": {
+            "w10-r1-f1": {
+              "evidence_id": "70e6d7f7ccc061bb3d9341cc768d31c502b3c73163ddbe10c7970a5c2ed788c7",
+              "log_digest": "47faee535fdfa953fbbef83ee1c9a4c50fba2e953d97d6a53e4c3c95b787d1d8",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f10": {
+              "evidence_id": "a92286cc9c117607da37210164633c182045854bef3a046d97f99c93ef897bff",
+              "log_digest": "cf6402b3bc29396384ecaf0cf00020287e3b299fb6a6eb65af0f06ad01960fdf",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f11": {
+              "evidence_id": "088f47b63c9c4f2b44749027909acb39e7e4db054f94fa5f72ee65cc2ec57da0",
+              "log_digest": "c4d3d942c2e675330e24e5ad91a33c4c362f583e8c211f7767cd47925affaf0a",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f12": {
+              "evidence_id": "efd481c0578ef1ca3ccd4a77425bfcbdbf9ffc34ae8365a814289275e8690911",
+              "log_digest": "e45efe9652b70b21ca137ea751173a68cd6e032ce809d70d0047d5560bf6fc59",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f13": {
+              "evidence_id": "ee559dab8ad6955817046f4206dd7b6d27fafac40024b9455a15476cac8e341c",
+              "log_digest": "e83064cf37a5866ea4ab826b5c676a470fb0df4c8205085a85305bf84cb109af",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f14": {
+              "evidence_id": "171500df55132db60cbf382e1949694c86a53adf3e2bf27a5c54169c8283d5ca",
+              "log_digest": "3697821c12ce3848d232fa0ede45997570ca2f1b4318fa2ada2ce9f919734015",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f15": {
+              "evidence_id": "2ee338b1dffca8760405da5a05bd5d3a130a38ef75ae097c95cb68d96949991c",
+              "log_digest": "133e1d9c69d0f94b0444ac58f6960fc06368899d6d097bb775872d829096b823",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f16": {
+              "evidence_id": "809a82c873d62e868fba07308115dddb635275ab378b3f1df5aec49b604a1cb5",
+              "log_digest": "e987bd8e1136094087180c516c2e1eaf9185fe8dc69c95541b0bd7f01bd34a89",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f17": {
+              "evidence_id": "98a1e69bec4b2505ca3ba023dff08abb9601752295ac814cdef2dcbc8d4980f0",
+              "log_digest": "3079a1f6f64c6b86cfc415a1cd95580a0ef615016f811c83f92b3d22f4c06e08",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f17-rerun": {
+              "evidence_id": "bbea92b2bf5fbfacaa311a8e4bfbdc1320fdd429311a98e6cef8ee0ff065c088",
+              "log_digest": "3079a1f6f64c6b86cfc415a1cd95580a0ef615016f811c83f92b3d22f4c06e08",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f2": {
+              "evidence_id": "2f515c45017ca23a0ab6f815145e8a618e841fb0d8f2f9e4be3974bc886b3b62",
+              "log_digest": "a6ce2d69faeea8bf90e30b1b169d3a94bfeb5b9aa329299fae48761f1151576a",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f3": {
+              "evidence_id": "6cd9659615134dcc18431a25395a653a993d3ace6b730cdbfe4a258495567a19",
+              "log_digest": "1dc4b5f6f7ac29bf0e1b52e43156f4d6c60a7861bc0fb1a881361ce267b03fd9",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f4": {
+              "evidence_id": "6bbabd78f4f3d36b8593d3b9f1b75630c75527c0d9c932abb9aaad14e1990075",
+              "log_digest": "7fbf687d3fab7336e15d918e8be18375fa6eeeba017fe554e133a7474bee4b1a",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f5": {
+              "evidence_id": "64d9213246b47ca5c443dcf4712ca6aa8fc87da13198ab6a5258e55b39c10eb5",
+              "log_digest": "59e035a38614a463aab5ff23091b8f761faebdd0e7083b70a9576725259c40a6",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f6": {
+              "evidence_id": "6e20af3e2c520e76fe3a28931722a80d905e2e04f69522abf95a83adb97e4e0c",
+              "log_digest": "bd34de213082cfd68e2ccd14d86fd375dd68e24c134d7878683fa244176291c6",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f7": {
+              "evidence_id": "a004da899d4cecde5a0ab4420204818b431d0756faee9cc6d8b516cf197dfb74",
+              "log_digest": "2e20a6bdb6361f54fd1e5eab7c5eb3e8f1e00bb4ee9b3c5c7d8b9aef867aa3b3",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f8": {
+              "evidence_id": "adba6f1d8da09b6948399f1359034177d047743e9f7cd58fa09c0423e2c165e2",
+              "log_digest": "95ccbc2910151bd16f0babb9407705794d1c9e0b177c09db5a5f9405451f6aa8",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            },
+            "w10-r1-f9": {
+              "evidence_id": "18fcc74096c193e0660ad0560c824f9cc463bd1f1cc8a9601b1c0756751f7152",
+              "log_digest": "0264a6a777338bd4d38d6dd8d049eb6bc792e9d38754e6edd51f3c7e7f2c37a3",
+              "run_ref": "manager-orchestrator:runs-workflow/w10-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "ce2fe4a1f59cc3c148fca6c13cea4907d57df38f8e65c22b9798d839696461c5",
+            "head": "0001d8a072258a5e9f1dafffe92ad29b6395a23c",
+            "provenance": "workflow_gh",
+            "raw_sha256": "22f7b0bb5205e352386f0ed647622bf6a9decf42167cefb5b00480d7545b991c"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-10-18T02:37:35Z",
+        "workflow_release": "2.13.0"
       }
     }
   }

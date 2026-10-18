@@ -2,7 +2,7 @@
 
 ## Milestone
 
-W10: `finding-dispositions` (`process`, governing version `2.2`), branch
+**Complete** (accepted by policy; the release follows the merge). W10: `finding-dispositions` (`process`, governing version `2.2`), branch
 `milestone/finding-dispositions`, base `f8eea78` (main after #42: the release
 source is Workflow 2.13.0 and this repository's own installation is the
 published 2.13.0). Roadmap row 11. The plan is
@@ -112,6 +112,41 @@ conformance fixture staged from the working tree: all nine payload suites pass;
 `tools/docs/check_docs.py` and its tests are clean; `tools/release` tests pass except
 `ReproductionTest.test_round_trip`, which stages the previous commit's manifest and is
 re-run after the CP5 commit. `docs/ROADMAP.md` is marked Done at acceptance.
+
+#### Optional review findings: dispositions
+
+23 distinct Optional findings across the 13 review rounds (local and external, plan and implementation); a re-raise is one row.
+
+**Fixed in this milestone:**
+
+| Finding | Raised by | Fix |
+|---|---|---|
+| D-Gate said "commit it" while the text said a saved file is enough | local plan, round 1 | plan revision 2; the refusal says "save the file" |
+| The plan misdescribed 2.13.0's `verify` warnings for #37 | local plan, round 1 | plan revision 2 |
+| "Re-adopt on this line" cannot happen on a protected `main` | local plan, round 1 | plan revision 2: a branch merged with a squash |
+| D-Coverage would read `/`, `~` and `..` spans | local plan, round 1 | plan revision 2 (exception iii in revision 5) |
+| INV-5 exempted published plans, not only bound ones | local plan, round 1 | plan revision 2 |
+| A `path:line` span read as a path | local plan, round 2; Codex plan round 1 (I4) | plan revision 3, CP4: annotations stripped first |
+| Heading mode dropped list items before the first heading | local plan, round 2; Codex plan round 1 (I3) | plan revision 3, CP1 |
+| Label stripping merged `CP1:`/`CP2:` findings | local plan, round 2; Codex plan round 1 (I2) | plan revisions 3 and 5, CP1: identity is the whole entry |
+| A stale state-growth figure | local plan, round 3 | plan revision 4 |
+| Limit (b)'s tie-break exception | local plan, rounds 3 and 4 | plan revision 4, superseded by revision 5 |
+| The plan header named a stale revision | local plan, round 4; Codex plan round 2 | plan revision 5 |
+| The non-path exception set was open-ended (`…`, "URL") | local plan, round 5 | CP4 code: a closed character set and a URL pattern |
+| The bare-name note in the refusal | local plan, round 5 | CP4 code: the next step says to write every path in full from the repository root |
+| CP2's Files paragraph named an unchanged test file | local implementation, round 1 | recorded in the implementation summary (the tests are in `workflow_state_test.py`) |
+| The bundle's test results named revision 1 | local implementation, round 2 | `TEST_RESULTS.md` has a revision 3 section |
+
+**Dropped, with the reason:**
+- The declaration left four user pages unclassified (local plan, round 2): no checkpoint touched them, so nothing was ever refused; CP4's check covers it for later plans.
+- "Pre-flight and step 5" should say step 5a (local plan, round 2), "limits a-d" should say a-e (local plan, rounds 4 and 5), a stale line citation (local plan, rounds 4 and 5), and R1's "keyed by content" wording (local plan, round 5): plan text only. The approved plan is frozen; the shipped command and code text are correct.
+- The plan's D-Parse still states the old ordinal encoding (local implementation, round 3): the implementation's newline-and-`@n` key is the external round-1 fix, and the implementation summary declares the deviation.
+
+**Deferred:** 2 follow-ups in issue #45 (`review-follow-up`): the acceptance refusal prints the whole stored entry instead of its first line cut to 240 characters; the two-item D-Downgrade diff test uses a weak `assertNotIn`.
+
+## Next action
+
+Row 12 (Controller C10, in the Controller's repository) is next once the owner schedules it. Publishing 2.14.0 follows the pull request merge; the Manager side is a `workflow-manager` pin pull request.
 
 ## Functional review checklist
 
