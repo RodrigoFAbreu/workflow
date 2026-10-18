@@ -35,8 +35,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/accept-milestone\\.md$",
       "rationale": "Step 0's governing-version enumeration widened from \"1\"/\"2.1\" to include \"2.2\" (workflow-2.5.0); steps 1-8 still run identically for all three (D-Implementation-Review-Stages, CP4). W1 (workflow-2.7.0, orchestration-protocol-v1): step 2a no longer tells the operator to finish an outstanding checkpoint with /milestone-implement, which cannot start one at AWAITING_FUNCTIONAL_REVIEW; it names v2.6.0-003 and keeps the /apply-functional-review routing (CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state.",
-      "sha256": "9cf84f6a4f4f0c8be6d09131e36e289dd6443f49dd73f7f2877003313765ff42",
-      "size": 15677,
+      "sha256": "c16b3c2558b3a0e6cb3e38b31f8c92149c86da3137a5f82e0b7c99119e7c0234",
+      "size": 15798,
       "executable": false
     },
     {
@@ -662,8 +662,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_fingerprint\\.py$",
       "rationale": "D-Tooling-Ambient-Classification (CP1): adds TOOLING_AMBIENT_EXCLUDED_PATHS = {.workflow-manager/installation.json}, an exact-path, release-derived terminal fallback that classify_path and classify_path_implementation_stage consult only after every declared classification has failed, immediately before the UnclassifiedPathError raise. The frozen declared-classification semantics are untouched: a declaration still decides first, the constant never enters a hashed classification set, and the path never existed in any Workflow payload or in the upstream repository the frozen classifier was written for -- so every digest 2.5.1 could compute is byte-identical and only a digest that raised because a committed workflow_manager update rewrote the installation record now returns (the legacy-item half of v2.4.0-001). D-Feedback-Layout (CP3): resolve_feedback_dir becomes the one authoritative resolver keyed on the durable feedback_layout stamp -- \"scoped\" items resolve .ai-review/<id>/feedback by construction, items without the stamp (or without a state entry or state file) keep the unchanged scoped-else-flat rule, an undecidable state file or unknown value refuses (FeedbackLayoutUndecidableError/UnknownFeedbackLayoutError); adds resolve_feedback_layout, ensure_feedback_dir (called by mark_functional_review_consumed), resolve_feedback_path_contract and the --resolve-feedback-path CLI; assert_feedback_not_owned_by_other_work_item gains an optional state for the bounded terminal-owner relaxation (legacy writers only); adds assert_manual_feedback_names_work_item. D-Plan-Review-Bundle-Binding (CP4): the plan stage's recoverable generator -- plan_stage_staging_paths, seed_plan_review_inputs and resolve_plan_review_inputs_dir (author inputs read from .ai-review/<id>/plan-inputs/, seeded read-only from current/, else stubbed), capture_plan_stage_pin(pin_dir=), write_manifest_with_verified_identifiers_for_work_item(bundle_dir=, pin_dir=) (the work-item/base binding check still runs against the live current/MANIFEST.md), and finalize_staged_plan_bundle_generation (promote on success and clear REJECTED; on failure discard the staging area -- no withdraw_bundle, no REJECTED marker: the deliberate WFR-67 revision). finalize_bundle_generation's checks move unchanged into _closing_bundle_generation_check, so the implementation/post-fix in-place path and its withdrawal are byte-for-byte unchanged in behavior. Also read_plan_stage_manifest_fields, compute_archived_bundle_id, parse_feedback_review_content_id, and the --staging-token CLI flag. No hashed identity changes (INV-8). D-Plan-Approval-Closure (CP5): resolve_plan_stage_approval_commit_paths returns every declared plan_stage.protected_paths entry (plan, registry, mapping first), WORKFLOW_STATE.json, the unchanged conditional artifacts-declaration member, and the removals (protected under HEAD's committed declaration, tracked at HEAD, absent from the current declaration and the worktree); PlanApprovalCommitPlan gains defaulted protected_paths/removal_paths; adds read_plan_stage_manifest_base_commit and read_plan_stage_manifest_protected_paths; compute_review_content_id_plan_stage_at_commit is documented as accepting any tree-ish (the write-tree proof). No hashed identity changes (INV-8). Implementation review round 2 (I1): _snapshot_commit and the tracked-metadata checks (ls-tree, ls-files --error-unmatch) run under --literal-pathspecs. W1 (workflow-2.7.0, orchestration-protocol-v1): the pinned review_content_id label with its legacy alias, header-block-only parsing (feedback_header_block, parse_review_feedback_header) (v2.6.0-002, CP1); docstrings name the gate wrappers and the shared manual-verdict ingest as callers (CP4, CP5). W2 (workflow-2.8.0, gate-policy-and-reopening). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state. review-loop-fixes (workflow-2.13.0): a changes file per review stage with the manual stage's baseline, the atomic ready file, the governing-version sweep before review and the release constant 2.13.0, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding parse and the declaration coverage notice.",
-      "sha256": "2a102ef1f3df6cf8102f77cc76f8b190b8ed30c80e6143d05b7ac94956b6ded9",
-      "size": 277733,
+      "sha256": "975c6ca384496224c0a599b162dd9d8e7c2ef03c3e238d8a0c8a1df1db0a82af",
+      "size": 277960,
       "executable": true
     },
     {
@@ -693,8 +693,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_fingerprint_test\\.py$",
       "rationale": "D-Tooling-Ambient-Classification (CP1): adds TestToolingAmbientExcludedPaths -- fallback classification at both stages with a 2.5.1 control arm, explicit-protected precedence, sibling fail-closed paths, hashed-projection invariance, and digest invariance with the previously raising digests equal to their pre-update recorded values. Additive only: every pre-existing test is unmodified. D-Feedback-Layout (CP3): adds TestFeedbackLayout (scoped-by-construction resolution, ensure_feedback_dir, the unchanged legacy rule for a legacy entry/no entry/no state file, undecidable-state and unknown-value refusals, no cross-item collision, the terminal-owner relaxation and its bounds, the per-item consumed marker, CLI/function equality for all three layouts, and the manual-record Work item: refusal). TestBundleLayoutResolver, TestFunctionalReviewConsumedMarker and TestReviewImplementationWritebackCrossWorkItemIsolation are re-pointed by docstring to their legacy scope; no assertion is removed. W1 (workflow-2.7.0, orchestration-protocol-v1): TestPinnedReviewContentIdLabel (CP1). W2 (workflow-2.8.0, gate-policy-and-reopening). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state.",
-      "sha256": "8496896b9ca15e5754d74b675d9e8730cb22656f61e3538e9bf6ebdee10b7ffc",
-      "size": 243345,
+      "sha256": "2d40a87f3d6c21dd4116551e1e4c61aca98bce3c483f39e8ceb40dab651c5b7f",
+      "size": 243629,
       "executable": false
     },
     {
@@ -723,8 +723,8 @@
       "category": "conformance",
       "rule": "^scripts/workflow_gate_policy_test\\.py$",
       "rationale": "The gate policy suite: policy model and adoption, automatic plan, technical and acceptance satisfaction, functional evidence and forge facts, reopening, and the all-human equivalence. Run by workflow-conformance.yml. W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state.",
-      "sha256": "b005bf6353a1b7e12283784da7fa5a81b2fa518ee8d83a3a2f3bdd1de554e7cb",
-      "size": 274768,
+      "sha256": "9c51283b2f9e5cb3a3beec780a063cbb7eff637c95bf124d8a532f66aec38571",
+      "size": 278393,
       "executable": false
     },
     {
