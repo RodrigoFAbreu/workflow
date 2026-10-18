@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-round-counts",
+  "plan_revision": 3,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "Record the per-role round counts in the state",
+      "depends_on": [],
+      "complexity": 4,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "The four snapshot fields and Orchestration Protocol 1.5 in code and schema",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Protocol 1.5 specification and the user documents",
+      "depends_on": [
+        "CP2"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP4",
+      "name": "Release 2.15.0: manifest, release constant, release history, downgrade posture",
+      "depends_on": [
+        "CP1",
+        "CP2",
+        "CP3"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}

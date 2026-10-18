@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "review-round-counts",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -7133,6 +7133,406 @@
         "evaluated_at": "2026-10-18T02:37:35Z",
         "workflow_release": "2.13.0"
       }
+    },
+    "review-round-counts": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "review-round-counts",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/review-round-counts-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/review-round-counts-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 3,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "16c2599313b8e111e2edebeecbc7712a4c2ff841",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+        "approved_review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bcacfeab9cecffa72a98f314e05e40e2c9dd8e3d"
+          },
+          {
+            "path": "docs/ai-workflow/registry/review-round-counts-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cf649a1fa554a67681b383a6d8c54d2c643b3574"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/review-round-counts-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ceb6e5823fb8800063e3c675406948d9e8d693af"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-18T16:58:13Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+            "ledger": {
+              "local": {
+                "bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "e4de71130cf132dd3dc3fb5bbd616d6aa32e51fab906468ce1d714939be131a8",
+                "ledger_entry_sha256": "cb74a2dc37a36f679149aae828c55ccb4466a6f8467f118d6433bbd23f16f514",
+                "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "3de933e382f33d83eeacef4a080beb72f983324b49785eda482dc58380dc95f8",
+                "ledger_entry_sha256": "60d8e70da6fd3168c0ffcac8dd8a259204191b8b42dedc2197e769a657bfd89c",
+                "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-18T16:58:13Z",
+          "workflow_release": "2.14.0"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-18T16:52:32Z",
+          "verdict_sha256": "e4de71130cf132dd3dc3fb5bbd616d6aa32e51fab906468ce1d714939be131a8",
+          "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-18T16:57:31Z",
+          "verdict_sha256": "3de933e382f33d83eeacef4a080beb72f983324b49785eda482dc58380dc95f8",
+          "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "state_revision": 14,
+      "last_transition": "2026-10-18T16:58:13Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-18T16:48:19Z",
+        "consumed": {
+          "review_content_id": "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457",
+          "plan_revision": 2,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+          "bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+          "plan_revision": 3
+        }
+      },
+      "optional_findings": {
+        "F-851136841d39": {
+          "digest": "851136841d392a4f02233fafb10167b95d543e124a04742ca4fb77d6c79c5313",
+          "text": "CP1: specify and test `_count_review_round` on a malformed key, not only an absent key or a `null` stage. `state_transaction` does not validate the state before the mutator runs, so a hand-damaged value reaches the writer. Examples: a string stage, a missing `local`, a negative number, a boolean. A boolean is the dangerous one, because `True + 1 == 2` in Python and would silently \"repair\" the value. INV-3 (\"recording a count never fails or changes a verdict's ingest\") holds only if the helper does nothing when the value is not a well-formed non-boolean integer pair, and never raises. Add one writer test per malformed shape: the verdict is recorded and the key is left exactly as it was.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:30:23Z"
+            }
+          ]
+        },
+        "F-28bfbd3bf981": {
+          "digest": "28bfbd3bf98155edae15ea052c35a0143286439d6486c560ddae4a23ddb36538",
+          "text": "CP2 test text: the sequence described (\"a local REVISE, a local APPROVE and an external REVISE and APPROVE\") does not produce the C10a values it then states (3 local, 1 external, `plan` 4). Read literally it yields 3/2 (with the obligatory local re-review after the external REVISE). Spell out the C10a sequence instead: L-REVISE, L-REVISE, L-APPROVE, E-REVISE, then republish and bind. That gives `plan_local` 3, `plan_external` 1, `plan` 4. Keep the full-stage walk as a separate test.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:30:23Z"
+            }
+          ]
+        },
+        "F-0ed07b90a8bf": {
+          "digest": "0ed07b90a8bfb0be65f1dccb01e7d913f646ca5a296006e1e6b37772854542cd",
+          "text": "D-Counter's case table: add the legacy-promotion case. `import_legacy_work_item` creates an item with gv `\"1\"` (both stages `null`), and `promote_legacy_work_item` later moves it to `\"2.1\"`. Its plan counts then read `None` for life even if it was created under 2.15.0. That is consistent with the rule (the key is fixed at creation and never started mid-history), but R1's wording (\"a work item created under 2.15.0 records ...\") reads as if it covers this item. Name it as the one exception.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:30:23Z"
+            }
+          ]
+        },
+        "F-369a1c8ed94c": {
+          "digest": "369a1c8ed94cbb0e2aae7c67e9033d1ca2b054f1e3eb16c4d79f4d24143ed5a5",
+          "text": "CP3: section 5.4 currently says the ledgers' per-stage `round` \"counts one stage's recorded verdicts\". Section 1 of this plan shows the reviewer states that value; it is not a count. When CP3 rewrites the `review_round` bullet, correct that sentence. Point it at the new per-role fields as the Workflow's own count, so a consumer does not keep reading `round` as one.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:30:23Z"
+            }
+          ]
+        },
+        "F-1a6ba5dbd3d0": {
+          "digest": "1a6ba5dbd3d0366f353b3329e0036fe58ab15842dd0a34f75f38c9504e43d548",
+          "text": "**O1 [substantive] — Correct the C10a test sequence.** CP2’s stated sequence does not produce its asserted 3-local/1-external result (`docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:323`). Specify L-REVISE, L-REVISE, L-APPROVE, E-REVISE, then republish and bind for `plan = 4`; keep the complete approval walkthrough separate.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:36:42Z"
+            }
+          ]
+        },
+        "F-7bb60a1ac951": {
+          "digest": "7bb60a1ac9513e610eaee3afc444e61cfc3c39ab6e12024c8c36d663df6c8e89",
+          "text": "**O2 [substantive] — State the legacy-promotion boundary explicitly.** An imported legacy item created under 2.15.0 starts with null stages; promotion changes its governing version without initializing counters (`payload/scripts/workflow_state.py:18165`). D-Counter therefore leaves its plan counts null permanently. Clarify this exception in R1 and add a promotion test.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:36:42Z"
+            }
+          ]
+        },
+        "F-08aaae0f47d2": {
+          "digest": "08aaae0f47d27a7d573422334ae75b96562fdc5e5fd11dfee073dde407aa9e09",
+          "text": "**O3 [substantive] — Distinguish missing counters from stale numeric counters in consumer documentation.** CP3 groups downgrade/re-upgrade under “A review-round count reads null” (`docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:346`), although D-Downgrade correctly says existing numbers survive and can read low. Carry that distinction and the consumer fallback into section 8.1.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:36:42Z"
+            }
+          ]
+        },
+        "F-44476991fd4b": {
+          "digest": "44476991fd4b75e6b6fea5f15b3e630c9f0d6800077d98284d13aad0bf07fbb7",
+          "text": "**O4 [substantive] — Correct the existing ledger-round description during CP3.** The protocol currently describes reviewer-supplied ledger `round` as counting recorded verdicts (`payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md:319`). Point consumers to the new counters for that meaning.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:36:42Z"
+            }
+          ]
+        },
+        "F-a65e5c8f41c1": {
+          "digest": "a65e5c8f41c1e61a64a629e9c4cbe679ec82add5e85d0649d5e7c2f1e39146cb",
+          "text": "CP3: the protocol specification's definition of the `verify` check `state_valid` (`payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md:194`) says it passes when \"`validate_state(state, repo_root=…)` passes\". Under CP2 it will also run `validate_review_round_counts(state)`, but CP3's list of edits to that document leaves out check 2. Add that edit: check 2 states that it also applies the `review_round_counts` shape check, and that `validate_state`, and so every operational loader, does not. Otherwise the 1.5 specification contradicts the code on what a `state_valid` failure means.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:40:01Z"
+            }
+          ]
+        },
+        "F-f4b88eedf1f5": {
+          "digest": "f4b88eedf1f57a112e4def41573bc892353352a822c5ed8ab6e50acbf67887db",
+          "text": "Section 1's \"What is a gate and what is an aid\" table still has the row \"The state validator's check of the key | Gate on the file's shape\". After revision 2 the gate is `verify`'s `state_valid` check (`validate_review_round_counts`), and `validate_state` does not run it. Reword the row to match D-Counter's \"Validation\" paragraph.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:40:01Z"
+            }
+          ]
+        },
+        "F-d89b2f0931c1": {
+          "digest": "d89b2f0931c1baa062f0dc0410bd5710bd109577da2daca17da47249570b1e17",
+          "text": "**O1 [substantive] — Clarify the unrelated-item fallback test.** CP2 says both malformed-counter cases return all four fields as `None` (`docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:355–360`). When only an unrelated item is malformed, a target with valid counters should retain its numeric values. State that explicitly.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:46:23Z"
+            }
+          ]
+        },
+        "F-42f1f2a2e061": {
+          "digest": "42f1f2a2e061ba10f4edaff19d842512cc5217485759834651fc91fde95cd956",
+          "text": "**O2 [substantive] — Update the verification documentation.** CP3 should include the specification’s `state_valid` definition (`payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md:194`) so it names the separate counter validator. Also rename the plan’s “state validator’s check” table row (`docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:93`) to match the revised validation split.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:46:23Z"
+            }
+          ]
+        },
+        "F-8debd184e539": {
+          "digest": "8debd184e539bf02935c28416a4a486ed8029b7426b4dc28dee0c983b9b4d7f8",
+          "text": "**O1 — Section 2's last commit-helper fact now contradicts D-Downgrade.** `docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:112-113` still says \"Releases that predate a key reject it only in those commit helpers, while it is an uncommitted change.\" Consequence 2 shows that 2.14.0 also rejects a *committed* counter during provenance verification. Reword the fact, for example \"...while it is an uncommitted change, and, through provenance verification, inside a committed generation record of an open implementation interval (D-Downgrade)\", so the plan's own fact list agrees with its design.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:52:32Z"
+            }
+          ]
+        },
+        "F-9f7076cdfdf2": {
+          "digest": "9f7076cdfdf2cdf793525b2e097ecf60b811daff0a5578ef9754ebfbd7b54936",
+          "text": "**O2 — State how the CP1 downgrade regression gets \"the unmodified 2.14.0 helpers\".** The test lives in the 2.15.0 `payload/scripts/workflow_state_test.py` and runs in a staged fixture with no 2.14.0 module and no history of this repository. Name the mechanism: run the same verifier with the four closed sets patched to their 2.14.0 values (each 2.15.0 set without `review_round_counts`), and assert that the 2.15.0 sets are exactly the 2.14.0 sets plus the key, so the simulation cannot drift. Drop \"the test fails if 2.14.0 ever accepts it\". A published release is immutable, so that can never happen; what the test can pin is that the posture text stays true for the sets it simulates.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:52:32Z"
+            }
+          ]
+        },
+        "F-74b1843be544": {
+          "digest": "74b1843be5448d30434802af49ac09aa97c5b08c9d605aad1d05d5ce1c9ea4d2",
+          "text": "**O3 — Give the operator a check for the boundary, not only a rule.** \"No non-terminal item has a commit that changes `review_round_counts` inside an open implementation-stage provenance interval\" is hard to verify by hand. The posture and the common-problems entry should give a concrete test. One option: for every non-terminal `2.2` item that is past its implementation bundle generation and has no technical approval yet, `git log -p <reviewed_implementation_head>..HEAD -- docs/ai-workflow/WORKFLOW_STATE.json` shows no `review_round_counts` hunk. A simpler, conservative alternative: finish the implementation approval of every such item under 2.15.0 before moving back.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:52:32Z"
+            }
+          ]
+        },
+        "F-67af9ebd6fc6": {
+          "digest": "67af9ebd6fc6a07d241191985aa72a3c205949a93fbef027bfd1c573f326e4b0",
+          "text": "**[substantive]** `docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:112–113` still says older helpers reject a key only while uncommitted. Update this background statement to agree with D-Downgrade’s committed-generation-record refusal.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:57:31Z"
+            }
+          ]
+        },
+        "F-c86e648a5b54": {
+          "digest": "c86e648a5b546dc124a3cfa55cde7a5da1a26a5ce3403c4c1851e71895f4c36b",
+          "text": "**[apparatus]** `docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:357–362` should specify an offline mechanism for exercising the unmodified 2.14.0 contract in staged fixtures. Freezing the old field sets and asserting that the new sets add exactly `review_round_counts` would make the regression reproducible without repository history or network access.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:57:31Z"
+            }
+          ]
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+        "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457"
+      ]
     }
   }
 }
