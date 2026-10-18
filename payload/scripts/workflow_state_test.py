@@ -5652,6 +5652,28 @@ class TestRecordBundleGeneration(unittest.TestCase):
                                    trailers=_record_trailers("wi", wi_after["implementation_revision"]))
             ws.validate_bundle_generation_record_commit(repo.root, s, "wi")  # must not raise
 
+    def test_optional_findings_residue_rides_into_the_recovered_record_commit(self):
+        """workflow-2.14.0 CP1 (`D-Ledger`), I2: the recovered generation record (the
+        post-fix republication) validates with the ledger pending, and the ledger's
+        absence from its field set would be refused."""
+        ledger = {"F-0123456789ab": {"digest": "0123456789ab" + "0" * 52, "text": "O1: x",
+            "raised": [{"stage": "implementation", "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW", "round": 1,
+                        "review_content_id": "c", "verdict": "REVISE", "at": "t"}]}}
+        with ScratchRepo() as repo:
+            _write_test_artifacts_declaration(repo, "wi")
+            _seed_base_provenance_state(repo, "wi")
+            p = repo.commit("protected fix", filename="src/Foo.kt")
+            state = _provenance_state("wi", reviewed_implementation_head=p, implementation_revision=1)
+            s = _commit_state_only(repo, "wi", state, "record gen", trailers=_record_trailers("wi", 1))
+            repo.commit("excluded-only doc fix", filename="docs/notes.md")
+            s2_state = state | {"state_revision": 3, "optional_findings": ledger}
+            s2 = _commit_state_only(repo, "wi", s2_state, "recover stale generation_head",
+                                    trailers=_recovered_trailers("wi", 1, s))
+            ws.validate_bundle_generation_record_commit(repo.root, s2, "wi")  # must not raise
+            self.assertEqual(
+                ws.verify_implementation_provenance_interval(
+                    repo.root, s2_state | {"work_item_id": "wi"}, repo.base), s2)
+
     def test_v1_implementing_entry_record_commit_validates_and_the_interval_is_reachable(self):
         """`v2.6.0-003` (a), workflow-2.9.0 CP4: a governing-`"1"` item at
         `IMPLEMENTING` (with an unfinished checkpoint status, as a hand-run `1`
@@ -20034,6 +20056,15 @@ class TestCommitPendingApplyingReviewFeedbackEntry(unittest.TestCase):
             self.assertEqual(working["work_items"]["other"]["optional_findings"], ledger)
             committed_item = committed["work_items"][self.WID]
             self.assertEqual(committed_item, working["work_items"][self.WID])
+            # D-Downgrade: the item's own pending state, once committed, leaves no hunk
+            # for it; only the other item's still-pending ledger remains in the diff.
+            diff = _git_out(repo, ["diff", "HEAD", "--", STATE_REL_PATH])
+            self.assertNotIn(self.WID, diff)
+            self.assertIn('"phase": "IMPLEMENTING"', diff)  # the other item's context
+        with ScratchRepo() as repo:
+            self._setup(repo, self.LOCAL, self.APPLYING, working_extra={"optional_findings": ledger})
+            self.assertIsNotNone(ws.commit_pending_applying_review_feedback_entry(repo.root, self.WID))
+            self.assertEqual(_git_out(repo, ["diff", "HEAD", "--", STATE_REL_PATH]).strip(), "")
         with ScratchRepo() as repo:
             self._setup(repo, self.LOCAL, self.APPLYING,
                         working_extra={"optional_findings": ledger, "technical_review_block_pins": {}})
