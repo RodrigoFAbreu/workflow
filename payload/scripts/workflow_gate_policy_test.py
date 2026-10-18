@@ -3790,6 +3790,38 @@ class AcceptanceRepo(EvidenceRepo):
         self.flow()
         self.query([pr_record(self.anchor, **pr)])
 
+    def add_remediation_child(self) -> str:
+        """A `<WI>-remediation-1` child that can be accepted on its own: its own
+        registry, artifacts file, plan approval and technical-approval identity."""
+        ev = self
+        child_id = f"{WI}-remediation-1"
+        state = ev.state()
+        child = copy.deepcopy(state["work_items"][WI])
+        child.update(work_item_id=child_id, parent_work_item_id=WI)
+        state["work_items"][child_id] = child
+        h.write_state(ev.repo, state)
+        registry_dir = ev.root / "docs" / "ai-workflow" / "registry"
+        (registry_dir / f"{child_id}-artifacts.json").write_text(
+            (registry_dir / f"{WI}-artifacts.json").read_text())
+        registry = json.loads((registry_dir / f"{WI}-registry.json").read_text())
+        registry["work_item_id"] = child_id
+        (registry_dir / f"{child_id}-registry.json").write_text(json.dumps(registry, indent=2) + "\n")
+        h.git(ev.repo, "add", f"docs/ai-workflow/registry/{child_id}-registry.json",
+              f"docs/ai-workflow/registry/{child_id}-artifacts.json")
+        state = ev.state()
+        child = state["work_items"][child_id]
+        child["registry_path"] = f"docs/ai-workflow/registry/{child_id}-registry.json"
+        import workflow_fingerprint as fingerprint
+        manifest = [{"path": path, **fingerprint._snapshot_worktree(ev.root, path)}
+                    for path in sorted(h.plan_stage_protected_paths(child_id))]
+        child["plan_approval"] = ws.build_approval_record(
+            basis="EXTERNAL_APPROVE", stage="plan", user_confirmation="approved", now=now(),
+            reviewed_bundle_id="b" * 64, approved_review_content_id="c" * 64, review_content_manifest=manifest)
+        child["technical_approval"]["approved_review_content_id"] = g.identity_at(
+            ev.root, child_id, child, ev.anchor)
+        h.write_state(ev.repo, state)
+        return child_id
+
     def satisfy(self, records=None, **kw) -> dict:
         body = json.dumps(records if records is not None else [pr_record(self.anchor)])
         return ws.satisfy_acceptance_gate(self.root, WI, now=now(), run=lambda a, t: body,
@@ -4098,32 +4130,7 @@ class TestSatisfyAcceptance(unittest.TestCase):
     def test_a_remediation_child_is_accepted_automatically_and_its_parent_unblocks(self):
         with AcceptanceRepo() as ev:
             ev.flow()
-            child_id = f"{WI}-remediation-1"
-            state = ev.state()
-            child = copy.deepcopy(state["work_items"][WI])
-            child.update(work_item_id=child_id, parent_work_item_id=WI)
-            state["work_items"][child_id] = child
-            h.write_state(ev.repo, state)
-            registry_dir = ev.root / "docs" / "ai-workflow" / "registry"
-            (registry_dir / f"{child_id}-artifacts.json").write_text(
-                (registry_dir / f"{WI}-artifacts.json").read_text())
-            registry = json.loads((registry_dir / f"{WI}-registry.json").read_text())
-            registry["work_item_id"] = child_id
-            (registry_dir / f"{child_id}-registry.json").write_text(json.dumps(registry, indent=2) + "\n")
-            h.git(ev.repo, "add", f"docs/ai-workflow/registry/{child_id}-registry.json",
-                  f"docs/ai-workflow/registry/{child_id}-artifacts.json")
-            state = ev.state()
-            child = state["work_items"][child_id]
-            child["registry_path"] = f"docs/ai-workflow/registry/{child_id}-registry.json"
-            import workflow_fingerprint as fingerprint
-            manifest = [{"path": path, **fingerprint._snapshot_worktree(ev.root, path)}
-                        for path in sorted(h.plan_stage_protected_paths(child_id))]
-            child["plan_approval"] = ws.build_approval_record(
-                basis="EXTERNAL_APPROVE", stage="plan", user_confirmation="approved", now=now(),
-                reviewed_bundle_id="b" * 64, approved_review_content_id="c" * 64, review_content_manifest=manifest)
-            child["technical_approval"]["approved_review_content_id"] = g.identity_at(
-                ev.root, child_id, child, ev.anchor)
-            h.write_state(ev.repo, state)
+            child_id = ev.add_remediation_child()
             body = json.dumps([pr_record(ev.anchor)])
             with self.assertRaises(ws.IncompleteChildWorkItemError):
                 ev.satisfy()
@@ -4986,6 +4993,61 @@ class TestFindingDispositions(unittest.TestCase):
             self.assertEqual(paths, [ws.finding_dispositions_record_path(child_id),
                                      ws.finding_dispositions_path(child_id)])
             self.assertEqual(ws.write_finding_dispositions_record(ev.root, ev.state(), WI), [])
+
+    def _child_with_a_finding(self, ev):
+        ev.flow()
+        child_id = ev.add_remediation_child()
+        (key,) = self.record(ev, child_id, "O1: child finding")
+        return child_id, key
+
+    def _assert_child_record_and_untouched_parent(self, ev, child_id, key, parent_before):
+        paths = ws.write_finding_dispositions_record(ev.root, ev.state(), child_id)
+        self.assertEqual(paths, [ws.finding_dispositions_record_path(child_id),
+                                 ws.finding_dispositions_path(child_id)])
+        self.assertIn("child finding", (ev.root / paths[0]).read_text())
+        self.assertEqual(ws.write_finding_dispositions_record(ev.root, ev.state(), WI), [])
+        self.assertFalse((ev.root / ws.finding_dispositions_record_path(WI)).exists())
+        self.assertEqual(ev.state()["work_items"][WI], parent_before)
+
+    def test_a_finding_bearing_child_is_refused_then_completed_by_the_human_path(self):
+        with AcceptanceRepo() as ev:
+            child_id, key = self._child_with_a_finding(ev)
+            parent_before = copy.deepcopy(ev.state()["work_items"][WI])
+            before = state_bytes(ev.repo)
+            with self.assertRaises(ws.UndispositionedFindingsError) as caught:
+                ws.complete_work_item(ev.state(), child_id, now(), repo_root=ev.root)
+            self.assertIn(key, str(caught.exception))
+            self.assertIn(f"{child_id}-dispositions.json", str(caught.exception))
+            self.assertEqual(state_bytes(ev.repo), before)
+            self.write_dispositions(ev, {key: {"disposition": "fixed"}}, item_id=child_id)
+            done = ws.complete_work_item(ev.state(), child_id, now(), repo_root=ev.root)
+            self.assertEqual(done["work_items"][child_id]["phase"], "MILESTONE_COMPLETE")
+            self.assertEqual(done["work_items"][WI], parent_before)
+            self._assert_child_record_and_untouched_parent(ev, child_id, key, parent_before)
+
+    def test_a_finding_bearing_child_is_refused_then_completed_by_the_policy_path(self):
+        with AcceptanceRepo() as ev:
+            child_id, key = self._child_with_a_finding(ev)
+            parent_before = copy.deepcopy(ev.state()["work_items"][WI])
+            body = json.dumps([pr_record(ev.anchor)])
+
+            def satisfy_child():
+                return ws.satisfy_acceptance_gate(ev.root, child_id, now=now(), run=lambda a, t: body,
+                                                  resolve=lambda r: dict(FAKE_GH))
+            before = state_bytes(ev.repo)
+            with self.assertRaises(ws.UndispositionedFindingsError):
+                satisfy_child()
+            self.assertEqual(state_bytes(ev.repo), before)
+            self.write_dispositions(ev, {key: {"disposition": "follow-up", "link": "owner/repo#9"}}, item_id=child_id)
+            satisfy_child()
+            self.assertEqual(ev.state()["work_items"][child_id]["phase"], "MILESTONE_COMPLETE")
+            self.assertEqual(ev.state()["work_items"][WI], parent_before)
+            self._assert_child_record_and_untouched_parent(ev, child_id, key, parent_before)
+
+    def test_accept_milestone_runs_the_disposition_preflight_before_the_pr_preflight(self):
+        text = (REPO_ROOT / ".claude" / "commands" / "accept-milestone.md").read_text()
+        self.assertLess(text.index("**Optional-finding dispositions pre-flight**"),
+                        text.index("**`requires_pr_approved` pre-flight**"))
 
     def test_the_listing_option_prints_the_skeleton_and_the_status_option_still_works(self):
         with AcceptanceRepo() as ev:

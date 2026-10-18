@@ -101,19 +101,10 @@ missing, ask for it and stop — do not proceed on an inferred "yes."
       `<parent-id>-remediation-<n>` child work item running its own full
       cycle). There is no command that records functional acceptance of a
       partial round.
-    - **`requires_pr_approved` pre-flight** (`workflow-2.8.0`, `D-GP-Acceptance`;
-      added only when the effective policy sets `requires_pr_approved`, which is
-      off by default, so a repository without it behaves as 2.7.0): call
-      `workflow_state.assert_human_acceptance_pr_approved(repo_root,
-      work_item_id, now=<now>)`. It runs the Workflow's own GitHub query, stores
-      the `workflow_gh` fact it read (a successful query only, also when it then
-      refuses), and refuses with `PullRequestNotApprovedError` unless that fact
-      is current for the approved head and the pull request is approved. With
-      `gh` unavailable it refuses (`forge_unavailable`) and writes nothing.
-      Report the unmet requirements and stop. It returns `None`, having run and
-      written nothing, when the option is off.
     - **Optional-finding dispositions pre-flight** (workflow-2.14.0, `D-Gate`;
-      applies to every item, a remediation child included): call
+      applies to every item, a remediation child included; **runs before the
+      `requires_pr_approved` pre-flight below**, so a refusal happens before any
+      query or write): call
       `workflow_state.assert_finding_dispositions_recorded(repo_root, state,
       work_item_id)`. `UndispositionedFindingsError` stops here: report each
       listed finding (key, stage, role, round, text) and the next step it
@@ -126,6 +117,17 @@ missing, ask for it and stop — do not proceed on an inferred "yes."
       `InvalidFindingDispositionsError` stops here too, naming every problem in
       the file. The file is not committed on its own; step 6 stages it.
       `complete_work_item` re-checks the same condition below.
+    - **`requires_pr_approved` pre-flight** (`workflow-2.8.0`, `D-GP-Acceptance`;
+      added only when the effective policy sets `requires_pr_approved`, which is
+      off by default, so a repository without it behaves as 2.7.0): call
+      `workflow_state.assert_human_acceptance_pr_approved(repo_root,
+      work_item_id, now=<now>)`. It runs the Workflow's own GitHub query, stores
+      the `workflow_gh` fact it read (a successful query only, also when it then
+      refuses), and refuses with `PullRequestNotApprovedError` unless that fact
+      is current for the approved head and the pull request is approved. With
+      `gh` unavailable it refuses (`forge_unavailable`) and writes nothing.
+      Report the unmet requirements and stop. It returns `None`, having run and
+      written nothing, when the option is off.
     - Otherwise, call `workflow_state.complete_work_item(state, work_item_id,
       now=<now>, repo_root=<repo_root>)` — note the parameter change: this
       no longer accepts a caller-supplied `registry` dict at all; it
