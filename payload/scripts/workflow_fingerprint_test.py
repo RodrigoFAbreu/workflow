@@ -4579,6 +4579,11 @@ class TestParseOptionalFindings(unittest.TestCase):
         self.assertEqual(len(set(keys)), 3)
         self.assertEqual(keys[0], self._keys("- O1: x")[0])
 
+    def test_a_duplicate_ordinal_never_collides_with_a_literal_entry(self):
+        found = wf.parse_optional_findings(self._verdict("- O1: x\n- O1: x\n- O1: x @2"))
+        self.assertEqual(len({f.digest for f in found}), 3)
+        self.assertEqual(len({f.key for f in found}), 3)
+
     def test_labels_are_display_only_and_read_from_real_shapes(self):
         shapes = {
             "O3: x": "O3", "OPT-2. x": "OPT-2", "**O1 \u2014 Stale test-results metadata.**": "O1",

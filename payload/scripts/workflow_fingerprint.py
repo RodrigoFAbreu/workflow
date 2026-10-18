@@ -4159,7 +4159,8 @@ def parse_optional_findings(content: str) -> list[OptionalFinding]:
     the first heading are items by indentation, a more indented one being the
     previous item's body. The identity text is the entry as written (label
     included) with whitespace runs collapsed; identical entries inside one
-    verdict are separate findings, the later ones keyed with an ordinal."""
+    verdict are separate findings, the later ones keyed with a newline and an
+    ordinal appended (a newline cannot occur in an identity)."""
     entries: list[tuple[str, list[str]]] = []  # (first line, body lines)
     in_section = False
     seen_heading = False
@@ -4195,7 +4196,9 @@ def parse_optional_findings(content: str) -> list[OptionalFinding]:
             body.pop()
         identity = re.sub(r"\s+", " ", " ".join([first, *body])).strip()
         ordinals[identity] = ordinals.get(identity, 0) + 1
-        keyed = identity if ordinals[identity] == 1 else f"{identity} @{ordinals[identity]}"
+        # A newline never occurs in an identity (whitespace runs collapse to one
+        # space), so no literal entry can equal a later duplicate's key text.
+        keyed = identity if ordinals[identity] == 1 else f"{identity}\n@{ordinals[identity]}"
         digest = hashlib.sha256(keyed.encode("utf-8")).hexdigest()
         text = "\n".join([first, *body])[:OPTIONAL_FINDING_TEXT_LIMIT]
         findings.append(OptionalFinding(
