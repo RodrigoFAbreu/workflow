@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**Implementing.** W11: `review-round-counts` (`process`, governing version `2.2`),
+**Complete** (accepted by policy; the release follows the merge). W11: `review-round-counts` (`process`, governing version `2.2`),
 branch `milestone/review-round-counts`, base `16c2599` (main after #49: the release
 source is Workflow 2.14.0 and this repository's own installation is the published
 2.14.0). Roadmap row 14. The plan is `docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md`,
@@ -79,6 +79,10 @@ directory> --write` from a staging of CP4's own content (protocol 341, state 118
 release constant in `workflow_protocol.py` is 2.15.0, with the protocol document's
 envelope example and the two assertions of `workflow_protocol_test.py`. `docs/release-history.md` has the
 2.15.0 row. `docs/ROADMAP.md` stays Current until acceptance.
+
+## Next action
+
+Row 12 (Controller C10, in the Controller's repository) is next once the owner schedules it. Publishing 2.15.0 follows the pull request merge (#53); the Manager side is a `workflow-manager` pin pull request. The 8 follow-ups are in RodrigoFAbreu/workflow#52.
 
 ## Functional review checklist
 

@@ -1,0 +1,122 @@
+{
+  "dispositions": {
+    "F-08aaae0f47d2": {
+      "disposition": "fixed",
+      "note": "plan revision 2 (section 10 row 2, O3): missing versus stale counters distinguished in CP3."
+    },
+    "F-0ed07b90a8bf": {
+      "disposition": "fixed",
+      "note": "plan revision 2 (section 10 row 2, O2): legacy-promotion exception named in D-Counter and R1, with a test."
+    },
+    "F-1a6ba5dbd3d0": {
+      "disposition": "fixed",
+      "note": "plan revision 2 (section 10 row 2, O1): C10a test sequence spelled out."
+    },
+    "F-21ef31671d3b": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#52",
+      "note": "Same remaining work as F-7f24f555eae8: freeze 2.14.0's four sets as literals so the downgrade pin cannot drift."
+    },
+    "F-28bfbd3bf981": {
+      "disposition": "fixed",
+      "note": "plan revision 2 (section 10 row 2, O1): same C10a sequence correction."
+    },
+    "F-369a1c8ed94c": {
+      "disposition": "fixed",
+      "note": "plan revision 2 (section 10 row 2, O4): ledger round description corrected in CP3."
+    },
+    "F-42f1f2a2e061": {
+      "disposition": "fixed",
+      "note": "plan revision 3 (section 10 row 3, O2): CP3 edits the specification's state_valid definition and the section 1 table row."
+    },
+    "F-44476991fd4b": {
+      "disposition": "fixed",
+      "note": "plan revision 2 (section 10 row 2, O4): ledger round description corrected in CP3."
+    },
+    "F-488f25884135": {
+      "disposition": "dropped",
+      "reason": "Same as F-f846ba47d996: stale TEST_RESULTS.md header is evidence-bundle apparatus; current evidence is in IMPLEMENTATION_SUMMARY.md and the digest reproduces."
+    },
+    "F-572f4bd2e833": {
+      "disposition": "fixed",
+      "note": "commit f11601f (docs/release-history.md 2.15.0 row now lists all four null causes, incl. feedback-only and malformed key)."
+    },
+    "F-67af9ebd6fc6": {
+      "disposition": "dropped",
+      "reason": "Plan text at lines 112-113 is background in the frozen approved plan; the shipped release-history, posture and protocol docs state the committed-generation-record refusal correctly."
+    },
+    "F-6e9594127edd": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#52",
+      "note": "op_verify's state_valid pass detail (workflow_protocol.py:518) still says 'validate_state accepts the state' though it also runs validate_review_round_counts; reword."
+    },
+    "F-6eeb72637504": {
+      "disposition": "dropped",
+      "reason": "Plan Files-paragraph text only; the approved plan is frozen and the harness change is noted in IMPLEMENTATION_SUMMARY.md."
+    },
+    "F-74756f810dcd": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#52",
+      "note": "Add subtests to test_block_and_a_refused_call_change_nothing for a duplicate ingest and a stale content id on the manual writers."
+    },
+    "F-74b1843be544": {
+      "disposition": "dropped",
+      "reason": "Plan wording; shipped docs give the conservative rule (finish the implementation approval under 2.15.0) and the git diff HEAD check, and a hand-verifiable git log -p test was not required."
+    },
+    "F-7bb60a1ac951": {
+      "disposition": "fixed",
+      "note": "plan revision 2 (section 10 row 2, O2): legacy-promotion exception named in D-Counter and R1, with a test."
+    },
+    "F-7f24f555eae8": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#52",
+      "note": "Freeze 2.14.0's four commit-field sets as literals in TestReviewRoundCountsDowngrade and assert the 2.15.0 sets add exactly review_round_counts (workflow_state_test.py:20896)."
+    },
+    "F-851136841d39": {
+      "disposition": "fixed",
+      "note": "plan revision 2 (section 10 row 2, I1/local optional): writers leave malformed values untouched, tested per shape."
+    },
+    "F-8959c7cd93a2": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#52",
+      "note": "Reword the manifest review-round-counts state-key signal label so a hit reads as 'item created under 2.15.0 carries the key', not as a found hazard."
+    },
+    "F-8debd184e539": {
+      "disposition": "dropped",
+      "reason": "Same as F-67af9ebd6fc6: plan background wording in the frozen plan; shipped docs agree with D-Downgrade."
+    },
+    "F-9f7076cdfdf2": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#52",
+      "note": "Same remaining work as F-7f24f555eae8: the simulation patches the sets but does not assert the 2.15.0 sets are exactly the 2.14.0 sets plus the key."
+    },
+    "F-a65e5c8f41c1": {
+      "disposition": "fixed",
+      "note": "plan revision 3 (section 10 row 3, O2): CP3 edits the specification's state_valid definition."
+    },
+    "F-c86e648a5b54": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#52",
+      "note": "Same remaining work as F-7f24f555eae8: freeze the old field sets as literals so the 2.14.0 regression is reproducible offline."
+    },
+    "F-d89b2f0931c1": {
+      "disposition": "fixed",
+      "note": "plan revision 3 (section 10 row 3, O1): unrelated-item malformed case keeps the target's numeric values."
+    },
+    "F-e59cc8476f1a": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#52",
+      "note": "Replace the grep-based test_the_key_is_outside_both_content_identities with a direct review_content_id/bundle_id comparison before and after changing only the key."
+    },
+    "F-f4b88eedf1f5": {
+      "disposition": "fixed",
+      "note": "plan revision 3 (section 10 row 3, O2): section 1 table row renamed to the validation split."
+    },
+    "F-f846ba47d996": {
+      "disposition": "dropped",
+      "reason": "Evidence-bundle apparatus: TEST_RESULTS.md header lags revision 2, but IMPLEMENTATION_SUMMARY.md carries the current evidence and the digest reproduces."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "review-round-counts"
+}
