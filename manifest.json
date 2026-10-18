@@ -3825,8 +3825,8 @@
       "suites": {
         "workflow_acceptance_matrix_test.py": 415,
         "workflow_protocol_test.py": 331,
-        "workflow_state_test.py": 1167,
-        "workflow_gate_policy_test.py": 310,
+        "workflow_state_test.py": 1168,
+        "workflow_gate_policy_test.py": 312,
         "workflow_fingerprint_generalization_test.py": 142,
         "workflow_state_completion_obligations_test.py": 106,
         "workflow_integration_test.py": 317,
