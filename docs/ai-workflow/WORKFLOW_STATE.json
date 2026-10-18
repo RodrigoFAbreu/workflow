@@ -6203,14 +6203,14 @@
       "registry_path": "docs/ai-workflow/registry/finding-dispositions-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/finding-dispositions-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 5,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "f8eea781b2b019ccafb55a462a4edb75b1b2d82f",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP4",
+      "last_completed_checkpoint_id": "CP5",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
@@ -6227,6 +6227,10 @@
         "CP4": {
           "status": "COMPLETE",
           "start_commit": "65b89d1361e111de87c7bf2764dfc388ed49d078"
+        },
+        "CP5": {
+          "status": "COMPLETE",
+          "start_commit": "ed8c4a9a6e52481f3076c7a618592a11f87c70d2"
         }
       },
       "current_bundle_id": "9fc19c2a9a214ea15c927da0305d16ca26358a3b8eaaf4f9928cb6ff6c8f41ea",
@@ -6345,8 +6349,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 28,
-      "last_transition": "2026-10-18T00:04:53Z",
+      "state_revision": 30,
+      "last_transition": "2026-10-18T00:17:49Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",

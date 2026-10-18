@@ -95,3 +95,20 @@ scratch fixture staged from the working tree (digests refreshed in the scratch
 manifest only): all nine payload suites pass; `tools/release` tests pass except
 `ReproductionTest.test_round_trip`, which verifies the committed manifest whose digests
 CP5 refreshes.
+
+CP5 is complete: release 2.14.0. `manifest.json` names 2.14.0 with every changed digest
+and size refreshed (23 records, rationale text extended; counts unchanged) and the
+`manager` block: `min_manager_version` `1.13.0`, D-Downgrade's posture with the
+`optional-findings-ledger` `state-key` signal, one `new_work_only` entry, an empty
+`gate_default_change`, and `conformance.suites` written by `release.py manager-block
+--release-dir <scratch staging> --write` (state 1167, protocol 331, gate policy 310,
+generalization 142, integration 317, fingerprint 279, others unchanged).
+`WORKFLOW_RELEASE` is `2.14.0` (protocol stays 1.4; tested-releases list, envelope example
+and compatibility note updated). `docs/release-history.md` has the 2.14.0 row;
+`docs/common-problems.md`, `docs/gates.md` and `docs/glossary.md` carry the three
+problems, the acceptance disposition requirement and "Disposition".
+`tools/release/manager-releases.json` re-recorded (adds Manager 1.13.1). Verified from a
+conformance fixture staged from the working tree: all nine payload suites pass;
+`tools/docs/check_docs.py` and its tests are clean; `tools/release` tests pass except
+`ReproductionTest.test_round_trip`, which stages the previous commit's manifest and is
+re-run after the CP5 commit. `docs/ROADMAP.md` is marked Done at acceptance.

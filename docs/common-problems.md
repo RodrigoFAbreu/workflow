@@ -1,6 +1,6 @@
 # Common problems
 
-> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.13.0.
+> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.14.0.
 
 Each problem has a one-line fix. The exact rules are in the shipped documents
 under `payload/docs/ai-workflow/`. What a script's exit status means is in
@@ -169,6 +169,50 @@ be corrected, because the check runs at publish, bind and plan-stage generation
 first). A plan approved or bound before 2.13.0 is not affected until its next
 revision. Moving back to 2.12.0 loses only this early refusal (nothing new is
 written).
+
+### Acceptance is refused because an Optional finding has no disposition
+
+`/accept-milestone` or `/satisfy-gate acceptance` stopped with
+`UndispositionedFindingsError`, listing each recorded Optional finding (key,
+stage, role, round, text) that has no disposition. An `APPROVE` may carry Optional
+findings, and since Workflow 2.14.0 each one is recorded when the verdict is
+ingested. The one fix: run `python3 scripts/workflow_state.py --finding-dispositions <id>`,
+which lists them and prints a skeleton, record a disposition for each in
+`docs/ai-workflow/registry/<id>-dispositions.json` (`fixed`; `dropped` with a
+`reason`; or `follow-up` with a `link`), save the file, and run the command again.
+A follow-up is complete: acceptance does not wait for its fix.
+`InvalidFindingDispositionsError` means the file itself has a problem; the message
+names each one. The file is not committed on its own; the completion commit stages
+it with `docs/milestones/completed/<id>-findings.md`. Findings are recorded from
+the first verdict ingested after updating to 2.14.0; an item in flight keeps
+earlier findings out of the ledger. Moving back to 2.13.0 removes the refusal; see
+the [release history](release-history.md) for what to commit before moving back.
+
+### A plan is refused because its artifact declaration leaves a path unclassified
+
+`/milestone-plan` or `/apply-plan-review` stopped (or `prepare-ai-review.sh`
+exited 1 at the plan stage) with `PlanArtifactDeclarationCoverageError`, which
+lists each `<checkpoint>: <path>` that a checkpoint's Files paragraph names but the
+work item's declaration, `docs/ai-workflow/registry/<id>-artifacts.json`, leaves
+unclassified at the plan stage, the implementation stage or both. The one fix: add
+each path, or its folder, to `plan_stage` and/or `implementation_stage` of that
+file (protected for a deliverable, excluded for repository territory). If the
+listed span is not a path (a dotted identifier, a function name, a flag), drop its
+backticks or move it out of the Files paragraph. Then run the command again. The
+check runs on a new plan revision only; a plan approved or bound before 2.14.0 is
+not affected until its next revision. A plan with no Files paragraph, or none that
+names a path, gets an advisory and is not refused. Moving back to 2.13.0 loses only
+this early refusal.
+
+### A gate policy adopted with a merge commit does not take effect
+
+`verify` (or the `/adopt-gate-policy` report) warns that an adoption reached this
+line through a merge commit that does not record it on this line. Older versions of
+`GATE_POLICY.json` on this line still count, so the gates can read stricter than the
+policy you adopted. Nothing was loosened, and the evaluation is unchanged. The one
+fix: merge an adoption with a squash, or run `/adopt-gate-policy` again on a branch
+and merge that branch with a squash. A merge commit from `git merge main` into a
+feature branch is the usual cause.
 
 ### A review verdict is refused as malformed
 

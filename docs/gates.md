@@ -1,6 +1,6 @@
 # Approval gates
 
-> For: anyone who decides who approves a work item's plan, code and acceptance. Last checked with: Workflow 2.12.0, Workflow Manager 1.5.0.
+> For: anyone who decides who approves a work item's plan, code and acceptance. Last checked with: Workflow 2.14.0, Workflow Manager 1.5.0.
 
 An approval gate is a point where a work item cannot move on until a decision
 is recorded. There are three: plan approval, implementation approval and
@@ -54,6 +54,15 @@ human.
 The commands behind this are `/satisfy-gate plan <id>`,
 `/satisfy-gate implementation <id>` and `/satisfy-gate acceptance <id>`.
 `/approve-review` and `/accept-milestone` stay available as the human path.
+
+Workflow 2.14.0 adds one requirement to milestone acceptance under every gate
+policy, automatic or human: every Optional finding recorded from a review
+verdict needs a disposition. A disposition is fixed, dropped with a reason, or a
+follow-up with a link, written in `docs/ai-workflow/registry/<id>-dispositions.json`.
+A follow-up counts as complete, so acceptance never waits for the fix. This is not
+a gate policy requirement: the policy cannot turn it off, and the gate check does
+not predict it; `/accept-milestone` and `/satisfy-gate acceptance` refuse and name
+each finding.
 
 Workflow 2.12.0 leaves every gate unchanged. A review verdict must now be
 well-formed (a `REVISE` names a Blocking or Important finding; every `APPROVE`

@@ -1,6 +1,6 @@
 # Glossary
 
-> For: anyone reading Workflow documents. Last checked with: Workflow 2.12.0, Workflow Manager 1.4.0.
+> For: anyone reading Workflow documents. Last checked with: Workflow 2.14.0, Workflow Manager 1.4.0.
 
 The shared terms of the Workflow. The other Workflow repositories link here.
 
@@ -104,6 +104,12 @@ A reviewer's result for one review stage: approve, revise or block.
 A tool or agent that drives the Workflow's commands and reports review and test
 results to it. The [Workflow Controller](https://github.com/RodrigoFAbreu/workflow-controller#readme)
 is one.
+
+### Disposition
+
+What a person or agent decided about an Optional review finding before the
+milestone is accepted: fixed, dropped with a reason, or a follow-up with a link.
+Acceptance refuses while a recorded finding has none.
 
 ### Declaration
 

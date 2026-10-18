@@ -1,6 +1,6 @@
 {
   "repository": "RodrigoFAbreu/workflow-manager",
-  "taken": "2026-10-17",
+  "taken": "2026-10-18",
   "releases": [
     {
       "isDraft": false,
@@ -31,6 +31,12 @@
       "isPrerelease": false,
       "publishedAt": "2026-10-17T08:56:59Z",
       "tagName": "v1.13.0"
+    },
+    {
+      "isDraft": false,
+      "isPrerelease": false,
+      "publishedAt": "2026-10-17T21:24:44Z",
+      "tagName": "v1.13.1"
     },
     {
       "isDraft": false,
