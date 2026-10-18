@@ -18,6 +18,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -669,7 +670,48 @@ class ConformanceTemplate(unittest.TestCase):
         self.assertEqual(sorted(self.suites()), shipped)
         self.assertEqual(len(self.suites()), 9)
 
-    def run_body(self, fail=(), uncopyable=False):
+    @staticmethod
+    def with_constants(body, width_cap=4, shards=0):
+        """The kit's textual substitution: only the two constant lines change."""
+        for name, value in (("width_cap", width_cap), ("shards", shards)):
+            line = f"\n{name}="
+            assert body.count(line) == 1, name
+            start = body.index(line) + len(line)
+            end = body.index("\n", start)
+            body = body[:start] + str(value) + body[end:]
+        return body
+
+    ACCEPTANCE = "workflow_acceptance_matrix_test.py"
+
+    STANDIN_ACCEPTANCE = (
+        "import os, pathlib, time, unittest\n"
+        "C = pathlib.Path(@COUNTER@)\n"
+        "def work(case):\n"
+        "    name = case.id()\n"
+        "    (C / name).write_text('')\n"
+        "    time.sleep(0.3)\n"
+        "    running = len([p for p in C.iterdir() if not p.name.startswith('peak-')])\n"
+        "    (C / ('peak-' + name)).write_text(str(running))\n"
+        "    (C / name).unlink()\n"
+        "    pathlib.Path('..', 'MARKER-' + name).write_text(name)\n"
+        "    pathlib.Path(os.environ['TMPDIR'], 'T-' + name).write_text(name)\n"
+        "    pathlib.Path(os.environ['HOME'], 'H-' + name).write_text(name)\n"
+        "class First(unittest.TestCase):\n"
+        "    def test_one(self): work(self)\n"
+        "    def test_two(self): work(self)\n"
+        "class Second(unittest.TestCase):\n"
+        "    def test_one(self): work(self)\n"
+        "    def test_two(self): work(self)\n"
+        "class Third(unittest.TestCase):\n"
+        "    def test_one(self): work(self)\n"
+        "class Fourth(unittest.TestCase):\n"
+        "    def test_one(self): work(self)\n"
+        "    def test_fails(self):\n"
+        "        work(self)\n"
+        "        self.assertTrue(@FAIL@)\n")
+
+    def run_body(self, fail=(), uncopyable=False, shards=0, width_cap=4, failing_test=False,
+                 acceptance_extra=""):
         tmp = Path(tempfile.mkdtemp(prefix="conformance-job-"))
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
         ws, runner, counter = tmp / "ws", tmp / "runner", tmp / "counter"
@@ -680,6 +722,11 @@ class ConformanceTemplate(unittest.TestCase):
             (ws / "UNREADABLE").write_text("x\n")
             (ws / "UNREADABLE").chmod(0)
         for name in self.suites():
+            if shards and name == self.ACCEPTANCE:
+                (ws / "scripts" / name).write_text(
+                    self.STANDIN_ACCEPTANCE.replace("@COUNTER@", repr(str(counter)))
+                    .replace("@FAIL@", "False" if failing_test else "True") + acceptance_extra)
+                continue
             (ws / "scripts" / name).write_text(
                 "import os, sys, time, pathlib\n"
                 f"name = {name!r}\n"
@@ -698,9 +745,10 @@ class ConformanceTemplate(unittest.TestCase):
         summary = tmp / "summary.md"
         env = dict(os.environ, GITHUB_WORKSPACE=str(ws), RUNNER_TEMP=str(runner),
                    GITHUB_STEP_SUMMARY=str(summary))
-        proc = subprocess.run(["bash", "-eo", "pipefail", "-c", self.step_body()],
+        body = self.with_constants(self.step_body(), width_cap, shards)
+        proc = subprocess.run(["bash", "-eo", "pipefail", "-c", body],
                               env=env, capture_output=True, text=True, cwd=tmp)
-        return proc, ws, runner, counter, summary.read_text()
+        return proc, ws, runner, counter, summary.read_text() if summary.exists() else ""
 
     def test_step_body_all_pass(self):
         proc, ws, runner, counter, summary = self.run_body()
@@ -753,6 +801,419 @@ class ConformanceTemplate(unittest.TestCase):
             self.assertEqual([p.name for p in (d / "home").iterdir()], [f"H-{name}"])
             markers = sorted(p.name for p in d.joinpath("repo").glob("MARKER*"))
             self.assertEqual(markers, ["MARKER", f"MARKER-{name}"])
+
+
+    # ---- the candidate scheduling: constants, the shard tool, the sharded step ----
+
+    def test_each_constant_is_alone_on_one_line_and_substituting_changes_only_it(self):
+        body = self.step_body()
+        for line in ("width_cap=4", "shards=4"):
+            self.assertEqual(body.splitlines().count(line), 1, line)
+            self.assertEqual(body.count("\n" + line + "\n"), 1, line)
+        out = self.with_constants(body, width_cap=2, shards=8)
+        changed = [(a, b) for a, b in zip(body.splitlines(), out.splitlines()) if a != b]
+        self.assertEqual(changed, [("width_cap=4", "width_cap=2"), ("shards=4", "shards=8")])
+        self.assertEqual(len(body.splitlines()), len(out.splitlines()))
+        proc = subprocess.run(["bash", "-n"], input=out, capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(self.with_constants(body, 4, 4), body)
+
+    def shards_source(self):
+        body = self.step_body()
+        start = body.index("<<'PY'\n") + len("<<'PY'\n")
+        return body[start:body.index("\nPY\n", start) + 1]
+
+    def test_the_suites_line_and_the_concurrency_block_are_untouched(self):
+        self.assertEqual(self.text.count('suites="'), 1)
+        self.assertEqual(len(self.suites()), 9)
+        self.assertIn("\nconcurrency:\n  group: " + self.GROUP + "\n  cancel-in-progress: "
+                      + self.CANCEL + "\n", self.text)
+
+    STANDIN_MODULE = (
+        "import unittest\n"
+        "class Base(unittest.TestCase):\n"
+        "    def test_inherited(self): pass\n"
+        "class SubA(Base):\n"
+        "    def test_a1(self): pass\n"
+        "    def test_a2(self): pass\n"
+        "class SubB(Base):\n"
+        "    def test_b(self): pass\n"
+        "@unittest.skip('whole class')\n"
+        "class Decorated(unittest.TestCase):\n"
+        "    def test_d1(self): pass\n"
+        "    def test_d2(self): pass\n"
+        "class Skipper(unittest.TestCase):\n"
+        "    def test_skips(self): self.skipTest('reason')\n"
+        "    @unittest.expectedFailure\n"
+        "    def test_expected(self): self.fail('expected')\n"
+        "class Subtests(unittest.TestCase):\n"
+        "    def test_passing(self):\n"
+        "        for i in range(2):\n"
+        "            with self.subTest(i=i): pass\n"
+        "    def test_skipped_subtest(self):\n"
+        "        with self.subTest(i=1): self.skipTest('sub')\n"
+        "class Empty(unittest.TestCase): pass\n")
+
+    VARIANTS = {
+        "failing test": (
+            "class Failing(unittest.TestCase):\n    def test_fails(self): self.fail('no')\n"
+            "    def test_ok(self): pass\n", ["failed: standin_mod.Failing.test_fails"]),
+        "failing subtest": (
+            "class SubFail(unittest.TestCase):\n    def test_sub(self):\n"
+            "        for i in range(2):\n            with self.subTest(i=i): self.assertEqual(i, 0)\n",
+            ["failed: standin_mod.SubFail.test_sub"]),
+        "setUpClass error": (
+            "class SetupError(unittest.TestCase):\n    @classmethod\n"
+            "    def setUpClass(cls): raise RuntimeError('boom')\n    def test_s(self): pass\n",
+            ["failed: setUpClass (standin_mod.SetupError)",
+             "missing: standin_mod.SetupError.test_s"]),
+        "setUpClass SkipTest": (
+            "class SetupSkip(unittest.TestCase):\n    @classmethod\n"
+            "    def setUpClass(cls): raise unittest.SkipTest('no')\n    def test_s(self): pass\n",
+            ["not in the plan: setUpClass (standin_mod.SetupSkip)",
+             "missing: standin_mod.SetupSkip.test_s"]),
+        "unexpected success": (
+            "class Unexpected(unittest.TestCase):\n    @unittest.expectedFailure\n"
+            "    def test_u(self): pass\n", ["failed: standin_mod.Unexpected.test_u"]),
+    }
+
+    class ShardFlow:
+        """plan -> run every shard -> check, with the heredoc's real Python text."""
+
+        def __init__(self, case, extra="", shards=3, module_source=None):
+            self.case = case
+            self.tmp = Path(tempfile.mkdtemp(prefix="shard-flow-"))
+            case.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+            self.scripts, self.base = self.tmp / "scripts", self.tmp / "base"
+            self.scripts.mkdir()
+            self.base.mkdir()
+            (self.scripts / "standin_mod.py").write_text(
+                module_source if module_source is not None else case.STANDIN_MODULE + extra)
+            (self.base / "shards.py").write_text(case.shards_source())
+            self.shards = shards
+            self.plan_path = self.base / "plan.json"
+
+        def tool(self, *args, cwd=None):
+            return subprocess.run([sys.executable, str(self.base / "shards.py"), *args],
+                                  cwd=cwd or self.scripts, capture_output=True, text=True)
+
+        def plan(self, directory=".", module="standin_mod.py", out=None):
+            return self.tool("plan", "--dir", str(directory), "--module", module, "--shards",
+                             str(self.shards), "--out", str(out or self.plan_path))
+
+        def spec(self):
+            return json.loads(self.plan_path.read_text())
+
+        def run_all(self, status=None):
+            for shard in self.spec()["shards"]:
+                folder = self.base / shard["unit"]
+                folder.mkdir()
+                proc = self.tool("run", "--plan", str(self.plan_path), "--unit", shard["unit"],
+                                 "--out", str(folder / "shard.json"))
+                (folder / "result").write_text(
+                    f"{proc.returncode if status is None else status} 1\n")
+
+        def check(self):
+            proc = self.tool("check", "--plan", str(self.plan_path), "--base", str(self.base))
+            rows = [line.split("\t") for line in proc.stdout.splitlines() if line]
+            return proc, rows
+
+        def shard_file(self, index):
+            return self.base / self.spec()["shards"][index]["unit"] / "shard.json"
+
+        def done(self):
+            proc = self.plan()
+            self.case.assertEqual(proc.returncode, 0, proc.stderr)
+            self.run_all()
+            return self.check()
+
+    def test_shard_tool_passes_a_complete_run_and_records_every_outcome(self):
+        flow = self.ShardFlow(self)
+        proc, rows = flow.done()
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        expected = flow.spec()["expected"]
+        self.assertEqual(rows[0], ["total", str(len(expected)), str(len(expected)), "3",
+                                   "1", "ok"])
+        self.assertTrue(all(r[0] == "shard" and r[4] == "ok" for r in rows[1:]), rows)
+        outcomes = {}
+        for index in range(3):
+            outcomes.update(json.loads(flow.shard_file(index).read_text())["outcomes"])
+        self.assertEqual(sorted(outcomes), sorted(expected))
+        for name in ("Decorated.test_d1", "Decorated.test_d2", "Skipper.test_skips",
+                     "Subtests.test_skipped_subtest"):
+            self.assertEqual(outcomes["standin_mod." + name], "skip", name)
+        self.assertEqual(outcomes["standin_mod.Skipper.test_expected"], "xfail")
+        self.assertEqual(outcomes["standin_mod.Subtests.test_passing"], "ok")
+        for owner in ("Base", "SubA", "SubB"):
+            self.assertEqual(outcomes[f"standin_mod.{owner}.test_inherited"], "ok", owner)
+
+    def test_shard_partition_is_exact_deterministic_and_balanced(self):
+        flow = self.ShardFlow(self, shards=2)
+        self.assertEqual(flow.plan().returncode, 0)
+        first = flow.plan_path.read_bytes()
+        again = flow.base / "again.json"
+        self.assertEqual(flow.plan(out=again).returncode, 0)
+        self.assertEqual(first, again.read_bytes())
+        spec = flow.spec()
+        baseline = json.loads(subprocess.run(
+            [sys.executable, "-B", "-c",
+             "import json, unittest, standin_mod\n"
+             "def flat(s):\n"
+             "    for t in s:\n"
+             "        yield from (flat(t) if isinstance(t, unittest.TestSuite) else [t])\n"
+             "print(json.dumps([t.id() for t in flat(unittest.TestLoader()"
+             ".loadTestsFromModule(standin_mod))]))"],
+            cwd=flow.scripts, capture_output=True, text=True, check=True).stdout)
+        self.assertEqual(spec["expected"], baseline)
+        self.assertEqual(sorted(i for s in spec["shards"] for i in s["ids"]), sorted(baseline))
+        classes = [c for s in spec["shards"] for c in s["classes"]]
+        self.assertEqual(sorted(classes), sorted(set(classes)))
+        self.assertNotIn("Empty", classes)
+        sizes = [len(s["ids"]) for s in spec["shards"]]
+        self.assertLessEqual(max(sizes) - min(sizes), 3)
+        for shard in spec["shards"]:
+            for test_id in shard["ids"]:
+                self.assertIn(test_id.split(".")[1], shard["classes"])
+        self.assertEqual([s["unit"] for s in spec["shards"]], ["acceptance-1of2", "acceptance-2of2"])
+        many = self.ShardFlow(self, shards=50)
+        self.assertEqual(many.plan().stdout.strip(), str(len(set(classes))))
+
+    def test_shard_plan_refuses_module_hooks(self):
+        for hook in ("def load_tests(loader, tests, pattern):\n    return tests\n",
+                     "def setUpModule():\n    pass\n", "def tearDownModule():\n    pass\n"):
+            name = hook.split("(")[0].split()[-1]
+            with self.subTest(hook=name):
+                flow = self.ShardFlow(self, extra=hook)
+                proc = flow.plan()
+                self.assertEqual(proc.returncode, 1)
+                self.assertIn(name, proc.stderr)
+                self.assertFalse(flow.plan_path.exists())
+
+    def test_shard_check_fails_naming_the_shard_and_the_original_ids(self):
+        for label, (extra, expected) in self.VARIANTS.items():
+            with self.subTest(label):
+                flow = self.ShardFlow(self, extra=extra)
+                proc, rows = flow.done()
+                self.assertEqual(proc.returncode, 1, proc.stdout)
+                self.assertEqual(rows[0][-1], "bad")
+                bad = [r for r in rows if r[0] == "shard" and r[4] == "bad"]
+                self.assertTrue(bad, rows)
+                text = " | ".join(r[5] for r in bad)
+                for piece in expected:
+                    self.assertIn(piece, text)
+                for row in bad:
+                    self.assertRegex(row[2], r"^acceptance \d/3$")
+                    self.assertTrue(row[5].startswith(row[2] + " (classes "), row[5])
+
+    def corrupt(self, label, change, expect):
+        flow = self.ShardFlow(self)
+        self.assertEqual(flow.plan().returncode, 0)
+        flow.run_all()
+        change(flow)
+        proc, rows = flow.check()
+        self.assertEqual(proc.returncode, 1, label)
+        bad = [r for r in rows if r[0] == "shard" and r[4] == "bad"]
+        self.assertEqual(len(bad), 1, (label, rows))
+        self.assertIn(expect, bad[0][5], label)
+        self.assertTrue(bad[0][5].startswith(bad[0][2] + " (classes "), label)
+
+    def test_shard_check_rejects_every_incomplete_or_inconsistent_shard_file(self):
+        def edit(index, mutate):
+            def go(flow):
+                path = flow.shard_file(index)
+                data = json.loads(path.read_text())
+                mutate(data, flow)
+                path.write_text(json.dumps(data))
+            return go
+
+        def duplicate(data, flow):
+            other = json.loads(flow.shard_file(1).read_text())["outcomes"]
+            data["outcomes"][next(iter(other))] = "ok"
+
+        def drop(data, flow):
+            data["outcomes"].pop(next(iter(data["outcomes"])))
+
+        cases = {
+            "missing file": (lambda f: f.shard_file(0).unlink(), "no complete shard file"),
+            "truncated file": (lambda f: f.shard_file(0).write_text(
+                f.shard_file(0).read_text()[:40]), "no complete shard file"),
+            "not completed": (edit(0, lambda d, f: d.update(completed=False)),
+                              "no complete shard file"),
+            "another shard's class list": (edit(0, lambda d, f: d.update(classes=["Other"])),
+                                           "no complete shard file"),
+            "no result": (lambda f: (f.base / f.spec()["shards"][0]["unit"] / "result").unlink(),
+                          "did not finish"),
+            "duplicated id": (edit(0, duplicate), "not in the plan: standin_mod."),
+            "extra id": (edit(0, lambda d, f: d["outcomes"].update(
+                {"standin_mod.Ghost.test_x": "ok"})), "not in the plan: standin_mod.Ghost.test_x"),
+            "missing id": (edit(0, drop), "missing: standin_mod."),
+            "started and never finished": (edit(0, lambda d, f: d["started"].append(
+                "standin_mod.Ghost.test_y")), "started and never finished: standin_mod.Ghost.test_y"),
+            "a failed outcome under a zero exit": (edit(0, lambda d, f: d["outcomes"].update(
+                {d["classes"] and next(iter(d["outcomes"])): "unexpected_success"})), "failed: "),
+            "a nonzero exit": (lambda f: (f.base / f.spec()["shards"][0]["unit"] / "result")
+                               .write_text("3 1\n"), "exit 3"),
+        }
+        for label, (change, expect) in cases.items():
+            with self.subTest(label):
+                self.corrupt(label, change, expect)
+
+    def test_real_acceptance_module_partitions_exactly(self):
+        scripts = REPO_ROOT / "payload/scripts"
+        manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        counted = manifest["manager"]["conformance"]["suites"][self.ACCEPTANCE]
+        probe = subprocess.run(
+            [sys.executable, "-B", "-c",
+             "import json, unittest, workflow_acceptance_matrix_test as m\n"
+             "def flat(s):\n"
+             "    for t in s:\n"
+             "        yield from (flat(t) if isinstance(t, unittest.TestSuite) else [t])\n"
+             "ids = [t.id() for t in flat(unittest.TestLoader().loadTestsFromModule(m))]\n"
+             "inherited = sorted({type(t).__name__ for t in flat(unittest.TestLoader()"
+             ".loadTestsFromModule(m)) if t._testMethodName not in type(t).__dict__})\n"
+             "print(json.dumps([ids, inherited]))"],
+            cwd=scripts, capture_output=True, text=True, check=True)
+        ids, inherited = json.loads(probe.stdout)
+        self.assertEqual(len(ids), counted)
+        self.assertTrue(inherited, "the module has classes that run inherited tests")
+        for count in (1, 2, 4, 8):
+            with self.subTest(shards=count):
+                flow = self.ShardFlow(self, shards=count, module_source="")
+                proc = flow.plan(directory=scripts, module=self.ACCEPTANCE)
+                self.assertEqual(proc.returncode, 0, proc.stderr)
+                spec = flow.spec()
+                self.assertEqual(int(proc.stdout), len(spec["shards"]))
+                self.assertEqual(sorted(i for s in spec["shards"] for i in s["ids"]), sorted(ids))
+                self.assertEqual(spec["expected"], ids)
+                classes = [c for s in spec["shards"] for c in s["classes"]]
+                self.assertEqual(len(classes), len(set(classes)))
+                for shard in spec["shards"]:
+                    for test_id in shard["ids"]:
+                        self.assertIn(test_id.split(".")[1], shard["classes"])
+                for name in inherited:
+                    owners = [s for s in spec["shards"] if name in s["classes"]]
+                    self.assertEqual(len(owners), 1, name)
+                    self.assertTrue(any(i.split(".")[1] == name for i in owners[0]["ids"]))
+
+    def peaks(self, counter):
+        return [int(p.read_text()) for p in counter.iterdir() if p.name.startswith("peak-")]
+
+    @staticmethod
+    def started(out):
+        return [(m.group(1), int(m.group(2))) for m in
+                re.finditer(r"^start (\S+) running (\d+)$", out, re.M)]
+
+    def test_sharded_step_all_pass_reports_nine_rows_and_the_coverage(self):
+        proc, ws, runner, counter, summary = self.run_body(shards=2)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertEqual(summary.count("\n| workflow_"), 9)
+        self.assertIn("| workflow_acceptance_matrix_test.py | passed (2 shards, 7 tests) |",
+                      summary)
+        self.assertIn("coverage: expected 7, recorded 7", proc.stdout)
+        for i in (1, 2):
+            self.assertIn(f"| acceptance {i}/2 | passed |", summary)
+            self.assertIn(f"::group::acceptance {i}/2 passed in", proc.stdout)
+        order = [l.split("|")[1].strip() for l in summary.splitlines()[2:]]
+        self.assertEqual(order[0], self.ACCEPTANCE)
+        self.assertEqual(order[1:3], ["acceptance 1/2", "acceptance 2/2"])
+        self.assertNotIn("::error", proc.stdout)
+        units = [u for u, _ in self.started(proc.stdout)]
+        self.assertEqual(units[:2], ["acceptance-1of2", "acceptance-2of2"])
+        self.assertEqual(len(units), 2 + 8)
+        self.assertNotIn(self.ACCEPTANCE, units)
+
+    def test_sharded_step_fails_for_each_of_the_nine_suites_in_turn(self):
+        for name in self.suites():
+            with self.subTest(name):
+                if name == self.ACCEPTANCE:
+                    proc, *_, summary = self.run_body(shards=2, failing_test=True)
+                    self.assertRegex(proc.stdout,
+                                     r"::error title=acceptance \d/2 failed::acceptance \d/2 "
+                                     r"\(classes [^)]*\): exit 1; failed: [^\n]*Fourth\.test_fails")
+                    self.assertIn("workflow_acceptance_matrix_test.py | FAILED (see the shard "
+                                  "rows) |", summary)
+                else:
+                    proc, *_, summary = self.run_body(shards=2, fail=(name,))
+                    self.assertIn(f"::error title={name} failed::exit 1 after", proc.stdout)
+                self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+                self.assertIn("1 suite(s) failed", proc.stdout)
+                self.assertEqual(summary.count("\n| workflow_"), 9)
+                self.assertEqual(proc.stdout.count("::group::"), 2 + 8 - 1)
+
+    def test_sharded_step_failing_shard_unfolds_its_log_and_runs_everything(self):
+        proc, ws, runner, counter, summary = self.run_body(shards=2, failing_test=True)
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("AssertionError", proc.stdout)
+        self.assertRegex(summary, r"\| acceptance \d/2 \| FAILED \(acceptance \d/2 \(classes ")
+        self.assertIn("coverage: expected 7, recorded 7", proc.stdout)
+        for name in self.suites():
+            if name != self.ACCEPTANCE:
+                self.assertIn(f"::group::{name} passed in", proc.stdout)
+
+    @unittest.skipIf(os.geteuid() == 0, "root reads a mode-0 file, so the copy cannot fail")
+    def test_sharded_step_reports_every_unit_whose_copy_failed(self):
+        proc, ws, runner, counter, summary = self.run_body(shards=2, uncopyable=True)
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        for name in self.suites():
+            if name != self.ACCEPTANCE:
+                self.assertIn(f"::error title={name} failed::exit missing after", proc.stdout)
+        for i in (1, 2):
+            self.assertIn(f"::error title=acceptance {i}/2 failed::acceptance {i}/2 (classes ",
+                          proc.stdout)
+        self.assertIn("10 suite(s) failed", proc.stdout)
+        self.assertEqual(summary.count("\n| workflow_"), 9)
+        self.assertEqual(summary.count("| FAILED"), 10 + 1)
+
+    def test_sharded_step_never_exceeds_the_width_with_shards_and_suites_queued_together(self):
+        for cap in (2, 3):
+            with self.subTest(width_cap=cap):
+                proc, ws, runner, counter, _ = self.run_body(shards=4, width_cap=cap)
+                self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+                width = min(cap, len(os.sched_getaffinity(0)))
+                started = self.started(proc.stdout)
+                self.assertEqual(len(started), 4 + 8)
+                self.assertEqual(max(k for _, k in started), width)
+                self.assertLessEqual(max(self.peaks(counter)), width)
+                self.assertGreater(max(self.peaks(counter)), 1)
+
+    def test_sharded_step_isolates_each_shard_like_a_suite(self):
+        proc, ws, runner, counter, _ = self.run_body(shards=2)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertEqual(sorted(p.name for p in ws.iterdir()), ["MARKER", "scripts"])
+        self.assertEqual(sorted(p.name for p in (ws / "scripts").iterdir()),
+                         sorted(self.suites()))
+        spec = json.loads((runner / "workflow-conformance" / "plan.json").read_text())
+        seen = set()
+        for shard in spec["shards"]:
+            d = runner / "workflow-conformance" / shard["unit"]
+            ids = set(shard["ids"])
+            self.assertEqual({p.name for p in (d / "tmp").iterdir()}, {f"T-{i}" for i in ids})
+            self.assertEqual({p.name for p in (d / "home").iterdir()}, {f"H-{i}" for i in ids})
+            markers = {p.name for p in d.joinpath("repo").glob("MARKER*")}
+            self.assertEqual(markers, {"MARKER"} | {f"MARKER-{i}" for i in ids})
+            seen |= ids
+        self.assertEqual(seen, set(spec["expected"]))
+
+    def test_sharded_step_fails_the_job_when_the_plan_fails(self):
+        proc, ws, runner, counter, summary = self.run_body(
+            shards=2, acceptance_extra="def setUpModule():\n    pass\n")
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("::error title=acceptance plan failed::", proc.stdout)
+        self.assertIn("setUpModule", proc.stderr)
+        self.assertEqual(self.started(proc.stdout), [])
+        self.assertEqual(list(counter.iterdir()), [])
+
+    def test_shards_zero_runs_nine_units_and_no_shard_tool(self):
+        proc, ws, runner, counter, summary = self.run_body(shards=0)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        started = self.started(proc.stdout)
+        self.assertEqual(sorted(u for u, _ in started), sorted(self.suites()))
+        self.assertEqual(started[0][0], self.ACCEPTANCE)
+        self.assertLessEqual(max(k for _, k in started), min(4, len(os.sched_getaffinity(0))))
+        self.assertFalse((runner / "workflow-conformance" / "plan.json").exists())
+        self.assertNotIn("coverage:", proc.stdout)
+        self.assertEqual(summary.count("\n| "), 9 + 1)
+        self.assertEqual(summary.count("| passed |"), 9)
 
 
 class WorkflowCI(unittest.TestCase):
