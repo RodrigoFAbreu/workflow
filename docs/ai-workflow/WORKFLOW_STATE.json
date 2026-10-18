@@ -7133,6 +7133,1086 @@
         "evaluated_at": "2026-10-18T02:37:35Z",
         "workflow_release": "2.13.0"
       }
+    },
+    "review-round-counts": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "review-round-counts",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/review-round-counts-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/review-round-counts-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 3,
+      "implementation_revision": 2,
+      "functional_review_round": null,
+      "base_commit": "16c2599313b8e111e2edebeecbc7712a4c2ff841",
+      "reviewed_implementation_head": "f11601ffef17d15239e5c02bf23f0c476d24cc84",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP4",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "2003c98fed936f590435c225d722287b50a7e732"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "39f155126aa3e9c6ef628dd2bd98b431b6bcf9c6"
+        },
+        "CP3": {
+          "status": "COMPLETE",
+          "start_commit": "1d3888d90ec367b0dba027458a946d2ce6745683"
+        },
+        "CP4": {
+          "status": "COMPLETE",
+          "start_commit": "1cac3727fb972bad72107214f1b7138a00950499"
+        }
+      },
+      "current_bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+        "approved_review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bcacfeab9cecffa72a98f314e05e40e2c9dd8e3d"
+          },
+          {
+            "path": "docs/ai-workflow/registry/review-round-counts-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cf649a1fa554a67681b383a6d8c54d2c643b3574"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/review-round-counts-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ceb6e5823fb8800063e3c675406948d9e8d693af"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-18T16:58:13Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+            "ledger": {
+              "local": {
+                "bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "e4de71130cf132dd3dc3fb5bbd616d6aa32e51fab906468ce1d714939be131a8",
+                "ledger_entry_sha256": "cb74a2dc37a36f679149aae828c55ccb4466a6f8467f118d6433bbd23f16f514",
+                "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "3de933e382f33d83eeacef4a080beb72f983324b49785eda482dc58380dc95f8",
+                "ledger_entry_sha256": "60d8e70da6fd3168c0ffcac8dd8a259204191b8b42dedc2197e769a657bfd89c",
+                "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-18T16:58:13Z",
+          "workflow_release": "2.14.0"
+        }
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "7ef4f40700fbed5d978fc1ab7275ae0fa8290077a7b36d797e56e7509ca36ab9",
+        "approved_review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/review-round-counts-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "47082beeb70458104e9553af85456545dc30cf87"
+          },
+          {
+            "path": "docs/common-problems.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "079ded2424ad1b69fce5e137d3714b8a9cacb79f"
+          },
+          {
+            "path": "docs/glossary.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "23f166af118faf4d24f7b805298ee90674dcde7a"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a08b92df7c0161eb482da5e9bfaf4d812285c26d"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "03d6667c975ede34382a86f5ea5faad1aa80744b"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5f49d1ebc01f3a017db6e1bbe309316034b9ac22"
+          },
+          {
+            "path": "payload/docs/ai-workflow/orchestration-protocol-v1.schema.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d196bdee87d473901decc1fbb32388c58c7238d7"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7375c44fde81e618878842a31f09bcf2acae7752"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7e7c9522a92bd223ac733e8b43c911e2cb64d495"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "be31f47dfbd51078e1a970bce334c5a279146641"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "618701af8e69522225000e9deb3810556c2c52ed"
+          },
+          {
+            "path": "payload/scripts/workflow_test_harness_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "88484e9c72c24ce027d9eb409050f4116be3217d"
+          }
+        ],
+        "reviewed_content_commit": "f11601ffef17d15239e5c02bf23f0c476d24cc84",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-18T19:52:08Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "ledger": {
+              "local": {
+                "bundle_id": "7ef4f40700fbed5d978fc1ab7275ae0fa8290077a7b36d797e56e7509ca36ab9",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "1960aa37ecd69c03041b7a56c7867254d84c25bbbeb25413c790702438e4e232",
+                "ledger_entry_sha256": "cfae09db26dfd60f37b9fb828614882ec8a86510c8c981c5e26997f8b00e3971",
+                "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "7ef4f40700fbed5d978fc1ab7275ae0fa8290077a7b36d797e56e7509ca36ab9",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "c63938ee043ec3bf3a63b0495608daabfc69b66011c76bf8b6a535fee997324d",
+                "ledger_entry_sha256": "23fc7c1fc3dd522f701440e62043782e1538151821651fd662d8af967aa370a0",
+                "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-18T19:52:08Z",
+          "workflow_release": "2.14.0"
+        }
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-18T16:52:32Z",
+          "verdict_sha256": "e4de71130cf132dd3dc3fb5bbd616d6aa32e51fab906468ce1d714939be131a8",
+          "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-18T16:57:31Z",
+          "verdict_sha256": "3de933e382f33d83eeacef4a080beb72f983324b49785eda482dc58380dc95f8",
+          "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "state_revision": 29,
+      "last_transition": "2026-10-18T20:36:57Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-18T16:48:19Z",
+        "consumed": {
+          "review_content_id": "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457",
+          "plan_revision": 2,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+          "bundle_id": "e743fc8181ec665cde4052016fa47bdef77acaa185fda7b8070f8f8ed7a3637d",
+          "plan_revision": 3
+        }
+      },
+      "optional_findings": {
+        "F-851136841d39": {
+          "digest": "851136841d392a4f02233fafb10167b95d543e124a04742ca4fb77d6c79c5313",
+          "text": "CP1: specify and test `_count_review_round` on a malformed key, not only an absent key or a `null` stage. `state_transaction` does not validate the state before the mutator runs, so a hand-damaged value reaches the writer. Examples: a string stage, a missing `local`, a negative number, a boolean. A boolean is the dangerous one, because `True + 1 == 2` in Python and would silently \"repair\" the value. INV-3 (\"recording a count never fails or changes a verdict's ingest\") holds only if the helper does nothing when the value is not a well-formed non-boolean integer pair, and never raises. Add one writer test per malformed shape: the verdict is recorded and the key is left exactly as it was.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:30:23Z"
+            }
+          ]
+        },
+        "F-28bfbd3bf981": {
+          "digest": "28bfbd3bf98155edae15ea052c35a0143286439d6486c560ddae4a23ddb36538",
+          "text": "CP2 test text: the sequence described (\"a local REVISE, a local APPROVE and an external REVISE and APPROVE\") does not produce the C10a values it then states (3 local, 1 external, `plan` 4). Read literally it yields 3/2 (with the obligatory local re-review after the external REVISE). Spell out the C10a sequence instead: L-REVISE, L-REVISE, L-APPROVE, E-REVISE, then republish and bind. That gives `plan_local` 3, `plan_external` 1, `plan` 4. Keep the full-stage walk as a separate test.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:30:23Z"
+            }
+          ]
+        },
+        "F-0ed07b90a8bf": {
+          "digest": "0ed07b90a8bfb0be65f1dccb01e7d913f646ca5a296006e1e6b37772854542cd",
+          "text": "D-Counter's case table: add the legacy-promotion case. `import_legacy_work_item` creates an item with gv `\"1\"` (both stages `null`), and `promote_legacy_work_item` later moves it to `\"2.1\"`. Its plan counts then read `None` for life even if it was created under 2.15.0. That is consistent with the rule (the key is fixed at creation and never started mid-history), but R1's wording (\"a work item created under 2.15.0 records ...\") reads as if it covers this item. Name it as the one exception.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:30:23Z"
+            }
+          ]
+        },
+        "F-369a1c8ed94c": {
+          "digest": "369a1c8ed94cbb0e2aae7c67e9033d1ca2b054f1e3eb16c4d79f4d24143ed5a5",
+          "text": "CP3: section 5.4 currently says the ledgers' per-stage `round` \"counts one stage's recorded verdicts\". Section 1 of this plan shows the reviewer states that value; it is not a count. When CP3 rewrites the `review_round` bullet, correct that sentence. Point it at the new per-role fields as the Workflow's own count, so a consumer does not keep reading `round` as one.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:30:23Z"
+            }
+          ]
+        },
+        "F-1a6ba5dbd3d0": {
+          "digest": "1a6ba5dbd3d0366f353b3329e0036fe58ab15842dd0a34f75f38c9504e43d548",
+          "text": "**O1 [substantive] — Correct the C10a test sequence.** CP2’s stated sequence does not produce its asserted 3-local/1-external result (`docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:323`). Specify L-REVISE, L-REVISE, L-APPROVE, E-REVISE, then republish and bind for `plan = 4`; keep the complete approval walkthrough separate.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:36:42Z"
+            }
+          ]
+        },
+        "F-7bb60a1ac951": {
+          "digest": "7bb60a1ac9513e610eaee3afc444e61cfc3c39ab6e12024c8c36d663df6c8e89",
+          "text": "**O2 [substantive] — State the legacy-promotion boundary explicitly.** An imported legacy item created under 2.15.0 starts with null stages; promotion changes its governing version without initializing counters (`payload/scripts/workflow_state.py:18165`). D-Counter therefore leaves its plan counts null permanently. Clarify this exception in R1 and add a promotion test.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:36:42Z"
+            }
+          ]
+        },
+        "F-08aaae0f47d2": {
+          "digest": "08aaae0f47d27a7d573422334ae75b96562fdc5e5fd11dfee073dde407aa9e09",
+          "text": "**O3 [substantive] — Distinguish missing counters from stale numeric counters in consumer documentation.** CP3 groups downgrade/re-upgrade under “A review-round count reads null” (`docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:346`), although D-Downgrade correctly says existing numbers survive and can read low. Carry that distinction and the consumer fallback into section 8.1.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:36:42Z"
+            }
+          ]
+        },
+        "F-44476991fd4b": {
+          "digest": "44476991fd4b75e6b6fea5f15b3e630c9f0d6800077d98284d13aad0bf07fbb7",
+          "text": "**O4 [substantive] — Correct the existing ledger-round description during CP3.** The protocol currently describes reviewer-supplied ledger `round` as counting recorded verdicts (`payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md:319`). Point consumers to the new counters for that meaning.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:36:42Z"
+            }
+          ]
+        },
+        "F-a65e5c8f41c1": {
+          "digest": "a65e5c8f41c1e61a64a629e9c4cbe679ec82add5e85d0649d5e7c2f1e39146cb",
+          "text": "CP3: the protocol specification's definition of the `verify` check `state_valid` (`payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md:194`) says it passes when \"`validate_state(state, repo_root=…)` passes\". Under CP2 it will also run `validate_review_round_counts(state)`, but CP3's list of edits to that document leaves out check 2. Add that edit: check 2 states that it also applies the `review_round_counts` shape check, and that `validate_state`, and so every operational loader, does not. Otherwise the 1.5 specification contradicts the code on what a `state_valid` failure means.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:40:01Z"
+            }
+          ]
+        },
+        "F-f4b88eedf1f5": {
+          "digest": "f4b88eedf1f57a112e4def41573bc892353352a822c5ed8ab6e50acbf67887db",
+          "text": "Section 1's \"What is a gate and what is an aid\" table still has the row \"The state validator's check of the key | Gate on the file's shape\". After revision 2 the gate is `verify`'s `state_valid` check (`validate_review_round_counts`), and `validate_state` does not run it. Reword the row to match D-Counter's \"Validation\" paragraph.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:40:01Z"
+            }
+          ]
+        },
+        "F-d89b2f0931c1": {
+          "digest": "d89b2f0931c1baa062f0dc0410bd5710bd109577da2daca17da47249570b1e17",
+          "text": "**O1 [substantive] — Clarify the unrelated-item fallback test.** CP2 says both malformed-counter cases return all four fields as `None` (`docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:355–360`). When only an unrelated item is malformed, a target with valid counters should retain its numeric values. State that explicitly.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:46:23Z"
+            }
+          ]
+        },
+        "F-42f1f2a2e061": {
+          "digest": "42f1f2a2e061ba10f4edaff19d842512cc5217485759834651fc91fde95cd956",
+          "text": "**O2 [substantive] — Update the verification documentation.** CP3 should include the specification’s `state_valid` definition (`payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md:194`) so it names the separate counter validator. Also rename the plan’s “state validator’s check” table row (`docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:93`) to match the revised validation split.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457",
+              "verdict": "REVISE",
+              "at": "2026-10-18T16:46:23Z"
+            }
+          ]
+        },
+        "F-8debd184e539": {
+          "digest": "8debd184e539bf02935c28416a4a486ed8029b7426b4dc28dee0c983b9b4d7f8",
+          "text": "**O1 — Section 2's last commit-helper fact now contradicts D-Downgrade.** `docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:112-113` still says \"Releases that predate a key reject it only in those commit helpers, while it is an uncommitted change.\" Consequence 2 shows that 2.14.0 also rejects a *committed* counter during provenance verification. Reword the fact, for example \"...while it is an uncommitted change, and, through provenance verification, inside a committed generation record of an open implementation interval (D-Downgrade)\", so the plan's own fact list agrees with its design.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:52:32Z"
+            }
+          ]
+        },
+        "F-9f7076cdfdf2": {
+          "digest": "9f7076cdfdf2cdf793525b2e097ecf60b811daff0a5578ef9754ebfbd7b54936",
+          "text": "**O2 — State how the CP1 downgrade regression gets \"the unmodified 2.14.0 helpers\".** The test lives in the 2.15.0 `payload/scripts/workflow_state_test.py` and runs in a staged fixture with no 2.14.0 module and no history of this repository. Name the mechanism: run the same verifier with the four closed sets patched to their 2.14.0 values (each 2.15.0 set without `review_round_counts`), and assert that the 2.15.0 sets are exactly the 2.14.0 sets plus the key, so the simulation cannot drift. Drop \"the test fails if 2.14.0 ever accepts it\". A published release is immutable, so that can never happen; what the test can pin is that the posture text stays true for the sets it simulates.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:52:32Z"
+            }
+          ]
+        },
+        "F-74b1843be544": {
+          "digest": "74b1843be5448d30434802af49ac09aa97c5b08c9d605aad1d05d5ce1c9ea4d2",
+          "text": "**O3 — Give the operator a check for the boundary, not only a rule.** \"No non-terminal item has a commit that changes `review_round_counts` inside an open implementation-stage provenance interval\" is hard to verify by hand. The posture and the common-problems entry should give a concrete test. One option: for every non-terminal `2.2` item that is past its implementation bundle generation and has no technical approval yet, `git log -p <reviewed_implementation_head>..HEAD -- docs/ai-workflow/WORKFLOW_STATE.json` shows no `review_round_counts` hunk. A simpler, conservative alternative: finish the implementation approval of every such item under 2.15.0 before moving back.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:52:32Z"
+            }
+          ]
+        },
+        "F-67af9ebd6fc6": {
+          "digest": "67af9ebd6fc6a07d241191985aa72a3c205949a93fbef027bfd1c573f326e4b0",
+          "text": "**[substantive]** `docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:112–113` still says older helpers reject a key only while uncommitted. Update this background statement to agree with D-Downgrade’s committed-generation-record refusal.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:57:31Z"
+            }
+          ]
+        },
+        "F-c86e648a5b54": {
+          "digest": "c86e648a5b546dc124a3cfa55cde7a5da1a26a5ce3403c4c1851e71895f4c36b",
+          "text": "**[apparatus]** `docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md:357–362` should specify an offline mechanism for exercising the unmodified 2.14.0 contract in staged fixtures. Freezing the old field sets and asserting that the new sets add exactly `review_round_counts` would make the regression reproducible without repository history or network access.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T16:57:31Z"
+            }
+          ]
+        },
+        "F-21ef31671d3b": {
+          "digest": "21ef31671d3b00a8e095f61aea9eace040e697bc738314952a42d31161eec8c2",
+          "text": "**[apparatus]** `TestReviewRoundCountsDowngrade._release_2_14_helpers` builds 2.14.0's sets\n  as \"2.15.0's sets minus `review_round_counts`\". That is correct today (verified against\n  16c2599), but it drifts silently once a later release adds another key to these sets.\n  Freezing 2.14.0's four sets as literals, as the plan-stage external reviewer suggested,\n  would make the pin independent of future edits.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-74756f810dcd": {
+          "digest": "74756f810dcd7abad1a5633f9ca1fdbb7e602e5c4547ed44e41c6f02162e11af",
+          "text": "**[apparatus]** `test_block_and_a_refused_call_change_nothing` exercises only the\n  wrong-phase refusal. CP1's test list also names a duplicate ingest and a stale content id\n  for the manual writers; a subtest for each would cover what the plan lists.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-e59cc8476f1a": {
+          "digest": "e59cc8476f1ab36807088d8ddd9cc4b66d2dd062b3df5aaf641de4350dcd72a9",
+          "text": "**[apparatus]** `test_the_key_is_outside_both_content_identities` greps\n  `workflow_fingerprint.py` for the key name. A direct check would be stronger: compute\n  `review_content_id`/`bundle_id` before and after changing only the key.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-8959c7cd93a2": {
+          "digest": "8959c7cd93a28a86ec2f3eab3398ff0b7412ffdbd2e4be429346d7beed8b39cb",
+          "text": "**[substantive]** The manifest's `review-round-counts` `state-key` signal fires for every\n  item created under 2.15.0. `default_work_item` writes the key at creation, even\n  `{plan: null, implementation: null}` for a `\"1\"` item. So a hit does not mean either\n  downgrade hazard exists. The label could say \"a work item created under 2.15.0 carries\n  `review_round_counts`\" so the Manager's report is not read as a found hazard.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-6e9594127edd": {
+          "digest": "6e9594127edde8a6c36b79b5376fb90cfcca0399819bdd876be5d514d3b06e70",
+          "text": "**[substantive]** `op_verify`'s `state_valid` pass detail still reads \"validate_state\n  accepts the state\", though the check now also covers the counter shape.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-572f4bd2e833": {
+          "digest": "572f4bd2e833f5fad3d6aa3fd932b20adfb54759a393e22339d332c7d5ca4a79",
+          "text": "**[substantive]** The `docs/release-history.md` 2.15.0 row lists only two `null` causes:\n  an item created before 2.15.0 and a promoted legacy item. Section 5.4 and\n  common-problems also list a feedback-only item and a malformed key.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-6eeb72637504": {
+          "digest": "6eeb72637504a3ba8d46c8a76188923eb38f5f3af5cf2cf3bbce5b4c97517697",
+          "text": "**[apparatus]** CP1 also changed `payload/scripts/workflow_test_harness_test.py` (needed\n  for the new `default_work_item` key). The CP1 Files paragraph does not name it; the file\n  is classified (protected under `payload/`), so this is only a plan-text mismatch.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "85357fc47114da63b9a1aa72deddac9540b58c3f8739591000a3edd598167fe8",
+              "verdict": "REVISE",
+              "at": "2026-10-18T19:01:54Z"
+            }
+          ]
+        },
+        "F-f846ba47d996": {
+          "digest": "f846ba47d996dadfd28fbf3a92cdb8abc63516dfff02a78cc09cbdc7daaf1b54",
+          "text": "**[apparatus]** The bundle's `TEST_RESULTS.md` was not refreshed for implementation\n  revision 2. Its header still reads `implementation_revision: 1`, measured at 25d1142,\n  and it shows the old `archive_sha256=7b05a729…189b`. The re-runs on the fix commit\n  appear only in `IMPLEMENTATION_SUMMARY.md`'s \"Review round 1\" section. The new archive\n  digest it states, `d3f2130c…f2d6`, is correct, and I reproduced it. A later generation\n  could regenerate `TEST_RESULTS.md` so that the file names the measured commit.\n\nThe round-1 Optional findings that were not applied are already recorded in this item's\n`optional_findings`, and acceptance gives each one a disposition. They are not restated\nhere.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T19:37:38Z"
+            }
+          ]
+        },
+        "F-488f25884135": {
+          "digest": "488f258841351bf6688af05b9512fdb6247c632d00a0861c840ddc08361a72f3",
+          "text": "**[apparatus]** `.ai-review/review-round-counts/current/TEST_RESULTS.md:3` still identifies revision 1 and reports its archive digest. Refresh it for revision 2; the current evidence appears in `IMPLEMENTATION_SUMMARY.md`, and its updated archive digest reproduces.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T19:51:40Z"
+            }
+          ]
+        },
+        "F-7f24f555eae8": {
+          "digest": "7f24f555eae8b0a83466baababd298cb7083979b2dd448ec3e38a7223747648a",
+          "text": "**[apparatus]** `payload/scripts/workflow_state_test.py:20896` emulates 2.14.0 by loading current helpers and subtracting the counter key. Freeze the historical field sets and assert that the new sets add exactly `review_round_counts`, preventing the historical reference from drifting.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T19:51:40Z"
+            }
+          ]
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
+        "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457"
+      ],
+      "implementation_review_stages": {
+        "review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "7ef4f40700fbed5d978fc1ab7275ae0fa8290077a7b36d797e56e7509ca36ab9",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-18T19:37:38Z",
+          "verdict_sha256": "1960aa37ecd69c03041b7a56c7867254d84c25bbbeb25413c790702438e4e232",
+          "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "7ef4f40700fbed5d978fc1ab7275ae0fa8290077a7b36d797e56e7509ca36ab9",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-18T19:51:40Z",
+          "verdict_sha256": "c63938ee043ec3bf3a63b0495608daabfc69b66011c76bf8b6a535fee997324d",
+          "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "gate_evidence": {
+        "functional": {
+          "w11-f1": {
+            "flow_id": "w11-f1",
+            "status": "passed",
+            "head": "db552384cdb66a12dd8fbb8cb78d3104665c6044",
+            "ran_at": "2026-10-18T20:25:01Z",
+            "summary": {
+              "flow": "fresh 2.2 item: four zero role counts, protocol 1.5, existing fields unchanged",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "44d2989e6889ec25a71a59d4928ce89716b201b19b0cbf5171ace2ee8e1df7bd",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:01Z"
+          },
+          "w11-f2": {
+            "flow_id": "w11-f2",
+            "status": "passed",
+            "head": "db552384cdb66a12dd8fbb8cb78d3104665c6044",
+            "ran_at": "2026-10-18T20:25:01Z",
+            "summary": {
+              "flow": "C10a case: plan_local 3, plan_external 1, plan unchanged",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "71c8aec006a6a4269f85d60c3132f1250d0ac8fbaef993364c29ab719f70b282",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:01Z"
+          },
+          "w11-f3": {
+            "flow_id": "w11-f3",
+            "status": "passed",
+            "head": "db552384cdb66a12dd8fbb8cb78d3104665c6044",
+            "ran_at": "2026-10-18T20:25:01Z",
+            "summary": {
+              "flow": "BLOCK does not count",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "646444b98fa5c9e601de4a2f46ac2baf7ba85f45a2903e826508ef9ad73fe6fd",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:01Z"
+          },
+          "w11-f4": {
+            "flow_id": "w11-f4",
+            "status": "passed",
+            "head": "db552384cdb66a12dd8fbb8cb78d3104665c6044",
+            "ran_at": "2026-10-18T20:25:02Z",
+            "summary": {
+              "flow": "implementation counts rise independently of plan counts",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "ab364fe370cefbb37e2c7c02c840b12205c75679c1be56ef9f4ba1201971dd9a",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:02Z"
+          },
+          "w11-f5": {
+            "flow_id": "w11-f5",
+            "status": "passed",
+            "head": "db552384cdb66a12dd8fbb8cb78d3104665c6044",
+            "ran_at": "2026-10-18T20:25:02Z",
+            "summary": {
+              "flow": "pre-2.15.0 item: null, does not refuse, key stays absent",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "b9b50fc05dbe54534ad7b9d61bccd26271fddfcabf5b4952c43905a3cccd971b",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:02Z"
+          },
+          "w11-f6": {
+            "flow_id": "w11-f6",
+            "status": "passed",
+            "head": "db552384cdb66a12dd8fbb8cb78d3104665c6044",
+            "ran_at": "2026-10-18T20:25:02Z",
+            "summary": {
+              "flow": "null stage reads null, other stage counts",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "e06a0223e1f6a423f96a8ba56483bf38295926e22e3615e3c158156bab7067d7",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:02Z"
+          },
+          "w11-f7": {
+            "flow_id": "w11-f7",
+            "status": "passed",
+            "head": "703cb7fa846939a36fe4dcae495308192438df9e",
+            "ran_at": "2026-10-18T20:25:02Z",
+            "summary": {
+              "flow": "malformed counter: tolerant reads and writers, strict validator reports it (round 2, corrected checklist)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "7f329b91e82aed1d8fc0a0fb2488f7e741cbe9f95b3cb36c5b56bc657bd6cdaa",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:02Z"
+          },
+          "w11-f8": {
+            "flow_id": "w11-f8",
+            "status": "passed",
+            "head": "db552384cdb66a12dd8fbb8cb78d3104665c6044",
+            "ran_at": "2026-10-18T20:25:02Z",
+            "summary": {
+              "flow": "counts are monotonic across revisions",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "929872ec4e5977fd8edfbfa4b663c1d7fc32aaf56b4f8e98ba927f4097240913",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:02Z"
+          },
+          "w11-f9": {
+            "flow_id": "w11-f9",
+            "status": "passed",
+            "head": "703cb7fa846939a36fe4dcae495308192438df9e",
+            "ran_at": "2026-10-18T20:25:02Z",
+            "summary": {
+              "flow": "schema requires the four fields; protocol 1.5 docs and example (round 2, corrected checklist)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "8970da1a97421e8a3f1f5c60c9e31f637912a0920c6b5368d814d61b0d7bf180",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:02Z"
+          },
+          "w11-f10": {
+            "flow_id": "w11-f10",
+            "status": "passed",
+            "head": "db552384cdb66a12dd8fbb8cb78d3104665c6044",
+            "ran_at": "2026-10-18T20:25:02Z",
+            "summary": {
+              "flow": "release bookkeeping and manager block",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "3ace5498990a2c4560097b3743f7ff34da42f1acf2ace66ef385a6e0d1ded07c",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:02Z"
+          },
+          "w11-f10-verify": {
+            "flow_id": "w11-f10-verify",
+            "status": "passed",
+            "head": "db552384cdb66a12dd8fbb8cb78d3104665c6044",
+            "ran_at": "2026-10-18T20:25:02Z",
+            "summary": {
+              "flow": "workflow-manager verify . with the network: installation matches 2.14.0",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "9f60b91d5f2764a01afd8a2598c101192918abb02884cb564702f0d37a568bde",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1",
+            "reporter": "manager-orchestrator (orchestrator re-run with network)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:02Z"
+          },
+          "w11-f11": {
+            "flow_id": "w11-f11",
+            "status": "passed",
+            "head": "703cb7fa846939a36fe4dcae495308192438df9e",
+            "ran_at": "2026-10-18T20:25:02Z",
+            "summary": {
+              "flow": "downgrade boundary and byte-identical refusals; documented troubleshooting entry (round 2, corrected checklist)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "b3b9e96f5228da052f802ba65494642e2c7d89ed7628cab80b2445b7e661d333",
+            "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T20:25:02Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 53,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/53"
+          },
+          "state": "open",
+          "head": "703cb7fa846939a36fe4dcae495308192438df9e",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+          "observed_at": "2026-10-18T20:36:57Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "f11601ffef17d15239e5c02bf23f0c476d24cc84",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-10-18T20:36:57Z",
+            "raw_sha256": "2f94d9a5a27b98089771cd651fdb197e263d7ddae2172e030c63d55a06288365",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "42a7856d6b182b717d8e59612a5d1c6b0e3c1bb707fcd7a57aa64029da75aae1"
+          },
+          "fact_id": "923a4ca31c870822230d305f73da3fa47a297bd08f53e90628b89dddff71dde3"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['w11-f1', 'w11-f10', 'w11-f10-verify', 'w11-f11', 'w11-f2', 'w11-f3', 'w11-f4', 'w11-f5', 'w11-f6', 'w11-f7', 'w11-f8', 'w11-f9'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #53 at 703cb7fa846939a36fe4dcae495308192438df9e is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "f11601ffef17d15239e5c02bf23f0c476d24cc84",
+          "anchor_identity": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "recorded_at": "2026-10-18T19:52:08Z"
+          },
+          "functional": {
+            "w11-f1": {
+              "evidence_id": "00eea2d9ec51a8fe71123123d7fd727ea7559ceaef39c704c364c4b608e00395",
+              "log_digest": "44d2989e6889ec25a71a59d4928ce89716b201b19b0cbf5171ace2ee8e1df7bd",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1"
+            },
+            "w11-f10": {
+              "evidence_id": "e54e553679cdc53d240b375caf207647bb8c671e430c3e40d87b62701663ed0d",
+              "log_digest": "3ace5498990a2c4560097b3743f7ff34da42f1acf2ace66ef385a6e0d1ded07c",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1"
+            },
+            "w11-f10-verify": {
+              "evidence_id": "7e48a4783b89cea3730db4ce20233ace6ffe380c013f5311cca411d7d85fe8fd",
+              "log_digest": "9f60b91d5f2764a01afd8a2598c101192918abb02884cb564702f0d37a568bde",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1"
+            },
+            "w11-f11": {
+              "evidence_id": "df8368b292184cf5d799919a62aab91dfb15172a00cd5bddb7d1ab98aa1c11ec",
+              "log_digest": "b3b9e96f5228da052f802ba65494642e2c7d89ed7628cab80b2445b7e661d333",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r2"
+            },
+            "w11-f2": {
+              "evidence_id": "7159f93f652598acd5b5034a009ab3820fb4f5e1cac63997946b19eb1d90dc13",
+              "log_digest": "71c8aec006a6a4269f85d60c3132f1250d0ac8fbaef993364c29ab719f70b282",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1"
+            },
+            "w11-f3": {
+              "evidence_id": "899c348c1c44bcb01ee7e673bae898a337e7c7540821cd0ad65926e24dd9e0c7",
+              "log_digest": "646444b98fa5c9e601de4a2f46ac2baf7ba85f45a2903e826508ef9ad73fe6fd",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1"
+            },
+            "w11-f4": {
+              "evidence_id": "40bcb076a219ad607a5771542e89a8307821561c95472d9771a925e40caf5f49",
+              "log_digest": "ab364fe370cefbb37e2c7c02c840b12205c75679c1be56ef9f4ba1201971dd9a",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1"
+            },
+            "w11-f5": {
+              "evidence_id": "2e958ce71b1cefdfbecb5198ab47b743e253cc514740e36d4906f3fdb0065d10",
+              "log_digest": "b9b50fc05dbe54534ad7b9d61bccd26271fddfcabf5b4952c43905a3cccd971b",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1"
+            },
+            "w11-f6": {
+              "evidence_id": "b073278ffda7166616bc591ee9eae75a4274723e3997c9b6814477e174875672",
+              "log_digest": "e06a0223e1f6a423f96a8ba56483bf38295926e22e3615e3c158156bab7067d7",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1"
+            },
+            "w11-f7": {
+              "evidence_id": "0c645f82e6aaf65d791fe2b7ec05494d9b4605cf7107ca4e3084c12fd6155e2f",
+              "log_digest": "7f329b91e82aed1d8fc0a0fb2488f7e741cbe9f95b3cb36c5b56bc657bd6cdaa",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r2"
+            },
+            "w11-f8": {
+              "evidence_id": "94ea224003434feb00680c95455c22785694a89da6a2daeee6a85c94ba4d8980",
+              "log_digest": "929872ec4e5977fd8edfbfa4b663c1d7fc32aaf56b4f8e98ba927f4097240913",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r1"
+            },
+            "w11-f9": {
+              "evidence_id": "3a5436e8e11f01b5a82d430b0e9edada1557c17632d2f72ec3ecf6c2159b239a",
+              "log_digest": "8970da1a97421e8a3f1f5c60c9e31f637912a0920c6b5368d814d61b0d7bf180",
+              "run_ref": "manager-orchestrator:runs-workflow/w11-functional-r2"
+            }
+          },
+          "pr": {
+            "fact_id": "923a4ca31c870822230d305f73da3fa47a297bd08f53e90628b89dddff71dde3",
+            "head": "703cb7fa846939a36fe4dcae495308192438df9e",
+            "provenance": "workflow_gh",
+            "raw_sha256": "2f94d9a5a27b98089771cd651fdb197e263d7ddae2172e030c63d55a06288365"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-10-18T20:36:57Z",
+        "workflow_release": "2.14.0"
+      }
     }
   }
 }
