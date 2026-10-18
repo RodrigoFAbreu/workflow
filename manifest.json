@@ -309,8 +309,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/ORCHESTRATION_PROTOCOL\\.md$",
       "rationale": "The normative Orchestration Protocol v1 specification: versioning, envelope, error codes, state identity, each operation, the catalogue, condition-call, edge and proof tables (rendered from, and tested against, the code's own), consumer obligations and compatibility notes. W1 (workflow-2.7.0, orchestration-protocol-v1, CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state. review-loop-fixes (workflow-2.13.0): a changes file per review stage with the manual stage's baseline, the atomic ready file, the governing-version sweep before review and the release constant 2.13.0, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. review-round-counts (workflow-2.15.0): Orchestration Protocol 1.5, the four per-role round fields of the next-action snapshot, as the release notes state.",
-      "sha256": "88eb895d1222972cfcbc3c5f0cf46d16e8bd66732d23aa8556347dbf14defa99",
-      "size": 95368,
+      "sha256": "b7e98265af0c3399015c261fb5b661346bead0cf34fba5d5e7a82d3434d554a8",
+      "size": 95362,
       "executable": false
     },
     {
