@@ -7143,7 +7143,7 @@
       "registry_path": "docs/ai-workflow/registry/review-round-counts-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/review-round-counts-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 3,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -7260,7 +7260,150 @@
           "workflow_release": "2.14.0"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "7ef4f40700fbed5d978fc1ab7275ae0fa8290077a7b36d797e56e7509ca36ab9",
+        "approved_review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/review-round-counts-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "47082beeb70458104e9553af85456545dc30cf87"
+          },
+          {
+            "path": "docs/common-problems.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "079ded2424ad1b69fce5e137d3714b8a9cacb79f"
+          },
+          {
+            "path": "docs/glossary.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "23f166af118faf4d24f7b805298ee90674dcde7a"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a08b92df7c0161eb482da5e9bfaf4d812285c26d"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "03d6667c975ede34382a86f5ea5faad1aa80744b"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5f49d1ebc01f3a017db6e1bbe309316034b9ac22"
+          },
+          {
+            "path": "payload/docs/ai-workflow/orchestration-protocol-v1.schema.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d196bdee87d473901decc1fbb32388c58c7238d7"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7375c44fde81e618878842a31f09bcf2acae7752"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7e7c9522a92bd223ac733e8b43c911e2cb64d495"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "be31f47dfbd51078e1a970bce334c5a279146641"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "618701af8e69522225000e9deb3810556c2c52ed"
+          },
+          {
+            "path": "payload/scripts/workflow_test_harness_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "88484e9c72c24ce027d9eb409050f4116be3217d"
+          }
+        ],
+        "reviewed_content_commit": "f11601ffef17d15239e5c02bf23f0c476d24cc84",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-18T19:52:08Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+            "ledger": {
+              "local": {
+                "bundle_id": "7ef4f40700fbed5d978fc1ab7275ae0fa8290077a7b36d797e56e7509ca36ab9",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "1960aa37ecd69c03041b7a56c7867254d84c25bbbeb25413c790702438e4e232",
+                "ledger_entry_sha256": "cfae09db26dfd60f37b9fb828614882ec8a86510c8c981c5e26997f8b00e3971",
+                "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "7ef4f40700fbed5d978fc1ab7275ae0fa8290077a7b36d797e56e7509ca36ab9",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "c63938ee043ec3bf3a63b0495608daabfc69b66011c76bf8b6a535fee997324d",
+                "ledger_entry_sha256": "23fc7c1fc3dd522f701440e62043782e1538151821651fd662d8af967aa370a0",
+                "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-18T19:52:08Z",
+          "workflow_release": "2.14.0"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "ce122ad4835179a13e99d56797ea26f21552041eccbeb2c55875d575b45bbb67",
@@ -7285,8 +7428,8 @@
       },
       "functional_acceptance_status": null,
       "blocking_decisions": [],
-      "state_revision": 25,
-      "last_transition": "2026-10-18T19:19:21Z",
+      "state_revision": 28,
+      "last_transition": "2026-10-18T19:52:08Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -7642,12 +7785,75 @@
               "at": "2026-10-18T19:01:54Z"
             }
           ]
+        },
+        "F-f846ba47d996": {
+          "digest": "f846ba47d996dadfd28fbf3a92cdb8abc63516dfff02a78cc09cbdc7daaf1b54",
+          "text": "**[apparatus]** The bundle's `TEST_RESULTS.md` was not refreshed for implementation\n  revision 2. Its header still reads `implementation_revision: 1`, measured at 25d1142,\n  and it shows the old `archive_sha256=7b05a729…189b`. The re-runs on the fix commit\n  appear only in `IMPLEMENTATION_SUMMARY.md`'s \"Review round 1\" section. The new archive\n  digest it states, `d3f2130c…f2d6`, is correct, and I reproduced it. A later generation\n  could regenerate `TEST_RESULTS.md` so that the file names the measured commit.\n\nThe round-1 Optional findings that were not applied are already recorded in this item's\n`optional_findings`, and acceptance gives each one a disposition. They are not restated\nhere.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T19:37:38Z"
+            }
+          ]
+        },
+        "F-488f25884135": {
+          "digest": "488f258841351bf6688af05b9512fdb6247c632d00a0861c840ddc08361a72f3",
+          "text": "**[apparatus]** `.ai-review/review-round-counts/current/TEST_RESULTS.md:3` still identifies revision 1 and reports its archive digest. Refresh it for revision 2; the current evidence appears in `IMPLEMENTATION_SUMMARY.md`, and its updated archive digest reproduces.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T19:51:40Z"
+            }
+          ]
+        },
+        "F-7f24f555eae8": {
+          "digest": "7f24f555eae8b0a83466baababd298cb7083979b2dd448ec3e38a7223747648a",
+          "text": "**[apparatus]** `payload/scripts/workflow_state_test.py:20896` emulates 2.14.0 by loading current helpers and subtracting the counter key. Freeze the historical field sets and assert that the new sets add exactly `review_round_counts`, preventing the historical reference from drifting.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+              "verdict": "APPROVE",
+              "at": "2026-10-18T19:51:40Z"
+            }
+          ]
         }
       },
       "consumed_plan_review_content_ids": [
         "06e0172d84c56888716eac14cfd20c1020da59fff602dead643d115665c90891",
         "62d80fe940c0615cfc2b897d3941b18ea89a0df76ad8bfa2cf740a359055e457"
-      ]
+      ],
+      "implementation_review_stages": {
+        "review_content_id": "892b9ceccde91b285402048f846e406d75fd25946180deaca12d5edd04802591",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "7ef4f40700fbed5d978fc1ab7275ae0fa8290077a7b36d797e56e7509ca36ab9",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-18T19:37:38Z",
+          "verdict_sha256": "1960aa37ecd69c03041b7a56c7867254d84c25bbbeb25413c790702438e4e232",
+          "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "7ef4f40700fbed5d978fc1ab7275ae0fa8290077a7b36d797e56e7509ca36ab9",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-18T19:51:40Z",
+          "verdict_sha256": "c63938ee043ec3bf3a63b0495608daabfc69b66011c76bf8b6a535fee997324d",
+          "run_ref": "session:local .ai-review/review-round-counts/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      }
     }
   }
 }
