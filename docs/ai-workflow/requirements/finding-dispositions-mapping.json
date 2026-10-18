@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "work_item_id": "finding-dispositions",
+  "requirements": {
+    "R1": {
+      "description": "Every Optional finding of every recorded verdict (local and manual, plan and implementation stages, APPROVE or REVISE) of a two-stage item is recorded durably in the item's state at the same transaction as the verdict, keyed by content so a re-raised finding is one entry; nothing else changes",
+      "checkpoint_ids": [
+        "CP1",
+        "CP5"
+      ]
+    },
+    "R2": {
+      "description": "Acceptance, by /accept-milestone and by /satisfy-gate acceptance alike, refuses while any recorded Optional finding has no valid disposition (fixed, dropped with a reason, or a follow-up with a link); a follow-up is complete and acceptance never waits for a fix; the dispositions are recorded in a committed completed-milestone record",
+      "checkpoint_ids": [
+        "CP2",
+        "CP5"
+      ]
+    },
+    "R3": {
+      "description": "verify and /adopt-gate-policy name the cause when a gate-policy adoption reached the line by a merge commit, with the fix; GATE_POLICY.md states the squash requirement; the evaluation itself is unchanged",
+      "checkpoint_ids": [
+        "CP3",
+        "CP5"
+      ]
+    },
+    "R4": {
+      "description": "A plan revision whose artifact declaration leaves a path named in a checkpoint's Files paragraph unclassified at either stage is refused when published, bound or turned into a bundle, with one next step; an absent Files paragraph is an advisory only",
+      "checkpoint_ids": [
+        "CP4",
+        "CP5"
+      ]
+    },
+    "R5": {
+      "description": "Release 2.14.0: manifest and its manager block, release constant, release history, downgrade posture and user documentation; the Orchestration Protocol stays 1.4",
+      "checkpoint_ids": [
+        "CP5"
+      ]
+    }
+  }
+}

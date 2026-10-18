@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "work_item_id": "finding-dispositions",
+  "plan_revision": 5,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "Record every Optional finding at ingest (#34, part 1)",
+      "depends_on": [],
+      "complexity": 4,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Dispositions: the acceptance refusal, the listing and the completed-milestone record (#34, part 2)",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 4,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Name the cause of an adoption merged with a merge commit (#37)",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP4",
+      "name": "Refuse a plan whose artifact declaration leaves a named path unclassified (#40)",
+      "depends_on": [],
+      "complexity": 4,
+      "session_target": 1
+    },
+    {
+      "id": "CP5",
+      "name": "Release 2.14.0: manifest, release constant, release history, downgrade posture",
+      "depends_on": [
+        "CP1",
+        "CP2",
+        "CP3",
+        "CP4"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}
