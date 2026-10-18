@@ -56,8 +56,10 @@ block) for the exact bundle it reviewed.
 ### Review round
 
 One pass of a review stage over a bundle. A `REVISE` starts the next round on a
-revised bundle. Orchestration Protocol 1.4 reports the current round per stage
-as `review_round` in `next-action`.
+revised bundle. Orchestration Protocol 1.5 reports the current round per stage
+as `review_round` in `next-action`, with the number of verdicts the local and the
+external reviewer have each recorded at the plan and the implementation stage
+(`plan_local`, `plan_external`, `implementation_local`, `implementation_external`).
 
 ### Review scope
 

@@ -52,3 +52,19 @@ Tests: `TestPerRoleRoundFields` in `workflow_protocol_test.py` (the C10a sequenc
 a complete implementation approval, `None` cases, the malformed-key fallback through
 `next-action`, `record-external-result` and `verify`, the golden fields, the schema)
 and every protocol-version assertion moved to 1.5.
+
+CP3 is complete: `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md` is at version
+`1.5` (header and history sentence, section 1's release list, the envelope example,
+the section 5.4 snapshot example and `review_round` bullet with the four per-role
+fields, the ledger `round` correction, section 5.2's `state_valid` check naming
+`validate_review_round_counts` and its not being applied by `validate_state`, section
+8.1 per stage and role with the missing-versus-stale distinction, and a "Protocol
+`1.5`" note in section 10). `docs/glossary.md` names the per-role counts;
+`docs/common-problems.md` gains "A review-round count reads null", "A review-round
+count reads lower than expected" and "Implementation approval fails with
+`MalformedBundleGenerationRecordCommitError` after a move back to 2.14.0".
+Verified: `tools/docs/check_docs.py` clean; `workflow_protocol_test` run from
+`payload/scripts` (341 tests) passes every test that parses the specification; the 18
+failures there are release-string and digest comparisons (a spot check of two of the
+failing classes on a clean `HEAD` fails the same way; they need the staged fixture,
+which CP4 runs against the committed manifest).

@@ -229,6 +229,25 @@ findings is an `APPROVE` with those findings under `## Optional findings`;
 write `None.` in a section with no finding. A verdict already recorded is
 applied as before. Moving back to 2.11.0 loses the refusal.
 
+### A review-round count reads null
+
+`review_round.plan_local`, `plan_external`, `implementation_local` or
+`implementation_external` in `next-action` is `null`. The Workflow holds no
+count for that item or stage: the item was created before 2.15.0, it is a
+promoted legacy item, it is a feedback-only item, the stage records no per-role
+rounds, or `review_round_counts` is malformed (`verify` reports the last as a
+`state_valid` failure). Nothing is wrong with the item: a count started
+mid-history would read low without any sign, so the Workflow never starts one.
+Count the rounds yourself, for example from the review verdicts recorded for the
+item, and never read `null` as 0.
+
+### A review-round count reads lower than expected
+
+An item was moved back to an earlier release and up again. A verdict ingested
+while the repository ran a release before 2.15.0 was not counted, and the
+numbers survive and read low afterwards without a sign. For a hard round cap on
+an item that was ever moved back, count the rounds yourself.
+
 ### A generation record is refused for its trailer set
 
 The record's final paragraph holds more than the `Workflow-*` trailers, usually
@@ -238,6 +257,18 @@ a blank line, and keep only the `Workflow-*` trailers in the last one. While the
 refused commit is still the unpublished `HEAD`, rewrite its message in that
 layout (same tree); a later recovery cannot supersede it. Once it is published
 or built on, ask the repository owner.
+
+### Implementation approval fails with MalformedBundleGenerationRecordCommitError after a move back to 2.14.0
+
+The repository was moved back to 2.14.0 while an item had a commit that changes
+`review_round_counts` inside its open implementation-stage provenance interval,
+for example a provenance recovery that committed a local `APPROVE`'s pending
+ledger and counter in a recovered generation record. 2.14.0's closed field sets
+do not name the counter, so it refuses that record even on a clean tree, and
+committing the state does not help. Finish the implementation approval under
+2.15.0, or keep the repository on 2.15.0 until it has. Move back to 2.14.0 only
+when every item's pending state is committed and no non-terminal item has such a
+commit.
 
 ### The write-commit helper refuses with ReviewStageWriteNotCommittableError
 
