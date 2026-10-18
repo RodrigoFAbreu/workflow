@@ -76,3 +76,22 @@ update merge, no-cause cases, preview and command text). Run in a scratch git co
 `payload/`: the gate-policy suite (310), state suite (331) and the integration suite
 pass apart from three tests that read `CLAUDE.md`/`ACTIVE_MILESTONE.md` the scratch
 copy lacks.
+
+CP4 is complete: `workflow_state.plan_named_paths` reads each checkpoint's Files
+paragraph (every backtick span is a path, line annotations stripped, apart from spans
+with whitespace or glob/placeholder characters, URLs, `/`, `~` or `..` starts and
+version strings); `assert_plan_artifact_declaration_coverage` refuses a path left
+unclassified at the plan stage, the implementation stage or both
+(`PlanArtifactDeclarationCoverageError`, in `_PLAN_EARLY_CHECK_ERRORS`, with
+`PLAN_DECLARATION_NEXT_STEP`); `plan_files_advisory` warns for a checkpoint naming no
+file. `prepare-ai-review.sh`, `milestone-plan.md` (publication and bind),
+`apply-plan-review.md` (publication and bind), `review-plan.md` and
+`PLAN_REVIEW_WORKFLOW.md` carry it; three golden command-file hashes refreshed. Tests:
+`TestPlanNamedPaths` and `TestAssertPlanArtifactDeclarationCoverage` in
+`workflow_state_test.py`, the generator cases in
+`workflow_fingerprint_generalization_test.py`, `TestDeclarationCoverageEarlyCommandConformance`
+in `workflow_integration_test.py`. This item's own plan passes the check. Run in a
+scratch fixture staged from the working tree (digests refreshed in the scratch
+manifest only): all nine payload suites pass; `tools/release` tests pass except
+`ReproductionTest.test_round_trip`, which verifies the committed manifest whose digests
+CP5 refreshes.

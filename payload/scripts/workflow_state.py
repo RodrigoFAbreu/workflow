@@ -4659,7 +4659,26 @@ PLAN_SWEEP_NEXT_STEP = (
     "feedback-only item or a two-stage item), then run the command again"
 )
 
-_PLAN_EARLY_CHECK_ERRORS = _PLAN_ANCHOR_ERRORS + (PlanGoverningVersionSweepError,)
+class PlanArtifactDeclarationCoverageError(Exception):
+    """Raised by `assert_plan_artifact_declaration_coverage` (workflow-2.14.0,
+    `D-Coverage`) when a path a checkpoint's Files paragraph names is left
+    unclassified by the work item's artifact declaration at the plan stage, the
+    implementation stage or both."""
+
+
+PLAN_DECLARATION_NEXT_STEP = (
+    "add each path, or its directory prefix, to `plan_stage` and/or "
+    "`implementation_stage` of `docs/ai-workflow/registry/<id>-artifacts.json` "
+    "(protected for a deliverable, excluded for repository territory); a bare file "
+    "name is a root-level path, so write every path in full from the repository "
+    "root; when the span is not a path (a dotted identifier, a function name, a "
+    "flag), drop its backticks or move it out of the Files paragraph; then run the "
+    "command again"
+)
+
+_PLAN_EARLY_CHECK_ERRORS = _PLAN_ANCHOR_ERRORS + (
+    PlanGoverningVersionSweepError, PlanArtifactDeclarationCoverageError,
+)
 
 
 def assert_plan_governing_version_sweep(
@@ -4698,6 +4717,131 @@ def assert_plan_governing_version_sweep(
     listed = "; ".join(f"{f.path}:{f.line} ({f.form}): {f.snippet}" for f in findings)
     raise PlanGoverningVersionSweepError(
         f"{work_item_id} plan {revision_text}: {listed} -- {PLAN_SWEEP_NEXT_STEP}"
+    )
+
+
+_FILES_PARAGRAPH_RE = re.compile(r"^(?:- )?\*\*Files:\*\*")
+_BACKTICK_SPAN_RE = re.compile(r"`([^`\n]+)`")
+_NAMED_PATH_ANNOTATION_RE = re.compile(r"(?::\d+(?:-\d+)?|#L\d+(?:-L?\d+)?)\Z")
+_NAMED_PATH_NON_PATH_CHARS = frozenset("*?[]{}<>()\u2026")
+_URL_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*://")
+_VERSION_STRING_RE = re.compile(r"^(?=.*\d)[0-9.]+\Z")
+
+
+def _files_paragraph_path(span: str) -> str | None:
+    """One backtick span of a Files paragraph as a repository-relative path, or
+    `None` when `D-Coverage`'s notation exempts it (whitespace or a glob or
+    placeholder character, a URL, an absolute, home or outside-repository
+    start, a version string). A trailing line annotation is stripped first."""
+    text = _NAMED_PATH_ANNOTATION_RE.sub("", span.strip())
+    if not text or any(c.isspace() or c in _NAMED_PATH_NON_PATH_CHARS for c in text):
+        return None
+    if _URL_RE.match(text) or text.startswith(("/", "~", "..")) or _VERSION_STRING_RE.match(text):
+        return None
+    while text.startswith("./"):
+        text = text[2:]
+    return text or None
+
+
+def plan_named_paths(plan_text: str) -> dict[str, list[str]]:
+    """workflow-2.14.0, `D-Coverage`: the paths each checkpoint's Files
+    paragraph names, `{checkpoint_id: [path, ...]}` in document order without
+    duplicates. The Files paragraph is the line starting `**Files:**` (after an
+    optional `- `) through the next blank line, inside a well-formed anchor span
+    of the checkpoint; in it every backtick span is a named path apart from the
+    exemptions `_files_paragraph_path` applies. A checkpoint with no Files
+    paragraph maps to an empty list. Pure."""
+    named: dict[str, list[str]] = {}
+    spans = parse_checkpoint_anchor_spans(plan_text, strict=False)
+    for checkpoint_id, ranges in spans.items():
+        paths = named.setdefault(checkpoint_id, [])
+        for start, end in ranges:
+            in_paragraph = False
+            for line in plan_text[start:end].splitlines():
+                if not line.strip():
+                    in_paragraph = False
+                    continue
+                if _FILES_PARAGRAPH_RE.match(line):
+                    in_paragraph = True
+                if not in_paragraph:
+                    continue
+                for match in _BACKTICK_SPAN_RE.finditer(line):
+                    path = _files_paragraph_path(match.group(1))
+                    if path is not None and path not in paths:
+                        paths.append(path)
+    return named
+
+
+def plan_files_advisory(plan_text: str, registry: dict) -> str | None:
+    """workflow-2.14.0, `D-Coverage`: a warning line per registry checkpoint
+    whose Files paragraph is absent or names no path, else `None`. Never
+    refuses; printed beside `plan_size_advisory`."""
+    named = plan_named_paths(plan_text)
+    lines = [
+        f"warning: {entry['id']} names no files, so its paths are not checked"
+        for entry in registry.get("checkpoints") or []
+        if not named.get(entry.get("id"))
+    ]
+    return "\n".join(lines) if lines else None
+
+
+def assert_plan_artifact_declaration_coverage(
+    repo_root: Path, work_item_id: str, *, state: dict | None = None,
+    pin_dir: Path | None = None, allow_bound_regeneration: bool = False,
+) -> None:
+    """workflow-2.14.0, `D-Coverage` (#40): the early declaration check for a
+    plan revision of a two-stage work item, called after
+    `assert_plan_governing_version_sweep` at the same call sites. Read-only,
+    with the same exemptions. Every path `plan_named_paths` finds must classify
+    at the plan stage (`classify_path` over the item's plan-stage sets) and at
+    the implementation stage (`classify_path_implementation_stage` over its
+    sets), protected or excluded both counting; both declarations are read from
+    the working tree, the plan text from `pin_dir` when given. A refusal raises
+    `PlanArtifactDeclarationCoverageError` naming the work item, the plan
+    revision, each `<checkpoint>: <path> (unclassified at ...)` and
+    `PLAN_DECLARATION_NEXT_STEP`."""
+    work_item = _plan_early_check_work_item(
+        repo_root, work_item_id, state, allow_bound_regeneration=allow_bound_regeneration,
+    )
+    if work_item is None:
+        return
+    metadata = fingerprint.resolve_plan_stage_metadata(repo_root, work_item_id)
+    base = pin_dir if pin_dir is not None else repo_root
+    plan_text = (base / metadata.plan_path).read_text(encoding="utf-8")
+    named = plan_named_paths(plan_text)
+    if not any(named.values()):
+        return
+    protected_paths, protected_prefixes, impl_excluded_paths, impl_excluded_prefixes = (
+        fingerprint.load_implementation_stage_classification(
+            repo_root, fingerprint.artifacts_path_for_work_item(work_item_id),
+        )
+    )
+    unclassified: list[str] = []
+    for checkpoint_id, paths in named.items():
+        for path in paths:
+            stages = []
+            try:
+                fingerprint.classify_path(
+                    path, metadata.protected_paths, metadata.excluded_paths, metadata.excluded_prefixes,
+                )
+            except fingerprint.UnclassifiedPathError:
+                stages.append("the plan stage")
+            try:
+                fingerprint.classify_path_implementation_stage(
+                    path, protected_paths, protected_prefixes, impl_excluded_paths, impl_excluded_prefixes,
+                )
+            except fingerprint.UnclassifiedPathError:
+                stages.append("the implementation stage")
+            if stages:
+                where = "both stages" if len(stages) == 2 else stages[0]
+                unclassified.append(f"{checkpoint_id}: {path} (unclassified at {where})")
+    if not unclassified:
+        return
+    registry = json.loads((base / metadata.registry_path).read_text(encoding="utf-8"))
+    revision = registry.get("plan_revision") if isinstance(registry, dict) else None
+    revision_text = f"revision {revision}" if revision is not None else "unknown revision"
+    raise PlanArtifactDeclarationCoverageError(
+        f"{work_item_id} plan {revision_text}: {'; '.join(unclassified)} -- {PLAN_DECLARATION_NEXT_STEP}"
     )
 
 

@@ -3512,6 +3512,217 @@ class TestAssertPlanGoverningVersionSweep(unittest.TestCase):
         self.assertEqual(before, (self.repo.root / self.STATE_PATH).read_bytes())
         self.assertEqual(status, subprocess.run(["git", "status", "--porcelain"], cwd=self.repo.root, capture_output=True, text=True).stdout)
 
+class TestPlanNamedPaths(unittest.TestCase):
+    """workflow-2.14.0 CP4 (D-Coverage): the Files-paragraph notation."""
+
+    @staticmethod
+    def _plan(files, cp="CP1"):
+        return f"<!-- {cp} -->\n### {cp}\n\n{files}\n\nProse naming `prose/only.py`.\n<!-- /{cp} -->\n"
+
+    def _paths(self, files, cp="CP1"):
+        return ws.plan_named_paths(self._plan(files, cp)).get(cp)
+
+    def test_paths_directories_and_new_root_files_are_named(self):
+        files = (
+            "**Files:** `payload/scripts/a.py`, `payload/scripts/` (new), `manifest.json`,\n"
+            "`fresh_tool.py`, `Dockerfile`, `Makefile`, `.env`."
+        )
+        self.assertEqual(
+            self._paths(files),
+            ["payload/scripts/a.py", "payload/scripts/", "manifest.json", "fresh_tool.py",
+             "Dockerfile", "Makefile", ".env"],
+        )
+
+    def test_a_dash_prefixed_paragraph_runs_to_the_next_blank_line_only(self):
+        plan = "<!-- CP1 -->\n- **Files:** `a.py`,\n  `b.py`\n\n`c.py` in prose\n<!-- /CP1 -->\n"
+        self.assertEqual(ws.plan_named_paths(plan), {"CP1": ["a.py", "b.py"]})
+
+    def test_line_annotations_are_stripped(self):
+        files = "**Files:** `docs/gates.md:12`, `docs/gates.md:12-30`, `docs/gates.md#L12`, `docs/gates.md#L12-L30`."
+        self.assertEqual(self._paths(files), ["docs/gates.md"])
+
+    def test_a_version_string_is_ignored_beside_its_neighbour(self):
+        files = "**Files:** `manifest.json` (version `2.14.0`), `1.3`, `2.9.1`."
+        self.assertEqual(self._paths(files), ["manifest.json"])
+
+    def test_a_backticked_identifier_is_a_path(self):
+        self.assertEqual(self._paths("**Files:** `json.dumps`, `--flag`."), ["json.dumps", "--flag"])
+
+    def test_globs_placeholders_urls_and_outside_paths_are_not_read(self):
+        files = (
+            "**Files:** `payload/**/*.py`, `<id>-artifacts.json`, `a b.py`, `fn()`, "
+            "`https://example.com/x`, `/tmp/x/`, `~/Workspace/repflow-android/x`, "
+            "`../other-repo/file`, `kept.py`."
+        )
+        self.assertEqual(self._paths(files), ["kept.py"])
+
+    def test_a_second_span_of_the_same_checkpoint_adds_its_paths(self):
+        plan = (
+            "<!-- CP1 -->\n**Files:** `a.py`\n<!-- /CP1 -->\n<!-- CP1 -->\n**Files:** `b.py`, `a.py`\n<!-- /CP1 -->\n"
+        )
+        self.assertEqual(ws.plan_named_paths(plan), {"CP1": ["a.py", "b.py"]})
+
+    def test_no_files_paragraph_maps_to_an_empty_list(self):
+        self.assertEqual(self._paths("No paragraph here."), [])
+        self.assertEqual(ws.plan_named_paths("`a.py` outside any anchor"), {})
+
+    def test_advisory_names_each_checkpoint_without_named_files(self):
+        registry = {"checkpoints": [{"id": "CP1"}, {"id": "CP2"}, {"id": "CP3"}]}
+        plan = (
+            self._plan("**Files:** `a.py`", "CP1") + self._plan("No paragraph.", "CP2")
+            + self._plan("**Files:** `1.3`", "CP3")
+        )
+        advisory = ws.plan_files_advisory(plan, registry)
+        self.assertIn("CP2 names no files, so its paths are not checked", advisory)
+        self.assertIn("CP3 names no files", advisory)
+        self.assertNotIn("CP1", advisory)
+        self.assertIsNone(ws.plan_files_advisory(self._plan("**Files:** `a.py`", "CP1"), {"checkpoints": [{"id": "CP1"}]}))
+        # a registry checkpoint with no anchor span at all draws it as well
+        self.assertIn("CP9 names no files", ws.plan_files_advisory("", {"checkpoints": [{"id": "CP9"}]}))
+
+
+class TestAssertPlanArtifactDeclarationCoverage(unittest.TestCase):
+    """workflow-2.14.0 CP4 (D-Coverage, #40): the early declaration check, through
+    the same scratch repository the anchor and sweep checks are tested with."""
+
+    _A = TestAssertPlanCheckpointAnchors
+    PLAN_DOC = _A.PLAN_DOC
+    REGISTRY_PATH = _A.REGISTRY_PATH
+    MAPPING_PATH = _A.MAPPING_PATH
+    ARTIFACTS_PATH = _A.ARTIFACTS_PATH
+    STATE_PATH = _A.STATE_PATH
+    BOUND_ID = _A.BOUND_ID
+    _registry = _A._registry
+    _entry = _A._entry
+    _bound = _A._bound
+    _write = _A._write
+    setUp = _A.setUp
+
+    @staticmethod
+    def _plan(*files):
+        out = "# Plan (Revision 2)\n"
+        for n, line in enumerate(files, start=1):
+            out += f"<!-- CP{n} -->\n### CP{n}\n\n{line}\n<!-- /CP{n} -->\n"
+        return out
+
+    def _declare(self, plan_protected=(), plan_prefixes=None, impl_protected=(), impl_prefixes=None,
+                 impl_excluded=None, impl_excluded_prefixes=None):
+        path = self.repo.root / self.ARTIFACTS_PATH
+        declared = json.loads(path.read_text())
+        declared["plan_stage"]["protected_paths"] = sorted(
+            set(declared["plan_stage"]["protected_paths"]) | set(plan_protected)
+        )
+        declared["plan_stage"]["excluded_prefixes"].update(plan_prefixes or {})
+        declared["implementation_stage"] = {
+            "protected_paths": {p: "deliverable" for p in impl_protected},
+            "protected_prefixes": dict(impl_prefixes or {}),
+            "excluded_paths": dict(impl_excluded or {}),
+            "excluded_prefixes": dict(impl_excluded_prefixes or {}),
+        }
+        path.write_text(json.dumps(declared))
+        _run(["git", "add", "-A"], cwd=self.repo.root)
+
+    def _check(self, **kwargs):
+        return ws.assert_plan_artifact_declaration_coverage(self.repo.root, "wi", **kwargs)
+
+    def _refusal(self, **kwargs):
+        with self.assertRaises(ws.PlanArtifactDeclarationCoverageError) as ctx:
+            self._check(**kwargs)
+        return str(ctx.exception)
+
+    def test_a_declaration_that_classifies_everything_passes(self):
+        self._write(plan=self._plan("**Files:** `src/a.py`, `src/`"))
+        self._declare(plan_protected=["src/a.py"], plan_prefixes={"src/": "territory"},
+                      impl_protected=["src/a.py"], impl_prefixes={"src/": "deliverable"})
+        self._check()
+
+    def test_protected_and_excluded_both_satisfy(self):
+        self._write(plan=self._plan("**Files:** `src/a.py`, `notes/b.md`"))
+        self._declare(plan_protected=["src/a.py"], plan_prefixes={"notes/": "territory"},
+                      impl_protected=["src/a.py"], impl_excluded={"notes/b.md": "housekeeping"})
+        self._check()
+
+    def test_the_stage_wording_the_checkpoint_and_the_next_step(self):
+        self._write(plan=self._plan("**Files:** `plan_only.py`", "**Files:** `impl_only.py`", "**Files:** `neither.py`"))
+        self._declare(plan_protected=["plan_only.py"], impl_protected=["impl_only.py"])
+        message = self._refusal()
+        self.assertIn("wi plan revision 2:", message)
+        self.assertIn("CP1: plan_only.py (unclassified at the implementation stage)", message)
+        self.assertIn("CP2: impl_only.py (unclassified at the plan stage)", message)
+        self.assertIn("CP3: neither.py (unclassified at both stages)", message)
+        self.assertTrue(message.endswith(ws.PLAN_DECLARATION_NEXT_STEP), message)
+        self.assertIn("drop its backticks", ws.PLAN_DECLARATION_NEXT_STEP)
+        self.assertIn(ws.PlanArtifactDeclarationCoverageError, ws._PLAN_EARLY_CHECK_ERRORS)
+
+    def test_new_root_files_are_refused_not_advised(self):
+        self._write(plan=self._plan("**Files:** `src/a.py`, `Dockerfile`, `Makefile`, `.env`"))
+        self._declare(plan_protected=["src/a.py"], impl_protected=["src/a.py"])
+        message = self._refusal()
+        for name in ("Dockerfile", "Makefile", ".env"):
+            self.assertIn(f"{name} (unclassified at both stages)", message)
+        self.assertNotIn("src/a.py", message)
+
+    def test_a_backticked_identifier_is_refused_with_the_non_path_remedy(self):
+        self._write(plan=self._plan("**Files:** `src/a.py`, `json.dumps`"))
+        self._declare(plan_protected=["src/a.py"], impl_protected=["src/a.py"])
+        message = self._refusal()
+        self.assertIn("json.dumps (unclassified at both stages)", message)
+        self.assertIn("a dotted identifier, a function name, a flag", message)
+
+    def test_a_version_string_and_a_path_in_prose_are_not_read(self):
+        self._write(plan=self._plan("**Files:** `src/a.py` (version `2.14.0`).\n\nProse naming `elsewhere.py`."))
+        self._declare(plan_protected=["src/a.py"], impl_protected=["src/a.py"])
+        self._check()
+
+    def test_a_directory_needs_a_covering_prefix_not_an_exact_path_inside_it(self):
+        self._write(plan=self._plan("**Files:** `lib/`"))
+        self._declare(plan_protected=["lib/x.py"], impl_protected=["lib/x.py"])
+        self.assertIn("lib/ (unclassified at both stages)", self._refusal())
+        self._declare(plan_prefixes={"lib/": "territory"}, impl_prefixes={"lib/": "deliverable"})
+        self._check()
+
+    def test_the_exemptions(self):
+        self._write(plan=self._plan("**Files:** `uncovered.py`"), governing_workflow_version="1")
+        self._declare()
+        self._check()
+        for phase in sorted(ws.PLAN_REVIEW_READY_PHASES):
+            self._write(plan=self._plan("**Files:** `uncovered.py`"), phase=phase, plan_review_binding=self._bound())
+            self._declare()
+            self._check(allow_bound_regeneration=True)
+            with self.assertRaises(ws.PlanArtifactDeclarationCoverageError):
+                self._check()
+            self._write(plan=self._plan("**Files:** `uncovered.py`"), phase=phase)
+            self._declare()
+            with self.assertRaises(ws.PlanArtifactDeclarationCoverageError):
+                self._check(allow_bound_regeneration=True)
+
+    def test_a_plan_with_no_named_path_passes_without_reading_the_implementation_declaration(self):
+        self._write(plan=self._plan("No paragraph."))
+        self._check()  # the scratch declaration has no implementation_stage
+
+    def test_the_plan_is_read_through_the_pin_and_the_declaration_through_the_worktree(self):
+        pin = Path(tempfile.mkdtemp(prefix="wf-pin-"))
+        self.addCleanup(__import__("shutil").rmtree, pin, True)
+        self._write(plan=self._plan("**Files:** `uncovered.py`"))
+        self._declare()
+        self._write(plan=self._plan("**Files:** `src/a.py`"), root=pin)
+        self._declare(plan_protected=["src/a.py"], impl_protected=["src/a.py"])
+        self._check(pin_dir=pin)  # pinned bytes name only the declared path
+        self._write(plan=self._plan("**Files:** `src/a.py`"))
+        self._declare(plan_protected=["src/a.py"], impl_protected=["src/a.py"])
+        self._write(plan=self._plan("**Files:** `uncovered.py`"), root=pin)
+        self.assertIn("uncovered.py", self._refusal(pin_dir=pin))
+
+    def test_reads_only_and_writes_nothing(self):
+        self._write(plan=self._plan("**Files:** `uncovered.py`"))
+        self._declare()
+        before = (self.repo.root / self.STATE_PATH).read_bytes()
+        status = subprocess.run(["git", "status", "--porcelain"], cwd=self.repo.root, capture_output=True, text=True).stdout
+        self._refusal()
+        self.assertEqual(before, (self.repo.root / self.STATE_PATH).read_bytes())
+        self.assertEqual(status, subprocess.run(["git", "status", "--porcelain"], cwd=self.repo.root, capture_output=True, text=True).stdout)
+
+
 
 class TestImplementationStageApprovalSecondItem(unittest.TestCase):
     """Missing-test item 164 (`OPUS-R27-002`/`OPUS-R28-001`, `GPT-R30-004`

@@ -767,6 +767,9 @@ class TestVersion21OnlyCommandsRefuseCleanlyForV1(unittest.TestCase):
 # below, for the two files where a real pre-v2.1 copy is actually
 # available to diff against.
 _GOLDEN_COMMAND_FILE_SHA256 = {
+    # workflow-2.14.0 (finding-dispositions, CP4): `milestone-plan.md` and `apply-plan-review.md`
+    # gain the declaration-coverage call and the Files advisory; `review-plan.md` states the
+    # Files-paragraph notation (D-Coverage).
     # workflow-2.14.0 (finding-dispositions, CP2): `accept-milestone.md` gains the disposition
     # pre-flight and step 5a (D-Gate, D-Record).
     # workflow-2.14.0 (finding-dispositions, CP1): `review-plan.md` and `review-implementation.md`
@@ -900,7 +903,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.10.0 (retire-21-for-new-work, CP3): step 0 stops a fresh milestone
     # under a "2.1" default with DefaultWorkflowVersionRetiredError -- intentional
     # content change.
-    "milestone-plan.md": "8162c64a60f7433a11872de348f974f3e85a2b2d6b35ca9eea4669b1aee522c7",
+    "milestone-plan.md": "0ad1bb0a7c04cdc0abb7b1dc8d01755a75fa33eb585e7031285681d6ab06b64c",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the
@@ -1145,7 +1148,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # assert_apply_review_feedback_binding (D-Apply-Binding): a two-stage
     # REVISE stating a review_content_id is bound by content --
     # intentional content change.
-    "apply-plan-review.md": "1b542cffb5a941f1cc657dfc12959944a872bcb610ec92a392149497aeffb757",
+    "apply-plan-review.md": "ef6b165155d5958ef1f1808e5635400ff6b003a0900364cb057f16bb379fa6f9",
     # apply-implementation-review.md (WF8c item (c)): step 7's
     # record_bundle_generation call site widened to first resolve the
     # outcome (resolve_bundle_generation_outcome) and write the matching
@@ -1221,7 +1224,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-plan.md further updated, D-Consumed-History (workflow-2.7.0,
     # CP2, v2.6.0-001): REVISE also adds the id to the durable
     # consumed_plan_review_content_ids history -- intentional content change.
-    "review-plan.md": "b4fc99659cf07e5e4a8977168d5832719915940e174768805c7ccf6ac53f5aa9",
+    "review-plan.md": "da33b018547181c63372be027e2cfd538f5e25d8623bd1c9f44c530b6ed92f79",
     # record-manual-plan-review.md further updated, D-Feedback-Layout
     # (workflow-2.6.0, CP3): preamble states feedback_layout-keyed
     # resolution; step 4 prints the exact resolved paste path and adds the
@@ -2855,6 +2858,61 @@ class TestGoverningVersionSweepEarlyCommandConformance(unittest.TestCase):
     def test_the_plan_review_workflow_document_describes_it(self):
         text = _doc_text("PLAN_REVIEW_WORKFLOW.md")
         self.assertIn("assert_plan_governing_version_sweep", text)
+
+
+class TestDeclarationCoverageEarlyCommandConformance(unittest.TestCase):
+    """workflow-2.14.0 (finding-dispositions, CP4): the plan-stage commands call
+    `assert_plan_artifact_declaration_coverage` right after the sweep call,
+    before the publish and before the bind, and print the Files advisory."""
+
+    SWEEP = "assert_plan_governing_version_sweep"
+    COVERAGE = "assert_plan_artifact_declaration_coverage"
+
+    def _assert_after_sweep_before(self, text, later):
+        sweep = text.index(self.SWEEP)
+        coverage = text.index(self.COVERAGE)
+        self.assertLess(sweep, coverage)
+        self.assertLess(coverage, text.index(later))
+        for needle in ("PlanArtifactDeclarationCoverageError", "PLAN_DECLARATION_NEXT_STEP"):
+            self.assertIn(needle, text)
+
+    def test_milestone_plan_checks_after_the_sweep_and_before_the_publish(self):
+        steps = _extract_numbered_steps(_command_text("milestone-plan.md"))
+        self._assert_after_sweep_before(steps["5"], "publish_plan_revision")
+
+    def test_milestone_plan_checks_before_the_bind(self):
+        steps = _extract_numbered_steps(_command_text("milestone-plan.md"))
+        self._assert_after_sweep_before(steps["6"], "verify_plan_review_bundle")
+
+    def test_apply_plan_review_checks_after_the_sweep_and_before_the_publish(self):
+        step5 = _extract_numbered_steps(_command_text("apply-plan-review.md"))["5"]
+        self._assert_after_sweep_before(step5, "publish_plan_revision")
+
+    def test_apply_plan_review_checks_before_the_bind(self):
+        text = _command_text("apply-plan-review.md")
+        step7 = text[text.index("7'. **`governing_workflow_version"):]
+        self._assert_after_sweep_before(step7, "verify_plan_review_bundle")
+
+    def test_the_commands_print_the_files_advisory(self):
+        for name in ("milestone-plan.md", "apply-plan-review.md"):
+            with self.subTest(command=name):
+                self.assertIn("plan_files_advisory", _command_text(name))
+
+    def test_the_notation_is_stated_to_author_and_reviewer(self):
+        for name in ("milestone-plan.md", "review-plan.md"):
+            with self.subTest(command=name):
+                text = _command_text(name)
+                self.assertIn("every backtick span", text)
+                self.assertIn("version string", text)
+
+    def test_the_generator_runs_the_check_after_the_sweep_in_the_same_block(self):
+        script = (_repo_root() / "scripts" / "prepare-ai-review.sh").read_text()
+        block = script[script.index("BEGIN early checkpoint-anchor"):script.index("END early checkpoint-anchor")]
+        self.assertLess(block.index(self.SWEEP), block.index(self.COVERAGE))
+        self.assertIn("_PLAN_EARLY_CHECK_ERRORS", block)
+
+    def test_the_plan_review_workflow_document_describes_it(self):
+        self.assertIn("assert_plan_artifact_declaration_coverage", _doc_text("PLAN_REVIEW_WORKFLOW.md"))
 
 
 class TestRetiredDefaultCommandConformance(unittest.TestCase):

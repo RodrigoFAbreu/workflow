@@ -104,6 +104,13 @@ normative definition.
    addressed against the actual repository state — never take the
    disposition table's word for it — and search for new findings, exactly
    as thoroughly as `/apply-plan-review`'s own validation requirement.
+   The declaration gate (workflow-2.14.0, `D-Coverage`) reads only the
+   `**Files:**` paragraphs of the checkpoints: in one, every backtick span is a
+   path, apart from a span with whitespace or a glob or placeholder character,
+   a URL, one starting `/`, `~` or `..`, or a version string. It does not
+   decide whether a path is rightly protected or excluded; that judgment is
+   yours, and so is a path named in prose, a glob or a path outside the
+   repository, which the gate does not read.
 7. **Decide the verdict** (`Status: APPROVE | REVISE | BLOCK`) and write
    `<feedback_dir>/REVIEW_FEEDBACK.md` per
    `docs/ai-workflow/REVIEW_PROTOCOL.md`'s required structure, **plus**
