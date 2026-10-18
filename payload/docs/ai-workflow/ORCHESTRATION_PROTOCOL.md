@@ -61,7 +61,7 @@ stdout is exactly one JSON document, the **envelope**
 ```json
 {
   "protocol": {"name": "workflow-orchestration", "version": "1.5"},
-  "workflow_release": "2.14.0",
+  "workflow_release": "2.15.0",
   "operation": "next-action",
   "ok": true,
   "result": { "...": "operation-specific" }

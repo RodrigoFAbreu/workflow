@@ -68,3 +68,14 @@ Verified: `tools/docs/check_docs.py` clean; `workflow_protocol_test` run from
 failures there are release-string and digest comparisons (a spot check of two of the
 failing classes on a clean `HEAD` fails the same way; they need the staged fixture,
 which CP4 runs against the committed manifest).
+
+CP4 is complete: `manifest.json` is 2.15.0 with the digests, sizes and rationale of the
+seven changed records refreshed (`counts` unchanged) and the `manager` block authored
+as D-Downgrade states it (`min_manager_version` `1.13.0`, the supported downgrade
+boundary as `posture`, the `undetectable` text, the `review-round-counts` `state-key`
+signal, one `new_work_only` entry, no gate default change);
+`conformance.suites` was written by `release.py manager-block --release-dir <scratch
+directory> --write` from a staging of CP4's own content (protocol 341, state 1183). The
+release constant in `workflow_protocol.py` is 2.15.0, with the protocol document's
+envelope example and the two assertions of `workflow_protocol_test.py`. `docs/release-history.md` has the
+2.15.0 row. `docs/ROADMAP.md` stays Current until acceptance.
