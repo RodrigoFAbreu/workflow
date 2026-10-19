@@ -3832,7 +3832,7 @@
     "gate_default_change": "",
     "conformance": {
       "suites": {
-        "workflow_acceptance_matrix_test.py": 444,
+        "workflow_acceptance_matrix_test.py": 449,
         "workflow_protocol_test.py": 341,
         "workflow_state_test.py": 1191,
         "workflow_gate_policy_test.py": 315,
