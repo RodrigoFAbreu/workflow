@@ -662,8 +662,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_acceptance_matrix_test\\.py$",
       "rationale": "D-Feedback-Layout (CP3): the feedback_dir() helper is re-pointed -- the matrix item is created through route_work_item, so it asserts the scoped layout and creates the directory through ensure_feedback_dir, the same call every production writer makes. No scenario changes. D-Plan-Review-Bundle-Binding (CP4): the Item driver follows 2.6.0's command order -- stage, publish the fresh id, write author inputs to plan-inputs/, generate, verify and bind -- gains request_amendment/amend_plan and amendment-aware approve_plan, and gives every plan document one anchor pair per checkpoint. Rows that re-planned mid-implementation through 2.5.1's in-place re-publish (B13, B14, F4) are re-pointed through /request-plan-amendment, the one route 2.6.0 sanctions (B13 also asserts the in-place route's refusal); A1-A4 and C7 assert the bind, not the publish, writes AWAITING_LOCAL_PLAN_REVIEW; A4 asserts the revised WFR-67 (staging discarded, no REJECTED marker). New scenario classes cover the CP4 test list against real repositories. None deleted. D-Plan-Approval-Closure (CP5): Item.approve_plan becomes a command-shaped driver of /approve-review plan steps 2-6d with the command's real data flow (step 2's bound-bundle check, step 4a's fresh member set, step 5's re-resolution, step 6.3a's proof, step 6a's verify_plan_approval_commit and amend gate, step 6b's rollback) and a resumable complete_plan_approval -- no hand-built post-state; every pre-existing row runs through it unchanged. Adds PlanApprovalClosureMembers, PlanApprovalClosureFreshness, PlanApprovalClosureProof and PlanApprovalCommittedTruth covering every CP5 test bullet, including real pre-commit hooks for the amend gate. D-Repo-Global-Lifecycle (CP6): the command-shaped driver gains step 4d (reserve_amendment_resolution, rolled back through 6b on refusal), stage_plan_approval_members in first_commit mode at step 5 and amend_recovery mode at 6a1 after assert_amendment_resolution_held, 6b's journal-token capture before the rollback and release_amendment_resolution after it, and the 6c1 advance before 6d, with hook seams at each step boundary; request_amendment goes through request_plan_amendment_transaction (optionally committing the state, request-plan-amendment.md step 3); Scratch.attach/Scratch.worktree and Item.attach drive linked worktrees and worker processes. Every pre-existing row runs through the extended driver unchanged. New RepoGlobalLifecycleAcrossWorktrees (tests 8, 17 in both orders with real processes, 18 for a different and an identical plan, 22(a)/(b)/(e), 23, 25 in four variants, 26, 28 attached/detached with the only-current-token regression), driving /approve-review plan in real worker processes that pause or SIGKILL at a named step. Implementation review round 2 (I1): PlanApprovalClosureLiteralPaths drives /approve-review plan with ASCII-control, glob-metacharacter, bracket, leading-colon and non-ASCII protected members, plus an absent *.md removal member, asserting the exact committed member set and an untouched worktree-edited decoy; the driver's step 6.3 calls assert_staged_path_set_within and its intent-to-add staging is literal. W1 (workflow-2.7.0, orchestration-protocol-v1): cp4_make_legacy drops the 2.7.0 consumed_plan_review_content_ids key, and the legacy amending-plan case expects publication-status row 10 (CP2). W2 (workflow-2.8.0, gate-policy-and-reopening). W4 (workflow-2.9.1, review-stage-write-durability). backlog-file (workflow-2.17.0): end-to-end backlog scenarios, as the release notes state.",
-      "sha256": "434dbe2cad5b1f7fa24f3506bbaedc8ce373bf16f1dfb5671675d8f4659d650e",
-      "size": 531985,
+      "sha256": "64d20b58eaee879f1a37f744d473c12aefcf4458b71585b873abac3eda374dab",
+      "size": 532896,
       "executable": false
     },
     {
@@ -672,8 +672,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_backlog\\.py$",
       "rationale": "The backlog file module (backlog-file, workflow-2.17.0; standard library only, state_writer false): a strict YAML-subset parser and schema, ready-item selection, the status edit, the deterministic roadmap page with its staleness stamp, the declaration reader and the next, accept, generate and check command line. A repository that declares no backlog is unaffected.",
-      "sha256": "818c037c31b294afbe324daf0e4f9010cb9b6e35b287626362cf3fe8177fdb9b",
-      "size": 55774,
+      "sha256": "4853c90a927d60272a032d7c362c74ba7d1768cc377d65c7472676763e9dfc5b",
+      "size": 55940,
       "executable": false
     },
     {
@@ -793,8 +793,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_state_completion_obligations_test\\.py$",
       "rationale": "TestNeverPersistedPhaseVocabulary's PERSISTED frozenset and its AST-derivation helper widened for the two new persisted phases, one of them (AWAITING_LOCAL_IMPLEMENTATION_REVIEW) reachable only through bundle_generation_target_phase's call indirection (D-Implementation-Review-Stages, CP11). backlog-file (workflow-2.17.0): the backlog parser, schema, selection, edit, page, command-line, declaration and document tests, as the release notes state.",
-      "sha256": "62212ac3190e4e810ccdf1070f06123c97033370d4138777d1567473894eafad",
-      "size": 185566,
+      "sha256": "0c742fb734aaded2f30b95d72fb441258a2dba259c3ef1c62c927c57a03cbb4b",
+      "size": 185752,
       "executable": false
     },
     {
@@ -3832,7 +3832,7 @@
     "gate_default_change": "",
     "conformance": {
       "suites": {
-        "workflow_acceptance_matrix_test.py": 449,
+        "workflow_acceptance_matrix_test.py": 450,
         "workflow_protocol_test.py": 341,
         "workflow_state_test.py": 1191,
         "workflow_gate_policy_test.py": 315,
