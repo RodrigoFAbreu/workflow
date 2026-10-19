@@ -207,6 +207,7 @@ jobs:
               for label, ids in (
                       ("failed", sorted(i for i, o in outcomes.items() if o in BAD)),
                       ("started and never finished", sorted(set(started) - set(outcomes))),
+                      ("executed more than once", sorted(i for i, n in collections.Counter(started).items() if n > 1)),
                       ("missing", [i for i in shard["ids"] if i not in outcomes]),
                       ("not in the plan", sorted(set(outcomes) - planned))):
                   if ids:

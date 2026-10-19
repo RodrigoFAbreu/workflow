@@ -1082,6 +1082,8 @@ class ConformanceTemplate(unittest.TestCase):
             "duplicated id": (edit(0, duplicate), "not in the plan: standin_mod."),
             "extra id": (edit(0, lambda d, f: d["outcomes"].update(
                 {"standin_mod.Ghost.test_x": "ok"})), "not in the plan: standin_mod.Ghost.test_x"),
+            "a planned id started twice": (edit(0, lambda d, f: d["started"].append(
+                next(iter(d["outcomes"])))), "executed more than once: standin_mod."),
             "missing id": (edit(0, drop), "missing: standin_mod."),
             "started and never finished": (edit(0, lambda d, f: d["started"].append(
                 "standin_mod.Ghost.test_y")), "started and never finished: standin_mod.Ghost.test_y"),
@@ -1093,6 +1095,19 @@ class ConformanceTemplate(unittest.TestCase):
         for label, (change, expect) in cases.items():
             with self.subTest(label):
                 self.corrupt(label, change, expect)
+
+    def test_shard_check_rejects_a_test_executed_twice_within_one_shard(self):
+        twice = ("class Twice(unittest.TestCase):\n"
+                 "    def run(self, result=None):\n"
+                 "        super().run(result)\n"
+                 "        return super().run(result)\n"
+                 "    def test_t(self): pass\n")
+        flow = self.ShardFlow(self, extra=twice)
+        proc, rows = flow.done()
+        self.assertEqual(proc.returncode, 1, proc.stdout)
+        bad = [r for r in rows if r[0] == "shard" and r[4] == "bad"]
+        self.assertEqual(len(bad), 1, rows)
+        self.assertIn("executed more than once: standin_mod.Twice.test_t", bad[0][5])
 
     def test_real_acceptance_module_partitions_exactly(self):
         scripts = REPO_ROOT / "payload/scripts"
@@ -1229,6 +1244,16 @@ class ConformanceTemplate(unittest.TestCase):
             self.assertEqual(markers, {"MARKER"} | {f"MARKER-{i}" for i in ids})
             seen |= ids
         self.assertEqual(seen, set(spec["expected"]))
+
+    def test_a_test_executed_twice_within_a_shard_fails_the_job(self):
+        twice = ("class Twice(unittest.TestCase):\n"
+                 "    def run(self, result=None):\n"
+                 "        super().run(result)\n"
+                 "        return super().run(result)\n"
+                 "    def test_t(self): pass\n")
+        proc, *_, summary = self.run_body(shards=2, acceptance_extra=twice)
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("executed more than once: ", proc.stdout + summary)
 
     def test_sharded_step_fails_the_job_when_the_plan_fails(self):
         proc, ws, runner, counter, summary = self.run_body(
@@ -1648,6 +1673,16 @@ class SourceConformanceRunner(unittest.TestCase):
         for name in self.SUITES:
             if name != self.ACCEPTANCE:
                 self.assertIn(f"::group::{name} passed in", proc.stdout)
+
+    def test_a_test_executed_twice_within_a_shard_fails_the_job(self):
+        twice = ("class Twice(unittest.TestCase):\n"
+                 "    def run(self, result=None):\n"
+                 "        super().run(result)\n"
+                 "        return super().run(result)\n"
+                 "    def test_t(self): pass\n")
+        proc, *_, summary = self.run_body(shards=2, acceptance_extra=twice)
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("executed more than once: ", proc.stdout + summary)
 
     def test_a_failed_plan_fails_the_job_and_there_is_no_fallback(self):
         proc, _, _, counter, _ = self.run_body(
