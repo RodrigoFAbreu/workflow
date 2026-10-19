@@ -8223,7 +8223,7 @@
       "registry_path": "docs/ai-workflow/registry/conformance-sharding-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/conformance-sharding-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "AMENDING_PLAN",
       "plan_revision": 4,
       "implementation_revision": null,
       "functional_review_round": null,
@@ -8239,7 +8239,7 @@
       },
       "current_bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
       "plan_approval": {
-        "status": "CURRENT",
+        "status": "SUPERSEDED",
         "basis": "POLICY_SATISFIED",
         "reviewed_bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
         "approved_review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
@@ -8363,29 +8363,23 @@
           "external": 0
         }
       },
-      "state_revision": 18,
-      "last_transition": "2026-10-18T23:23:11Z",
+      "state_revision": 19,
+      "last_transition": "2026-10-19T00:37:07Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
-        "status": "BOUND",
-        "at": "2026-10-18T22:54:20Z",
+        "status": "CONSUMED",
+        "at": "2026-10-19T00:37:07Z",
         "consumed": {
-          "review_content_id": "dafb9608d639048f69803c663274dc29cfab1352891622b07d5963fb27e0affd",
-          "plan_revision": 3,
+          "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+          "plan_revision": 4,
           "legacy": false
         },
-        "published": {
-          "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
-          "plan_revision": 4
-        },
-        "bound": {
-          "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
-          "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
-          "plan_revision": 4
-        }
+        "published": null,
+        "bound": null
       },
       "consumed_plan_review_content_ids": [
         "097cf209fdeacfddbc14b1a53ac8aba3c7704a04e2d1967c6e419609d7afc335",
+        "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
         "738158403449bdf89f4b5dd23d205064a89fd8ca164b3312cea198bdad1e74e3",
         "dafb9608d639048f69803c663274dc29cfab1352891622b07d5963fb27e0affd"
       ],
@@ -8586,7 +8580,115 @@
             }
           ]
         }
-      }
+      },
+      "amendment_history": [
+        {
+          "amendment_id": "0",
+          "requested_at": "2026-10-19T00:37:07Z",
+          "requested_from_phase": "IMPLEMENTING",
+          "reason": "The measurement was inconclusive because GitHub runners mixed four CPU types; change the decision rule to compare variants on the same CPU type, with three repetitions per variant and the width-2 variants dropped (option A)",
+          "superseded_plan_revision": 4,
+          "superseded_plan_approval": {
+            "status": "CURRENT",
+            "basis": "POLICY_SATISFIED",
+            "reviewed_bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+            "approved_review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+            "review_content_manifest": [
+              {
+                "path": "docs/ai-workflow/CONFORMANCE_SHARDING_PLAN.md",
+                "exists": true,
+                "mode": "100644",
+                "blob": "d85d9f9eec3c7d6b7cb5e7e750264417671aed81"
+              },
+              {
+                "path": "docs/ai-workflow/registry/conformance-sharding-registry.json",
+                "exists": true,
+                "mode": "100644",
+                "blob": "c91bd8652dc22626746a708f02170a28ac04e592"
+              },
+              {
+                "path": "docs/ai-workflow/requirements/conformance-sharding-mapping.json",
+                "exists": true,
+                "mode": "100644",
+                "blob": "65d2789f46c3ad52d0f757cf9a7332393269471f"
+              }
+            ],
+            "reviewed_content_commit": null,
+            "legacy_evidence": null,
+            "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+            "waived_guarantees": [],
+            "recorded_at": "2026-10-18T23:01:38Z",
+            "policy_evidence": {
+              "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+              "policy_source": "default",
+              "file_digest": null,
+              "adopted_digest": null,
+              "adopted_at": null,
+              "requirements": [
+                {
+                  "id": "gate_reachable",
+                  "met": true,
+                  "detail": "the approval gate is reachable"
+                },
+                {
+                  "id": "verdict_approve_bound",
+                  "met": true,
+                  "detail": "the latest verdict is APPROVE and names the current bundle"
+                },
+                {
+                  "id": "distinct_reviewer_models",
+                  "met": true,
+                  "detail": "families 'anthropic' and 'openai' differ"
+                },
+                {
+                  "id": "review_evidence_audited",
+                  "met": true,
+                  "detail": "both stages carry the audit keys"
+                }
+              ],
+              "inputs": {
+                "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+                "ledger": {
+                  "local": {
+                    "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+                    "verdict": "APPROVE",
+                    "round": 4,
+                    "verdict_sha256": "c55b68c885f6e0ee4331932580e6bf5a69e45c82764e7a32a8f2de3b1e46b908",
+                    "ledger_entry_sha256": "a4d18092f6fb70061081fcde4074c32f9737c6b1299c51051a0e810ae690313e",
+                    "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
+                    "reviewer_model": "anthropic/claude-opus-5-5"
+                  },
+                  "manual": {
+                    "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+                    "verdict": "APPROVE",
+                    "round": 4,
+                    "verdict_sha256": "f210bea07faadddc430ef5844e037e2cd041f5988befe48407195b745dd3f15f",
+                    "ledger_entry_sha256": "9cd5347b5a66a11d115bba8df8d90d25d6d343a86998cd46660242777257ff13",
+                    "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
+                    "reviewer_model": "openai/gpt-6.1-sol"
+                  }
+                },
+                "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+              },
+              "floor_digest": null,
+              "trust": {
+                "review_verdicts": "orchestrator"
+              },
+              "evaluated_at": "2026-10-18T23:01:38Z",
+              "workflow_release": "2.15.0"
+            }
+          },
+          "checkpoints_snapshot": {
+            "CP1": {
+              "status": "COMPLETE",
+              "start_commit": "f021cd1c4979579ad140a55cff7845604491276a"
+            }
+          },
+          "pre_amendment_approval_commit": "33191acf23455771e6542513d234225b919a77c9",
+          "resolved_at_plan_revision": null
+        }
+      ],
+      "amendment_base_commit": "1023bce40e233ac79c0dff0e990b3d962033707f"
     }
   }
 }
