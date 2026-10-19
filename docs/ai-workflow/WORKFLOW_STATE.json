@@ -9395,7 +9395,7 @@
       "registry_path": "docs/ai-workflow/registry/backlog-file-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/backlog-file-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 6,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -9547,12 +9547,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 34,
-      "last_transition": "2026-10-19T11:03:31Z",
+      "state_revision": 35,
+      "last_transition": "2026-10-19T11:23:19Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -9983,6 +9983,34 @@
               "review_content_id": "e0b62c972a65a9233192ff622926cc9e7cec52e4f3929ae37b141200c20a81fc",
               "verdict": "APPROVE",
               "at": "2026-10-19T09:26:08Z"
+            }
+          ]
+        },
+        "F-374482d96abd": {
+          "digest": "374482d96abd7bbb4036d34629319649d8f5728dfc474040ae4aa7b4f99d867a",
+          "text": "**LIR-R1-O1** -- `_classify_declared_backlog` imports `workflow_backlog` for\n  every `repo_root` call, so an undeclared repository that somehow lacks the\n  script is refused (`BacklogScriptUnavailableError`) instead of getting today's\n  bytes. That matches the plan's literal \"lazy, inside the `repo_root` branch\",\n  and every 2.17.0 installation ships the script, so this is only theoretical\n  against INV-1. Consider refusing only when the config actually carries a\n  `backlog` key.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "f7d0b3cfc51abe16cd04460f4438e469264de286682c9284dd9126494ee55d3b",
+              "verdict": "REVISE",
+              "at": "2026-10-19T11:23:19Z"
+            }
+          ]
+        },
+        "F-50536dd07922": {
+          "digest": "50536dd07922169d090a587ecb31380f4f5415115d46f96b1eb2cc38e9bb5e92",
+          "text": "**LIR-R1-O2** -- `protected_conflicts` tests the item-page prefix through one\n  representative path, `docs/items/x.md`. An artifact declaration that protects\n  an exact page such as `docs/items/foo.md` (by hand edit) is not detected.\n  Testing whether any protected exact path starts with `docs/items/` would close\n  this.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "f7d0b3cfc51abe16cd04460f4438e469264de286682c9284dd9126494ee55d3b",
+              "verdict": "REVISE",
+              "at": "2026-10-19T11:23:19Z"
             }
           ]
         }
