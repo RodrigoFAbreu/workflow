@@ -403,7 +403,9 @@ raise `UnclassifiedPathError`. Two repairs may be needed:
 | `accept <id> [--release V]` | sets the item `done` and regenerates the page. |
 | `generate [--replace]` | regenerates the page. `--replace` allows replacing a hand-written page once. |
 
-`--repo-root DIR` before the subcommand names another repository root. Success
+`--repo-root DIR` before the subcommand names another repository root; by
+default the root is the git top level of the working directory, else the working
+directory. Success
 prints one JSON object on standard output and exits 0; a repository that
 declares nothing prints `{"declared": false}` and exits 0. A refusal prints, on
 standard error, `error: <code>: <message>` and `next step: <one step>`, and exits

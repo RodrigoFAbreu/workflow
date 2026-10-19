@@ -279,8 +279,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/BACKLOG_FILE\\.md$",
       "rationale": "The consumer reference for the backlog file (backlog-file, workflow-2.17.0): setup, the file format with a starter and a full example, how /milestone-plan chooses, what acceptance does, the generator and freshness contract, items in flight at adoption and how to move back.",
-      "sha256": "3afc5b50374abc0d30d7e12c50ec502b3152aad5de34f590a923cd2558e358ac",
-      "size": 23483,
+      "sha256": "715a573eaeac169ac876986c463102fad0857bda4d8fab25162903626a688527",
+      "size": 23578,
       "executable": false
     },
     {
