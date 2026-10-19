@@ -9395,7 +9395,7 @@
       "registry_path": "docs/ai-workflow/registry/backlog-file-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/backlog-file-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 6,
       "implementation_revision": 4,
       "functional_review_round": null,
@@ -9547,12 +9547,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 3,
-          "external": 0
+          "local": 4,
+          "external": 1
         }
       },
-      "state_revision": 40,
-      "last_transition": "2026-10-19T13:09:07Z",
+      "state_revision": 42,
+      "last_transition": "2026-10-19T13:50:39Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -10041,7 +10041,48 @@
               "at": "2026-10-19T12:50:49Z"
             }
           ]
+        },
+        "F-2c811d6d2bb2": {
+          "digest": "2c811d6d2bb28964fb3e84ecf5a0d46a18543097b44739e5e2fdc3dc1cbc45e8",
+          "text": "**LIR-R4-O1** -- `_check_plain(..., flow=True)` accepts `?` inside a plain\n  flow-list entry (for example `depends_on: [a?b]`), and PyYAML refuses it (\"expected ','\n  or ']', but got '?'\"). No file that passes `validate_backlog` can contain such an\n  entry, because every `depends_on` entry must name an item id matching\n  `^[a-z0-9][a-z0-9_-]{0,63}$`. So INV-6 holds for accepted files. To make\n  `parse_backlog` refuse it as well, add `?` to the characters refused in a plain\n  flow entry, next to `:`, with one parser test. A later release could do this.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 4,
+              "review_content_id": "fc4b6271b2d7483c4e32a9c5f726f1388e744da522e2ed44a2c5581f23768848",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T13:31:42Z"
+            }
+          ]
+        },
+        "F-57d3c535ad91": {
+          "digest": "57d3c535ad91f09d25b9f9679401388199d117716988f88c662e7d74ba5749db",
+          "text": "**EIR-O1 [substantive] — Declaration failures bypass acceptance’s recovery message.**\n\n  `payload/scripts/workflow_backlog.py:1187` loads the declaration outside the handler that applies `_with_recovery`. If it becomes invalid after preflight, `accept` prints only the generic declaration remedy, omitting the prescribed manual acceptance and continuation steps. The command documents already explain recovery, so this is Optional.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 4,
+              "review_content_id": "fc4b6271b2d7483c4e32a9c5f726f1388e744da522e2ed44a2c5581f23768848",
+              "verdict": "REVISE",
+              "at": "2026-10-19T13:50:39Z"
+            }
+          ]
         }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "fc4b6271b2d7483c4e32a9c5f726f1388e744da522e2ed44a2c5581f23768848",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "de24659cb60afc09315300e973a0ec74276670230f3c17c4822203f0e136ae2f",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-10-19T13:31:42Z",
+          "verdict_sha256": "daa1b6a6cc24833a7acff7e90125b8252908d467837c9252bd787a865986e469",
+          "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
       }
     }
   }
