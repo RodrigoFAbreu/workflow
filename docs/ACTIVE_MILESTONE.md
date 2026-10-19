@@ -82,6 +82,37 @@ completion-obligations, generalization, harness and integration suites (pass) an
 which read `payload/docs/...` and only run from an installed layout; they fail identically
 without this change).
 
+### CP3 -- The commands, the lifecycle documents and the end-to-end tests (complete)
+
+Release-source changes only (`payload/`):
+
+- `milestone-plan.md` step 1 gains the version-independent "Backlog declared" bullet (`next`, a
+  refusal stops with nothing written, `item.id` is the work item id, `item.detail` the
+  description, the active-item advisory line, no write to the file); the explicit id forms never
+  read it; step 3's `generate_artifacts_declarations` call passes `repo_root`.
+- `accept-milestone.md`: the backlog pre-flight is a bullet of step 2a after the
+  optional-finding dispositions pre-flight and before `requires_pr_approved` (and a head-of-2a
+  paragraph for an item with no state entry); step 3 gains the declared branch (`accept`, the
+  one-step recovery after a refusal); step 6 stages the printed paths; step 7 runs `next`.
+- `satisfy-gate.md`: step 0 runs the pre-flight before the first step stores anything, and the
+  acceptance stage states the policy-path recovery (step 4, then 5 and 6, trailer on the
+  completion commit).
+- `MILESTONE_WORKFLOW.md` and the operator reference: one sentence at each place that names
+  `docs/ROADMAP.md`.
+
+Tests: `TestBacklogCommandConformance` and two golden hashes (plus the v1 step-1-to-5 constant,
+recomputed for the one new bullet; removing it restores the old constant) in
+`workflow_integration_test.py`; `BacklogLifecycle`, `BacklogLifecycleDeclaredGenerator`,
+`BacklogProtectedDeclaredPath` and `BacklogUndeclared` (29 tests) in
+`workflow_acceptance_matrix_test.py`, which now installs `workflow_backlog.py`.
+
+Verification (scratch conformance fixture staged from the working tree, nine payload suites):
+all nine pass. Suite sizes now: acceptance matrix 444, state 1191, completion-obligations 176,
+integration 328 (the others unchanged); `manifest.json` still records 415, 1183, 106, 317, so
+`release_test.py`'s `test_real_acceptance_module_partitions_exactly` and `test_round_trip`
+fail until CP5 updates the manifest (digests, sizes, the new script's record and these counts).
+`tools/docs` checks pass.
+
 ## Next action
 
-Invoke `/milestone-implement backlog-file` again for CP3.
+Invoke `/milestone-implement backlog-file` again for CP4.
