@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "work_item_id": "backlog-file",
+  "requirements": {
+    "R1": {
+      "description": "A repository can declare a backlog file and an optional generator in WORKFLOW_CONFIG.json; a malformed or missing declared file fails closed with a code and one next step, never a fall-back to prose; no declaration means today's behaviour",
+      "checkpoint_ids": [
+        "CP2",
+        "CP3",
+        "CP5"
+      ]
+    },
+    "R2": {
+      "description": "The file format is a strict documented YAML subset with its own parser, a schema (types, statuses, unique id and order, known depends_on, no cycles) and exact accepted and refused forms",
+      "checkpoint_ids": [
+        "CP1",
+        "CP4"
+      ]
+    },
+    "R3": {
+      "description": "/milestone-plan with no argument takes the next item by the stated selection rule and refuses with a clear message when none is ready; without a declaration it is unchanged",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2",
+        "CP3"
+      ]
+    },
+    "R4": {
+      "description": "Acceptance sets the item done, optionally records a release, regenerates the page by the declared generator or the built-in one, never hand-edits the page, lands in the acceptance commit, and is unchanged without a declaration",
+      "checkpoint_ids": [
+        "CP2",
+        "CP3"
+      ]
+    },
+    "R5": {
+      "description": "A built-in generator and a check mode, with the stated precedence of a declared generator",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2",
+        "CP4"
+      ]
+    },
+    "R6": {
+      "description": "The shipped backlog document and the user documents, the command texts and the tests for every new path, including the unchanged behaviour without a declaration",
+      "checkpoint_ids": [
+        "CP3",
+        "CP4"
+      ]
+    },
+    "R7": {
+      "description": "Release 2.17.0: manifest and manager block, release constant and its assertions, release history, the downgrade posture",
+      "checkpoint_ids": [
+        "CP5"
+      ]
+    }
+  }
+}
