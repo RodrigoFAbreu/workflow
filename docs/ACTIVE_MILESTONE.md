@@ -123,8 +123,24 @@ in the staged release fixture (the same local run; CP1 changes no payload byte).
 collector, validator and the 23 self-checks) is prepared outside the repository for the
 orchestrator.
 
+### CP4 -- Release 2.16.0 (complete)
+
+Release identity: `WORKFLOW_RELEASE` is `"2.16.0"` in `payload/scripts/workflow_protocol.py`,
+the two pinning assertions in `workflow_protocol_test.py` follow, and
+`ORCHESTRATION_PROTOCOL.md` changes in its three places (tested-releases list, the unpinned
+`workflow_release` example, the protocol `1.5` history entry); the protocol version stays `1.5`.
+`manifest.json` is 2.16.0 with the digests of the template and the three changed payload files
+refreshed, the template derivation extended with W12, and the `manager` block rewritten
+(`min_manager_version` 1.13.0, a template-plus-constant posture whose way back is
+`workflow-manager update` to 2.15.0, no signals, no new-work-only note, no gate default
+change). `release.py manager-block --release-dir <scratch stage> --write` measured the nine
+suite counts and they are unchanged from 2.15.0 (415, 341, 1183, 315, 142, 106, 317, 280, 27).
+`docs/release-history.md` has the 2.16.0 row with the measured numbers (medians 1212.5 s to
+979 s on the EPYC 7763 type, 833.5 s to 606 s on the EPYC 9V45 type); `docs/common-problems.md`
+explains a failing or missing shard. `docs/ROADMAP.md` is untouched (Current/Done is at
+acceptance).
+
 ## Next action
 
-CP3: the same scheduling in this repository's release-source conformance
-(`.github/workflows/workflow-ci.yml`) and the user document. `manifest.json` stays at 2.15.0
-until CP4.
+All checkpoints are complete. Next: self-review of the full milestone diff, the full
+verification, and the implementation-review bundle.
