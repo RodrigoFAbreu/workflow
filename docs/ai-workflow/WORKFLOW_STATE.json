@@ -9395,7 +9395,7 @@
       "registry_path": "docs/ai-workflow/registry/backlog-file-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/backlog-file-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 6,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -9547,12 +9547,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 1,
+          "local": 2,
           "external": 0
         }
       },
-      "state_revision": 36,
-      "last_transition": "2026-10-19T11:50:06Z",
+      "state_revision": 37,
+      "last_transition": "2026-10-19T12:09:06Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -10011,6 +10011,20 @@
               "review_content_id": "f7d0b3cfc51abe16cd04460f4438e469264de286682c9284dd9126494ee55d3b",
               "verdict": "REVISE",
               "at": "2026-10-19T11:23:19Z"
+            }
+          ]
+        },
+        "F-44428bb9d602": {
+          "digest": "44428bb9d60208daff2fe20598badd0aeb388537567ff1b201274374b967f32b",
+          "text": "**LIR-R2-O1** -- the new `_snapshot` refusal reads \"`<roadmap>` exists and is not\n  a regular file\". `_page_state`'s refusal for the same condition reads\n  \"`backlog.roadmap` `<roadmap>` exists and is not a regular file\". Both have the\n  same code. Use one wording so that the message names the field either way.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "54d44be8b5ec1596b71090113869d4e37084da9b83586f5a50aaca0cd81cb636",
+              "verdict": "REVISE",
+              "at": "2026-10-19T12:09:06Z"
             }
           ]
         }
