@@ -9395,7 +9395,7 @@
       "registry_path": "docs/ai-workflow/registry/backlog-file-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/backlog-file-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 6,
       "implementation_revision": 6,
       "functional_review_round": null,
@@ -9517,10 +9517,10 @@
         }
       },
       "technical_approval": {
-        "status": "STALE",
+        "status": "CURRENT",
         "basis": "POLICY_SATISFIED",
-        "reviewed_bundle_id": "4a64f45c46e4bb0a8a75d3ab178d7623d3f20616bb47829b56e49091eaaffa11",
-        "approved_review_content_id": "f285a3470b40144dbb095cb779e1e7d1a20f601a3cbbf27dc5dca8d1d60aabd5",
+        "reviewed_bundle_id": "acb6a5ad7b15608e5c89e17ab21daa749752dd77d709ee57efc3fc88423df638",
+        "approved_review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
         "review_content_manifest": [
           {
             "path": "docs/README.md",
@@ -9580,31 +9580,31 @@
             "path": "manifest.json",
             "exists": true,
             "mode": "100644",
-            "blob": "5097d8a8c7c265493ba7396264b27215c396d590"
+            "blob": "a858a17a07e8e978d57c17629039707b6e2282ab"
           },
           {
             "path": "payload/.claude/commands/accept-milestone.md",
             "exists": true,
             "mode": "100644",
-            "blob": "37dca33a14851ef6a7ace7c1350f54b163db0022"
+            "blob": "4163a3166f4ec5e17e531d74382ba1569fe0e756"
           },
           {
             "path": "payload/.claude/commands/milestone-plan.md",
             "exists": true,
             "mode": "100644",
-            "blob": "ff07dbc25c80206b8447a1272005966f9c28c163"
+            "blob": "982a022f5a4cb27b50d589f7d684a192056458dc"
           },
           {
             "path": "payload/.claude/commands/satisfy-gate.md",
             "exists": true,
             "mode": "100644",
-            "blob": "794010dda6d8d57b32130c80525b498d90f0a9a2"
+            "blob": "c2d6c355d35ee7170d10c2cc42269be87d5dd9bb"
           },
           {
             "path": "payload/docs/ai-workflow/BACKLOG_FILE.md",
             "exists": true,
             "mode": "100644",
-            "blob": "9bb43dc20345020808ec05fe2e2b15dec3880aff"
+            "blob": "6f495ff75cacb73181e49e0f674174ac8c3a19c7"
           },
           {
             "path": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md",
@@ -9634,7 +9634,7 @@
             "path": "payload/scripts/workflow_backlog.py",
             "exists": true,
             "mode": "100644",
-            "blob": "be2eaa0ec579de3cf487f47dbf96a54101a25806"
+            "blob": "1f6b7d9042b1b9b3f6ccb8b0ff9da44b814437ee"
           },
           {
             "path": "payload/scripts/workflow_fingerprint_generalization_test.py",
@@ -9646,7 +9646,7 @@
             "path": "payload/scripts/workflow_integration_test.py",
             "exists": true,
             "mode": "100644",
-            "blob": "30c279de1e902e8ad2ab8f6e944d655aef81189d"
+            "blob": "13778cba5bc945ff3c3b5de9abad563b061f3187"
           },
           {
             "path": "payload/scripts/workflow_protocol.py",
@@ -9670,7 +9670,7 @@
             "path": "payload/scripts/workflow_state_completion_obligations_test.py",
             "exists": true,
             "mode": "100644",
-            "blob": "caf59d534b315bc6694dcc7345ff7545015dbd3e"
+            "blob": "4f62ba9a2ddbbb1df99fa85b0db841dfdf062d81"
           },
           {
             "path": "payload/scripts/workflow_state_test.py",
@@ -9691,11 +9691,11 @@
             "blob": "7169f94897677aed43a3175f114b56293c4b326d"
           }
         ],
-        "reviewed_content_commit": "986d49e2b993929fd38d49d8733b66b4a5e4899d",
+        "reviewed_content_commit": "8e450bcea551364079380e8f05cd916771b8d7f8",
         "legacy_evidence": null,
         "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
         "waived_guarantees": [],
-        "recorded_at": "2026-10-19T14:54:50Z",
+        "recorded_at": "2026-10-19T15:54:22Z",
         "policy_evidence": {
           "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
           "policy_source": "default",
@@ -9725,23 +9725,23 @@
             }
           ],
           "inputs": {
-            "review_content_id": "f285a3470b40144dbb095cb779e1e7d1a20f601a3cbbf27dc5dca8d1d60aabd5",
+            "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
             "ledger": {
               "local": {
-                "bundle_id": "4a64f45c46e4bb0a8a75d3ab178d7623d3f20616bb47829b56e49091eaaffa11",
+                "bundle_id": "acb6a5ad7b15608e5c89e17ab21daa749752dd77d709ee57efc3fc88423df638",
                 "verdict": "APPROVE",
-                "round": 5,
-                "verdict_sha256": "534a5ca3592b39e70557d91263c0afc94210fa2e1b5099d4fff346efe49344eb",
-                "ledger_entry_sha256": "ea891f36339897e8e7c09d90e9a7dd6e48ba74e78272004fffc1158256e1d216",
+                "round": 6,
+                "verdict_sha256": "db37a4754999dcd303c30676477ffb4d6210e80cb5e425e04af147df587d32c5",
+                "ledger_entry_sha256": "6e2264f8544fa2ca5ef4edeae47bb7c9616847ace7e9b660cfdfa6a2a3eb4cc8",
                 "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
                 "reviewer_model": "anthropic/claude-opus-5-5"
               },
               "manual": {
-                "bundle_id": "4a64f45c46e4bb0a8a75d3ab178d7623d3f20616bb47829b56e49091eaaffa11",
+                "bundle_id": "acb6a5ad7b15608e5c89e17ab21daa749752dd77d709ee57efc3fc88423df638",
                 "verdict": "APPROVE",
-                "round": 5,
-                "verdict_sha256": "4af8e2e4c639ab0d271ac8bac2144fa3d0d92285134e3e73381d0aed91c6a081",
-                "ledger_entry_sha256": "713ac3261bff8554946d3bc0cbb8c325f49d1b9e0b59f5ebafa1411187007a9c",
+                "round": 6,
+                "verdict_sha256": "7226bc9deb4d38d610fb6b2e34914711adb66f801abd86fa8ec7f7f7e313ad61",
+                "ledger_entry_sha256": "126edfd3a85c0527a154b268da09150306850fe253e956d25c2a2580a295293d",
                 "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
                 "reviewer_model": "openai/gpt-6.1-sol"
               }
@@ -9752,7 +9752,7 @@
           "trust": {
             "review_verdicts": "orchestrator"
           },
-          "evaluated_at": "2026-10-19T14:54:50Z",
+          "evaluated_at": "2026-10-19T15:54:22Z",
           "workflow_release": "2.16.0"
         }
       },
@@ -9786,12 +9786,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 5,
-          "external": 2
+          "local": 6,
+          "external": 3
         }
       },
-      "state_revision": 48,
-      "last_transition": "2026-10-19T15:13:57Z",
+      "state_revision": 51,
+      "last_transition": "2026-10-19T15:54:22Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -10336,25 +10336,95 @@
               "at": "2026-10-19T14:42:14Z"
             }
           ]
+        },
+        "F-aa5739b6debe": {
+          "digest": "aa5739b6debebc175af45cb5d93dc6785204887326617992ff2e66eeba89a404",
+          "text": "LIR-R6-O1: The approved plan text no longer matches two deliberate revision-6 changes:\n  - `BACKLOG_FILE_PLAN.md` around line 804 still places a no-state-entry backlog pre-flight at the head of step 2a.\n  - Around line 458 it still says a refusal is \"two lines\".\n  \n  The implementation now removes the first (it was unreachable under step 0) and reports aggregated diagnostics. Both changes are correct, but the departure from the plan is recorded only in `ACTIVE_MILESTONE.md`. Note it in the release notes or a follow-up plan amendment so later readers don't treat the plan as authoritative on these two points.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 6,
+              "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T15:40:35Z"
+            }
+          ]
+        },
+        "F-3dd10bb87806": {
+          "digest": "3dd10bb87806e28e799bc44ba2b017e83ed61b334ea038032ccb77cfd9753949",
+          "text": "LIR-R6-O2: Rollback restores bytes, not modes, in two cases:\n  - `_restore` returns early when the bytes match, so a declared generator that changes only the mode of the backlog file or the page leaves that change after a refusal.\n  - When the bytes differ, the snapshot is republished with the file's *current* mode (possibly generator-altered), not the mode it had at snapshot time.\n  \n  Capturing the mode in `_snapshot` and restoring it would close this. It is an edge case: it needs a misbehaving declared generator.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 6,
+              "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T15:40:35Z"
+            }
+          ]
+        },
+        "F-1f722e96338f": {
+          "digest": "1f722e96338ffee6bf49404fd7a415cd33d512ba0b7f855c9822f33b99d381c2",
+          "text": "LIR-R6-O3: `TEST_RESULTS.md` is stale:\n  - Its header says revision 2 and its last section is revision 3.\n  - The counts for revisions 4-6 (acceptance 450, completion-obligations 187, integration 329) appear only in `IMPLEMENTATION_SUMMARY.md`.\n  - The revision-6 summary says `release_test.py` passes, which could not be reproduced here: `zlib_ng` is not installed (15 failures and 14 errors, same cause as before).\n  \n  Refresh `TEST_RESULTS.md` at the next regeneration and name the environment in which `release_test.py` passed.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 6,
+              "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T15:40:35Z"
+            }
+          ]
+        },
+        "F-f0cc6ae76d1a": {
+          "digest": "f0cc6ae76d1a59c00829cdb00cf472c79e1aa3cee2282243a8f4ba9e99d1c2f5",
+          "text": "**EIR-O2 [substantive] — A long malformed dependency chain crashes diagnostic reporting.**\n\n  At `payload/scripts/workflow_backlog.py:471`, cycle detection recurses even when schema violations have already been collected (`payload/scripts/workflow_backlog.py:555`). A 2,000-line file containing `version`, `items` and 999 two-line records (`id` and `depends_on`, forming a chain) produces `RecursionError`. `status` exits 1 without JSON instead of reporting the missing required fields. No writes occur, and valid backlogs cannot reach this depth within the line limit. Consider iterative traversal or reporting existing schema errors before cycle detection, with regression coverage.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 6,
+              "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T15:54:04Z"
+            }
+          ]
+        },
+        "F-a7dab7eec405": {
+          "digest": "a7dab7eec405d8f124cd0ad30801f142f26dc121a8ffe36e48686bfa96d9b606",
+          "text": "**EIR-O3 [apparatus] — Checklist F7 still omits the collision setup.**\n\n  `docs/ACTIVE_MILESTONE.md:217` instructs adding protected `WORKFLOW_STATE.json` to the artifact declaration, but does not change either configured backlog path to collide with it. Following that setup with the checklist’s default declaration makes `preflight-accept first-item` succeed. Specify the artifact JSON and set `backlog.roadmap` to the protected path before expecting `declaration_conflict`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 6,
+              "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T15:54:04Z"
+            }
+          ]
         }
       },
       "implementation_review_stages": {
-        "review_content_id": "f285a3470b40144dbb095cb779e1e7d1a20f601a3cbbf27dc5dca8d1d60aabd5",
+        "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
         "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "4a64f45c46e4bb0a8a75d3ab178d7623d3f20616bb47829b56e49091eaaffa11",
+          "bundle_id": "acb6a5ad7b15608e5c89e17ab21daa749752dd77d709ee57efc3fc88423df638",
           "verdict": "APPROVE",
-          "round": 5,
-          "completed_at": "2026-10-19T14:42:14Z",
-          "verdict_sha256": "534a5ca3592b39e70557d91263c0afc94210fa2e1b5099d4fff346efe49344eb",
+          "round": 6,
+          "completed_at": "2026-10-19T15:40:35Z",
+          "verdict_sha256": "db37a4754999dcd303c30676477ffb4d6210e80cb5e425e04af147df587d32c5",
           "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "anthropic/claude-opus-5-5"
         },
         "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "4a64f45c46e4bb0a8a75d3ab178d7623d3f20616bb47829b56e49091eaaffa11",
+          "bundle_id": "acb6a5ad7b15608e5c89e17ab21daa749752dd77d709ee57efc3fc88423df638",
           "verdict": "APPROVE",
-          "round": 5,
-          "completed_at": "2026-10-19T14:54:18Z",
-          "verdict_sha256": "4af8e2e4c639ab0d271ac8bac2144fa3d0d92285134e3e73381d0aed91c6a081",
+          "round": 6,
+          "completed_at": "2026-10-19T15:54:04Z",
+          "verdict_sha256": "7226bc9deb4d38d610fb6b2e34914711adb66f801abd86fa8ec7f7f7e313ad61",
           "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
