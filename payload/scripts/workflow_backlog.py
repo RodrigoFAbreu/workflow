@@ -899,14 +899,15 @@ def _write_atomic(path: Path, data: bytes) -> None:
         raise
 
 
-def _snapshot(path: Path) -> bytes | None:
-    """The bytes of a regular file, or `None` when nothing is there."""
+def _snapshot(path: Path, shown: str) -> bytes | None:
+    """The bytes of a regular file, or `None` when nothing is there. Anything
+    else at the path is refused before a restore could ever remove it."""
     try:
         mode = os.lstat(path).st_mode
     except FileNotFoundError:
         return None
     if not stat.S_ISREG(mode):
-        return None
+        raise _declaration_error(f"`{shown}` exists and is not a regular file")
     return path.read_bytes()
 
 
@@ -999,7 +1000,12 @@ def _run_declared_generator(repo_root, declaration, file_bytes: bytes) -> None:
     shown = (done.stdout + done.stderr).decode("utf-8", errors="replace").strip()
     if done.returncode != 0:
         raise _generator_failed(f"the declared generator exited {done.returncode}" + (f":\n{shown}" if shown else ""))
-    if _abs(repo_root, declaration["file"]).read_bytes() != file_bytes:
+    try:
+        file_path = _abs(repo_root, declaration["file"])
+        unchanged = stat.S_ISREG(os.lstat(file_path).st_mode) and file_path.read_bytes() == file_bytes
+    except OSError:
+        unchanged = False
+    if not unchanged:
         raise _generator_failed("the declared generator changed the backlog file")
     page_path = _abs(repo_root, declaration["roadmap"])
     try:
@@ -1115,7 +1121,11 @@ def _generator_resolvable(repo_root, declaration) -> None:
 
 
 def cmd_status(repo_root) -> dict:
-    declaration = load_declaration(repo_root)
+    try:
+        declaration = load_declaration(repo_root)
+    except BacklogError as exc:
+        return {"declared": True, "valid": False,
+                "error": {"code": exc.code, "message": exc.message, "next_step": exc.next_step}}
     if declaration is None:
         return {"declared": False}
     out = {"declared": True, "file": declaration["file"], "roadmap": declaration["roadmap"],
@@ -1188,7 +1198,7 @@ def cmd_accept(repo_root, item_id: str, release: str | None = None) -> dict:
         new_data, _ = parse_and_validate(new_bytes, repo_root, declaration["file"])
         if not declaration["generator"]:
             _builtin_replaceable(_page_state(repo_root, declaration), declaration, False)
-        snapshots = (raw, _snapshot(page_path))
+        snapshots = (raw, _snapshot(page_path, declaration["roadmap"]))
         if new_bytes != raw:
             _write_atomic(file_path, new_bytes)
         _generate_page(repo_root, declaration, new_data, new_bytes)
@@ -1215,7 +1225,7 @@ def cmd_generate(repo_root, replace: bool = False) -> dict:
         return {"declared": False}
     raw, data, _ = _read_backlog(repo_root, declaration)
     file_path, page_path = _abs(repo_root, declaration["file"]), _abs(repo_root, declaration["roadmap"])
-    snapshot = _snapshot(page_path)
+    snapshot = _snapshot(page_path, declaration["roadmap"])
     try:
         kind = _generate_page(repo_root, declaration, data, raw, replace=replace)
     except BaseException:

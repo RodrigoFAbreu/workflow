@@ -9928,6 +9928,13 @@ if mode == "fail":
     sys.exit(3)
 if mode == "nopage":
     sys.exit(0)
+if mode == "rmfile":
+    os.remove("docs/backlog.yaml")
+    sys.exit(0)
+if mode == "dirfile":
+    os.remove("docs/backlog.yaml")
+    os.mkdir("docs/backlog.yaml")
+    sys.exit(0)
 digest = os.environ["WORKFLOW_BACKLOG_SHA256"]
 rows = [line for line in open("docs/backlog.yaml") if line.lstrip().startswith(("- id:", "title:", "status:"))]
 with open("docs/ROADMAP.md", "w") as page:
@@ -10289,6 +10296,31 @@ class BacklogLifecycle(MatrixCase):
     def fix_the_generator(self):
         self.env.pop("GEN_MODE", None)
 
+    def test_a_directory_at_the_roadmap_path_is_refused_and_survives(self):
+        self.reach_acceptance()
+        page = self.scratch.root / "docs/ROADMAP.md"
+        page.unlink()
+        page.mkdir()
+        (page / "precious.txt").write_text("keep me\n")
+        before = self.tree()
+        for args in (("generate",), ("generate", "--replace"), ("accept", self.item.wid)):
+            with self.subTest(args=args):
+                done = self.run_backlog(*args, check=False)
+                self.assertEqual(self.refusal_code(done), "declaration_invalid")
+                self.assertEqual(self.tree(), before)
+                self.assertEqual((page / "precious.txt").read_text(), "keep me\n")
+
+    def test_status_reports_an_invalid_declaration_and_exits_zero(self):
+        config = self.scratch.root / "docs/ai-workflow/WORKFLOW_CONFIG.json"
+        data = json.loads(config.read_text())
+        data["backlog"] = {"file": "../x.yaml"}
+        config.write_text(json.dumps(data))
+        done = self.run_backlog("status", check=False)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        report = json.loads(done.stdout)
+        self.assertIs(report["valid"], False)
+        self.assertEqual(report["error"]["code"], "declaration_invalid")
+
 
 class BacklogLifecycleDeclaredGenerator(BacklogLifecycle):
     """The same lifecycle with a declared generator, plus its failure modes."""
@@ -10360,6 +10392,21 @@ class BacklogLifecycleDeclaredGenerator(BacklogLifecycle):
                 self.assertEqual(self.refusal_code(done), "generator_failed")
                 self.assertEqual((self.scratch.read(BACKLOG_FILE), self.scratch.read("docs/ROADMAP.md")),
                                  (backlog, page))
+
+
+    def test_a_generator_that_deletes_or_replaces_the_backlog_file_is_generator_failed(self):
+        self.reach_acceptance()
+        for mode in ("rmfile", "dirfile"):
+            with self.subTest(mode=mode):
+                self.env["GEN_MODE"] = mode
+                backlog, page = self.scratch.read(BACKLOG_FILE), self.scratch.read("docs/ROADMAP.md")
+                done = self.run_backlog("accept", self.item.wid, check=False)
+                self.assertEqual(self.refusal_code(done), "generator_failed")
+                self.assertIn("continue the acceptance at step 4", done.stderr)
+                self.assertNotIn("Traceback", done.stderr)
+                self.assertEqual((self.scratch.read(BACKLOG_FILE), self.scratch.read("docs/ROADMAP.md")),
+                                 (backlog, page))
+                self.assertTrue((self.scratch.root / BACKLOG_FILE).is_file())
 
 
 class BacklogProtectedDeclaredPath(unittest.TestCase):
