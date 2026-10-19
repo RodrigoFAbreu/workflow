@@ -1,6 +1,6 @@
 # Glossary
 
-> For: anyone reading Workflow documents. Last checked with: Workflow 2.14.0, Workflow Manager 1.4.0.
+> For: anyone reading Workflow documents. Last checked with: Workflow 2.17.0, Workflow Manager 1.4.0.
 
 The shared terms of the Workflow. The other Workflow repositories link here.
 
@@ -118,3 +118,16 @@ Acceptance refuses while a recorded finding has none.
 A work item's list of which files count as part of the reviewed content
 ("protected") and which are left out of it ("excluded"). Every changed file must
 be one or the other.
+
+### Backlog file
+
+An optional structured file (a strict subset of YAML) in which a repository
+lists its planned work, one item per work item id. When the repository declares
+it, `/milestone-plan` takes the next ready item from it and acceptance marks the
+item `done`. See [the backlog file](../payload/docs/ai-workflow/BACKLOG_FILE.md).
+
+### Generated roadmap
+
+The roadmap page written from the backlog file by the Workflow's generator (or
+by a generator the repository declares) and refreshed when an item is accepted.
+Edit the backlog file, not the page; `check` fails when the page is stale.

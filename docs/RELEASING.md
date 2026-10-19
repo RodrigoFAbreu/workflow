@@ -133,7 +133,7 @@ job fails.
 `release-source-conformance` schedules the suites the way the installed
 `workflow-conformance` job does (the managed template, Workflow 2.16.0), over
 the staged fixture; the installed `scripts/` are never used. The
-acceptance-matrix suite (the longest, 415 tests) is split into `shards = 4`
+acceptance-matrix suite (the longest, 450 tests) is split into `shards = 4`
 groups of whole test classes, balanced by test count, by a small stdlib-only
 tool the step writes next to the scheduler; its text is the template's, byte
 for byte, and `tools/release/release_test.py` pins them equal. The four
@@ -150,7 +150,7 @@ setting). A passing unit's log is a collapsed group; a failing unit gets an
 `::error` annotation naming the shard, its classes and the failing test ids,
 followed by its full log, so a shard failure shows under `acceptance N/4`
 rather than under the suite file. The step summary has one row per suite
-(the acceptance row reads `passed (4 shards, 415 tests)`) followed by one row
+(the acceptance row reads `passed (4 shards, 450 tests)`) followed by one row
 per shard, and the logs, results, shard files, the plan and the coverage
 check are uploaded as the `source-conformance-logs` artifact whether the job
 passed or failed. No job name, required check or ruleset changes.

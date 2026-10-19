@@ -1,6 +1,6 @@
 # Approval gates
 
-> For: anyone who decides who approves a work item's plan, code and acceptance. Last checked with: Workflow 2.14.0, Workflow Manager 1.5.0.
+> For: anyone who decides who approves a work item's plan, code and acceptance. Last checked with: Workflow 2.17.0, Workflow Manager 1.5.0.
 
 An approval gate is a point where a work item cannot move on until a decision
 is recorded. There are three: plan approval, implementation approval and
@@ -113,6 +113,14 @@ A policy file can only make things stricter on its own.
   was given under.
 - If the record of the adopted policy fails its own checks, all three gates
   become human until a new `/adopt-gate-policy` fixes it.
+
+## Acceptance and the backlog file
+
+If the repository declares a backlog file, accepting a milestone (by a person or
+by policy) also sets that item `done` in the file and regenerates the roadmap
+page, inside the acceptance commit. Nothing about who decides changes. A
+repository without a declaration accepts exactly as before. See
+[the backlog file](../payload/docs/ai-workflow/BACKLOG_FILE.md).
 
 ## Where facts about CI and pull requests come from
 

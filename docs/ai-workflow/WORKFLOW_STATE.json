@@ -9385,6 +9385,1367 @@
         "evaluated_at": "2026-10-19T06:32:02Z",
         "workflow_release": "2.15.0"
       }
+    },
+    "backlog-file": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "backlog-file",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/BACKLOG_FILE_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/backlog-file-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/backlog-file-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 6,
+      "implementation_revision": 6,
+      "functional_review_round": null,
+      "base_commit": "16b75316a317a5af39586fdf25ae0aa4c2fe5782",
+      "reviewed_implementation_head": "8e450bcea551364079380e8f05cd916771b8d7f8",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP5",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "6a67daa9a0c221c705ce0a35e3e123e58dd549a6"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "ddbfaeb9f624d7d582f59ca201198e64f418a242"
+        },
+        "CP3": {
+          "status": "COMPLETE",
+          "start_commit": "21851d428eb258ee806627572faece25de5320e9"
+        },
+        "CP4": {
+          "status": "COMPLETE",
+          "start_commit": "f30c2cad5159774b40daea281e609a5c9268f08c"
+        },
+        "CP5": {
+          "status": "COMPLETE",
+          "start_commit": "4819242934d2a388a50a6f4d1754b26990c09e10"
+        }
+      },
+      "current_bundle_id": "9b69587f882cd19905bfdabacfea2b6cdfa8e4cff38c2e3a7fb342fc4662e4b0",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "9b69587f882cd19905bfdabacfea2b6cdfa8e4cff38c2e3a7fb342fc4662e4b0",
+        "approved_review_content_id": "e0b62c972a65a9233192ff622926cc9e7cec52e4f3929ae37b141200c20a81fc",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/BACKLOG_FILE_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9bcf560997944ed510a1b684796b00d001bbba51"
+          },
+          {
+            "path": "docs/ai-workflow/registry/backlog-file-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1b7d001952cceedb1572db4d438f891b0e0ef690"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/backlog-file-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4888b7e26f26ffae537e89aa8aec6d1b5b3eb302"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-19T09:33:42Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "e0b62c972a65a9233192ff622926cc9e7cec52e4f3929ae37b141200c20a81fc",
+            "ledger": {
+              "local": {
+                "bundle_id": "9b69587f882cd19905bfdabacfea2b6cdfa8e4cff38c2e3a7fb342fc4662e4b0",
+                "verdict": "APPROVE",
+                "round": 6,
+                "verdict_sha256": "7ad72e9dc54eb88fbb810de2e14c7d3cd9d18c9a31294af5c2c0767450f567db",
+                "ledger_entry_sha256": "82ab5f5e1b53f8f18c574e15f2eae3f46951877ab8700078121cc1f89fa0e61e",
+                "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "9b69587f882cd19905bfdabacfea2b6cdfa8e4cff38c2e3a7fb342fc4662e4b0",
+                "verdict": "APPROVE",
+                "round": 6,
+                "verdict_sha256": "cd429518b0153a9a1910ada73b6853b34368d13734924950b97ef1b26d0cde27",
+                "ledger_entry_sha256": "821587bb8701be058b057f864e70d101bf2e4ea0f521cecaa89b2ede2fba90cb",
+                "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-19T09:33:42Z",
+          "workflow_release": "2.16.0"
+        }
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "acb6a5ad7b15608e5c89e17ab21daa749752dd77d709ee57efc3fc88423df638",
+        "approved_review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+        "review_content_manifest": [
+          {
+            "path": "docs/README.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7d2d4adfc11a7bd6a6ac3d3a3b775eb50b592c8c"
+          },
+          {
+            "path": "docs/RELEASING.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b1bfb973da2fa5b2f48b3c9cb6cf1bfeb6cfcc57"
+          },
+          {
+            "path": "docs/ai-workflow/registry/backlog-file-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1df2a6c030d64552b84d35c5381c82b58afd1ed1"
+          },
+          {
+            "path": "docs/common-problems.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "12285cb0d4b013f66945aa38a097468caa28c9ec"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5d3a80cbb396159992babdb3e484888685611f63"
+          },
+          {
+            "path": "docs/gates.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d7db1c0f084fa8520b84199ea92c6bdfbb26dea9"
+          },
+          {
+            "path": "docs/glossary.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c9bb533c4f2b881d4adf7cc45aacddc02294a5e1"
+          },
+          {
+            "path": "docs/install.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8672070536d39cb2fb00b6a5702150f56533e7b8"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b3790e2f90d0126df682d5e7411c3abb20e5b7bb"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a858a17a07e8e978d57c17629039707b6e2282ab"
+          },
+          {
+            "path": "payload/.claude/commands/accept-milestone.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4163a3166f4ec5e17e531d74382ba1569fe0e756"
+          },
+          {
+            "path": "payload/.claude/commands/milestone-plan.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "982a022f5a4cb27b50d589f7d684a192056458dc"
+          },
+          {
+            "path": "payload/.claude/commands/satisfy-gate.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c2d6c355d35ee7170d10c2cc42269be87d5dd9bb"
+          },
+          {
+            "path": "payload/docs/ai-workflow/BACKLOG_FILE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6f495ff75cacb73181e49e0f674174ac8c3a19c7"
+          },
+          {
+            "path": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "dc7f10f39b4d40e89be205ab47c588cf3651660f"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "eaa30e9bc9b648150014b7f3814dcd4e71910b6a"
+          },
+          {
+            "path": "payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "68518bbffcd6e8d7e8671034eacb187b120398c5"
+          },
+          {
+            "path": "payload/scripts/workflow_acceptance_matrix_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "89c1d91f9dfd455df5f71f19f29a762d844f44ca"
+          },
+          {
+            "path": "payload/scripts/workflow_backlog.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1f6b7d9042b1b9b3f6ccb8b0ff9da44b814437ee"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint_generalization_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "735040ac9722d1f515db8487ec8810a31c6a7f96"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "13778cba5bc945ff3c3b5de9abad563b061f3187"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9f43eac980771313405221ca0ee8d1f42a0c986b"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bb37af4b5cb2347a3a453c0b5a99f4c333c53eda"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2daee260616335194ef54f51668743ee0aff9126"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4f62ba9a2ddbbb1df99fa85b0db841dfdf062d81"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1d44de446ebe2cd48834d5d492d38bc022ef7cb3"
+          },
+          {
+            "path": "payload/scripts/workflow_test_harness.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "71222ecb9e5b9b17f3d51413da2fbc106a6148bb"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7169f94897677aed43a3175f114b56293c4b326d"
+          }
+        ],
+        "reviewed_content_commit": "8e450bcea551364079380e8f05cd916771b8d7f8",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-19T15:54:22Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "ledger": {
+              "local": {
+                "bundle_id": "acb6a5ad7b15608e5c89e17ab21daa749752dd77d709ee57efc3fc88423df638",
+                "verdict": "APPROVE",
+                "round": 6,
+                "verdict_sha256": "db37a4754999dcd303c30676477ffb4d6210e80cb5e425e04af147df587d32c5",
+                "ledger_entry_sha256": "6e2264f8544fa2ca5ef4edeae47bb7c9616847ace7e9b660cfdfa6a2a3eb4cc8",
+                "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "acb6a5ad7b15608e5c89e17ab21daa749752dd77d709ee57efc3fc88423df638",
+                "verdict": "APPROVE",
+                "round": 6,
+                "verdict_sha256": "7226bc9deb4d38d610fb6b2e34914711adb66f801abd86fa8ec7f7f7e313ad61",
+                "ledger_entry_sha256": "126edfd3a85c0527a154b268da09150306850fe253e956d25c2a2580a295293d",
+                "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-19T15:54:22Z",
+          "workflow_release": "2.16.0"
+        }
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "e0b62c972a65a9233192ff622926cc9e7cec52e4f3929ae37b141200c20a81fc",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "9b69587f882cd19905bfdabacfea2b6cdfa8e4cff38c2e3a7fb342fc4662e4b0",
+          "verdict": "APPROVE",
+          "round": 6,
+          "completed_at": "2026-10-19T09:26:08Z",
+          "verdict_sha256": "7ad72e9dc54eb88fbb810de2e14c7d3cd9d18c9a31294af5c2c0767450f567db",
+          "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "9b69587f882cd19905bfdabacfea2b6cdfa8e4cff38c2e3a7fb342fc4662e4b0",
+          "verdict": "APPROVE",
+          "round": 6,
+          "completed_at": "2026-10-19T09:32:49Z",
+          "verdict_sha256": "cd429518b0153a9a1910ada73b6853b34368d13734924950b97ef1b26d0cde27",
+          "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 6,
+          "external": 3
+        },
+        "implementation": {
+          "local": 6,
+          "external": 3
+        }
+      },
+      "state_revision": 52,
+      "last_transition": "2026-10-19T16:42:52Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-19T09:24:36Z",
+        "consumed": {
+          "review_content_id": "5f486d10a59967964363d1af25249fcd76a87af29d39a3b3e28bd6c9197b7fe6",
+          "plan_revision": 5,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "e0b62c972a65a9233192ff622926cc9e7cec52e4f3929ae37b141200c20a81fc",
+          "plan_revision": 6
+        },
+        "bound": {
+          "review_content_id": "e0b62c972a65a9233192ff622926cc9e7cec52e4f3929ae37b141200c20a81fc",
+          "bundle_id": "9b69587f882cd19905bfdabacfea2b6cdfa8e4cff38c2e3a7fb342fc4662e4b0",
+          "plan_revision": 6
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "5f486d10a59967964363d1af25249fcd76a87af29d39a3b3e28bd6c9197b7fe6",
+        "73ea8b10ff32240b49f16d4b35f12f1096ea8d160297626e0ed3f9fc3e1ca00f",
+        "ab9d0fb12b0a0f3363c9f9170fbf51ebaaa55a60bed39bbbdeb1fe4fb3fc5018",
+        "b6d9fb72e7d74e1a36c35df860023ff310a2efe6c8ee98bb5665d27b44b9b29e",
+        "f814710582f0f445932100ac659681b1f4972d345af18df4afab6940f996f98a"
+      ],
+      "optional_findings": {
+        "F-bcde5a33af92": {
+          "digest": "bcde5a33af924119482ec3c67c5b8c50a2f6759eeb544bcab5a4e1d8bf3b67f8",
+          "text": "D-Generate builds a Markdown link from `detail`, whose only rules are D-Declare's path rules. A path containing a space, `(`, `)` or `|` produces a broken link or a broken table row. Restrict `detail` to a safe character set or percent-encode the link target, and add a render test.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f814710582f0f445932100ac659681b1f4972d345af18df4afab6940f996f98a",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:36:55Z"
+            }
+          ]
+        },
+        "F-e913242ef645": {
+          "digest": "e913242ef6453c0f98d8d63d1368d24f212438583ed774deb45f6f149606609e",
+          "text": "D-Format rule 3 refuses anchors (`&`), aliases (`*`) and tags (`!`) without saying whether only at the start of a value (where YAML treats them as indicators) or anywhere. Refusing them anywhere would reject plain titles like `R&D` that YAML accepts. Say which, and say whether a flow list's trailing comma or empty entry (`[a, ]`, `[a, , b]`) is refused (YAML 1.2 accepts a trailing comma).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f814710582f0f445932100ac659681b1f4972d345af18df4afab6940f996f98a",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:36:55Z"
+            }
+          ]
+        },
+        "F-a14edeec3a2c": {
+          "digest": "a14edeec3a2c75bf08357b04733a8a1b420ff3d3baedb4d02faf78852d6645f0",
+          "text": "With a declared generator, D-Accept does not say which paths `accept` prints for the completion commit to stage when the generator also writes files other than `roadmap`. Say that only `file` and `roadmap` are printed and that other changes are reported, or refuse them.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f814710582f0f445932100ac659681b1f4972d345af18df4afab6940f996f98a",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:36:55Z"
+            }
+          ]
+        },
+        "F-9b37ea310490": {
+          "digest": "9b37ea310490f94d423229b7b67fcbdea2948aeeacf7ffadd27805abb69b408b",
+          "text": "INV-1 (\"with no `backlog` key … every message is today's\") conflicts with D-Declare's deliberate `declaration_unreadable` refusal for an existing non-object config. Reword INV-1 to name that one exception.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f814710582f0f445932100ac659681b1f4972d345af18df4afab6940f996f98a",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:36:55Z"
+            }
+          ]
+        },
+        "F-c816a1890fc1": {
+          "digest": "c816a1890fc1d38a8b9964d88c6e27415a2f464b23f0a89c788ff12605bfe111",
+          "text": "CP3's declared branch of `/accept-milestone` step 7 \"reports `next`\". Say whether it still writes `docs/ACTIVE_MILESTONE.md`'s \"Next action\" (the undeclared step 7 does), so that the declared and undeclared branches leave the same files.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f814710582f0f445932100ac659681b1f4972d345af18df4afab6940f996f98a",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:36:55Z"
+            }
+          ]
+        },
+        "F-922f21d88074": {
+          "digest": "922f21d8807432a7bae49438ccd00cb65c44ac30ccd955f7d8d24d42d973e581",
+          "text": "`/milestone-plan` with no argument now follows the backlog's selection even when `active_work_item_id` names a different non-terminal item (for example, a ready `in-progress` item set by the Controller outranks a `next` item already in planning). State the precedence, or report the mismatch as an advisory line.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f814710582f0f445932100ac659681b1f4972d345af18df4afab6940f996f98a",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:36:55Z"
+            }
+          ]
+        },
+        "F-1e2bf5c82a97": {
+          "digest": "1e2bf5c82a97bc3bc46c190e0b90831141c78d038aa4fc28172b88face27b107",
+          "text": "Rule 3 exempts \"an empty `depends_on`\" from the empty-value refusal, while rule 7 allows an empty value only when a block list follows. PyYAML reads `depends_on:` with no following `- ` line as `null` (checked: `{'depends_on': None}`). Say explicitly that an empty `depends_on` with no block list after it is refused, and add that refusal test. Otherwise a parser that reads it as `[]` breaks INV-6.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "b6d9fb72e7d74e1a36c35df860023ff310a2efe6c8ee98bb5665d27b44b9b29e",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:46:08Z"
+            }
+          ]
+        },
+        "F-010bb106ad5a": {
+          "digest": "010bb106ad5af71552c7d601720ff46d9c52b88b8e4f1d01ef3532a9232995b8",
+          "text": "The recovery after an `accept` refusal says to \"continue at step 4 of `/accept-milestone` (`/satisfy-gate`'s step 4 is the same continuation)\". They are not the same. `/satisfy-gate` step 4 runs `/accept-milestone` steps 2b and 3 to 8, so it re-runs `accept` (harmless: an idempotent regeneration). Its completion commit must also carry `Workflow-Gate-Satisfied-By: policy:<digest>`, and steps 5 (record the floor) and 6 (report by policy) follow it. An operator who follows the human-path wording on the policy path produces a commit without the policy trailer and records no floor. State the policy-path re-entry exactly, and have the CP3 policy-path recovery scenario assert the trailer.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "b6d9fb72e7d74e1a36c35df860023ff310a2efe6c8ee98bb5665d27b44b9b29e",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:46:08Z"
+            }
+          ]
+        },
+        "F-a1ee14a0a9fd": {
+          "digest": "a1ee14a0a9fdb95bb950f1e4446999213479a3045c06f574b5a4d66ee6ac9c22",
+          "text": "`docs/ai-workflow/registry/backlog-file-artifacts.json` still lists `docs/backlog.md` as an implementation-stage protected path, and the plan-stage exclusions still list it. Since LPR-R1-004 no checkpoint writes it and section 9 does not name it. Drop the stale entry so the declaration matches section 9.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "b6d9fb72e7d74e1a36c35df860023ff310a2efe6c8ee98bb5665d27b44b9b29e",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:46:08Z"
+            }
+          ]
+        },
+        "F-420b2b6e9bc8": {
+          "digest": "420b2b6e9bc8007111d8b2cbfe717dda4d864a90da0a715b055c9cfb9c8a2bf8",
+          "text": "The backlog pre-flight is placed as a bullet of `/accept-milestone` step 2a. 2a opens with \"if this work item has a `WORKFLOW_STATE.json` entry\" and ends \"a work item with no state entry … skip this entire step\". The key applies \"whatever its governing version\", so a stateless legacy item would skip the pre-flight and still reach step 3's `accept`. Say whether the pre-flight runs for such an item, or that step 3's declared branch is skipped for it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "b6d9fb72e7d74e1a36c35df860023ff310a2efe6c8ee98bb5665d27b44b9b29e",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:46:08Z"
+            }
+          ]
+        },
+        "F-5e15544d0f45": {
+          "digest": "5e15544d0f45becd38c5adf58e8825f9900a6db9a21960bcbe71fe02b5cfc55b",
+          "text": "D-Declare says `load_config` \"already treats that state as broken\". Before activation, `load_config` silently returns `default_config()` for a missing or corrupt file (`workflow_state.py`, `load_config`); only after activation does it raise. Reword it so the stated difference is accurate.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "b6d9fb72e7d74e1a36c35df860023ff310a2efe6c8ee98bb5665d27b44b9b29e",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:46:08Z"
+            }
+          ]
+        },
+        "F-e1b9f099b3d1": {
+          "digest": "e1b9f099b3d18cedd7427c94137e068ae84c11fb80a5e9a8259be81b081ab2aa",
+          "text": "D-Select says `/milestone-plan` reads `item.detail` as the description, but `detail` is optional. Say what the command uses when it is absent (the title alone).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "b6d9fb72e7d74e1a36c35df860023ff310a2efe6c8ee98bb5665d27b44b9b29e",
+              "verdict": "REVISE",
+              "at": "2026-10-19T08:46:08Z"
+            }
+          ]
+        },
+        "F-701c9f9f51eb": {
+          "digest": "701c9f9f51eb272006d3da8a1e8414d9f3eda50553bdfddd63bef6cdecd3d739",
+          "text": "INV-1 and D-Classify say more than the design does. CP2 adds `docs/backlog.yaml` and `docs/items/` to both halves of `generate_artifacts_declarations` unconditionally: they go into the implementation-stage tuples and the plan-stage `setdefault` calls, and CP2's own test checks this \"without `repo_root`\". So in an undeclared repository the `<id>-artifacts.json` that `/milestone-plan` writes is no longer byte-for-byte today's, and \"Every existing caller omits it and gets today's bytes\" is false. The change is harmless (extra classification only), but INV-1 lists one exception and this is a second. Name it as a deliberate exception in INV-1 and correct the D-Classify sentence (\"today's bytes plus the two default names\"). Then CP3's undeclared-lifecycle assertion (\"no file other than today's changing\") is not mistaken for a byte-equality claim about that file.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ab9d0fb12b0a0f3363c9f9170fbf51ebaaa55a60bed39bbbdeb1fe4fb3fc5018",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T08:52:56Z"
+            }
+          ]
+        },
+        "F-4ace901b0e73": {
+          "digest": "4ace901b0e73fed18192537946ae15c2bf2a5ec1677e0599f6a8a12019598cfd",
+          "text": "D-Format does not say what happens to whitespace around a plain value. YAML strips trailing spaces from a plain scalar and the spaces after `: ` (checked with PyYAML: `title: abc   ` loads as `'abc'`). Rule 6 is silent, so a parser that keeps them would give a different `title` (INV-6). Say that trailing whitespace on a line is refused, or stripped as YAML does, and do the same for more than one space after `: `. Add one example to the refusal tests (or the accepted side) and to the PyYAML cross-check.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ab9d0fb12b0a0f3363c9f9170fbf51ebaaa55a60bed39bbbdeb1fe4fb3fc5018",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T08:52:56Z"
+            }
+          ]
+        },
+        "F-8c2c3ed04d96": {
+          "digest": "8c2c3ed04d967bcb964f16a3b0dcf5b49a4c59e968ace6d3c6a434e74f9ed706",
+          "text": "D-Declare lets `file` or `roadmap` sit under an implementation-stage **protected** prefix or path of the item's type (for example `config/backlog.yaml` or `docs/adr/` for a product item, or `scripts/` or `.claude/commands/` for a process item). `classify_path_implementation_stage` (`payload/scripts/workflow_fingerprint.py:1836-1843`) checks protected prefixes before excluded paths, so D-Classify's `setdefault` exclusion has no effect there. Any backlog edit while an item is past technical approval (for example the Controller setting `in-progress`) would then count as a protected change. Either refuse such a declaration (`declaration_invalid`, naming the protected prefix) or state the consequence in `BACKLOG_FILE.md`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ab9d0fb12b0a0f3363c9f9170fbf51ebaaa55a60bed39bbbdeb1fe4fb3fc5018",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T08:52:56Z"
+            }
+          ]
+        },
+        "F-f750e0aa1ed0": {
+          "digest": "f750e0aa1ed0478c747ef0d31052ad17a2e32f8e1cd8370c501e9bcc3e36e4cb",
+          "text": "CP3's `milestone-plan.md` bullet still says \"read `item.detail` as the milestone's description\" without the absent-`detail` rule D-Select now states (use the title alone and say so). Carry that rule into the command text and its integration pin, so the CP3 text and D-Select match.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ab9d0fb12b0a0f3363c9f9170fbf51ebaaa55a60bed39bbbdeb1fe4fb3fc5018",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T08:52:56Z"
+            }
+          ]
+        },
+        "F-5846ccf1f44d": {
+          "digest": "5846ccf1f44dd07680f8aa7b6eda20bf06ec9686b09bfdb716b41e8e18961732",
+          "text": "**O1 — Specify scalar whitespace normalization.** D-Format does not explicitly define spaces after `:` or trailing spaces on plain values (`docs/ai-workflow/BACKLOG_FILE_PLAN.md:191`). PyYAML reads both `title:   abc` and `title: abc   ` as `\"abc\"`. State whether these forms are refused or normalized accordingly, and pin the choice.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ab9d0fb12b0a0f3363c9f9170fbf51ebaaa55a60bed39bbbdeb1fe4fb3fc5018",
+              "verdict": "REVISE",
+              "at": "2026-10-19T09:03:22Z"
+            }
+          ]
+        },
+        "F-62de0fcc7722": {
+          "digest": "62de0fcc772214cd7c65366d7ec6e3bae831634d7f9a597facb851b4409c24fe",
+          "text": "**O2 — Complete the adoption repair instructions.** The repair adds exclusions to both artifact stages (`docs/ai-workflow/BACKLOG_FILE_PLAN.md:463`), which also stales existing approvals. Link explicitly to the required review and approval renewal in `payload/docs/ai-workflow/REVIEW_PROTOCOL.md:647`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "ab9d0fb12b0a0f3363c9f9170fbf51ebaaa55a60bed39bbbdeb1fe4fb3fc5018",
+              "verdict": "REVISE",
+              "at": "2026-10-19T09:03:22Z"
+            }
+          ]
+        },
+        "F-1a993a7f195e": {
+          "digest": "1a993a7f195e9ed20a0d2ca73bb8d6e34494e65d2a41ba424a35834f47567236",
+          "text": "**LPR-R4-O1: detect `declaration_conflict` before the work item is created.** The collision depends only on three things, all known at `/milestone-plan` step 1: the declared paths, the item's `work_item_type`, and the item's own plan, registry and mapping paths. As planned, it is raised only in step 3 by `generate_artifacts_declarations`, in the same pass that has already written the registry and mapping. You can recover by changing the key and re-running planning, but the refusal arrives after writes. Consider having `/milestone-plan` step 1 (the declared branch) run `protected_conflicts` against the template it is about to generate, so the refusal comes before anything is written, and pin it with a test.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "73ea8b10ff32240b49f16d4b35f12f1096ea8d160297626e0ed3f9fc3e1ca00f",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T09:09:41Z"
+            }
+          ]
+        },
+        "F-16aa4100a9eb": {
+          "digest": "16aa4100a9ebda691403d5b576e6176ce3a8c63861cfc63812e16baa1ddc8426",
+          "text": "**LPR-R4-O2: pin rule 8 for a key with no inline value.** Rule 8 doesn't say whether `items:` (before a block sequence) or `depends_on:` (before a block list) may carry a trailing comment (`items: # backlog`). YAML accepts it with the same meaning. Say whether it is accepted or refused, and add the test to CP1's rule-8 list.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "73ea8b10ff32240b49f16d4b35f12f1096ea8d160297626e0ed3f9fc3e1ca00f",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T09:09:41Z"
+            }
+          ]
+        },
+        "F-d87f73f5f31e": {
+          "digest": "d87f73f5f31ec39986105a002aa017b0c19759d6398148c7d4e8e7a76279bbe9",
+          "text": "**LPR-R4-O3: fix the D-Messages wording.** The paragraph opens with \"Every other code that `accept` can print after the state completion…\", but nothing before it says what \"other\" contrasts with (the `generator_failed` row comes after it, in the table). Reword it, for example: \"Every code other than `generator_failed` that `accept` can print…\", so the shipped document copies a sentence that makes sense on its own.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "73ea8b10ff32240b49f16d4b35f12f1096ea8d160297626e0ed3f9fc3e1ca00f",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T09:09:41Z"
+            }
+          ]
+        },
+        "F-cbccbacb334c": {
+          "digest": "cbccbacb334c5d040d414737e74ed9b4c65b4b20889512dc4b3c5a4145345d2d",
+          "text": "D-Downgrade's claim that \"acceptance hand-edits the generated page, after which the staleness check fails\" (`:551-554`) holds only when `roadmap` is `docs/ROADMAP.md`, the page 2.16.0's step 3 edits. With a non-default `roadmap` (which D-Classify and CP2 explicitly support), 2.16.0 edits or creates `docs/ROADMAP.md`, the generated page is untouched, and `check` still passes while the backlog says `next`. State the non-default case: nothing fails, and the backlog silently stops advancing.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "5f486d10a59967964363d1af25249fcd76a87af29d39a3b3e28bd6c9197b7fe6",
+              "verdict": "REVISE",
+              "at": "2026-10-19T09:21:44Z"
+            }
+          ]
+        },
+        "F-0681a47661f6": {
+          "digest": "0681a47661f6eff8ea4ed29371720c60c79c01670d1e62927850284fce755cd9",
+          "text": "INV-3 (`:51-52`) says the page \"is only ever the output of the declared generator command or the built-in generator\", but D-Generate now has the Workflow replace the generator's marker line with the stamp. Reword INV-3 (for example: \"only ever the output of a generator, plus, for a declared one, the Workflow's own stamp of its marker line; never an edit of its content\") so a test author does not read the stamp as a violation of the invariant.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "5f486d10a59967964363d1af25249fcd76a87af29d39a3b3e28bd6c9197b7fe6",
+              "verdict": "REVISE",
+              "at": "2026-10-19T09:21:44Z"
+            }
+          ]
+        },
+        "F-a17298045fcd": {
+          "digest": "a17298045fcdc978b4b455e624079100851fae4149ed44c32b5d6619e067ce10",
+          "text": "D-Generate defines the marker and stamp lines and the `page-sha256` input (\"that one line (its LF included) removed\") but not how the page is split into lines. It does not say what happens when the marker is the last line and has no final LF, or when the generator writes CRLF. State LF splitting, that a final line without an LF is a line, and that a CR before the LF makes the line non-matching (fail closed). Also state that the stamp keeps the original line's terminator, so the stamp and `check` hash the same bytes.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "5f486d10a59967964363d1af25249fcd76a87af29d39a3b3e28bd6c9197b7fe6",
+              "verdict": "REVISE",
+              "at": "2026-10-19T09:21:44Z"
+            }
+          ]
+        },
+        "F-afd4286c5e64": {
+          "digest": "afd4286c5e64541579deb75d881f08f4a72bb1d31b6342613e582ca981ecf123",
+          "text": "`workflow_state` gains a dependency on `workflow_backlog` (D-Classify), but several scratch installs copy a fixed list of scripts that lacks it: `install_workflow_scripts` in `payload/scripts/workflow_test_harness.py:456-459`, five lists in `workflow_fingerprint_generalization_test.py` (`:870`, `:1157`, `:1378`, `:1806`, `:2610`) and `SCRIPT_FILES` in the acceptance matrix (which CP3 already extends). Say that the import is lazy, inside the `repo_root` branch (the `workflow_forge` precedent), so callers that omit `repo_root` never import it. Then either add the script to those lists in CP2's `**Files:**`, or say an `ImportError` there is a refusal and never an empty list: a declared repository missing the script must not silently lose its classification.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "5f486d10a59967964363d1af25249fcd76a87af29d39a3b3e28bd6c9197b7fe6",
+              "verdict": "REVISE",
+              "at": "2026-10-19T09:21:44Z"
+            }
+          ]
+        },
+        "F-ecadfad94c17": {
+          "digest": "ecadfad94c17850d9def4e9f9ba4964bd00538cccdfb6acb0a7a50f132f7b7ed",
+          "text": "On a case-insensitive filesystem (macOS by default), a declared `Scripts/backlog.yaml` passes the textual check of `protected_conflicts` against `scripts/`. Yet the write lands in `scripts/backlog.yaml`, and Git (`core.ignorecase`) stages it under the index's existing directory case. That is the EPR-002 path-identity class by another route. Consider requiring every existing component of a declared path to match its directory entry's exact name (a `os.listdir` comparison next to the `lstat` check), refused as `declaration_invalid`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "5f486d10a59967964363d1af25249fcd76a87af29d39a3b3e28bd6c9197b7fe6",
+              "verdict": "REVISE",
+              "at": "2026-10-19T09:21:44Z"
+            }
+          ]
+        },
+        "F-50a685047602": {
+          "digest": "50a6850476026d4c85b093e8ff807b0cce529f8182c37a870b58b7ad28fbc48f",
+          "text": "D-Downgrade's way back says the script can be copied to `tools/workflow_backlog.py` \"or any path outside\" the managed areas, and INV-5 says the script \"can be copied out\". Neither says how the script finds the repository root. If CP2 derives it from `__file__` (`parents[1]`), a copy at a deeper path such as `tools/backlog/workflow_backlog.py` reads the wrong root. Say that the script resolves the root from its working directory (`git rev-parse --show-toplevel`, as the `workflow_state.py` CLI does at `:19639`), or limit the way back to a path exactly one directory deep.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 6,
+              "review_content_id": "e0b62c972a65a9233192ff622926cc9e7cec52e4f3929ae37b141200c20a81fc",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T09:26:08Z"
+            }
+          ]
+        },
+        "F-8345b20de4e3": {
+          "digest": "8345b20de4e3ca4c1d03c9e3db9f1736cca4681338179af19b6571cfa25cfcaf",
+          "text": "D-Classify's lazy-import rule makes an `ImportError` \"a refusal (`declaration_invalid`, naming the missing script)\". It does not name the exception that `workflow_state` raises, since `BacklogError` lives in the module that failed to import. It also does not say that the refusal comes before the declaration is read, so an undeclared repository with a missing script and `repo_root` passed refuses too. That is a broken 2.17.0 installation, not an INV-1 case, but say so, and name the exception type the CP2 test asserts.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 6,
+              "review_content_id": "e0b62c972a65a9233192ff622926cc9e7cec52e4f3929ae37b141200c20a81fc",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T09:26:08Z"
+            }
+          ]
+        },
+        "F-e6d8a25a829a": {
+          "digest": "e6d8a25a829ad1dcc8ab6b84e42826b2759f63aa35ca65ae4f9b496917645942",
+          "text": "After a downgrade, the copied script's built-in page header and its next-step lines still name `python3 scripts/workflow_backlog.py`. Those header bytes must stay as they are, or `check` fails against the existing page. The way-back text in `BACKLOG_FILE.md` should say that these references name the old path and are expected, so that a user does not \"fix\" the page by hand.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 6,
+              "review_content_id": "e0b62c972a65a9233192ff622926cc9e7cec52e4f3929ae37b141200c20a81fc",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T09:26:08Z"
+            }
+          ]
+        },
+        "F-374482d96abd": {
+          "digest": "374482d96abd7bbb4036d34629319649d8f5728dfc474040ae4aa7b4f99d867a",
+          "text": "**LIR-R1-O1** -- `_classify_declared_backlog` imports `workflow_backlog` for\n  every `repo_root` call, so an undeclared repository that somehow lacks the\n  script is refused (`BacklogScriptUnavailableError`) instead of getting today's\n  bytes. That matches the plan's literal \"lazy, inside the `repo_root` branch\",\n  and every 2.17.0 installation ships the script, so this is only theoretical\n  against INV-1. Consider refusing only when the config actually carries a\n  `backlog` key.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "f7d0b3cfc51abe16cd04460f4438e469264de286682c9284dd9126494ee55d3b",
+              "verdict": "REVISE",
+              "at": "2026-10-19T11:23:19Z"
+            }
+          ]
+        },
+        "F-50536dd07922": {
+          "digest": "50536dd07922169d090a587ecb31380f4f5415115d46f96b1eb2cc38e9bb5e92",
+          "text": "**LIR-R1-O2** -- `protected_conflicts` tests the item-page prefix through one\n  representative path, `docs/items/x.md`. An artifact declaration that protects\n  an exact page such as `docs/items/foo.md` (by hand edit) is not detected.\n  Testing whether any protected exact path starts with `docs/items/` would close\n  this.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "f7d0b3cfc51abe16cd04460f4438e469264de286682c9284dd9126494ee55d3b",
+              "verdict": "REVISE",
+              "at": "2026-10-19T11:23:19Z"
+            }
+          ]
+        },
+        "F-44428bb9d602": {
+          "digest": "44428bb9d60208daff2fe20598badd0aeb388537567ff1b201274374b967f32b",
+          "text": "**LIR-R2-O1** -- the new `_snapshot` refusal reads \"`<roadmap>` exists and is not\n  a regular file\". `_page_state`'s refusal for the same condition reads\n  \"`backlog.roadmap` `<roadmap>` exists and is not a regular file\". Both have the\n  same code. Use one wording so that the message names the field either way.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "54d44be8b5ec1596b71090113869d4e37084da9b83586f5a50aaca0cd81cb636",
+              "verdict": "REVISE",
+              "at": "2026-10-19T12:09:06Z"
+            }
+          ]
+        },
+        "F-e6cdf23fa278": {
+          "digest": "e6cdf23fa2783526559ff03ba6cd6f5251d9de6567d03971e00d835e6403125b",
+          "text": "**LIR-R3-O1** -- `BACKLOG_FILE.md` (the `--repo-root DIR` paragraph) does not say\n  what the default root is now. Add one clause, such as \"by default, the git top level\n  of the working directory, else the working directory\". It would tell a user who\n  runs the script by absolute path from another directory why it reads that\n  directory's repository.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "a1780ee0c6335248d3bc300481e30f032b89b53f1ea4c3e21f2c6f2381dd2ab1",
+              "verdict": "REVISE",
+              "at": "2026-10-19T12:50:49Z"
+            }
+          ]
+        },
+        "F-2c811d6d2bb2": {
+          "digest": "2c811d6d2bb28964fb3e84ecf5a0d46a18543097b44739e5e2fdc3dc1cbc45e8",
+          "text": "**LIR-R4-O1** -- `_check_plain(..., flow=True)` accepts `?` inside a plain\n  flow-list entry (for example `depends_on: [a?b]`), and PyYAML refuses it (\"expected ','\n  or ']', but got '?'\"). No file that passes `validate_backlog` can contain such an\n  entry, because every `depends_on` entry must name an item id matching\n  `^[a-z0-9][a-z0-9_-]{0,63}$`. So INV-6 holds for accepted files. To make\n  `parse_backlog` refuse it as well, add `?` to the characters refused in a plain\n  flow entry, next to `:`, with one parser test. A later release could do this.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 4,
+              "review_content_id": "fc4b6271b2d7483c4e32a9c5f726f1388e744da522e2ed44a2c5581f23768848",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T13:31:42Z"
+            }
+          ]
+        },
+        "F-57d3c535ad91": {
+          "digest": "57d3c535ad91f09d25b9f9679401388199d117716988f88c662e7d74ba5749db",
+          "text": "**EIR-O1 [substantive] — Declaration failures bypass acceptance’s recovery message.**\n\n  `payload/scripts/workflow_backlog.py:1187` loads the declaration outside the handler that applies `_with_recovery`. If it becomes invalid after preflight, `accept` prints only the generic declaration remedy, omitting the prescribed manual acceptance and continuation steps. The command documents already explain recovery, so this is Optional.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 4,
+              "review_content_id": "fc4b6271b2d7483c4e32a9c5f726f1388e744da522e2ed44a2c5581f23768848",
+              "verdict": "REVISE",
+              "at": "2026-10-19T13:50:39Z"
+            }
+          ]
+        },
+        "F-dfa4badd811f": {
+          "digest": "dfa4badd811f5caf577f56d5529cbe3730e59ac4e921c0389c9d338d2cc3f87f",
+          "text": "**LIR-R5-O1 — The parser accepts `?` inside a plain flow-list entry, which PyYAML refuses.** `_parse_flow_list`/`_check_plain(flow=True)` (`payload/scripts/workflow_backlog.py:205-238`, `:171`) accepts `depends_on: [b?]` as `[\"b?\"]`. PyYAML 6.0.3 stops a flow-context plain scalar at `?` and raises `ParserError`. That breaks the letter of INV-6 (\"every file the parser accepts\"), but no file gets through: `validate_backlog` refuses the entry, because a `depends_on` entry must name an existing id and ids cannot contain `?`. So `parse_and_validate` and every command refuse the file with `backlog_invalid`. Fix in the next release by adding `?` to the flow-context refusal next to `:`, with a refusal-table case.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 5,
+              "review_content_id": "f285a3470b40144dbb095cb779e1e7d1a20f601a3cbbf27dc5dca8d1d60aabd5",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T14:42:14Z"
+            }
+          ]
+        },
+        "F-0cc9080241af": {
+          "digest": "0cc9080241af28d05681c6eb6d2c88929ea521b7a648b16f6f9ccfbd5de9141c",
+          "text": "**LIR-R5-O2 — `TEST_RESULTS.md` is stale.** It is still headed \"implementation revision 2\" and stops at the revision-3 re-run. The revision-4 and revision-5 results, including the acceptance count of 450, appear only in `IMPLEMENTATION_SUMMARY.md`. A reviewer reading only `TEST_RESULTS.md` sees 449. Bring it up to date at the next bundle regeneration.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 5,
+              "review_content_id": "f285a3470b40144dbb095cb779e1e7d1a20f601a3cbbf27dc5dca8d1d60aabd5",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T14:42:14Z"
+            }
+          ]
+        },
+        "F-aa5739b6debe": {
+          "digest": "aa5739b6debebc175af45cb5d93dc6785204887326617992ff2e66eeba89a404",
+          "text": "LIR-R6-O1: The approved plan text no longer matches two deliberate revision-6 changes:\n  - `BACKLOG_FILE_PLAN.md` around line 804 still places a no-state-entry backlog pre-flight at the head of step 2a.\n  - Around line 458 it still says a refusal is \"two lines\".\n  \n  The implementation now removes the first (it was unreachable under step 0) and reports aggregated diagnostics. Both changes are correct, but the departure from the plan is recorded only in `ACTIVE_MILESTONE.md`. Note it in the release notes or a follow-up plan amendment so later readers don't treat the plan as authoritative on these two points.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 6,
+              "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T15:40:35Z"
+            }
+          ]
+        },
+        "F-3dd10bb87806": {
+          "digest": "3dd10bb87806e28e799bc44ba2b017e83ed61b334ea038032ccb77cfd9753949",
+          "text": "LIR-R6-O2: Rollback restores bytes, not modes, in two cases:\n  - `_restore` returns early when the bytes match, so a declared generator that changes only the mode of the backlog file or the page leaves that change after a refusal.\n  - When the bytes differ, the snapshot is republished with the file's *current* mode (possibly generator-altered), not the mode it had at snapshot time.\n  \n  Capturing the mode in `_snapshot` and restoring it would close this. It is an edge case: it needs a misbehaving declared generator.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 6,
+              "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T15:40:35Z"
+            }
+          ]
+        },
+        "F-1f722e96338f": {
+          "digest": "1f722e96338ffee6bf49404fd7a415cd33d512ba0b7f855c9822f33b99d381c2",
+          "text": "LIR-R6-O3: `TEST_RESULTS.md` is stale:\n  - Its header says revision 2 and its last section is revision 3.\n  - The counts for revisions 4-6 (acceptance 450, completion-obligations 187, integration 329) appear only in `IMPLEMENTATION_SUMMARY.md`.\n  - The revision-6 summary says `release_test.py` passes, which could not be reproduced here: `zlib_ng` is not installed (15 failures and 14 errors, same cause as before).\n  \n  Refresh `TEST_RESULTS.md` at the next regeneration and name the environment in which `release_test.py` passed.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 6,
+              "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T15:40:35Z"
+            }
+          ]
+        },
+        "F-f0cc6ae76d1a": {
+          "digest": "f0cc6ae76d1a59c00829cdb00cf472c79e1aa3cee2282243a8f4ba9e99d1c2f5",
+          "text": "**EIR-O2 [substantive] — A long malformed dependency chain crashes diagnostic reporting.**\n\n  At `payload/scripts/workflow_backlog.py:471`, cycle detection recurses even when schema violations have already been collected (`payload/scripts/workflow_backlog.py:555`). A 2,000-line file containing `version`, `items` and 999 two-line records (`id` and `depends_on`, forming a chain) produces `RecursionError`. `status` exits 1 without JSON instead of reporting the missing required fields. No writes occur, and valid backlogs cannot reach this depth within the line limit. Consider iterative traversal or reporting existing schema errors before cycle detection, with regression coverage.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 6,
+              "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T15:54:04Z"
+            }
+          ]
+        },
+        "F-a7dab7eec405": {
+          "digest": "a7dab7eec405d8f124cd0ad30801f142f26dc121a8ffe36e48686bfa96d9b606",
+          "text": "**EIR-O3 [apparatus] — Checklist F7 still omits the collision setup.**\n\n  `docs/ACTIVE_MILESTONE.md:217` instructs adding protected `WORKFLOW_STATE.json` to the artifact declaration, but does not change either configured backlog path to collide with it. Following that setup with the checklist’s default declaration makes `preflight-accept first-item` succeed. Specify the artifact JSON and set `backlog.roadmap` to the protected path before expecting `declaration_conflict`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 6,
+              "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T15:54:04Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "acb6a5ad7b15608e5c89e17ab21daa749752dd77d709ee57efc3fc88423df638",
+          "verdict": "APPROVE",
+          "round": 6,
+          "completed_at": "2026-10-19T15:40:35Z",
+          "verdict_sha256": "db37a4754999dcd303c30676477ffb4d6210e80cb5e425e04af147df587d32c5",
+          "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "acb6a5ad7b15608e5c89e17ab21daa749752dd77d709ee57efc3fc88423df638",
+          "verdict": "APPROVE",
+          "round": 6,
+          "completed_at": "2026-10-19T15:54:04Z",
+          "verdict_sha256": "7226bc9deb4d38d610fb6b2e34914711adb66f801abd86fa8ec7f7f7e313ad61",
+          "run_ref": "session:local .ai-review/backlog-file/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "gate_evidence": {
+        "functional": {
+          "w13-f1": {
+            "flow_id": "w13-f1",
+            "status": "passed",
+            "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+            "ran_at": "2026-10-19T16:00:39Z",
+            "summary": {
+              "flow": "undeclared is unchanged",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "13d81f49f1c97ee4d5844e7b2732784b181855f2b7bff4e77d5f4a09530afda1",
+            "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "recorded_at": "2026-10-19T16:01:31Z"
+          },
+          "w13-f2": {
+            "flow_id": "w13-f2",
+            "status": "passed",
+            "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+            "ran_at": "2026-10-19T16:00:39Z",
+            "summary": {
+              "flow": "declare",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "571400766fe15430e8471d770bd79641b40df4872faaee2c772a7bac3ca71add",
+            "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "recorded_at": "2026-10-19T16:01:31Z"
+          },
+          "w13-f3": {
+            "flow_id": "w13-f3",
+            "status": "passed",
+            "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+            "ran_at": "2026-10-19T16:00:39Z",
+            "summary": {
+              "flow": "generate and check",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "8d45988bc642cd4deaca67c36d40006d6977fb6dd77542aabc5f85cdfba9b84f",
+            "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "recorded_at": "2026-10-19T16:01:31Z"
+          },
+          "w13-f4": {
+            "flow_id": "w13-f4",
+            "status": "passed",
+            "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+            "ran_at": "2026-10-19T16:00:39Z",
+            "summary": {
+              "flow": "hand-written page",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "9052e49d831cde37da83a68f2202c579fb016f2eed0081c11e7477fd8143ec80",
+            "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "recorded_at": "2026-10-19T16:01:31Z"
+          },
+          "w13-f5": {
+            "flow_id": "w13-f5",
+            "status": "passed",
+            "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+            "ran_at": "2026-10-19T16:00:39Z",
+            "summary": {
+              "flow": "selection",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "71a2055d51d09ec47a8d027b5683eabf61542cc1974ccd39852c691ea29dae86",
+            "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "recorded_at": "2026-10-19T16:01:31Z"
+          },
+          "w13-f6": {
+            "flow_id": "w13-f6",
+            "status": "passed",
+            "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+            "ran_at": "2026-10-19T16:00:39Z",
+            "summary": {
+              "flow": "accept",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "b6f5bcc782128aa4f9a443e725567b40b8aac6d583226ab870b101cd4f828e39",
+            "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "recorded_at": "2026-10-19T16:01:31Z"
+          },
+          "w13-f7": {
+            "flow_id": "w13-f7",
+            "status": "passed",
+            "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+            "ran_at": "2026-10-19T16:00:39Z",
+            "summary": {
+              "flow": "refusals",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "42fbf5597a4dcbfcda6d43202643c5c4dd27fd60d717da0893790dc9b0e1c43e",
+            "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "recorded_at": "2026-10-19T16:01:31Z"
+          },
+          "w13-f8": {
+            "flow_id": "w13-f8",
+            "status": "passed",
+            "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+            "ran_at": "2026-10-19T16:00:39Z",
+            "summary": {
+              "flow": "declared generator",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "ae1688723016acea372cd3bd70a01ee51cdb6a5eed3c3e25afa0a63471ee0081",
+            "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "recorded_at": "2026-10-19T16:01:31Z"
+          },
+          "w13-f9": {
+            "flow_id": "w13-f9",
+            "status": "passed",
+            "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+            "ran_at": "2026-10-19T16:00:39Z",
+            "summary": {
+              "flow": "commands read (document review)",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "33617ab99b4df576008ad46a9b52a42497bdd497e3ba2be7a1dc755777f21dcc",
+            "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "recorded_at": "2026-10-19T16:01:32Z"
+          },
+          "w13-f10": {
+            "flow_id": "w13-f10",
+            "status": "passed",
+            "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+            "ran_at": "2026-10-19T16:00:39Z",
+            "summary": {
+              "flow": "release",
+              "result": "PASSED",
+              "results": "RESULTS.md"
+            },
+            "log_digest": "f703d4ea6cad50248a8a4df6681475cbcecdbfe2ec609d31e4301fa3090023b0",
+            "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2",
+            "reporter": "manager-orchestrator (independent executor codex openai/gpt-6.1-sol)",
+            "identity": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "recorded_at": "2026-10-19T16:01:32Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 61,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/61"
+          },
+          "state": "open",
+          "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+          "observed_at": "2026-10-19T16:42:52Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "8e450bcea551364079380e8f05cd916771b8d7f8",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-10-19T16:42:52Z",
+            "raw_sha256": "9465f2e369aa4df1142cae4988fe453b5a724eec4c772da0f327fb57fa6a5498",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "42a7856d6b182b717d8e59612a5d1c6b0e3c1bb707fcd7a57aa64029da75aae1"
+          },
+          "fact_id": "da66a467d6899443eed496f0d99068b77791b0ec85decd6daf2ea5b56d48ba66"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['w13-f1', 'w13-f10', 'w13-f2', 'w13-f3', 'w13-f4', 'w13-f5', 'w13-f6', 'w13-f7', 'w13-f8', 'w13-f9'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #61 at c310cf1fd6e22d200a21748c108788b8825e1c7c is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "8e450bcea551364079380e8f05cd916771b8d7f8",
+          "anchor_identity": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "a1e7fa7f775a2ed969c6bdae2d047378b4918d32ae24cef2bf9c2438f60a1650",
+            "recorded_at": "2026-10-19T15:54:22Z"
+          },
+          "functional": {
+            "w13-f1": {
+              "evidence_id": "43d99971f4a31115b170307f5be926eee64bc98ad430b7bd4d1ad6bbdebc3cf7",
+              "log_digest": "13d81f49f1c97ee4d5844e7b2732784b181855f2b7bff4e77d5f4a09530afda1",
+              "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2"
+            },
+            "w13-f10": {
+              "evidence_id": "8295a86d80f058b5cf630fc3244085f07d3cfecf9a96dacfb23d5368330f4bb7",
+              "log_digest": "f703d4ea6cad50248a8a4df6681475cbcecdbfe2ec609d31e4301fa3090023b0",
+              "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2"
+            },
+            "w13-f2": {
+              "evidence_id": "48926d1db6d36dae519137cf8b28b45c6a23441e5b9a7b9aed4583090129efe4",
+              "log_digest": "571400766fe15430e8471d770bd79641b40df4872faaee2c772a7bac3ca71add",
+              "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2"
+            },
+            "w13-f3": {
+              "evidence_id": "a12229e9866dbcfbbec379b1060814df5d10ddfc280231182682fd961f097bd1",
+              "log_digest": "8d45988bc642cd4deaca67c36d40006d6977fb6dd77542aabc5f85cdfba9b84f",
+              "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2"
+            },
+            "w13-f4": {
+              "evidence_id": "b42effe24b0927b90ad4185a3eba62ecc4365e23656f9aec09cae3b2b7561cd5",
+              "log_digest": "9052e49d831cde37da83a68f2202c579fb016f2eed0081c11e7477fd8143ec80",
+              "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2"
+            },
+            "w13-f5": {
+              "evidence_id": "95aacbfa3ee8a422766c08b9940ca32f59026e490d53565db2595ef48256ad06",
+              "log_digest": "71a2055d51d09ec47a8d027b5683eabf61542cc1974ccd39852c691ea29dae86",
+              "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2"
+            },
+            "w13-f6": {
+              "evidence_id": "26119e0bc4e5dfaeec7297800e980a8dc22130ce7a76ab8fe25c7acf55374337",
+              "log_digest": "b6f5bcc782128aa4f9a443e725567b40b8aac6d583226ab870b101cd4f828e39",
+              "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2"
+            },
+            "w13-f7": {
+              "evidence_id": "8df03a8b7f14a24ce551157b81e9028813f4f96bd826c6683e0d657da8ff5797",
+              "log_digest": "42fbf5597a4dcbfcda6d43202643c5c4dd27fd60d717da0893790dc9b0e1c43e",
+              "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2"
+            },
+            "w13-f8": {
+              "evidence_id": "472ce2431677b29ca57dfed924bb6b9515043f3001a66a7bbb8a2b2513067d15",
+              "log_digest": "ae1688723016acea372cd3bd70a01ee51cdb6a5eed3c3e25afa0a63471ee0081",
+              "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2"
+            },
+            "w13-f9": {
+              "evidence_id": "1eca150d09ab31a210ed915b47f8465380610820389c28aafc75240691ed28f9",
+              "log_digest": "33617ab99b4df576008ad46a9b52a42497bdd497e3ba2be7a1dc755777f21dcc",
+              "run_ref": "manager-orchestrator:runs-workflow/w13-functional-r2"
+            }
+          },
+          "pr": {
+            "fact_id": "da66a467d6899443eed496f0d99068b77791b0ec85decd6daf2ea5b56d48ba66",
+            "head": "c310cf1fd6e22d200a21748c108788b8825e1c7c",
+            "provenance": "workflow_gh",
+            "raw_sha256": "9465f2e369aa4df1142cae4988fe453b5a724eec4c772da0f327fb57fa6a5498"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-10-19T16:42:52Z",
+        "workflow_release": "2.16.0"
+      }
     }
   }
 }

@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "work_item_id": "backlog-file",
+  "dispositions": {
+    "F-010bb106ad5a": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Accept recovery (policy path: step 4 re-runs accept, trailer, floor, report by policy); CP3 policy-path scenario asserts the trailer"
+    },
+    "F-0681a47661f6": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md:51-53 INV-3 now allows the Workflow's stamp of a declared generator's marker line"
+    },
+    "F-0cc9080241af": {
+      "disposition": "dropped",
+      "reason": "TEST_RESULTS.md is a gitignored review-bundle file, not a release artifact; IMPLEMENTATION_SUMMARY.md carries the 450 count."
+    },
+    "F-16aa4100a9eb": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#60",
+      "note": "Pin D-Format rule 8 for a trailing comment on a key with no inline value (`items: # x`, `depends_on: # x`, which the parser accepts today as YAML does) and add the test to the parser's rule-8 list."
+    },
+    "F-1a993a7f195e": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#60",
+      "note": "Run `protected_conflicts` against the template in `/milestone-plan` step 1 (declared branch) so `declaration_conflict` is refused before the registry and mapping are written; add a test."
+    },
+    "F-1e2bf5c82a97": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Format rule 3 refuses a `depends_on:` with no block list (YAML reads null); rule 7"
+    },
+    "F-2c811d6d2bb2": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#60",
+      "note": "Add `?` to the characters refused in a plain flow-list entry (next to `:`) in `_check_plain(flow=True)` of workflow_backlog.py, with a parser refusal test."
+    },
+    "F-374482d96abd": {
+      "disposition": "dropped",
+      "reason": "Matches the plan's decision (D-Classify: ImportError on the repo_root branch is a refusal); only a broken installation is affected, not INV-1."
+    },
+    "F-420b2b6e9bc8": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Accept 'A work item with no WORKFLOW_STATE.json entry'; payload/.claude/commands/accept-milestone.md:66-70"
+    },
+    "F-44428bb9d602": {
+      "disposition": "fixed",
+      "note": "payload/scripts/workflow_backlog.py:915 and :970 now share one wording naming `backlog.roadmap`"
+    },
+    "F-4ace901b0e73": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Format rule 8 (whitespace pinned: refused, not normalized)"
+    },
+    "F-50536dd07922": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#60",
+      "note": "`protected_conflicts` tests the item-page prefix through the single path `docs/items/x.md`; also detect a protected exact path under `docs/items/` (for example a hand-edited `docs/items/foo.md`), with a test."
+    },
+    "F-50a685047602": {
+      "disposition": "fixed",
+      "note": "payload/scripts/workflow_backlog.py:1287 `_default_root` uses `git rev-parse --show-toplevel` (commit 435fefd), so a copy at any depth reads the right root"
+    },
+    "F-57d3c535ad91": {
+      "disposition": "fixed",
+      "note": "payload/scripts/workflow_backlog.py:1195 load_declaration now runs inside the try whose handler applies `_with_recovery` (commit c0f0a6e)"
+    },
+    "F-5846ccf1f44d": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Format rule 8 pins scalar whitespace (refused)"
+    },
+    "F-5e15544d0f45": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Declare 'Missing key, missing config file...' states load_config's real behaviour before and after activation"
+    },
+    "F-62de0fcc7722": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Classify repair links 'Repairing an artifact declaration after an approval' in REVIEW_PROTOCOL.md"
+    },
+    "F-701c9f9f51eb": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Classify: classification is conditional on a valid declaration, so undeclared output is today's bytes (INV-1 has no exception)"
+    },
+    "F-8345b20de4e3": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Classify lazy import; payload/scripts/workflow_state.py:10336 BacklogScriptUnavailableError, code declaration_invalid"
+    },
+    "F-8c2c3ed04d96": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Classify collision policy refuses declared paths under the item type's protected prefixes (declaration_conflict); workflow_state.py:10373"
+    },
+    "F-922f21d88074": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Select 'Precedence over the active work item'; payload/.claude/commands/milestone-plan.md:208-212"
+    },
+    "F-9b37ea310490": {
+      "disposition": "dropped",
+      "reason": "Superseded: the declaration_unreadable refusal was removed in plan revision 4, so INV-1 has no exception to name."
+    },
+    "F-a14edeec3a2c": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Accept 'Only file and roadmap are staged'"
+    },
+    "F-a17298045fcd": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Generate: LF splitting, final line without LF, CRLF fails closed, stamp keeps the terminator"
+    },
+    "F-a1ee14a0a9fd": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/registry/backlog-file-artifacts.json no longer lists docs/backlog.md"
+    },
+    "F-afd4286c5e64": {
+      "disposition": "fixed",
+      "note": "Lazy import in D-Classify; backlog script added to workflow_test_harness.py:459, the five fingerprint-generalization lists and the matrix SCRIPT_FILES"
+    },
+    "F-bcde5a33af92": {
+      "disposition": "fixed",
+      "note": "payload/scripts/workflow_backlog.py:54,434 restricts `detail` to [A-Za-z0-9._/-]; plan D-Generate and CP1 render test"
+    },
+    "F-c816a1890fc1": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Accept 'The next action': declared step 7 still sets Next action"
+    },
+    "F-cbccbacb334c": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Downgrade non-default roadmap case; payload/docs/ai-workflow/BACKLOG_FILE.md:431-433"
+    },
+    "F-d87f73f5f31e": {
+      "disposition": "dropped",
+      "reason": "Wording of a plan-only sentence (plan:452); the shipped documents do not copy it and the plan is approved."
+    },
+    "F-dfa4badd811f": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#60",
+      "note": "Same defect as the LIR-R4-O1 item: refuse `?` in a plain flow-list entry in workflow_backlog.py `_check_plain(flow=True)`, add a refusal-table case."
+    },
+    "F-e1b9f099b3d1": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Select: absent `detail` uses the title alone and says so"
+    },
+    "F-e6cdf23fa278": {
+      "disposition": "fixed",
+      "note": "payload/docs/ai-workflow/BACKLOG_FILE.md:407 states the default root (commit d9de73a)"
+    },
+    "F-e6d8a25a829a": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#60",
+      "note": "State in the BACKLOG_FILE.md way-back text that the copied script's page header and next-step lines still name scripts/workflow_backlog.py, are expected and must not be hand-fixed."
+    },
+    "F-e913242ef645": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/BACKLOG_FILE_PLAN.md D-Format rule 3 (indicators only at value start) and rule 7 (trailing comma/empty entry refused)"
+    },
+    "F-ecadfad94c17": {
+      "disposition": "fixed",
+      "note": "payload/scripts/workflow_backlog.py:422 os.listdir exact-case component check; plan D-Declare"
+    },
+    "F-f750e0aa1ed0": {
+      "disposition": "fixed",
+      "note": "payload/.claude/commands/milestone-plan.md:204-206 carries the absent-`detail` rule"
+    },
+    "F-f0cc6ae76d1a": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#60",
+      "note": "Make cycle detection iterative, or report collected schema errors before it, so a long malformed chain reports diagnostics instead of RecursionError; add a regression test."
+    },
+    "F-3dd10bb87806": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#60",
+      "note": "Capture each file's mode in _snapshot and restore it on rollback, also when the bytes already match, so a declared generator that changes only a mode leaves nothing behind."
+    },
+    "F-aa5739b6debe": {
+      "disposition": "dropped",
+      "reason": "The approved plan is the historical design record; the two deliberate revision-6 departures (no-state-entry pre-flight removed as unreachable, aggregated refusal diagnostics) are recorded in docs/ACTIVE_MILESTONE.md's functional review round 1 note and the pull request, and the shipped BACKLOG_FILE.md and command files are authoritative."
+    },
+    "F-1f722e96338f": {
+      "disposition": "dropped",
+      "reason": "TEST_RESULTS.md is a gitignored bundle file regenerated each round; the orchestrator reran tools/release/release_test.py with the pinned zlib-ng venv (198 OK) and Codex reproduced it (198 OK)."
+    },
+    "F-a7dab7eec405": {
+      "disposition": "dropped",
+      "reason": "The checklist is milestone narrative replaced at the next milestone; functional review round 2 ran flow 7 with the collision setup (artifact declaration protecting WORKFLOW_STATE.json and backlog.roadmap set to it)."
+    }
+  }
+}

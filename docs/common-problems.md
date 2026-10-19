@@ -1,6 +1,6 @@
 # Common problems
 
-> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.16.0.
+> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.17.0.
 
 Each problem has a one-line fix. The exact rules are in the shipped documents
 under `payload/docs/ai-workflow/`. What a script's exit status means is in
@@ -308,3 +308,65 @@ which the runner reports under the class rather than under a planned test.
 "executed more than once" means a planned test started twice within its shard
 (for example a `run()` override that calls `super().run()` twice); remove the
 repeat.
+
+### The backlog file refuses to work (`error: <code>` from `workflow_backlog.py`)
+
+These apply only to a repository that declares a backlog file. The script prints
+`error: <code>: <message>` and `next step: ...`; the fix is the next step. Full
+rules are in [the backlog file](../payload/docs/ai-workflow/BACKLOG_FILE.md).
+
+- `declaration_invalid`: the `backlog` key in `docs/ai-workflow/WORKFLOW_CONFIG.json`
+  is wrong (an unknown key, a bad path, a symbolic link in a path, `file` equal to
+  `roadmap`). Correct it, or delete the key to leave the backlog.
+- `backlog_missing`: the declared file does not exist. Create it (the starter is
+  in the document) or delete the key.
+- `backlog_invalid`: the file breaks the grammar or the schema; the message lists
+  the lines. Fix them and run `python3 scripts/workflow_backlog.py check`.
+- `no_ready_item`: no item is `next` or `in-progress` and ready. Set an item to
+  `next`, or finish what it waits for, then run `/milestone-plan` again.
+- `item_unknown`: acceptance names a work item id that is not an item. Add an
+  item with that id and status `in-progress`; an item started before the backlog
+  was declared also needs its paths classified, see "Items in flight at adoption"
+  in the document.
+- `status_not_acceptable`: the item is an `idea`. Set it to `next`, then accept.
+- `roadmap_not_generated`: the page at `roadmap` is hand-written. Run
+  `python3 scripts/workflow_backlog.py generate --replace` once, commit it, retry.
+- `generator_failed`: your declared generator failed, timed out, changed the
+  backlog file, or did not leave exactly one fresh `backlog-sha256` line in the
+  page. The file and the page were restored. Fix the generator; if this stopped
+  an acceptance, use "Acceptance stopped at the backlog" below.
+- `roadmap_stale`: `check` found the page out of date. Run
+  `python3 scripts/workflow_backlog.py generate` and commit the page.
+- `declaration_conflict`: the declared `file` or `roadmap` sits in a path that
+  the work item's artifact declaration protects (for example under `scripts/`).
+  Move it in the `backlog` key to a path outside the protected areas.
+
+### A work item id is refused because it was already used (backlog item)
+
+`/milestone-plan` picked an item whose id already belongs to a finished work
+item. The item is done in practice but still says `next` or `in-progress` in the
+backlog file. Set its `status` to `done` (and run
+`python3 scripts/workflow_backlog.py generate`), or choose another item.
+
+### `check` fails after someone edited the roadmap page
+
+The page is generated. A hand edit makes it differ from what the file produces
+(or, with a declared generator, breaks the digest the Workflow stamped into it).
+Put the change in the backlog file, run `python3 scripts/workflow_backlog.py
+generate` and commit both.
+
+### Acceptance stopped at the backlog
+
+The acceptance command printed a refusal from `python3 scripts/workflow_backlog.py
+accept`. The work item is already recorded as complete, so running the command
+again is refused. Recover in one step: fix the cause (the generator, the file),
+run `python3 scripts/workflow_backlog.py accept <work-item-id>` by hand (it is
+safe to repeat), then continue the command that was running from the step after
+`accept`, staging the two paths it printed:
+
+- `/accept-milestone`: continue at its step 4, then 5, 5a, 6, 7 and 8.
+- `/satisfy-gate acceptance`: continue at its step 4 (which re-runs `accept`), then
+  its step 5 and step 6. Do not use the `/accept-milestone` steps instead: the
+  commit would lack the policy trailer.
+
+The details are in [the backlog file](../payload/docs/ai-workflow/BACKLOG_FILE.md#recovery-after-an-accept-refusal).
