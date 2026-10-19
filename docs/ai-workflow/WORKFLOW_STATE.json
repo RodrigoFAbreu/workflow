@@ -8223,7 +8223,7 @@
       "registry_path": "docs/ai-workflow/registry/conformance-sharding-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/conformance-sharding-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 5,
       "implementation_revision": 4,
       "functional_review_round": null,
@@ -8340,7 +8340,150 @@
           "workflow_release": "2.15.0"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "728d2c2a0e11244fa0935a94a8f333c83c738a3b10bf5448d2c31115a5df56c1",
+        "approved_review_content_id": "1d9218ce3d0fa686260552bf532ab7fbcff89d7d31f4a7b780904d50d0acdbdb",
+        "review_content_manifest": [
+          {
+            "path": ".github/workflows/workflow-ci.yml",
+            "exists": true,
+            "mode": "100644",
+            "blob": "20e5708a80176f72eda7f624f6db86411b1203e6"
+          },
+          {
+            "path": "docs/RELEASING.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "27347d06d4ebb9ef8fb255978b10e297f1d20076"
+          },
+          {
+            "path": "docs/ai-workflow/CONFORMANCE_SHARDING_EVIDENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9a146d604de91c0d77643404d316f0512b18b332"
+          },
+          {
+            "path": "docs/ai-workflow/registry/conformance-sharding-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "328abcfd04e1d387ebb5f073fa4d7cd5f9118b9c"
+          },
+          {
+            "path": "docs/common-problems.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5ac73ebd1995bf4bd8061a2ada9a83a5f9d3bc55"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1011ec32680854fc6bd906009a557ab86682bd29"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d5259d1c3a49edb4c0357cf5346321a1e6c90158"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2d506f622238105645087e995bc92f7bdd4f5a45"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5b5482d81482aa85c62721b31250246e12560e34"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b1e4b63289c09a3f962431913803d04143d8fe80"
+          },
+          {
+            "path": "templates/.github/workflows/workflow-conformance.yml",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c47785cf0b92211e78ce7351a4718dadba5bc623"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "19205cb9d0df3bc9fd75121f1b2fe4cc63f9add9"
+          }
+        ],
+        "reviewed_content_commit": "14ccef5d228f18518f351544d5beedbd29582111",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-19T05:40:09Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "1d9218ce3d0fa686260552bf532ab7fbcff89d7d31f4a7b780904d50d0acdbdb",
+            "ledger": {
+              "local": {
+                "bundle_id": "728d2c2a0e11244fa0935a94a8f333c83c738a3b10bf5448d2c31115a5df56c1",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "984f60d8671f6df514bb0147081c585c2252972809f149e633fa967593913919",
+                "ledger_entry_sha256": "d18fa8ec78ba9df4805a261152ae63b8cce71b1bc2cbbe8a65cd7b10264e26d6",
+                "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "728d2c2a0e11244fa0935a94a8f333c83c738a3b10bf5448d2c31115a5df56c1",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "a05d763225bd2c34ee2e24f1644f39f7dc126f11b483a0dee4486069a1ecd791",
+                "ledger_entry_sha256": "d264fddd4c37584937292e548615aabc7fa7bb5aa75ea06e26699346a52c0da5",
+                "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-19T05:40:09Z",
+          "workflow_release": "2.15.0"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4",
@@ -8371,12 +8514,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 3,
-          "external": 1
+          "local": 4,
+          "external": 2
         }
       },
-      "state_revision": 39,
-      "last_transition": "2026-10-19T05:26:59Z",
+      "state_revision": 42,
+      "last_transition": "2026-10-19T05:40:09Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -8780,6 +8923,34 @@
               "at": "2026-10-19T05:12:07Z"
             }
           ]
+        },
+        "F-e079341eb5b8": {
+          "digest": "e079341eb5b853f8d7e5546c7699379dce4c13f621abc4198984780320e4bea1",
+          "text": "**LIR-R4-O01 -- `docs/common-problems.md` lists `setUpModule` as a cause of \"not in the plan\".** `plan` refuses any acceptance module that defines `setUpModule`, so a sharded run can never reach that cause. Of the causes listed, only `setUpClass` and a `SkipTest` raised outside a test can actually produce it. Consider dropping `setUpModule` from the parenthesis.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 4,
+              "review_content_id": "1d9218ce3d0fa686260552bf532ab7fbcff89d7d31f4a7b780904d50d0acdbdb",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T05:30:54Z"
+            }
+          ]
+        },
+        "F-fb1fc18f1501": {
+          "digest": "fb1fc18f15013ea07c0f91abd0c4ce41ba5308fcf2515db60298bdeaad7c3bdd",
+          "text": "**EIR-R2-O01:** `docs/common-problems.md:306` lists `setUpModule` as a cause of “not in the plan.” Planning rejects that hook before shard execution. Remove it from the examples; this also matches LIR-R4-O01.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 4,
+              "review_content_id": "1d9218ce3d0fa686260552bf532ab7fbcff89d7d31f4a7b780904d50d0acdbdb",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T05:39:47Z"
+            }
+          ]
         }
       },
       "amendment_history": [
@@ -8898,17 +9069,25 @@
       ],
       "amendment_base_commit": "1023bce40e233ac79c0dff0e990b3d962033707f",
       "implementation_review_stages": {
-        "review_content_id": "350e98421405d3cf36e26ee7df51b9c67a63c7c7d6da7463f1a5242ea714a588",
+        "review_content_id": "1d9218ce3d0fa686260552bf532ab7fbcff89d7d31f4a7b780904d50d0acdbdb",
         "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "d3154b4554a75594009b434fcd4b8f8d520aec47257574d4dba24effce44f5b9",
+          "bundle_id": "728d2c2a0e11244fa0935a94a8f333c83c738a3b10bf5448d2c31115a5df56c1",
           "verdict": "APPROVE",
-          "round": 3,
-          "completed_at": "2026-10-19T05:01:15Z",
-          "verdict_sha256": "c2c8cb70090bf2e86e59bed2e25803978a7e8225c9f4282709ca36aa23191fb2",
+          "round": 4,
+          "completed_at": "2026-10-19T05:30:54Z",
+          "verdict_sha256": "984f60d8671f6df514bb0147081c585c2252972809f149e633fa967593913919",
           "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "anthropic/claude-opus-5-5"
         },
-        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "728d2c2a0e11244fa0935a94a8f333c83c738a3b10bf5448d2c31115a5df56c1",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-10-19T05:39:47Z",
+          "verdict_sha256": "a05d763225bd2c34ee2e24f1644f39f7dc126f11b483a0dee4486069a1ecd791",
+          "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
       }
     }
   }
