@@ -34,6 +34,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import textwrap
 import time
 import unittest
 import unittest.mock
@@ -3424,6 +3425,116 @@ class BacklogDeclarationConflict(unittest.TestCase):
             d.ok("preflight-accept", "alpha")
             d.write("docs/ai-workflow/registry/alpha-artifacts.json", "{broken")
             d.ok("preflight-accept", "alpha")
+
+
+_BACKLOG_DOC_REL = "docs/ai-workflow/BACKLOG_FILE.md"
+
+
+def _backlog_doc():
+    return (_repo_root() / _BACKLOG_DOC_REL).read_text(encoding="utf-8")
+
+
+def _doc_block(name):
+    """The fenced block that follows `<!-- backlog-example:NAME -->`, dedented."""
+    match = re.search(r"^[ ]*<!-- backlog-example:" + name + r" -->\n[ ]*```\w*\n(.*?)\n[ ]*```",
+                      _backlog_doc(), re.M | re.S)
+    assert match, f"no backlog-example:{name} block"
+    return textwrap.dedent(match.group(1)) + "\n"
+
+
+class BacklogDocument(unittest.TestCase):
+    """The shipped reference cannot drift from the script it documents."""
+
+    def test_starter_is_a_valid_minimal_file(self):
+        with _Decl(text=_doc_block("starter")) as d:
+            data, _ = wb.parse_and_validate(d.read("docs/backlog.yaml"), d.root)
+            self.assertEqual([(i["id"], i["status"], i["order"]) for i in data["items"]],
+                             [("first-item", "next", 1)])
+            self.assertEqual(d.ok("next")["item"]["id"], "first-item")
+
+    def test_complete_example_parses_and_validates(self):
+        with _Decl(text=_doc_block("full")) as d:
+            d.write("docs/items/login.md", "Login.\n")
+            data, _ = wb.parse_and_validate(d.read("docs/backlog.yaml"), d.root)
+            self.assertEqual(len(data["items"]), 4)
+            by_id = {i["id"]: i for i in data["items"]}
+            self.assertEqual(by_id["login"]["release"], "1.0.0")
+            self.assertEqual(by_id["settings"]["depends_on"], ["login", "profile"])
+            self.assertEqual(by_id["dark-mode"]["title"], "Dark mode (it's optional)")
+            self.assertEqual(d.ok("next")["item"]["id"], "profile")
+            d.ok("generate")
+            d.ok("check")
+
+    def test_every_error_code_of_the_script_is_documented(self):
+        source = Path(wb.__file__).read_text(encoding="utf-8")
+        codes = set(re.findall(r'BacklogError\(\s*"([a-z_]+)"', source))
+        codes.add("declaration_conflict")
+        self.assertTrue({"declaration_invalid", "backlog_missing", "backlog_invalid", "no_ready_item",
+                         "item_unknown", "status_not_acceptable", "roadmap_not_generated",
+                         "generator_failed", "roadmap_stale", "declaration_conflict"} <= codes, codes)
+        doc = _backlog_doc()
+        for code in sorted(codes):
+            with self.subTest(code):
+                self.assertIn(f"`{code}`", doc)
+
+    def test_the_script_names_this_document_by_its_path(self):
+        self.assertTrue((_repo_root() / _BACKLOG_DOC_REL).is_file())
+        self.assertIn(_BACKLOG_DOC_REL, wb._DECLARATION_NEXT)
+        self.assertIn(_BACKLOG_DOC_REL, Path(wb.__file__).read_text(encoding="utf-8"))
+
+    def test_the_repair_section_it_cites_exists(self):
+        heading = "Repairing an artifact declaration after an approval"
+        doc = _backlog_doc()
+        self.assertIn("REVIEW_PROTOCOL.md", doc)
+        self.assertIn(heading, doc)
+        protocol = (_repo_root() / "docs/ai-workflow/REVIEW_PROTOCOL.md").read_text(encoding="utf-8")
+        self.assertIn("### " + heading, protocol)
+
+    def _generator_repo(self, d):
+        d.write("tools/roadmap.py", _doc_block("generator"))
+
+    def test_example_generator_satisfies_the_freshness_contract(self):
+        extra = {"generator": ["python3", "tools/roadmap.py"]}
+        with _Decl(text=_doc_block("starter"), extra=extra) as d:
+            self._generator_repo(d)
+            self.assertEqual(d.ok("generate")["generator"], "declared")
+            d.ok("check")
+            page = d.read("docs/ROADMAP.md")
+            self.assertIn(b"page-sha256:", page)
+            d.write("docs/ROADMAP.md", page + b"hand edit\n")
+            code, _ = d.refused("check", code=1)
+            self.assertEqual(code, "roadmap_stale")
+            d.ok("generate")
+            d.ok("check")
+            d.write("docs/backlog.yaml", _doc_block("starter").replace("My first item", "Another title"))
+            self.assertEqual(d.refused("check", code=1)[0], "roadmap_stale")
+            d.ok("accept", "first-item")
+            d.ok("check")
+
+    def test_document_names_the_downgrade_procedure(self):
+        doc = _backlog_doc()
+        for needle in ("tools/workflow_backlog.py", "python3 tools/workflow_backlog.py check",
+                       "never run the generator directly"):
+            self.assertIn(needle, doc)
+
+    def test_keep_the_backlog_procedure_leaves_check_passing(self):
+        extra = {"generator": ["python3", "tools/roadmap.py"]}
+        with _Decl(text=_doc_block("starter"), extra=extra) as d:
+            self._generator_repo(d)
+            d.write("tools/workflow_backlog.py", Path(wb.__file__).read_bytes())
+            shutil.rmtree(d.root / "scripts")
+
+            def copy(*args):
+                return subprocess.run(["python3", "-I", "tools/workflow_backlog.py", *args], cwd=d.root,
+                                      capture_output=True, text=True)
+
+            self.assertEqual(copy("generate").returncode, 0)
+            self.assertEqual(copy("check").returncode, 0)
+            d.write("docs/backlog.yaml", _doc_block("starter").replace("status: next", "status: done"))
+            self.assertEqual(copy("check").returncode, 1)
+            self.assertEqual(copy("generate").returncode, 0)
+            done = copy("check")
+            self.assertEqual(done.returncode, 0, done.stderr)
 
 
 if __name__ == "__main__":

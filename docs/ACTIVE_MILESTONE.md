@@ -113,6 +113,31 @@ integration 328 (the others unchanged); `manifest.json` still records 415, 1183,
 fail until CP5 updates the manifest (digests, sizes, the new script's record and these counts).
 `tools/docs` checks pass.
 
+### CP4 -- The shipped backlog document and the user documents (complete)
+
+- New shipped reference `payload/docs/ai-workflow/BACKLOG_FILE.md` (the document every
+  refusal names): setup, the accepted grammar and schema with the refused forms, how
+  `/milestone-plan` chooses, what acceptance does and the one-step recovery after an `accept`
+  refusal, the declared generator's freshness contract and stamp, the path and symbolic-link
+  rules, "Items in flight at adoption" (with the approval-staling warning and the link to
+  REVIEW_PROTOCOL.md's repair section), the commands, exit codes and every error code, and the
+  way back to 2.16.0. It carries the marked `starter`, `full` and `generator` example blocks.
+- Repository pages (not installed): `docs/README.md` row, `docs/install.md` pointer,
+  `docs/gates.md` section, `docs/glossary.md` (backlog file, generated roadmap),
+  `docs/common-problems.md` (each code, the reused id, the hand-edited page, "Acceptance
+  stopped at the backlog") and `docs/exit-codes.md` (0, 1, 2); their headers name 2.17.0.
+
+Tests: `BacklogDocument` (8, completion-obligations suite): the starter and the complete example
+parse and validate with the parser; every error code of the script appears in the document; the
+script's next-step text names the document's path; the cited repair section exists; the example
+generator satisfies the freshness contract in a scratch repository (`check` passes, then fails
+after a hand edit of the page and after an edit of the file); the downgrade "keep the backlog"
+procedure (copy to `tools/`, the copy's `generate`, `check`) exits 0. The test caught one defect in
+the draft (a three-space trailing comment in the example), fixed in the document.
+
+Verification: completion-obligations suite 184 tests pass; `tools/docs/check_docs.py` clean and
+its 34 tests pass. The suite count changed from 176 to 184, so CP5 records it in the manifest.
+
 ## Next action
 
-Invoke `/milestone-implement backlog-file` again for CP4.
+Invoke `/milestone-implement backlog-file` again for CP5.

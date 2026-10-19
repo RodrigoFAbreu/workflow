@@ -1,6 +1,6 @@
 # Install and update the Workflow
 
-> For: anyone adding the Workflow to a repository. Last checked with: Workflow 2.9.0, Workflow Manager 1.5.0.
+> For: anyone adding the Workflow to a repository. Last checked with: Workflow 2.17.0, Workflow Manager 1.5.0.
 
 The Workflow is installed, updated and checked with the
 [Workflow Manager](https://github.com/RodrigoFAbreu/workflow-manager#readme).
@@ -21,6 +21,14 @@ Details are on the Manager's pages:
 [update](https://github.com/RodrigoFAbreu/workflow-manager/blob/main/docs/update.md)
 and
 [verify](https://github.com/RodrigoFAbreu/workflow-manager/blob/main/docs/verify.md).
+
+## After installing: an optional backlog file
+
+A repository can keep its planned work in a structured backlog file that
+`/milestone-plan` reads and acceptance updates (Workflow 2.17). It is off until
+the repository declares it in `docs/ai-workflow/WORKFLOW_CONFIG.json`; an
+install or update never turns it on. Setup, the file format and the way back to
+an earlier release are in [the backlog file](../payload/docs/ai-workflow/BACKLOG_FILE.md).
 
 ## The default version of a new installation
 

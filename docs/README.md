@@ -1,6 +1,6 @@
 # Documentation map
 
-> For: anyone looking for the right page. Last checked with: Workflow 2.9.0.
+> For: anyone looking for the right page. Last checked with: Workflow 2.17.0.
 
 | I want to... | Go to |
 | --- | --- |
@@ -8,6 +8,7 @@
 | see how a work item moves from plan to merge | [How it works](overview.md#lifecycle) |
 | decide who approves plans, code and acceptance | [Approval gates](gates.md) |
 | install or update the Workflow in a repository | [Install and update](install.md) |
+| keep the roadmap as a structured backlog file | [The backlog file](../payload/docs/ai-workflow/BACKLOG_FILE.md) |
 | look up a term | [Glossary](glossary.md) |
 | fix an error message | [Common problems](common-problems.md) |
 | look up what a script's exit status means | [Exit codes](exit-codes.md) |
