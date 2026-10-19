@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "workflow_version": "2.15.0",
+  "workflow_version": "2.16.0",
   "upstream": {
     "repository": "repflow-android",
     "tag": "workflow-v2.3.1",
@@ -308,9 +308,9 @@
       "location": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
       "category": "distribution",
       "rule": "^docs/ai-workflow/ORCHESTRATION_PROTOCOL\\.md$",
-      "rationale": "The normative Orchestration Protocol v1 specification: versioning, envelope, error codes, state identity, each operation, the catalogue, condition-call, edge and proof tables (rendered from, and tested against, the code's own), consumer obligations and compatibility notes. W1 (workflow-2.7.0, orchestration-protocol-v1, CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state. review-loop-fixes (workflow-2.13.0): a changes file per review stage with the manual stage's baseline, the atomic ready file, the governing-version sweep before review and the release constant 2.13.0, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. review-round-counts (workflow-2.15.0): Orchestration Protocol 1.5, the four per-role round fields of the next-action snapshot, as the release notes state.",
-      "sha256": "b7e98265af0c3399015c261fb5b661346bead0cf34fba5d5e7a82d3434d554a8",
-      "size": 95362,
+      "rationale": "The normative Orchestration Protocol v1 specification: versioning, envelope, error codes, state identity, each operation, the catalogue, condition-call, edge and proof tables (rendered from, and tested against, the code's own), consumer obligations and compatibility notes. W1 (workflow-2.7.0, orchestration-protocol-v1, CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state. review-loop-fixes (workflow-2.13.0): a changes file per review stage with the manual stage's baseline, the atomic ready file, the governing-version sweep before review and the release constant 2.13.0, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. review-round-counts (workflow-2.15.0): Orchestration Protocol 1.5, the four per-role round fields of the next-action snapshot, as the release notes state. conformance-sharding (workflow-2.16.0): the tested-releases list, the unpinned example and the protocol 1.5 history name 2.16.0.",
+      "sha256": "f079cc5c0b73c75dc830d928afc0014c81695cb1c1030d8900d6be68e38fbce5",
+      "size": 95491,
       "executable": false
     },
     {
@@ -742,8 +742,8 @@
       "location": "payload/scripts/workflow_protocol.py",
       "category": "distribution",
       "rule": "^scripts/workflow_protocol\\.py$",
-      "rationale": "Orchestration Protocol v1's one CLI (describe, verify, next-action, reconcile, record-external-result, resolve-artifact): one JSON envelope, versioned, with stable error codes, the total action catalogue and the legal-edge table. WORKFLOW_RELEASE names this release; the release build refuses a mismatch with the manifest version. W1 (workflow-2.7.0, orchestration-protocol-v1, CP3-CP5). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability). review-convergence (workflow-2.12.0): release constant 2.12.0 and the tested-releases list. review-loop-fixes (workflow-2.13.0): a changes file per review stage with the manual stage's baseline, the atomic ready file, the governing-version sweep before review and the release constant 2.13.0, as the release notes state. finding-dispositions (workflow-2.14.0): release constant 2.14.0. review-round-counts (workflow-2.15.0): the four per-role round fields, protocol 1.5 and release constant 2.15.0.",
-      "sha256": "f83df73095af015d3dd743399236acb6e8299352929b7765412b2593d95a2747",
+      "rationale": "Orchestration Protocol v1's one CLI (describe, verify, next-action, reconcile, record-external-result, resolve-artifact): one JSON envelope, versioned, with stable error codes, the total action catalogue and the legal-edge table. WORKFLOW_RELEASE names this release; the release build refuses a mismatch with the manifest version. W1 (workflow-2.7.0, orchestration-protocol-v1, CP3-CP5). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability). review-convergence (workflow-2.12.0): release constant 2.12.0 and the tested-releases list. review-loop-fixes (workflow-2.13.0): a changes file per review stage with the manual stage's baseline, the atomic ready file, the governing-version sweep before review and the release constant 2.13.0, as the release notes state. finding-dispositions (workflow-2.14.0): release constant 2.14.0. review-round-counts (workflow-2.15.0): the four per-role round fields, protocol 1.5 and release constant 2.15.0. conformance-sharding (workflow-2.16.0): release constant 2.16.0.",
+      "sha256": "52d3e82a49d0d5ef07365cd580957ca9e07f751a402430988de8be54076a1912",
       "size": 139592,
       "executable": false
     },
@@ -752,8 +752,8 @@
       "location": "payload/scripts/workflow_protocol_test.py",
       "category": "conformance",
       "rule": "^scripts/workflow_protocol_test\\.py$",
-      "rationale": "The Orchestration Protocol v1 suite: envelope and schema, the catalogue's totality and every row from a real state, the edge table and reconcile, record-external-result, the specification's tables against the code, and the protocol-only lifecycle end-to-end. Run by workflow-conformance.yml. W1 (workflow-2.7.0, orchestration-protocol-v1, CP3-CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability). review-convergence (workflow-2.12.0): release constant 2.12.0 and the tested-releases list. review-loop-fixes (workflow-2.13.0): a changes file per review stage with the manual stage's baseline, the atomic ready file, the governing-version sweep before review and the release constant 2.13.0, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. review-round-counts (workflow-2.15.0): the four per-role round fields, protocol 1.5 and release constant 2.15.0, as the release notes state.",
-      "sha256": "81c6973d20f89979bfee0d3c719de74da52b0d54ce601016655170bf60578a71",
+      "rationale": "The Orchestration Protocol v1 suite: envelope and schema, the catalogue's totality and every row from a real state, the edge table and reconcile, record-external-result, the specification's tables against the code, and the protocol-only lifecycle end-to-end. Run by workflow-conformance.yml. W1 (workflow-2.7.0, orchestration-protocol-v1, CP3-CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability). review-convergence (workflow-2.12.0): release constant 2.12.0 and the tested-releases list. review-loop-fixes (workflow-2.13.0): a changes file per review stage with the manual stage's baseline, the atomic ready file, the governing-version sweep before review and the release constant 2.13.0, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. review-round-counts (workflow-2.15.0): the four per-role round fields, protocol 1.5 and release constant 2.15.0, as the release notes state. conformance-sharding (workflow-2.16.0): the two release-constant assertions follow 2.16.0.",
+      "sha256": "eb1e281b461f21b009039a2672f667dcf5c64ef50d10e015fa995f5da0849200",
       "size": 412809,
       "executable": false
     },
@@ -825,9 +825,9 @@
     {
       "target_path": ".github/workflows/workflow-conformance.yml",
       "location": "templates/.github/workflows/workflow-conformance.yml",
-      "sha256": "0c78939c1d4216d653862d54d4e4024e68ea56e768783a398b3849dbbf96911c",
-      "size": 3244,
-      "derivation": "generated: the frozen ci.yml's seven hermetic Workflow suite steps, lifted out of RepFlow's interleaved Gradle jobs; W1 (workflow-2.7.0) adds an eighth step, workflow_protocol_test.py; W2 (workflow-2.8.0) adds a ninth, workflow_gate_policy_test.py; W5 (workflow-2.10.0) cancels a pull request's superseded run and runs the nine suites in parallel inside the one job"
+      "sha256": "96c5448aac6457ca0867aec0b0bcef7e60bca0e9d0db853d0d99d58ab87ea9c9",
+      "size": 16333,
+      "derivation": "generated: the frozen ci.yml's seven hermetic Workflow suite steps, lifted out of RepFlow's interleaved Gradle jobs; W1 (workflow-2.7.0) adds an eighth step, workflow_protocol_test.py; W2 (workflow-2.8.0) adds a ninth, workflow_gate_policy_test.py; W5 (workflow-2.10.0) cancels a pull request's superseded run and runs the nine suites in parallel inside the one job; W12 (workflow-2.16.0, conformance-sharding) runs the acceptance suite in four shards of whole test classes in the one queue under the one width limit, with a coverage gate over the recorded test ids, shard rows and every shard log in the job log"
     },
     {
       "target_path": ".gitignore.workflow-fragment",
@@ -3804,22 +3804,11 @@
     "schema_version": 1,
     "min_manager_version": "1.13.0",
     "downgrade_boundary": {
-      "posture": "Workflow 2.15.0 adds the work-item key review_round_counts to WORKFLOW_STATE.json, written by the four review writers of an item created under 2.15.0; no phase, status, configuration key or commit shape changes. After a move back to 2.14.0 the key stays and the validator and pure writers ignore it, but 2.14.0's commit helpers do not name it, which has two consequences. (1) While the key is an uncommitted change of an item's entry, 2.14.0 rejects the item (for example ReviewStageWriteNotCommittableError): let the item's pending state be committed under 2.15.0 first, so that git diff HEAD on WORKFLOW_STATE.json shows no review_round_counts hunk. (2) Once a commit that changes the key is in a non-terminal item's open implementation-stage provenance interval (for example a provenance recovery that committed a local APPROVE's pending ledger and counter in a recovered generation record), 2.14.0 raises MalformedBundleGenerationRecordCommitError at the next provenance check, even on a clean tree, and committing the state does not help: finish that item's implementation approval under 2.15.0, or keep the repository on 2.15.0 until it has. Move back to 2.14.0 only when every item's pending state is committed and no non-terminal item has such a commit. After the move the next-action snapshot loses the four round fields and the protocol reads 1.4 again.",
-      "undetectable": "A verdict ingested while the repository runs 2.14.0 is not counted, and nothing marks it: after a re-upgrade the item's per-role round counts read low without a sign. A consumer that must hold a hard review cap on an item that was ever moved back counts the rounds itself.",
-      "signals": [
-        {
-          "name": "review-round-counts",
-          "label": "A work item records per-role review round counts (review_round_counts) that Workflow 2.14.0 does not know",
-          "detect": {
-            "kind": "state-key",
-            "key": "review_round_counts"
-          }
-        }
-      ]
+      "posture": "Workflow 2.16.0 changes the managed workflow-conformance.yml template (the acceptance suite runs in four shards, with a coverage gate) and the WORKFLOW_RELEASE constant of workflow_protocol.py with its pinned assertions and tested-releases list; no state key, phase, status, configuration key, commit shape or protocol field changes, and Orchestration Protocol stays 1.5. Moving back is workflow-manager update to 2.15.0, which restores the unsharded template and the 2.15.0 release constant; nothing else needs to be undone.",
+      "undetectable": null,
+      "signals": []
     },
-    "new_work_only": [
-      "Per-role review round counts are recorded only for a work item created under 2.15.0: an item in flight at the update, and a legacy item promoted later, reads null for the four round fields of the next-action snapshot."
-    ],
+    "new_work_only": [],
     "gate_default_change": "",
     "conformance": {
       "suites": {

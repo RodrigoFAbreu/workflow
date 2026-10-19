@@ -2,181 +2,188 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; the release follows the merge). W11: `review-round-counts` (`process`, governing version `2.2`),
-branch `milestone/review-round-counts`, base `16c2599` (main after #49: the release
-source is Workflow 2.14.0 and this repository's own installation is the published
-2.14.0). Roadmap row 14. The plan is `docs/ai-workflow/REVIEW_ROUND_COUNTS_PLAN.md`,
-approved by gate policy at plan revision 3. The previous milestone, W10
-(`finding-dispositions`, Workflow 2.14.0), is complete.
+**Complete** (accepted by policy; the release follows the merge). W12: `conformance-sharding` (`process`, governing version `2.2`), branch
+`milestone/conformance-sharding`, base `971ea16` (main after #54: the release source is
+Workflow 2.15.0 and this repository's own installation is the published 2.15.0).
+Roadmap row 15. The plan is `docs/ai-workflow/CONFORMANCE_SHARDING_PLAN.md`, approved by
+gate policy at plan revision 4. The previous milestone, W11 (`review-round-counts`,
+Workflow 2.15.0), is complete.
 
 ## Goal
 
-Workflow 2.15.0, a minor release (`feat:`), in four checkpoints: `next-action`
-reports how many **local** and how many **external** review rounds an item has had
-at each stage (`plan_local`, `plan_external`, `implementation_local`,
-`implementation_external`), from one persisted counter `review_round_counts`
-written in the verdict's own state transaction. Orchestration Protocol becomes 1.5,
-additive.
+Workflow 2.16.0 (a template change, `feat:`), decided by a measurement: the managed
+`workflow-conformance` job is the long pole of every managed repository's pull request
+(14-20 minutes here), and the acceptance-matrix suite (415 tests) is the long pole inside
+it. The milestone builds the owner's requested scheduling as a candidate (whole test
+classes in shards, run as processes of the one job under one global width), measures it
+on GitHub runners (sharded at widths 3 and 4 against unsharded, compared only on the same CPU type), records the numbers in
+`docs/ai-workflow/CONFORMANCE_SHARDING_EVIDENCE.md`, and ships exactly what the numbers
+support (O1 sharded, O3 no change and no release).
 
-1. **CP1** the counter in the state and the four review writers.
-2. **CP2** the four snapshot fields, schema and protocol constant 1.5.
-3. **CP3** the Protocol 1.5 specification and the user documents.
-4. **CP4** release 2.15.0 bookkeeping and the downgrade posture.
+1. **CP1** the sharded scheduler as a candidate in the managed template, its tests and
+   the measurement kit.
+2. **CP2** measure, record the evidence and apply the decision to the template.
+3. **CP3** the same scheduling in this repository's release-source conformance, and the
+   user document.
+4. **CP4** release 2.16.0: manifest, release history, downgrade posture.
 
 ## Current checkpoint
 
-CP1 is complete: `workflow_state.initial_review_round_counts` (written by
-`default_work_item`: `plan` is a zero pair for a two-stage plan-review version,
-`implementation` for `2.2`, else `null`), `review_round_counts_errors`,
-`validate_review_round_counts` and `InvalidReviewRoundCountsError` (none of them
-called from `validate_state`, so a malformed counter never refuses an operational
-path), and the private `_count_review_round`, called by the four review writers for
-`APPROVE` and `REVISE` only. An absent key, a `null` stage or a malformed value is
-left exactly as it was. `review_round_counts` joins the four closed commit-field sets
-that name `optional_findings`; the audit of the file's other closed sets
-(`LEGACY_RETIREMENT_FIELDS`, `RESUME_IMPLEMENTATION_FIELDS`,
-`_ACCEPTANCE_SATISFACTION_FIELDS`) is unchanged. Tests: `TestReviewRoundCounts` and
-`TestReviewRoundCountsDowngrade` in `workflow_state_test.py`, including the
-downgrade regression (2.15.0's helpers accept a committed counter-bearing recovered
-generation record; helpers with 2.14.0's field sets refuse it).
+CP3 is complete: `release-source-conformance` in `.github/workflows/workflow-ci.yml` now runs the
+template's scheduling over the staged fixture (`$RUNNER_TEMP/fixture`), never the installed
+`scripts/`: `width_cap=4`, `shards=4`, the acceptance suite in four shards of whole test classes
+and the eight other suites in one queue under one limit, the coverage gate, and no fall-back to
+the unsharded suite. The Python heredoc is byte-identical to the template's (D-Same-Text); the
+step differs only in the fixture paths, the `source-conformance` base and the log collection that
+copies every unit's log, result and shard file, the plan and the check output into the unchanged
+`source-conformance-logs` upload. `release.py stage-conformance --commit HEAD`, the 60-minute
+timeout, the triggers, permissions, concurrency, job names and `aggregate` are untouched.
+`docs/RELEASING.md` describes the sharded step, the diagnostics and where a shard failure shows.
 
-CP2 is complete: `workflow_protocol.PROTOCOL_VERSION` is `1.5`; `_review_round` adds
-`plan_local`, `plan_external`, `implementation_local` and `implementation_external`
-after `current`, each from `_role_round`, which returns the persisted integer or
-`None` (an absent key, a `null` stage or a malformed key) and never raises, so a
-damaged counter cannot refuse `next-action` or `record-external-result`. `plan`,
-`implementation` and `current` are unchanged. `op_verify` calls
-`validate_review_round_counts` inside the `state_valid` check, so `verify` alone
-reports a malformed key. The schema's `review_round` requires the four properties.
-Tests: `TestPerRoleRoundFields` in `workflow_protocol_test.py` (the C10a sequence,
-a complete implementation approval, `None` cases, the malformed-key fallback through
-`next-action`, `record-external-result` and `verify`, the golden fields, the schema)
-and every protocol-version assertion moved to 1.5.
+Tests (`tools/release/release_test.py`, `SourceConformanceRunner`, 9 to 18 tests): the embedded
+shard tool equals the template's byte for byte; the step equals the template's step after the
+path substitutions and the two log-collection blocks (nothing else differs); constants and
+suites line equal the template's; the job keeps its stage, timeout, upload and `aggregate`; the
+nine-suite unsharded path (`shards=0`) keeps its earlier tests; the sharded path: nine rows plus
+the coverage line and the uploaded shard files, each of the nine suites failing in turn, a
+failing shard's log and result kept, a failed plan fails the job with no fall-back, and shards
+and suites share one limit.
 
-CP3 is complete: `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md` is at version
-`1.5` (header and history sentence, section 1's release list, the envelope example,
-the section 5.4 snapshot example and `review_round` bullet with the four per-role
-fields, the ledger `round` correction, section 5.2's `state_valid` check naming
-`validate_review_round_counts` and its not being applied by `validate_state`, section
-8.1 per stage and role with the missing-versus-stale distinction, and a "Protocol
-`1.5`" note in section 10). `docs/glossary.md` names the per-role counts;
-`docs/common-problems.md` gains "A review-round count reads null", "A review-round
-count reads lower than expected" and "Implementation approval fails with
-`MalformedBundleGenerationRecordCommitError` after a move back to 2.14.0".
-Verified: `tools/docs/check_docs.py` clean; `workflow_protocol_test` run from
-`payload/scripts` (341 tests) passes every test that parses the specification; the 18
-failures there are release-string and digest comparisons (a spot check of two of the
-failing classes on a clean `HEAD` fails the same way; they need the staged fixture,
-which CP4 runs against the committed manifest).
+Verified: `tools/release/release_test.py` 187 tests, 186 pass; the one error is the same
+`ReproductionTest.test_round_trip` digest mismatch CP2 recorded (it ends when CP4 updates the
+manifest digests). `tools/docs` tests (34) and checker pass; `workflow-manager verify .` is
+clean. A local run of the CI step body against a staged scratch fixture (nine payload suites
+included, `package.stage` of `HEAD` with the scratch manifest's digests rewritten, outside the
+repository) passed: `coverage: expected 415, recorded 415`, shards 3/4/1/2 finished in 74 to 114
+s, all nine suites passed, and the upload directory held every unit's files, `plan.json`,
+`check.out` and `check.err`.
 
-CP4 is complete: `manifest.json` is 2.15.0 with the digests, sizes and rationale of the
-seven changed records refreshed (`counts` unchanged) and the `manager` block authored
-as D-Downgrade states it (`min_manager_version` `1.13.0`, the supported downgrade
-boundary as `posture`, the `undetectable` text, the `review-round-counts` `state-key`
-signal, one `new_work_only` entry, no gate default change);
-`conformance.suites` was written by `release.py manager-block --release-dir <scratch
-directory> --write` from a staging of CP4's own content (protocol 341, state 1183). The
-release constant in `workflow_protocol.py` is 2.15.0, with the protocol document's
-envelope example and the two assertions of `workflow_protocol_test.py`. `docs/release-history.md` has the
-2.15.0 row. `docs/ROADMAP.md` stays Current until acceptance.
+CP2 (earlier):
 
-## Next action
+CP2 is complete: the measurement (revision 5, four rounds, 45 jobs, all valid, every sharded job
+covering 415 of 415 test ids) selected **O1**, `width_cap` 4 and `shards` 4 (variant v3: median
+979 s against 1203 s unsharded on the EPYC 7763, 606 s against 833.5 s on the EPYC 9V45; worst
+same-CPU ratio 0.8074). It is recorded, with the validator's output and the records, in
+`docs/ai-workflow/CONFORMANCE_SHARDING_EVIDENCE.md`. The template already carries those
+constants, so its bytes are unchanged; `tools/release/release_test.py` gains a pin that the
+shipped constants and the evidence's selected outcome agree.
 
-Row 12 (Controller C10, in the Controller's repository) is next once the owner schedules it. Publishing 2.15.0 follows the pull request merge (#53); the Manager side is a `workflow-manager` pin pull request. The 8 follow-ups are in RodrigoFAbreu/workflow#52.
+Verified: `tools/release/release_test.py` 178 tests, 177 pass; the one error,
+`ReproductionTest.test_round_trip`, stages `HEAD` and builds it, and the build refuses the
+CP1 template because `manifest.json` still carries 2.15.0's digest (`digest mismatch:
+templates/.github/workflows/workflow-conformance.yml`). It follows from the CP1 commit, not
+from CP2 (which changes no template, payload or manifest byte), and ends when CP4 updates the
+manifest digests. In the staged release fixture the committed template's step passes every
+gate: `coverage: expected 415, recorded 415`, the four shards' skips 7 + 9 + 0 + 4 = 20 (the
+serial run's `skipped=20`), and the eight other suites pass; `workflow-manager verify .` is
+clean and `tools/docs` tests and checker pass.
+
+CP1 (earlier):
+
+`templates/.github/workflows/workflow-conformance.yml` now carries the
+candidate scheduling. `width_cap=4` and `shards=4` are each alone on one line;
+`shards=0` runs the acceptance suite as one unit as 2.15.0 does. A quoted heredoc writes
+`$base/shards.py` (stdlib only) with `plan` (groups the tests of
+`workflow_acceptance_matrix_test.py` by class, refuses a module that defines
+`load_tests`, `setUpModule` or `tearDownModule`, partitions longest-processing-time on
+test count into at most `N` shards, and writes the expected ids), `run` (loads exactly one
+shard's classes with `loadTestsFromTestCase`, checks the loaded ids equal the plan,
+records every test id's outcome, a failed subtest under its parent, and exits 1 unless
+everything succeeded) and `check` (per shard: the process exit, a complete shard file
+that names its shard and classes, no failed, missing, unexpected or never-finished id;
+and the multiset of recorded ids equal to the expected ids). The shell scheduler queues
+the shards first and the eight other suites after them, starts at most
+`min(width_cap, nproc)` units at a time, prints `start <unit> running K` from the parent
+for the V3 validity check, and keeps the summary's nine suite rows (the acceptance row
+reads `passed (N shards, T tests)` and the shard rows follow it). A failed plan fails the
+job; there is no fall-back to the unsharded suite. The concurrency block is unchanged.
+
+Tests (`tools/release/release_test.py`, `ConformanceTemplate`, 8 to 24 tests): the
+constants and the kit's substitution; the shard tool run from the extracted heredoc
+against a stand-in module (inheritance, a class-decorator skip, a `skipTest`, passing and
+skipped and failing subtests, an expected failure, an empty class): a complete run
+records every outcome; the partition is exact, deterministic and balanced, and exact on
+the real acceptance module for 1, 2, 4 and 8 shards (compared with the module's own
+count and the manifest's `manager.conformance.suites`); `plan` refuses each module hook;
+`check` fails naming the shard and the original ids for a failed test, a failed subtest,
+a `setUpClass` error, a `setUpClass` `SkipTest`, an unexpected success, and for a missing,
+truncated, incomplete, wrong-class, duplicated, extra, missing-id, never-finished,
+nonzero-exit and no-result shard; the step body with stand-in suites: all pass, each of
+the nine in turn failing, a failing shard, every unit whose copy failed, the width never
+exceeded with shards and suites queued together, isolation of `TMPDIR`, `HOME` and the
+repository copy per shard, a failed plan failing the job, and `shards=0` reproducing the
+nine-unit behaviour.
+
+Verified: `tools/release/release_test.py` 177 tests pass (Python 3.12 and 3.14 for the
+template tests). A local run of the sharded step (v3) on the staged release tree passes
+every gate: `coverage: expected 415, recorded 415`, the same 20 skipped ids with the same
+reasons as the serial run (415 tests, `OK (skipped=20)`); the acceptance row took 108 s
+in the four-shard run against 354 s serial on this machine (both while other runs shared the CPUs). The nine payload suites pass
+in the staged release fixture (the same local run; CP1 changes no payload byte). The measurement kit (not committed; generator,
+collector, validator and the 23 self-checks) is prepared outside the repository for the
+orchestrator.
+
+### CP4 -- Release 2.16.0 (complete)
+
+Release identity: `WORKFLOW_RELEASE` is `"2.16.0"` in `payload/scripts/workflow_protocol.py`,
+the two pinning assertions in `workflow_protocol_test.py` follow, and
+`ORCHESTRATION_PROTOCOL.md` changes in its three places (tested-releases list, the unpinned
+`workflow_release` example, the protocol `1.5` history entry); the protocol version stays `1.5`.
+`manifest.json` is 2.16.0 with the digests of the template and the three changed payload files
+refreshed, the template derivation extended with W12, and the `manager` block rewritten
+(`min_manager_version` 1.13.0, a template-plus-constant posture whose way back is
+`workflow-manager update` to 2.15.0, no signals, no new-work-only note, no gate default
+change). `release.py manager-block --release-dir <scratch stage> --write` measured the nine
+suite counts and they are unchanged from 2.15.0 (415, 341, 1183, 315, 142, 106, 317, 280, 27).
+`docs/release-history.md` has the 2.16.0 row with the measured numbers (medians 1212.5 s to
+979 s on the EPYC 7763 type, 833.5 s to 606 s on the EPYC 9V45 type); `docs/common-problems.md`
+explains a failing or missing shard. `docs/ROADMAP.md` is untouched (Current/Done is at
+acceptance).
 
 ## Functional review checklist
 
-Item `review-round-counts`, implementation revision 2, branch
-`milestone/review-round-counts`. All four checkpoints (CP1-CP4) are complete; the
-release source is 2.15.0 (this repository's own installation stays 2.14.0 and is not
-under test).
+Implementation revision 4. Verified before this checklist: `tools/release/release_test.py`
+192 tests pass (Python 3.12 with the pinned `zlib-ng` runtime; on Python 3.14 without it 29
+reproduction tests error, an environment limit, not a defect), `tools/docs` tests (34) pass,
+`workflow-manager verify .` is clean.
 
-### Setup
+**Setup.** On branch `milestone/conformance-sharding`, clean tree. Use Python 3.12 with the
+pinned runtime: `python3.12 -m venv /tmp/wf-venv && /tmp/wf-venv/bin/pip install
+--require-hashes -r tools/release/deflate-requirements.txt`. No feature flags.
 
-- Work from the repository root on branch `milestone/review-round-counts`, clean tree.
-- Run the release source scripts, not the installed ones: `payload/scripts/`
-  (`workflow_state.py`, `workflow_protocol.py`). Use a scratch copy of the repository
-  or a temp directory for any state you mutate; never write to this repository's
-  `docs/ai-workflow/WORKFLOW_STATE.json`.
-- Automated suites: run them from the staged fixture, not the source layout. Stage it
-  with `python3 tools/release/release.py stage-conformance --commit HEAD --out
-  "$TMPDIR/fixture"`, then run `python3 -m unittest workflow_state_test` and
-  `workflow_protocol_test` in the fixture's `scripts/`. In the source-layout
-  `payload/scripts` the state suite errors in two tests that read the live
-  `WORKFLOW_STATE.json`, which the source layout lacks (they pass in the fixture), and
-  the 18 protocol failures that compare release strings and digests also appear; all of
-  these are expected outside the staged fixture.
-- `python3 tools/docs/check_docs.py` must be clean.
+**Test data.** None to seed; the real acceptance module
+(`payload/scripts/workflow_acceptance_matrix_test.py`, 415 tests) and the staged release
+fixture are the data.
 
-### Test data
+**Flows and expected results.**
 
-A scratch repository bootstrapped with the release source holding one `2.2` work item
-(two-stage plan and implementation review) and one `2.1` item (plan stage only has two
-stages), plus one item created before 2.15.0 (no `review_round_counts` key).
+1. Release tool tests: `/tmp/wf-venv/bin/python tools/release/release_test.py` -> `Ran 192
+   tests ... OK`.
+2. Template constants: open `templates/.github/workflows/workflow-conformance.yml` -> `width_cap=4`
+   and `shards=4` each alone on a line; `shards=0` is documented as the unsharded path.
+3. Shard plan: extract the heredoc `shards.py` and run `plan` on the acceptance module with 4
+   shards -> four shards of whole classes, ids summing to 415, deterministic across reruns.
+4. Sharded step on a staged fixture (as CI runs it): the summary shows nine suite rows (the
+   acceptance row `passed (4 shards, 415 tests)`), `coverage: expected 415, recorded 415`, all
+   suites pass, and a failing test makes the job fail with the shard named (no fall-back to
+   the unsharded suite).
+5. Release-source job: in `.github/workflows/workflow-ci.yml`, `release-source-conformance`
+   runs the same scheduling over the staged fixture, with the same Python heredoc as the
+   template, the 60-minute timeout and `aggregate` unchanged.
+6. Release identity: `manifest.json` is 2.16.0 with refreshed digests, `WORKFLOW_RELEASE`
+   is `"2.16.0"`, `docs/release-history.md` has the 2.16.0 row (medians 1212.5 s to 979 s and
+   833.5 s to 606 s), `docs/common-problems.md` explains a failing or missing shard.
+7. Evidence: `docs/ai-workflow/CONFORMANCE_SHARDING_EVIDENCE.md` selects O1, 45 jobs all
+   valid, worst same-CPU ratio 0.8074.
+8. Installation: `workflow-manager verify .` -> clean, 2.15.0 (this repository's own
+   installation is untouched by the milestone).
 
-### Flows and expected results
+**Known limitations / out of scope.** The wall-clock gain is measured on GitHub runners, not
+reproducible locally (a local sharded run only shows the shard mechanics). The Python 3.14
+environment cannot install the pinned `zlib-ng` wheel, so reproduction tests need Python 3.12.
+Publishing 2.16.0, the `workflow-manager` pin and `docs/ROADMAP.md` are outside this
+milestone (acceptance and release steps).
 
-1. **Fresh `2.2` item.** Run `next-action` for it. Expect `review_round` to carry
-   `plan_local`, `plan_external`, `implementation_local`, `implementation_external`
-   all `0`, alongside unchanged `plan`, `implementation`, `current`; protocol version
-   `1.5`.
-2. **Counting at the plan stage (the C10a case).** Record three local plan-review
-   verdicts (`REVISE`, `REVISE`, `APPROVE` or the equivalent sequence) and one external
-   plan verdict. Expect `plan_local` 3 and `plan_external` 1 in the next snapshot;
-   `plan` unchanged from what 2.14.0 would return.
-3. **BLOCK does not count.** Record a `BLOCK` verdict. Expect no counter change and
-   the ingest otherwise as before.
-4. **Implementation stage.** Record local and external implementation verdicts
-   (`APPROVE`/`REVISE`). Expect `implementation_local`/`implementation_external` to
-   rise by one each, `plan_*` unaffected.
-5. **Pre-2.15.0 item (key absent).** `next-action` returns `null` for all four fields
-   and does not refuse; recording a verdict leaves the absent key absent.
-6. **Item whose stage is `null`** (e.g. a `2.1` item's implementation stage): that
-   stage reads `null`, the other stage counts.
-7. **Malformed counter.** Hand-edit a scratch state so `review_round_counts` is
-   malformed. Expect `next-action` and `record-external-result` still work (fields
-   `null`), the writers leave the value untouched, and `verify` alone reports
-   `state_valid: fail` with an `InvalidReviewRoundCountsError` naming the malformed key.
-8. **Monotonic.** A count never decreases and never returns to `null` once numeric,
-   including across a new plan revision or implementation revision.
-9. **Schema and docs.** `orchestration-protocol-v1.schema.json` requires the four
-   properties in `review_round`; `ORCHESTRATION_PROTOCOL.md` is version 1.5 and its
-   section 5.4 example illustrates an item with earlier plan reviews (`plan_local` 2,
-   `plan_external` 2, implementation 0/0; the all-zero expectation belongs to flow 1
-   only); the glossary and the three new
-   `docs/common-problems.md` entries read correctly.
-10. **Release bookkeeping.** `manifest.json` is 2.15.0 with a `manager` block
-    (`min_manager_version` 1.13.0, `review-round-counts` state-key signal,
-    one `new_work_only` entry); `docs/release-history.md` has the 2.15.0 row;
-    `docs/ROADMAP.md` row 14 is still Current; `workflow-manager verify .` is clean
-    (installation untouched).
-11. **Downgrade posture.** In the state tests, 2.15.0's helpers accept a committed
-    counter-bearing recovered generation record and 2.14.0's field sets refuse it
-    (`TestReviewRoundCountsDowngrade`); the "Implementation approval fails with
-    `MalformedBundleGenerationRecordCommitError`" entry in common-problems matches. The
-    2.14.0 refusal comes from the published 2.14.0 release, which cannot change; the
-    expected next step is that documented troubleshooting entry, not a next step in the
-    refusal message. The 2.15.0 tampered-head/revision refusals are pre-existing messages
-    this milestone does not change (a review-follow-up issue covers adding a next step to
-    the recovered-role refusals).
+## Next action
 
-### Known limitations / out of scope
-
-- Counts are exact only from the verdicts recorded after 2.15.0; earlier verdicts of an
-  existing item cannot be reconstructed (reads `null`, or lower than expected).
-- The round caps (local 6, external 4) are enforced by the Controller
-  (workflow-controller#88), not here.
-- `BLOCK` verdicts are not counted; `plan`, `implementation`, `current` are unchanged.
-- Downgrade to 2.14.0 is supported only to the boundary the manifest's `posture` states;
-  a counter-bearing generation record cannot be approved there.
-- The 18 release-string/digest failures in `workflow_protocol_test` outside the staged
-  fixture are not a defect of this milestone.
-
-### Functional review round 1
-
-Checklist corrections only; no source, test or bundle change, and `technical_approval`
-is untouched. Setup now runs the suites from the staged fixture (finding 1); flow 7
-expects `state_valid: fail` with `InvalidReviewRoundCountsError` (finding 2); flow 9
-expects the section 5.4 example's earlier-plan-review counts, all-zero stays in flow 1
-(finding 3); flow 11 expects the documented troubleshooting entry (finding 4, expected
-behavior). Re-test flows 7, 9 and 11.
+Row 16 (a structured backlog file, RodrigoFAbreu/workflow#48) is next once the owner schedules it. Publishing 2.16.0 follows the pull request merge (#57); the Manager side is a `workflow-manager` pin pull request. The 5 follow-ups are in RodrigoFAbreu/workflow#56.
