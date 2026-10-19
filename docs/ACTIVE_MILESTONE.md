@@ -202,19 +202,30 @@ items:
    (`roadmap_not_generated`); `generate --replace` succeeds.
 5. **Selection.** `next` returns `first-item` (second is blocked by its dependency). Mark
    `first-item` `in-progress`: still returned first. Add a cycle or an unknown dependency:
-   `status`/`next` refuse with a two-line message naming the line and `BACKLOG_FILE.md`, exit 2.
+   `next` refuses on stderr (`error: backlog_invalid: docs/backlog.yaml:<line>: ...` then a
+   `next step:` line naming `docs/ai-workflow/BACKLOG_FILE.md` and `check`), exit 2. `status`
+   does not refuse: it always exits 0 and prints one JSON object with `"valid": false` and an
+   `error` whose `code` is `backlog_invalid`, and no stderr.
 6. **Accept.** `preflight-accept first-item` then `accept first-item` (and `accept --release
    2.17.0`): the file's `status` becomes `done` (only that line, plus `release`), the page is
    regenerated, JSON lists the paths to stage. On a forced refusal (e.g. break the page
    generator) both files are restored and the next step names the one-step recovery.
 7. **Refusals.** Try a tab indent, a CRLF line, a duplicate id, a `detail` that is a symbolic
-   link or outside `docs/items/`, a protected declared path (`WORKFLOW_STATE.json`): each is
-   refused with the documented code, file name and line.
+   link or outside `docs/items/`: each is refused (`next`, exit 2) as `backlog_invalid` with the
+   file name and line (a duplicate id may list several located diagnostics before the single
+   `next step:` line, which names `BACKLOG_FILE.md`). A protected declared path is different:
+   put `WORKFLOW_STATE.json` in `docs/ai-workflow/registry/first-item-artifacts.json` as a
+   declared artifact and run `preflight-accept first-item`: expected `declaration_conflict`,
+   exit 2, nothing written, naming the path and the artifact stage (no line number; line
+   numbers apply only to backlog parse and schema failures).
 8. **Declared generator.** Add `"generator": ["python3", "tools/roadmap.py"]` using the
    document's example generator: `generate` runs it, `check` verifies without running it.
 9. **Commands read (document review).** In `payload/.claude/commands/`: `milestone-plan.md`
    step 1 ("Backlog declared"), `accept-milestone.md` steps 2a, 3, 6, 7, and `satisfy-gate.md`
-   step 0 describe the flows above and leave the explicit-id forms alone.
+   step 0 describe the flows above and leave the explicit-id forms alone. Each tells the
+   operator to report stderr verbatim (every diagnostic and the next step), not "two lines".
+   `accept-milestone.md` offers the backlog branch only for an item with a state entry (its
+   step 0 requires one); it makes no promise for an item without.
 10. **Release.** `manifest.json` is 2.17.0, `WORKFLOW_RELEASE` is 2.17.0, `docs/release-history.md`
     has the 2.17.0 row with the downgrade posture.
 
@@ -224,6 +235,24 @@ items:
 - The managed conformance workflow does not add the `check` step for you (optional, documented).
 - Two `TestCanonicalStateSerialization` live-state tests only run from an installed layout.
 - Publishing the 2.17.0 release and the `workflow-manager` pin are separate pull requests.
+
+## Functional review round 1
+
+An independent executor ran the checklist; six findings, handled as follows.
+
+- **Fixed (bounded):** a refused `generate` changed existing files from mode 0644 to 0600
+  (atomic writes and the rollback now keep the existing mode and an untouched snapshot is not
+  rewritten; regression tests cover refusal and successful writes). `backlog_invalid` refusals
+  now name `docs/ai-workflow/BACKLOG_FILE.md` in the next step.
+- **Documentation:** `milestone-plan.md`, `accept-milestone.md` and `satisfy-gate.md` say to
+  report stderr verbatim instead of "the two stderr lines"; the unreachable no-state-entry
+  backlog paragraph in `accept-milestone.md` and its promise in `BACKLOG_FILE.md` are removed
+  (step 0 is unchanged); the guide's refusal description follows the real output.
+- **Checklist corrections (no code change):** flows 5, 7 and 9 above (`status` exits 0 with
+  JSON; the protected-path fixture and `declaration_conflict` wording; verbatim stderr).
+- Measured counts are now 187 (completion-obligations) and 329 (integration); the other
+  suites are unchanged.
+- **Re-test:** flows 4 (modes preserved on the refusal), 5, 7 and 9.
 
 ## Next action
 
