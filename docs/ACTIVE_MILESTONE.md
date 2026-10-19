@@ -16,9 +16,9 @@ Workflow 2.16.0 (a template change, `feat:`), decided by a measurement: the mana
 (14-20 minutes here), and the acceptance-matrix suite (415 tests) is the long pole inside
 it. The milestone builds the owner's requested scheduling as a candidate (whole test
 classes in shards, run as processes of the one job under one global width), measures it
-on GitHub runners against width 2 and width 4 without sharding, records the numbers in
+on GitHub runners (sharded at widths 3 and 4 against unsharded, compared only on the same CPU type), records the numbers in
 `docs/ai-workflow/CONFORMANCE_SHARDING_EVIDENCE.md`, and ships exactly what the numbers
-support (O1 sharded, O2 a lower width, O3 no change and no release).
+support (O1 sharded, O3 no change and no release).
 
 1. **CP1** the sharded scheduler as a candidate in the managed template, its tests and
    the measurement kit.
@@ -29,7 +29,27 @@ support (O1 sharded, O2 a lower width, O3 no change and no release).
 
 ## Current checkpoint
 
-CP1 is complete: `templates/.github/workflows/workflow-conformance.yml` now carries the
+CP2 is complete: the measurement (revision 5, four rounds, 45 jobs, all valid, every sharded job
+covering 415 of 415 test ids) selected **O1**, `width_cap` 4 and `shards` 4 (variant v3: median
+979 s against 1203 s unsharded on the EPYC 7763, 606 s against 833.5 s on the EPYC 9V45; worst
+same-CPU ratio 0.8074). It is recorded, with the validator's output and the records, in
+`docs/ai-workflow/CONFORMANCE_SHARDING_EVIDENCE.md`. The template already carries those
+constants, so its bytes are unchanged; `tools/release/release_test.py` gains a pin that the
+shipped constants and the evidence's selected outcome agree.
+
+Verified: `tools/release/release_test.py` 178 tests, 177 pass; the one error,
+`ReproductionTest.test_round_trip`, stages `HEAD` and builds it, and the build refuses the
+CP1 template because `manifest.json` still carries 2.15.0's digest (`digest mismatch:
+templates/.github/workflows/workflow-conformance.yml`). It follows from the CP1 commit, not
+from CP2 (which changes no template, payload or manifest byte), and ends when CP4 updates the
+manifest digests. In the staged release fixture the committed template's step passes every
+gate: `coverage: expected 415, recorded 415`, the four shards' skips 7 + 9 + 0 + 4 = 20 (the
+serial run's `skipped=20`), and the eight other suites pass; `workflow-manager verify .` is
+clean and `tools/docs` tests and checker pass.
+
+CP1 (earlier):
+
+`templates/.github/workflows/workflow-conformance.yml` now carries the
 candidate scheduling. `width_cap=4` and `shards=4` are each alone on one line;
 `shards=0` runs the acceptance suite as one unit as 2.15.0 does. A quoted heredoc writes
 `$base/shards.py` (stdlib only) with `plan` (groups the tests of
@@ -74,6 +94,6 @@ orchestrator.
 
 ## Next action
 
-CP2: the orchestrator runs the measurement from the kit's README on a throwaway branch
-and the CP2 worker records the evidence and applies the decision. CP1 changes no payload
-byte and no manifest byte; `manifest.json` stays at 2.15.0 until CP4.
+CP3: the same scheduling in this repository's release-source conformance
+(`.github/workflows/workflow-ci.yml`) and the user document. `manifest.json` stays at 2.15.0
+until CP4.

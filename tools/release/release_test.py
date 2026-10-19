@@ -818,6 +818,16 @@ class ConformanceTemplate(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(self.with_constants(body, 4, 4), body)
 
+    def test_constants_are_the_outcome_the_evidence_selects(self):
+        """CP2: the shipped constants are the measured outcome O1 (width 4, 4 shards)."""
+        body = self.step_body()
+        self.assertEqual(self.with_constants(body, 4, 4), body)
+        evidence = (REPO_ROOT / "docs/ai-workflow/CONFORMANCE_SHARDING_EVIDENCE.md").read_text()
+        self.assertIn("**Outcome O1: sharding is adopted. `width_cap` = 4, `shards` = 4 (variant v3).**",
+                      evidence)
+        self.assertIn('"outcome": "O1", "shards": 4, "undecided_not_chosen": ["v4", "v5"], '
+                      '"variant": "v3", "width_cap": 4}', evidence)
+
     def shards_source(self):
         body = self.step_body()
         start = body.index("<<'PY'\n") + len("<<'PY'\n")
