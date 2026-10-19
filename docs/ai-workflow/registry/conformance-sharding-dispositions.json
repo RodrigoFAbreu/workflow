@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "work_item_id": "conformance-sharding",
+  "dispositions": {
+    "F-008fd4dd9915": {
+      "disposition": "dropped",
+      "reason": "Measurement finished (45 jobs, all valid); kit validator rule no longer needed."
+    },
+    "F-0ddae68cbad4": {
+      "disposition": "dropped",
+      "reason": "Measurement finished; image-rollout straddling no longer a risk."
+    },
+    "F-162726069dcc": {
+      "disposition": "dropped",
+      "reason": "Rule V2 (majority triple) was removed by revision 5."
+    },
+    "F-21bcc1ed2cbe": {
+      "disposition": "dropped",
+      "reason": "Measurement finished and V3 passed; control K computation moot."
+    },
+    "F-2448d65be13d": {
+      "disposition": "dropped",
+      "reason": "Outcome O2 was removed by revision 5; wording moot."
+    },
+    "F-2cf1e66fc4ba": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#56",
+      "note": "Name the bad total verdict in the annotation and row when total is not ok but check exits 0."
+    },
+    "F-2d20d736689d": {
+      "disposition": "fixed",
+      "note": "docs/common-problems.md:303-308, commit 14ccef5 describes class-level fixture and SkipTest causes instead of module changes."
+    },
+    "F-3aae040b835f": {
+      "disposition": "dropped",
+      "reason": "Measurement finished; plan section 7 risk wording is historical."
+    },
+    "F-50cc279e2f48": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#56",
+      "note": "In .github/workflows/workflow-ci.yml:467 and templates/.github/workflows/workflow-conformance.yml:268, redirect cp -a output into the unit's log (cp -a ... >>\"$d/log\" 2>&1) so a failed copy keeps its diagnostics; pin it in the template test."
+    },
+    "F-568e314662e6": {
+      "disposition": "fixed",
+      "note": "Plan section 9 (lines 679-684) lists .claude/commands/, scripts/, docs/gates.md and docs/glossary.md like the JSON."
+    },
+    "F-61025cd4facf": {
+      "disposition": "fixed",
+      "note": "Revision 5 rule 2 (plan 3.2) chooses only among passing candidates, which satisfy the gain rule."
+    },
+    "F-6368730bcba6": {
+      "disposition": "fixed",
+      "note": "Plan revision 4 (history row 4) and CP4 name the three ORCHESTRATION_PROTOCOL.md edits; implemented at lines 44, 64, 1187."
+    },
+    "F-6c3d9b6f48a5": {
+      "disposition": "fixed",
+      "note": "plan refuses load_tests, setUpModule and tearDownModule: template line 56, plan section 2.4 and CP1 tests (plan line 403)."
+    },
+    "F-72c4115d2bf1": {
+      "disposition": "dropped",
+      "reason": "Excluded narrative file replaced at the next milestone; release-history and evidence carry the correct basis."
+    },
+    "F-7d4bf547d809": {
+      "disposition": "dropped",
+      "reason": "Rule V2 was removed by revision 5."
+    },
+    "F-854d4cec78b0": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#56",
+      "note": "Name the bad total verdict in the annotation and row when total is not ok but check exits 0."
+    },
+    "F-88f8ecabbff9": {
+      "disposition": "fixed",
+      "note": "Commit 14ccef5 rewrote the common-problems text to the real causes (class fixture, SkipTest)."
+    },
+    "F-8bfb08c691ab": {
+      "disposition": "dropped",
+      "reason": "The O3 path was not taken; O1 was selected, so no amendment needed."
+    },
+    "F-977d44772c44": {
+      "disposition": "fixed",
+      "note": "manifest.json:830 now has \"; W12 (workflow-2.16.0, ...\" separator."
+    },
+    "F-a5d14690da89": {
+      "disposition": "fixed",
+      "note": "workflow-ci.yml global coverage row now uses \"$acceptance\" (line ~510)."
+    },
+    "F-b028fef11bae": {
+      "disposition": "dropped",
+      "reason": "Revision 4 wording about V2 and the control diff was superseded by revision 5."
+    },
+    "F-b243c59ea0a6": {
+      "disposition": "dropped",
+      "reason": "Rule V2 was removed by revision 5."
+    },
+    "F-cc86d70ed690": {
+      "disposition": "dropped",
+      "reason": "Outcome O2 removed; CP3 runs only after O1 was selected on the managed-step proxy."
+    },
+    "F-d85a6951ca41": {
+      "disposition": "dropped",
+      "reason": "Schema allows null and null means nothing undetectable, as plan D-Downgrade states."
+    },
+    "F-e079341eb5b8": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#56",
+      "note": "In docs/common-problems.md:306, drop setUpModule from the 'not in the plan' causes (plan refuses it); keep setUpClass and out-of-test SkipTest."
+    },
+    "F-f2582fb45f6f": {
+      "disposition": "dropped",
+      "reason": "Measurement finished; no candidate both passed and failed a gate."
+    },
+    "F-fa63873b3922": {
+      "disposition": "fixed",
+      "note": "Plan history row 2: real-module pins compare with the module and manifest."
+    },
+    "F-fb1fc18f1501": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#56",
+      "note": "Same fix as LIR-R4-O01: remove setUpModule from the examples at docs/common-problems.md:306."
+    },
+    "F-ff93c7e76556": {
+      "disposition": "dropped",
+      "reason": "Outcome O2 removed, so the O1-only marking is moot."
+    }
+  }
+}

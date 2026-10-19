@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**In progress.** W12: `conformance-sharding` (`process`, governing version `2.2`), branch
+**Complete** (accepted by policy; the release follows the merge). W12: `conformance-sharding` (`process`, governing version `2.2`), branch
 `milestone/conformance-sharding`, base `971ea16` (main after #54: the release source is
 Workflow 2.15.0 and this repository's own installation is the published 2.15.0).
 Roadmap row 15. The plan is `docs/ai-workflow/CONFORMANCE_SHARDING_PLAN.md`, approved by
@@ -186,5 +186,4 @@ milestone (acceptance and release steps).
 
 ## Next action
 
-All checkpoints are complete. Next: manual functional review against the checklist above;
-findings go to the item's `FUNCTIONAL_REVIEW.md`, otherwise `/accept-milestone`.
+Row 16 (a structured backlog file, RodrigoFAbreu/workflow#48) is next once the owner schedules it. Publishing 2.16.0 follows the pull request merge (#57); the Manager side is a `workflow-manager` pin pull request. The 5 follow-ups are in RodrigoFAbreu/workflow#56.
