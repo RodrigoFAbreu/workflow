@@ -46,10 +46,24 @@ matrix passes (450 tests, 20 skipped); `tools/docs` check and tests are clean; t
 `tools/release` suite passes (198 tests) unchanged from the disposable Git clone in the
 zlib-ng environment.
 
-### CP2 -- Neutral command bodies, the restated guards, `$ARGUMENTS` and the golden hashes (pending)
+### CP2 -- Neutral command bodies, the restated guards, `$ARGUMENTS` and the golden hashes (complete)
+
+- Eleven command bodies changed per the plan's hunk table: the model is "the agent"; the six
+  user-only bodies state the literal-confirmation check as "the control this command carries
+  itself, under every harness" with the flag as an additional layer and carry "The agent must
+  never invoke" (added to `accept-milestone.md` and `retire-legacy-work-item.md`);
+  `approve-review.md`'s `SlashCommand`/changelog history is replaced by a pointer to the
+  harness notes in `COMMAND_FILES.md`; `apply-pr-review.md` and `prepare-review.md` gain a
+  `$ARGUMENTS` sentence; the three reviewer bodies say "any capable model".
+- Golden hashes: six rows re-recorded, five added. Pinned name text updated in
+  `workflow_integration_test.py` and `workflow_state_test.py`.
+- New tests: `TestHarnessNeutralCommandBodies` (neutrality, `Claude-Session:` still named,
+  `$ARGUMENTS` gate, each user-only body's confirmation step, history moved). Plan deviation:
+  the plan says sixteen files name `Claude-Session:`; there are fourteen at 2.17.0 and still
+  fourteen, so the test pins fourteen.
 
 ### CP3 -- Release 2.18.0 (pending)
 
 ## Next action
 
-Run `/milestone-implement harness-neutral-commands` again for CP2.
+Run `/milestone-implement harness-neutral-commands` again for CP3.
