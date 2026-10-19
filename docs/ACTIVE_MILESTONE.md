@@ -157,7 +157,76 @@ its 34 tests pass. The suite count changed from 176 to 184, so CP5 records it in
 
 Verification is recorded in the commit report and the implementation bundle.
 
+## Functional review checklist
+
+Implementation revision 5; every checkpoint is complete and technical approval is recorded.
+The release source is `payload/` (this repository's own installation is untouched), so manual
+testing runs in a **scratch repository**, never in this one.
+
+### Setup
+
+1. Make a scratch directory outside this repository and `git init` it (set a user name and
+   email). Copy `payload/scripts/` (at least `workflow_backlog.py`) to `scratch/scripts/`, and
+   create `scratch/docs/ai-workflow/WORKFLOW_CONFIG.json` containing `{}`.
+2. In the repository, run `python3 -I tools/docs/check_docs.py` (expect clean) and the CP5
+   release test `python3 -I tools/release/release_test.py BacklogReleaseTest` (expect 6 pass).
+3. Read `payload/docs/ai-workflow/BACKLOG_FILE.md`; it is the document every refusal names.
+
+### Test data
+
+`scratch/docs/backlog.yaml` (the document's `starter`, then the `full` example block):
+
+```yaml
+version: 1
+items:
+  - id: first-item
+    title: My first item
+    status: next
+    order: 1
+  - id: second-item
+    title: My second item
+    status: next
+    order: 2
+    depends_on: [first-item]
+```
+
+### Flows and expected results
+
+1. **Undeclared is unchanged.** With `{}` config run `python3 scripts/workflow_backlog.py status`
+   and `next`. Expected: one JSON object saying no backlog is declared, exit 0, nothing written.
+2. **Declare.** Config `{"backlog": {"file": "docs/backlog.yaml"}}`. Run `status`: the file
+   parses, two items listed, exit 0.
+3. **Generate.** `generate` creates `docs/ROADMAP.md` with the Workflow's stamp. Run `check`
+   (exit 0). Hand-edit the page, `check` exits 1 with `roadmap_stale`; `generate` repairs it.
+4. **Hand-written page.** Replace the page with prose, remove the stamp: `generate` refuses
+   (`roadmap_not_generated`); `generate --replace` succeeds.
+5. **Selection.** `next` returns `first-item` (second is blocked by its dependency). Mark
+   `first-item` `in-progress`: still returned first. Add a cycle or an unknown dependency:
+   `status`/`next` refuse with a two-line message naming the line and `BACKLOG_FILE.md`, exit 2.
+6. **Accept.** `preflight-accept first-item` then `accept first-item` (and `accept --release
+   2.17.0`): the file's `status` becomes `done` (only that line, plus `release`), the page is
+   regenerated, JSON lists the paths to stage. On a forced refusal (e.g. break the page
+   generator) both files are restored and the next step names the one-step recovery.
+7. **Refusals.** Try a tab indent, a CRLF line, a duplicate id, a `detail` that is a symbolic
+   link or outside `docs/items/`, a protected declared path (`WORKFLOW_STATE.json`): each is
+   refused with the documented code, file name and line.
+8. **Declared generator.** Add `"generator": ["python3", "tools/roadmap.py"]` using the
+   document's example generator: `generate` runs it, `check` verifies without running it.
+9. **Commands read (document review).** In `payload/.claude/commands/`: `milestone-plan.md`
+   step 1 ("Backlog declared"), `accept-milestone.md` steps 2a, 3, 6, 7, and `satisfy-gate.md`
+   step 0 describe the flows above and leave the explicit-id forms alone.
+10. **Release.** `manifest.json` is 2.17.0, `WORKFLOW_RELEASE` is 2.17.0, `docs/release-history.md`
+    has the 2.17.0 row with the downgrade posture.
+
+### Known limitations and out of scope
+
+- This repository keeps its prose `docs/ROADMAP.md` and declares no backlog.
+- The managed conformance workflow does not add the `check` step for you (optional, documented).
+- Two `TestCanonicalStateSerialization` live-state tests only run from an installed layout.
+- Publishing the 2.17.0 release and the `workflow-manager` pin are separate pull requests.
+
 ## Next action
 
-Invoke `/milestone-implement backlog-file` again: every checkpoint is complete, so it enters
-`SELF_REVIEWING_IMPLEMENTATION`, runs the full verification and prepares the implementation bundle.
+Test with the checklist above and put findings in
+`.ai-review/backlog-file/feedback/FUNCTIONAL_REVIEW.md`. If clean, run `/accept-milestone backlog-file`;
+otherwise `/apply-functional-review backlog-file`.
