@@ -244,8 +244,9 @@ a backlog branch when the repository declares one:
   fails, both are restored (a page that did not exist is removed).
 - Afterwards the command reads `next` (read-only) and reports the next item in
   `docs/ACTIVE_MILESTONE.md`'s "Next action", or "no item is ready: <reason>".
-- A work item with no `WORKFLOW_STATE.json` entry still gets the backlog
-  branch.
+- `/accept-milestone` itself requires a non-terminal `WORKFLOW_STATE.json`
+  entry for the item (its step 0), so acceptance, with its backlog branch,
+  is only offered for an item that has one.
 
 ### Recovery after an `accept` refusal
 
@@ -408,14 +409,16 @@ default the root is the git top level of the working directory, else the working
 directory. Success
 prints one JSON object on standard output and exits 0; a repository that
 declares nothing prints `{"declared": false}` and exits 0. A refusal prints, on
-standard error, `error: <code>: <message>` and `next step: <one step>`, and exits
+standard error, an `error: <code>: <message>` section (one line, or a located
+diagnostic per violation when several are found) followed by
+`next step: <one step>`, and exits
 2 (so does a usage error). `check` on a stale page exits 1.
 
 | Code | When | The one next step |
 |---|---|---|
 | `declaration_invalid` | the `backlog` key breaks the rules in [Setup](#setup) or [Paths](#paths) | correct the key, or remove it to leave the backlog |
 | `backlog_missing` | the declared file does not exist | create the file (the starter is in [Setup](#setup)), or remove the key |
-| `backlog_invalid` | the grammar or the schema is broken | fix the lines named, then run `check` |
+| `backlog_invalid` | the grammar or the schema is broken | fix the lines named as this document says, then run `check` |
 | `no_ready_item` | nothing is ready to plan | set an item to `next`, or finish what it waits for, then run `/milestone-plan` again |
 | `item_unknown` | acceptance names an id that is not an item | add an item with that id and status `in-progress`; see [Items in flight at adoption](#items-in-flight-at-adoption) |
 | `status_not_acceptable` | acceptance of an `idea` item | set the item to `next`, then accept |

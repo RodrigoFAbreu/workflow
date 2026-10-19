@@ -167,7 +167,7 @@ and this stage states only what differs.
    scripts/workflow_backlog.py preflight-accept <work-item-id>` first (it
    writes nothing; `{"declared": false}` means nothing more to do, and a
    remediation child skips the roadmap step as `/accept-milestone` does). On
-   a refusal report the two stderr lines verbatim and stop: nothing is
+   a refusal report stderr verbatim (every diagnostic and the next step) and stop: nothing is
    stored, not even the pull-request fact, and `WORKFLOW_STATE.json` is
    byte-identical. The same pre-flight is `/accept-milestone` step 2a's
    **Backlog pre-flight** bullet.

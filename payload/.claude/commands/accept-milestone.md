@@ -63,13 +63,6 @@ missing, ask for it and stop — do not proceed on an inferred "yes."
 2. Confirm final verification already passed (from the last
    `/milestone-implement` or `/apply-implementation-review` run); rerun only
    if the working tree changed since.
-   **Backlog pre-flight for an item with no state entry** (workflow-2.17.0,
-   `D-Accept`; the head of step 2a, run before it): step 2a below skips its
-   state blocks for a work item with no `WORKFLOW_STATE.json` entry, but
-   the backlog branch reads no Workflow state and applies whatever the
-   item's governing version. So for such an item run the backlog pre-flight
-   described in step 2a's bullet of that name now, before any write; an item
-   that has a state entry runs it inside step 2a, at its place there.
 2a. **Terminal-reachability pre-flight, then parent-/own-checkpoint-
     completion block** (`D-Functional-Remediation`, `WF4c`, resolves
     `GPT-R9-016`; extended `D-Scoped-Remediation-Acceptance`, resolves
@@ -136,8 +129,8 @@ missing, ask for it and stop — do not proceed on an inferred "yes."
       are today's. On a refusal (`declaration_invalid`, `backlog_missing`,
       `backlog_invalid`, `item_unknown`, `status_not_acceptable`,
       `roadmap_not_generated`, `generator_failed`, `declaration_conflict`),
-      report the two stderr lines verbatim and stop: nothing has been
-      written. `item_unknown` names the fix (add an item with this id and
+      report stderr verbatim -- every diagnostic and the next step -- and
+      stop: nothing has been written. `item_unknown` names the fix (add an item with this id and
       status `in-progress`); a refusal is never worked around by editing the
       generated page.
     - **`requires_pr_approved` pre-flight** (`workflow-2.8.0`, `D-GP-Acceptance`;

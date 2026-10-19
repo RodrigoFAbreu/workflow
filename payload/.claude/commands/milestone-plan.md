@@ -199,7 +199,7 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
      the sentence above, unchanged. When it answers `declared: true`, do not
      read `docs/ROADMAP.md`: the backlog file is the roadmap. On a refusal
      (exit 2: `declaration_invalid`, `backlog_missing`, `backlog_invalid` or
-     `no_ready_item`), report the two stderr lines verbatim and **stop**,
+     `no_ready_item`), report stderr verbatim (every diagnostic and the next step) and **stop**,
      having written nothing. On success use `item.id` as the work item id
      (the slug rule below still applies to it), read the page `item.detail`
      names as the milestone's description (when `detail` is absent, use

@@ -8322,12 +8322,17 @@ class TestBacklogCommandConformance(unittest.TestCase):
         self.assertIn("python3 scripts/workflow_backlog.py preflight-accept <work_item_id>", text)
         self.assertIn("`WORKFLOW_STATE.json` stays byte-identical", text)
 
-    def test_accept_preflight_also_runs_for_an_item_with_no_state_entry(self):
+    def test_accept_makes_no_promise_for_an_item_with_no_state_entry(self):
         text = self._text("accept-milestone.md")
-        head = text.index("**Backlog pre-flight for an item with no state entry**")
-        self.assertLess(head, text.index("2a. **Terminal-reachability pre-flight"))
-        self.assertIn("reads no Workflow state and applies whatever the item's governing version",
-                      text)
+        self.assertNotIn("Backlog pre-flight for an item with no state entry", text)
+        self.assertIn("non-terminal `work_items` entry", text)
+
+    def test_refusals_are_reported_verbatim_not_as_two_lines(self):
+        for name in ("milestone-plan.md", "accept-milestone.md", "satisfy-gate.md"):
+            with self.subTest(command=name):
+                text = _squash(self._text(name))
+                self.assertNotIn("the two stderr lines", text)
+                self.assertIn("report stderr verbatim", text)
 
     def test_accept_step_3_runs_accept_and_names_the_recovery(self):
         text = self._text("accept-milestone.md")
