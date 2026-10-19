@@ -19,6 +19,7 @@ import io
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -755,18 +756,22 @@ class ConformanceTemplate(unittest.TestCase):
     @staticmethod
     def stub_check(output):
         """A shell function standing in for `shards.py check`: prints `output`, exits 1."""
-        return ("python3() { if [ \"$2\" = check ]; then printf '%b' " + repr(output)
+        return ("python3() { if [ \"$2\" = check ]; then printf '%s' " + shlex.quote(output)
                 + "; return 1; fi; command python3 \"$@\"; }\n")
 
     def assert_check_verdict_fails_the_job(self, run_body):
         # `check` dies after its total row, or exits non-zero after reporting ok: the exit
         # status is the tool's own verdict and must fail the job whatever rows follow.
-        for output in ("total\\t7\\t0\\t2\\t0\\tbad\\n", "total\\t7\\t7\\t2\\t0\\tok\\n"):
+        for output, rows in (("total\t7\t0\t2\t0\tbad\n", ("FAILED (see the shard rows)",
+                                                            "FAILED (the shard check exited 1)")),
+                             ("total\t7\t7\t2\t0\tok\n", ("FAILED (the shard check exited 1)",))):
             with self.subTest(output=output):
                 proc, ws, runner, counter, summary = run_body(shards=2, check_stub=output)
                 self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
                 self.assertIn("suite(s) failed", proc.stdout)
-                self.assertIn("| FAILED (", summary)
+                for row in rows:
+                    self.assertIn("| " + row + " |", summary)
+                self.assertNotIn("did not run", summary + proc.stdout)
 
     def test_sharded_step_fails_when_the_check_verdict_is_bad_without_any_shard_row(self):
         self.assert_check_verdict_fails_the_job(self.run_body)
