@@ -302,5 +302,9 @@ all of its planned tests: it was killed, its runner was lost, or it crashed
 before writing its result, so the coverage gate could not count them
 (`coverage: expected T, recorded R` with `R < T`). Re-run the job; if it repeats,
 read that shard's log in the job log for the crash. "not in the plan" means a
-shard ran a test id the plan did not list, which points at a test module that
-changed between planning and running.
+shard recorded a test id the plan did not list, typically a class-level fixture
+error (`setUpClass`, `setUpModule`) or a `SkipTest` raised outside a test,
+which the runner reports under the class rather than under a planned test.
+"executed more than once" means a planned test started twice within its shard
+(for example a `run()` override that calls `super().run()` twice); remove the
+repeat.
