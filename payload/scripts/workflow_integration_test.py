@@ -906,7 +906,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.10.0 (retire-21-for-new-work, CP3): step 0 stops a fresh milestone
     # under a "2.1" default with DefaultWorkflowVersionRetiredError -- intentional
     # content change.
-    "milestone-plan.md": "43d1a6bfb13f0e6d854660ba8fd54d58cafd8489389528636c948b6b8a2a26cb",
+    "milestone-plan.md": "54fca55ff02d76b8f11ee185f0ecc7786fe1fc1fe9886dd786ba72be2477d6be",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the
@@ -1108,7 +1108,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # user-only /resume-implementation for a 2.1/2.2 item and drops the wrong
     # "legacy promotion" origin -- intentional content change, outside every
     # "1"-inert span.
-    "accept-milestone.md": "2c76dd1f3ae184e279c4d408ca207e0f85f9867016a479696c30a5131089ddfa",
+    "accept-milestone.md": "20cf8f8ea58947d109cebb5b2a73855d2d2f855a1ca3ea23f5de543e45c7edae",
     # prepare-functional-review.md further updated, baseline-portability
     # correctness fix (OPUS-R129-001): step 3a's checklist-evidence
     # provenance commit instruction now states the same "trailers must be
@@ -3892,7 +3892,9 @@ class TestGoldenV1BehaviorAgainstPreV21BaseCommit(unittest.TestCase):
             # "Backlog declared" bullet of step 1 (the undeclared branch is the rest of the
             # text, byte-identical: removing that bullet restores the previous constant,
             # e70115cd0afe40d04d92c1895623f2500d7d210ca5912966a740a04ef3728fb3).
-            "a9cba941aa5d1ac7a4661408eec03833eff553c9fe3e8e99ba3370ebec02d1d7",
+            # Functional review round 1: the bullet's refusal sentence now says to report
+            # stderr verbatim (every diagnostic and the next step) instead of "the two lines".
+            "814f7c636fa8023b1a34c5b04dfb5e8ffd2155f5946b6e4c7fafb191ed7dad50",
         )
 
     def test_milestone_plan_step7_wfr67_addition_is_present_and_version_unconditional(self):
