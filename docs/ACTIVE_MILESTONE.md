@@ -140,7 +140,51 @@ suite counts and they are unchanged from 2.15.0 (415, 341, 1183, 315, 142, 106, 
 explains a failing or missing shard. `docs/ROADMAP.md` is untouched (Current/Done is at
 acceptance).
 
+## Functional review checklist
+
+Implementation revision 4. Verified before this checklist: `tools/release/release_test.py`
+192 tests pass (Python 3.12 with the pinned `zlib-ng` runtime; on Python 3.14 without it 29
+reproduction tests error, an environment limit, not a defect), `tools/docs` tests (34) pass,
+`workflow-manager verify .` is clean.
+
+**Setup.** On branch `milestone/conformance-sharding`, clean tree. Use Python 3.12 with the
+pinned runtime: `python3.12 -m venv /tmp/wf-venv && /tmp/wf-venv/bin/pip install
+--require-hashes -r tools/release/deflate-requirements.txt`. No feature flags.
+
+**Test data.** None to seed; the real acceptance module
+(`payload/scripts/workflow_acceptance_matrix_test.py`, 415 tests) and the staged release
+fixture are the data.
+
+**Flows and expected results.**
+
+1. Release tool tests: `/tmp/wf-venv/bin/python tools/release/release_test.py` -> `Ran 192
+   tests ... OK`.
+2. Template constants: open `templates/.github/workflows/workflow-conformance.yml` -> `width_cap=4`
+   and `shards=4` each alone on a line; `shards=0` is documented as the unsharded path.
+3. Shard plan: extract the heredoc `shards.py` and run `plan` on the acceptance module with 4
+   shards -> four shards of whole classes, ids summing to 415, deterministic across reruns.
+4. Sharded step on a staged fixture (as CI runs it): the summary shows nine suite rows (the
+   acceptance row `passed (4 shards, 415 tests)`), `coverage: expected 415, recorded 415`, all
+   suites pass, and a failing test makes the job fail with the shard named (no fall-back to
+   the unsharded suite).
+5. Release-source job: in `.github/workflows/workflow-ci.yml`, `release-source-conformance`
+   runs the same scheduling over the staged fixture, with the same Python heredoc as the
+   template, the 60-minute timeout and `aggregate` unchanged.
+6. Release identity: `manifest.json` is 2.16.0 with refreshed digests, `WORKFLOW_RELEASE`
+   is `"2.16.0"`, `docs/release-history.md` has the 2.16.0 row (medians 1212.5 s to 979 s and
+   833.5 s to 606 s), `docs/common-problems.md` explains a failing or missing shard.
+7. Evidence: `docs/ai-workflow/CONFORMANCE_SHARDING_EVIDENCE.md` selects O1, 45 jobs all
+   valid, worst same-CPU ratio 0.8074.
+8. Installation: `workflow-manager verify .` -> clean, 2.15.0 (this repository's own
+   installation is untouched by the milestone).
+
+**Known limitations / out of scope.** The wall-clock gain is measured on GitHub runners, not
+reproducible locally (a local sharded run only shows the shard mechanics). The Python 3.14
+environment cannot install the pinned `zlib-ng` wheel, so reproduction tests need Python 3.12.
+Publishing 2.16.0, the `workflow-manager` pin and `docs/ROADMAP.md` are outside this
+milestone (acceptance and release steps).
+
 ## Next action
 
-All checkpoints are complete. Next: self-review of the full milestone diff, the full
-verification, and the implementation-review bundle.
+All checkpoints are complete. Next: manual functional review against the checklist above;
+findings go to the item's `FUNCTIONAL_REVIEW.md`, otherwise `/accept-milestone`.
