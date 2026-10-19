@@ -10756,7 +10756,7 @@
       "registry_path": "docs/ai-workflow/registry/harness-neutral-commands-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/harness-neutral-commands-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 5,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -10900,12 +10900,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 27,
-      "last_transition": "2026-10-19T23:39:42Z",
+      "state_revision": 28,
+      "last_transition": "2026-10-19T23:49:00Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -11069,6 +11069,62 @@
               "review_content_id": "d16851eb4bbe038a97e43f6ce4f7a07e8c213870a5c78201bdf0ee92846018c3",
               "verdict": "APPROVE",
               "at": "2026-10-19T22:22:44Z"
+            }
+          ]
+        },
+        "F-345d840e10ad": {
+          "digest": "345d840e10adc2fdc54ba2fa09615f99f7bbc3516a4248ff920730b21a4b78d7",
+          "text": "**OPT-1:** The release rationale appended to sixteen manifest records reads \"the model is named\n  \"the agent\" and the user-only guard is restated as the literal-confirmation check...\". That is\n  inaccurate for the records it does not describe:\n  - `ORCHESTRATION_PROTOCOL.md`: its only edits are the release constant and the tested-releases\n    list.\n  - `apply-pr-review.md` and `prepare-review.md`: they gained `$ARGUMENTS`, not a rename or a guard.\n  - `review-plan.md`, `review-implementation.md` and `review-functional.md`: \"any capable model\"\n    only; they are not user-only.\n  - `REVIEW_PROTOCOL.md`: rename only.\n\n  If the manifest is touched for IMP-1 anyway, give those records an accurate per-record sentence (as\n  2.17.0 did for `ORCHESTRATION_PROTOCOL.md`: \"release constant 2.17.0 and the tested-releases list\").",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "0ee2dde23c360ee162af516cee2614b1cf1edb3bb1765a64079bb4af6642b22d",
+              "verdict": "REVISE",
+              "at": "2026-10-19T23:49:00Z"
+            }
+          ]
+        },
+        "F-d54aca65c6df": {
+          "digest": "d54aca65c6dfd1b42ce1a2b4bf91856a5236acf4c06d7caf2f89235fb1e87093",
+          "text": "**OPT-2:** No test pins `COMMAND_FILES.md`'s own statement of the user-only control. Changing \"under\n  every harness, is the literal-confirmation check\" in its \"The user-only commands\" section passes\n  every test (verified by mutation). Adding that sentence, and \"An adapter that cannot tell refuses\n  the command\" from the key table, to `test_the_document_defines_the_term_and_the_placeholder`'s\n  needles would pin the contract's central safety statement.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "0ee2dde23c360ee162af516cee2614b1cf1edb3bb1765a64079bb4af6642b22d",
+              "verdict": "REVISE",
+              "at": "2026-10-19T23:49:00Z"
+            }
+          ]
+        },
+        "F-d609bf527f88": {
+          "digest": "d609bf527f880552528770685f94a815e824e83e76a98355239b933923348b6a",
+          "text": "**OPT-3:** `COMMAND_FILES.md`'s empty-case bullet says `prepare-review.md` \"uses the flat review path\n  with no work item\". At the `plan` stage the body requires the id (`prepare-review.md:26`, `:41`).\n  The general rule in the same bullet covers it, but adding \"(except at the `plan` stage, where the id\n  is required)\" (plan-review OPT-8) avoids misleading an adapter author.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "0ee2dde23c360ee162af516cee2614b1cf1edb3bb1765a64079bb4af6642b22d",
+              "verdict": "REVISE",
+              "at": "2026-10-19T23:49:00Z"
+            }
+          ]
+        },
+        "F-47f22723efe1": {
+          "digest": "47f22723efe1bb2ada77c19d8c31738a68fe31d796fd6324afa0bbc32fb917c0",
+          "text": "**OPT-4:** The restated guard sentences in the six user-only bodies are each written as one unwrapped\n  line of 300 to 400 characters. The rest of every body wraps at about 78 columns. Wrapping does not\n  affect the whitespace-normalised needles; it would change only the golden hashes being re-recorded\n  anyway.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "0ee2dde23c360ee162af516cee2614b1cf1edb3bb1765a64079bb4af6642b22d",
+              "verdict": "REVISE",
+              "at": "2026-10-19T23:49:00Z"
             }
           ]
         }
