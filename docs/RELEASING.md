@@ -121,7 +121,7 @@ the branch itself.
 | job | checks |
 | --- | --- |
 | `checks` | one checkout and one install of the pinned tools, then each check as its own named step: `workflow-manager verify .` with the pinned Manager; `release.py build --commit HEAD`, the Manager's `package verify` of the archive, a `--release-dir` bootstrap and verify of a scratch repository, and the three assets uploaded as the `package` artifact; `release.py check-pending` and `check-immutable` against the saved release list (and, when the manifest version is published, `check-immutable --published` against the downloaded `vV` assets); `tools/docs/`'s tests and checker; and `tools/release/release_test.py`, including the byte-for-byte reproduction of every published release (`v2.3.1` to `v2.6.0`) in the pinned deflate runtime; and, for a release after 2.12.0, the Manager block checks ("The Manager metadata block" below) |
-| `release-source-conformance` | `release.py stage-conformance --commit HEAD`, then the release source's own nine frozen suites in that fixture, run in parallel |
+| `release-source-conformance` | `release.py stage-conformance --commit HEAD`, then the release source's own nine frozen suites in that fixture, the acceptance-matrix suite in 4 shards, all under one limit |
 | `aggregate` | fails unless both jobs above succeeded |
 
 In `checks`, a failed step does not hide an unrelated one: each later step
@@ -130,16 +130,30 @@ runtime, the Manager, the build, the release list) did not succeed, and no
 step uses `continue-on-error`. The failing step is named in the log, and the
 job fails.
 
-`release-source-conformance` runs the suites the way the installed
-`workflow-conformance` job does: `min(4, nproc)` at a time, longest first
-(acceptance, protocol, state, gate policy), each in its own complete copy of
-the staged fixture with its own `TMPDIR` and `HOME`. The installed `scripts/`
-are never used. Every suite runs to its end, all results are collected before
-the step decides, and a suite that did not record a result counts as failed.
-A passing suite's log is a collapsed group; a failing suite gets an
-`::error` annotation followed by its full log. The step summary has one row
-per suite with its result and seconds, and the logs are uploaded as the
-`source-conformance-logs` artifact whether the job passed or failed.
+`release-source-conformance` schedules the suites the way the installed
+`workflow-conformance` job does (the managed template, Workflow 2.16.0), over
+the staged fixture; the installed `scripts/` are never used. The
+acceptance-matrix suite (the longest, 415 tests) is split into `shards = 4`
+groups of whole test classes, balanced by test count, by a small stdlib-only
+tool the step writes next to the scheduler; its text is the template's, byte
+for byte, and `tools/release/release_test.py` pins them equal. The four
+shards and the eight other suites form one queue, acceptance shards first,
+run `min(width_cap, nproc)` at a time with `width_cap = 4`, each unit in its
+own complete copy of the staged fixture with its own `TMPDIR` and `HOME`
+(the copy is part of the measured time). Every unit runs to its end, all
+results are collected before the step decides, and a unit that did not record
+a result counts as failed. A coverage gate then requires every acceptance test
+id to be recorded exactly once, with none failed, missing, unexpected or
+started and never finished; a planning failure fails the job, and there is no
+fall-back to the unsharded suite (`shards = 0` is only the kit's control
+setting). A passing unit's log is a collapsed group; a failing unit gets an
+`::error` annotation naming the shard, its classes and the failing test ids,
+followed by its full log, so a shard failure shows under `acceptance N/4`
+rather than under the suite file. The step summary has one row per suite
+(the acceptance row reads `passed (4 shards, 415 tests)`) followed by one row
+per shard, and the logs, results, shard files, the plan and the coverage
+check are uploaded as the `source-conformance-logs` artifact whether the job
+passed or failed. No job name, required check or ruleset changes.
 
 `PR title` runs `release.py check-title "$TITLE" --agree` on every pull
 request (`opened`, `edited`, `reopened`, `synchronize`). The installed

@@ -1323,13 +1323,18 @@ class WorkflowCI(unittest.TestCase):
 
 
 class SourceConformanceRunner(unittest.TestCase):
-    """The source-conformance step of `Workflow CI`, run with stand-in suites."""
+    """The source-conformance step of `Workflow CI`, run with stand-in suites.
+
+    It is the managed template's scheduling (D-Same-Text) over the staged
+    fixture: the same shard tool text, the same constants, the same queue.
+    """
 
     SUITES = ["workflow_acceptance_matrix_test.py", "workflow_protocol_test.py",
               "workflow_state_test.py", "workflow_gate_policy_test.py",
               "workflow_fingerprint_generalization_test.py",
               "workflow_state_completion_obligations_test.py", "workflow_integration_test.py",
               "workflow_fingerprint_test.py", "workflow_test_harness_test.py"]
+    ACCEPTANCE = ConformanceTemplate.ACCEPTANCE
 
     @classmethod
     def setUpClass(cls):
@@ -1337,10 +1342,22 @@ class SourceConformanceRunner(unittest.TestCase):
         lines = text.splitlines()
         marker = lines.index("      - name: Run the source conformance suites")
         start = lines.index("        run: |", marker) + 1
-        end = next(i for i in range(start, len(lines)) if not lines[i].startswith("          "))
+        end = next(i for i in range(start, len(lines))
+                   if lines[i] and not lines[i].startswith("          "))
         cls.body = "\n".join(l[10:] for l in lines[start:end]) + "\n"
+        cls.template = (REPO_ROOT / "templates/.github/workflows/workflow-conformance.yml"
+                        ).read_text()
+        tlines = cls.template.splitlines()
+        tstart = tlines.index("        run: |") + 1
+        cls.template_body = "\n".join(l[10:] for l in tlines[tstart:]) + "\n"
 
-    def run_body(self, fail=(), uncopyable=False, nproc=None, drop_result=()):
+    @staticmethod
+    def heredoc(body):
+        start = body.index("<<'PY'\n") + len("<<'PY'\n")
+        return body[start:body.index("\nPY\n", start) + 1]
+
+    def run_body(self, fail=(), uncopyable=False, nproc=None, drop_result=(), shards=0,
+                 width_cap=4, failing_test=False, acceptance_extra=""):
         tmp = Path(tempfile.mkdtemp(prefix="source-conformance-"))
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
         runner, counter = tmp / "runner", tmp / "counter"
@@ -1352,6 +1369,11 @@ class SourceConformanceRunner(unittest.TestCase):
             (fixture / "UNREADABLE").write_text("x\n")
             (fixture / "UNREADABLE").chmod(0)
         for name in self.SUITES:
+            if shards and name == self.ACCEPTANCE:
+                (fixture / "scripts" / name).write_text(
+                    ConformanceTemplate.STANDIN_ACCEPTANCE.replace("@COUNTER@", repr(str(counter)))
+                    .replace("@FAIL@", "False" if failing_test else "True") + acceptance_extra)
+                continue
             (fixture / "scripts" / name).write_text(
                 "import os, sys, time, pathlib\n"
                 f"name = {name!r}\n"
@@ -1367,21 +1389,82 @@ class SourceConformanceRunner(unittest.TestCase):
                 "print('output of ' + name)\n"
                 f"sys.exit({1 if name in fail else 0})\n")
         summary = tmp / "summary.md"
-        body = self.body
+        body = ConformanceTemplate.with_constants(self.body, width_cap, shards)
         if nproc is not None:
             body = f"nproc() {{ echo {nproc}; }}\n" + body
         if drop_result:
             # A suite that dies without recording a result: its result file never appears.
-            body = body.replace('echo "$status $((SECONDS - start))" >"$logs/$1.result"',
+            body = body.replace('echo "$status $((SECONDS - start))" >"$d/result"',
                                 'case " ' + " ".join(drop_result) + ' " in *" $1 "*) ;; '
-                                '*) echo "$status $((SECONDS - start))" >"$logs/$1.result" ;; esac')
+                                '*) echo "$status $((SECONDS - start))" >"$d/result" ;; esac')
         env = dict(os.environ, RUNNER_TEMP=str(runner), GITHUB_STEP_SUMMARY=str(summary))
         proc = subprocess.run(["bash", "-eo", "pipefail", "-c", body], env=env,
                               capture_output=True, text=True, cwd=tmp)
-        return proc, fixture, runner, counter, summary.read_text()
+        return proc, fixture, runner, counter, summary.read_text() if summary.exists() else ""
 
     def peaks(self, counter):
-        return [int((counter / f"peak-{n}").read_text()) for n in self.SUITES]
+        return [int(p.read_text()) for p in counter.iterdir() if p.name.startswith("peak-")]
+
+    @staticmethod
+    def started(out):
+        return ConformanceTemplate.started(out)
+
+    # ---- the step is the template's step ----
+
+    def test_the_embedded_shard_tool_is_the_templates_byte_for_byte(self):
+        mine, theirs = self.heredoc(self.body), self.heredoc(self.template_body)
+        self.assertTrue(theirs.startswith("import argparse\n"))
+        self.assertEqual(mine, theirs)
+        self.assertEqual(self.body.count("<<'PY'\n"), 1)
+
+    def test_the_step_is_the_templates_step_over_the_staged_fixture(self):
+        """Only the paths, the log collection and the comment differ from the template."""
+        expected = self.template_body
+        for old, new in (
+                ('base="$RUNNER_TEMP/workflow-conformance"\nrm -rf "$base"; mkdir -p "$base"\n',
+                 'src="$RUNNER_TEMP/fixture"\nbase="$RUNNER_TEMP/source-conformance"; '
+                 'logs="$RUNNER_TEMP/source-conformance-logs"\n'
+                 'rm -rf "$base" "$logs"; mkdir -p "$base" "$logs"\n'),
+                ("$GITHUB_WORKSPACE/scripts", "$src/scripts"),
+                ('cp -a "$GITHUB_WORKSPACE/." "$d/repo"', 'cp -a "$src/." "$d/repo"')):
+            self.assertEqual(expected.count(old), 1, old)
+            expected = expected.replace(old, new)
+        mine = self.body
+        for block in (
+                "# The diagnostic upload: every unit's log, result and shard file, the plan and "
+                "the check.\n"
+                'for u in $units; do\n  for f in log result shard.json; do\n'
+                '    if [ -f "$base/$u/$f" ]; then cp "$base/$u/$f" "$logs/$u.$f"; fi\n'
+                '  done\ndone\n'
+                'if [ -f "$base/plan.json" ]; then cp "$base/plan.json" "$logs/plan.json"; fi\n',
+                'for f in check.out check.err; do\n'
+                '  if [ -f "$base/$f" ]; then cp "$base/$f" "$logs/$f"; fi\ndone\n'):
+            self.assertEqual(mine.count(block), 1, block)
+            mine = mine.replace(block, "")
+        self.assertEqual(mine, expected)
+
+    def test_the_constants_and_the_suites_are_the_templates(self):
+        for line in ("width_cap=4", "shards=4"):
+            self.assertEqual(self.body.splitlines().count(line), 1, line)
+            self.assertEqual(self.template_body.splitlines().count(line), 1, line)
+        self.assertEqual(ConformanceTemplate.with_constants(self.body, 4, 4), self.body)
+        suites = next(l for l in self.body.splitlines() if l.startswith("suites="))
+        self.assertEqual(suites, next(l for l in self.template_body.splitlines()
+                                      if l.startswith("suites=")))
+
+    def test_the_job_keeps_its_stage_timeout_upload_and_the_aggregate(self):
+        lines = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text().splitlines()
+        job = "\n".join(lines[lines.index("  release-source-conformance:"):
+                              lines.index("  aggregate:")])
+        self.assertIn("timeout-minutes: 60", job)
+        self.assertIn("release.py stage-conformance --commit HEAD --out "
+                      '"$RUNNER_TEMP/fixture"', job)
+        self.assertIn("name: source-conformance-logs", job)
+        self.assertIn("path: ${{ runner.temp }}/source-conformance-logs/", job)
+        self.assertIn("if: ${{ !cancelled() }}", job)
+        self.assertNotIn("GITHUB_WORKSPACE", self.body)
+
+    # ---- the unsharded path (shards=0), as the nine-suite runner always was ----
 
     def test_all_nine_pass(self):
         proc, _, runner, _, summary = self.run_body()
@@ -1429,7 +1512,6 @@ class SourceConformanceRunner(unittest.TestCase):
         for name in self.SUITES:
             self.assertIn(f"::error title={name} failed::exit missing after", proc.stdout)
         self.assertIn("9 suite(s) failed", proc.stdout)
-        self.assertIn("UNREADABLE", proc.stdout)
         self.assertEqual(summary.count("\n| workflow_"), 9)
 
     def test_a_missing_result_fails_the_runner(self):
@@ -1445,7 +1527,7 @@ class SourceConformanceRunner(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
         self.assertLessEqual(max(self.peaks(counter)), 4)
         self.assertGreater(max(self.peaks(counter)), 1)
-        starts = [l.split()[1] for l in proc.stdout.splitlines() if l.startswith("start ")]
+        starts = [u for u, _ in self.started(proc.stdout)]
         self.assertEqual(starts, self.SUITES)
         self.assertEqual(starts[:4], ["workflow_acceptance_matrix_test.py",
                                       "workflow_protocol_test.py", "workflow_state_test.py",
@@ -1480,7 +1562,80 @@ class SourceConformanceRunner(unittest.TestCase):
             and not a["target_path"].endswith("_demo_test.py"))
         self.assertEqual(sorted(self.SUITES), shipped)
         self.assertIn('suites="' + " ".join(self.SUITES) + '"', self.body)
-        self.assertNotIn("/scripts/", self.body.replace("/repo/scripts", ""))
+        self.assertNotIn("/scripts/", self.body.replace("/repo/scripts", "").replace("$src/scripts", ""))
+
+    # ---- the sharded path ----
+
+    def test_sharded_all_pass_reports_nine_rows_the_coverage_and_uploads_the_shard_files(self):
+        proc, fixture, runner, counter, summary = self.run_body(shards=2)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertEqual(summary.count("\n| workflow_"), 9)
+        self.assertIn("| workflow_acceptance_matrix_test.py | passed (2 shards, 7 tests) |", summary)
+        self.assertIn("coverage: expected 7, recorded 7", proc.stdout)
+        for i in (1, 2):
+            self.assertIn(f"| acceptance {i}/2 | passed |", summary)
+        self.assertNotIn("::error", proc.stdout)
+        units = [u for u, _ in self.started(proc.stdout)]
+        self.assertEqual(units[:2], ["acceptance-1of2", "acceptance-2of2"])
+        self.assertEqual(len(units), 2 + 8)
+        self.assertNotIn(self.ACCEPTANCE, units)
+        logs = runner / "source-conformance-logs"
+        names = {p.name for p in logs.iterdir()}
+        for unit in units:
+            self.assertTrue({f"{unit}.log", f"{unit}.result"} <= names, unit)
+        for i in (1, 2):
+            shard = json.loads((logs / f"acceptance-{i}of2.shard.json").read_text())
+            self.assertTrue(shard["completed"])
+        self.assertTrue({"plan.json", "check.out", "check.err"} <= names)
+        self.assertEqual(sorted(p.name for p in fixture.iterdir()), ["MARKER", "scripts"])
+
+    def test_sharded_fails_for_each_of_the_nine_suites_in_turn(self):
+        for name in self.SUITES:
+            with self.subTest(name):
+                if name == self.ACCEPTANCE:
+                    proc, *_, summary = self.run_body(shards=2, failing_test=True)
+                    self.assertRegex(proc.stdout,
+                                     r"::error title=acceptance \d/2 failed::acceptance \d/2 "
+                                     r"\(classes [^)]*\): exit 1; failed: [^\n]*Fourth\.test_fails")
+                else:
+                    proc, *_, summary = self.run_body(shards=2, fail=(name,))
+                    self.assertIn(f"::error title={name} failed::exit 1 after", proc.stdout)
+                self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+                self.assertIn("1 suite(s) failed", proc.stdout)
+                self.assertEqual(summary.count("\n| workflow_"), 9)
+
+    def test_a_failing_shard_keeps_its_log_and_result_in_the_upload(self):
+        proc, _, runner, _, summary = self.run_body(shards=2, failing_test=True)
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("AssertionError", proc.stdout)
+        self.assertRegex(summary, r"\| acceptance \d/2 \| FAILED \(acceptance \d/2 \(classes ")
+        self.assertIn("coverage: expected 7, recorded 7", proc.stdout)
+        logs = runner / "source-conformance-logs"
+        failing = [p for p in logs.glob("acceptance-*.result") if p.read_text().startswith("1 ")]
+        self.assertEqual(len(failing), 1)
+        self.assertIn("AssertionError", failing[0].with_suffix(".log").read_text())
+        for name in self.SUITES:
+            if name != self.ACCEPTANCE:
+                self.assertIn(f"::group::{name} passed in", proc.stdout)
+
+    def test_a_failed_plan_fails_the_job_and_there_is_no_fallback(self):
+        proc, _, _, counter, _ = self.run_body(
+            shards=2, acceptance_extra="def setUpModule():\n    pass\n")
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("::error title=acceptance plan failed::", proc.stdout)
+        self.assertEqual(self.started(proc.stdout), [])
+        self.assertEqual(list(counter.iterdir()), [])
+
+    def test_shards_and_suites_share_one_limit(self):
+        for cap in (2, 3):
+            with self.subTest(width_cap=cap):
+                proc, _, _, counter, _ = self.run_body(shards=4, width_cap=cap)
+                self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+                width = min(cap, len(os.sched_getaffinity(0)))
+                started = self.started(proc.stdout)
+                self.assertEqual(len(started), 4 + 8)
+                self.assertEqual(max(k for _, k in started), width)
+                self.assertLessEqual(max(self.peaks(counter)), width)
 
 
 class MainHistoryCase(ScratchTestCase):

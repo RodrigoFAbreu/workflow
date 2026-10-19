@@ -29,6 +29,37 @@ support (O1 sharded, O3 no change and no release).
 
 ## Current checkpoint
 
+CP3 is complete: `release-source-conformance` in `.github/workflows/workflow-ci.yml` now runs the
+template's scheduling over the staged fixture (`$RUNNER_TEMP/fixture`), never the installed
+`scripts/`: `width_cap=4`, `shards=4`, the acceptance suite in four shards of whole test classes
+and the eight other suites in one queue under one limit, the coverage gate, and no fall-back to
+the unsharded suite. The Python heredoc is byte-identical to the template's (D-Same-Text); the
+step differs only in the fixture paths, the `source-conformance` base and the log collection that
+copies every unit's log, result and shard file, the plan and the check output into the unchanged
+`source-conformance-logs` upload. `release.py stage-conformance --commit HEAD`, the 60-minute
+timeout, the triggers, permissions, concurrency, job names and `aggregate` are untouched.
+`docs/RELEASING.md` describes the sharded step, the diagnostics and where a shard failure shows.
+
+Tests (`tools/release/release_test.py`, `SourceConformanceRunner`, 9 to 18 tests): the embedded
+shard tool equals the template's byte for byte; the step equals the template's step after the
+path substitutions and the two log-collection blocks (nothing else differs); constants and
+suites line equal the template's; the job keeps its stage, timeout, upload and `aggregate`; the
+nine-suite unsharded path (`shards=0`) keeps its earlier tests; the sharded path: nine rows plus
+the coverage line and the uploaded shard files, each of the nine suites failing in turn, a
+failing shard's log and result kept, a failed plan fails the job with no fall-back, and shards
+and suites share one limit.
+
+Verified: `tools/release/release_test.py` 187 tests, 186 pass; the one error is the same
+`ReproductionTest.test_round_trip` digest mismatch CP2 recorded (it ends when CP4 updates the
+manifest digests). `tools/docs` tests (34) and checker pass; `workflow-manager verify .` is
+clean. A local run of the CI step body against a staged scratch fixture (nine payload suites
+included, `package.stage` of `HEAD` with the scratch manifest's digests rewritten, outside the
+repository) passed: `coverage: expected 415, recorded 415`, shards 3/4/1/2 finished in 74 to 114
+s, all nine suites passed, and the upload directory held every unit's files, `plan.json`,
+`check.out` and `check.err`.
+
+CP2 (earlier):
+
 CP2 is complete: the measurement (revision 5, four rounds, 45 jobs, all valid, every sharded job
 covering 415 of 415 test ids) selected **O1**, `width_cap` 4 and `shards` 4 (variant v3: median
 979 s against 1203 s unsharded on the EPYC 7763, 606 s against 833.5 s on the EPYC 9V45; worst
