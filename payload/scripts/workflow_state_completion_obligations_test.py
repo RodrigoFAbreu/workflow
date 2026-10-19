@@ -9,7 +9,8 @@
 `UnsatisfiedCompletionObligationError` gate -- missing-test items
 356/357/358/360/361), covering the `WFO-STATE-SERIALIZATION` obligation
 `WF8b` continued scope declares, plus `verify_wfo_ledger_coverage`
-(`WFO-LEDGER-COVERAGE`, `WFR-68`, `WF8c` item (m)).
+(`WFO-LEDGER-COVERAGE`, `WFR-68`, `WF8c` item (m)), and the backlog module
+`workflow_backlog` (`Backlog*` groups: parser, schema, selection, edit, page).
 
 Runs entirely against disposable scratch Git repositories, mirroring
 `workflow_state_test.py`'s own pattern. `resolve_completion_obligations`'s
@@ -37,6 +38,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
+import workflow_backlog as wb
 import workflow_fingerprint as fingerprint
 import workflow_state as ws
 
@@ -2384,6 +2386,543 @@ class TestVerifyWfoLedgerCoverage(unittest.TestCase):
             ws.COMPLETION_OBLIGATION_CONFORMANCE.get("WFO-LEDGER-COVERAGE"), "verify_wfo_ledger_coverage",
         )
         self.assertTrue(callable(getattr(ws, "verify_wfo_ledger_coverage", None)))
+
+
+# ---------------------------------------------------------------------------
+# workflow_backlog (workflow-2.17.0, `backlog-file`, CP1)
+# ---------------------------------------------------------------------------
+
+try:
+    import yaml as _yaml
+except ImportError:  # the cross-check is an aid, skipped without PyYAML
+    _yaml = None
+
+_BACKLOG_HEAD = ["version: 1", "items:", "  - id: a", "    title: Alpha", "    status: next", "    order: 1"]
+
+_BACKLOG_SAMPLE = """# Backlog
+version: 1
+items:
+  # first
+  - id: alpha
+    title: Alpha thing # trailing
+    status: done
+    order: 1
+    release: "2.0.0"
+  - id: beta
+    title: "Beta: the \\"second\\""
+    status: next # soon
+    order: 2
+    depends_on: [alpha]
+    size: 3
+    detail: docs/items/beta.md
+  - id: gamma
+    title: 'It''s gamma'
+    status: idea
+    order: 3
+    depends_on:
+      - alpha
+      - beta
+"""
+
+
+def _bl(*replace_or_add, replace_line=None):
+    """The head item with `replace_line` (1-based) replaced, then lines added."""
+    rows = list(_BACKLOG_HEAD)
+    if replace_line is not None:
+        rows[replace_line - 1] = "    " + replace_or_add[0]
+        replace_or_add = replace_or_add[1:]
+    return "\n".join(rows + list(replace_or_add)) + "\n"
+
+
+def _backlog_refusal_line(text):
+    with unittest.TestCase().assertRaises(wb.BacklogFormatError) as cm:
+        wb.parse_backlog(text)
+    return cm.exception.line
+
+
+class BacklogParser(unittest.TestCase):
+    def test_accepts_the_complete_example(self):
+        data, lines = wb.parse_backlog(_BACKLOG_SAMPLE)
+        self.assertEqual(data["version"], 1)
+        self.assertEqual([i["id"] for i in data["items"]], ["alpha", "beta", "gamma"])
+        self.assertEqual(data["items"][0]["title"], "Alpha thing")
+        self.assertEqual(data["items"][1]["title"], 'Beta: the "second"')
+        self.assertEqual(data["items"][2]["title"], "It's gamma")
+        self.assertEqual(data["items"][1]["depends_on"], ["alpha"])
+        self.assertEqual(data["items"][2]["depends_on"], ["alpha", "beta"])
+        self.assertEqual(data["items"][1]["size"], 3)
+        self.assertEqual(data["items"][0]["release"], "2.0.0")
+        self.assertEqual(lines["item"][1]["status"], 12)
+        self.assertEqual(lines["item"][1]["_item"], 10)
+
+    def test_empty_backlog_and_top_level_order(self):
+        self.assertEqual(wb.parse_backlog("version: 1\nitems: []\n")[0], {"version": 1, "items": []})
+        data, _ = wb.parse_backlog("items:\n  - id: a\n    title: A\n    status: next\n    order: 1\nversion: 1\n")
+        self.assertEqual(len(data["items"]), 1)
+        self.assertEqual(wb.parse_backlog("version: 1\nitems: [] # none\n")[0]["items"], [])
+
+    def test_empty_depends_on_forms(self):
+        self.assertEqual(wb.parse_backlog(_bl("    depends_on: []"))[0]["items"][0]["depends_on"], [])
+
+    def test_accepted_counterparts_a_looser_reading_would_refuse(self):
+        for title, expected in (
+            ("R&D", "R&D"), ('"a *b"', "a *b"), ("Caf é", "Caf é"), ("Alpha \U0001F600", "Alpha \U0001F600"),
+            ('"abc "', "abc "), ("abc # note", "abc"), ("Yes please", "Yes please"), ("a:b", "a:b"),
+            ('"1abc"', "1abc"), ("'true'", "true"), ('"say \\\\ and \\" "', 'say \\ and " '),
+        ):
+            with self.subTest(title=title):
+                text = _bl(f"title: {title}", replace_line=4)
+                data, _ = wb.parse_backlog(text)
+                self.assertEqual(data["items"][0]["title"], expected)
+                if _yaml is not None:
+                    self.assertEqual(_yaml.safe_load(text), data)
+
+    def test_no_final_newline_is_accepted(self):
+        self.assertEqual(wb.parse_backlog("\n".join(_BACKLOG_HEAD))[0]["items"][0]["id"], "a")
+
+    def test_refusals_name_their_line(self):
+        cases = {
+            "tab": (_bl("title:\tabc", replace_line=4), 4),
+            "carriage return": (_bl("title: abc\r", replace_line=4), 4),
+            "Cc control": (_bl("title: a\x01b", replace_line=4), 4),
+            "DEL": (_bl("title: a\x7fb", replace_line=4), 4),
+            "NEL U+0085": (_bl("title: a\u0085b", replace_line=4), 4),
+            "U+2028": (_bl("title: a b", replace_line=4), 4),
+            "U+2029": (_bl("title: a b", replace_line=4), 4),
+            "FEFF in the middle": (_bl("title: a﻿b", replace_line=4), 4),
+            "U+FFFE": (_bl("title: a￾b", replace_line=4), 4),
+            "U+FFFF": (_bl("title: a￿b", replace_line=4), 4),
+            "BOM": ("﻿" + _bl(), 1),
+            "document marker": ("---\n" + _bl(), 1),
+            "document end marker": (_bl("..."), 7),
+            "directive": ("%YAML 1.2\n" + _bl(), 1),
+            "anchor": (_bl("title: &x a", replace_line=4), 4),
+            "alias": (_bl("title: *x", replace_line=4), 4),
+            "tag": (_bl("title: !t a", replace_line=4), 4),
+            "block scalar |": (_bl("title: |", replace_line=4), 4),
+            "block scalar >": (_bl("title: >", replace_line=4), 4),
+            "flow mapping": (_bl("title: {a: b}", replace_line=4), 4),
+            "flow list in a string field": (_bl("title: [a]", replace_line=4), 4),
+            "empty value": (_bl("title:", replace_line=4), 4),
+            "null": (_bl("title: null", replace_line=4), 4),
+            "tilde": (_bl("title: ~", replace_line=4), 4),
+            "unknown top-level key": (_bl("foo: 1"), 7),
+            "repeated top-level key": (_bl("version: 1"), 7),
+            "unknown item key": (_bl("    foo: bar"), 7),
+            "repeated item key": (_bl("    title: B"), 7),
+            "wrong indent": (_bl("   - id: b"), 7),
+            "list entry outside depends_on": (_bl("      - x"), 7),
+            "dash at four spaces": (_bl("    - x"), 7),
+            "item outside items": ("version: 1\nitems: []\n  - id: a\n", 3),
+            "two spaces after the item dash": (_bl("  -  id: b"), 7),
+            "plain digit start": (_bl("title: 1abc", replace_line=4), 4),
+            "colon space in plain": (_bl("title: a: b", replace_line=4), 4),
+            "plain ending in colon": (_bl("title: abc:", replace_line=4), 4),
+            "bracket in plain": (_bl("title: a[b", replace_line=4), 4),
+            "brace in plain": (_bl("title: a}b", replace_line=4), 4),
+            "comma in plain": (_bl("title: a,b", replace_line=4), 4),
+            "quoted number": (_bl('order: "1"', replace_line=6), 6),
+            "leading zero": (_bl("order: 01", replace_line=6), 6),
+            "signed number": (_bl("order: -1", replace_line=6), 6),
+            "plus number": (_bl("order: +1", replace_line=6), 6),
+            "seven digits": (_bl("order: 1234567", replace_line=6), 6),
+            "float": (_bl("order: 1.5", replace_line=6), 6),
+            "word as number": (_bl("order: abc", replace_line=6), 6),
+            "unknown escape": (_bl('title: "a\\nb"', replace_line=4), 4),
+            "unterminated double quote": (_bl('title: "abc', replace_line=4), 4),
+            "text after a quote": (_bl('title: "a" x', replace_line=4), 4),
+            "unterminated single quote": (_bl("title: 'abc", replace_line=4), 4),
+            "depends_on scalar": (_bl("    depends_on: a"), 7),
+            "flow list trailing comma": (_bl("    depends_on: [a, ]"), 7),
+            "flow list empty entry": (_bl("    depends_on: [a, , b]"), 7),
+            "flow list only a comma": (_bl("    depends_on: [,]"), 7),
+            "flow list no space after comma": (_bl("    depends_on: [a,b]"), 7),
+            "flow list two spaces after comma": (_bl("    depends_on: [a,  b]"), 7),
+            "flow list space after [": (_bl("    depends_on: [ a, b]"), 7),
+            "flow list space before ]": (_bl("    depends_on: [a, b ]"), 7),
+            "flow list space before comma": (_bl("    depends_on: [a , b]"), 7),
+            "flow list unterminated": (_bl("    depends_on: [a, b"), 7),
+            "empty depends_on at end of file": (_bl("    depends_on:"), 7),
+            "empty depends_on before a key": (_bl("    depends_on:", "    size: 3"), 7),
+            "empty depends_on before an item": (_bl("    depends_on:", "  - id: b"), 7),
+            "three spaces after the colon": (_bl("title:   abc", replace_line=4), 4),
+            "no space after the colon": (_bl("title:abc", replace_line=4), 4),
+            "trailing space on a value": (_bl("title: abc ", replace_line=4), 4),
+            "two spaces before #": (_bl("title: abc  # x", replace_line=4), 4),
+            "trailing space on a comment line": (_bl("# note "), 7),
+            "trailing space on a blank line": (_bl(" "), 7),
+            "missing version": ("items: []\n", 1),
+            "missing items": ("version: 1\n", 1),
+            "items with no item": ("version: 1\nitems:\n", 2),
+            "long line": (_bl("# " + "a" * 999), 7),
+            "too many lines": ("\n" * 2001, 2001),
+            "oversize": (("# " + "a" * 997 + "\n") * 270, 1),
+        }
+        for word in ("true", "false", "null", "yes", "no", "on", "off", "y", "n"):
+            for form in (word, word.upper(), word.capitalize()):
+                cases[f"reserved {form}"] = (_bl(f"title: {form}", replace_line=4), 4)
+        for label, (text, line) in cases.items():
+            with self.subTest(label), self.assertRaises(wb.BacklogFormatError) as cm:
+                wb.parse_backlog(text)
+            self.assertEqual(cm.exception.line, line, f"{label}: {cm.exception}")
+
+    def test_bytes_entry_refuses_bom_and_bad_utf8(self):
+        with self.assertRaises(wb.BacklogFormatError) as cm:
+            wb.parse_backlog_bytes(b"\xef\xbb\xbfversion: 1\n")
+        self.assertEqual(cm.exception.line, 1)
+        with self.assertRaises(wb.BacklogFormatError) as cm:
+            wb.parse_backlog_bytes(b"version: 1\nitems: []\n# \xff\n")
+        self.assertEqual(cm.exception.line, 3)
+        self.assertEqual(wb.parse_backlog_bytes(b"version: 1\nitems: []\n")[0]["items"], [])
+
+    @unittest.skipIf(_yaml is None, "PyYAML is not installed (an aid, not a gate)")
+    def test_pyyaml_cross_check(self):
+        self.assertEqual(_yaml.safe_load(_BACKLOG_SAMPLE), wb.parse_backlog(_BACKLOG_SAMPLE)[0])
+        empty_depends = _bl("    depends_on:", "    size: 3")
+        self.assertIsNone(_yaml.safe_load(empty_depends)["items"][0]["depends_on"])
+        self.assertEqual(_backlog_refusal_line(empty_depends), 7)
+        line_sep = _bl("title: Alpha x", replace_line=4)
+        self.assertEqual(_backlog_refusal_line(line_sep), 4)
+        try:
+            loaded = _yaml.safe_load(line_sep)
+        except _yaml.YAMLError:
+            return
+        self.assertNotEqual(loaded["items"][0].get("title"), "Alpha x")
+
+
+class _BacklogRepo:
+    def __enter__(self):
+        self.root = Path(tempfile.mkdtemp(prefix="wfo-backlog-"))
+        (self.root / "docs" / "items").mkdir(parents=True)
+        (self.root / "docs" / "items" / "beta.md").write_text("beta\n")
+        return self
+
+    def __exit__(self, *exc):
+        shutil.rmtree(self.root, ignore_errors=True)
+
+
+def _schema_error(text, root):
+    try:
+        wb.validate_backlog(*wb.parse_backlog(text), root)
+    except wb.BacklogError as exc:
+        return exc
+    return None
+
+
+def _items(*rows):
+    out = ["version: 1", "items:"]
+    for n, row in enumerate(rows, 1):
+        fields = {"id": f"i{n}", "title": f"T{n}", "status": "next", "order": n}
+        fields.update(row)
+        first = True
+        for key, value in fields.items():
+            out.append(("  - " if first else "    ") + f"{key}: {value}")
+            first = False
+    return "\n".join(out) + "\n"
+
+
+class BacklogSchema(unittest.TestCase):
+    def setUp(self):
+        self.repo = _BacklogRepo().__enter__()
+        self.addCleanup(self.repo.__exit__)
+
+    def refused(self, text, fragment, line=None):
+        exc = _schema_error(text, self.repo.root)
+        self.assertIsNotNone(exc, f"{fragment!r} was accepted")
+        self.assertEqual(exc.code, "backlog_invalid")
+        self.assertIn(fragment, exc.message)
+        if line is not None:
+            self.assertIn(f"line {line}:", exc.message)
+
+    def test_sample_is_valid(self):
+        self.assertIsNone(_schema_error(_BACKLOG_SAMPLE, self.repo.root))
+
+    def test_version(self):
+        self.refused(_BACKLOG_SAMPLE.replace("version: 1", "version: 2"), "`version` must be 1", 2)
+
+    def test_missing_required_fields(self):
+        self.refused("version: 1\nitems:\n  - id: a\n    title: A\n    order: 1\n", "no `status`", 3)
+
+    def test_id_rules(self):
+        self.refused(_items({"id": "Bad_Id"}), "`id` `Bad_Id` must match", 3)
+        self.refused(_items({"id": '"-x"'}), "must match")
+        self.refused(_items({"id": '"' + "a" * 65 + '"'}), "must match")
+        self.refused(_items({"id": "same"}, {"id": "same"}), "`id` `same` repeats line 3")
+
+    def test_title_status_order(self):
+        self.refused(_items({"title": '""'}), "`title` must be 1 to 200")
+        self.refused(_items({"title": '"' + "x" * 201 + '"'}), "`title` must be 1 to 200")
+        self.refused(_items({"status": "started"}), "`status` must be one of")
+        self.refused(_items({"order": 0}), "`order` must be 1 to 999999")
+        self.refused(_items({"order": 5}, {"order": 5}), "`order` 5 repeats line")
+        # the order is total across done and idea items too
+        self.refused(_items({"status": "done", "order": 4}, {"status": "idea", "order": 4}), "repeats line")
+
+    def test_depends_on(self):
+        self.refused(_items({"depends_on": "[zzz]"}), "`zzz`, which is not an item")
+        self.refused(_items({"depends_on": "[i1]"}), "depends on itself")
+        self.refused(_items({}, {"depends_on": "[i1, i1]"}), "`i1` twice")
+
+    def test_cycles_name_one(self):
+        self.refused(_items({"depends_on": "[i2]"}, {"depends_on": "[i1]"}), "dependency cycle: i1 -> i2 -> i1")
+        self.refused(_items({"depends_on": "[i2]"}, {"depends_on": "[i3]"}, {"depends_on": "[i1]"}),
+                     "dependency cycle: i1 -> i2 -> i3 -> i1")
+
+    def test_size(self):
+        self.refused(_items({"size": 0}), "`size` must be 1 to 99")
+        self.refused(_items({"size": 100}), "`size` must be 1 to 99")
+        self.assertIsNone(_schema_error(_items({"size": 99}), self.repo.root))
+
+    def test_detail_rules(self):
+        root = self.repo.root
+        (root / "docs" / "other.md").write_text("x\n")
+        (root / "docs" / "items" / "dir.md").mkdir()
+        (root / "docs" / "items" / "a b.md").write_text("x\n")
+        (root / "docs" / "items" / "p(1).md").write_text("x\n")
+        (root / "docs" / "items" / "p).md").write_text("x\n")
+        (root / "docs" / "items" / "a|b.md").write_text("x\n")
+        outside = Path(tempfile.mkdtemp(prefix="wfo-backlog-out-"))
+        self.addCleanup(shutil.rmtree, outside, True)
+        (outside / "t.md").write_text("x\n")
+        os.symlink(root / "docs" / "items" / "beta.md", root / "docs" / "items" / "in.md")
+        os.symlink(outside / "t.md", root / "docs" / "items" / "out.md")
+        os.symlink(root / "docs", root / "docs" / "items" / "subdir")
+        os.symlink(outside, root / "docs" / "items" / "outdir")
+        self.assertIsNone(_schema_error(_items({"detail": "docs/items/beta.md"}), root))
+        for detail, fragment in (
+            ("docs/items/missing.md", "does not exist"),
+            ("docs/items/dir.md", "not a regular file"),
+            ("docs/items/../other.md", "`..` segment"),
+            ("docs/other.md", "under `docs/items/`"),
+            ('"/etc/passwd"', "repository-relative"),
+            ('"docs/items/a b.md"', "may contain only"),
+            ('"docs/items/p(1).md"', "may contain only"),
+            ('"docs/items/p).md"', "may contain only"),
+            ('"docs/items/a|b.md"', "may contain only"),
+            ("docs/items/in.md", "symbolic link"),
+            ("docs/items/out.md", "symbolic link"),
+            ("docs/items/subdir/items/beta.md", "symbolic link"),
+            ("docs/items/outdir/t.md", "symbolic link"),
+            ("docs/items/", "empty, `.` or `..` segment"),
+            ("docs/items", "under `docs/items/`"),
+        ):
+            with self.subTest(detail):
+                self.refused(_items({"detail": detail}), fragment, 7)
+
+    def test_release_rules(self):
+        self.refused(_items({"release": '"1.0"'}), "only allowed on a `done` item")
+        self.refused(_items({"status": "done", "release": '"-1"'}), "`release` must be")
+        self.refused(_items({"status": "done", "release": '"' + "1" * 41 + '"'}), "`release` must be")
+        self.assertIsNone(_schema_error(_items({"status": "done", "release": '"2.17.0"'}), self.repo.root))
+        self.assertIsNone(_schema_error(_items({"status": "done", "release": "v1.0+rc_1"}), self.repo.root))
+
+    def test_a_done_item_may_depend_on_an_unfinished_one(self):
+        self.assertIsNone(_schema_error(_items({"status": "done", "depends_on": "[i2]"}, {}), self.repo.root))
+
+    def test_all_violations_listed_ten_shown(self):
+        exc = _schema_error(_items(*[{"status": "bogus"}] * 12), self.repo.root)
+        self.assertEqual(len(exc.violations), 12)
+        shown = [l for l in exc.message.splitlines() if l.startswith("line ")]
+        self.assertEqual(len(shown), 10)
+        self.assertIn("and 2 more", exc.message)
+
+    def test_parse_and_validate_names_the_file(self):
+        with self.assertRaises(wb.BacklogError) as cm:
+            wb.parse_and_validate(_bl("title: 1abc", replace_line=4), self.repo.root, "docs/backlog.yaml")
+        self.assertTrue(cm.exception.message.startswith("docs/backlog.yaml:4:"))
+        with self.assertRaises(wb.BacklogError) as cm:
+            wb.parse_and_validate(_items({"status": "bogus"}), self.repo.root, "docs/backlog.yaml")
+        self.assertTrue(cm.exception.message.startswith("docs/backlog.yaml:"))
+        self.assertEqual(cm.exception.code, "backlog_invalid")
+        self.assertIn("check", cm.exception.next_step)
+        data, _ = wb.parse_and_validate(_BACKLOG_SAMPLE.encode(), self.repo.root)
+        self.assertEqual(len(data["items"]), 3)
+
+    def test_path_problem(self):
+        root = self.repo.root
+        for rel, fragment in (
+            ("", "empty"), ("/abs", "leading"), ("a\\b", "backslash"), ("a//b", "segment"), ("a/./b", "segment"),
+            ("a/../b", "segment"), ("a\x01b", "control"), (".git/x", "under"), (".GIT/x", "under"),
+            (".ai-review/x", "under"),
+        ):
+            with self.subTest(rel):
+                self.assertIn(fragment, wb.path_problem(root, rel))
+        self.assertIsNone(wb.path_problem(root, "docs/not-yet/there.md"))
+        self.assertIsNone(wb.path_problem(root, "docs/items/beta.md"))
+        if not (root / "DOCS").exists():  # a case-insensitive filesystem finds the entry; a sensitive one does not
+            self.assertIsNone(wb.path_problem(root, "DOCS/ROADMAP.md"))
+        else:
+            self.assertIn("differs in case", wb.path_problem(root, "DOCS/ROADMAP.md"))
+
+
+class BacklogSelect(unittest.TestCase):
+    @staticmethod
+    def data(*specs):
+        items = []
+        for n, (item_id, status, deps) in enumerate(specs, 1):
+            item = {"id": item_id, "title": item_id.upper(), "status": status, "order": n * 10}
+            if deps:
+                item["depends_on"] = list(deps)
+            items.append(item)
+        return {"version": 1, "items": items}
+
+    def test_lowest_ready_next(self):
+        out = wb.select_next(self.data(("a", "done", ()), ("b", "next", ()), ("c", "next", ())))
+        self.assertEqual(out["item"]["id"], "b")
+        self.assertEqual(out["item"]["depends_on"], [])
+        self.assertIsNone(out["item"]["size"])
+        self.assertEqual((out["also_in_progress"], out["warnings"]), ([], []))
+
+    def test_in_progress_ready_comes_first_and_lowest_order(self):
+        out = wb.select_next(self.data(("a", "next", ()), ("b", "in-progress", ()), ("c", "in-progress", ())))
+        self.assertEqual(out["item"]["id"], "b")
+        self.assertEqual(out["also_in_progress"], ["c"])
+
+    def test_blocked_in_progress_is_warned_and_skipped(self):
+        out = wb.select_next(self.data(("a", "next", ()), ("b", "in-progress", ("a",))))
+        self.assertEqual(out["item"]["id"], "a")
+        self.assertEqual(len(out["warnings"]), 1)
+        self.assertIn("`b`", out["warnings"][0])
+        self.assertIn("a", out["warnings"][0])
+
+    def test_blocked_lower_next_is_skipped_for_a_ready_higher_one(self):
+        out = wb.select_next(self.data(("a", "idea", ()), ("b", "next", ("a",)), ("c", "next", ())))
+        self.assertEqual(out["item"]["id"], "c")
+
+    def test_dependency_done_unblocks(self):
+        out = wb.select_next(self.data(("a", "done", ()), ("b", "next", ("a",))))
+        self.assertEqual(out["item"]["id"], "b")
+
+    def test_nothing_next(self):
+        for backlog in (self.data(), self.data(("a", "idea", ()), ("b", "done", ()))):
+            with self.assertRaises(wb.BacklogError) as cm:
+                wb.select_next(backlog)
+            self.assertEqual(cm.exception.code, "no_ready_item")
+            self.assertIn("no item is `next` or `in-progress`", cm.exception.message)
+
+    def test_all_blocked_lists_the_waiting_ids(self):
+        with self.assertRaises(wb.BacklogError) as cm:
+            wb.select_next(self.data(("a", "idea", ()), ("b", "next", ("a",)), ("c", "in-progress", ("a", "b"))))
+        self.assertEqual(cm.exception.code, "no_ready_item")
+        self.assertIn("`b` waits for a", cm.exception.message)
+        self.assertIn("`c` waits for a, b", cm.exception.message)
+        self.assertIn("/milestone-plan", cm.exception.next_step)
+
+    def test_done_is_never_chosen(self):
+        with self.assertRaises(wb.BacklogError):
+            wb.select_next(self.data(("a", "done", ())))
+
+
+class BacklogEdit(unittest.TestCase):
+    def edit(self, item, status, release=None, text=_BACKLOG_SAMPLE):
+        data, lines = wb.parse_backlog(text)
+        return wb.set_status_text(text, data, lines, item, status, release)
+
+    def changed_lines(self, old, new):
+        import difflib
+        return [l for l in difflib.ndiff(old.split("\n"), new.split("\n")) if l[0] in "+-"]
+
+    def test_status_changed_everything_else_kept(self):
+        new = self.edit("beta", "done")
+        self.assertEqual(self.changed_lines(_BACKLOG_SAMPLE, new),
+                         ["-     status: next # soon", "+     status: done # soon"])
+        self.assertIn("# first", new)
+        self.assertEqual(wb.parse_backlog(new)[0]["items"][1]["status"], "done")
+
+    def test_release_inserted_and_replaced(self):
+        new = self.edit("beta", "done", "2.17.0")
+        self.assertIn('    status: done # soon\n    release: "2.17.0"\n    order: 2\n', new)
+        self.assertEqual(wb.parse_backlog(new)[0]["items"][1]["release"], "2.17.0")
+        replaced = self.edit("alpha", "done", "2.0.1")
+        self.assertEqual(self.changed_lines(_BACKLOG_SAMPLE, replaced),
+                         ['-     release: "2.0.0"', '+     release: "2.0.1"'])
+
+    def test_no_op_when_equal(self):
+        self.assertEqual(self.edit("alpha", "done"), _BACKLOG_SAMPLE)
+        self.assertEqual(self.edit("alpha", "done", "2.0.0"), _BACKLOG_SAMPLE)
+
+    def test_item_first_line_status_and_last_line_without_newline(self):
+        text = "version: 1\nitems:\n  - status: next\n    id: a\n    title: A\n    order: 1"
+        new = self.edit("a", "done", "1.0", text)
+        self.assertEqual(wb.parse_backlog(new)[0]["items"][0]["release"], "1.0")
+        self.assertFalse(new.endswith("\n"))
+        self.assertIn("  - status: done\n    release: \"1.0\"\n    id: a", new)
+
+    def test_refusals(self):
+        for args, code in (
+            (("nope", "done"), "item_unknown"),
+            (("beta", "started"), "backlog_invalid"),
+            (("beta", "next", "1.0"), "backlog_invalid"),
+            (("beta", "done", "-bad"), "backlog_invalid"),
+            (("alpha", "next"), "backlog_invalid"),
+        ):
+            with self.subTest(args), self.assertRaises(wb.BacklogError) as cm:
+                self.edit(*args)
+            self.assertEqual(cm.exception.code, code)
+
+    def test_a_reparse_that_differs_is_refused(self):
+        data, lines = wb.parse_backlog(_BACKLOG_SAMPLE)
+        other = {"version": 1, "items": []}
+        with unittest.mock.patch.object(wb, "parse_backlog", return_value=(other, {})):
+            with self.assertRaises(wb.BacklogError) as cm:
+                wb.set_status_text(_BACKLOG_SAMPLE, data, lines, "beta", "done")
+        self.assertEqual(cm.exception.code, "backlog_invalid")
+        self.assertIn("more than", cm.exception.message)
+
+
+class BacklogRender(unittest.TestCase):
+    def page(self, text=_BACKLOG_SAMPLE, file="docs/backlog.yaml", roadmap="docs/ROADMAP.md"):
+        return wb.render_roadmap(wb.parse_backlog(text)[0], file, roadmap)
+
+    def test_exact_page_sorted_by_order(self):
+        text = _BACKLOG_SAMPLE.replace("order: 1\n", "order: 30\n", 1).replace("order: 3\n", "order: 1\n", 1)
+        page = self.page(text)
+        self.assertEqual(page, "\n".join([
+            "# Roadmap",
+            "",
+            "<!-- Generated from docs/backlog.yaml by scripts/workflow_backlog.py. Do not edit by hand: edit the "
+            "backlog file and run `python3 scripts/workflow_backlog.py generate`. -->",
+            "",
+            "| Order | Item | Status | Size | Depends on |",
+            "| --- | --- | --- | --- | --- |",
+            "| 1 | It's gamma `gamma` | Idea | - | alpha, beta |",
+            "| 2 | [Beta: the \"second\"](items/beta.md) `beta` | Next | 3 | alpha |",
+            "| 30 | Alpha thing `alpha` | Done (2.0.0) | - | - |",
+            "",
+        ]))
+
+    def test_four_status_words_and_plain_done(self):
+        text = _items({"status": "idea"}, {"status": "next"}, {"status": "in-progress"}, {"status": "done"})
+        rows = self.page(text).splitlines()[6:]
+        self.assertEqual([r.split(" | ")[2] for r in rows], ["Idea", "Next", "In progress", "Done"])
+
+    def test_link_is_relative_to_the_page_directory(self):
+        for roadmap, target in (("docs/ROADMAP.md", "items/beta.md"), ("ROADMAP.md", "docs/items/beta.md"),
+                                ("docs/sub/ROADMAP.md", "../items/beta.md"), ("docs/items/R.md", "beta.md")):
+            with self.subTest(roadmap):
+                self.assertIn(f"]({target})", self.page(roadmap=roadmap))
+
+    def test_titles_are_escaped_and_rows_stay_intact(self):
+        title = 'a|b [c] <d> \\e `f`'
+        quoted = title.replace("\\", "\\\\")
+        text = _items({"title": f'"{quoted}"', "detail": "docs/items/a_b-c.1.md", "size": 2})
+        page = self.page(text)
+        self.assertIn(r"[a\|b \[c\] \<d\> \\e \`f\`](items/a_b-c.1.md) `i1`", page)
+        for row in page.splitlines():
+            if row.startswith("| 1 "):
+                self.assertEqual(len(re.split(r"(?<!\\)\|", row)), 7)
+
+    def test_byte_stable_and_empty_backlog(self):
+        self.assertEqual(self.page(), self.page())
+        self.assertTrue(self.page().endswith("\n"))
+        self.assertNotIn("\r", self.page())
+        empty = self.page("version: 1\nitems: []\n")
+        self.assertEqual(len(empty.splitlines()), 6)
+
+    def test_file_path_cannot_close_the_comment(self):
+        with self.assertRaises(wb.BacklogError) as cm:
+            self.page(file="docs/a-->b.yaml")
+        self.assertEqual(cm.exception.code, "declaration_invalid")
 
 
 if __name__ == "__main__":
