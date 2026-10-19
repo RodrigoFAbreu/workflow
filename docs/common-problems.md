@@ -294,12 +294,13 @@ Since 2.16.0 the managed `workflow-conformance` job runs the acceptance suite in
 four shards of whole test classes. A failing shard shows as `acceptance N/4` in
 the summary and as an `::error` annotation naming the shard, its classes and the
 original test ids that failed; the full log of that shard follows the
-annotation, unfolded, and every shard log is in the diagnostic upload. Fix the
+annotation, unfolded, and every other shard log is in the job log as a collapsed
+group (the managed job uploads no artifact). Fix the
 named tests as for any acceptance failure. "No complete shard file", "did not
 finish (no result)" or "missing: <ids>" means the shard did not report some or
 all of its planned tests: it was killed, its runner was lost, or it crashed
 before writing its result, so the coverage gate could not count them
 (`coverage: expected T, recorded R` with `R < T`). Re-run the job; if it repeats,
-read that shard's log in the upload for the crash. "not in the plan" means a
+read that shard's log in the job log for the crash. "not in the plan" means a
 shard ran a test id the plan did not list, which points at a test module that
 changed between planning and running.
