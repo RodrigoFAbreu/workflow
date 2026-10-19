@@ -52,6 +52,36 @@ form and one refusal per rule with its line number, the accepted counterparts a 
 reading would refuse, every schema rule, the selection table, the editor, the page, and a
 PyYAML cross-check (skipped without PyYAML).
 
+### CP2 -- The declaration, the command line and the artifact template (complete)
+
+`workflow_backlog.py` gains the rest of the script:
+
+- `load_declaration` (D-Declare: undeclared when the config lacks the key, is missing,
+  unparsable or not an object; `declaration_invalid` otherwise, including symbolic-link and
+  case-mismatched components), `declared_paths` (never raises), `protected_conflicts` and
+  `check_declaration_conflict` (`declaration_conflict`, D-Classify).
+- The command line `status`, `next`, `preflight-accept`, `accept [--release]`, `generate
+  [--replace]`, `check`: one JSON object on stdout, the two-line refusal on stderr, exit 0, 1
+  (`roadmap_stale`) or 2; `accept` snapshots and on any refusal restores both the backlog file
+  and the page and appends the step-4 recovery to the next step.
+- The declared generator (no shell, 120 s timeout, `WORKFLOW_BACKLOG_SHA256`, the four
+  post-conditions, the Workflow's stamp) and `check` verifying the stamp without running user
+  code; the built-in page refuses a hand-written page unless `--replace`.
+
+`workflow_state.generate_artifacts_declarations` gains the optional `repo_root` keyword: with a
+valid declaration it refuses a protected declared path and classifies the declared `file`,
+`roadmap` and `docs/items/` as excluded at both stages (lazy import; an unavailable script is
+`BacklogScriptUnavailableError`). Omitted or undeclared, the bytes are 2.16.0's (pinned by a
+golden digest). The test harness and the generalization suite install `workflow_backlog.py`.
+
+Tests: `BacklogDeclaration`, `BacklogCli`, `BacklogGenerator`, `BacklogAcceptAtomicity`,
+`BacklogDeclarationConflict` (completion-obligations suite) and
+`GeneratedDeclarationsBacklogClassificationTest` (`workflow_state_test.py`). Ran the
+completion-obligations, generalization, harness and integration suites (pass) and
+`workflow_state_test.py` (all pass except two `TestCanonicalStateSerialization` live-state tests,
+which read `payload/docs/...` and only run from an installed layout; they fail identically
+without this change).
+
 ## Next action
 
-Invoke `/milestone-implement backlog-file` again for CP2.
+Invoke `/milestone-implement backlog-file` again for CP3.

@@ -26,6 +26,7 @@ Stdlib-only. Run: python3 scripts/workflow_state_completion_obligations_test.py
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 import multiprocessing
 import os
@@ -2923,6 +2924,506 @@ class BacklogRender(unittest.TestCase):
         with self.assertRaises(wb.BacklogError) as cm:
             self.page(file="docs/a-->b.yaml")
         self.assertEqual(cm.exception.code, "declaration_invalid")
+
+
+# --------------------------------------------------------------------------
+# CP2: the declaration, the command line and the generator
+# --------------------------------------------------------------------------
+
+_BACKLOG_SCRIPT = Path(wb.__file__).resolve()
+_SIMPLE_BACKLOG = """\
+version: 1
+items:
+  - id: alpha
+    title: Alpha
+    status: in-progress
+    order: 1
+  - id: beta
+    title: Beta
+    status: next
+    order: 2
+    depends_on: [alpha]
+"""
+
+
+class _Decl:
+    """A scratch repository with the script installed and a `backlog` key."""
+
+    def __init__(self, backlog="docs/backlog.yaml", text=_SIMPLE_BACKLOG, extra=None, config=True):
+        self.backlog, self.text, self.extra, self.config = backlog, text, extra or {}, config
+
+    def __enter__(self):
+        self.root = Path(tempfile.mkdtemp(prefix="wfo-decl-"))
+        (self.root / "scripts").mkdir()
+        shutil.copy(_BACKLOG_SCRIPT, self.root / "scripts" / "workflow_backlog.py")
+        (self.root / "docs" / "ai-workflow").mkdir(parents=True)
+        if self.config:
+            self.write_config({"backlog": {"file": self.backlog, **self.extra}})
+        if self.text is not None:
+            self.write(self.backlog, self.text)
+        return self
+
+    def __exit__(self, *exc):
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def write_config(self, value):
+        raw = value if isinstance(value, str) else json.dumps(value)
+        (self.root / wb.CONFIG_REL).write_text(raw)
+
+    def write(self, rel, text):
+        path = self.root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if isinstance(text, str):
+            path.write_text(text)
+        else:
+            path.write_bytes(text)
+
+    def read(self, rel):
+        return (self.root / rel).read_bytes()
+
+    def exists(self, rel):
+        return os.path.lexists(self.root / rel)
+
+    def run(self, *args):
+        done = subprocess.run(["python3", "-I", str(self.root / "scripts" / "workflow_backlog.py"), *args],
+                              cwd=self.root, capture_output=True, text=True)
+        return done.returncode, done.stdout, done.stderr
+
+    def ok(self, *args):
+        code, out, err = self.run(*args)
+        assert code == 0, (code, out, err)
+        return json.loads(out)
+
+    def refused(self, *args, code=2):
+        got, out, err = self.run(*args)
+        assert got == code, (got, out, err)
+        lines = err.strip().split("\n")
+        assert lines[0].startswith("error: ") and "next step: " in err, err
+        return lines[0].split(": ", 2)[1], err
+
+    def tree(self):
+        out = {}
+        for path in sorted(self.root.rglob("*")):
+            if path.is_file() and not path.is_symlink():
+                out[str(path.relative_to(self.root))] = path.read_bytes()
+        return out
+
+
+class BacklogDeclaration(unittest.TestCase):
+    def declared(self, value):
+        with _Decl(config=False) as d:
+            d.write_config({"backlog": value})
+            return wb.load_declaration(d.root)
+
+    def refusal(self, value):
+        with _Decl(config=False) as d:
+            d.write_config({"backlog": value})
+            with self.assertRaises(wb.BacklogError) as cm:
+                wb.load_declaration(d.root)
+            return cm.exception
+
+    def test_undeclared_forms_write_nothing(self):
+        for label, config in (("no key", '{"other": 1}'), ("unparsable", "{not json"), ("array", "[1, 2]"),
+                              ("missing file", None)):
+            with self.subTest(label), _Decl(config=False) as d:
+                if config is not None:
+                    d.write_config(config)
+                before = d.tree()
+                self.assertIsNone(wb.load_declaration(d.root))
+                self.assertEqual(wb.declared_paths(d.root), [])
+                for args in (["status"], ["next"], ["check"], ["generate"], ["preflight-accept", "alpha"],
+                             ["accept", "alpha"]):
+                    self.assertEqual(d.ok(*args), {"declared": False})
+                self.assertEqual(d.tree(), before)
+
+    def test_defaults_and_full_declaration(self):
+        self.assertEqual(self.declared({"file": "docs/backlog.yaml"}),
+                         {"file": "docs/backlog.yaml", "roadmap": "docs/ROADMAP.md", "generator": None})
+        self.assertEqual(self.declared({"file": "b.yaml", "roadmap": "R.md", "generator": ["python3", "g.py"]}),
+                         {"file": "b.yaml", "roadmap": "R.md", "generator": ["python3", "g.py"]})
+
+    def test_every_declaration_invalid_refusal(self):
+        cases = {
+            "null": None, "string": "docs/backlog.yaml", "no file": {}, "unknown key": {"file": "a", "x": 1},
+            "file not str": {"file": 3}, "roadmap not str": {"file": "a", "roadmap": []},
+            "same path": {"file": "a.yaml", "roadmap": "a.yaml"},
+            "absolute": {"file": "/a.yaml"}, "backslash": {"file": "a\\b.yaml"}, "dotdot": {"file": "../a.yaml"},
+            "dot": {"file": "./a.yaml"}, "empty segment": {"file": "a//b.yaml"}, "empty": {"file": ""},
+            "control": {"file": "a\x01.yaml"}, "under .git": {"file": ".git/a.yaml"},
+            "under .ai-review": {"file": ".ai-review/a.yaml"},
+            "generator string": {"file": "a", "generator": "make"}, "generator empty": {"file": "a", "generator": []},
+            "generator null": {"file": "a", "generator": None},
+            "generator entry empty": {"file": "a", "generator": ["python3", ""]},
+            "generator entry not str": {"file": "a", "generator": ["python3", 1]},
+        }
+        for label, value in cases.items():
+            with self.subTest(label):
+                exc = self.refusal(value)
+                self.assertEqual(exc.code, "declaration_invalid")
+                self.assertTrue(exc.next_step)
+
+    def test_symbolic_links_are_refused_from_every_subcommand(self):
+        for label, file in (("last component", "docs/link.yaml"), ("directory to inside", "docs/via/backlog.yaml"),
+                            ("directory to outside", "docs/out/backlog.yaml")):
+            with self.subTest(label), tempfile.TemporaryDirectory(prefix="wfo-outside-") as outside:
+                with _Decl(backlog=file, text=None) as d:
+                    (d.root / "scripts" / "keep.txt").write_text("x")
+                    if label == "last component":
+                        (d.root / "docs" / "link.yaml").symlink_to(d.root / "scripts" / "keep.txt")
+                    elif label == "directory to inside":
+                        (d.root / "docs" / "via").symlink_to("../scripts")
+                    else:
+                        (d.root / "docs" / "out").symlink_to(outside)
+                    before = d.tree()
+                    for args in (["next"], ["check"], ["generate"], ["accept", "alpha"],
+                                 ["preflight-accept", "alpha"]):
+                        code, message = d.refused(*args)
+                        self.assertEqual(code, "declaration_invalid")
+                        self.assertIn("symbolic link", message)
+                    self.assertEqual(d.refused("status")[0], "declaration_invalid")
+                    self.assertEqual(d.tree(), before)
+                    self.assertEqual(list(Path(outside).iterdir()), [])
+                    self.assertEqual(wb.declared_paths(d.root), [])
+
+    def test_missing_components_are_fine_and_case_mismatch_is_refused(self):
+        with _Decl(backlog="new/dir/backlog.yaml", text=None) as d:
+            self.assertEqual(wb.load_declaration(d.root)["file"], "new/dir/backlog.yaml")
+        with _Decl(backlog="Scripts/backlog.yaml", text=None) as d:
+            real_listdir, real_lstat = os.listdir, os.lstat
+
+            def fold_lstat(path, *args, **kwargs):  # a case-insensitive filesystem finds `scripts` as `Scripts`
+                path = Path(path)
+                return real_lstat(path.with_name("scripts") if path.name == "Scripts" else path, *args, **kwargs)
+
+            with unittest.mock.patch("os.lstat", side_effect=fold_lstat):
+                with self.assertRaises(wb.BacklogError) as cm:
+                    wb.load_declaration(d.root)
+            self.assertEqual(cm.exception.code, "declaration_invalid")
+            self.assertIn("differs in case", cm.exception.message)
+            self.assertIn("scripts", real_listdir(d.root))
+
+    def test_protected_conflicts_predicate(self):
+        declaration = {"plan_stage": {"protected_paths": ["docs/P.md"], "excluded_paths": {"docs/backlog.yaml": "x"}},
+                       "implementation_stage": {"protected_paths": {"a/own.json": "x"},
+                                                "protected_prefixes": {"scripts/": "x"}}}
+        paths = ["docs/P.md", "docs/backlog.yaml", "scripts/backlog.yaml", "a/own.json", "docs/items/x.md"]
+        self.assertEqual(wb.protected_conflicts(paths, declaration),
+                         [("plan_stage", "docs/P.md"), ("implementation_stage", "scripts/backlog.yaml"),
+                          ("implementation_stage", "a/own.json")])
+        self.assertEqual(wb.protected_conflicts(["docs/backlog.yaml"], {}), [])
+
+
+class BacklogCli(unittest.TestCase):
+    def test_status_next_and_the_usage_error(self):
+        with _Decl() as d:
+            status = d.ok("status")
+            self.assertEqual((status["declared"], status["valid"], status["items"]), (True, True, 2))
+            self.assertFalse(status["roadmap_fresh"])
+            nxt = d.ok("next")
+            self.assertEqual(nxt["item"]["id"], "alpha")
+            self.assertEqual((nxt["declared"], nxt["file"], nxt["warnings"]), (True, "docs/backlog.yaml", []))
+            code, out, err = d.run("frobnicate")
+            self.assertEqual((code, out), (2, ""))
+            self.assertEqual(d.run("accept", "alpha", "--release", "../x")[0], 2)
+            self.assertEqual(d.run("accept", "alpha", "--release", "2.17.0 ")[0], 2)
+
+    def test_status_reports_an_invalid_file_and_exits_zero(self):
+        with _Decl(text="version: 2\nitems: []\n") as d:
+            status = d.ok("status")
+            self.assertFalse(status["valid"])
+            self.assertEqual(status["error"]["code"], "backlog_invalid")
+
+    def test_refusal_codes_with_two_lines_and_exit_two(self):
+        with _Decl(text=None) as d:
+            self.assertEqual(d.refused("next")[0], "backlog_missing")
+            self.assertEqual(d.refused("check")[0], "backlog_missing")
+        bad = "version: 1\nitems:\n  - id: a\n    title: A\n    status: bogus\n    order: 1\n"
+        with _Decl(text=bad) as d:
+            code, err = d.refused("next")
+            self.assertEqual(code, "backlog_invalid")
+            self.assertIn("docs/backlog.yaml:", err)
+        with _Decl(text=_SIMPLE_BACKLOG.replace("in-progress", "idea").replace("next", "idea")) as d:
+            self.assertEqual(d.refused("next")[0], "no_ready_item")
+            self.assertEqual(d.refused("preflight-accept", "alpha")[0], "status_not_acceptable")
+            self.assertEqual(d.refused("accept", "alpha")[0], "status_not_acceptable")
+        with _Decl() as d:
+            self.assertEqual(d.refused("preflight-accept", "nope")[0], "item_unknown")
+            code, err = d.refused("accept", "nope")
+            self.assertEqual(code, "item_unknown")
+            self.assertIn("then run `python3 scripts/workflow_backlog.py accept nope` "
+                          "and continue the acceptance at step 4", err)
+        with _Decl(extra={"bogus": 1}) as d:
+            self.assertEqual(d.refused("status")[0], "declaration_invalid")
+
+    def test_check_exit_one_when_stale(self):
+        with _Decl() as d:
+            code, out, err = d.run("check")
+            self.assertEqual((code, out), (1, ""))
+            self.assertIn("error: roadmap_stale:", err)
+            d.ok("generate")
+            self.assertEqual(d.ok("check")["fresh"], True)
+
+    def test_builtin_generate_check_and_stale_line(self):
+        with _Decl() as d:
+            self.assertEqual(d.ok("generate"),
+                             {"declared": True, "generated": "docs/ROADMAP.md", "generator": "built-in"})
+            first = d.read("docs/ROADMAP.md")
+            d.ok("generate")
+            self.assertEqual(d.read("docs/ROADMAP.md"), first)
+            d.ok("check")
+            d.write("docs/ROADMAP.md", first.replace(b"| Next |", b"| Done |"))
+            code, err = d.refused("check", code=1)
+            self.assertEqual(code, "roadmap_stale")
+            self.assertIn("at line 8", err)
+
+    def test_hand_written_page_is_refused_then_replaced_once(self):
+        with _Decl() as d:
+            d.write("docs/ROADMAP.md", "# Roadmap\n\nprose\n")
+            before = d.tree()
+            for args in (["generate"], ["accept", "alpha"], ["preflight-accept", "alpha"]):
+                self.assertEqual(d.refused(*args)[0], "roadmap_not_generated")
+                self.assertEqual(d.tree(), before)
+            d.ok("generate", "--replace")
+            d.ok("check")
+            d.ok("generate")
+
+    def test_accept_edits_only_status_and_release_and_is_idempotent(self):
+        with _Decl() as d:
+            self.assertEqual(d.ok("preflight-accept", "alpha")["ok"], True)
+            result = d.ok("accept", "alpha", "--release", "2.17.0")
+            self.assertEqual(result["paths"], ["docs/backlog.yaml", "docs/ROADMAP.md"])
+            text = d.read("docs/backlog.yaml").decode()
+            data = wb.parse_backlog(text)[0]
+            self.assertEqual((data["items"][0]["status"], data["items"][0]["release"]), ("done", "2.17.0"))
+            self.assertEqual(text.count("\n"), _SIMPLE_BACKLOG.count("\n") + 1)
+            self.assertIn("Done (2.17.0)", d.read("docs/ROADMAP.md").decode())
+            d.ok("check")
+            snapshot = d.tree()
+            d.ok("accept", "alpha")
+            self.assertEqual(d.tree(), snapshot)
+            d.write("docs/ROADMAP.md", d.read("docs/ROADMAP.md").replace(b"Done", b"Idea"))
+            d.ok("accept", "alpha")
+            d.ok("check")
+            self.assertEqual(d.tree(), snapshot)
+
+    def test_accept_works_without_any_workflow_state(self):
+        with _Decl() as d:
+            self.assertFalse(d.exists("docs/ai-workflow/WORKFLOW_STATE.json"))
+            self.assertEqual(d.ok("accept", "beta")["item"], "beta")
+
+    def test_undeclared_writes_nothing_even_with_a_stray_file(self):
+        with _Decl(config=False) as d:
+            before = d.tree()
+            for args in (["status"], ["next"], ["check"], ["generate"], ["accept", "alpha"]):
+                self.assertEqual(d.ok(*args), {"declared": False})
+            self.assertEqual(d.tree(), before)
+
+
+GOOD_PAGE = 'open("docs/ROADMAP.md", "w").write("# R\\n<!-- backlog-sha256: " + d + " -->\\nrow\\n")'
+
+
+def _generator(body):
+    prelude = 'import os,sys,hashlib\nd = hashlib.sha256(open("docs/backlog.yaml", "rb").read()).hexdigest()\n'
+    return {"generator": ["python3", "-c", prelude + body]}
+
+
+class BacklogGenerator(unittest.TestCase):
+    def test_good_generator_is_stamped_in_place(self):
+        body = 'assert os.environ["WORKFLOW_BACKLOG_SHA256"] == d\n' + GOOD_PAGE
+        with _Decl(extra=_generator(body)) as d:
+            result = d.ok("accept", "alpha")
+            self.assertEqual(result["paths"], ["docs/backlog.yaml", "docs/ROADMAP.md"])
+            digest = hashlib.sha256(d.read("docs/backlog.yaml")).hexdigest()
+            self.assertEqual(
+                d.read("docs/ROADMAP.md"),
+                b"# R\n<!-- backlog-sha256: " + digest.encode() + b" page-sha256: "
+                + hashlib.sha256(b"# R\nrow\n").hexdigest().encode() + b" -->\nrow\n")
+            d.ok("check")
+            self.assertEqual(d.ok("generate")["generator"], "declared")
+            d.ok("check")
+
+    def test_marker_as_last_line_without_lf(self):
+        body = 'open("docs/ROADMAP.md", "w").write("# R\\n<!-- backlog-sha256: " + d + " -->")'
+        with _Decl(extra=_generator(body)) as d:
+            d.ok("generate")
+            page = d.read("docs/ROADMAP.md")
+            self.assertFalse(page.endswith(b"\n"))
+            self.assertIn(hashlib.sha256(b"# R\n").hexdigest().encode(), page)
+            d.ok("check")
+
+    def failing(self, body, *, page=None, expect=None):
+        with _Decl(extra=_generator(body)) as d:
+            if page is not None:
+                d.write("docs/ROADMAP.md", page)
+            before = d.tree()
+            for args in (["generate"], ["accept", "alpha"]):
+                code, err = d.refused(*args)
+                self.assertEqual(code, "generator_failed", err)
+                if expect:
+                    self.assertIn(expect, err)
+                self.assertEqual(d.tree(), before)
+
+    def test_freshness_contract_failures_restore_everything(self):
+        marker = '"<!-- backlog-sha256: " + d + " -->\\n"'
+        self.failing("pass", expect="no page")
+        self.failing("pass", page="# R\n<!-- backlog-sha256: " + "0" * 64 + " -->\n", expect="not the digest")
+        self.failing("pass", page="# R\nno marker\n", expect="exactly one line")
+        stamped = "# R\n<!-- backlog-sha256: " + "a" * 64 + " page-sha256: " + "b" * 64 + " -->\n"
+        self.failing("pass", page=stamped, expect="stamped")
+        self.failing(f'open("docs/ROADMAP.md", "w").write({marker} + {marker})', expect="found 2")
+        self.failing('open("docs/ROADMAP.md", "w").write("<!-- backlog-sha256: " + d + " -->\\r\\n")', expect="found 0")
+        self.failing(f'open("docs/ROADMAP.md", "w").write({marker}); open("docs/backlog.yaml", "a").write("# x\\n")',
+                     expect="changed the backlog file")
+        self.failing("sys.exit(3)", expect="exited 3")
+
+    def test_copying_the_old_stamped_line_forward_fails(self):
+        body = ('old = open("docs/ROADMAP.md").read() if os.path.exists("docs/ROADMAP.md") else ""\n'
+                'open("docs/ROADMAP.md", "w").write(old + "<!-- backlog-sha256: " + d + " -->\\n")')
+        with _Decl(extra=_generator(body)) as d:
+            d.ok("generate")
+            before = d.tree()
+            self.assertEqual(d.refused("generate")[0], "generator_failed")
+            self.assertEqual(d.tree(), before)
+
+    def test_page_as_symlink_or_directory_fails(self):
+        for kind in ("symlink", "directory"):
+            body = ('import shutil\nshutil.rmtree("docs/ROADMAP.md", ignore_errors=True)\n'
+                    + ('os.symlink("backlog.yaml", "docs/ROADMAP.md")' if kind == "symlink"
+                       else 'os.mkdir("docs/ROADMAP.md")'))
+            with self.subTest(kind), _Decl(extra=_generator(body)) as d:
+                before = d.tree()
+                self.assertEqual(d.refused("accept", "alpha")[0], "generator_failed")
+                self.assertEqual(d.tree(), before)
+                self.assertFalse(d.exists("docs/ROADMAP.md"))
+
+    def test_partial_page_then_failure_or_timeout_restores_or_removes(self):
+        with _Decl(extra=_generator('open("docs/ROADMAP.md", "w").write("half"); sys.exit(1)')) as d:
+            self.assertEqual(d.refused("accept", "alpha")[0], "generator_failed")
+            self.assertFalse(d.exists("docs/ROADMAP.md"))
+            self.assertEqual(d.read("docs/backlog.yaml").decode(), _SIMPLE_BACKLOG)
+        slow = 'open("docs/ROADMAP.md", "w").write("half")\nimport time; time.sleep(30)'
+        with _Decl(extra=_generator(slow)) as d:
+            d.write("docs/ROADMAP.md", "old\n")
+            with unittest.mock.patch.object(wb, "GENERATOR_TIMEOUT", 1):
+                with self.assertRaises(wb.BacklogError) as cm:
+                    wb.cmd_accept(d.root, "alpha")
+            self.assertEqual(cm.exception.code, "generator_failed")
+            self.assertIn("timed out", cm.exception.message)
+            self.assertEqual(d.read("docs/ROADMAP.md"), b"old\n")
+            self.assertEqual(d.read("docs/backlog.yaml").decode(), _SIMPLE_BACKLOG)
+
+    def test_reaccepting_with_a_noop_generator_fails_and_a_real_one_repairs(self):
+        with _Decl(extra={"generator": ["python3", "-c", "pass"]}) as d:
+            self.assertEqual(d.refused("accept", "alpha")[0], "generator_failed")
+        with _Decl(extra=_generator(GOOD_PAGE)) as d:
+            d.ok("accept", "alpha")
+            stamped = d.read("docs/ROADMAP.md")
+            d.write("docs/ROADMAP.md", stamped + b"hand edit\n")
+            self.assertEqual(d.refused("check", code=1)[0], "roadmap_stale")
+            d.ok("accept", "alpha")
+            self.assertEqual(d.read("docs/ROADMAP.md"), stamped)
+            d.ok("check")
+            d.write("docs/ROADMAP.md", stamped + b"hand edit\n")
+            d.write_config({"backlog": {"file": "docs/backlog.yaml", "generator": ["python3", "-c", "pass"]}})
+            edited = d.tree()
+            self.assertEqual(d.refused("accept", "alpha")[0], "generator_failed")
+            self.assertEqual(d.tree(), edited)
+
+    def test_unresolvable_generator_is_a_preflight_refusal(self):
+        with _Decl(extra={"generator": ["no-such-binary-xyz"]}) as d:
+            before = d.tree()
+            code, err = d.refused("preflight-accept", "alpha")
+            self.assertEqual(code, "generator_failed")
+            self.assertNotIn("<id>", err)
+            self.assertEqual(d.tree(), before)
+
+    def test_check_with_declared_generator_runs_no_user_code_and_detects_every_edit(self):
+        body = ('open("docs/ROADMAP.md", "w").write("# R\\nrow one\\nrow two\\n'
+                '<!-- backlog-sha256: " + d + " -->\\n")')
+        with _Decl(extra=_generator(body)) as d:
+            d.ok("generate")
+            d.ok("check")
+            fresh = d.read("docs/ROADMAP.md")
+            d.write("scripts/boom.py", "raise SystemExit(7)")
+            d.write_config({"backlog": {"file": "docs/backlog.yaml", "generator": ["python3", "scripts/boom.py"]}})
+            d.ok("check")
+
+            def stale(page, *needle):
+                d.write("docs/ROADMAP.md", page)
+                code, err = d.refused("check", code=1)
+                self.assertEqual(code, "roadmap_stale")
+                for text in needle:
+                    self.assertIn(text, err)
+
+            stale(fresh.replace(b"row one", b"row ONE"), "edited after")
+            stale(fresh + b"added\n", "edited after")
+            stale(fresh.replace(b"row two\n", b""), "edited after")
+            stale(fresh.replace(b" page-sha256", b" x-sha256"), "no stamped")
+            stale(fresh + fresh.split(b"\n")[3] + b"\n", "exactly one")
+            stale(fresh.split(b"<!--")[0], "no stamped")
+            unstamped = b" ".join(fresh.split(b"<!--")[1].split(b" ")[:3]) + b" -->\n"
+            stale(fresh.split(b"<!--")[0] + b"<!--" + unstamped.split(b"\n")[0].split(b"<!--")[-1] + b"\n", "not stamped")
+            os.unlink(d.root / "docs/ROADMAP.md")
+            self.assertIn("does not exist", d.refused("check", code=1)[1])
+            d.write("docs/ROADMAP.md", fresh)
+            original = d.read("docs/backlog.yaml")
+            d.write("docs/backlog.yaml", original + b"# comment\n")
+            self.assertIn("file digest", d.refused("check", code=1)[1])
+            d.write("docs/backlog.yaml", original)
+            d.ok("check")
+
+
+class BacklogAcceptAtomicity(unittest.TestCase):
+    def test_a_refusal_after_accept_began_restores_the_file_and_the_page(self):
+        with _Decl() as d:
+            d.ok("generate")
+            before = d.tree()
+            boom = wb.BacklogError("generator_failed", "boom", "x")
+            with unittest.mock.patch.object(wb, "_generate_page", side_effect=boom):
+                with self.assertRaises(wb.BacklogError):
+                    wb.cmd_accept(d.root, "alpha", "1.0")
+            self.assertEqual(d.tree(), before)
+
+    def test_reparse_mismatch_writes_nothing_and_names_the_recovery(self):
+        with _Decl() as d:
+            before = d.tree()
+            mismatch = wb.BacklogError("backlog_invalid", "mismatch", "fix")
+            with unittest.mock.patch.object(wb, "set_status_text", side_effect=mismatch):
+                with self.assertRaises(wb.BacklogError) as cm:
+                    wb.cmd_accept(d.root, "alpha")
+            self.assertIn("continue the acceptance at step 4", cm.exception.next_step)
+            self.assertEqual(d.tree(), before)
+
+
+class BacklogDeclarationConflict(unittest.TestCase):
+    def artifacts(self, d, protected_paths=(), protected_prefixes=()):
+        d.write("docs/ai-workflow/registry/alpha-artifacts.json", json.dumps({
+            "plan_stage": {"protected_paths": list(protected_paths)},
+            "implementation_stage": {"protected_prefixes": {p: "x" for p in protected_prefixes}},
+        }))
+
+    def test_preflight_and_accept_refuse_a_protected_path_and_write_nothing(self):
+        for label, kwargs in (("plan file", {"protected_paths": ["docs/backlog.yaml"]}),
+                              ("implementation prefix", {"protected_prefixes": ["docs/"]}),
+                              ("item pages", {"protected_prefixes": ["docs/items/"]})):
+            with self.subTest(label), _Decl() as d:
+                self.artifacts(d, **kwargs)
+                d.write("docs/ROADMAP.md", "keep\n")
+                before = d.tree()
+                for args in (["preflight-accept", "alpha"], ["accept", "alpha"]):
+                    code, err = d.refused(*args)
+                    self.assertEqual(code, "declaration_conflict")
+                    self.assertIn("move the path out of the protected area", err)
+                self.assertEqual(d.tree(), before)
+
+    def test_an_unprotected_or_unreadable_declaration_is_not_a_conflict(self):
+        with _Decl() as d:
+            self.artifacts(d, protected_paths=["docs/P.md"], protected_prefixes=["scripts/"])
+            d.ok("preflight-accept", "alpha")
+        with _Decl() as d:
+            d.ok("preflight-accept", "alpha")
+            d.write("docs/ai-workflow/registry/alpha-artifacts.json", "{broken")
+            d.ok("preflight-accept", "alpha")
 
 
 if __name__ == "__main__":

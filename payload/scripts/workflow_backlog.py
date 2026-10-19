@@ -19,11 +19,18 @@ Stdlib-only.
 """
 from __future__ import annotations
 
+import argparse
 import copy
+import hashlib
+import json
 import os
 import posixpath
 import re
+import shutil
 import stat
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 
 VERSION = 1
@@ -724,3 +731,566 @@ def render_roadmap(data: dict, file: str, roadmap: str) -> str:
         deps = ", ".join(item.get("depends_on", [])) or "-"
         out.append(f"| {item['order']} | {cell} | {word} | {size} | {deps} |")
     return "\n".join(out) + "\n"
+
+
+# --------------------------------------------------------------------------
+# The declaration (D-Declare)
+# --------------------------------------------------------------------------
+
+CONFIG_REL = "docs/ai-workflow/WORKFLOW_CONFIG.json"
+DEFAULT_ROADMAP = "docs/ROADMAP.md"
+ARTIFACTS_DIR = "docs/ai-workflow/registry"
+REPRESENTATIVE_ITEM_PAGE = DETAIL_PREFIX + "x.md"
+GENERATOR_TIMEOUT = 120
+_DECLARATION_KEYS = ("file", "roadmap", "generator")
+_DECLARATION_NEXT = ("correct the key as `docs/ai-workflow/BACKLOG_FILE.md` says, "
+                     "or remove it to leave the backlog")
+_RECOVERY = ("then run `python3 scripts/workflow_backlog.py accept {id}` "
+             "and continue the acceptance at step 4")
+_MISSING = object()
+
+
+def _declaration_error(message: str) -> BacklogError:
+    return BacklogError("declaration_invalid", message, _DECLARATION_NEXT)
+
+
+def _config_backlog(repo_root):
+    """The raw `backlog` value of the config, or `_MISSING` when the config is
+    absent, unreadable, unparsable, not an object or has no such key: all of
+    those mean undeclared (the script judges nothing else about the file)."""
+    try:
+        config = json.loads((Path(repo_root) / CONFIG_REL).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return _MISSING
+    if not isinstance(config, dict) or "backlog" not in config:
+        return _MISSING
+    return config["backlog"]
+
+
+def load_declaration(repo_root) -> dict | None:
+    """D-Declare: `None` when undeclared, else `{"file", "roadmap",
+    "generator"}` (`generator` is `None` or an argument vector); any breach is
+    `declaration_invalid`."""
+    raw = _config_backlog(repo_root)
+    if raw is _MISSING:
+        return None
+    if not isinstance(raw, dict):
+        raise _declaration_error("`backlog` must be an object with `file`, and optionally `roadmap` and `generator`")
+    unknown = sorted(set(raw) - set(_DECLARATION_KEYS))
+    if unknown:
+        raise _declaration_error(f"`backlog` has unknown key(s): {', '.join(unknown)}")
+    if "file" not in raw:
+        raise _declaration_error("`backlog.file` is required")
+    file = raw["file"]
+    roadmap = raw.get("roadmap", DEFAULT_ROADMAP)
+    for name, value in (("file", file), ("roadmap", roadmap)):
+        if not isinstance(value, str):
+            raise _declaration_error(f"`backlog.{name}` must be a string path")
+        problem = path_problem(repo_root, value)
+        if problem:
+            raise _declaration_error(f"`backlog.{name}`: {problem}")
+    if file == roadmap:
+        raise _declaration_error("`backlog.file` and `backlog.roadmap` must differ")
+    generator = raw.get("generator")
+    if "generator" in raw and (
+        not isinstance(generator, list) or not generator
+        or not all(isinstance(a, str) and a for a in generator)
+    ):
+        raise _declaration_error("`backlog.generator` must be a non-empty array of non-empty strings")
+    return {"file": file, "roadmap": roadmap, "generator": generator}
+
+
+def declared_paths(repo_root) -> list[str]:
+    """D-Classify's never-raising reader: the declared `file` and `roadmap`,
+    or an empty list when undeclared or invalid."""
+    try:
+        declaration = load_declaration(repo_root)
+    except Exception:  # noqa: BLE001 -- never raises, by contract
+        return []
+    return [] if declaration is None else [declaration["file"], declaration["roadmap"]]
+
+
+def protected_conflicts(paths, declaration) -> list[tuple[str, str]]:
+    """D-Classify's shared predicate: the `(stage, path)` pairs among `paths`
+    that an artifact `declaration` (its `plan_stage` and `implementation_stage`
+    halves) classifies as *protected*. A protected entry wins over an excluded
+    one, so such a path could not be edited by acceptance."""
+    found = []
+    for stage in ("plan_stage", "implementation_stage"):
+        half = declaration.get(stage) or {}
+        exact = set(half.get("protected_paths") or ())
+        prefixes = tuple(half.get("protected_prefixes") or ())
+        for path in paths:
+            if path in exact or (prefixes and path.startswith(prefixes)):
+                found.append((stage, path))
+    return found
+
+
+def _conflict_error(conflicts) -> BacklogError:
+    named = ", ".join(f"`{path}` ({stage.replace('_', ' ')})" for stage, path in conflicts)
+    return BacklogError(
+        "declaration_conflict",
+        f"the declared backlog paths are protected by the work item's artifact declaration: {named}",
+        "move the path out of the protected area in the `backlog` key "
+        "(`docs/backlog.yaml` and `docs/ROADMAP.md` are never protected), then retry",
+    )
+
+
+def check_declaration_conflict(repo_root, declaration, work_item_id: str) -> None:
+    """`declaration_conflict` against the work item's existing
+    `<id>-artifacts.json`; a work item with none (or an unreadable one) is not
+    checked."""
+    path = Path(repo_root) / ARTIFACTS_DIR / f"{work_item_id}-artifacts.json"
+    try:
+        artifacts = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return
+    if not isinstance(artifacts, dict):
+        return
+    conflicts = protected_conflicts(
+        [declaration["file"], declaration["roadmap"], REPRESENTATIVE_ITEM_PAGE], artifacts)
+    if conflicts:
+        raise _conflict_error(conflicts)
+
+
+# --------------------------------------------------------------------------
+# Files, snapshots and the page (D-Accept, D-Generate)
+# --------------------------------------------------------------------------
+
+_GEN_LINE_RE = re.compile(rb"^<!-- backlog-sha256: ([0-9a-f]{64}) -->$")
+_STAMPED_LINE_RE = re.compile(rb"^<!-- backlog-sha256: ([0-9a-f]{64}) page-sha256: ([0-9a-f]{64}) -->$")
+
+
+def _sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _abs(repo_root, rel) -> Path:
+    return Path(repo_root) / rel
+
+
+def _read_backlog(repo_root, declaration) -> tuple[bytes, dict, dict]:
+    path = _abs(repo_root, declaration["file"])
+    try:
+        mode = os.lstat(path).st_mode
+    except FileNotFoundError:
+        mode = None
+    if mode is None or not stat.S_ISREG(mode):
+        raise BacklogError(
+            "backlog_missing", f"the declared backlog file `{declaration['file']}` does not exist",
+            "create the file (`docs/ai-workflow/BACKLOG_FILE.md` has a starter), or remove the key")
+    raw = path.read_bytes()
+    data, lines = parse_and_validate(raw, repo_root, declaration["file"])
+    return raw, data, lines
+
+
+def _write_atomic(path: Path, data: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=".backlog-")
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+def _snapshot(path: Path) -> bytes | None:
+    """The bytes of a regular file, or `None` when nothing is there."""
+    try:
+        mode = os.lstat(path).st_mode
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(mode):
+        return None
+    return path.read_bytes()
+
+
+def _clear(path: Path) -> None:
+    """Remove whatever is at `path` (file, link or directory), if anything."""
+    try:
+        if os.path.isdir(path) and not os.path.islink(path):
+            shutil.rmtree(path)
+        elif os.path.lexists(path):
+            os.unlink(path)
+    except OSError:
+        pass
+
+
+def _restore(path: Path, snapshot: bytes | None) -> None:
+    if snapshot is None:
+        _clear(path)
+        return
+    if os.path.lexists(path) and not (os.path.isfile(path) and not os.path.islink(path)):
+        _clear(path)
+    _write_atomic(path, snapshot)
+
+
+def _split_lines(raw: bytes) -> list[bytes]:
+    """Lines split on LF alone, terminators kept; a last line without an LF is
+    a line."""
+    parts = raw.split(b"\n")
+    lines = [part + b"\n" for part in parts[:-1]]
+    if parts[-1]:
+        lines.append(parts[-1])
+    return lines
+
+
+def _marker_lines(raw: bytes) -> tuple[list[int], list[int], list[bytes]]:
+    lines = _split_lines(raw)
+    generator, stamped = [], []
+    for index, line in enumerate(lines):
+        body = line[:-1] if line.endswith(b"\n") else line
+        if _GEN_LINE_RE.match(body):
+            generator.append(index)
+        elif _STAMPED_LINE_RE.match(body):
+            stamped.append(index)
+    return generator, stamped, lines
+
+
+def _page_state(repo_root, declaration) -> bytes | None:
+    """The page's bytes when it is a regular file, `None` when absent; a
+    directory or other non-file at the path is `declaration_invalid`."""
+    path = _abs(repo_root, declaration["roadmap"])
+    try:
+        mode = os.lstat(path).st_mode
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(mode):
+        raise _declaration_error(f"`backlog.roadmap` `{declaration['roadmap']}` exists and is not a regular file")
+    return path.read_bytes()
+
+
+def _builtin_replaceable(page: bytes | None, declaration, replace: bool) -> None:
+    if page is None or replace:
+        return
+    text = page.decode("utf-8", errors="replace")
+    if not any(line.startswith(GENERATED_PREFIX) for line in text.split("\n")):
+        raise BacklogError(
+            "roadmap_not_generated",
+            f"`{declaration['roadmap']}` exists and was not generated by the Workflow",
+            "run `python3 scripts/workflow_backlog.py generate --replace` once "
+            "(the old page stays in Git history), commit it, retry")
+
+
+def _generator_failed(message: str) -> BacklogError:
+    return BacklogError("generator_failed", message,
+                        "fix the generator (the file and the page are restored), "
+                        "run `python3 scripts/workflow_backlog.py accept <id>`, "
+                        "and continue the acceptance at step 4")
+
+
+def _run_declared_generator(repo_root, declaration, file_bytes: bytes) -> None:
+    """Run the declared generator and enforce the freshness contract, then
+    stamp the page. Raises `generator_failed`; restoring is the caller's."""
+    digest = _sha(file_bytes)
+    env = dict(os.environ, WORKFLOW_BACKLOG_SHA256=digest)
+    try:
+        done = subprocess.run(declaration["generator"], cwd=str(repo_root), env=env, shell=False,
+                              capture_output=True, timeout=GENERATOR_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        raise _generator_failed(f"the declared generator timed out after {GENERATOR_TIMEOUT} s") from None
+    except OSError as exc:
+        raise _generator_failed(f"the declared generator could not run: {exc}") from None
+    shown = (done.stdout + done.stderr).decode("utf-8", errors="replace").strip()
+    if done.returncode != 0:
+        raise _generator_failed(f"the declared generator exited {done.returncode}" + (f":\n{shown}" if shown else ""))
+    if _abs(repo_root, declaration["file"]).read_bytes() != file_bytes:
+        raise _generator_failed("the declared generator changed the backlog file")
+    page_path = _abs(repo_root, declaration["roadmap"])
+    try:
+        mode = os.lstat(page_path).st_mode
+    except FileNotFoundError:
+        raise _generator_failed(f"the declared generator wrote no page at `{declaration['roadmap']}`") from None
+    if not stat.S_ISREG(mode):
+        raise _generator_failed(f"`{declaration['roadmap']}` is not a regular file after the generator ran")
+    raw = page_path.read_bytes()
+    generator_lines, stamped_lines, lines = _marker_lines(raw)
+    if stamped_lines:
+        raise _generator_failed("the page still carries a stamped `backlog-sha256` line: the generator must write "
+                                "its own line, not copy the previous one forward")
+    if len(generator_lines) != 1:
+        raise _generator_failed("the page must contain exactly one line `<!-- backlog-sha256: <digest> -->` "
+                                f"(found {len(generator_lines)}; a carriage-return line does not count)")
+    index = generator_lines[0]
+    line = lines[index]
+    body = line[:-1] if line.endswith(b"\n") else line
+    if _GEN_LINE_RE.match(body).group(1).decode() != digest:
+        raise _generator_failed("the page's `backlog-sha256` line is not the digest of the current backlog file "
+                                "(`WORKFLOW_BACKLOG_SHA256`)")
+    page_digest = _sha(b"".join(lines[:index] + lines[index + 1:]))
+    terminator = b"\n" if line.endswith(b"\n") else b""
+    stamp = f"<!-- backlog-sha256: {digest} page-sha256: {page_digest} -->".encode() + terminator
+    lines[index] = stamp
+    _write_atomic(page_path, b"".join(lines))
+
+
+def _generate_page(repo_root, declaration, data, file_bytes: bytes, *, replace: bool = False) -> str:
+    """Write the page; returns `"declared"` or `"built-in"`."""
+    if declaration["generator"]:
+        _page_state(repo_root, declaration)
+        _run_declared_generator(repo_root, declaration, file_bytes)
+        return "declared"
+    _builtin_replaceable(_page_state(repo_root, declaration), declaration, replace)
+    text = render_roadmap(data, declaration["file"], declaration["roadmap"])
+    _write_atomic(_abs(repo_root, declaration["roadmap"]), text.encode("utf-8"))
+    return "built-in"
+
+
+def _stale(message: str) -> BacklogError:
+    return BacklogError("roadmap_stale", message, "run `python3 scripts/workflow_backlog.py generate` and commit the page")
+
+
+def check_page(repo_root, declaration, data, file_bytes: bytes) -> None:
+    """`check`: raises `roadmap_stale` unless the page is fresh. Runs no user
+    code: a declared generator is verified from the Workflow's stamp."""
+    page_path = _abs(repo_root, declaration["roadmap"])
+    try:
+        mode = os.lstat(page_path).st_mode
+    except FileNotFoundError:
+        raise _stale(f"`{declaration['roadmap']}` does not exist") from None
+    if not stat.S_ISREG(mode):
+        raise _stale(f"`{declaration['roadmap']}` is not a regular file")
+    raw = page_path.read_bytes()
+    if not declaration["generator"]:
+        expected = render_roadmap(data, declaration["file"], declaration["roadmap"]).encode("utf-8")
+        if raw != expected:
+            have, want = raw.split(b"\n"), expected.split(b"\n")
+            first = next((i + 1 for i in range(max(len(have), len(want)))
+                          if i >= len(have) or i >= len(want) or have[i] != want[i]), 1)
+            raise _stale(f"`{declaration['roadmap']}` differs from the generated page at line {first}")
+        return
+    generator_lines, stamped_lines, lines = _marker_lines(raw)
+    if not stamped_lines:
+        raise _stale(f"`{declaration['roadmap']}` has no stamped `backlog-sha256` line"
+                     + (" (the marker is not stamped)" if generator_lines else ""))
+    if len(stamped_lines) > 1 or generator_lines:
+        raise _stale(f"`{declaration['roadmap']}` must carry exactly one stamped `backlog-sha256` line")
+    index = stamped_lines[0]
+    line = lines[index]
+    body = line[:-1] if line.endswith(b"\n") else line
+    file_digest, page_digest = (g.decode() for g in _STAMPED_LINE_RE.match(body).groups())
+    if file_digest != _sha(file_bytes):
+        raise _stale(f"the page was generated from a different `{declaration['file']}` (file digest mismatch)")
+    if page_digest != _sha(b"".join(lines[:index] + lines[index + 1:])):
+        raise _stale(f"`{declaration['roadmap']}` was edited after it was generated (page digest mismatch)")
+
+
+# --------------------------------------------------------------------------
+# The commands (D-Select, D-Accept, D-Generate)
+# --------------------------------------------------------------------------
+
+
+def _item(data: dict, item_id: str) -> dict:
+    for item in data["items"]:
+        if item["id"] == item_id:
+            return item
+    raise BacklogError(
+        "item_unknown", f"`{item_id}` is not an item of the backlog file",
+        "add an item with that id and status `in-progress` (an item in flight from before 2.17.0 also needs the "
+        "backlog paths classified: `docs/ai-workflow/BACKLOG_FILE.md`, \"Items in flight at adoption\")")
+
+
+def _acceptable(data: dict, item_id: str) -> dict:
+    item = _item(data, item_id)
+    if item["status"] == "idea":
+        raise BacklogError("status_not_acceptable", f"`{item_id}` is an `idea` and cannot be accepted",
+                           "set the item to `next`, then accept")
+    return item
+
+
+def _generator_resolvable(repo_root, declaration) -> None:
+    argv0 = declaration["generator"][0]
+    if "/" in argv0:
+        candidate = _abs(repo_root, argv0)
+        ok = candidate.is_file() and os.access(candidate, os.X_OK)
+    else:
+        ok = shutil.which(argv0) is not None
+    if not ok:
+        raise _generator_failed(f"the declared generator `{argv0}` cannot be found or executed")
+
+
+def cmd_status(repo_root) -> dict:
+    declaration = load_declaration(repo_root)
+    if declaration is None:
+        return {"declared": False}
+    out = {"declared": True, "file": declaration["file"], "roadmap": declaration["roadmap"],
+           "generator": declaration["generator"]}
+    try:
+        raw, data, _ = _read_backlog(repo_root, declaration)
+    except BacklogError as exc:
+        out.update(valid=False, error={"code": exc.code, "message": exc.message, "next_step": exc.next_step})
+        return out
+    counts = {status: 0 for status in STATUSES}
+    for item in data["items"]:
+        counts[item["status"]] += 1
+    out.update(valid=True, items=len(data["items"]), counts=counts)
+    try:
+        check_page(repo_root, declaration, data, raw)
+        out["roadmap_fresh"] = True
+    except BacklogError as exc:
+        out.update(roadmap_fresh=False, roadmap_problem=exc.message)
+    return out
+
+
+def cmd_next(repo_root) -> dict:
+    declaration = load_declaration(repo_root)
+    if declaration is None:
+        return {"declared": False}
+    _, data, _ = _read_backlog(repo_root, declaration)
+    return {"declared": True, "file": declaration["file"], **select_next(data)}
+
+
+def cmd_preflight_accept(repo_root, item_id: str) -> dict:
+    declaration = load_declaration(repo_root)
+    if declaration is None:
+        return {"declared": False}
+    check_declaration_conflict(repo_root, declaration, item_id)
+    raw, data, lines = _read_backlog(repo_root, declaration)
+    item = _acceptable(data, item_id)
+    set_status_text(raw.decode("utf-8"), data, lines, item_id, "done")
+    if declaration["generator"]:
+        try:
+            _generator_resolvable(repo_root, declaration)
+        except BacklogError as exc:
+            exc.next_step = exc.next_step.replace("<id>", item_id)
+            raise
+        _page_state(repo_root, declaration)
+    else:
+        _builtin_replaceable(_page_state(repo_root, declaration), declaration, False)
+    return {"declared": True, "ok": True, "item": item_id, "status": item["status"],
+            "paths": [declaration["file"], declaration["roadmap"]]}
+
+
+def _with_recovery(exc: BacklogError, item_id: str) -> BacklogError:
+    if "continue the acceptance at step 4" not in exc.next_step:
+        exc.next_step = f"{exc.next_step}, {_RECOVERY.format(id=item_id)}"
+    exc.next_step = exc.next_step.replace("<id>", item_id)
+    return exc
+
+
+def cmd_accept(repo_root, item_id: str, release: str | None = None) -> dict:
+    declaration = load_declaration(repo_root)
+    if declaration is None:
+        return {"declared": False}
+    file_path, page_path = _abs(repo_root, declaration["file"]), _abs(repo_root, declaration["roadmap"])
+    snapshots = None
+    try:
+        check_declaration_conflict(repo_root, declaration, item_id)
+        raw, data, lines = _read_backlog(repo_root, declaration)
+        _acceptable(data, item_id)
+        new_text = set_status_text(raw.decode("utf-8"), data, lines, item_id, "done", release)
+        new_bytes = new_text.encode("utf-8")
+        new_data, _ = parse_and_validate(new_bytes, repo_root, declaration["file"])
+        if not declaration["generator"]:
+            _builtin_replaceable(_page_state(repo_root, declaration), declaration, False)
+        snapshots = (raw, _snapshot(page_path))
+        if new_bytes != raw:
+            _write_atomic(file_path, new_bytes)
+        _generate_page(repo_root, declaration, new_data, new_bytes)
+    except BacklogError as exc:
+        if snapshots is not None:
+            _restore(file_path, snapshots[0])
+            _restore(page_path, snapshots[1])
+        raise _with_recovery(exc, item_id) from None
+    except BaseException:
+        if snapshots is not None:
+            _restore(file_path, snapshots[0])
+            _restore(page_path, snapshots[1])
+        raise
+    out = {"declared": True, "item": item_id, "status": "done",
+           "paths": [declaration["file"], declaration["roadmap"]]}
+    if release is not None:
+        out["release"] = release
+    return out
+
+
+def cmd_generate(repo_root, replace: bool = False) -> dict:
+    declaration = load_declaration(repo_root)
+    if declaration is None:
+        return {"declared": False}
+    raw, data, _ = _read_backlog(repo_root, declaration)
+    file_path, page_path = _abs(repo_root, declaration["file"]), _abs(repo_root, declaration["roadmap"])
+    snapshot = _snapshot(page_path)
+    try:
+        kind = _generate_page(repo_root, declaration, data, raw, replace=replace)
+    except BaseException:
+        _restore(file_path, raw)
+        _restore(page_path, snapshot)
+        raise
+    return {"declared": True, "generated": declaration["roadmap"], "generator": kind}
+
+
+def cmd_check(repo_root) -> dict:
+    declaration = load_declaration(repo_root)
+    if declaration is None:
+        return {"declared": False}
+    raw, data, _ = _read_backlog(repo_root, declaration)
+    check_page(repo_root, declaration, data, raw)
+    return {"declared": True, "fresh": True, "roadmap": declaration["roadmap"]}
+
+
+# --------------------------------------------------------------------------
+# Command line
+# --------------------------------------------------------------------------
+
+
+class _Parser(argparse.ArgumentParser):
+    def error(self, message):  # usage errors are exit 2, like a refusal
+        self.print_usage(sys.stderr)
+        sys.stderr.write(f"error: usage: {message}\n")
+        raise SystemExit(2)
+
+
+def _release_arg(value: str) -> str:
+    if not _RELEASE_RE.match(value):
+        raise argparse.ArgumentTypeError("`--release` must match [A-Za-z0-9][A-Za-z0-9._+-]{0,39}")
+    return value
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = _Parser(prog="workflow_backlog.py", description="The structured backlog file (workflow-2.17.0).")
+    parser.add_argument("--repo-root", default=None, help="the repository root (default: the parent of scripts/)")
+    sub = parser.add_subparsers(dest="command", required=True, parser_class=_Parser)
+    sub.add_parser("status")
+    sub.add_parser("next")
+    sub.add_parser("check")
+    pre = sub.add_parser("preflight-accept")
+    pre.add_argument("work_item_id")
+    acc = sub.add_parser("accept")
+    acc.add_argument("work_item_id")
+    acc.add_argument("--release", type=_release_arg, default=None)
+    gen = sub.add_parser("generate")
+    gen.add_argument("--replace", action="store_true")
+    return parser
+
+
+def main(argv=None) -> int:
+    args = build_parser().parse_args(argv)
+    root = Path(args.repo_root) if args.repo_root else Path(__file__).resolve().parent.parent
+    try:
+        if args.command == "status":
+            result = cmd_status(root)
+        elif args.command == "next":
+            result = cmd_next(root)
+        elif args.command == "check":
+            result = cmd_check(root)
+        elif args.command == "preflight-accept":
+            result = cmd_preflight_accept(root, args.work_item_id)
+        elif args.command == "accept":
+            result = cmd_accept(root, args.work_item_id, args.release)
+        else:
+            result = cmd_generate(root, args.replace)
+    except BacklogError as exc:
+        sys.stderr.write(f"error: {exc.code}: {exc.message}\nnext step: {exc.next_step}\n")
+        return 1 if exc.code == "roadmap_stale" else 2
+    sys.stdout.write(json.dumps(result, sort_keys=True) + "\n")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
