@@ -9395,12 +9395,12 @@
       "registry_path": "docs/ai-workflow/registry/backlog-file-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/backlog-file-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "APPLYING_REVIEW_FEEDBACK",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 6,
-      "implementation_revision": 4,
+      "implementation_revision": 5,
       "functional_review_round": null,
       "base_commit": "16b75316a317a5af39586fdf25ae0aa4c2fe5782",
-      "reviewed_implementation_head": "2ced521b4090ec9be1838b74bd4a9312265e9f11",
+      "reviewed_implementation_head": "986d49e2b993929fd38d49d8733b66b4a5e4899d",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP5",
       "checkpoints": {
@@ -9551,8 +9551,8 @@
           "external": 1
         }
       },
-      "state_revision": 42,
-      "last_transition": "2026-10-19T13:50:39Z",
+      "state_revision": 43,
+      "last_transition": "2026-10-19T14:12:22Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
