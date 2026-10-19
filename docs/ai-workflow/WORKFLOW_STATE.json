@@ -8223,7 +8223,7 @@
       "registry_path": "docs/ai-workflow/registry/conformance-sharding-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/conformance-sharding-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 5,
       "implementation_revision": 3,
       "functional_review_round": null,
@@ -8371,12 +8371,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 2,
-          "external": 0
+          "local": 3,
+          "external": 1
         }
       },
-      "state_revision": 36,
-      "last_transition": "2026-10-19T04:53:56Z",
+      "state_revision": 38,
+      "last_transition": "2026-10-19T05:12:07Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -8738,6 +8738,48 @@
               "at": "2026-10-19T04:46:08Z"
             }
           ]
+        },
+        "F-2d20d736689d": {
+          "digest": "2d20d736689d25ab5064150736285b0366c2ec56d8b58fddb70906e3952a21ea",
+          "text": "**LIR-R3-O01:** `docs/common-problems.md` explains \"not in the plan\" as \"a test module that changed between planning and running\". That cannot produce this label: `run` refuses a module whose loaded ids differ from the plan, and the shard then reports \"no complete shard file\". In practice \"not in the plan\" is a class-level fixture event that `unittest` reports under an id like `setUpClass (module.Class)`: a `setUpClass` error, or a `SkipTest` raised there, which plan section 2.4 declares a gate failure. I reproduced the `SkipTest` case. Consider rewording it in the next release that touches the page: a class-level fixture failed or skipped, so fix the fixture, or use the `@unittest.skip` class decorator.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "350e98421405d3cf36e26ee7df51b9c67a63c7c7d6da7463f1a5242ea714a588",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T05:01:15Z"
+            }
+          ]
+        },
+        "F-2cf1e66fc4ba": {
+          "digest": "2cf1e66fc4ba6068926c428cfceb4c1c2dffc071cff8622fcb596a27e8ee811d",
+          "text": "**LIR-R2-O01 (carried, disposition accepted):** the wording \"the shard check exited 0 without a failing shard row\" for a bad `total` row with a zero exit is confusing. The implementer's reason for deferring it holds: `check` never produces that combination, and the change would refresh the digest.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "350e98421405d3cf36e26ee7df51b9c67a63c7c7d6da7463f1a5242ea714a588",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T05:01:15Z"
+            }
+          ]
+        },
+        "F-88f8ecabbff9": {
+          "digest": "88f8ecabbff92f3db108daf1ffc85d08781c89203e7b1ec5d6c9b57d8e6580c2",
+          "text": "**EIR-R1-O01:** `docs/common-problems.md:304` attributes “not in the plan” to a module changing between planning and execution. The runner refuses changed loaded IDs earlier. Class-level fixture errors or `SkipTest` events can produce this diagnostic; describe those cases instead. This carries forward the local reviewer’s observation.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "350e98421405d3cf36e26ee7df51b9c67a63c7c7d6da7463f1a5242ea714a588",
+              "verdict": "REVISE",
+              "at": "2026-10-19T05:12:07Z"
+            }
+          ]
         }
       },
       "amendment_history": [
@@ -8854,7 +8896,20 @@
           "resolved_review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4"
         }
       ],
-      "amendment_base_commit": "1023bce40e233ac79c0dff0e990b3d962033707f"
+      "amendment_base_commit": "1023bce40e233ac79c0dff0e990b3d962033707f",
+      "implementation_review_stages": {
+        "review_content_id": "350e98421405d3cf36e26ee7df51b9c67a63c7c7d6da7463f1a5242ea714a588",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "d3154b4554a75594009b434fcd4b8f8d520aec47257574d4dba24effce44f5b9",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-19T05:01:15Z",
+          "verdict_sha256": "c2c8cb70090bf2e86e59bed2e25803978a7e8225c9f4282709ca36aa23191fb2",
+          "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
+      }
     }
   }
 }
