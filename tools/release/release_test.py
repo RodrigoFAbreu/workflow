@@ -711,7 +711,7 @@ class ConformanceTemplate(unittest.TestCase):
         "        self.assertTrue(@FAIL@)\n")
 
     def run_body(self, fail=(), uncopyable=False, shards=0, width_cap=4, failing_test=False,
-                 acceptance_extra=""):
+                 acceptance_extra="", check_stub=""):
         tmp = Path(tempfile.mkdtemp(prefix="conformance-job-"))
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
         ws, runner, counter = tmp / "ws", tmp / "runner", tmp / "counter"
@@ -746,9 +746,30 @@ class ConformanceTemplate(unittest.TestCase):
         env = dict(os.environ, GITHUB_WORKSPACE=str(ws), RUNNER_TEMP=str(runner),
                    GITHUB_STEP_SUMMARY=str(summary))
         body = self.with_constants(self.step_body(), width_cap, shards)
+        if check_stub:
+            body = self.stub_check(check_stub) + body
         proc = subprocess.run(["bash", "-eo", "pipefail", "-c", body],
                               env=env, capture_output=True, text=True, cwd=tmp)
         return proc, ws, runner, counter, summary.read_text() if summary.exists() else ""
+
+    @staticmethod
+    def stub_check(output):
+        """A shell function standing in for `shards.py check`: prints `output`, exits 1."""
+        return ("python3() { if [ \"$2\" = check ]; then printf '%b' " + repr(output)
+                + "; return 1; fi; command python3 \"$@\"; }\n")
+
+    def assert_check_verdict_fails_the_job(self, run_body):
+        # `check` dies after its total row, or exits non-zero after reporting ok: the exit
+        # status is the tool's own verdict and must fail the job whatever rows follow.
+        for output in ("total\\t7\\t0\\t2\\t0\\tbad\\n", "total\\t7\\t7\\t2\\t0\\tok\\n"):
+            with self.subTest(output=output):
+                proc, ws, runner, counter, summary = run_body(shards=2, check_stub=output)
+                self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+                self.assertIn("suite(s) failed", proc.stdout)
+                self.assertIn("| FAILED (", summary)
+
+    def test_sharded_step_fails_when_the_check_verdict_is_bad_without_any_shard_row(self):
+        self.assert_check_verdict_fails_the_job(self.run_body)
 
     def test_step_body_all_pass(self):
         proc, ws, runner, counter, summary = self.run_body()
@@ -1357,7 +1378,7 @@ class SourceConformanceRunner(unittest.TestCase):
         return body[start:body.index("\nPY\n", start) + 1]
 
     def run_body(self, fail=(), uncopyable=False, nproc=None, drop_result=(), shards=0,
-                 width_cap=4, failing_test=False, acceptance_extra=""):
+                 width_cap=4, failing_test=False, acceptance_extra="", check_stub=""):
         tmp = Path(tempfile.mkdtemp(prefix="source-conformance-"))
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
         runner, counter = tmp / "runner", tmp / "counter"
@@ -1392,6 +1413,8 @@ class SourceConformanceRunner(unittest.TestCase):
         body = ConformanceTemplate.with_constants(self.body, width_cap, shards)
         if nproc is not None:
             body = f"nproc() {{ echo {nproc}; }}\n" + body
+        if check_stub:
+            body = ConformanceTemplate.stub_check(check_stub) + body
         if drop_result:
             # A suite that dies without recording a result: its result file never appears.
             body = body.replace('echo "$status $((SECONDS - start))" >"$d/result"',
@@ -1401,6 +1424,9 @@ class SourceConformanceRunner(unittest.TestCase):
         proc = subprocess.run(["bash", "-eo", "pipefail", "-c", body], env=env,
                               capture_output=True, text=True, cwd=tmp)
         return proc, fixture, runner, counter, summary.read_text() if summary.exists() else ""
+
+    def test_sharded_step_fails_when_the_check_verdict_is_bad_without_any_shard_row(self):
+        ConformanceTemplate.assert_check_verdict_fails_the_job(self, self.run_body)
 
     def peaks(self, counter):
         return [int(p.read_text()) for p in counter.iterdir() if p.name.startswith("peak-")]

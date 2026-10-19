@@ -825,9 +825,9 @@
     {
       "target_path": ".github/workflows/workflow-conformance.yml",
       "location": "templates/.github/workflows/workflow-conformance.yml",
-      "sha256": "e907e9d223b8ac3e5303327d064be355cad19058e483b17210140395044643bb",
-      "size": 15826,
-      "derivation": "generated: the frozen ci.yml's seven hermetic Workflow suite steps, lifted out of RepFlow's interleaved Gradle jobs; W1 (workflow-2.7.0) adds an eighth step, workflow_protocol_test.py; W2 (workflow-2.8.0) adds a ninth, workflow_gate_policy_test.py; W5 (workflow-2.10.0) cancels a pull request's superseded run and runs the nine suites in parallel inside the one job W12 (workflow-2.16.0, conformance-sharding) runs the acceptance suite in four shards of whole test classes in the one queue under the one width limit, with a coverage gate over the recorded test ids, shard rows and the shard logs in the diagnostic upload"
+      "sha256": "eeab4ac3ef43c79d6758e763568b57b8c80616012f3902726f1bedc889fd4b6a",
+      "size": 16213,
+      "derivation": "generated: the frozen ci.yml's seven hermetic Workflow suite steps, lifted out of RepFlow's interleaved Gradle jobs; W1 (workflow-2.7.0) adds an eighth step, workflow_protocol_test.py; W2 (workflow-2.8.0) adds a ninth, workflow_gate_policy_test.py; W5 (workflow-2.10.0) cancels a pull request's superseded run and runs the nine suites in parallel inside the one job; W12 (workflow-2.16.0, conformance-sharding) runs the acceptance suite in four shards of whole test classes in the one queue under the one width limit, with a coverage gate over the recorded test ids, shard rows and every shard log in the job log"
     },
     {
       "target_path": ".gitignore.workflow-fragment",

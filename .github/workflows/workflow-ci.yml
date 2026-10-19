@@ -492,8 +492,8 @@ jobs:
           passed_unit() { echo "::group::$2 passed in ${3}s"; cat "$base/$1/log"; echo "::endgroup::"; row "$2" passed "$3"; }
           failed_unit() { failed=$((failed + 1)); echo "::error title=$2 failed::$4"; cat "$base/$1/log" 2>/dev/null || true; row "$2" "FAILED ($5)" "$3"; }
           report_acceptance() {
-            checked=0
-            python3 "$base/shards.py" check --plan "$base/plan.json" --base "$base" >"$base/check.out" 2>"$base/check.err" || true
+            checked=0; total_bad=0; rc=0; before=$failed
+            python3 "$base/shards.py" check --plan "$base/plan.json" --base "$base" >"$base/check.out" 2>"$base/check.err" || rc=$?
             while IFS=$'\t' read -r kind a b c d e; do
               case "$kind" in
                 total)
@@ -501,17 +501,20 @@ jobs:
                   if [ "$e" = ok ]; then
                     row "$acceptance" "passed ($c shards, $b tests)" "$d"; echo "coverage: expected $a, recorded $b"
                   else
-                    row "$acceptance" "FAILED (see the shard rows)" "$d"; echo "coverage: expected $a, recorded $b"
+                    total_bad=1; row "$acceptance" "FAILED (see the shard rows)" "$d"; echo "coverage: expected $a, recorded $b"
                   fi ;;
                 shard)
                   if [ "$d" = ok ]; then passed_unit "$a" "$b" "$c"; else failed_unit "$a" "$b" "$c" "$e" "$e"; fi ;;
                 global)
-                  failed=$((failed + 1)); echo "::error title=acceptance coverage failed::$a"; row acceptance "FAILED ($a)" 0 ;;
+                  failed=$((failed + 1)); echo "::error title=acceptance coverage failed::$a"; row "$acceptance" "FAILED ($a)" 0 ;;
               esac
             done <"$base/check.out"
             if [ "$checked" -eq 0 ]; then
               failed=$((failed + 1)); echo "::error title=acceptance check failed::the shard check did not run"; cat "$base/check.err"
               row "$acceptance" "FAILED (the shard check did not run)" 0
+            elif [ "$failed" -eq "$before" ] && { [ "$rc" -ne 0 ] || [ "$total_bad" -eq 1 ]; }; then
+              failed=$((failed + 1)); echo "::error title=acceptance check failed::the shard check exited $rc without a failing shard row"; cat "$base/check.err"
+              row "$acceptance" "FAILED (the shard check exited $rc)" 0
             fi
           }
           { echo "| suite | result | seconds |"; echo "| --- | --- | --- |"; } >>"$GITHUB_STEP_SUMMARY"
