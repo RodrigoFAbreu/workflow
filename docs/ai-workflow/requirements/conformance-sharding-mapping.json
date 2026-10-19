@@ -3,7 +3,7 @@
   "work_item_id": "conformance-sharding",
   "requirements": {
     "R1": {
-      "description": "A measured decision on GitHub runners (2 vs 4 workers, sharded vs not) taken only from evidence that passed the runner-validity and comparability checks, recorded in the evidence file before any later checkpoint builds on it; no gain is an accepted outcome and ships only what helped",
+      "description": "A measured decision on GitHub runners (sharded at widths 3 and 4 against unsharded, compared only on the same CPU type) taken only from evidence that passed the runner-validity and same-CPU comparability checks, recorded in the evidence file before any later checkpoint builds on it; no gain is an accepted outcome and ships only what helped",
       "checkpoint_ids": [
         "CP1",
         "CP2"

@@ -8223,8 +8223,8 @@
       "registry_path": "docs/ai-workflow/registry/conformance-sharding-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/conformance-sharding-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AMENDING_PLAN",
-      "plan_revision": 4,
+      "phase": "IMPLEMENTING",
+      "plan_revision": 5,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "971ea16c8a3b3e9f8180517a6d45118eceadc4d9",
@@ -8237,37 +8237,37 @@
           "start_commit": "f021cd1c4979579ad140a55cff7845604491276a"
         }
       },
-      "current_bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+      "current_bundle_id": "3a6b5094f344c156af5dc011f15cc2de0cca2366494bb02e31cdcec8d3e33987",
       "plan_approval": {
-        "status": "SUPERSEDED",
+        "status": "CURRENT",
         "basis": "POLICY_SATISFIED",
-        "reviewed_bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
-        "approved_review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+        "reviewed_bundle_id": "3a6b5094f344c156af5dc011f15cc2de0cca2366494bb02e31cdcec8d3e33987",
+        "approved_review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4",
         "review_content_manifest": [
           {
             "path": "docs/ai-workflow/CONFORMANCE_SHARDING_PLAN.md",
             "exists": true,
             "mode": "100644",
-            "blob": "d85d9f9eec3c7d6b7cb5e7e750264417671aed81"
+            "blob": "d0520d44cd02abcb2928e292ee9c185dbd305552"
           },
           {
             "path": "docs/ai-workflow/registry/conformance-sharding-registry.json",
             "exists": true,
             "mode": "100644",
-            "blob": "c91bd8652dc22626746a708f02170a28ac04e592"
+            "blob": "31aa3619009b6d068386d8e83c1aeb431456616a"
           },
           {
             "path": "docs/ai-workflow/requirements/conformance-sharding-mapping.json",
             "exists": true,
             "mode": "100644",
-            "blob": "65d2789f46c3ad52d0f757cf9a7332393269471f"
+            "blob": "2ebfdfe31647b895099527031cf7689bbb9919c0"
           }
         ],
         "reviewed_content_commit": null,
         "legacy_evidence": null,
         "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
         "waived_guarantees": [],
-        "recorded_at": "2026-10-18T23:01:38Z",
+        "recorded_at": "2026-10-19T00:52:05Z",
         "policy_evidence": {
           "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
           "policy_source": "default",
@@ -8297,23 +8297,23 @@
             }
           ],
           "inputs": {
-            "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+            "review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4",
             "ledger": {
               "local": {
-                "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+                "bundle_id": "3a6b5094f344c156af5dc011f15cc2de0cca2366494bb02e31cdcec8d3e33987",
                 "verdict": "APPROVE",
-                "round": 4,
-                "verdict_sha256": "c55b68c885f6e0ee4331932580e6bf5a69e45c82764e7a32a8f2de3b1e46b908",
-                "ledger_entry_sha256": "a4d18092f6fb70061081fcde4074c32f9737c6b1299c51051a0e810ae690313e",
+                "round": 5,
+                "verdict_sha256": "eb81e4b0428e247cfdd04a42d6677b807065695e9b8f0ca61c01baf33ab733b1",
+                "ledger_entry_sha256": "935a7ea51466f6c43ed0de1b5e46e940a1238835eb33d1473b2b415bca441a11",
                 "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
                 "reviewer_model": "anthropic/claude-opus-5-5"
               },
               "manual": {
-                "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+                "bundle_id": "3a6b5094f344c156af5dc011f15cc2de0cca2366494bb02e31cdcec8d3e33987",
                 "verdict": "APPROVE",
-                "round": 4,
-                "verdict_sha256": "f210bea07faadddc430ef5844e037e2cd041f5988befe48407195b745dd3f15f",
-                "ledger_entry_sha256": "9cd5347b5a66a11d115bba8df8d90d25d6d343a86998cd46660242777257ff13",
+                "round": 5,
+                "verdict_sha256": "274c9de9daf68b27c898aa9e80cf308116f6e69295bf63e486a660adbab6a236",
+                "ledger_entry_sha256": "c3d579d197b3ed78c82928a92e3adb8ca6bb1eb239d8935eee58dee297cb5d85",
                 "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
                 "reviewer_model": "openai/gpt-6.1-sol"
               }
@@ -8324,29 +8324,29 @@
           "trust": {
             "review_verdicts": "orchestrator"
           },
-          "evaluated_at": "2026-10-18T23:01:38Z",
+          "evaluated_at": "2026-10-19T00:52:05Z",
           "workflow_release": "2.15.0"
         }
       },
       "technical_approval": null,
       "technical_review_block_pins": [],
       "plan_review_stages": {
-        "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
+        "review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4",
         "LOCAL_MODEL_PLAN_REVIEW": {
-          "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+          "bundle_id": "3a6b5094f344c156af5dc011f15cc2de0cca2366494bb02e31cdcec8d3e33987",
           "verdict": "APPROVE",
-          "round": 4,
-          "completed_at": "2026-10-18T22:57:11Z",
-          "verdict_sha256": "c55b68c885f6e0ee4331932580e6bf5a69e45c82764e7a32a8f2de3b1e46b908",
+          "round": 5,
+          "completed_at": "2026-10-19T00:47:18Z",
+          "verdict_sha256": "eb81e4b0428e247cfdd04a42d6677b807065695e9b8f0ca61c01baf33ab733b1",
           "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "anthropic/claude-opus-5-5"
         },
         "MANUAL_EXTERNAL_PLAN_REVIEW": {
-          "bundle_id": "412719df9e95f6e4b1bd035a1ef8fc4dfb4f9262640e12eb1e633c85494f790c",
+          "bundle_id": "3a6b5094f344c156af5dc011f15cc2de0cca2366494bb02e31cdcec8d3e33987",
           "verdict": "APPROVE",
-          "round": 4,
-          "completed_at": "2026-10-18T23:00:53Z",
-          "verdict_sha256": "f210bea07faadddc430ef5844e037e2cd041f5988befe48407195b745dd3f15f",
+          "round": 5,
+          "completed_at": "2026-10-19T00:51:13Z",
+          "verdict_sha256": "274c9de9daf68b27c898aa9e80cf308116f6e69295bf63e486a660adbab6a236",
           "run_ref": "session:local .ai-review/conformance-sharding/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
@@ -8355,27 +8355,34 @@
       "blocking_decisions": [],
       "review_round_counts": {
         "plan": {
-          "local": 4,
-          "external": 2
+          "local": 5,
+          "external": 3
         },
         "implementation": {
           "local": 0,
           "external": 0
         }
       },
-      "state_revision": 19,
-      "last_transition": "2026-10-19T00:37:07Z",
+      "state_revision": 25,
+      "last_transition": "2026-10-19T00:52:05Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
-        "status": "CONSUMED",
-        "at": "2026-10-19T00:37:07Z",
+        "status": "BOUND",
+        "at": "2026-10-19T00:43:06Z",
         "consumed": {
           "review_content_id": "46f77666bb9618521ab23c53f0e70f21720bb681e1921949a91ac5af26ff36f7",
           "plan_revision": 4,
           "legacy": false
         },
-        "published": null,
-        "bound": null
+        "published": {
+          "review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4",
+          "plan_revision": 5
+        },
+        "bound": {
+          "review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4",
+          "bundle_id": "3a6b5094f344c156af5dc011f15cc2de0cca2366494bb02e31cdcec8d3e33987",
+          "plan_revision": 5
+        }
       },
       "consumed_plan_review_content_ids": [
         "097cf209fdeacfddbc14b1a53ac8aba3c7704a04e2d1967c6e419609d7afc335",
@@ -8579,6 +8586,62 @@
               "at": "2026-10-18T22:57:11Z"
             }
           ]
+        },
+        "F-008fd4dd9915": {
+          "digest": "008fd4dd9915dfe8ec1dde334b80851873f46fa62f62c321a360783f49ed05ca",
+          "text": "**LPR-R5-O01 -- A job with no step result has no stated classification.** Section 3.2\n  defines a valid run (V1, V3 and a succeeded step) and a run that failed a gate, which\n  rejects the candidate (rule 4) or, for v1, makes the measurement inconclusive. It does not\n  say what a job is that recorded no step result at all: cancelled, runner lost, or no job\n  record for `collect.py` to read. If the validator treats it as a gate failure, a hosted\n  runner incident rejects a candidate for good (and can lead to O3); for v1 it ends the\n  measurement. Consider stating that a job with no recorded step result is invalid\n  (preserved, listed, covered by the top-up rounds), while a step that ran and failed a gate\n  keeps rule 4's consequence. Then add one self-check for each case.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T00:47:18Z"
+            }
+          ]
+        },
+        "F-f2582fb45f6f": {
+          "digest": "f2582fb45f6fe605a35f85f85e9fefd2790524389cfce667d98a67374a45757e",
+          "text": "**LPR-R5-O02 -- State the precedence between `passes` and a gate failure.** A candidate\n  can show the gain on two qualifying types in the same round in which another of its runs\n  fails a gate. The status definition then satisfies both `passes` and `rejected`. Rule 4\n  (\"a candidate with a run that failed a gate is rejected\") implies rejected wins. Saying so\n  in the status bullet, and adding the case to CP2's self-checks, would make the validator\n  unambiguous.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T00:47:18Z"
+            }
+          ]
+        },
+        "F-3aae040b835f": {
+          "digest": "3aae040b835f60ef052b5ba29612300b8b487eb0de59f15ba4aa96b2b88925f8",
+          "text": "**LPR-R5-O03 -- Section 7's \"a decision inside the noise is 'no change'\" is now only half\n  true.** Under revision 5, a candidate within the margin fails and can be rejected (toward\n  O3). A cell whose spread exceeds V4 instead leaves the candidate undecided and can end\n  inconclusive, which is not \"no change\". Consider rewording.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T00:47:18Z"
+            }
+          ]
+        },
+        "F-0ddae68cbad4": {
+          "digest": "0ddae68cbad4139ea04da29471d94afcbc1479e43efbfab2f23638acd63e5699",
+          "text": "**LPR-R5-O04 -- The image version is part of the runner type.** If the rounds straddle a\n  GitHub image rollout, runs of earlier rounds stop pairing with later ones. Each top-up\n  re-runs v1, so this is not unsafe, but it can waste top-up rounds. Consider having the\n  README say to run the rounds back to back, or noting it under section 7's inconclusive\n  risk.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4",
+              "verdict": "APPROVE",
+              "at": "2026-10-19T00:47:18Z"
+            }
+          ]
         }
       },
       "amendment_history": [
@@ -8685,7 +8748,14 @@
             }
           },
           "pre_amendment_approval_commit": "33191acf23455771e6542513d234225b919a77c9",
-          "resolved_at_plan_revision": null
+          "resolved_at_plan_revision": 5,
+          "reconciliation_outcome": {
+            "CP1": "retained",
+            "CP2": "needs_revalidation",
+            "CP3": "needs_revalidation",
+            "CP4": "needs_revalidation"
+          },
+          "resolved_review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4"
         }
       ],
       "amendment_base_commit": "1023bce40e233ac79c0dff0e990b3d962033707f"

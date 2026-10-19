@@ -1,4 +1,4 @@
-# W12: Workflow 2.16.0 — acceptance-matrix sharding and the managed conformance width (Revision 4)
+# W12: Workflow 2.16.0 — acceptance-matrix sharding and the managed conformance width (Revision 5)
 
 - **Work item:** `conformance-sharding` (`process`, governing version `2.2`)
 - **Requested by:** the Manager Super Orchestrator; the owner's item C
@@ -9,7 +9,8 @@
 - **Base commit:** `971ea16` (main after #54: the release source is Workflow 2.15.0;
   this repository's own installation is also 2.15.0, automatic gates, default `2.2`,
   no `GATE_POLICY.json`)
-- **Plan revision:** 4. Every checkpoint section carries its
+- **Plan revision:** 5, a plan amendment after the first measurement came back
+  inconclusive (section 3.4). Every checkpoint section carries its
   `<!-- CPn -->`/`<!-- /CPn -->` pair.
 
 ## 1. Goal
@@ -25,9 +26,9 @@ This milestone **measures first and builds on the measurement**:
 1. Build, as a candidate in the managed template, the scheduling the owner asked for:
    the acceptance suite split into shards of whole test classes, run as processes inside
    the one job, under one global worker limit.
-2. Measure on GitHub runners, nothing merged, the managed step's wall time with two
-   widths and with and without sharding (section 3). Record the numbers before anything
-   else builds on them.
+2. Measure on GitHub runners, nothing merged, the managed step's wall time unsharded and
+   sharded (widths 3 and 4), comparing variants only on the same CPU type (section 3).
+   Record the numbers before anything else builds on them.
 3. Ship exactly what the numbers support, as Workflow 2.16.0 (a template change,
    `feat:` for the minor bump), and apply the same scheduling to this repository's own
    release-source conformance where it helps, without weakening a check.
@@ -52,9 +53,11 @@ This milestone **measures first and builds on the measurement**:
 | Outcome | When | What ships |
 |---|---|---|
 | O1 | sharding passes the rule | the sharded template with the measured width and shard count; the same scheduling in this repository's CI; release 2.16.0 |
-| O2 | sharding fails the rule, a lower width passes it | the template with the new width only (the candidate sharding is removed again); the same width in this repository's CI (CP3, declared proxy); release 2.16.0 |
-| O3 | neither passes | the template bytes return to 2.15.0 exactly; the evidence file is the only deliverable; **no release is built** (no manifest change, no 2.16.0, the payload and its `WORKFLOW_RELEASE` stay at 2.15.0), row 15 is marked Done as "measured, no change" |
-| none | the measurement is **inconclusive** (section 3.3: no valid evidence after the bounded replacements) | no outcome is selected; CP2 is not completed; the worker reports and stops, and the orchestrator raises it to the owner (a re-measure or a re-plan). Incompatible evidence never selects O1, O2 or O3 |
+| O3 | sharding is rejected | the template bytes return to 2.15.0 exactly; the evidence file is the only deliverable; **no release is built** (no manifest change, no 2.16.0, the payload and its `WORKFLOW_RELEASE` stay at 2.15.0), row 15 is marked Done as "measured, no change" |
+| none | the measurement is **inconclusive** (section 3.3: not enough same-CPU evidence after the bounded top-up rounds) | no outcome is selected; CP2 is not started (section 5, CP2); the orchestrator raises it to the owner (a re-measure or a re-plan). Incompatible evidence never selects O1 or O3 |
+
+Revision 5 measures no width-2 variant, so the former outcome O2 (a width change without
+sharding) can no longer be selected and is removed; the ids O1 and O3 keep their meaning.
 
 **Lifecycle path of each outcome** (the state machine has no "not applicable"
 checkpoint, so the path is named here and CP2 states it again, outcome-neutrally):
@@ -62,7 +65,6 @@ checkpoint, so the path is named here and CP2 states it again, outcome-neutrally
 | Outcome | Path from CP2 to the end of the milestone |
 |---|---|
 | O1 | CP2, CP3 and CP4 are implemented in order; no amendment. |
-| O2 | The same: CP2 sets the width, CP3 aligns the CI width, CP4 releases. No amendment. There is no "O2 without CI" outcome: the CI width follows the managed-step measurement as a declared proxy (CP3). |
 | O3 | At the end of CP2 (`COMPLETE`, template restored, evidence recorded) the orchestrator runs `/request-plan-amendment conformance-sharding` from `IMPLEMENTING`. The amended plan drops CP3 and CP4 from the registry, and its requirements mapping no longer lists R4 and R5 (and states that R2 is not delivered because the measurement rejected sharding); the amended plan is reviewed (local, then manual external) and approved with `/approve-review plan`, whose reconciliation removes CP3 and CP4 from the live map and leaves CP2, whose section is unchanged, `COMPLETE`. The milestone then proceeds to `SELF_REVIEWING_IMPLEMENTATION`, technical approval and `/accept-milestone` with CP1 and CP2 as its checkpoints. |
 
 CP2's section is written so that it needs no change under any of these paths; an
@@ -159,10 +161,11 @@ shard's seconds); the shard rows follow it.
 - The partition balances by test count, not time. If the evidence shows the largest class
   bounds the wall time, that is recorded and no finer split is attempted (a class is
   never split).
-- The 60 s-scale runner variance of GitHub is handled by two repetitions of each
-  variant and a margin in the rule, not by a statistical test.
+- The 60 s-scale runner variance of GitHub, and its mix of CPU models, are handled by
+  comparing timings only between runs of the same CPU model, three repetitions per
+  variant, bounded top-up rounds and a margin in the rule, not by a statistical test.
 
-## 3. The measurement, its validity and the decision rule (fixed before the numbers exist)
+## 3. The measurement, its validity and the decision rule (fixed before the revision 5 measurement)
 
 ### 3.1 What is measured
 
@@ -171,111 +174,144 @@ over this repository's own tree (its installed scripts are the payload consumers
 once per variant and repetition, each on its own `ubuntu-latest` runner. The sharded
 variants' step text is the template's run block with only its two constants replaced
 (`width_cap` `W` and shard count `N`; CP1 makes each constant appear on exactly one line
-so the replacement is exact and tested). The **control variants** are not the candidate
-template: they are the 2.15.0 step text itself (`git show 971ea16:templates/.github/workflows/workflow-conformance.yml`)
-with exactly one line changed so that V3 can read their peak (`echo "start $1"` becomes
-`echo "start $1 running K"`, `K` the units running including this one), and, for v2 only,
-the width line `width=$(nproc); [ "$width" -gt 4 ] && width=4` with both `4` replaced by
-`2`. Variants:
+so the replacement is exact and tested). The **control variant** v1 is not the candidate
+template: it is the 2.15.0 step text itself (`git show 971ea16:templates/.github/workflows/workflow-conformance.yml`)
+with exactly one line changed so that V3 can read its peak (`echo "start $1"` becomes
+`echo "start $1 running K"`, `K` the units running including this one). Variants:
 
 | Variant | W | N | Meaning |
 |---|---:|---:|---|
-| v1 | 4 | 0 | today: the 2.15.0 step, unsharded (equal to it but for the `start` line) |
-| v2 | 2 | 0 | today's step with width 2 (equal to the 2.15.0 step but for the `start` line and the width line) |
-| v3 | 4 | 4 | sharded, 4 shards, up to 4 processes |
-| v4 | 4 | 8 | sharded, 8 shards, up to 4 processes |
-| v5 | 3 | 4 | sharded, 4 shards, up to 3 processes |
-| v6 | 2 | 4 | sharded, 4 shards, up to 2 processes |
+| v1 | 4 | 0 | the control: today's 2.15.0 step, unsharded (equal to it but for the `start` line) |
+| v3 | 4 | 4 | candidate: sharded, 4 shards, up to 4 processes |
+| v4 | 4 | 8 | candidate: sharded, 8 shards, up to 4 processes |
+| v5 | 3 | 4 | candidate: sharded, 4 shards, up to 3 processes |
 
-Each is run twice (repetitions a and b): 12 jobs, `max-parallel` 6, `fail-fast` false.
-Each job records `nproc`, the CPU model and the image version, the step's start and
-end, each unit's seconds (the step prints `done <unit> exit S in Ns`), the peak number of
-units running at once (the step prints `start <unit> running K` as it starts each unit,
-and the largest `K` is the peak) and, for the sharded variants, the coverage line
-(`expected T, recorded T`). A sharded variant that fails any gate is a failed
-measurement and is reported, not retried silently. Whether a job's evidence may be
-compared at all is decided first, by section 3.3.
+The width-2 variants of revision 4 (v2 unsharded, v6 sharded) are dropped: the first
+measurement (section 3.4) showed no gain at width 2. The remaining ids are kept so that
+both measurements read alike.
+
+A **round** runs each variant it enables three times (repetitions a, b and c), each job on
+its own runner, `max-parallel` 6, `fail-fast` false. The first round enables the four
+variants (12 jobs); a top-up round (section 3.3) enables v1 and the candidates still
+undecided, with the content otherwise byte-identical. Each job records `nproc`, the CPU
+model and the image version, the step's start and end, each unit's seconds (the step
+prints `done <unit> exit S in Ns`), the peak number of units running at once (the step
+prints `start <unit> running K` as it starts each unit, and the largest `K` is the peak)
+and, for the candidates, the coverage line (`expected T, recorded T`).
 
 The orchestrator pushes the prepared content to the throwaway branch
 `measure/conformance-sharding`, whose workflow triggers on pushes to `measure/**` only
 (so it never runs on `main` or a pull request), reads the results with `gh run view`,
-and deletes the branch. Workers never push. CP1 prepares the content and the exact
-commands; CP2 records the numbers.
+and deletes the branch when the measurement ends. Workers never push. CP1 prepared the
+kit; CP2 adapts it to this revision before anything is measured, then records the numbers.
 
 ### 3.2 The rule
 
-It is applied only to evidence that section 3.3 declared valid. Let `T(v)` be the median over the two repetitions of the wall seconds of the step.
+Definitions, applied to the runs of every round so far:
 
-1. **Sharding is adopted** only if the best sharded variant `s` (lowest `T` among v3 to
-   v6) and the best unsharded variant `u` (lowest `T` of v1, v2) satisfy
-   `T(s) <= 0.85 * T(u)` **and**, repetition by repetition, `s` is faster than `u`
-   (repetition a against repetition a, b against b). Otherwise sharding is rejected.
-2. **Width and shard count:** within the adopted family, take the smallest `W` (and then
-   the smallest `N`) whose `T` is within 5% of the family's best `T` **and which itself
-   satisfies both conditions of rule 1** against `u` (the best variant `s` does, by
-   construction, so a choice always exists). Fewer processes leave the runner less
-   contended and are the safer default.
-3. **If sharding is rejected**, the width becomes 2 only if `T(v2) <= 0.90 * T(v1)` in
-   the median and v2 is faster than v1 in both repetitions (a gain, not a tie: a release
-   must have a reason). Otherwise the width stays 4 and the outcome is O3.
-4. Sharded runs also must cover every id (gate 3). A variant that failed a gate is
-   excluded from the comparison and listed.
+- A run's **runner type** is its recorded (`nproc`, CPU model string, image version)
+  triple. Timings are compared only between runs of the same runner type, never across
+  CPU models, `nproc` or images (`D-Same-CPU`).
+- A run is **valid** when it passes V1 and V3 (section 3.3) and its step succeeded with,
+  for a candidate, full coverage (gate 3). Every valid run counts; no run is chosen or
+  dropped by its timing.
+- The **cell** `(v, c)` is the set of valid runs of variant `v` on runner type `c`;
+  `M(v, c)` is the median of their step walls.
+- The **same-CPU pairs** of candidate `s` on `c` number `P(s, c) = min(n(v1, c), n(s, c))`,
+  `n` the number of valid runs in the cell.
+- `c` **qualifies** for `s` when `P(s, c) >= 2` and both cells `(v1, c)` and `(s, c)`
+  pass V4.
+- On a qualifying `c`, `s` **shows the gain** when `M(s, c) <= 0.85 * M(v1, c)` (the 15%
+  threshold, applied per runner type) **and** the slowest valid run of `s` on `c` is faster
+  than the fastest valid run of v1 on `c` (so every same-CPU pair favours `s`, whichever
+  way the runs are paired). Otherwise `s` **fails** on `c`.
+- After each round every candidate not yet decided gets a **status**: **passes** when at
+  least two runner types qualify for it and it shows the gain on every one of them;
+  **rejected** when it fails on at least one qualifying runner type, or a run of it failed
+  a gate (rule 4); **undecided** otherwise (fewer than two qualifying runner types, each
+  showing the gain). A `passes` or `rejected` status is final once reached; only undecided
+  candidates are evaluated again, on all their valid runs so far.
+
+The rules:
+
+1. **Sharding is adopted (O1)** when, after the last round, at least one candidate passes.
+2. **Width and shard count:** each passing candidate's score `G(s)` is the largest
+   `M(s, c) / M(v1, c)` over its qualifying runner types, from the round in which it
+   passed (its worst same-CPU ratio). Among the passing candidates, take the smallest `W`
+   (then the smallest `N`) whose `G` is within 5% of the best: `G(s) <= 1.05 * min G`.
+   An undecided or rejected candidate is never chosen. Fewer processes leave the runner
+   less contended and are the safer default.
+3. **Sharding is rejected (O3)** when every candidate is rejected. The width stays 4 and
+   the template returns to 2.15.0.
+4. Candidate runs also must cover every id (gate 3). A candidate with a run that failed a
+   gate is rejected and listed. A v1 run whose suites failed makes the measurement
+   inconclusive (the control is broken; section 3.3).
 
 The comparison is the step's wall time, because that is what sets the pull-request
 finish. Runner-minutes equal wall time in one job and are not separately weighed.
 
-### 3.3 Runner validity and comparability (checked before any outcome is selected)
+### 3.3 Validity, top-up rounds and the inconclusive result (checked before any outcome is selected)
 
-The two-versus-four-worker comparison means something only if the runners offered the
-width each variant names and are comparable to each other. `W` is capped by `nproc`
-(`min(W, nproc)`), so a smaller runner silently turns "4 workers" into 2. These checks
-are evaluated by the measurement kit's validator from the recorded job facts, **before**
-the rule of section 3.2 is read, and they are fixed now:
+These checks are evaluated by the measurement kit's validator from the recorded job
+facts, before the rule of section 3.2 is read, and they are fixed now:
 
-| Id | Requirement | A job or variant that fails it |
+| Id | Requirement | A run or cell that fails it |
 |---|---|---|
-| V1 | `nproc` is at least 4 on every job. | invalid |
-| V2 | Every job of the comparison has the same `nproc`, the same CPU model string and the same image version as the others. | the (`nproc`, CPU model, image) triple shared by more than half of all the jobs of the comparison is the reference; a job whose triple differs from it is invalid; with no such strict majority the measurement is inconclusive at once |
-| V3 | The recorded peak of units running at once equals `min(W, nproc)` of the variant (every variant queues at least that many units: nine, or the shards plus eight), so the intended width was actually exercised. | invalid |
-| V4 | A variant's two used repetitions differ by at most 20% of their median. | the variant is invalid (the margins of rule 1 cannot be told from the noise); the consequence is stated under "V4 failure" below |
+| V1 | `nproc` is at least 4. | the run is invalid |
+| V2 | Revision 5 replaces revision 4's requirement that more than half of all jobs share one (`nproc`, CPU model, image) triple with the per-runner-type comparison of section 3.2: a run is compared only with runs of its own runner type, and no run is invalid for its runner type. | not applicable |
+| V3 | The recorded peak of units running at once equals `min(W, nproc)` of the variant (every variant queues at least that many units: nine, or the shards plus eight), so the intended width was actually exercised. | the run is invalid |
+| V4 | The valid runs of a cell (two or more) differ by at most 20% of their median (largest minus smallest). | the cell is noisy: its runner type does not qualify for that variant, and a noisy v1 cell disqualifies the runner type for every candidate; its runs are kept and listed |
 
 **Invalid runs are preserved.** The evidence file lists every invalid run with its run id,
 job, the facts that failed and the check, and keeps its timings marked `invalid, not
 used`. An invalid run never enters a median.
 
-**Replacement.** A (variant, repetition) invalid under V1 to V3 or V2 is re-run on a
-fresh runner by a new push to the throwaway branch that enables only the replaced jobs
-(the kit takes the list of jobs; the replaced content is otherwise byte-identical). At
-most two replacements are made per (variant, repetition), whatever their cause (V1 to V3,
-V2 or V4). The first replacement that passes V1 to V3 and V2 is the one used; a
-replacement is never chosen or dropped by its timing. V4 is then evaluated on the used
-runs of each variant.
+**Top-up rounds (the replacements).** Hosted runners cannot be asked for a CPU model, so a
+runner type with too few same-CPU pairs is filled by running more, never by choosing
+runs. When, after a round, any candidate is undecided and no v1 run has failed its suites,
+the orchestrator runs a top-up round: a new push to the throwaway branch that enables v1
+and every undecided candidate, three repetitions each (the kit takes the list of variants;
+the content is otherwise byte-identical). Invalid runs are not replaced one by one; the
+top-up rounds cover them. At most **three** top-up rounds are run, so four rounds and at
+most 12 runs of each variant in all. The measurement ends after the first round in which
+no candidate is undecided, or after the third top-up round.
 
-**V4 failure.** When a variant's used repetitions differ by more than 20%, **both**
-repetitions are replaced as a pair (a pair replacement counts as one replacement of each
-of the two slots), never only the slower, the faster or the outlier: which one is replaced
-is not decided by timing. The replaced runs are preserved as invalid; the new pair is checked
-against V1 to V3, V2 and V4 again. If the variant still fails V4 when the replacement
-bound is spent:
+**The decision is reached** after the last round, in this order:
 
-- a **control** (v1, v2) makes the measurement **inconclusive**, so rule 3 can never
-  select an outcome from a control that cannot be made valid;
-- a **sharded** variant (v3 to v6) is **excluded and listed**, as under rule 4, and is
-  never selected as `s` or as rule 2's choice. If this leaves no sharded variant and any
-  was excluded by V4, the measurement is **inconclusive** (the noise, not the idea, is
-  unresolved); if every sharded variant was excluded by gate failures alone, sharding is
-  rejected and rule 3 applies.
+1. a v1 run failed its suites: **inconclusive**;
+2. at least one candidate passes: **O1**, by rules 1 and 2 (an undecided candidate is listed
+   and never chosen);
+3. every candidate is rejected: **O3**;
+4. otherwise (no candidate passes and at least one is still undecided after the third
+   top-up round): **inconclusive**.
 
-**No valid evidence is not an outcome.** If any (variant, repetition) still has no valid
-run after two replacements, V2 cannot be met across the used runs, or a control variant
-fails V4 (or all sharded variants are lost to V4) as stated above, the measurement is
-**inconclusive**: no outcome (O1, O2 or O3) is selected from it, the evidence file records
-`inconclusive` and why, CP2 is not completed, and the worker reports and stops for the
-orchestrator and the owner. The only way to an outcome is a valid set.
+**Inconclusive is not an outcome.** No outcome (O1 or O3) is selected from it, CP2 is not
+started (section 5, CP2), and the orchestrator raises it to the owner (a re-measure or a
+re-plan). The only way to an outcome is the rule above.
 
 Rejection and O3 are acceptable outcomes; this plan has no preferred result. Expectation
 only, not a decision: four vCPUs and 609 s serial against 1,068 s contended suggest the
 acceptance suite is a poor use of a four-way wide queue, so a gain is plausible.
+
+### 3.4 The first measurement (run 39176546521, revision 4's rule)
+
+The orchestrator ran revision 4's measurement as run 39176546521 on
+`RodrigoFAbreu/workflow` (throwaway branch `measure/conformance-sharding`; job records kept
+outside the repository). All 12 jobs succeeded and every sharded job recorded 415 of 415
+test ids. The validator reported **inconclusive**: V2, no (`nproc`, CPU model, image)
+triple was held by more than half of the jobs. CPU models: AMD EPYC 7763 on five jobs, AMD
+EPYC 9V74 on three, Intel Xeon Platinum 8573C on three, AMD EPYC 9V45 on one; every job
+had `nproc` 4 and image 20261012.334.1.
+
+Same-CPU pairs, indicative only (one pair each): on the EPYC 7763, v1 1,197 s against
+v3 994 s, v4 1,033 s and v5 985 s; on the Xeon 8573C, v1 1,031 s against v4 832 s and
+v5 747 s. At width 2, v2 took 972 and 995 s (EPYC 9V74 only, with no same-CPU control) and
+v6 952 s (9V74) and 1,144 s (7763): no gain.
+
+**Disposition.** CP2 records this run in the evidence file as inconclusive under
+revision 4's rule. Its runs do **not** count toward revision 5's rule: this rule was fixed
+after those numbers were seen, the run had two repetitions per variant, and its pairs are
+one run each, so a fresh measurement under the fixed rule decides.
 
 ## 4. Decisions
 
@@ -290,6 +326,7 @@ acceptance suite is a poor use of a four-way wide queue, so a gain is plausible.
 | D-Evidence-File | The measured numbers are written to `docs/ai-workflow/CONFORMANCE_SHARDING_EVIDENCE.md` (CP2), not into this plan: the numbers do not exist at plan time, and a record of data is not design. This plan states the rule; the file states the numbers and which outcome they select, and the reviewers check one against the other. The file is a reviewed deliverable and is protected at the implementation stage (section 9), so technical approval binds it. Under O3 an amendment does happen (section 1), to drop CP3 and CP4; it is a change of scope, not a data record, and does not touch CP2. |
 | D-Commit-Type | A template change releases as a minor, 2.16.0, titled `feat:`; the manifest's version change agrees (`release.py check-title ... --agree`). |
 | D-Release-Identity | The package builder refuses a release whose `WORKFLOW_RELEASE` (`payload/scripts/workflow_protocol.py:49`) differs from the manifest version (`tools/release/package.py`, `check_release_constant`; a scratch bump to 2.16.0 alone fails with `WORKFLOW_RELEASE = '2.15.0', but the manifest version is '2.16.0'`). A 2.16.0 release therefore must bump the constant, the assertions that pin it (`payload/scripts/workflow_protocol_test.py`, the `describe` test and `test_the_release_constant_and_the_protocol_version`) and the manifest digests of the payload files it touches. This is release-identity bookkeeping, not a behaviour change: the build guard stays as it is, the installed tree stays untouched, and O3 builds no release and leaves the 2.15.0 payload bytes as they are. |
+| D-Same-CPU | Timings are compared only between runs of the same runner type (`nproc`, CPU model, image), never across CPU models (revision 5, the owner's option A of 2026-10-19, after the first measurement mixed four CPU models). Hosted runners cannot be asked for a CPU model, so missing same-CPU evidence is filled by more runs (top-up rounds), never by choosing runs. |
 | D-Downgrade | A template change only (plus the release-identity bookkeeping of `D-Release-Identity`, which changes no behaviour): no state key, phase, configuration or commit shape changes. Moving back to 2.15.0 is `workflow-manager update` to 2.15.0 and restores the 2.15.0 template; nothing remains behind and nothing is undetectable. The `manager` block says so, `signals` empty, `min_manager_version` stays `1.13.0` (the Manager reads the same `suites=` line and the same template record shape). |
 
 No row of the repository's open-decision register is finalized here.
@@ -429,33 +466,80 @@ acceptance run (415 tests, the same skipped ids and reasons).
 `templates/.github/workflows/workflow-conformance.yml`,
 `tools/release/release_test.py`.
 
-- The orchestrator runs the measurement from the kit and gives the worker the run
-  identities and the raw per-job numbers.
-- The evidence file records: the run ids and the branch commit, `nproc`, CPU and image of
-  each job, the peak units running, the per-variant step wall for both repetitions, each
-  unit's seconds, the coverage lines, any failed variant, the validity result V1 to V4
-  per job and variant (section 3.3) with every invalid run and every replacement
-  preserved and marked, the median `T(v)` table over the valid runs only, the application
-  of the section 3.2 rule step by step, the selected outcome (O1, O2 or O3) and its
-  constants, or `inconclusive` with its cause and no outcome (then CP2 stops, section
-  3.3).
+CP1's kit description is the revision 4 kit; revision 5's sections 3.1 to 3.3 replace it,
+and CP2 brings the kit to them before anything is measured.
+
+**No checkpoint start that cannot finish.** CP2 runs as two dispatches, and the CP2 start
+is recorded only when the measurement has selected an outcome:
+
+1. **Preparation** (no checkpoint start or claim is recorded, and no repository path
+   changes: the kit lives outside the repository, at its CP1 location
+   `~/scratch-conformance-sharding/kit`). The worker updates `generate.py` and
+   `validate.py` (and `collect.py`, `selfcheck.py` and the `README.md` where the new
+   record shape and commands need it) to revision 5's sections 3.1 to 3.3, runs the
+   kit's self-checks, and **stops before measuring**, reporting that the kit is ready, the
+   self-check results, and that nothing was measured or recorded. The self-checks cover,
+   with synthetic job records:
+   - `generate.py` emits v1, v3, v4 and v5 only, repetitions a, b and c (12 jobs), and a
+     top-up workflow enabling exactly the variants it is given, otherwise byte-identical;
+     the v1 control differs from the real 2.15.0 step by exactly the `start` line, and the
+     check fails when any further line differs;
+   - runs of different runner types are never compared (v1 on one CPU model only and a
+     candidate on another only leave the candidate undecided); a differing `nproc` or
+     image is a different runner type;
+   - qualification at one same-CPU pair (does not qualify) and at two (qualifies); V1
+     (`nproc` 2) and V3 (a peak below `min(W, nproc)`) invalidate the run; a V4-noisy
+     candidate cell disqualifies its runner type for that candidate, a noisy v1 cell for
+     every candidate;
+   - the 15% threshold per runner type at exactly 0.85 (gain) and just above it (fails);
+     the slowest-candidate-against-fastest-control condition failing alone;
+   - the gain on two runner types passes; on one only, undecided; a failure on one
+     qualifying runner type rejects even with gains on two others; a status, once
+     reached, is not re-evaluated;
+   - the top-up list names v1 and only the undecided candidates; no fourth top-up round is
+     ever requested;
+   - rule 2 picks the smallest `W`, then `N`, within 5% of the best `G`, and never an
+     undecided or rejected candidate;
+   - the decision order of section 3.3: a failed v1 run gives inconclusive; one passing
+     and one undecided candidate after the bound give O1 from the passing one; every
+     candidate rejected (including by gate failures alone) gives O3; no candidate passing
+     with one undecided after the bound gives inconclusive.
+2. **Measurement** (the orchestrator): the first round and any top-up rounds, from the
+   kit, until `validate.py` prints `status: decided` or `status: inconclusive`.
+3. **Recording**, only after `status: decided`: the orchestrator starts CP2 and the worker
+   records the evidence and applies the outcome, as below. After `status: inconclusive`
+   CP2 is never started: no `IN_PROGRESS` entry or claim exists to release, and the
+   orchestrator raises the result to the owner. A worker that finds CP2 already
+   `IN_PROGRESS` without a decided result does not continue: it reports the state as the
+   case of workflow#55 and stops.
+
+The recording:
+
+- The evidence file records: the first measurement as section 3.4 states it
+  (inconclusive under revision 4's rule, its runs not counted); then, for revision 5's
+  measurement, the run ids and branch commit of every round, `nproc`, CPU model and image
+  of each job, the peak units running, each job's step wall and each unit's seconds, the
+  coverage lines, any failed run, the validity result V1, V3 and V4 per run and cell with
+  every invalid run preserved and marked, the per-runner-type table (cells, medians,
+  same-CPU pairs, qualification, ratios, gain or failure), each candidate's status after
+  each round, the top-up rounds run, the application of the section 3.2 rule step by
+  step, and the selected outcome (O1 or O3) with its constants.
   Nothing in the file is estimated; a number not measured is written as not measured.
 - The template is then set by the outcome: O1 keeps the sharded scheduler with the
-  chosen `width_cap` and `shards`; O2 removes the candidate sharding again and edits only
-  the width; O3 restores the 2.15.0 template bytes (the file equals
+  chosen `width_cap` and `shards`; O3 restores the 2.15.0 template bytes (the file equals
   `git show 971ea16:templates/.github/workflows/workflow-conformance.yml`) and stops:
   CP3 and CP4 are then not implemented: the worker reports the outcome and stops, and
   the orchestrator takes the O3 path of section 1 (`/request-plan-amendment` dropping
   CP3 and CP4), so the milestone is closed with the evidence as its deliverable.
-  Under O1 and O2 the next checkpoint is CP3; no amendment is needed.
-- `release_test.py`: the constants' pins match the outcome (the width, and for O1 the
-  shard count); for O2 and O3 the sharding tests of CP1 are removed with the sharding
-  (the 2.15.0 tests apply again, with the width the outcome selects).
+  Under O1 the next checkpoint is CP3; no amendment is needed.
+- `release_test.py`: the constants' pins match the outcome (for O1 the width and the
+  shard count); for O3 the sharding tests of CP1 are removed with the sharding (the
+  2.15.0 tests apply again).
 
 **Verification:** the same as CP1; the validator's output is attached to the evidence and
-its V1 to V4 results are reproducible from the recorded job facts; the evidence's selected
-outcome is reproducible from its own table by the rule (a reviewer recomputes the medians
-over the valid runs).
+its V1, V3 and V4 results are reproducible from the recorded job facts; the evidence's
+selected outcome is reproducible from its own per-runner-type table by the rule (a reviewer
+recomputes the medians over the valid runs).
 <!-- /CP2 -->
 
 <!-- CP3 -->
@@ -464,20 +548,18 @@ over the valid runs).
 **Files:** `.github/workflows/workflow-ci.yml`, `tools/release/release_test.py`,
 `docs/RELEASING.md`.
 
-Applies to O1 and O2 (under O3 it is dropped by amendment, section 1).
+Applies to O1 (under O3 it is dropped by amendment, section 1).
 
 The managed-step measurement is a **proxy** for this job: `release-source-conformance`
 runs the same suites on the same `ubuntu-latest` runner class and is not itself measured.
-Under O1 it takes the scheduling and the constants the evidence selected; under O2 it
-takes only the selected width (`width_cap`) and none of the sharding.
+It takes the scheduling and the constants the evidence selected.
 
-- Under O1, `release-source-conformance` gets the same scheduling over the staged fixture instead
+- `release-source-conformance` gets the same scheduling over the staged fixture instead
   of the checkout: the same shards, the same single limit, the same coverage gate, the
   heredoc text byte-identical to the template's (D-Same-Text), the same constants. It
   keeps `release.py stage-conformance --commit HEAD`, the 60-minute timeout, the
   diagnostic `source-conformance-logs` upload (it now also holds the shard logs and
   result files), and `aggregate` is untouched. Never the installed `scripts/`.
-- Under O2 the step's width cap changes and `release_test.py` pins it; the rest below is O1 only.
 - `release_test.py` extends `WorkflowCI` the way CP1 extended `ConformanceTemplate`: the
   actual step body with stand-in suites, a failing shard, the equality of the embedded
   Python text with the template's, and the unchanged triggers, permissions, concurrency
@@ -497,7 +579,7 @@ nine payload suites, and a local run of the CI step body against a staged fixtur
 `payload/scripts/workflow_protocol.py`, `payload/scripts/workflow_protocol_test.py`,
 `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`.
 
-Applies to O1 and O2 (under O3 it is dropped by amendment, section 1).
+Applies to O1 (under O3 it is dropped by amendment, section 1).
 
 - The release identity (`D-Release-Identity`): `WORKFLOW_RELEASE` in
   `payload/scripts/workflow_protocol.py` becomes `"2.16.0"`; the two assertions at
@@ -524,7 +606,7 @@ Applies to O1 and O2 (under O3 it is dropped by amendment, section 1).
   `check-manager-block --commit HEAD` then agrees.
 - `docs/release-history.md`: a 2.16.0 row with the outcome, the measured numbers, the
   release-identity note (the payload changes only its release constant), the downgrade posture and what stays open (#30 part 2, #31, #39, #45, #52, #48, #50).
-- `docs/common-problems.md` (O1 only; under O2 there is no sharding to describe): how to read a sharded conformance failure (the shard name,
+- `docs/common-problems.md`: how to read a sharded conformance failure (the shard name,
   the original ids and the unfolded shard log) and what "missing shard" means.
 - Documents whose header names 2.15.0 are re-checked and bumped as
   `tools/docs/check_docs.py` requires. `docs/ROADMAP.md` is marked Current now and Done
@@ -552,18 +634,20 @@ release steps above. The measurement itself (CP2) is the only step that needs Gi
 
 ## 7. Risks
 
-- **The measurement is noisy** (shared runners). Two repetitions per variant, a 15%
-  margin to adopt and a 5% tie band; a decision inside the noise is "no change".
+- **The measurement is noisy** (shared runners). Three repetitions per variant, timings
+  compared only on the same CPU type, a 15% margin per CPU type, the gain required on two
+  CPU types and a 5% tie band; a decision inside the noise is "no change".
 - **The runners are not comparable, or smaller than assumed.** A two-CPU runner turns
-  `min(W, nproc)` into 2 for every variant. Section 3.3 checks `nproc`, the CPU model, the
-  image, the peak width actually reached and the repetition spread before the rule is
-  read; invalid runs are kept and replaced a bounded number of times; a set that cannot
-  be made valid is inconclusive and selects nothing.
-- **The measurement may well end inconclusive.** Hosted `ubuntu-latest` pools mix CPU
-  models, and V2 requires one `nproc`, CPU model and image across at least 12 jobs, with
-  two replacements per slot; V4 adds a spread test. An inconclusive result is a realistic
-  outcome, not an edge case. It is safe (no outcome is selected, CP2 stops, the
-  orchestrator raises it to the owner), and the owner should expect to possibly re-run.
+  `min(W, nproc)` into 2 for every variant, and hosted pools mix CPU models (four in the
+  first measurement, section 3.4). Section 3.3 checks `nproc`, the peak width actually
+  reached and the spread within each same-CPU cell; section 3.2 never compares runs of
+  different runner types; invalid runs are kept and covered by at most three top-up rounds.
+- **The measurement may still end inconclusive.** Each candidate needs two CPU types with
+  two same-CPU pairs each. The first measurement's spread (five, three, three and one jobs
+  of 12 over four CPU models) suggests two types are reachable within the top-up rounds,
+  but a rare or noisy pool can leave a candidate undecided. An inconclusive result is
+  safe: no outcome is selected, CP2 is never started, and the orchestrator raises it to
+  the owner.
 - **Sharding changes test order between classes.** Mitigation: classes already build
   their own disposable repositories; a dependency would fail the measurement runs and
   the local equivalence run before anything ships.
@@ -580,7 +664,7 @@ release steps above. The measurement itself (CP2) is the only step that needs Gi
 
 | Id | Requirement | Checkpoints |
 |---|---|---|
-| R1 | A measured decision on GitHub runners (2 vs 4 workers, sharded vs not) taken only from evidence that passed the runner-validity and comparability checks, recorded in the evidence file before any later checkpoint builds on it; no gain is an accepted outcome and ships only what helped | CP1, CP2 |
+| R1 | A measured decision on GitHub runners (sharded at widths 3 and 4 against unsharded, compared only on the same CPU type) taken only from evidence that passed the runner-validity and same-CPU comparability checks, recorded in the evidence file before any later checkpoint builds on it; no gain is an accepted outcome and ships only what helped | CP1, CP2 |
 | R2 | If adopted, acceptance sharding by whole classes inside the one managed job under one global limit, the required check name unchanged, every test id exactly once (inherited tests, skips and subtests included), failures naming the shard and the original ids, and any failed, missing or incomplete shard failing the job | CP1, CP2 |
 | R3 | The managed template's width set from the measurement, and PR cancellation of superseded runs (main pushes never cancelled) kept and pinned | CP1, CP2 |
 | R4 | The same scheduling in this repository's own release-source conformance where it helps, without weakening any check | CP3 |
@@ -616,3 +700,4 @@ otherwise.
 | 2 | Review round 1 (`LPR-R1-I01` to `-I03`, `-O01` to `-O06`): the lifecycle path of each outcome is named (section 1; O2 always aligns the CI width as a declared proxy, so there is no O2-without-CI); the evidence file and `workflow-ci.yml` are protected at the implementation stage (section 9); the `setUpClass` `SkipTest` rule is stated, declared and pinned (sections 2.1, 2.4, CP1); rule 2 requires the chosen variant to satisfy rule 1; `plan` refuses module hooks; real-module pins compare with the module and the manifest. No finding rejected. |
 | 3 | External review round 1 (`EPR-R1-I01`, `-I02`): CP4 now carries the release-identity bookkeeping the package build requires (`WORKFLOW_RELEASE`, its two assertions, the manifest `workflow_version` and digests; `D-Release-Identity`), and the "template only" claims are qualified; section 3.3 adds runner-validity and comparability checks V1 to V4 evaluated before the decision rule, preserved invalid runs, bounded replacements, an inconclusive result that selects no outcome, the step's `start <unit> running K` line for V3, and the kit validator with its own checks (CP1, CP2). No finding rejected. |
 | 4 | Local review round 3 (`LPR-R3-I01`, `-I02`, `-O01` to `-O03`): the control variants are defined as the 2.15.0 step text with only the `start` line (and v2's width line) changed, so the kit's textual diff can pass and is exercised against the real files (3.1, CP1); every V1 to V4 failure has a stated consequence, V4 replacing both repetitions as a pair, a control failing V4 or all sharded variants lost to V4 being inconclusive, a sharded variant failing V4 being excluded (3.3, CP1 self-checks); V2's majority is across all jobs; CP4 names the three `ORCHESTRATION_PROTOCOL.md` edits and section 5 is corrected; section 7 names the likelihood of an inconclusive result. No finding rejected. |
+| 5 | Plan amendment after the first measurement (run 39176546521) came back inconclusive under V2 (four CPU models, no majority triple); the owner chose option A on 2026-10-19. Dispositions: (1) timings are compared only within one (`nproc`, CPU model, image) runner type and V2 is replaced by the per-runner-type rule (3.2, 3.3, `D-Same-CPU`); V1, V3, V4 (now per same-CPU cell) and the coverage gate are kept; (2) three repetitions per variant (3.1); (3) v2 and v6 are dropped, with them the outcome O2 (section 1, CP3, CP4, R1); v1 is the control and v3, v4, v5 are kept as candidates, each showed a same-CPU gain in the first run; (4) the decision under mixed CPU models is fixed: two same-CPU pairs per qualifying CPU type, the gain (15% per type, every pair favouring the candidate) on at least two types and on every qualifying type, at most three top-up rounds that re-run v1 and the undecided candidates, and the stated inconclusive cases (3.2, 3.3); (5) run 39176546521 is recorded as inconclusive under revision 4's rule and does not count (3.4); (6) CP2 prepares the kit without a checkpoint start, stops before measuring, and is started only after a decided result, so an inconclusive result leaves no `IN_PROGRESS` residue (workflow#55). CP1 (`COMPLETE`) is unchanged; its kit description is superseded by CP2's preparation. |
