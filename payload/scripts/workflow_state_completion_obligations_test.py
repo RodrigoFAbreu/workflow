@@ -32,6 +32,7 @@ import multiprocessing
 import os
 import re
 import shutil
+import stat
 import subprocess
 import tempfile
 import textwrap
@@ -3147,6 +3148,8 @@ class BacklogCli(unittest.TestCase):
             code, err = d.refused("next")
             self.assertEqual(code, "backlog_invalid")
             self.assertIn("docs/backlog.yaml:", err)
+            self.assertIn("docs/ai-workflow/BACKLOG_FILE.md", err.split("next step: ", 1)[1])
+            self.assertIn("scripts/workflow_backlog.py check", err)
         with _Decl(text=_SIMPLE_BACKLOG.replace("in-progress", "idea").replace("next", "idea")) as d:
             self.assertEqual(d.refused("next")[0], "no_ready_item")
             self.assertEqual(d.refused("preflight-accept", "alpha")[0], "status_not_acceptable")
@@ -3193,6 +3196,26 @@ class BacklogCli(unittest.TestCase):
             d.ok("generate", "--replace")
             d.ok("check")
             d.ok("generate")
+
+    def test_a_refusal_preserves_the_modes_of_the_existing_files(self):
+        with _Decl() as d:
+            d.write("docs/ROADMAP.md", "# Roadmap\n\nprose\n")
+            paths = [d.root / "docs" / "backlog.yaml", d.root / "docs" / "ROADMAP.md"]
+            for path in paths:
+                os.chmod(path, 0o644)
+            for args in (["generate"], ["accept", "alpha"]):
+                self.assertEqual(d.refused(*args)[0], "roadmap_not_generated")
+                self.assertEqual([stat.S_IMODE(os.stat(p).st_mode) for p in paths], [0o644, 0o644])
+
+    def test_a_successful_write_preserves_the_modes_of_the_existing_files(self):
+        with _Decl() as d:
+            d.write("docs/ROADMAP.md", "# Roadmap\n\nprose\n")
+            paths = [d.root / "docs" / "backlog.yaml", d.root / "docs" / "ROADMAP.md"]
+            for path in paths:
+                os.chmod(path, 0o664)
+            d.ok("generate", "--replace")
+            d.ok("accept", "alpha", "--release", "2.17.0")
+            self.assertEqual([stat.S_IMODE(os.stat(p).st_mode) for p in paths], [0o664, 0o664])
 
     def test_accept_edits_only_status_and_release_and_is_idempotent(self):
         with _Decl() as d:

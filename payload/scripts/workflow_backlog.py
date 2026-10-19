@@ -56,7 +56,8 @@ _KEY_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):(.*)$")
 _RESERVED = {"true", "false", "null", "yes", "no", "on", "off", "y", "n"}
 _PLAIN_FORBIDDEN = "[]{},"
 
-_NEXT_CHECK = "fix those lines, then run `python3 scripts/workflow_backlog.py check`"
+_NEXT_CHECK = ("fix those lines as `docs/ai-workflow/BACKLOG_FILE.md` says, "
+               "then run `python3 scripts/workflow_backlog.py check`")
 
 
 class BacklogError(Exception):
@@ -889,11 +890,27 @@ def _read_backlog(repo_root, declaration) -> tuple[bytes, dict, dict]:
     return raw, data, lines
 
 
+def _publish_mode(path: Path) -> int:
+    """The permission bits a published file carries: those of the regular file
+    it replaces, else the process's usual default for a new file."""
+    try:
+        info = os.lstat(path)
+    except FileNotFoundError:
+        info = None
+    if info is not None and stat.S_ISREG(info.st_mode):
+        return stat.S_IMODE(info.st_mode)
+    umask = os.umask(0)
+    os.umask(umask)
+    return 0o666 & ~umask
+
+
 def _write_atomic(path: Path, data: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    mode = _publish_mode(path)
     fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=".backlog-")
     try:
         with os.fdopen(fd, "wb") as handle:
+            os.fchmod(handle.fileno(), mode)
             handle.write(data)
         os.replace(tmp, path)
     except BaseException:
@@ -933,6 +950,12 @@ def _restore(path: Path, snapshot: bytes | None) -> None:
         return
     if os.path.lexists(path) and not (os.path.isfile(path) and not os.path.islink(path)):
         _clear(path)
+    else:
+        try:
+            if path.read_bytes() == snapshot:
+                return  # untouched: a refusal before any mutation rewrites nothing
+        except OSError:
+            pass
     _write_atomic(path, snapshot)
 
 
