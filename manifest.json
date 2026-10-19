@@ -3837,7 +3837,7 @@
         "workflow_state_test.py": 1191,
         "workflow_gate_policy_test.py": 315,
         "workflow_fingerprint_generalization_test.py": 142,
-        "workflow_state_completion_obligations_test.py": 184,
+        "workflow_state_completion_obligations_test.py": 185,
         "workflow_integration_test.py": 328,
         "workflow_fingerprint_test.py": 280,
         "workflow_test_harness_test.py": 27
