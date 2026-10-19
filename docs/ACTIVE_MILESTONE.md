@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**In progress.** W13: `backlog-file` (`process`, governing version `2.2`), branch
+**Complete** (accepted by policy; the release follows the merge). W13: `backlog-file` (`process`, governing version `2.2`), branch
 `milestone/backlog-file`, base `16b7531` (main after #58: the release source is Workflow
 2.16.0 and this repository's own installation is the published 2.16.0). Roadmap row 16
 (RodrigoFAbreu/workflow#48). The plan is `docs/ai-workflow/BACKLOG_FILE_PLAN.md`, approved by
@@ -258,6 +258,4 @@ An independent executor ran the checklist; six findings, handled as follows.
 
 ## Next action
 
-Test with the checklist above and put findings in
-`.ai-review/backlog-file/feedback/FUNCTIONAL_REVIEW.md`. If clean, run `/accept-milestone backlog-file`;
-otherwise `/apply-functional-review backlog-file`.
+Publishing 2.17.0 follows the pull request merge (#61); the Manager side is a `workflow-manager` pin pull request. The 8 follow-ups are in RodrigoFAbreu/workflow#60. The next roadmap item is row 12 (Controller C10) and row 13, both waiting on the Controller.
