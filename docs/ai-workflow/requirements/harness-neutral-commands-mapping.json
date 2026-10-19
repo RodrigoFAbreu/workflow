@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "work_item_id": "harness-neutral-commands",
+  "requirements": {
+    "R1": {
+      "description": "The shipped command bodies and the in-scope documents name the model the agent, defined once, with a gate test and the identifiers that stay listed",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R2": {
+      "description": "Each user-only command states the literal-confirmation check as the control it carries under every harness and the flag as an additional layer; the Claude Code history moves to the contract document; no guard weakens, and a test pins each body's confirmation step",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R3": {
+      "description": "One shipped document lists every frontmatter key with its class and what an adapter does, with a test that keys in use and documented keys agree",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "$ARGUMENTS is documented (where, substitution, empty case) and present in every command that takes arguments, with a gate test",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R5": {
+      "description": "Golden hashes re-recorded; release 2.18.0 bookkeeping (release constant and assertions, manifest digests, sizes and measured counts, release history, downgrade posture, manager block)",
+      "checkpoint_ids": [
+        "CP2",
+        "CP3"
+      ]
+    }
+  }
+}

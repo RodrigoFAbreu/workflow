@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "work_item_id": "harness-neutral-commands",
+  "plan_revision": 5,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The command-file contract and the neutral documents",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Neutral command bodies, the restated guards, `$ARGUMENTS` and the golden hashes",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 4,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Release 2.18.0",
+      "depends_on": [
+        "CP1",
+        "CP2"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}
