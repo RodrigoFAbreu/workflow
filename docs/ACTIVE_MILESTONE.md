@@ -62,8 +62,30 @@ zlib-ng environment.
   the plan says sixteen files name `Claude-Session:`; there are fourteen at 2.17.0 and still
   fourteen, so the test pins fourteen.
 
-### CP3 -- Release 2.18.0 (pending)
+### CP3 -- Release 2.18.0 (complete)
+
+- `manifest.json` 2.18.0: a `distribution` record for `COMMAND_FILES.md`, `counts` 79 / 53
+  distribution, every touched record's `sha256`/`size` refreshed (the eleven command files, the
+  three documents, the three test files, `ORCHESTRATION_PROTOCOL.md`, `workflow_protocol.py`)
+  and the command and document rationales noting this release; the `manager` block keeps
+  `min_manager_version` 1.13.0 and empty `new_work_only`/`gate_default_change`, carries the
+  D-Release downgrade posture, and `conformance.suites` was written by `release.py
+  manager-block --write` from a staging of this content (integration 339).
+- `WORKFLOW_RELEASE` 2.18.0 with its two pinned assertions and the matching
+  `ORCHESTRATION_PROTOCOL.md` edits (tested-releases note, compatibility note, envelope
+  example); protocol version stays 1.5.
+- `docs/release-history.md`: the 2.18.0 row. `docs/RELEASING.md` states no count this release
+  moves, so it is unchanged. `tools/release/release_test.py`: `HarnessNeutralReleaseTest`
+  (record, counts, constant, posture, history row); the 2.17.0-pinned constant and posture
+  tests of `BacklogReleaseTest` are superseded and removed.
+
+Verified from a scratch clone holding this tree (the repository's `manifest.json` is the
+committed deliverable): `release.py build` succeeds in the zlib-ng environment;
+`tools/release` tests 200 pass; `check-manager-block` clean; the nine suites pass in a stock
+`stage-conformance` fixture; the 2.17.0 -> 2.18.0 `update-fixture` passes (9 suites, `verify`
+clean); `tools/docs` check clean and its 34 tests pass; `workflow-manager verify .` clean
+against this repository's 2.17.0 installation.
 
 ## Next action
 
-Run `/milestone-implement harness-neutral-commands` again for CP3.
+Run `/milestone-implement harness-neutral-commands` again: every checkpoint is complete, so it enters self-review and prepares the implementation review bundle.
