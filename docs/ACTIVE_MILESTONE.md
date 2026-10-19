@@ -159,7 +159,9 @@ Verification is recorded in the commit report and the implementation bundle.
 
 ## Functional review checklist
 
-Implementation revision 5; every checkpoint is complete and technical approval is recorded.
+Implementation revision 6 (after functional review round 1); every checkpoint is complete and
+technical approval is recorded. Priority is the round 1 re-test list under "Functional review
+round 1" below (flows 4, 5, 7 and 9), then a quick pass over the rest.
 The release source is `payload/` (this repository's own installation is untouched), so manual
 testing runs in a **scratch repository**, never in this one.
 
