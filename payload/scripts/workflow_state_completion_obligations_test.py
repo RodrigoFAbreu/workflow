@@ -3081,7 +3081,9 @@ class BacklogDeclaration(unittest.TestCase):
                         code, message = d.refused(*args)
                         self.assertEqual(code, "declaration_invalid")
                         self.assertIn("symbolic link", message)
-                    self.assertEqual(d.refused("status")[0], "declaration_invalid")
+                    report = d.ok("status")
+                    self.assertEqual(report["error"]["code"], "declaration_invalid")
+                    self.assertIn("symbolic link", report["error"]["message"])
                     self.assertEqual(d.tree(), before)
                     self.assertEqual(list(Path(outside).iterdir()), [])
                     self.assertEqual(wb.declared_paths(d.root), [])
@@ -3154,7 +3156,9 @@ class BacklogCli(unittest.TestCase):
             self.assertIn("then run `python3 scripts/workflow_backlog.py accept nope` "
                           "and continue the acceptance at step 4", err)
         with _Decl(extra={"bogus": 1}) as d:
-            self.assertEqual(d.refused("status")[0], "declaration_invalid")
+            self.assertEqual(d.refused("next")[0], "declaration_invalid")
+            report = d.ok("status")  # `status` always exits 0 and reports
+            self.assertEqual((report["valid"], report["error"]["code"]), (False, "declaration_invalid"))
 
     def test_check_exit_one_when_stale(self):
         with _Decl() as d:

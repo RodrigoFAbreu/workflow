@@ -793,8 +793,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_state_completion_obligations_test\\.py$",
       "rationale": "TestNeverPersistedPhaseVocabulary's PERSISTED frozenset and its AST-derivation helper widened for the two new persisted phases, one of them (AWAITING_LOCAL_IMPLEMENTATION_REVIEW) reachable only through bundle_generation_target_phase's call indirection (D-Implementation-Review-Stages, CP11). backlog-file (workflow-2.17.0): the backlog parser, schema, selection, edit, page, command-line, declaration and document tests, as the release notes state.",
-      "sha256": "8cea3162f7a4dd816a3857555b7fecfbe12f0621322b30b3880994f4fef9579e",
-      "size": 184117,
+      "sha256": "a19feaad936d6b075512fc3b652de209d0d03625d5a986dd8fad0de185f6e8b9",
+      "size": 184419,
       "executable": false
     },
     {
