@@ -3936,7 +3936,7 @@ class TestOperatorDocuments(unittest.TestCase):
     def test_milestone_workflow_says_the_protocol_adds_no_gate(self):
         text = (Path(__file__).resolve().parent.parent / "docs" / "ai-workflow" / "MILESTONE_WORKFLOW.md").read_text()
         summary = text.split("## Hard gates summary", 1)[1].split("\n## ", 1)[0]
-        self.assertIn("Claude must stop and wait for a human/external input at exactly six points", summary)
+        self.assertIn("The agent must stop and wait for a human/external input at exactly six points", summary)
         self.assertIn("reports these same gates and\nadds none", summary)
 
 

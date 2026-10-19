@@ -8382,5 +8382,86 @@ class TestBacklogCommandConformance(unittest.TestCase):
         self.assertIn("the next ready item of that file", reference)
 
 
+class TestCommandFilesContractDocument(unittest.TestCase):
+    """harness-neutral-commands (workflow-2.18.0, CP1): `COMMAND_FILES.md`
+    is the one shipped place that states the command-file contract, and
+    this suite keeps it and the files it describes from drifting apart."""
+
+    CLASSES = {"Honour", "Carry", "Hint"}
+    # D-Term's neutrality pattern: the model's name (not the
+    # `Claude-Session:` trailer key), the harness tool name and the
+    # harness product name.
+    NEUTRALITY = re.compile(r"Claude(?!-Session)|SlashCommand")
+
+    def _doc(self) -> str:
+        return (_repo_root() / "docs" / "ai-workflow" / "COMMAND_FILES.md").read_text()
+
+    def _frontmatter(self, filename: str) -> dict[str, str]:
+        lines = _command_text(filename).split("\n")
+        self.assertEqual(lines[0], "---", filename)
+        end = lines.index("---", 1)
+        pairs = {}
+        for line in lines[1:end]:
+            key, _, value = line.partition(":")
+            pairs[key.strip()] = value.strip()
+        return pairs
+
+    def _key_rows(self) -> dict[str, str]:
+        section = self._doc().split("## The keys", 1)[1].split("\n## ", 1)[0]
+        rows = {}
+        for line in section.splitlines():
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if line.startswith("| `") and len(cells) >= 3:
+                rows[cells[0].strip("`")] = cells[1].strip("*")
+        return rows
+
+    def test_every_key_in_use_has_a_row_and_every_row_is_in_use(self):
+        used = set()
+        for filename in _command_filenames():
+            used |= set(self._frontmatter(filename))
+        rows = self._key_rows()
+        self.assertEqual(used, set(rows))
+        for key, cls in rows.items():
+            with self.subTest(key=key):
+                self.assertIn(cls, self.CLASSES)
+
+    def test_the_document_defines_the_term_and_the_placeholder(self):
+        doc = _squash(self._doc())
+        for needle in ("**The agent**: whatever carries out the steps of a command body",
+                       "`$ARGUMENTS` is the Workflow's argument placeholder",
+                       "exactly as the user typed it after the command name, verbatim and "
+                       "unparsed, at every occurrence of the token",
+                       "no argument given is substituted as the empty string",
+                       "The body's own argument grammar decides what that means",
+                       "There is no universal default"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, doc)
+
+    def test_the_documents_user_only_list_equals_the_flagged_commands(self):
+        section = self._doc().split("## The user-only commands", 1)[1].split("\n## ", 1)[0]
+        listed = set(re.findall(r"^- `/([a-z-]+)`$", section, re.MULTILINE))
+        flagged = {
+            filename[: -len(".md")]
+            for filename in _command_filenames()
+            if self._frontmatter(filename).get("disable-model-invocation") == "true"
+        }
+        self.assertEqual(len(listed), 6)
+        self.assertEqual(listed, flagged)
+
+    def test_the_neutral_documents_pass_the_neutrality_pattern(self):
+        root = _repo_root() / "docs" / "ai-workflow"
+        for name in ("MILESTONE_WORKFLOW.md", "REVIEW_PROTOCOL.md",
+                     "WORKFLOW_V2_1_OPERATOR_REFERENCE.md"):
+            with self.subTest(document=name):
+                self.assertIsNone(self.NEUTRALITY.search((root / name).read_text()))
+                self.assertNotIn("Claude Code", (root / name).read_text())
+
+    def test_the_operator_reference_points_to_the_contract(self):
+        text = (_repo_root() / "docs" / "ai-workflow"
+                / "WORKFLOW_V2_1_OPERATOR_REFERENCE.md").read_text()
+        self.assertIn("docs/ai-workflow/COMMAND_FILES.md", text)
+        self.assertIn("under every harness", _squash(text))
+
+
 if __name__ == "__main__":
     unittest.main()

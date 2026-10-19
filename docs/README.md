@@ -9,6 +9,7 @@
 | decide who approves plans, code and acceptance | [Approval gates](gates.md) |
 | install or update the Workflow in a repository | [Install and update](install.md) |
 | keep the roadmap as a structured backlog file | [The backlog file](../payload/docs/ai-workflow/BACKLOG_FILE.md) |
+| run the commands from another harness | [The command files](../payload/docs/ai-workflow/COMMAND_FILES.md) |
 | look up a term | [Glossary](glossary.md) |
 | fix an error message | [Common problems](common-problems.md) |
 | look up what a script's exit status means | [Exit codes](exit-codes.md) |
