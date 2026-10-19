@@ -8223,7 +8223,7 @@
       "registry_path": "docs/ai-workflow/registry/conformance-sharding-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/conformance-sharding-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 5,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -8371,12 +8371,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 1,
+          "local": 2,
           "external": 0
         }
       },
-      "state_revision": 34,
-      "last_transition": "2026-10-19T04:42:05Z",
+      "state_revision": 35,
+      "last_transition": "2026-10-19T04:46:08Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -8722,6 +8722,20 @@
               "review_content_id": "eadcd87f72b6b4ce18bc16da16cd8317a4703b418eefc7cdd66db8356c859389",
               "verdict": "REVISE",
               "at": "2026-10-19T04:35:26Z"
+            }
+          ]
+        },
+        "F-854d4cec78b0": {
+          "digest": "854d4cec78b01fac1d3648bfc9d2d362bde3f47df7f91e2e1845c909ca31b735",
+          "text": "**LIR-R2-O01:** when `total` is not `ok` but `check` exits 0, the new annotation reads \"the shard check exited 0 without a failing shard row\", and the row reads `FAILED (the shard check exited 0)`. That wording is confusing for a failure. Consider wording that names the bad `total` verdict in that case.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "4b45b87aff30344406e0746fc773be0e3e2ab0f1b07cfe0816d7e2a9ad29c9f5",
+              "verdict": "REVISE",
+              "at": "2026-10-19T04:46:08Z"
             }
           ]
         }
