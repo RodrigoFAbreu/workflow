@@ -143,9 +143,9 @@ branches on governing version, unchanged.
   second, independently-maintained grammar.
 - **Stop for user/reviewer?** No. `/request-plan-amendment` itself carries
   the same mechanism-independent user-only guard `/approve-review` and
-  `/accept-milestone` use (the agent cannot invoke it), but once a human has
-  invoked it, work continues autonomously from here exactly as it would
-  from `PLANNING`.
+  `/accept-milestone` use (the agent must never invoke it; its confirmation
+  check refuses without the user's own text), but once a human has invoked it,
+  work continues autonomously from here exactly as it would from `PLANNING`.
 
 ### SELF_REVIEWING_PLAN
 

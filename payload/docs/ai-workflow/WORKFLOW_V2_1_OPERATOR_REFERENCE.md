@@ -37,8 +37,9 @@ Where they disagree, see [Known discrepancies](#known-discrepancies).
   literal-confirmation check: they refuse to write anything unless *your
   current-turn message* contains literal confirmation text naming the exact
   work item and stage. The flag is an additional layer where the harness
-  enforces it; it does not replace the check. The agent cannot run them, and
-  they do not appear in the agent's command list. To run the commands from
+  enforces it; it does not replace the check. The agent must never run them;
+  where the harness enforces the flag they cannot be launched for it and do
+  not appear in its command list. To run the commands from
   another harness, see `docs/ai-workflow/COMMAND_FILES.md`.
 - **Every command stops.** None of them chain into the next command, even
   when the next step is obvious.

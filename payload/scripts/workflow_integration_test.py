@@ -8466,6 +8466,16 @@ class TestCommandFilesContractDocument(unittest.TestCase):
                 self.assertIsNone(self.NEUTRALITY.search((root / name).read_text()))
                 self.assertNotIn("Claude Code", (root / name).read_text())
 
+    def test_the_neutral_documents_never_claim_the_agent_cannot_run_a_command(self):
+        # D-Guard: the flag blocks a user-only command only where the harness
+        # enforces it; the documents state the duty, never an impossibility.
+        root = _repo_root() / "docs" / "ai-workflow"
+        for name in ("MILESTONE_WORKFLOW.md", "REVIEW_PROTOCOL.md",
+                     "WORKFLOW_V2_1_OPERATOR_REFERENCE.md"):
+            with self.subTest(document=name):
+                self.assertIsNone(re.search(
+                    r"agent cannot (run|invoke)", _squash((root / name).read_text())))
+
     def test_the_operator_reference_points_to_the_contract(self):
         text = (_repo_root() / "docs" / "ai-workflow"
                 / "WORKFLOW_V2_1_OPERATOR_REFERENCE.md").read_text()
