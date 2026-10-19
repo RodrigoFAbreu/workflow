@@ -35,8 +35,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/accept-milestone\\.md$",
       "rationale": "Step 0's governing-version enumeration widened from \"1\"/\"2.1\" to include \"2.2\" (workflow-2.5.0); steps 1-8 still run identically for all three (D-Implementation-Review-Stages, CP4). W1 (workflow-2.7.0, orchestration-protocol-v1): step 2a no longer tells the operator to finish an outstanding checkpoint with /milestone-implement, which cannot start one at AWAITING_FUNCTIONAL_REVIEW; it names v2.6.0-003 and keeps the /apply-functional-review routing (CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. backlog-file (workflow-2.17.0): the backlog branch of acceptance: pre-flight, the status edit and the roadmap regeneration inside the acceptance commit, as the release notes state.",
-      "sha256": "2c76dd1f3ae184e279c4d408ca207e0f85f9867016a479696c30a5131089ddfa",
-      "size": 19256,
+      "sha256": "20cf8f8ea58947d109cebb5b2a73855d2d2f855a1ca3ea23f5de543e45c7edae",
+      "size": 18764,
       "executable": false
     },
     {
@@ -126,8 +126,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/milestone-plan\\.md$",
       "rationale": "D-Feedback-Layout (CP3): the <feedback_dir> preamble states the durable feedback_layout resolution (scoped by construction for a stamped item, the unchanged legacy rule otherwise, REVIEW_PROTOCOL.md normative); step 7 prints the exact resolved feedback path. D-Plan-Review-Bundle-Binding (CP4): the [2.1] plan-review entry (row-1 refusal via assert_plan_review_entry_phase; the ready-phase withdrawal via assert_plan_review_withdrawal_allowed + withdraw_plan_review, which never computes the fresh id and needs an explicit id; ensure_plan_review_binding_marker; plan_review_publication_status evaluated once), step 3 without its publish, the step-5 publication point (regenerate, re-embed, re-stage, mirror-only publish with the fresh id), <plan_inputs_dir>, and step 6's verify-plus-bind with a row-9 explicit-id re-run report. D-Plan-Approval-Closure (CP5): step 3's staging note names the approval commit's member set as every declared protected path rather than four-or-five members. Implementation review round 2 (I1): step 3's intent-to-add staging is git --literal-pathspecs add -N. W1 (workflow-2.7.0, orchestration-protocol-v1): the durable consumed plan-review history: withdrawn, revised or amended content never re-binds, and an edit re-enters review (v2.6.0-001, CP2). W2 (workflow-2.8.0, gate-policy-and-reopening). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state. review-loop-fixes (workflow-2.13.0): a changes file per review stage with the manual stage's baseline, the atomic ready file, the governing-version sweep before review and the release constant 2.13.0, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. backlog-file (workflow-2.17.0): with no argument, the next ready item is taken from a declared backlog file, as the release notes state.",
-      "sha256": "43d1a6bfb13f0e6d854660ba8fd54d58cafd8489389528636c948b6b8a2a26cb",
-      "size": 39833,
+      "sha256": "54fca55ff02d76b8f11ee185f0ecc7786fe1fc1fe9886dd786ba72be2477d6be",
+      "size": 39856,
       "executable": false
     },
     {
@@ -247,8 +247,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/satisfy-gate\\.md$",
       "rationale": "Satisfies a plan, implementation (technical) or acceptance gate from current policy evidence instead of a human approval, recording an audit record. W2 (workflow-2.8.0, gate-policy-and-reopening). finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. backlog-file (workflow-2.17.0): the backlog branch of an automatic acceptance, as the release notes state.",
-      "sha256": "64a43853661f31349f0a17c901744ac3198d5bb520d24a9274ad38f80e60416f",
-      "size": 19045,
+      "sha256": "5c4a3b0d6f0c7d2a9cff32f0a6fe612e7eed53cb779160340d8fe99060678633",
+      "size": 19068,
       "executable": false
     },
     {
@@ -279,8 +279,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/BACKLOG_FILE\\.md$",
       "rationale": "The consumer reference for the backlog file (backlog-file, workflow-2.17.0): setup, the file format with a starter and a full example, how /milestone-plan chooses, what acceptance does, the generator and freshness contract, items in flight at adoption and how to move back.",
-      "sha256": "715a573eaeac169ac876986c463102fad0857bda4d8fab25162903626a688527",
-      "size": 23578,
+      "sha256": "db5c20bfe6e50dc5489ed0cc03e4e55795d21d05e239f8ecdb8645d4c10f9742",
+      "size": 23803,
       "executable": false
     },
     {
@@ -672,8 +672,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_backlog\\.py$",
       "rationale": "The backlog file module (backlog-file, workflow-2.17.0; standard library only, state_writer false): a strict YAML-subset parser and schema, ready-item selection, the status edit, the deterministic roadmap page with its staleness stamp, the declaration reader and the next, accept, generate and check command line. A repository that declares no backlog is unaffected.",
-      "sha256": "4853c90a927d60272a032d7c362c74ba7d1768cc377d65c7472676763e9dfc5b",
-      "size": 55940,
+      "sha256": "e3f9d228c7bc2496600ca2ca6cf4ef51e674a38881eb1d6bf33b3266bbc90a1d",
+      "size": 56718,
       "executable": false
     },
     {
@@ -753,8 +753,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_integration_test\\.py$",
       "rationale": "D-Feedback-Layout (CP3): the ten command-file content hashes CP3 changes are updated, each with an intentional-content-change comment, and TestReviewPlanStep8OwnershipGuardIsPresent's guard-call pin is re-pointed to require state=. No pin is deleted; the v1 golden hashes are unchanged. D-Plan-Review-Bundle-Binding (CP4): re-points test_a_real_committed_plan_edit_after_local_approval_invalidates_the_stage (the retired transition now refuses; a manual REVISE, publish and bind drive the same edge), the operator-reference phase-writer expectations, and registers the acceptance matrix's new amendment helper section in _MATRIX_HELPER_SECTION_OWNERS; the golden command-file hashes are re-recorded for the command files CP4 restates. None deleted. D-Plan-Approval-Closure (CP5): three pre-existing tests that pinned 2.5.1's fixed four/five-member set are re-pointed to the declared protected set (their fixture protects two further documents), none deleted; approve-review.md's and milestone-plan.md's golden hashes are re-recorded. D-Repo-Global-Lifecycle (CP6): adds TestApproveReviewLifecycleEntryTable (test 29) -- section 5.6's entry table asserted row by row over the live approve-review.md (4d directly after 4c and named nowhere else, 4b still skipping 4c-6, step 5's first_commit mode, 6a1's held check before its amend_recovery staging, 6b capturing journal_tokens before the rollback and releasing after it, 6c1's advance directly before 6d, and the table's rows). The approve-review.md and milestone-implement.md golden hashes are re-recorded with annotations. Implementation review round 1: the golden hashes of approve-review.md and apply-plan-review.md are updated for their documented round-1 additions. Implementation review round 2 (I1): the golden hashes of approve-review.md and milestone-plan.md are re-recorded for their literal/NUL-safe path instructions. W1 (workflow-2.7.0, orchestration-protocol-v1): golden hashes of the command files W1 changes, with their reasons; the operator-reference symbol allowlist; workflow_state.py as an assert_local_generation_matches call site (CP1, CP2, CP4, CP5, CP6). W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). W4 (workflow-2.9.1, review-stage-write-durability). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state. review-loop-fixes (workflow-2.13.0): a changes file per review stage with the manual stage's baseline, the atomic ready file, the governing-version sweep before review and the release constant 2.13.0, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. backlog-file (workflow-2.17.0): command pins for the backlog branch, as the release notes state.",
-      "sha256": "5f5895f84984a796f12152b909835362f9bdc6a27dd656af85d894e460e7ce08",
-      "size": 458831,
+      "sha256": "fa4926468495ddc39192a3252cb5bb4d470146cf13aaa72de3ed754cd8c79b01",
+      "size": 459054,
       "executable": false
     },
     {
@@ -793,8 +793,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_state_completion_obligations_test\\.py$",
       "rationale": "TestNeverPersistedPhaseVocabulary's PERSISTED frozenset and its AST-derivation helper widened for the two new persisted phases, one of them (AWAITING_LOCAL_IMPLEMENTATION_REVIEW) reachable only through bundle_generation_target_phase's call indirection (D-Implementation-Review-Stages, CP11). backlog-file (workflow-2.17.0): the backlog parser, schema, selection, edit, page, command-line, declaration and document tests, as the release notes state.",
-      "sha256": "0c742fb734aaded2f30b95d72fb441258a2dba259c3ef1c62c927c57a03cbb4b",
-      "size": 185752,
+      "sha256": "5f33f61d2892ac30bf0401252c2f4ce27b270bdfcf32332e0edb77b73ad9618a",
+      "size": 187010,
       "executable": false
     },
     {
