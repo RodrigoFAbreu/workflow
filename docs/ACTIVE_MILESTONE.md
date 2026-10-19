@@ -138,6 +138,26 @@ the draft (a three-space trailing comment in the example), fixed in the document
 Verification: completion-obligations suite 184 tests pass; `tools/docs/check_docs.py` clean and
 its 34 tests pass. The suite count changed from 176 to 184, so CP5 records it in the manifest.
 
+### CP5 -- Release 2.17.0 (complete)
+
+- `manifest.json` 2.17.0: `scripts/workflow_backlog.py` and `docs/ai-workflow/BACKLOG_FILE.md`
+  added as `distribution` records (counts 78 artifacts, 52 distribution), every touched record's
+  `sha256` and `size` refreshed with a rationale note, `manager` block `min_manager_version`
+  `1.13.0`, the downgrade posture of D-Downgrade, no signals, no `new_work_only`, and
+  `conformance.suites` written by `release.py manager-block --release-dir <scratch> --write`
+  (acceptance 444, state 1191, completion-obligations 184, integration 328; the others unchanged).
+- `WORKFLOW_RELEASE` is 2.17.0 in `workflow_protocol.py`, its two pinned assertions and the three
+  edits of `ORCHESTRATION_PROTOCOL.md`; the protocol stays 1.5.
+- `docs/release-history.md`: the 2.17.0 row (what it adds, the downgrade posture in full, what
+  stays open). `docs/RELEASING.md`: the acceptance suite is 444 tests.
+- `tools/release/release_test.py`: `BacklogReleaseTest` (6 tests): the records and counts, the
+  release constant, the posture text, the history row, and a repository with the script
+  installed from the release that runs `generate`, `next`, `accept` and `check` (and fails
+  `check` after a hand edit), and one without a declaration that is unchanged.
+
+Verification is recorded in the commit report and the implementation bundle.
+
 ## Next action
 
-Invoke `/milestone-implement backlog-file` again for CP5.
+Invoke `/milestone-implement backlog-file` again: every checkpoint is complete, so it enters
+`SELF_REVIEWING_IMPLEMENTATION`, runs the full verification and prepares the implementation bundle.

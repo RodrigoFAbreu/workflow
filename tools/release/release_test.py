@@ -2144,6 +2144,113 @@ class RoadmapTest(unittest.TestCase):
         self.assertIn("`v2.6.0-003`", rows[0])
 
 
+class BacklogReleaseTest(unittest.TestCase):
+    """Release 2.17.0 (backlog-file): the records, the counts, the downgrade
+    posture, and the shipped script run from an installed `scripts/`."""
+
+    SCRIPT = "scripts/workflow_backlog.py"
+    DOCUMENT = "docs/ai-workflow/BACKLOG_FILE.md"
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.records = {r["target_path"]: r for r in self.manifest["artifacts"]}
+
+    def test_the_release_names_2_17_0_and_the_two_new_distribution_records(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.17.0")
+        for target, location in ((self.SCRIPT, "payload/scripts/workflow_backlog.py"),
+                                 (self.DOCUMENT, "payload/docs/ai-workflow/BACKLOG_FILE.md")):
+            with self.subTest(target):
+                record = self.records[target]
+                self.assertEqual((record["category"], record["location"], record["executable"]),
+                                 ("distribution", location, False))
+                self.assertRegex(target, record["rule"])
+                self.assertEqual(record["sha256"], _sha((REPO_ROOT / location).read_bytes()))
+        counts = self.manifest["counts"]
+        by_category = {}
+        for record in self.manifest["artifacts"]:
+            by_category[record["category"]] = by_category.get(record["category"], 0) + 1
+        self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
+        self.assertEqual(counts["by_category"], by_category)
+
+    def test_the_release_constant_is_the_manifest_version(self):
+        text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
+        self.assertIn('WORKFLOW_RELEASE = "2.17.0"', text)
+
+    def test_the_manager_block_states_the_downgrade_posture(self):
+        block = self.manifest["manager"]
+        self.assertEqual(block["min_manager_version"], "1.13.0")
+        posture = block["downgrade_boundary"]["posture"]
+        for needle in ("2.16.0 ignores the backlog key",
+                       "acceptance hand-edits the generated page",
+                       "staleness check fails", "non-default roadmap",
+                       "tools/workflow_backlog.py", "delete the backlog key",
+                       "state_writer false", "Orchestration Protocol stays 1.5"):
+            self.assertIn(needle, posture)
+        self.assertEqual(block["downgrade_boundary"]["signals"], [])
+        self.assertEqual(block["new_work_only"], [])
+        self.assertEqual(block["gate_default_change"], "")
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        text = (REPO_ROOT / "docs" / "release-history.md").read_text()
+        self.assertIn("Last checked with: Workflow 2.17.0.", text)
+        row = next(line for line in text.splitlines() if line.startswith("| 2.17.0 |"))
+        for needle in ("backlog file", "tools/workflow_backlog.py", "2.16.0",
+                       "Orchestration Protocol 1.5", "v2.17.0"):
+            self.assertIn(needle, row)
+        self.assertLess(text.index("| 2.17.0 |"), text.index("| 2.16.0 |"))
+
+    def install(self, root: Path) -> None:
+        for target in (self.SCRIPT, self.DOCUMENT):
+            dest = root / target
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(REPO_ROOT / self.records[target]["location"], dest)
+        subprocess.run(["git", "init", "-q", str(root)], check=True)
+
+    def backlog(self, root: Path, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run([sys.executable, "-B", str(root / self.SCRIPT), *args],
+                              cwd=root, capture_output=True, text=True)
+
+    def declare(self, root: Path) -> None:
+        config = root / "docs/ai-workflow/WORKFLOW_CONFIG.json"
+        config.parent.mkdir(parents=True, exist_ok=True)
+        config.write_text(json.dumps({"backlog": {"file": "docs/backlog.yaml"}}))
+        (root / "docs/backlog.yaml").write_text(
+            "version: 1\nitems:\n  - id: first-item\n    title: My first item\n"
+            "    status: next\n    order: 1\n")
+
+    def test_a_declared_backlog_runs_generate_next_accept_and_check_from_scripts(self):
+        tmp = Path(tempfile.mkdtemp(prefix="backlog-release-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        self.install(tmp)
+        self.declare(tmp)
+        self.assertEqual(self.backlog(tmp, "generate", "--replace").returncode, 0)
+        self.assertEqual(self.backlog(tmp, "check").returncode, 0)
+        chosen = self.backlog(tmp, "next")
+        self.assertEqual(chosen.returncode, 0, chosen.stderr)
+        self.assertEqual(json.loads(chosen.stdout)["item"]["id"], "first-item")
+        accepted = self.backlog(tmp, "accept", "first-item", "--release", "2.17.0")
+        self.assertEqual(accepted.returncode, 0, accepted.stderr)
+        self.assertEqual(json.loads(accepted.stdout)["status"], "done")
+        self.assertIn("status: done", (tmp / "docs/backlog.yaml").read_text())
+        self.assertEqual(self.backlog(tmp, "check").returncode, 0)
+        (tmp / "docs/ROADMAP.md").write_text("edited by hand\n")
+        stale = self.backlog(tmp, "check")
+        self.assertEqual(stale.returncode, 1)
+        self.assertIn("roadmap_stale", stale.stderr)
+
+    def test_a_repository_without_a_declaration_is_unchanged(self):
+        tmp = Path(tempfile.mkdtemp(prefix="backlog-release-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        self.install(tmp)
+        for command in (("next",), ("check",), ("status",)):
+            with self.subTest(command):
+                done = self.backlog(tmp, *command)
+                self.assertEqual(done.returncode, 0, done.stderr)
+                self.assertFalse(json.loads(done.stdout)["declared"])
+        self.assertEqual(sorted(p.name for p in tmp.iterdir()), [".git", "docs", "scripts"])
+        self.assertFalse((tmp / "docs/ROADMAP.md").exists())
+
+
 # -- the Manager metadata block ----------------------------------------------------
 
 SUITE_TWO = ("import unittest\n\n\nclass T(unittest.TestCase):\n"
