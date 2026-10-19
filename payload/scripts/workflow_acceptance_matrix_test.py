@@ -10448,6 +10448,20 @@ class BacklogProtectedDeclaredPath(unittest.TestCase):
         self.assertTrue(done.stderr.startswith("error: declaration_conflict:"), done.stderr)
         self.assertEqual(state, self.scratch.read("docs/ai-workflow/WORKFLOW_STATE.json"))
 
+    def test_accept_names_the_recovery_when_the_declaration_fails_to_load(self):
+        item = Item(self.scratch, "process")
+        self.declared(item, "docs/backlog.yaml")
+        # The declaration became invalid after the pre-flight passed.
+        config = self.scratch.root / "docs/ai-workflow/WORKFLOW_CONFIG.json"
+        config.write_text(json.dumps({"schema_version": 1, "default_workflow_version": "2.1",
+                                      "supported_versions": ["1", "2.1"],
+                                      "backlog": {"file": "/abs.yaml"}}))
+        done = self.script("accept", item.wid)
+        self.assertEqual(done.returncode, 2, done.stderr)
+        self.assertTrue(done.stderr.startswith("error: declaration_invalid:"), done.stderr)
+        self.assertIn("continue the acceptance at step 4", done.stderr)
+        self.assertIn(f"workflow_backlog.py accept {item.wid}", done.stderr)
+
     def test_a_process_item_cannot_declare_a_path_through_a_link_into_scripts(self):
         item = Item(self.scratch, "process")
         (self.scratch.root / "docs").mkdir(exist_ok=True)

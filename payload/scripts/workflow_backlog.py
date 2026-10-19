@@ -252,6 +252,9 @@ def _split_key(body: str, line: int) -> tuple[str, str | None]:
     raise BacklogFormatError(line, "exactly one space is required after `:`")
 
 
+_EMPTY_ITEMS = "`items:` has no item (write `items: []` for an empty backlog)"
+
+
 def parse_backlog(text: str) -> tuple[dict, dict]:
     """Parse `text` under D-Format. Returns `(data, lines)`: `data` is
     `{"version": int, "items": [ {key: value} ]}` and `lines` maps `version`
@@ -315,6 +318,8 @@ def parse_backlog(text: str) -> tuple[dict, dict]:
                 raise BacklogFormatError(number, f"unknown top-level key `{key}` (only `version` and `items`)")
             if key in lines:
                 raise BacklogFormatError(number, f"`{key}` is repeated")
+            if items_open and not data["items"]:
+                raise BacklogFormatError(lines["items"], _EMPTY_ITEMS)
             lines[key] = number
             cur = cur_lines = None
             items_open = False
@@ -374,7 +379,7 @@ def parse_backlog(text: str) -> tuple[dict, dict]:
         if key not in lines:
             raise BacklogFormatError(last, f"the top-level key `{key}` is missing")
     if items_open and not data["items"]:
-        raise BacklogFormatError(lines["items"], "`items:` has no item (write `items: []` for an empty backlog)")
+        raise BacklogFormatError(lines["items"], _EMPTY_ITEMS)
     return data, lines
 
 
@@ -1184,12 +1189,12 @@ def _with_recovery(exc: BacklogError, item_id: str) -> BacklogError:
 
 
 def cmd_accept(repo_root, item_id: str, release: str | None = None) -> dict:
-    declaration = load_declaration(repo_root)
-    if declaration is None:
-        return {"declared": False}
-    file_path, page_path = _abs(repo_root, declaration["file"]), _abs(repo_root, declaration["roadmap"])
     snapshots = None
     try:
+        declaration = load_declaration(repo_root)
+        if declaration is None:
+            return {"declared": False}
+        file_path, page_path = _abs(repo_root, declaration["file"]), _abs(repo_root, declaration["roadmap"])
         check_declaration_conflict(repo_root, declaration, item_id)
         raw, data, lines = _read_backlog(repo_root, declaration)
         _acceptable(data, item_id)

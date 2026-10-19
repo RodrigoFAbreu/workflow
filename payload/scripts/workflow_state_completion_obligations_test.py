@@ -2556,6 +2556,8 @@ class BacklogParser(unittest.TestCase):
             "missing version": ("items: []\n", 1),
             "missing items": ("version: 1\n", 1),
             "items with no item": ("version: 1\nitems:\n", 2),
+            "items with no item before version": ("items:\nversion: 1\n", 1),
+            "items with no item before version, comments between": ("items:\n# c\n\n# d\nversion: 1\n", 1),
             "long line": (_bl("# " + "a" * 999), 7),
             "too many lines": ("\n" * 2001, 2001),
             "oversize": (("# " + "a" * 997 + "\n") * 270, 1),
