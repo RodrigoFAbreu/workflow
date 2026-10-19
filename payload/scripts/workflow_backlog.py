@@ -907,7 +907,7 @@ def _snapshot(path: Path, shown: str) -> bytes | None:
     except FileNotFoundError:
         return None
     if not stat.S_ISREG(mode):
-        raise _declaration_error(f"`{shown}` exists and is not a regular file")
+        raise _declaration_error(f"`backlog.roadmap` `{shown}` exists and is not a regular file")
     return path.read_bytes()
 
 
@@ -1264,7 +1264,7 @@ def _release_arg(value: str) -> str:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = _Parser(prog="workflow_backlog.py", description="The structured backlog file (workflow-2.17.0).")
-    parser.add_argument("--repo-root", default=None, help="the repository root (default: the parent of scripts/)")
+    parser.add_argument("--repo-root", default=None, help="the repository root (default: the working directory's git top level, else the working directory)")
     sub = parser.add_subparsers(dest="command", required=True, parser_class=_Parser)
     sub.add_parser("status")
     sub.add_parser("next")
@@ -1279,9 +1279,25 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _default_root() -> Path:
+    """The working directory's git top level, else the working directory.
+
+    Independent of where this file sits, so a copy made outside `scripts/` (the
+    documented move back to 2.16.0) reads the repository's own declaration.
+    """
+    try:
+        done = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, timeout=30)
+        top = done.stdout.strip()
+        if done.returncode == 0 and top:
+            return Path(top)
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return Path.cwd()
+
+
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
-    root = Path(args.repo_root) if args.repo_root else Path(__file__).resolve().parent.parent
+    root = Path(args.repo_root) if args.repo_root else _default_root()
     try:
         if args.command == "status":
             result = cmd_status(root)

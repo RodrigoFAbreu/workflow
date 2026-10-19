@@ -3540,6 +3540,26 @@ class BacklogDocument(unittest.TestCase):
             done = copy("check")
             self.assertEqual(done.returncode, 0, done.stderr)
 
+    def test_copy_nested_below_the_root_reads_the_repository_declaration(self):
+        with _Decl(text=_doc_block("starter")) as d:
+            d.write("tools/backlog/workflow_backlog.py", Path(wb.__file__).read_bytes())
+            shutil.rmtree(d.root / "scripts")
+            subprocess.run(["git", "init", "-q"], cwd=d.root, check=True)
+
+            def copy(*args, cwd=d.root):
+                return subprocess.run(["python3", "-I", str(d.root / "tools/backlog/workflow_backlog.py"), *args],
+                                      cwd=cwd, capture_output=True, text=True)
+
+            # the page is missing: a copy that lost the declaration would pass here
+            missing = copy("check")
+            self.assertEqual(missing.returncode, 1, missing.stdout + missing.stderr)
+            self.assertIn("roadmap_stale", missing.stderr)
+            self.assertEqual(copy("generate").returncode, 0)
+            self.assertEqual(copy("check").returncode, 0)
+            d.write("docs/ROADMAP.md", d.read("docs/ROADMAP.md") + b"hand edit\n")
+            sub = d.root / "docs"
+            self.assertEqual(copy("check", cwd=sub).returncode, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
