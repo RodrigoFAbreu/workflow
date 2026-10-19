@@ -8223,7 +8223,7 @@
       "registry_path": "docs/ai-workflow/registry/conformance-sharding-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/conformance-sharding-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 5,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -8371,12 +8371,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 32,
-      "last_transition": "2026-10-19T04:25:02Z",
+      "state_revision": 33,
+      "last_transition": "2026-10-19T04:35:26Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -8652,6 +8652,76 @@
               "review_content_id": "a009613febded28ec3ed4e3a5ce69d75fa127b9a357dda9e08a3b234ab7f77e4",
               "verdict": "APPROVE",
               "at": "2026-10-19T00:47:18Z"
+            }
+          ]
+        },
+        "F-977d44772c44": {
+          "digest": "977d44772c4451d5ae741701cf687dc3c7a66477fb1a481ee9a95828860e5971",
+          "text": "**LIR-R1-O01:** `manifest.json`, the template record's `derivation`: a `; ` is missing before `W12 (workflow-2.16.0, ...)`. This is the implementer's own observation 1.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eadcd87f72b6b4ce18bc16da16cd8317a4703b418eefc7cdd66db8356c859389",
+              "verdict": "REVISE",
+              "at": "2026-10-19T04:35:26Z"
+            }
+          ]
+        },
+        "F-a5d14690da89": {
+          "digest": "a5d14690da89384d591147ca4477b7fd9742ae1ad7c47426a061432d9b1c1da5",
+          "text": "**LIR-R1-O02:** the `global` coverage row writes a literal `acceptance` as the suite name, where every other row uses `$acceptance`. This is the implementer's observation 2. It is cheap to fix together with LIR-R1-I01, since that fix touches the same function.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eadcd87f72b6b4ce18bc16da16cd8317a4703b418eefc7cdd66db8356c859389",
+              "verdict": "REVISE",
+              "at": "2026-10-19T04:35:26Z"
+            }
+          ]
+        },
+        "F-d85a6951ca41": {
+          "digest": "d85a6951ca41fe1d15909ff021cf3033064308f936b336d0b4d12602bdfe873b",
+          "text": "**LIR-R1-O03:** plan CP4 asks for \"a `posture` and an `undetectable` text\". The manifest has `undetectable: null`. The schema allows null and the meaning (\"nothing undetectable\") is true, but it differs from the plan's wording. Either a one-line text or a note in the summary would close it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eadcd87f72b6b4ce18bc16da16cd8317a4703b418eefc7cdd66db8356c859389",
+              "verdict": "REVISE",
+              "at": "2026-10-19T04:35:26Z"
+            }
+          ]
+        },
+        "F-50cc279e2f48": {
+          "digest": "50cc279e2f48d14bf48706c7629d3884ccfd6c52c0a76cc3d9c97aecf3b2304f",
+          "text": "**LIR-R1-O04:** in `workflow-ci.yml`, `cp -a` output used to be appended to the unit's log in 2.15.0, and no longer is. A unit whose copy fails now has no log file, and its error appears only in the step output. The gate is unaffected (the unit is still reported as missing), but the diagnostics are a little worse than before.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eadcd87f72b6b4ce18bc16da16cd8317a4703b418eefc7cdd66db8356c859389",
+              "verdict": "REVISE",
+              "at": "2026-10-19T04:35:26Z"
+            }
+          ]
+        },
+        "F-72c4115d2bf1": {
+          "digest": "72c4115d2bf171133d3b3e35477db4d320c3a0a47df28dac080f0caaf915c535",
+          "text": "**LIR-R1-O05:** `docs/ACTIVE_MILESTONE.md` pairs 979 s with 1203 s (the median over all runs) and the ratio 0.8074 (which is 979/1212.5). This is the implementer's observation 3. The file is excluded, but the narrative should use the rule's round-2 basis.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eadcd87f72b6b4ce18bc16da16cd8317a4703b418eefc7cdd66db8356c859389",
+              "verdict": "REVISE",
+              "at": "2026-10-19T04:35:26Z"
             }
           ]
         }
