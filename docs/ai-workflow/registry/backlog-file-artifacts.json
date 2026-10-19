@@ -40,7 +40,8 @@
       "docs/glossary.md": "the release source or user documentation of the Workflow, a deliverable of this milestone's implementation (CP1 to CP5), not the plan's design content; protected at the implementation stage",
       "docs/common-problems.md": "the release source or user documentation of the Workflow, a deliverable of this milestone's implementation (CP1 to CP5), not the plan's design content; protected at the implementation stage",
       "docs/exit-codes.md": "the release source or user documentation of the Workflow, a deliverable of this milestone's implementation (CP1 to CP5), not the plan's design content; protected at the implementation stage",
-      "docs/release-history.md": "the release source or user documentation of the Workflow, a deliverable of this milestone's implementation (CP1 to CP5), not the plan's design content; protected at the implementation stage"
+      "docs/release-history.md": "the release source or user documentation of the Workflow, a deliverable of this milestone's implementation (CP1 to CP5), not the plan's design content; protected at the implementation stage",
+      "docs/RELEASING.md": "the release source or user documentation of the Workflow, a deliverable of this milestone's implementation (CP1 to CP5), not the plan's design content; protected at the implementation stage"
     },
     "excluded_prefixes": {
       ".claude/commands/": "workflow command files this milestone creates (the bootstrap command, /approve-review, /accept-milestone) or modifies (the eight existing v1 commands, per D-States/D-Self-Governance) -- implementation of the approved design, not the design itself",
@@ -75,7 +76,8 @@
       "docs/glossary.md": "the release source or user documentation of the Workflow, a deliverable of this milestone (CP1 to CP5); protected so technical_approval binds every released byte",
       "docs/common-problems.md": "the release source or user documentation of the Workflow, a deliverable of this milestone (CP1 to CP5); protected so technical_approval binds every released byte",
       "docs/exit-codes.md": "the release source or user documentation of the Workflow, a deliverable of this milestone (CP1 to CP5); protected so technical_approval binds every released byte",
-      "docs/release-history.md": "the release source or user documentation of the Workflow, a deliverable of this milestone (CP1 to CP5); protected so technical_approval binds every released byte"
+      "docs/release-history.md": "the release source or user documentation of the Workflow, a deliverable of this milestone (CP1 to CP5); protected so technical_approval binds every released byte",
+      "docs/RELEASING.md": "the release source or user documentation of the Workflow, a deliverable of this milestone (CP1 to CP5); protected so technical_approval binds every released byte"
     },
     "protected_prefixes": {
       ".claude/commands/": "this repository's own workflow command files -- process deliverable",
