@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "review-followups-cleanup",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -11694,6 +11694,362 @@
         },
         "evaluated_at": "2026-10-20T01:19:31Z",
         "workflow_release": "2.17.0"
+      }
+    },
+    "review-followups-cleanup": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "review-followups-cleanup",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/review-followups-cleanup-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/review-followups-cleanup-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 5,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "e1be47863dab98586028814dab4e697f55572363",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "2bfb8f8c1875ecdef203a7d1cfbb2a2337b2b8dc9a8ed5bb47b5be1fa4530242",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "2bfb8f8c1875ecdef203a7d1cfbb2a2337b2b8dc9a8ed5bb47b5be1fa4530242",
+        "approved_review_content_id": "cad6cca4a36286bb61793462eee88f5a66536cf8e06b8f40eac028fc956f04ad",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "278ce4e9a9b4acc04b10c3e7c287cf0689270af0"
+          },
+          {
+            "path": "docs/ai-workflow/registry/review-followups-cleanup-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2e92e57ab6c3d2cf22f5f98bf721383a7e72e54c"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/review-followups-cleanup-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0ace41446ba7102315bc04922890ca28bbb6ca18"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-20T10:24:25Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "cad6cca4a36286bb61793462eee88f5a66536cf8e06b8f40eac028fc956f04ad",
+            "ledger": {
+              "local": {
+                "bundle_id": "2bfb8f8c1875ecdef203a7d1cfbb2a2337b2b8dc9a8ed5bb47b5be1fa4530242",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "07c1f4e3917ef372661e89c9669f589b1eb84f27b2a84926477cbb05ade24806",
+                "ledger_entry_sha256": "b4adfcbb2f205dcf5a73e5183ea6c185bcecb193f94763a669a4eb5caf0571ac",
+                "run_ref": "session:local .ai-review/review-followups-cleanup/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "2bfb8f8c1875ecdef203a7d1cfbb2a2337b2b8dc9a8ed5bb47b5be1fa4530242",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "a9225e0a679b18875a8a420841812a5eb123bd0e2a433e944ec05b9a59c5a6d9",
+                "ledger_entry_sha256": "9988c979cf6cd5f9e0849b0207eaa84d67bd6c63c4b7b98bc71847eb8bb7f076",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/review-followups-cleanup/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-20T10:24:25Z",
+          "workflow_release": "2.18.0"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "cad6cca4a36286bb61793462eee88f5a66536cf8e06b8f40eac028fc956f04ad",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "2bfb8f8c1875ecdef203a7d1cfbb2a2337b2b8dc9a8ed5bb47b5be1fa4530242",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-10-20T10:17:01Z",
+          "verdict_sha256": "07c1f4e3917ef372661e89c9669f589b1eb84f27b2a84926477cbb05ade24806",
+          "run_ref": "session:local .ai-review/review-followups-cleanup/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "2bfb8f8c1875ecdef203a7d1cfbb2a2337b2b8dc9a8ed5bb47b5be1fa4530242",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-10-20T10:23:39Z",
+          "verdict_sha256": "a9225e0a679b18875a8a420841812a5eb123bd0e2a433e944ec05b9a59c5a6d9",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/review-followups-cleanup/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 5,
+          "external": 2
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 19,
+      "last_transition": "2026-10-20T10:24:25Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-20T10:15:40Z",
+        "consumed": {
+          "review_content_id": "9674b15b032c24cf6175b5cbab34b9379d8ecb24c996bd67ff1710627b685240",
+          "plan_revision": 4,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "cad6cca4a36286bb61793462eee88f5a66536cf8e06b8f40eac028fc956f04ad",
+          "plan_revision": 5
+        },
+        "bound": {
+          "review_content_id": "cad6cca4a36286bb61793462eee88f5a66536cf8e06b8f40eac028fc956f04ad",
+          "bundle_id": "2bfb8f8c1875ecdef203a7d1cfbb2a2337b2b8dc9a8ed5bb47b5be1fa4530242",
+          "plan_revision": 5
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "6761ca712462b5b93135201258ffa4fa20bacd7d6a2b48cd06cdccc9010ca2e0",
+        "9674b15b032c24cf6175b5cbab34b9379d8ecb24c996bd67ff1710627b685240",
+        "b0f0fe49fe21b2e55a27bfb35c3d5510075ccff51360ea908ad719a23d912e05",
+        "d1c2698a9c01193d4eb52428cb2676e4ee11ce3118316871971ec16793a07458"
+      ],
+      "optional_findings": {
+        "F-fa7894ba981d": {
+          "digest": "fa7894ba981d955bc595303e78e0326a25195499855c50845a8d70f3be6546bf",
+          "text": "LPR-R1-O1: 52f's scope. Issue #52 item 6 asks for a next step on the recovered-role refusals (plural). `validate_bundle_generation_record_commit` has three recovered-role `MalformedBundleGenerationRecordCommitError` raises (the field set, the target phase and the parent phase), and D-52 rewords only the field-set one. That one is the downgrade case the issue quotes, so the choice is defensible. Still, say in D-52 why the two phase refusals keep their text, or give them the same final clause, so #52 does not close with that question open.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "d1c2698a9c01193d4eb52428cb2676e4ee11ce3118316871971ec16793a07458",
+              "verdict": "REVISE",
+              "at": "2026-10-20T09:46:28Z"
+            }
+          ]
+        },
+        "F-6886b3f4e3f5": {
+          "digest": "6886b3f4e3f5cce21851a37cd9f6e3084cd9da09a49a95e7a9e56d44100cc0e0",
+          "text": "LPR-R1-O2: 31d's example. With `plan_revision: 3` and `review_round.plan: 3`, the same snapshot keeps `plan_local: 2` and `plan_external: 2`. A complete history reaches that only if one of the two consumed contents was withdrawn unreviewed, because each round that reaches the external stage needs a local `APPROVE`. Either use `plan_revision: 2` with `review_round.plan: 2` (local `APPROVE` + external `REVISE`, then local `APPROVE` + external `APPROVE`), or check the per-role counts in the same edit. Let the CP4 needle pin the whole consistent tuple.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "d1c2698a9c01193d4eb52428cb2676e4ee11ce3118316871971ec16793a07458",
+              "verdict": "REVISE",
+              "at": "2026-10-20T09:46:28Z"
+            }
+          ]
+        },
+        "F-21968e883140": {
+          "digest": "21968e8831402d04ffc70792350172416ce1d365c89609766aca77c62b6765d0",
+          "text": "LPR-R1-O3: D-39a should say that `on_failure` runs for any `BaseException`, as today's `except BaseException` does. Otherwise a `KeyboardInterrupt` during `before_publish` would leave the baseline behind. The CP1 test can cover it with one subtest.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "d1c2698a9c01193d4eb52428cb2676e4ee11ce3118316871971ec16793a07458",
+              "verdict": "REVISE",
+              "at": "2026-10-20T09:46:28Z"
+            }
+          ]
+        },
+        "F-8746833e701b": {
+          "digest": "8746833e701be92d024f8f191c9e0cd82cc74744cf92448f97eac6d116e6b34f",
+          "text": "LPR-R1-O4: D-45a. D-Parse says \"the refusal and the listing\" show the first line cut to 240. The `--finding-dispositions` CLI prints the whole stored `text` in JSON. Changing that would be an output-schema change, so state in D-45a that the CLI listing is deliberately unchanged.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "d1c2698a9c01193d4eb52428cb2676e4ee11ce3118316871971ec16793a07458",
+              "verdict": "REVISE",
+              "at": "2026-10-20T09:46:28Z"
+            }
+          ]
+        },
+        "F-8603528cf548": {
+          "digest": "8603528cf54805fcbce070571ad15913f9c824a5e04ff095e1915bb01df39f42",
+          "text": "LPR-R1-O5: 60a's red-first margin is narrow. After the `version:` and `items:` lines, the 2,000-line cap leaves at most 999 two-line items, so the recursion depth sits just above Python's default limit of 1000. Build the chain at the maximum the cap allows, and run `status` the way the existing backlog tests do, so the red run is not sensitive to the harness's own stack depth.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "d1c2698a9c01193d4eb52428cb2676e4ee11ce3118316871971ec16793a07458",
+              "verdict": "REVISE",
+              "at": "2026-10-20T09:46:28Z"
+            }
+          ]
+        },
+        "F-25d4df735ac8": {
+          "digest": "25d4df735ac868431cc9ee9a15a854bd2c298bbc296cfd52b0eded113348fa5a",
+          "text": "LPR-R2-O1: 60d changes a predicate with two callers. `workflow_state._classify_declared_backlog` (used by `generate_artifacts_declarations`) also calls `protected_conflicts` with `REPRESENTATIVE_ITEM_PAGE`, so the new exact-path rule applies at `/milestone-plan` step 3 as well. That is the intended effect. Say so in CP2. Also say whether the rule applies only when the caller passes a path under `docs/items/` (both callers do) or always, and reword the docstring's \"the `(stage, path)` pairs among `paths`\", which the new pair no longer satisfies. `test_protected_conflicts_predicate` and `workflow_state_test.py`'s `test_the_item_page_prefix_is_checked_too` must stay green unchanged.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "b0f0fe49fe21b2e55a27bfb35c3d5510075ccff51360ea908ad719a23d912e05",
+              "verdict": "REVISE",
+              "at": "2026-10-20T09:53:05Z"
+            }
+          ]
+        },
+        "F-dd191c91057e": {
+          "digest": "dd191c91057eb3b981c544af1256395e993a214b5e111f3522d0d9156e41fb94",
+          "text": "LPR-R3-O1: 60d can report a pair twice. If a declaration protects `docs/items/x.md` exactly (the representative page itself), `path in exact` already reports `(stage, \"docs/items/x.md\")`, and the new rule would add it again as an exact protected path under the prefix. Have the new rule skip pairs already found, or build the result in order without duplicates. Add that case to the new predicate test, so the `declaration_conflict` message names each path once.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "6761ca712462b5b93135201258ffa4fa20bacd7d6a2b48cd06cdccc9010ca2e0",
+              "verdict": "APPROVE",
+              "at": "2026-10-20T09:57:58Z"
+            }
+          ]
+        },
+        "F-9ed788e7a219": {
+          "digest": "9ed788e7a219a2bfa1a1bf310c1d95ecf42ddf853dad42f707b74df576e44361",
+          "text": "**EPR-003 [substantive] — Consider covering protected subprefixes in 60d.**\n  \n  The exact-path addition at `PLAN.md:354` still misses an implementation protected prefix such as `docs/items/team/`. The representative `docs/items/x.md` does not match it, and there are no exact protected paths to trigger the addition. Current preflight accepts that declaration, while `docs/items/team/alpha.md` classifies as protected (`payload/scripts/workflow_fingerprint.py:1838`). Consider handling overlapping protected prefixes too, or explicitly defer this adjacent collision case.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "6761ca712462b5b93135201258ffa4fa20bacd7d6a2b48cd06cdccc9010ca2e0",
+              "verdict": "REVISE",
+              "at": "2026-10-20T10:09:08Z"
+            }
+          ]
+        },
+        "F-1a900e70f5ac": {
+          "digest": "1a900e70f5ac24047f8837245631c1204e1f996c4566d088e7b1830e85adaba9",
+          "text": "**EPR-004 [apparatus] — Make the 45a fixture respect the existing storage limit.**\n  \n  `PLAN.md:302` specifies a *stored* finding exceeding 1,200 characters whose whole text remains stored. Parsing already caps stored text at 1,200 (`payload/scripts/workflow_fingerprint.py:4203`), and validation rejects longer ledger text (`payload/scripts/workflow_state.py:16018`). Specify an input entry exceeding 1,200 characters, a first line exceeding 240, and assertions that preserve the existing capped ledger text and JSON listing.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "6761ca712462b5b93135201258ffa4fa20bacd7d6a2b48cd06cdccc9010ca2e0",
+              "verdict": "REVISE",
+              "at": "2026-10-20T10:09:08Z"
+            }
+          ]
+        },
+        "F-846d8376335b": {
+          "digest": "846d8376335b001761f39ce8015ef35efe3745af91c7d692b45b34feb996ea4c",
+          "text": "**EPR-005 [apparatus] — The supplied issue evidence is incomplete.**\n  \n  `.review-w15/issue-31.md`, `issue-39.md`, `issue-45.md`, `issue-52.md` and `issue-56.md` are empty; the #60 and #64 snapshots contain comments only. Code and inventory checks were possible, but completeness against every issue body and comment could not be independently verified. Supply complete snapshots for subsequent review.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "6761ca712462b5b93135201258ffa4fa20bacd7d6a2b48cd06cdccc9010ca2e0",
+              "verdict": "REVISE",
+              "at": "2026-10-20T10:09:08Z"
+            }
+          ]
+        },
+        "F-b023d37f1915": {
+          "digest": "b023d37f1915108b963c0f762d9eff516fbe0c34c9389190063bf606f99f1fc5",
+          "text": "**LPR-R4-O1: R2 and the 60a-to-60d posture row still describe 60d as exact page paths only.** Revision 4 widens 60d to protected prefixes under `docs/items/` (`EPR-003`). R2 (`PLAN.md:688`, \"detects an exact protected page path\") and the D-Patch backlog row (`PLAN.md:138`, \"an artifact declaration that protects an exact page path under `docs/items/` is a `declaration_conflict`\" and \"misses the exact-page conflict\") still say exact paths only. Section 6's 60d reason has the same gap, as do the CP5 posture and release-history text that copy these rows. Add \"or a prefix under it\" so the posture CP5 publishes matches what CP2 ships.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "9674b15b032c24cf6175b5cbab34b9379d8ecb24c996bd67ff1710627b685240",
+              "verdict": "REVISE",
+              "at": "2026-10-20T10:14:00Z"
+            }
+          ]
+        },
+        "F-1fa6bc29dd1e": {
+          "digest": "1fa6bc29dd1e2eeae35740f6f67fa7f1f90d04932cf51ab8aa4c1d654c2da220",
+          "text": "**LPR-R5-O1: the header still says \"Plan revision: 4\".** `PLAN.md:13` reads \"**Plan revision:** 4\", but the title and revision history say revision 5. Update it the next time the plan is edited. It changes no requirement.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "cad6cca4a36286bb61793462eee88f5a66536cf8e06b8f40eac028fc956f04ad",
+              "verdict": "APPROVE",
+              "at": "2026-10-20T10:17:01Z"
+            }
+          ]
+        },
+        "F-3feeec25ceed": {
+          "digest": "3feeec25ceeddca76604e1ed6ad3de7d6f5bacce2ac7550dd0116e62c3c35497",
+          "text": "**EPR-006 [apparatus] — The revision header still says 4.**\n  \n  `PLAN.md:13` states “Plan revision: 4,” while the title, revision history and registry identify revision 5. Update the header when next editing the plan; this does not affect its requirements.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "cad6cca4a36286bb61793462eee88f5a66536cf8e06b8f40eac028fc956f04ad",
+              "verdict": "APPROVE",
+              "at": "2026-10-20T10:23:39Z"
+            }
+          ]
+        }
       }
     }
   }
