@@ -10756,12 +10756,12 @@
       "registry_path": "docs/ai-workflow/registry/harness-neutral-commands-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/harness-neutral-commands-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "APPLYING_REVIEW_FEEDBACK",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 5,
-      "implementation_revision": 1,
+      "implementation_revision": 2,
       "functional_review_round": null,
       "base_commit": "ad6f8638ad16dc0fb20c02fb2e501fc758890e66",
-      "reviewed_implementation_head": "2075341adb247da026d1844d0198629cb8ae28cf",
+      "reviewed_implementation_head": "e350e03490b37805b1160f2f3dd29c2c9cf370a5",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP3",
       "checkpoints": {
@@ -10904,8 +10904,8 @@
           "external": 0
         }
       },
-      "state_revision": 28,
-      "last_transition": "2026-10-19T23:49:00Z",
+      "state_revision": 29,
+      "last_transition": "2026-10-20T00:00:02Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
