@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "review-followups-2",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -12665,6 +12665,247 @@
         },
         "evaluated_at": "2026-10-20T13:26:30Z",
         "workflow_release": "2.18.0"
+      }
+    },
+    "review-followups-2": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "review-followups-2",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/REVIEW_FOLLOWUPS_2_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/review-followups-2-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/review-followups-2-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 1,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "a0ec8cff6979b3a3297a1c7fda516cc97549baa3",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "6209c107829a61f15d18b6f7753f03c47a8e7fb959a2a7e5ad9b0cedff7765bf",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "6209c107829a61f15d18b6f7753f03c47a8e7fb959a2a7e5ad9b0cedff7765bf",
+        "approved_review_content_id": "6ee088d1df3ef2e44c17ca15cdee84789b259fb3ad49b927a1c7d5e112e611de",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/REVIEW_FOLLOWUPS_2_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "18c920122fd37044cdd367c92ac40602671353c4"
+          },
+          {
+            "path": "docs/ai-workflow/registry/review-followups-2-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "022406ee71a73437614ba4dedce403a53e358f46"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/review-followups-2-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a42b6bdc4e543710e900d83c0b699e82d575b99b"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-20T22:25:46Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "6ee088d1df3ef2e44c17ca15cdee84789b259fb3ad49b927a1c7d5e112e611de",
+            "ledger": {
+              "local": {
+                "bundle_id": "6209c107829a61f15d18b6f7753f03c47a8e7fb959a2a7e5ad9b0cedff7765bf",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "6622f8a2de8b488affaa0428c14dc8dec605e19832cc291e698bde7b76797941",
+                "ledger_entry_sha256": "eac2b75b03207bf4fffaf67e75ce031a5165e7888c33c1d075e027cd1af8ba02",
+                "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "6209c107829a61f15d18b6f7753f03c47a8e7fb959a2a7e5ad9b0cedff7765bf",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "5eb9e970554cc498a383382a6e48ffa463c963cf0d375f73e3d03ada799bdb9a",
+                "ledger_entry_sha256": "0516348436e32981b9edf193cfae7ecd92496951310de60b22bc3768bf66a9d4",
+                "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-20T22:25:46Z",
+          "workflow_release": "2.18.1"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "6ee088d1df3ef2e44c17ca15cdee84789b259fb3ad49b927a1c7d5e112e611de",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "6209c107829a61f15d18b6f7753f03c47a8e7fb959a2a7e5ad9b0cedff7765bf",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-20T22:16:47Z",
+          "verdict_sha256": "6622f8a2de8b488affaa0428c14dc8dec605e19832cc291e698bde7b76797941",
+          "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "6209c107829a61f15d18b6f7753f03c47a8e7fb959a2a7e5ad9b0cedff7765bf",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-20T22:24:59Z",
+          "verdict_sha256": "5eb9e970554cc498a383382a6e48ffa463c963cf0d375f73e3d03ada799bdb9a",
+          "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-10-20T22:25:46Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-20T22:45:00Z",
+        "consumed": {
+          "review_content_id": "5fde98a4018b87350588ce291f5b547d8c28805312b5b83ec091525aa215fcc4",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "6ee088d1df3ef2e44c17ca15cdee84789b259fb3ad49b927a1c7d5e112e611de",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "6ee088d1df3ef2e44c17ca15cdee84789b259fb3ad49b927a1c7d5e112e611de",
+          "bundle_id": "6209c107829a61f15d18b6f7753f03c47a8e7fb959a2a7e5ad9b0cedff7765bf",
+          "plan_revision": 1
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "5fde98a4018b87350588ce291f5b547d8c28805312b5b83ec091525aa215fcc4"
+      ],
+      "optional_findings": {
+        "F-70d05f9b6f78": {
+          "digest": "70d05f9b6f780fc317c97d8b4684cc5bcf4e3f9dc498672b4651cd2838e4ccc1",
+          "text": "**LPR-R1-002: the roadmap row status disagrees with the plan.** The plan header says\n  row 19 is \"marked Current by this plan\", and CP3 says \"`docs/ROADMAP.md` row 19 is marked\n  Current with this plan\". The working-tree `docs/ROADMAP.md` diff gives row 19 the status\n  `Next`. Make the two agree (whichever word the roadmap uses for an item in progress).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "5fde98a4018b87350588ce291f5b547d8c28805312b5b83ec091525aa215fcc4",
+              "verdict": "REVISE",
+              "at": "2026-10-20T22:13:00Z"
+            }
+          ]
+        },
+        "F-a5134c16de49": {
+          "digest": "a5134c16de492a40d59c287db31f4973539c5d2ecd1de5e04a06e66baf75362d",
+          "text": "**LPR-R1-003: the census sentence in section 2 is garbled.** \"Lines over 90 columns,\n  outside the front matter and before code fences and tables are excluded:\" reads as if\n  only lines before the first fence count. It presumably means \"outside the front matter,\n  code fences and tables\". The counts themselves are right: re-counted from the files, they\n  are 4/14/4/5/6/5 excluding the front matter.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "5fde98a4018b87350588ce291f5b547d8c28805312b5b83ec091525aa215fcc4",
+              "verdict": "REVISE",
+              "at": "2026-10-20T22:13:00Z"
+            }
+          ]
+        },
+        "F-f46900995cb4": {
+          "digest": "f46900995cb443c940c247815c175044ea93c4fd67e3689d1070bde8667444e1",
+          "text": "**LPR-R2-001: the `on_failure` correction leaves \"always propagates\" false.** The\n  docstring at `payload/scripts/workflow_state.py:1980-1981` reads \"The original exception\n  always propagates; one raised by `on_failure` is suppressed.\" D-Optional (OD-5) narrows\n  only the second clause, to \"an `Exception` raised by `on_failure` is suppressed\". As\n  section 2 itself says, a `KeyboardInterrupt` or `SystemExit` raised by `on_failure`\n  replaces the original, so after the planned edit the first clause is still untrue. Qualify\n  it too, for example \"The original exception propagates unless `on_failure` raises a\n  non-`Exception` `BaseException`, which replaces it\". Pin the qualified wording in the CP2\n  needle test, which already plans to assert that such an interrupt propagates.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "6ee088d1df3ef2e44c17ca15cdee84789b259fb3ad49b927a1c7d5e112e611de",
+              "verdict": "APPROVE",
+              "at": "2026-10-20T22:16:47Z"
+            }
+          ]
+        },
+        "F-d5075011a16d": {
+          "digest": "d5075011a16de8063f99b1a10a6a3e5f64e295debca5c98ea10059feff62ba7c",
+          "text": "**LPR-R2-002: the census count for `approve-review.md` includes table rows.** Section 2\n  now says the counts are \"outside the front matter, code fences and tables\", but 14\n  includes the five indented table rows at `approve-review.md` lines 470 and 471 and 473 to\n  475 (`    | 4d | …`). Without tables the count is 9, and the other five counts (4/4/5/6/5)\n  are right as stated. The census is only an aid, so this is a wording fix. One related\n  point for CP1's width test: these rows are indented four spaces, so \"table row\" has to\n  mean a line whose content *after its indentation* starts with `|`. Otherwise the test\n  stays red on them after the re-wrap.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "6ee088d1df3ef2e44c17ca15cdee84789b259fb3ad49b927a1c7d5e112e611de",
+              "verdict": "APPROVE",
+              "at": "2026-10-20T22:16:47Z"
+            }
+          ]
+        },
+        "F-1d548385717a": {
+          "digest": "1d548385717a584e4a5624f447876126d73ececa0665eb21144dedff81a9a040",
+          "text": "**EPR-001 [substantive] — Clarify that both docstring clauses need correction.**\n  Plan lines 199–203 narrow which callback exceptions are suppressed, but `payload/scripts/workflow_state.py:1980` also says the original exception “always propagates”. The planned `KeyboardInterrupt` test demonstrates the exception to that guarantee. Explicitly qualify the first clause too, and pin the complete corrected wording.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "6ee088d1df3ef2e44c17ca15cdee84789b259fb3ad49b927a1c7d5e112e611de",
+              "verdict": "APPROVE",
+              "at": "2026-10-20T22:24:59Z"
+            }
+          ]
+        }
       }
     }
   }

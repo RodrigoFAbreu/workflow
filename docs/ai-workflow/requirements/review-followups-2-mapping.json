@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-followups-2",
+  "requirements": {
+    "R1": {
+      "description": "`/milestone-plan` runs the declared-backlog protected-path collision check in step 1 before the work item, registry and mapping are written, refusing with the existing `declaration_conflict` code; tested red first, undeclared repositories unchanged",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "The long guard lines of the six user-only command bodies are re-wrapped with no word changed (proven per file by whitespace-normalised equality), pinned by a width test, golden hashes re-recorded",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "A verification-commands section in `docs/RELEASING.md`, pointed to from `CLAUDE.md`, gives command forms that each run as written, pinned by needles",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "R4": {
+      "description": "The `state_transaction` docstring, the three trailing-newline patterns and the release history's still-open list are corrected, each tested",
+      "checkpoint_ids": [
+        "CP2",
+        "CP3"
+      ]
+    },
+    "R5": {
+      "description": "Release 2.18.2: release constant and pinned assertions, manifest digests, sizes, measured counts and per-record rationales, release history, downgrade posture and the manager block",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    }
+  }
+}
