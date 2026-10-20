@@ -13,7 +13,7 @@ approved by gate policy). The goal is Workflow 2.18.1, a patch release (`fix:`).
 | --- | --- | --- |
 | CP1 | Review-core defects and messages | **complete** (31b, 39a, 45a, 52b, 52f) |
 | CP2 | Backlog script, release tooling, CI and the conformance template | **complete** (60a-60d, 60f tests, 39g-39i, 56a, 56d) |
-| CP3 | Test hardening | not started |
+| CP3 | Test hardening | **complete** (39b, 45b, 52a, 52c, 52e) |
 | CP4 | Shipped documents and the tests that pin them | not started |
 | CP5 | Release 2.18.1 | not started |
 
@@ -60,6 +60,29 @@ fixture, `tools/release` (207 tests) and `tools/docs` pass, and `workflow-manage
 is clean. The one `tools/release` failure on the first run (the selector test lacking
 `isPrerelease`) was fixed and its class re-run green.
 
+### CP3 verified state
+
+Test-only (`payload/scripts/workflow_state_test.py`); no production line changed. Each new or
+tightened test was shown to fail under a deliberate break applied to a scratch copy only.
+
+- 39b: a real manual `REVISE` ingest, a plan edit and the real generator; the manual section of
+  `CHANGES_SINCE_REVIEW.md` names `previous_review_content_id` and shows the edit. Fails when the
+  ingest stops recording the baseline.
+- 45b: the two-item residue test asserts the exact changed lines of the diff (the other item's
+  ledger hunk). A spurious extra hunk that does not name the committed item now fails it.
+- 52a: 2.14.0's four commit-field sets are literals; a test asserts the current sets equal them
+  plus exactly `review_round_counts`, and the downgrade helper uses the literals.
+- 52c: a duplicate ingest (same call on the post-state) and a stale feedback content id, for both
+  manual writers, raise and leave the state and counter unchanged. Fails when the stale check goes.
+- 52e: the grep of `workflow_fingerprint.py` is replaced by a comparison, in one repository, of the plan-stage
+  and implementation-stage `review_content_id` before and after the counter changes. Deviation
+  from the plan text: `bundle_id` is not compared, because the bundle ships a copy of the state
+  file, so it covers the counter by design (the approval binds `review_content_id`).
+
+Verified in a disposable clone (D-Staging): the nine payload suites pass from a staged fixture,
+`tools/release` (207 tests) and `tools/docs` (34 tests) pass, and `payload/.claude/commands` is
+byte-identical to the base.
+
 ## Next action
 
-`/milestone-implement review-followups-cleanup` implements CP3.
+`/milestone-implement review-followups-cleanup` implements CP4.
