@@ -106,9 +106,15 @@ the review is a reading-and-running check. Everything runs from the repository r
    `$ARGUMENTS` (where, substitution, empty case), exactly six user-only commands, a Claude
    Code note, and neutrality rules.
 2. **Neutral wording.** `grep -rniE "claude|the model" payload/.claude/commands payload/docs/ai-workflow/{MILESTONE_WORKFLOW,REVIEW_PROTOCOL,WORKFLOW_V2_1_OPERATOR_REFERENCE}.md`.
-   Expected: the model is called "the agent"; the only remaining Claude names are intended ones
-   (the `Claude-Session:` trailer key, the Claude Code note and harness notes in
-   `COMMAND_FILES.md`, and the reviewer bodies' "any capable model" phrasing).
+   Expected: the model is called "the agent". Matches that remain are intended per the
+   neutrality rules in `COMMAND_FILES.md`: paths and identifiers (`CLAUDE.md`, `.claude/`, the
+   `Claude-Session:` trailer key), lower-case model-ID examples, and descriptive uses such as
+   "the model that reviewed" in `REVIEW_PROTOCOL.md`. The grep does not cover `COMMAND_FILES.md`'s
+   own Claude Code note; read it separately. The reviewer bodies' "any capable model" phrase is
+   checked by reading, not by this grep. Pass: no sentence calls the model "Claude" or gives a
+   harness-specific instruction outside `COMMAND_FILES.md`'s notes. (The operator reference's
+   stale "16 files" count is pre-existing, not harness-related; deferred to
+   https://github.com/RodrigoFAbreu/workflow/issues/64.)
 3. **User-only guards.** Open `accept-milestone.md`, `approve-review.md`, `adopt-gate-policy.md`,
    `request-plan-amendment.md`, `resume-implementation.md`, `retire-legacy-work-item.md`.
    Expected: each states the literal-confirmation check as the control the command carries
@@ -121,10 +127,13 @@ the review is a reading-and-running check. Everything runs from the repository r
    `workflow_state_test.py`; then `python3 tools/release/release_test.py`
    (needs the Git-clone environment of CP3). Expected: all pass, including
    `TestCommandFilesContractDocument` and `TestHarnessNeutralCommandBodies`.
-6. **Release metadata.** `python3 tools/release/release.py check-manager-block` and
-   `workflow-manager verify .`. Expected: both clean; `manifest.json` is 2.18.0 with 79 records
-   (53 distribution), `min_manager_version` 1.13.0, and a row for 2.18.0 in
-   `docs/release-history.md`.
+6. **Release metadata.** `python3 tools/release/release.py check-manager-block --commit HEAD --manager-releases tools/release/manager-releases.json`
+   (expected: "ok: 2.18.0 carries a valid manager block that matches the measurement") and
+   `workflow-manager verify .` (needs the installed 2.17.0 release's assets cached; an offline
+   run needs the 2.17.0 assets in the release cache (`WORKFLOW_MANAGER_RELEASE_CACHE`) or
+   `workflow-manager --release-source MIRROR verify .`). Expected: both clean; `manifest.json`
+   is 2.18.0 with 79 records (53 distribution), `min_manager_version` 1.13.0, and a row for
+   2.18.0 in `docs/release-history.md`.
 7. **Installation untouched.** `git diff ad6f863..HEAD --stat -- .claude scripts .workflow-manager`.
    Expected: empty (this repository's own 2.17.0 installation is not edited by hand).
 
@@ -132,9 +141,19 @@ the review is a reading-and-running check. Everything runs from the repository r
 
 - No behaviour change to any script or state transition; only text, tests and metadata.
 - This repository stays on installed 2.17.0 until 2.18.0 is published and installed through
-  `workflow-manager update`; `workflow-manager` needs its own pin PR for 2.18.0.
+  `workflow-manager update`; `workflow-manager` adds 2.18.0 to its tested-release lock in a `chore:` pull request (no pin).
 - Harnesses other than Claude Code are not exercised; only the documented contract is.
 - Plan deviation: fourteen command files name `Claude-Session:` (the plan said sixteen).
+
+### Functional review round 1
+
+Four findings, none needing a code change; `technical_approval` untouched. Flow 2's expectation
+now matches the `COMMAND_FILES.md` neutrality rules; flow 6 now carries the full
+`check-manager-block` arguments and the offline `verify` requirement; the Known limitations
+line on the manager is corrected. The operator reference's stale "16 files" count (pre-existing
+at base `ad6f863`, unrelated to harness neutrality) is deferred to
+https://github.com/RodrigoFAbreu/workflow/issues/64. Re-test flows 2 and 6; all flows are re-run
+in round 2.
 
 ## Next action
 
