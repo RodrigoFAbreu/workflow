@@ -4105,8 +4105,8 @@ def _is_placeholder(text: str) -> bool:
     plain = re.sub(r"\s+", " ", plain).lower()
     if plain in _PLACEHOLDERS:
         return True
-    while plain and (unicodedata.category(plain[-1])[0] in "PSZ"):
-        plain = plain[:-1]
+    plain = plain.strip("".join(
+        ch for ch in set(plain) if unicodedata.category(ch)[0] in "PSZ"))
     return not plain or plain in _PLACEHOLDERS or bool(_NO_FINDINGS_RE.match(plain))
 
 
@@ -4212,9 +4212,9 @@ def assert_verdict_well_formed(content: str) -> None:
     lists a Blocking finding, an `APPROVE` that declares `Review scope:
     changes`, and an `APPROVE` whose header states a conflicting or
     unrecognised `Review scope` (exactly one `Review scope: full` line, or
-    none, is accepted). Trailing punctuation or symbols on a "none"
-    placeholder are ignored, and an entry made only of punctuation or
-    symbols is also a placeholder. An `APPROVE` whose Important section
+    none, is accepted). Leading, trailing and wrapping punctuation or
+    symbols on a "none" placeholder are ignored, and an entry made only of
+    punctuation or symbols is also a placeholder. An `APPROVE` whose Important section
     holds an entry is not refused: the reviewer should reissue it as a
     `REVISE` (or move the entry to Optional), and the entry stays recorded as
     written. `BLOCK` and every other status pass unchecked.

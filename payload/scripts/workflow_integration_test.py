@@ -3601,6 +3601,13 @@ class TestGenerationDiagnosticMetadataCallerWordingConformance(unittest.TestCase
         self.assertIn("/review-plan", section)
         self.assertIn("/review-implementation", section)
 
+    def test_review_protocol_states_the_leading_trailing_and_wrapping_placeholder_rule(self):
+        """workflow-2.18.1, 31b: the document states the rule `_is_placeholder` enforces."""
+        text = (_repo_root() / "docs" / "ai-workflow" / "REVIEW_PROTOCOL.md").read_text()
+        self.assertIn(
+            "leading, trailing and wrapping punctuation or symbols on `None` are ignored",
+            " ".join(text.split()))
+
     def test_worktree_or_head_mismatch_docstring_is_non_exclusive(self):
         repo_root = _repo_root()
         text = (repo_root / "scripts" / "workflow_fingerprint.py").read_text()

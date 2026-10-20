@@ -562,6 +562,15 @@ class TestVerify(unittest.TestCase):
             body = self.verify(repo)
         self.assertEqual(checks_by_id(body)["state_readable"]["status"], "fail")
 
+    def test_a_healthy_state_names_both_checks_in_the_pass_detail(self):
+        """workflow-2.18.1, 52b."""
+        with h.ScratchRepo() as repo:
+            write_state(repo, empty_state())
+            body = self.verify(repo)
+        check = checks_by_id(body)["state_valid"]
+        self.assertEqual(check["status"], "pass")
+        self.assertEqual(check["detail"], "validate_state and validate_review_round_counts accept the state")
+
     def test_unknown_phase(self):
         with h.ScratchRepo() as repo:
             write_state(repo, h.base_state(wi=item(phase="NOT_A_PHASE")))

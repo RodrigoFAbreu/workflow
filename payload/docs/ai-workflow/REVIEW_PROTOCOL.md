@@ -761,8 +761,9 @@ the whole bundle: a header line `Review scope: full|changes` is optional, and
 `APPROVE`'s header has exactly one `Review scope: full` line or none; any
 other or conflicting value is refused. A finding is a list item
 or a `### ` heading in its section; write `None.` in a section with no
-finding (trailing punctuation or symbols on `None` are ignored, and an entry
-made only of punctuation or symbols is also a placeholder). The shape check
+finding (leading, trailing and wrapping punctuation or symbols on `None` are
+ignored, and an entry made only of punctuation or symbols is also a
+placeholder). The shape check
 refuses an `APPROVE` that lists a Blocking finding; it does not refuse an
 `APPROVE` whose Important section holds an entry. By the severity meaning that
 is the reviewer's own contradiction: the reviewer should reissue it as a

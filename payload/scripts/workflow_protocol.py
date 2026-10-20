@@ -515,7 +515,7 @@ def op_verify(repo_root: Path, args: argparse.Namespace) -> dict:
         try:
             workflow_state.validate_state(state, repo_root=repo_root)
             workflow_state.validate_review_round_counts(state)
-            checks.append(_check("state_valid", "pass", "validate_state accepts the state"))
+            checks.append(_check("state_valid", "pass", "validate_state and validate_review_round_counts accept the state"))
         except Exception as exc:
             if not _is_check_refusal(exc):
                 raise

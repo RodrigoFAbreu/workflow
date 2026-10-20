@@ -7192,6 +7192,11 @@ class TestSameContentRepublicationEndToEnd(unittest.TestCase):
             # satisfying this assertion for the wrong reason.
             self.assertIn(s2, str(ctx.exception))
             self.assertIn("reviewed_implementation_head", str(ctx.exception))
+            # workflow-2.18.1, 52f: the refusal ends with the next step.
+            message = str(ctx.exception)
+            self.assertIn("its own commit", message)
+            self.assertIn("update to that release or later", message)
+            self.assertTrue(message.endswith("and run the command again"), message)
 
     def test_terminal_commit_with_wrong_target_phase_refuses(self):
         """Item 276 (`WF8c`): an otherwise well-formed ordinary `T` that
@@ -18842,6 +18847,68 @@ class TestManualVerdictIngestCrashWindow(unittest.TestCase):
                 self.assertEqual(_harness.read_state(repo)["work_items"][_CP4_WI]["state_revision"], revision)
 
 
+class TestStateTransactionOnFailure(unittest.TestCase):
+    """workflow-2.18.1, 39a: `on_failure` runs inside the lock, on any failure, never on success."""
+
+    def _seed(self, repo):
+        path = repo.root / ws.DEFAULT_STATE_PATH
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(_base_state(wi=_base_work_item())))
+        return path
+
+    @staticmethod
+    def _pin(state):
+        return ws.record_technical_review_block_pin(state, "wi", bundle_id="b1", review_content_id="c1", now="t1")
+
+    def _run(self, repo, mutator, **kwargs):
+        calls = []
+
+        def on_failure():
+            calls.append(ws.held_primitives())
+
+        try:
+            ws.state_transaction(repo.root, mutator, on_failure=on_failure, **kwargs)
+        except BaseException as exc:  # noqa: BLE001 - the test inspects what propagates
+            return calls, exc
+        return calls, None
+
+    def test_each_failure_point_runs_it_inside_the_lock_and_the_original_exception_propagates(self):
+        def raising(exc):
+            def hook(*_args):
+                raise exc
+            return hook
+
+        cases = {
+            "mutator": (raising(RuntimeError("m")), {}, mock.patch.object(ws, "_publish_state_file")),
+            "before_publish": (self._pin, {"before_publish": raising(RuntimeError("m"))},
+                               mock.patch.object(ws, "_publish_state_file")),
+            "interrupt in before_publish": (self._pin, {"before_publish": raising(KeyboardInterrupt())},
+                                            mock.patch.object(ws, "_publish_state_file")),
+            "publish": (self._pin, {}, mock.patch.object(ws, "_publish_state_file", side_effect=RuntimeError("m"))),
+            "monotonicity": (self._pin, {}, mock.patch.object(
+                ws, "_assert_technical_review_block_pins_monotonic", side_effect=RuntimeError("m"))),
+        }
+        for name, (mutator, kwargs, patch) in cases.items():
+            with self.subTest(failure=name), ScratchRepo() as repo:
+                self._seed(repo)
+                with patch:
+                    calls, exc = self._run(repo, mutator, **kwargs)
+                self.assertEqual(len(calls), 1)
+                self.assertIn("2", [held for held, _key in calls[0]])
+                self.assertIsInstance(exc, (RuntimeError, KeyboardInterrupt))
+                self.assertEqual(ws.held_primitives(), ())
+
+    def test_a_failing_on_failure_is_suppressed_and_a_success_never_calls_it(self):
+        with ScratchRepo() as repo:
+            self._seed(repo)
+            with self.assertRaisesRegex(RuntimeError, "original"):
+                ws.state_transaction(
+                    repo.root, lambda state: (_ for _ in ()).throw(RuntimeError("original")),
+                    on_failure=lambda: (_ for _ in ()).throw(ValueError("undo")))
+            calls, exc = self._run(repo, self._pin)
+            self.assertEqual((calls, exc), ([], None))
+
+
 class TestStateTransactionBeforePublish(unittest.TestCase):
     def _seed(self, repo, **item):
         path = repo.root / ws.DEFAULT_STATE_PATH
@@ -20527,6 +20594,28 @@ class TestStageBaselineRecording(unittest.TestCase):
                     with self.assertRaises(OSError):
                         _cp5_ingest(repo, stage, text)
                 self.assertFalse(self._role_dir(repo, role).exists())
+
+    def test_the_undo_of_a_failed_ingest_runs_inside_the_state_lock(self):
+        """workflow-2.18.1, 39a: nothing can write a same-revision baseline between the failure and the undo."""
+        for stage, (build, role, _writer) in _CP5_STAGES.items():
+            for failure in (OSError("boom"), KeyboardInterrupt()):
+                with self.subTest(stage=stage, failure=type(failure).__name__), _harness.ScratchRepo() as repo:
+                    content_id, bundle_id = build(repo)
+                    text = _cp4_verdict("REVISE", rcid=content_id, bundle=bundle_id, base=repo.base, role=role)
+                    held, real_remove = [], fingerprint.remove_stage_baseline
+
+                    def remove(*args, **kwargs):
+                        if "only_state_revision" in kwargs:  # the undo, not the recorder's own replace
+                            held.append(ws.held_primitives())
+                        return real_remove(*args, **kwargs)
+
+                    with mock.patch.object(ws, "_store_manual_verdict", side_effect=failure), \
+                            mock.patch.object(fingerprint, "remove_stage_baseline", side_effect=remove), \
+                            self.assertRaises(type(failure)):
+                        _cp5_ingest(repo, stage, text)
+                    self.assertEqual(len(held), 1)
+                    self.assertIn("2", [name for name, _key in held[0]])
+                    self.assertFalse(self._role_dir(repo, role).exists())
 
     def test_the_directory_changes_no_identifier(self):
         with _harness.ScratchRepo() as repo:
