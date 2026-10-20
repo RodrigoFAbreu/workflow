@@ -59,7 +59,7 @@ GZIP_HEADER = b"\x1f\x8b\x08\x00" + struct.pack("<I", 0) + b"\x02\xff"
 
 #: `\Z`, not `$`: `$` also matches before a trailing newline.
 VERSION_RE = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\Z")
-_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}\Z")
 
 #: Payload categories the Manager's `full` install profile installs, and the
 #: release-owned templates that belong to one (the Manager's `release.py`).

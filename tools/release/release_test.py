@@ -3114,5 +3114,76 @@ class ManagerBlockCiTest(unittest.TestCase):
         self.assertEqual(self.run_selection("2.12.0", False, [("v2.11.0", False)]), "")
 
 
+class TrailingNewlineTest(ScratchTestCase):
+    """review-followups-2: a pattern checked with `.match` must not accept a trailing newline."""
+
+    def test_a_release_tag_ending_in_a_newline_is_not_a_release_tag(self):
+        listing = self.tmp / "releases-newline.json"
+        listing.write_text(json.dumps([{"tagName": "v2.18.2\n", "isDraft": False}]))
+        self.repo.commit("candidate")
+        found = release.Releases(self.repo.root, listing)
+        self.assertEqual((found.releases, found.drafts, found.tags), (set(), set(), {}))
+        self.assertIsNone(release.TAG_RE.match("v2.18.2\n"))
+        self.assertIsNotNone(release.TAG_RE.match("v2.18.2"))
+
+    def test_a_record_sha256_ending_in_a_newline_is_refused(self):
+        manifest = {"schema_version": 1, "templates": [], "artifacts": [{
+            "location": "payload/a.txt", "target_path": "a.txt", "size": 1, "executable": False,
+            "sha256": "0" * 64 + "\n"}]}
+        with self.assertRaisesRegex(package.PackageError, "no valid sha256"):
+            package.manifest_records(manifest)
+        manifest["artifacts"][0]["sha256"] = "0" * 64
+        self.assertIn("payload/a.txt", package.manifest_records(manifest))
+
+    def test_the_manager_version_pattern_rejects_a_trailing_newline(self):
+        # A consistency pin: its only call site uses `fullmatch`, which already refuses the
+        # newline (the "minimum version ending in a newline" case above), so no behaviour was
+        # wrong; `\Z` makes the pattern itself agree with `package.VERSION_RE`.
+        self.assertIsNone(manager_block._MANAGER_VERSION_RE.match("1.13.0\n"))
+        self.assertIsNotNone(manager_block._MANAGER_VERSION_RE.match("1.13.0"))
+
+
+class VerificationCommandsSectionTest(unittest.TestCase):
+    """review-followups-2 (#68): `docs/RELEASING.md` gives the exact runnable verification forms."""
+
+    def setUp(self):
+        text = (REPO_ROOT / "docs/RELEASING.md").read_text()
+        start = text.index("\n## Verification commands\n")
+        end = text.find("\n## ", start + 1)
+        self.section = text[start:end if end != -1 else len(text)]
+
+    def test_every_command_form_is_present(self):
+        for needle in (
+            "python3 tools/release/release.py stage-conformance --commit HEAD --out",
+            'python3 -B "$TMPDIR/fixture/scripts/<suite>_test.py"',
+            'cd "$TMPDIR/fixture/scripts"',
+            "python -m unittest discover -s tools/release -p '*_test.py'",
+            "python3 -m unittest discover -s tools/docs -p '*_test.py'",
+            "python3 tools/docs/check_docs.py",
+            "python3 tools/release/release.py check-manager-block --commit HEAD "
+            "--manager-releases tools/release/manager-releases.json",
+            "workflow-manager verify .",
+            "--release-cache",
+            "WORKFLOW_MANAGER_RELEASE_CACHE",
+            "Building locally",
+            "zlib-ng",
+            "zero tests",
+        ):
+            self.assertIn(needle, self.section)
+
+    def test_the_payload_test_glob_appears_only_in_the_never_sentence(self):
+        glob = "payload/scripts/*_test.py"
+        lines = [line for line in self.section.splitlines() if glob in line]
+        self.assertTrue(lines)
+        for line in lines:
+            self.assertIn("never", line.lower())
+
+    def test_claude_md_points_to_the_section_outside_the_managed_block(self):
+        text = (REPO_ROOT / "CLAUDE.md").read_text()
+        line = next(line for line in text.splitlines() if "Verification commands" in line)
+        self.assertIn("docs/RELEASING.md", line)
+        self.assertGreater(text.index(line), text.index("<!-- workflow-manager:end -->"))
+
+
 if __name__ == "__main__":
     unittest.main()

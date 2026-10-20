@@ -18908,6 +18908,20 @@ class TestStateTransactionOnFailure(unittest.TestCase):
             calls, exc = self._run(repo, self._pin)
             self.assertEqual((calls, exc), ([], None))
 
+    def test_the_docstring_says_an_exception_not_a_base_exception_is_suppressed(self):
+        doc = ws.state_transaction.__doc__
+        self.assertIn("an `Exception` raised by `on_failure` is suppressed", doc)
+        self.assertNotIn("one raised by\n    `on_failure` is suppressed", doc)
+
+    def test_an_interrupt_raised_by_on_failure_propagates_and_replaces_the_original(self):
+        with ScratchRepo() as repo:
+            self._seed(repo)
+            with self.assertRaises(KeyboardInterrupt):
+                ws.state_transaction(
+                    repo.root, lambda state: (_ for _ in ()).throw(RuntimeError("original")),
+                    on_failure=lambda: (_ for _ in ()).throw(KeyboardInterrupt()))
+            self.assertEqual(ws.held_primitives(), ())
+
 
 class TestStateTransactionBeforePublish(unittest.TestCase):
     def _seed(self, repo, **item):

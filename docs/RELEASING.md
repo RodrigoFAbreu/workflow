@@ -363,6 +363,65 @@ live in a throwaway repository.
 | version | superseded by | read-back failure | date |
 | --- | --- | --- | --- |
 
+## Verification commands
+
+The exact forms that verify this repository, each with what it checks and when it
+matters. Run them from the repository root; `$TMPDIR` is a scratch directory.
+
+**The nine payload suites**, from a staged fixture (the release source's own
+conformance fixture, which is what CI runs):
+
+```bash
+python3 tools/release/release.py stage-conformance --commit HEAD --out "$TMPDIR/fixture"
+cd "$TMPDIR/fixture/scripts"
+python3 -B "$TMPDIR/fixture/scripts/<suite>_test.py"
+```
+
+Run the suites from inside the fixture, as CI does: some of them read the repository
+around the working directory (`git rev-parse --show-toplevel`), and from this
+repository's root they would read its installed commands instead of the staged ones
+and fail on any difference between the two.
+
+`<suite>` is each of the nine suites the manifest's `manager.conformance.suites`
+lists. Never run `payload/scripts/*_test.py`: it also picks up the opt-in historical
+demo suites, which are not part of conformance. `stage-conformance`
+verifies the tree against the manifest, so a checkpoint that changed a shipped file
+before the release checkpoint (which is where the manifest records move) cannot stage
+from its own tree: stage from a scratch clone with the changed records' `sha256` and
+`size` adjusted, and say so in the report.
+
+**The `tools/release` and `tools/docs` tests.** The `tools/release` tests need the
+pinned zlib-ng runtime (see "Building locally" below): run them with that
+environment's Python, never the system one.
+
+```bash
+python -m unittest discover -s tools/release -p '*_test.py'
+python3 -m unittest discover -s tools/docs -p '*_test.py'
+python3 tools/docs/check_docs.py
+```
+
+A bare `python3 -m unittest discover tools/release` (or `tools/docs`) runs
+zero tests, because the files are named `*_test.py`, not `test*.py`: pass `-s` and
+`-p`, or name the file.
+
+**The Manager metadata block**, against the committed list of Manager releases
+(`--manager-releases` is required; without it the command is a usage error):
+
+```bash
+python3 tools/release/release.py check-manager-block --commit HEAD --manager-releases tools/release/manager-releases.json
+```
+
+**The installation**, which must match the Workflow release this repository records:
+
+```bash
+workflow-manager verify .
+```
+
+Offline it needs the installed release's assets in the release cache
+(`--release-cache`, or `$WORKFLOW_MANAGER_RELEASE_CACHE`); with an empty cache and no
+reachable release source it exits 1 with `error: cannot fetch <source>/<version>/SHA256SUMS`
+and a `next:` line naming `--release-source`, rather than passing.
+
 ## Building locally: the pinned compression runtime
 
 The package format fixes the tar stream and the gzip framing, but the

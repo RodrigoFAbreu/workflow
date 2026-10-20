@@ -75,6 +75,8 @@ and installed.
   `workflow-conformance`, up to date with `main`. A release is published by
   the `Release` workflow when `main`'s manifest names an unpublished
   version. How releases, CI and the settings work: `docs/RELEASING.md`.
+- The exact commands that verify a change (the nine suites, the `tools/` tests, the
+  manager block, the installation): `docs/RELEASING.md`, "Verification commands".
 
 ## Hard rules
 
