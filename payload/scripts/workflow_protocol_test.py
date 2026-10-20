@@ -3801,6 +3801,22 @@ def catalogue_table_mismatches() -> list[str]:
     return mismatches
 
 
+class TestSpecificationWording(unittest.TestCase):
+    """31c and 31d: the wording and example of `ORCHESTRATION_PROTOCOL.md`."""
+
+    def test_courier_condition_5_names_owner_configuration(self):
+        text = " ".join(SPEC_PATH.read_text().split())
+        self.assertIn("it is enabled by the repository owner's configuration or by an explicit "
+                      "Controller default the owner accepted at setup; unset, the gate stops as today.", text)
+        self.assertNotIn("it is opt-in", text)
+
+    def test_next_action_example_is_a_reachable_history(self):
+        text = " ".join(SPEC_PATH.read_text().split())
+        self.assertIn('"plan_revision": 2, "implementation_revision": null', text)
+        self.assertIn('"review_round": {"plan": 2, "implementation": null, "current": null, '
+                      '"plan_local": 2, "plan_external": 2,', text)
+
+
 class TestSpecificationTablesEqualTheCode(unittest.TestCase):
     """`ORCHESTRATION_PROTOCOL.md` is normative, and its mirrored tables are
     parsed and compared with the module's own, row for row and in order:

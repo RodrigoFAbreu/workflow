@@ -283,11 +283,11 @@ a **decision**:
 ```json
 {"basis": { "...": "section 4" },
  "snapshot": {"phase": "…", "governing_workflow_version": "…", "work_item_type": "…",
-              "plan_revision": 1, "implementation_revision": null,
+              "plan_revision": 2, "implementation_revision": null,
               "current_checkpoint_id": null, "next_checkpoint_id": "CP2",
               "registry_complete": false, "plan_approval": "CURRENT",
               "technical_approval": null, "plan_review_publication_status": null,
-              "review_round": {"plan": 3, "implementation": null, "current": null,
+              "review_round": {"plan": 2, "implementation": null, "current": null,
                               "plan_local": 2, "plan_external": 2,
                               "implementation_local": 0,
                               "implementation_external": 0}},
@@ -1174,7 +1174,8 @@ under automatic gates). A courier is admissible when, and only when:
 4. it couriers only the two verdict kinds at rows 14 and 28, never resolves a
    `user_only` action, and under a human gate policy the approval stays a
    person's (recording a verdict is not an approval);
-5. it is opt-in; unset, the gate stops as today.
+5. it is enabled by the repository owner's configuration or by an explicit Controller
+   default the owner accepted at setup; unset, the gate stops as today.
 
 ## 9. Reserved for a later protocol version
 

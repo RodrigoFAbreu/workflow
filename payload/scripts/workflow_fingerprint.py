@@ -3555,6 +3555,8 @@ def _plan_stage_changes(
         baseline = read_stage_baseline(repo_root, work_item_id, _CHANGES_ROLES["plan"][1])
         if baseline is None:
             raise _NoSectionBasis(_SECTION_NO_RECORD)
+        # Equal ids: the round is identified and nothing changed since it, but the section
+        # still reads "cannot be identified" (REVIEW_PROTOCOL.md says so; no third reason).
         if baseline["review_content_id"] == current_id:
             raise _NoSectionBasis(_SECTION_UNIDENTIFIABLE)
         return {
@@ -3642,6 +3644,8 @@ def _implementation_stage_changes(
         baseline = read_stage_baseline(repo_root, work_item_id, _CHANGES_ROLES["implementation"][1])
         if baseline is None:
             raise _NoSectionBasis(_SECTION_NO_RECORD)
+        # Equal ids: the round is identified and nothing changed since it, but the section
+        # still reads "cannot be identified" (REVIEW_PROTOCOL.md says so; no third reason).
         if baseline["review_content_id"] == current_id:
             raise _NoSectionBasis(_SECTION_UNIDENTIFIABLE)
         old_head = baseline["reviewed_implementation_head"]

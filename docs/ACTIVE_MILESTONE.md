@@ -14,7 +14,7 @@ approved by gate policy). The goal is Workflow 2.18.1, a patch release (`fix:`).
 | CP1 | Review-core defects and messages | **complete** (31b, 39a, 45a, 52b, 52f) |
 | CP2 | Backlog script, release tooling, CI and the conformance template | **complete** (60a-60d, 60f tests, 39g-39i, 56a, 56d) |
 | CP3 | Test hardening | **complete** (39b, 45b, 52a, 52c, 52e) |
-| CP4 | Shipped documents and the tests that pin them | not started |
+| CP4 | Shipped documents and the tests that pin them | **complete** (31c, 31d, 39c-39f, 56b, 60f, 60g, 64b, 64f, 64h) |
 | CP5 | Release 2.18.1 | not started |
 
 ### CP1 verified state
@@ -83,6 +83,19 @@ Verified in a disposable clone (D-Staging): the nine payload suites pass from a 
 `tools/release` (207 tests) and `tools/docs` (34 tests) pass, and `payload/.claude/commands` is
 byte-identical to the base.
 
+### CP4 verified state
+
+Wording in six shipped documents and `docs/common-problems.md`, one comment in
+`workflow_fingerprint.py` (39c), and needles pinning each edit (`workflow_protocol_test.py`,
+`workflow_integration_test.py`, `workflow_state_completion_obligations_test.py`). 64h states 22 in
+all four places of the operator reference; `test_the_command_inventory_claim_states_the_real_guarantee`
+was updated to the new quote and now also refuses the stale 16 forms. 56b has no needle (page not shipped).
+
+Verified in a disposable clone (D-Staging, scratch manifest re-stamped with measured suite counts):
+the nine payload suites pass from a staged fixture (one first-run error in a misplaced new test
+was fixed and the class re-run green), `tools/release` (207 tests) and `tools/docs` (34 tests)
+pass, and `payload/.claude/commands` is unchanged.
+
 ## Next action
 
-`/milestone-implement review-followups-cleanup` implements CP4.
+`/milestone-implement review-followups-cleanup` implements CP5.

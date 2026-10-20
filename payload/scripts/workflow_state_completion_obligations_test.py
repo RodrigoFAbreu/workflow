@@ -3549,6 +3549,16 @@ class BacklogDocument(unittest.TestCase):
             d.ok("generate")
             d.ok("check")
 
+    def test_trailing_comment_after_a_block_list_key_is_documented(self):
+        doc = " ".join(_backlog_doc().split())
+        self.assertIn("A trailing comment is also allowed after `items:` and after `depends_on:` "
+                      "when the value is a block list on the following lines", doc)
+
+    def test_way_back_says_the_copied_page_header_is_not_edited(self):
+        doc = " ".join(_backlog_doc().split())
+        self.assertIn("still name `scripts/workflow_backlog.py`", doc)
+        self.assertIn("must not be hand-edited, because `check` compares the page byte for byte", doc)
+
     def test_every_error_code_of_the_script_is_documented(self):
         source = Path(wb.__file__).read_text(encoding="utf-8")
         codes = set(re.findall(r'BacklogError\(\s*"([a-z_]+)"', source))
