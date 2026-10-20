@@ -754,10 +754,12 @@ class ConformanceTemplate(unittest.TestCase):
         return proc, ws, runner, counter, summary.read_text() if summary.exists() else ""
 
     @staticmethod
-    def stub_check(output):
-        """A shell function standing in for `shards.py check`: prints `output`, exits 1."""
+    def stub_check(output, rc=1):
+        """A shell function standing in for `shards.py check`: prints `output`, exits `rc`."""
+        if isinstance(output, tuple):
+            output, rc = output
         return ("python3() { if [ \"$2\" = check ]; then printf '%s' " + shlex.quote(output)
-                + "; return 1; fi; command python3 \"$@\"; }\n")
+                + f"; return {rc}; fi; command python3 \"$@\"; }}\n")
 
     def assert_check_verdict_fails_the_job(self, run_body):
         # `check` dies after its total row, or exits non-zero after reporting ok: the exit
@@ -775,6 +777,31 @@ class ConformanceTemplate(unittest.TestCase):
 
     def test_sharded_step_fails_when_the_check_verdict_is_bad_without_any_shard_row(self):
         self.assert_check_verdict_fails_the_job(self.run_body)
+
+    def assert_bad_total_with_exit_zero_is_worded_as_the_total(self, run_body):
+        proc, ws, runner, counter, summary = run_body(
+            shards=2, check_stub=("total\t7\t0\t2\t0\tbad\n", 0))
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("::error title=acceptance check failed::the acceptance coverage total is "
+                      "not ok, though the shard check exited 0", proc.stdout)
+        self.assertIn("| FAILED (the coverage total is not ok) |", summary)
+        self.assertNotIn("without a failing shard row", proc.stdout)
+        self.assertNotIn("exited 0)", summary)
+
+    def test_sharded_step_words_a_bad_total_with_exit_zero_as_the_total(self):
+        self.assert_bad_total_with_exit_zero_is_worded_as_the_total(self.run_body)
+
+    def assert_a_failed_copy_is_in_the_units_log(self, run_body):
+        proc, ws, runner, counter, summary = run_body(uncopyable=True)
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        # The failure report echoes the unit's log, which now holds the copy's own error.
+        report = proc.stdout.split("::error title=", 1)[1]
+        self.assertIn("UNREADABLE", report)
+        self.assertIn("Permission denied", report)
+
+    @unittest.skipIf(os.geteuid() == 0, "root reads a mode-0 file, so the copy cannot fail")
+    def test_a_failed_copy_is_in_the_units_log(self):
+        self.assert_a_failed_copy_is_in_the_units_log(self.run_body)
 
     def test_step_body_all_pass(self):
         proc, ws, runner, counter, summary = self.run_body()
@@ -1332,6 +1359,10 @@ class WorkflowCI(unittest.TestCase):
         self.assertIn("if-no-files-found: error", checks)
         self.assertNotIn("continue-on-error", self.text)
 
+    def test_the_update_fixture_previous_release_skips_prereleases(self):
+        self.assertIn("gh release list --json tagName,isDraft,isPrerelease --limit 1000", self.text)
+        self.assertIn('if not r["isDraft"] and not r["isPrerelease"] and re.fullmatch', self.text)
+
     def test_checks_blocks_run_after_an_unrelated_failure(self):
         checks = self.job("checks")
         steps = checks.split("\n      - ")[1:]
@@ -1458,6 +1489,13 @@ class SourceConformanceRunner(unittest.TestCase):
     def test_sharded_step_fails_when_the_check_verdict_is_bad_without_any_shard_row(self):
         ConformanceTemplate.assert_check_verdict_fails_the_job(self, self.run_body)
 
+    def test_the_scheduler_words_a_bad_total_with_exit_zero_as_the_total(self):
+        ConformanceTemplate.assert_bad_total_with_exit_zero_is_worded_as_the_total(self, self.run_body)
+
+    @unittest.skipIf(os.geteuid() == 0, "root reads a mode-0 file, so the copy cannot fail")
+    def test_a_failed_copy_is_in_the_units_log(self):
+        ConformanceTemplate.assert_a_failed_copy_is_in_the_units_log(self, self.run_body)
+
     def peaks(self, counter):
         return [int(p.read_text()) for p in counter.iterdir() if p.name.startswith("peak-")]
 
@@ -1482,7 +1520,8 @@ class SourceConformanceRunner(unittest.TestCase):
                  'logs="$RUNNER_TEMP/source-conformance-logs"\n'
                  'rm -rf "$base" "$logs"; mkdir -p "$base" "$logs"\n'),
                 ("$GITHUB_WORKSPACE/scripts", "$src/scripts"),
-                ('cp -a "$GITHUB_WORKSPACE/." "$d/repo"', 'cp -a "$src/." "$d/repo"')):
+                ('cp -a "$GITHUB_WORKSPACE/." "$d/repo" >>"$d/log" 2>&1',
+                 'cp -a "$src/." "$d/repo" >>"$d/log" 2>&1')):
             self.assertEqual(expected.count(old), 1, old)
             expected = expected.replace(old, new)
         mine = self.body
@@ -2372,6 +2411,10 @@ class ManagerBlockContractTest(unittest.TestCase):
             (lambda b: signal(b).pop("detect"), "signals[0].detect: required"),
             (lambda b: signal(b).update(detect={"kind": "state-regex", "key": "x"}),
              "signals[0].detect.kind: 'state-regex' is not a detector kind"),
+            (lambda b: signal(b).update(detect={"kind": []}),
+             "signals[0].detect.kind: [] is not a detector kind"),
+            (lambda b: signal(b).update(detect={"kind": {}}),
+             "signals[0].detect.kind: {} is not a detector kind"),
             (lambda b: signal(b).update(detect={"kind": "state-key"}),
              "signals[0].detect.key: required by the 'state-key' detector"),
             (lambda b: signal(b).update(detect={"kind": "state-value", "key": "k", "value": [1]}),
@@ -2450,6 +2493,10 @@ class ManagerEvidenceTest(unittest.TestCase):
         self.assertEqual(manager_block.published_versions(evidence), ["1.12.0", "1.13.0"])
         self.assertEqual(manager_block.newest_published(evidence), "1.13.0")
 
+    def test_a_tag_with_a_trailing_newline_does_not_count(self):
+        evidence = evidence_for(("v1.12.0", False, False), ("v1.13.0\n", False, False))
+        self.assertEqual(manager_block.published_versions(evidence), ["1.12.0"])
+
     def test_the_newest_is_numeric_not_textual(self):
         evidence = evidence_for(("v1.9.0", False, False), ("v1.10.0", False, False))
         self.assertEqual(manager_block.newest_published(evidence), "1.10.0")
@@ -2506,6 +2553,10 @@ class ManagerCheckTest(unittest.TestCase):
         block = valid_block({"a_test.py": 2})
         block["schema_version"] = 3
         self.assertIn("manager.schema_version", "\n".join(self.check(self.manifest(block))))
+
+    def test_a_version_with_a_trailing_newline_is_refused(self):
+        problems = self.check(self.manifest(), version="2.13.0\n")
+        self.assertEqual(problems, ["version '2.13.0\\n' is not X.Y.Z"])
 
     def test_suites_must_equal_the_measurement(self):
         problems = "\n".join(self.check(self.manifest(), measured={"a_test.py": 3, "b_test.py": 1}))
@@ -2990,7 +3041,7 @@ class ManagerBlockCiTest(unittest.TestCase):
         body = step.split("<<'PY'\n", 1)[1].split("\n          PY\n", 1)[0]
         return "\n".join(line[10:] for line in body.splitlines()) + "\n"
 
-    def run_selection(self, version: str, with_block: bool, releases: list) -> str:
+    def run_selection(self, version: str, with_block: bool, releases: list, prereleases=()) -> str:
         tmp = Path(tempfile.mkdtemp(prefix="ci-previous-"))
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
         repo = ScratchRepo(tmp / "repo")
@@ -2998,7 +3049,8 @@ class ManagerBlockCiTest(unittest.TestCase):
                         valid_block({}) if with_block else None)
         repo.commit("candidate")
         listing = tmp / "releases.json"
-        listing.write_text(json.dumps([{"tagName": t, "isDraft": d} for t, d in releases]))
+        listing.write_text(json.dumps([{"tagName": t, "isDraft": d, "isPrerelease": t in prereleases}
+                                      for t, d in releases]))
         return subprocess.run([sys.executable, "-", str(listing)], input=self.previous_selection(),
                               cwd=repo.root, capture_output=True, text=True,
                               check=True).stdout.strip()
@@ -3010,6 +3062,8 @@ class ManagerBlockCiTest(unittest.TestCase):
         self.assertEqual(self.run_selection("2.12.1", True, releases), "2.12.0")
         self.assertEqual(self.run_selection("2.10.0", True, releases), "2.9.0")
         self.assertEqual(self.run_selection("2.9.0", True, [("v2.9.0", False)]), "")
+        # A prerelease is not a published release to update from.
+        self.assertEqual(self.run_selection("2.13.0", True, releases, prereleases=("v2.12.0",)), "2.11.0")
 
     def test_a_release_without_a_block_is_not_update_tested(self):
         self.assertEqual(self.run_selection("2.12.0", False, [("v2.11.0", False)]), "")

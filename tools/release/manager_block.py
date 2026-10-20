@@ -99,7 +99,7 @@ def _detector(detect: object, where: str) -> list[str]:
     if not isinstance(detect, dict):
         return [f"{where}: must be an object"]
     kind = detect.get("kind")
-    if kind not in DETECTORS:
+    if not isinstance(kind, str) or kind not in DETECTORS:
         return [f"{where}.kind: {kind!r} is not a detector kind of the closed vocabulary "
                 f"({', '.join(DETECTORS)})"]
     problems = _unknown(detect, ("kind",) + DETECTORS[kind], where)
@@ -270,7 +270,7 @@ def published_versions(evidence: dict) -> list[str]:
     `validate_evidence` found no problem."""
     counted = []
     for record in evidence["releases"]:
-        match = _TAG_RE.match(record["tagName"])
+        match = _TAG_RE.fullmatch(record["tagName"])
         if match and not record["isDraft"] and not record["isPrerelease"]:
             counted.append(record["tagName"][1:])
     return counted
@@ -370,7 +370,7 @@ def check(manifest: dict, version: str, measured: dict | None, manager_releases:
     in the committed evidence `manager_releases` (invalid evidence is a problem).
     `measured` is `None` only when the caller could not measure (then (b) is
     not judged)."""
-    if not _VERSION_RE.match(version):
+    if not _VERSION_RE.fullmatch(version):
         return [f"version {version!r} is not X.Y.Z"]
     old = tuple(int(p) for p in version.split(".")) <= LAST_BLOCKLESS
     block = manifest.get("manager") if isinstance(manifest, dict) else None
