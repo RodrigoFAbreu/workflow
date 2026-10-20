@@ -10756,7 +10756,7 @@
       "registry_path": "docs/ai-workflow/registry/harness-neutral-commands-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/harness-neutral-commands-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 5,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -10869,7 +10869,228 @@
           "workflow_release": "2.17.0"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "66c80257b5b8d6eb47b003a0ffc8c7d28c1edc829d519e9a72cad7af5cf7cc34",
+        "approved_review_content_id": "f73f8a1e7a591b28f1e4706d7712dd88c077bd7442eec6869ec09e33d3e40a1b",
+        "review_content_manifest": [
+          {
+            "path": "docs/README.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "74c837126977ae7eeb9378674251a57d7a71ee63"
+          },
+          {
+            "path": "docs/ai-workflow/registry/harness-neutral-commands-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "58406af8bacb6facf4dfa93de313967470c24bd8"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "da2da909b2864b86620ea0d6bdb2cf768bb49ab1"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4ff453fa41fb9b8e84eac5ddd84afc141e3c9e54"
+          },
+          {
+            "path": "payload/.claude/commands/accept-milestone.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "89f29df2ee6f77232395b548ebcd9d08c0426f2b"
+          },
+          {
+            "path": "payload/.claude/commands/adopt-gate-policy.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9cbb4bd617676f272521e05fe730f0d769b8c8b5"
+          },
+          {
+            "path": "payload/.claude/commands/apply-pr-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e0baf4c5dd1e82fad5285c3bd912d0da3f8dd4b2"
+          },
+          {
+            "path": "payload/.claude/commands/approve-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "addd470a0389e0378acc5bfc4497a089cfbced73"
+          },
+          {
+            "path": "payload/.claude/commands/prepare-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f21711dc29f2cde8564680bbe59b6e669b738335"
+          },
+          {
+            "path": "payload/.claude/commands/request-plan-amendment.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "149e152fe9a11181459e7e7adedbd61490785467"
+          },
+          {
+            "path": "payload/.claude/commands/resume-implementation.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7818b1800334762f84e797c80b7bb06e52b37b2c"
+          },
+          {
+            "path": "payload/.claude/commands/retire-legacy-work-item.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0c0953f0bd2389c0381787f13851cf4d19b634d9"
+          },
+          {
+            "path": "payload/.claude/commands/review-functional.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "da978547db0dd1e7b64fd6a511f302c5ae2f1e10"
+          },
+          {
+            "path": "payload/.claude/commands/review-implementation.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "972057f552e4905ae03320d9f8cb65ffe4c7cc4b"
+          },
+          {
+            "path": "payload/.claude/commands/review-plan.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "88db6312c2e133a4a92218576c345f1c83955309"
+          },
+          {
+            "path": "payload/docs/ai-workflow/COMMAND_FILES.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "641ad0fc09ac85cf56ba3b545e43ec1b6a6f037a"
+          },
+          {
+            "path": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "71b768742ce9bf5ae3398ae0915d0db61c632856"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "052e21054b3a24328ee13867016e93617f774ce3"
+          },
+          {
+            "path": "payload/docs/ai-workflow/REVIEW_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "40a31adee5490ec6ae43bf15881cb0210dcd3d19"
+          },
+          {
+            "path": "payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3d0e06dbc4acea0fea65cdf7eff7ac2e3b592714"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1660bd8f4c6c3fc22883f45176efdf7abd02a24d"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "02cf6ec4a8df6272011d4e200d260c5823a70960"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "fd4e15c9d45858353bb564393a433541ee520311"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c612afc4e967c2a6cadc55a1cec1616c801b422d"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0455a30e34474817cf4ed7182951237db51cde4d"
+          }
+        ],
+        "reviewed_content_commit": "e350e03490b37805b1160f2f3dd29c2c9cf370a5",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-20T00:26:44Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "f73f8a1e7a591b28f1e4706d7712dd88c077bd7442eec6869ec09e33d3e40a1b",
+            "ledger": {
+              "local": {
+                "bundle_id": "66c80257b5b8d6eb47b003a0ffc8c7d28c1edc829d519e9a72cad7af5cf7cc34",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "66a2daf2ad4545b80117665773c5bee22d2e7043ad8770cbc91f60215db0e794",
+                "ledger_entry_sha256": "9592e5e7a5c4a859cb58af5f6633354173eea9a146b9907f20244da028f69823",
+                "run_ref": "session:local .ai-review/harness-neutral-commands/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "66c80257b5b8d6eb47b003a0ffc8c7d28c1edc829d519e9a72cad7af5cf7cc34",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "da6487703773d77d10c5902bf36219fc60586dd25ad9e03b005a6f5dc9d7dd06",
+                "ledger_entry_sha256": "6e3fe63d5707106a95a2917bf270f19eb1274f2e147f84fd8664175fe3370c13",
+                "run_ref": "session:local.ai-review/harness-neutral-commands/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-20T00:26:44Z",
+          "workflow_release": "2.17.0"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "40aef53f7e3f7d97bbf90544089d42e587aa57cf61e842cf4135bcdecc1e15ac",
@@ -10900,12 +11121,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 1,
-          "external": 0
+          "local": 2,
+          "external": 1
         }
       },
-      "state_revision": 29,
-      "last_transition": "2026-10-20T00:00:02Z",
+      "state_revision": 32,
+      "last_transition": "2026-10-20T00:26:44Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -11127,6 +11348,97 @@
               "at": "2026-10-19T23:49:00Z"
             }
           ]
+        },
+        "F-6f8982726b1f": {
+          "digest": "6f8982726b1f77e51a8cac4e21ae8b3c2f8c2f155f2df2b51d4f9bade2227919",
+          "text": "**OPT-1:** Four changed manifest records have no 2.18.0 rationale sentence:\n  - `payload/scripts/workflow_integration_test.py` (new test classes, golden hashes and pinned text);\n  - `payload/scripts/workflow_protocol.py` (release constant 2.18.0);\n  - `payload/scripts/workflow_protocol_test.py` (the two release pins and the six-points sentence);\n  - `payload/scripts/workflow_state_test.py` (the pinned guard sentence).\n\n  Each of them has a sentence for every earlier release, such as \"backlog-file (workflow-2.17.0):\n  release constant 2.17.0\". The 2.18.0 records that do carry a sentence still use the shared wording\n  that round 1's OPT-1 called inaccurate for the files it does not describe. No test or tool checks\n  rationale text, and the plan does not require it, so this is bookkeeping only.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "f73f8a1e7a591b28f1e4706d7712dd88c077bd7442eec6869ec09e33d3e40a1b",
+              "verdict": "APPROVE",
+              "at": "2026-10-20T00:08:03Z"
+            }
+          ]
+        },
+        "F-e50486894a91": {
+          "digest": "e50486894a9138aea6d75771f9935b81fc44a1fc6bed399417adf9c00f614b6a",
+          "text": "**OPT-2:** `TEST_RESULTS.md` was not refreshed for revision 2:\n  - its title still says \"implementation revision 1\";\n  - it reports integration 339;\n  - it gives the old `build` hashes for `2075341`.\n\n  The verification after the fix is recorded only in `IMPLEMENTATION_SUMMARY.md` (\"Verification after\n  the fix\"). This round's rerun confirms that verification: 340 tests, with a green build and green\n  release tests. A refreshed file would let the manual external reviewer read one current test\n  record.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "f73f8a1e7a591b28f1e4706d7712dd88c077bd7442eec6869ec09e33d3e40a1b",
+              "verdict": "APPROVE",
+              "at": "2026-10-20T00:08:03Z"
+            }
+          ]
+        },
+        "F-356a7fd0d4c1": {
+          "digest": "356a7fd0d4c13efda198814a34228a1bb0f0b415a8d2685d55492a831ba242ca",
+          "text": "**OPT-3:** Round 1's OPT-2 and OPT-3 still apply. They were declined as wording or\n  test-strength refinements:\n  - no test pins `COMMAND_FILES.md`'s \"under every harness, is the literal-confirmation check\"\n    sentence;\n  - the empty-case bullet's `prepare-review.md` default does not name the `plan`-stage exception.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "f73f8a1e7a591b28f1e4706d7712dd88c077bd7442eec6869ec09e33d3e40a1b",
+              "verdict": "APPROVE",
+              "at": "2026-10-20T00:08:03Z"
+            }
+          ]
+        },
+        "F-ad35558d7e28": {
+          "digest": "ad35558d7e28572b7d35d6a536715255fcb36eeba5339d289f11d973bf04a3a4",
+          "text": "**OPT-4:** The re-wrapped operator-reference bullet ends with a short line, \"not appear in its\n  command list. To run the commands from\", before the pointer sentence. This is cosmetic.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "f73f8a1e7a591b28f1e4706d7712dd88c077bd7442eec6869ec09e33d3e40a1b",
+              "verdict": "APPROVE",
+              "at": "2026-10-20T00:08:03Z"
+            }
+          ]
+        },
+        "F-ccdc581bcfaa": {
+          "digest": "ccdc581bcfaa0d1fb2422913400596a650bd7b11de518651f3f2dfeb7684acd1",
+          "text": "**EIR-001 [apparatus] — Refresh the test-results record.** `.ai-review/harness-neutral-commands/current/TEST_RESULTS.md:1` still names revision 1, and line 21 reports 339 integration tests. Revision 2 runs 340 successfully. The implementation summary records the updated verification; refreshing this file would consolidate the current evidence.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "f73f8a1e7a591b28f1e4706d7712dd88c077bd7442eec6869ec09e33d3e40a1b",
+              "verdict": "APPROVE",
+              "at": "2026-10-20T00:26:23Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "f73f8a1e7a591b28f1e4706d7712dd88c077bd7442eec6869ec09e33d3e40a1b",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "66c80257b5b8d6eb47b003a0ffc8c7d28c1edc829d519e9a72cad7af5cf7cc34",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-20T00:08:03Z",
+          "verdict_sha256": "66a2daf2ad4545b80117665773c5bee22d2e7043ad8770cbc91f60215db0e794",
+          "run_ref": "session:local .ai-review/harness-neutral-commands/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "66c80257b5b8d6eb47b003a0ffc8c7d28c1edc829d519e9a72cad7af5cf7cc34",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-20T00:26:23Z",
+          "verdict_sha256": "da6487703773d77d10c5902bf36219fc60586dd25ad9e03b005a6f5dc9d7dd06",
+          "run_ref": "session:local.ai-review/harness-neutral-commands/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
