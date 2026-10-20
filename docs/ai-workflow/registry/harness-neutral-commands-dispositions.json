@@ -1,0 +1,89 @@
+{
+ "dispositions": {
+  "F-2d115e27d269": {
+   "disposition": "fixed",
+   "note": "docs/ai-workflow/HARNESS_NEUTRAL_COMMANDS_PLAN.md D-Guard (about lines 183-188) and revision-history row 3 (line 529) set the pointer wording to 'the harness notes in COMMAND_FILES.md', naming no harness product."
+  },
+  "F-345d840e10ad": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#64",
+   "note": "Replace the shared 'the model is named \"the agent\"...' rationale on the sixteen 2.18.0 manifest records with an accurate per-record sentence (e.g. 'release constant 2.18.0' for ORCHESTRATION_PROTOCOL.md, '$ARGUMENTS added' for apply-pr-review.md/prepare-review.md)."
+  },
+  "F-356a7fd0d4c1": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#64",
+   "note": "Pin COMMAND_FILES.md's 'under every harness, is the literal-confirmation check' and 'An adapter that cannot tell refuses the command' sentences in the contract-document test needles, and add the plan-stage exception to the prepare-review.md empty-case bullet."
+  },
+  "F-47f22723efe1": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#64",
+   "note": "Wrap the unwrapped 230-770 character guard lines in accept-milestone.md, approve-review.md and retire-legacy-work-item.md (and the other user-only bodies) at about 78 columns and re-record the golden hashes."
+  },
+  "F-6f8982726b1f": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#64",
+   "note": "Add accurate 2.18.0 rationale sentences to the manifest records of workflow_integration_test.py, workflow_protocol.py, workflow_protocol_test.py and workflow_state_test.py, consistent with the per-record rewording in the OPT-1 follow-up."
+  },
+  "F-9980c8b4be13": {
+   "disposition": "fixed",
+   "note": "docs/ai-workflow/HARNESS_NEUTRAL_COMMANDS_PLAN.md line 173 says the lead sentence 'This command is user-only by construction' stays in the restated guard."
+  },
+  "F-9e21776dc6b1": {
+   "disposition": "fixed",
+   "note": "docs/ai-workflow/HARNESS_NEUTRAL_COMMANDS_PLAN.md D-Release (lines 262-270) now names the two 2.17.0 gaps (missing 'must never invoke' sentence, missing $ARGUMENTS), states a non-Claude-Code adapter needs 2.18.0+, and that moving back is safe for Claude Code only."
+  },
+  "F-accbc2b15186": {
+   "disposition": "fixed",
+   "note": "docs/ai-workflow/HARNESS_NEUTRAL_COMMANDS_PLAN.md:11 now reads 'Plan revision: 5'."
+  },
+  "F-ad35558d7e28": {
+   "disposition": "dropped",
+   "reason": "Cosmetic short line in a re-wrapped markdown bullet; no rendered or semantic effect."
+  },
+  "F-bdb252c002d1": {
+   "disposition": "fixed",
+   "note": "docs/ai-workflow/HARNESS_NEUTRAL_COMMANDS_PLAN.md line 245-250 and revision-history row 2 (line 528) say CP2 adds the sentence to accept-milestone.md and retire-legacy-work-item.md and record the unnumbered adopt-gate-policy.md case."
+  },
+  "F-cc908040fda9": {
+   "disposition": "fixed",
+   "note": "payload/docs/ai-workflow/COMMAND_FILES.md:214 state_writer row: a command file declares true or false only; 'publisher' is script-side."
+  },
+  "F-ccdc581bcfaa": {
+   "disposition": "dropped",
+   "reason": "TEST_RESULTS.md is a gitignored review-bundle file (.ai-review/), not a release artifact; evidence is in IMPLEMENTATION_SUMMARY.md."
+  },
+  "F-d54aca65c6df": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#64",
+   "note": "Add COMMAND_FILES.md's 'under every harness, is the literal-confirmation check' sentence and the key table's 'An adapter that cannot tell refuses the command' to test_the_document_defines_the_term_and_the_placeholder needles (currently unpinned: no test matches either)."
+  },
+  "F-d609bf527f88": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#64",
+   "note": "In COMMAND_FILES.md's empty-case bullet (line ~67-70) add '(except at the plan stage, where the id is required)' after the prepare-review.md default."
+  },
+  "F-d8ac83961ab2": {
+   "disposition": "fixed",
+   "note": "payload/scripts/workflow_integration_test.py normalises whitespace with _squash(text) (e.g. line 8483) before matching needles."
+  },
+  "F-e50486894a91": {
+   "disposition": "dropped",
+   "reason": "TEST_RESULTS.md is a gitignored review-bundle file, not a release artifact; refreshed evidence is in IMPLEMENTATION_SUMMARY.md."
+  },
+  "F-f329f98eba94": {
+   "disposition": "fixed",
+   "note": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md:146 now reads 'the agent must never invoke it; its confirmation...'; no 'Claude cannot run them' remains in the operator reference."
+  },
+  "F-f5f6bb5aa4fd": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#64",
+   "note": "Same fix as the empty-case follow-up: COMMAND_FILES.md must name the plan-stage exception ('except at the plan stage, where the id is required') for prepare-review.md's no-work-item default; still absent at lines 67-70."
+  },
+  "F-f946769b1d9d": {
+   "disposition": "dropped",
+   "reason": "Wording of an approved plan's scratch-staging paragraph; CP1/CP2 are done and release.py behaviour is unchanged, so no action warranted."
+  }
+ },
+ "schema_version": 1,
+ "work_item_id": "harness-neutral-commands"
+}
