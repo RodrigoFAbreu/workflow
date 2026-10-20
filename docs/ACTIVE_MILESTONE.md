@@ -112,6 +112,30 @@ Verified in a clone of the committed tree: `stage-conformance` fixture, all nine
 build`, `check-manager-block`. Not run: the `update-fixture` (needs the published 2.18.0 assets).
 `workflow-manager verify .` reports the installation matches 2.18.0.
 
+## Functional review checklist
+
+This is a `process` milestone (Workflow 2.18.1, a patch release): there is no UI. Testing is
+running the commands below from the repository root on branch `milestone/review-followups-cleanup`.
+
+**Setup.** Clean working tree on the branch; `python3` available. Nothing to seed. Do not run the
+`update-fixture` (needs the published 2.18.0 assets; not run in CP5).
+
+| # | Flow | Expected |
+| --- | --- | --- |
+| 1 | `python3 payload/scripts/workflow_state_test.py` and the other payload suites (`payload/scripts/*_test.py`) | All pass; counts match `manifest.json` `manager.conformance.suites` (453/344/1197/316/142/193/346/283/27) |
+| 2 | `python3 -m unittest discover tools/release` and `tools/docs` | 211 and 34 tests pass |
+| 3 | `python3 tools/release/release.py check-manager-block` and `python3 tools/docs/check_docs.py` | Both clean |
+| 4 | `workflow-manager verify .` | Clean; installation still matches 2.18.0 (this repo is not updated by hand) |
+| 5 | `git diff e1be478..HEAD --stat -- payload/.claude/commands` | Empty: no command file changed |
+| 6 | Review-core spot checks (31b): in a scratch review feedback, a finding disposition of `(none)`, `[none]`, `"None"`, `~~none~~` is treated as a placeholder | Accepted as "none"; see `REVIEW_PROTOCOL.md` leading/trailing/wrapping rule |
+| 7 | 45a: an undispositioned finding refusal prints only each finding's first line, cut at 240 chars | Ledger and `--finding-dispositions` keep the full text |
+| 8 | 60a-60c backlog script: a 2,000-line chained malformed backlog file under `status` | Reported, no `RecursionError`; `?` in a plain flow-list entry refused, quoted `"a?b"` accepted |
+| 9 | `manifest.json` / `docs/release-history.md` | Version 2.18.1, a 2.18.1 row, downgrade posture notes the `- (none)` APPROVE is not portable back to 2.18.0 |
+
+**Known limitations / out of scope.** `update-fixture` not run; this repository's own installation
+stays on 2.18.0 until 2.18.1 is published and installed; 56b has no needle (page not shipped);
+52e compares `review_content_id`, not `bundle_id`, by design.
+
 ## Next action
 
-`/milestone-implement review-followups-cleanup` enters self-review and prepares the bundle.
+`/review-functional` (advisory) or manual testing per the checklist above, then `/accept-milestone review-followups-cleanup` or findings in `.ai-review/review-followups-cleanup/feedback/FUNCTIONAL_REVIEW.md` and `/apply-functional-review`.
