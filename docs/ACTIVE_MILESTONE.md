@@ -15,7 +15,7 @@ policy). The goal is Workflow 2.18.2, a patch release (`fix:`). The previous mil
 | --- | --- | --- |
 | CP1 | Command files: the early collision check and the guard re-wrap | **complete** (60e, 64c) |
 | CP2 | Verification commands and the Optional findings | **complete** (#68, Optional findings) |
-| CP3 | Release 2.18.2 | pending |
+| CP3 | Release 2.18.2 | **complete** (release 2.18.2) |
 
 ### CP1 verified state
 
@@ -61,6 +61,22 @@ Verified in a disposable clone (D-Staging): the nine payload suites, the `tools/
 Verified in a disposable clone (D-Staging): the nine payload suites (integration from inside the
 fixture), `tools/release` (zlib-ng Python), `tools/docs` and `check_docs.py`, `check-manager-block`.
 
+### CP3 verified state
+
+- Release 2.18.2: `manifest.json` `workflow_version`, sha256/size and a `review-followups-2 (workflow-2.18.2)`
+  sentence on each of the 13 changed records, the posture, and `conformance.suites` measured by
+  `release.py manager-block --write` (state 1201, integration 348; the others unchanged, so the
+  acceptance-matrix count in `docs/RELEASING.md` stays 453). `WORKFLOW_RELEASE`, its two pinned
+  assertions and the `ORCHESTRATION_PROTOCOL.md` mentions follow; the protocol stays 1.5. The history
+  has the 2.18.2 row, the corrected 2.18.1 sentence (60e) and the "Last checked" line;
+  `release_test.py` has `ReviewFollowups2ReleaseTest` and the 2.18.1 class no longer pins the current
+  version.
+- Verified in a disposable clone: the nine suites from a stock `stage-conformance` fixture (integration
+  from inside the fixture) all OK; `tools/release` 220 tests OK (zlib-ng Python); `tools/docs` 34 OK;
+  `check_docs.py` clean; `check-manager-block` ok; `release.py build` succeeds; `workflow-manager
+  verify .` matches 2.18.1 (the installation is unchanged).
+
 ## Next action
 
-CP3 (Release 2.18.2), by `/milestone-implement review-followups-2`.
+All checkpoints complete; the next `/milestone-implement review-followups-2` enters
+`SELF_REVIEWING_IMPLEMENTATION` wrap-up (steps 2-5).
