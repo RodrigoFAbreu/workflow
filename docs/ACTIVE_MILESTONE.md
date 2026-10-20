@@ -15,7 +15,7 @@ approved by gate policy). The goal is Workflow 2.18.1, a patch release (`fix:`).
 | CP2 | Backlog script, release tooling, CI and the conformance template | **complete** (60a-60d, 60f tests, 39g-39i, 56a, 56d) |
 | CP3 | Test hardening | **complete** (39b, 45b, 52a, 52c, 52e) |
 | CP4 | Shipped documents and the tests that pin them | **complete** (31c, 31d, 39c-39f, 56b, 60f, 60g, 64b, 64f, 64h) |
-| CP5 | Release 2.18.1 | not started |
+| CP5 | Release 2.18.1 | **complete** (manifest 2.18.1, rationales incl. 64a, posture, release history, release tests) |
 
 ### CP1 verified state
 
@@ -96,6 +96,22 @@ the nine payload suites pass from a staged fixture (one first-run error in a mis
 was fixed and the class re-run green), `tools/release` (207 tests) and `tools/docs` (34 tests)
 pass, and `payload/.claude/commands` is unchanged.
 
+### CP5 verified state
+
+`manifest.json` names 2.18.1: `sha256` and `size` of the 16 changed artifact records and the
+template, a `workflow-2.18.1` sentence on each changed record, the 64a per-file 2.18.0 sentences,
+the template `derivation`, the downgrade posture (per-area; the `- (none)` APPROVE is not portable
+back to 2.18.0), and `manager.conformance.suites` measured by `release.py manager-block --write`
+(453/344/1197/316/142/193/346/283/27). `WORKFLOW_RELEASE` is 2.18.1 with its two assertions and the
+`ORCHESTRATION_PROTOCOL.md` edits; `docs/release-history.md` has the 2.18.1 row; `docs/RELEASING.md`
+states 453 tests (two places); `release_test.py` has a 2.18.1 class and the 2.18.0 class no longer
+pins the current version, constant or posture. No command file changed.
+
+Verified in a clone of the committed tree: `stage-conformance` fixture, all nine suites pass,
+`tools/release` (211 tests, zlib-ng python), `tools/docs` (34 tests) and `check_docs.py`, `release.py
+build`, `check-manager-block`. Not run: the `update-fixture` (needs the published 2.18.0 assets).
+`workflow-manager verify .` reports the installation matches 2.18.0.
+
 ## Next action
 
-`/milestone-implement review-followups-cleanup` implements CP5.
+`/milestone-implement review-followups-cleanup` enters self-review and prepares the bundle.
