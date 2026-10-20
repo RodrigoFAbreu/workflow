@@ -2155,8 +2155,7 @@ class BacklogReleaseTest(unittest.TestCase):
         self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
         self.records = {r["target_path"]: r for r in self.manifest["artifacts"]}
 
-    def test_the_release_names_2_17_0_and_the_two_new_distribution_records(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.17.0")
+    def test_the_release_keeps_the_two_2_17_0_distribution_records(self):
         for target, location in ((self.SCRIPT, "payload/scripts/workflow_backlog.py"),
                                  (self.DOCUMENT, "payload/docs/ai-workflow/BACKLOG_FILE.md")):
             with self.subTest(target):
@@ -2172,27 +2171,8 @@ class BacklogReleaseTest(unittest.TestCase):
         self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
         self.assertEqual(counts["by_category"], by_category)
 
-    def test_the_release_constant_is_the_manifest_version(self):
-        text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.17.0"', text)
-
-    def test_the_manager_block_states_the_downgrade_posture(self):
-        block = self.manifest["manager"]
-        self.assertEqual(block["min_manager_version"], "1.13.0")
-        posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.16.0 ignores the backlog key",
-                       "acceptance hand-edits the generated page",
-                       "staleness check fails", "non-default roadmap",
-                       "tools/workflow_backlog.py", "delete the backlog key",
-                       "state_writer false", "Orchestration Protocol stays 1.5"):
-            self.assertIn(needle, posture)
-        self.assertEqual(block["downgrade_boundary"]["signals"], [])
-        self.assertEqual(block["new_work_only"], [])
-        self.assertEqual(block["gate_default_change"], "")
-
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
         text = (REPO_ROOT / "docs" / "release-history.md").read_text()
-        self.assertIn("Last checked with: Workflow 2.17.0.", text)
         row = next(line for line in text.splitlines() if line.startswith("| 2.17.0 |"))
         for needle in ("backlog file", "tools/workflow_backlog.py", "2.16.0",
                        "Orchestration Protocol 1.5", "v2.17.0"):
@@ -2249,6 +2229,57 @@ class BacklogReleaseTest(unittest.TestCase):
                 self.assertFalse(json.loads(done.stdout)["declared"])
         self.assertEqual(sorted(p.name for p in tmp.iterdir()), [".git", "docs", "scripts"])
         self.assertFalse((tmp / "docs/ROADMAP.md").exists())
+
+
+class HarnessNeutralReleaseTest(unittest.TestCase):
+    """Release 2.18.0 (harness-neutral-commands): the new record, the counts,
+    the release constant, the downgrade posture and the release-history row."""
+
+    DOCUMENT = "docs/ai-workflow/COMMAND_FILES.md"
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.records = {r["target_path"]: r for r in self.manifest["artifacts"]}
+
+    def test_the_release_names_2_18_0_and_the_new_distribution_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.18.0")
+        location = "payload/docs/ai-workflow/COMMAND_FILES.md"
+        record = self.records[self.DOCUMENT]
+        self.assertEqual((record["category"], record["location"], record["executable"]),
+                         ("distribution", location, False))
+        self.assertRegex(self.DOCUMENT, record["rule"])
+        self.assertEqual(record["sha256"], _sha((REPO_ROOT / location).read_bytes()))
+        by_category = {}
+        for entry in self.manifest["artifacts"]:
+            by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
+        counts = self.manifest["counts"]
+        self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
+        self.assertEqual(counts["by_category"], by_category)
+
+    def test_the_release_constant_is_the_manifest_version(self):
+        text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
+        self.assertIn('WORKFLOW_RELEASE = "2.18.0"', text)
+
+    def test_the_manager_block_states_the_downgrade_posture(self):
+        block = self.manifest["manager"]
+        self.assertEqual(block["min_manager_version"], "1.13.0")
+        posture = block["downgrade_boundary"]["posture"]
+        for needle in ("COMMAND_FILES.md", "the agent", "$ARGUMENTS", "must never invoke",
+                       "literal-confirmation check", "needs 2.18.0 or later",
+                       "safe for Claude Code only", "Orchestration Protocol stays 1.5"):
+            self.assertIn(needle, posture)
+        self.assertEqual(block["downgrade_boundary"]["signals"], [])
+        self.assertEqual(block["new_work_only"], [])
+        self.assertEqual(block["gate_default_change"], "")
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        text = (REPO_ROOT / "docs" / "release-history.md").read_text()
+        self.assertIn("Last checked with: Workflow 2.18.0.", text)
+        row = next(line for line in text.splitlines() if line.startswith("| 2.18.0 |"))
+        for needle in ("COMMAND_FILES.md", "the agent", "$ARGUMENTS", "2.17.0",
+                       "Orchestration Protocol 1.5", "v2.18.0"):
+            self.assertIn(needle, row)
+        self.assertLess(text.index("| 2.18.0 |"), text.index("| 2.17.0 |"))
 
 
 # -- the Manager metadata block ----------------------------------------------------
