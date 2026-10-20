@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**In progress.** W15: `review-followups-cleanup` (`process`, governing version `2.2`), branch
+**Complete** (accepted by policy; the release follows the merge). W15: `review-followups-cleanup` (`process`, governing version `2.2`), branch
 `milestone/review-followups-cleanup`, roadmap row 18 (RodrigoFAbreu/workflow#31, #39, #45,
 #52, #56, #60, #64). Plan: `docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md` (revision 5,
 approved by gate policy). The goal is Workflow 2.18.1, a patch release (`fix:`).
@@ -138,4 +138,4 @@ stays on 2.18.0 until 2.18.1 is published and installed; 56b has no needle (page
 
 ## Next action
 
-`/review-functional` (advisory) or manual testing per the checklist above, then `/accept-milestone review-followups-cleanup` or findings in `.ai-review/review-followups-cleanup/feedback/FUNCTIONAL_REVIEW.md` and `/apply-functional-review`.
+Row 19 is deferred and unscheduled. Publishing 2.18.1 follows the pull request merge (#69); the Manager side is a `workflow-manager` pin pull request. The 4 follow-ups are in RodrigoFAbreu/workflow#68.
