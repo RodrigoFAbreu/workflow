@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-followups-cleanup",
+  "requirements": {
+    "R1": {
+      "description": "The review-core defects 31b, 39a, 45a, 52b and 52f are fixed, each with a regression test shown red against the unfixed code, and `REVIEW_PROTOCOL.md`'s placeholder sentence states the leading, trailing and wrapping rule 31b enforces, pinned by a needle",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "The backlog script reports a deep malformed chain instead of crashing, restores modes on rollback, refuses `?` in a plain flow entry and detects an exact protected page path (60a to 60d), and its trailing-comment acceptance is pinned (60f tests); the release tooling, CI selector and conformance template are corrected (39g, 39h, 39i, 56a, 56d), each tested",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "R3": {
+      "description": "The test hardening items 39b, 45b, 52a, 52c and 52e are in place",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    },
+    "R4": {
+      "description": "The shipped documents carry the wording of 31c, 31d, 39c to 39f, 56b, 60f, 60g, 64f and 64h, and tests pin 64b, 64f, 64h (no stale count) and the new sentences",
+      "checkpoint_ids": [
+        "CP4"
+      ]
+    },
+    "R5": {
+      "description": "Release 2.18.1 bookkeeping: release constant and its two assertions, manifest digests, sizes, measured counts and per-record rationales including 64a, release history, per-area downgrade posture, the `manager` block",
+      "checkpoint_ids": [
+        "CP5"
+      ]
+    },
+    "R6": {
+      "description": "The hard limits hold: no state, ledger, phase, trailer, commit-shape or protocol change; no refusal code changes; no command file moves; the installation is untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2",
+        "CP3",
+        "CP4",
+        "CP5"
+      ]
+    }
+  }
+}

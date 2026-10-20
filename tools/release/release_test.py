@@ -754,10 +754,12 @@ class ConformanceTemplate(unittest.TestCase):
         return proc, ws, runner, counter, summary.read_text() if summary.exists() else ""
 
     @staticmethod
-    def stub_check(output):
-        """A shell function standing in for `shards.py check`: prints `output`, exits 1."""
+    def stub_check(output, rc=1):
+        """A shell function standing in for `shards.py check`: prints `output`, exits `rc`."""
+        if isinstance(output, tuple):
+            output, rc = output
         return ("python3() { if [ \"$2\" = check ]; then printf '%s' " + shlex.quote(output)
-                + "; return 1; fi; command python3 \"$@\"; }\n")
+                + f"; return {rc}; fi; command python3 \"$@\"; }}\n")
 
     def assert_check_verdict_fails_the_job(self, run_body):
         # `check` dies after its total row, or exits non-zero after reporting ok: the exit
@@ -775,6 +777,31 @@ class ConformanceTemplate(unittest.TestCase):
 
     def test_sharded_step_fails_when_the_check_verdict_is_bad_without_any_shard_row(self):
         self.assert_check_verdict_fails_the_job(self.run_body)
+
+    def assert_bad_total_with_exit_zero_is_worded_as_the_total(self, run_body):
+        proc, ws, runner, counter, summary = run_body(
+            shards=2, check_stub=("total\t7\t0\t2\t0\tbad\n", 0))
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("::error title=acceptance check failed::the acceptance coverage total is "
+                      "not ok, though the shard check exited 0", proc.stdout)
+        self.assertIn("| FAILED (the coverage total is not ok) |", summary)
+        self.assertNotIn("without a failing shard row", proc.stdout)
+        self.assertNotIn("exited 0)", summary)
+
+    def test_sharded_step_words_a_bad_total_with_exit_zero_as_the_total(self):
+        self.assert_bad_total_with_exit_zero_is_worded_as_the_total(self.run_body)
+
+    def assert_a_failed_copy_is_in_the_units_log(self, run_body):
+        proc, ws, runner, counter, summary = run_body(uncopyable=True)
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        # The failure report echoes the unit's log, which now holds the copy's own error.
+        report = proc.stdout.split("::error title=", 1)[1]
+        self.assertIn("UNREADABLE", report)
+        self.assertIn("Permission denied", report)
+
+    @unittest.skipIf(os.geteuid() == 0, "root reads a mode-0 file, so the copy cannot fail")
+    def test_a_failed_copy_is_in_the_units_log(self):
+        self.assert_a_failed_copy_is_in_the_units_log(self.run_body)
 
     def test_step_body_all_pass(self):
         proc, ws, runner, counter, summary = self.run_body()
@@ -1332,6 +1359,10 @@ class WorkflowCI(unittest.TestCase):
         self.assertIn("if-no-files-found: error", checks)
         self.assertNotIn("continue-on-error", self.text)
 
+    def test_the_update_fixture_previous_release_skips_prereleases(self):
+        self.assertIn("gh release list --json tagName,isDraft,isPrerelease --limit 1000", self.text)
+        self.assertIn('if not r["isDraft"] and not r["isPrerelease"] and re.fullmatch', self.text)
+
     def test_checks_blocks_run_after_an_unrelated_failure(self):
         checks = self.job("checks")
         steps = checks.split("\n      - ")[1:]
@@ -1458,6 +1489,13 @@ class SourceConformanceRunner(unittest.TestCase):
     def test_sharded_step_fails_when_the_check_verdict_is_bad_without_any_shard_row(self):
         ConformanceTemplate.assert_check_verdict_fails_the_job(self, self.run_body)
 
+    def test_the_scheduler_words_a_bad_total_with_exit_zero_as_the_total(self):
+        ConformanceTemplate.assert_bad_total_with_exit_zero_is_worded_as_the_total(self, self.run_body)
+
+    @unittest.skipIf(os.geteuid() == 0, "root reads a mode-0 file, so the copy cannot fail")
+    def test_a_failed_copy_is_in_the_units_log(self):
+        ConformanceTemplate.assert_a_failed_copy_is_in_the_units_log(self, self.run_body)
+
     def peaks(self, counter):
         return [int(p.read_text()) for p in counter.iterdir() if p.name.startswith("peak-")]
 
@@ -1482,7 +1520,8 @@ class SourceConformanceRunner(unittest.TestCase):
                  'logs="$RUNNER_TEMP/source-conformance-logs"\n'
                  'rm -rf "$base" "$logs"; mkdir -p "$base" "$logs"\n'),
                 ("$GITHUB_WORKSPACE/scripts", "$src/scripts"),
-                ('cp -a "$GITHUB_WORKSPACE/." "$d/repo"', 'cp -a "$src/." "$d/repo"')):
+                ('cp -a "$GITHUB_WORKSPACE/." "$d/repo" >>"$d/log" 2>&1',
+                 'cp -a "$src/." "$d/repo" >>"$d/log" 2>&1')):
             self.assertEqual(expected.count(old), 1, old)
             expected = expected.replace(old, new)
         mine = self.body
@@ -2232,8 +2271,9 @@ class BacklogReleaseTest(unittest.TestCase):
 
 
 class HarnessNeutralReleaseTest(unittest.TestCase):
-    """Release 2.18.0 (harness-neutral-commands): the new record, the counts,
-    the release constant, the downgrade posture and the release-history row."""
+    """Release 2.18.0 (harness-neutral-commands): the new record, the counts and
+    the release-history row. The current version, release constant and posture
+    are pinned by the class of the current release."""
 
     DOCUMENT = "docs/ai-workflow/COMMAND_FILES.md"
 
@@ -2241,8 +2281,7 @@ class HarnessNeutralReleaseTest(unittest.TestCase):
         self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
         self.records = {r["target_path"]: r for r in self.manifest["artifacts"]}
 
-    def test_the_release_names_2_18_0_and_the_new_distribution_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.18.0")
+    def test_the_release_keeps_the_2_18_0_distribution_record(self):
         location = "payload/docs/ai-workflow/COMMAND_FILES.md"
         record = self.records[self.DOCUMENT]
         self.assertEqual((record["category"], record["location"], record["executable"]),
@@ -2256,17 +2295,63 @@ class HarnessNeutralReleaseTest(unittest.TestCase):
         self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
         self.assertEqual(counts["by_category"], by_category)
 
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        text = (REPO_ROOT / "docs" / "release-history.md").read_text()
+        row = next(line for line in text.splitlines() if line.startswith("| 2.18.0 |"))
+        for needle in ("COMMAND_FILES.md", "the agent", "$ARGUMENTS", "2.17.0",
+                       "Orchestration Protocol 1.5", "v2.18.0"):
+            self.assertIn(needle, row)
+        self.assertLess(text.index("| 2.18.0 |"), text.index("| 2.17.0 |"))
+
+
+class ReviewFollowupsReleaseTest(unittest.TestCase):
+    """Release 2.18.1 (review-followups-cleanup): the version, the release
+    constant, the counts, the template digest, the downgrade posture and the
+    release-history row."""
+
+    TEMPLATE = ".github/workflows/workflow-conformance.yml"
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+
+    def test_the_release_names_2_18_1_and_adds_no_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.18.1")
+        by_category = {}
+        for entry in self.manifest["artifacts"]:
+            by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
+        counts = self.manifest["counts"]
+        self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
+        self.assertEqual(counts["templates"], len(self.manifest["templates"]))
+        self.assertEqual(counts["by_category"], by_category)
+        self.assertEqual((counts["artifacts"], counts["templates"]), (79, 6))
+
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.18.0"', text)
+        self.assertIn('WORKFLOW_RELEASE = "2.18.1"', text)
+
+    def test_the_template_record_names_the_change_and_its_digest_is_current(self):
+        record = next(r for r in self.manifest["templates"] if r["target_path"] == self.TEMPLATE)
+        data = (REPO_ROOT / record["location"]).read_bytes()
+        self.assertEqual((record["sha256"], record["size"]), (_sha(data), len(data)))
+        self.assertIn("workflow-2.18.1", record["derivation"])
+
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for record in self.manifest["artifacts"]:
+            with self.subTest(record["target_path"]):
+                data = (REPO_ROOT / record["location"]).read_bytes()
+                self.assertEqual((record["sha256"], record["size"]), (_sha(data), len(data)))
+        for target in ("scripts/workflow_state.py", "scripts/workflow_backlog.py",
+                       "docs/ai-workflow/REVIEW_PROTOCOL.md"):
+            record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+            self.assertIn("review-followups-cleanup (workflow-2.18.1)", record["rationale"])
 
     def test_the_manager_block_states_the_downgrade_posture(self):
         block = self.manifest["manager"]
         self.assertEqual(block["min_manager_version"], "1.13.0")
         posture = block["downgrade_boundary"]["posture"]
-        for needle in ("COMMAND_FILES.md", "the agent", "$ARGUMENTS", "must never invoke",
-                       "literal-confirmation check", "needs 2.18.0 or later",
-                       "safe for Claude Code only", "Orchestration Protocol stays 1.5"):
+        for needle in ("2.18.1", "2.18.0", "Orchestration Protocol stays 1.5", "- (none)",
+                       "accepted by 2.18.1 and refused by 2.18.0", "reissued",
+                       "no superset or subset relation", "workflow-manager update back to 2.18.0"):
             self.assertIn(needle, posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
         self.assertEqual(block["new_work_only"], [])
@@ -2274,12 +2359,11 @@ class HarnessNeutralReleaseTest(unittest.TestCase):
 
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
         text = (REPO_ROOT / "docs" / "release-history.md").read_text()
-        self.assertIn("Last checked with: Workflow 2.18.0.", text)
-        row = next(line for line in text.splitlines() if line.startswith("| 2.18.0 |"))
-        for needle in ("COMMAND_FILES.md", "the agent", "$ARGUMENTS", "2.17.0",
-                       "Orchestration Protocol 1.5", "v2.18.0"):
+        self.assertIn("Last checked with: Workflow 2.18.1.", text)
+        row = next(line for line in text.splitlines() if line.startswith("| 2.18.1 |"))
+        for needle in ("2.18.0", "39j", "64c", "- (none)", "Orchestration Protocol 1.5", "v2.18.1"):
             self.assertIn(needle, row)
-        self.assertLess(text.index("| 2.18.0 |"), text.index("| 2.17.0 |"))
+        self.assertLess(text.index("| 2.18.1 |"), text.index("| 2.18.0 |"))
 
 
 # -- the Manager metadata block ----------------------------------------------------
@@ -2372,6 +2456,10 @@ class ManagerBlockContractTest(unittest.TestCase):
             (lambda b: signal(b).pop("detect"), "signals[0].detect: required"),
             (lambda b: signal(b).update(detect={"kind": "state-regex", "key": "x"}),
              "signals[0].detect.kind: 'state-regex' is not a detector kind"),
+            (lambda b: signal(b).update(detect={"kind": []}),
+             "signals[0].detect.kind: [] is not a detector kind"),
+            (lambda b: signal(b).update(detect={"kind": {}}),
+             "signals[0].detect.kind: {} is not a detector kind"),
             (lambda b: signal(b).update(detect={"kind": "state-key"}),
              "signals[0].detect.key: required by the 'state-key' detector"),
             (lambda b: signal(b).update(detect={"kind": "state-value", "key": "k", "value": [1]}),
@@ -2450,6 +2538,10 @@ class ManagerEvidenceTest(unittest.TestCase):
         self.assertEqual(manager_block.published_versions(evidence), ["1.12.0", "1.13.0"])
         self.assertEqual(manager_block.newest_published(evidence), "1.13.0")
 
+    def test_a_tag_with_a_trailing_newline_does_not_count(self):
+        evidence = evidence_for(("v1.12.0", False, False), ("v1.13.0\n", False, False))
+        self.assertEqual(manager_block.published_versions(evidence), ["1.12.0"])
+
     def test_the_newest_is_numeric_not_textual(self):
         evidence = evidence_for(("v1.9.0", False, False), ("v1.10.0", False, False))
         self.assertEqual(manager_block.newest_published(evidence), "1.10.0")
@@ -2506,6 +2598,10 @@ class ManagerCheckTest(unittest.TestCase):
         block = valid_block({"a_test.py": 2})
         block["schema_version"] = 3
         self.assertIn("manager.schema_version", "\n".join(self.check(self.manifest(block))))
+
+    def test_a_version_with_a_trailing_newline_is_refused(self):
+        problems = self.check(self.manifest(), version="2.13.0\n")
+        self.assertEqual(problems, ["version '2.13.0\\n' is not X.Y.Z"])
 
     def test_suites_must_equal_the_measurement(self):
         problems = "\n".join(self.check(self.manifest(), measured={"a_test.py": 3, "b_test.py": 1}))
@@ -2990,7 +3086,7 @@ class ManagerBlockCiTest(unittest.TestCase):
         body = step.split("<<'PY'\n", 1)[1].split("\n          PY\n", 1)[0]
         return "\n".join(line[10:] for line in body.splitlines()) + "\n"
 
-    def run_selection(self, version: str, with_block: bool, releases: list) -> str:
+    def run_selection(self, version: str, with_block: bool, releases: list, prereleases=()) -> str:
         tmp = Path(tempfile.mkdtemp(prefix="ci-previous-"))
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
         repo = ScratchRepo(tmp / "repo")
@@ -2998,7 +3094,8 @@ class ManagerBlockCiTest(unittest.TestCase):
                         valid_block({}) if with_block else None)
         repo.commit("candidate")
         listing = tmp / "releases.json"
-        listing.write_text(json.dumps([{"tagName": t, "isDraft": d} for t, d in releases]))
+        listing.write_text(json.dumps([{"tagName": t, "isDraft": d, "isPrerelease": t in prereleases}
+                                      for t, d in releases]))
         return subprocess.run([sys.executable, "-", str(listing)], input=self.previous_selection(),
                               cwd=repo.root, capture_output=True, text=True,
                               check=True).stdout.strip()
@@ -3010,6 +3107,8 @@ class ManagerBlockCiTest(unittest.TestCase):
         self.assertEqual(self.run_selection("2.12.1", True, releases), "2.12.0")
         self.assertEqual(self.run_selection("2.10.0", True, releases), "2.9.0")
         self.assertEqual(self.run_selection("2.9.0", True, [("v2.9.0", False)]), "")
+        # A prerelease is not a published release to update from.
+        self.assertEqual(self.run_selection("2.13.0", True, releases, prereleases=("v2.12.0",)), "2.11.0")
 
     def test_a_release_without_a_block_is_not_update_tested(self):
         self.assertEqual(self.run_selection("2.12.0", False, [("v2.11.0", False)]), "")

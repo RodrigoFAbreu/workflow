@@ -1,0 +1,78 @@
+{
+  "dispositions": {
+    "F-19ba6561aaf1": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#68",
+      "note": "Narrow the `state_transaction` docstring (payload/scripts/workflow_state.py:1980-1981) to say an `Exception` raised by `on_failure` is suppressed (a `BaseException` such as KeyboardInterrupt replaces the original), or change `contextlib.suppress(Exception)` at line 1993 to suppress `BaseException` deliberately, with a test."
+    },
+    "F-1a900e70f5ac": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md:315-319: the 45a fixture is an input over 1,200 characters with a first line over 240, asserting the existing capped ledger text."
+    },
+    "F-1fa6bc29dd1e": {
+      "disposition": "dropped",
+      "reason": "Stale 'Plan revision: 4' header in the approved revision-5 plan; changes no requirement."
+    },
+    "F-21968e883140": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md:166-167 and 311-312: D-39a covers any BaseException, with a KeyboardInterrupt subtest; code at workflow_state.py:1991 is `except BaseException`."
+    },
+    "F-25d4df735ac8": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md:376-382: 60d notes the /milestone-plan step 3 effect, the docstring reword and the unchanged tests; applied in workflow_backlog.py:825-827."
+    },
+    "F-3feeec25ceed": {
+      "disposition": "dropped",
+      "reason": "Stale 'Plan revision: 4' header in the approved revision-5 plan; changes no requirement."
+    },
+    "F-5e3132af26a5": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#68",
+      "note": "Narrow the `state_transaction` docstring (payload/scripts/workflow_state.py:1980-1981) to say an `Exception` raised by `on_failure` is suppressed (a `BaseException` such as KeyboardInterrupt replaces the original), or change `contextlib.suppress(Exception)` at line 1993 to suppress `BaseException` deliberately, with a test."
+    },
+    "F-6886b3f4e3f5": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md:475-478: the 31d example is plan_revision 2, review_round.plan 2 with consistent per-role counts."
+    },
+    "F-846d8376335b": {
+      "disposition": "dropped",
+      "reason": "Review-input problem, not a plan or product issue: the orchestrator supplied complete issue snapshots (title, body, every comment) for plan round 2, which confirmed EPR-005 resolved."
+    },
+    "F-8603528cf548": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md:93-94 and 350: 60a builds the chain at the cap, 999 two-line items in 2,000 lines."
+    },
+    "F-8746833e701b": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md:181: D-45a states the --finding-dispositions CLI listing deliberately keeps printing the whole stored text."
+    },
+    "F-9ed788e7a219": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md:370-374 and 633: 60d also covers protected prefixes under docs/items/; implemented at workflow_backlog.py:845-847."
+    },
+    "F-b023d37f1915": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md:138 and 688: the posture row and R2 now say 'or a protected prefix'; CP5 text copies them."
+    },
+    "F-dd191c91057e": {
+      "disposition": "fixed",
+      "note": "payload/scripts/workflow_backlog.py:841-847: the new rule skips pairs already found (`not in found`), so each path is named once."
+    },
+    "F-e0bdcba30de2": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#68",
+      "note": "Change `TAG_RE` (tools/release/release.py:98), `manager_block._MANAGER_VERSION_RE` (manager_block.py:55) and `package._SHA256_RE` (package.py:62) to end in `\\Z` instead of `$`, as `package.VERSION_RE` does, with a test that a trailing-newline tag such as \"v1.2.3\\n\" is rejected."
+    },
+    "F-e511331c6db3": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#68",
+      "note": "Add 60e to the 'Still open' sentence of the 2.18.1 row in docs/release-history.md (line 13), which now lists only 39j and 64c, since issue #60 stays open for the earlier declaration-conflict check (plan OD-9)."
+    },
+    "F-fa7894ba981d": {
+      "disposition": "fixed",
+      "note": "docs/ai-workflow/REVIEW_FOLLOWUPS_CLEANUP_PLAN.md:194-200: D-52 explains why the two phase refusals keep their text and only the field-set refusal gets the clause."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "review-followups-cleanup"
+}
