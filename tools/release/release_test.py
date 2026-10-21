@@ -3200,8 +3200,9 @@ class VerificationCommandsSectionTest(unittest.TestCase):
     def test_every_command_form_is_present(self):
         for needle in (
             "python3 tools/release/release.py stage-conformance --commit HEAD --out",
-            'python3 -B "$TMPDIR/fixture/scripts/<suite>_test.py"',
-            'cd "$TMPDIR/fixture/scripts"',
+            'python3 -B "$TMPDIR/fixture/scripts/$suite"',
+            '( cd "$TMPDIR/fixture/scripts" && for suite in $suites',
+            "every block below runs, in order, from the repository root",
             "python -m unittest discover -s tools/release -p '*_test.py'",
             "python3 -m unittest discover -s tools/docs -p '*_test.py'",
             "python3 tools/docs/check_docs.py",

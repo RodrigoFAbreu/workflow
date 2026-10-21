@@ -373,16 +373,19 @@ conformance fixture, which is what CI runs):
 
 ```bash
 python3 tools/release/release.py stage-conformance --commit HEAD --out "$TMPDIR/fixture"
-cd "$TMPDIR/fixture/scripts"
-python3 -B "$TMPDIR/fixture/scripts/<suite>_test.py"
+suites=$(python3 -c "import json; print(*json.load(open('manifest.json'))['manager']['conformance']['suites'])")
+( cd "$TMPDIR/fixture/scripts" && for suite in $suites; do python3 -B "$TMPDIR/fixture/scripts/$suite" || exit 1; done )
 ```
+
+The fixture commands run in a subshell, so the working directory stays the repository root:
+every block below runs, in order, from the repository root.
 
 Run the suites from inside the fixture, as CI does: some of them read the repository
 around the working directory (`git rev-parse --show-toplevel`), and from this
 repository's root they would read its installed commands instead of the staged ones
 and fail on any difference between the two.
 
-`<suite>` is each of the nine suites the manifest's `manager.conformance.suites`
+The loop runs each of the nine suites the manifest's `manager.conformance.suites`
 lists. Never run `payload/scripts/*_test.py`: it also picks up the opt-in historical
 demo suites, which are not part of conformance. `stage-conformance`
 verifies the tree against the manifest, so a checkpoint that changed a shipped file
