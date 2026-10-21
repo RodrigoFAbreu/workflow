@@ -112,13 +112,30 @@ needs a scratch repository whose declared backlog already holds an id you then t
    byte-identical; an undeclared repository gets the plain template.
 4. **Guard re-wrap (64c).** Check the six user-only command files (`accept-milestone`,
    `adopt-gate-policy`, `approve-review`, `request-plan-amendment`, `resume-implementation`,
-   `retire-legacy-work-item`). Expected: no prose line over 78 columns except `approve-review.md`'s
-   one unbreakable 91-column line; wording unchanged (whitespace-normalised text equals the base).
+   `retire-legacy-work-item`). Expected: no re-wrapped guard paragraph has a line over 78 columns except `approve-review.md`'s
+   one unbreakable 91-column line (unchanged prose elsewhere in the files, e.g. `accept-milestone.md:121`, is out of
+   scope); wording unchanged (whitespace-normalised text equals the base).
 5. **Trailing-newline hardening.** Expected: `TAG_RE`, `_SHA256_RE` and `_MANAGER_VERSION_RE` end in
    `\Z`; a `v2.18.2\n` tag is not taken as a release.
 6. **Release 2.18.2 bytes.** Expected: `manifest.json` names `2.18.2`; `release.py build` succeeds;
    `workflow-manager verify .` still matches 2.18.1 (this repository's installation is untouched
    until the release is published and installed); published tags and assets are not modified.
+
+### Functional review round 1
+
+- Flow 2 (doc defect, fixed): the "Verification commands" section changed into the staged fixture's
+  `scripts` directory and never left it. It now runs the nine suites in a subshell (a loop over the
+  manifest's `manager.conformance.suites`), so every block below it runs, in order, from the
+  repository root; the `VerificationCommandsSectionTest` pin follows the new form. Every block was
+  run in sequence in a scratch clone (zlib-ng venv Python for `tools/release`, scratch cache primed
+  from `~/.cache/workflow-manager/releases/2.18.1`): block 1 (stage + nine suites) exit 0; block 2
+  (220 `tools/release` tests, 34 `tools/docs` tests, `check_docs.py`) exit 0 each; block 3
+  (`check-manager-block`) exit 0; block 4 (`workflow-manager verify .`) exit 0, installation matches
+  2.18.1; the working directory stayed the repository root throughout. `docs/RELEASING.md` is not
+  shipped, so no manifest record changed.
+- Flow 4 (checklist, no code change): the width expectation now covers only the re-wrapped guard
+  paragraphs; unchanged prose such as `accept-milestone.md:121` (80 columns) is out of scope.
+- Re-test: flow 2 (run the section top to bottom from the repository root) and flow 4.
 
 ### Known limitations / out of scope
 
