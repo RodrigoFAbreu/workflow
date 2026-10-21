@@ -2350,8 +2350,9 @@ class ReviewFollowupsReleaseTest(unittest.TestCase):
 
 
 class ReviewFollowups2ReleaseTest(unittest.TestCase):
-    """Release 2.18.2 (review-followups-2): the version, the release constant,
-    the counts, the downgrade posture and the release-history row."""
+    """Release 2.18.2 (review-followups-2): the rationale sentences it added and
+    its release-history row. The current version, constant and posture are
+    pinned by the class of the newest release."""
 
     CHANGED = (".claude/commands/accept-milestone.md", ".claude/commands/adopt-gate-policy.md",
                ".claude/commands/approve-review.md", ".claude/commands/milestone-plan.md",
@@ -2365,8 +2366,33 @@ class ReviewFollowups2ReleaseTest(unittest.TestCase):
     def setUp(self):
         self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
 
-    def test_the_release_names_2_18_2_and_adds_no_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.18.2")
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for target in self.CHANGED:
+            with self.subTest(target):
+                record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+                self.assertIn("review-followups-2 (workflow-2.18.2)", record["rationale"])
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        text = (REPO_ROOT / "docs" / "release-history.md").read_text()
+        row = next(line for line in text.splitlines() if line.startswith("| 2.18.2 |"))
+        for needle in ("2.18.1", "60e", "64c", "39j", "Orchestration Protocol 1.5", "v2.18.2"):
+            self.assertIn(needle, row)
+        self.assertLess(text.index("| 2.18.2 |"), text.index("| 2.18.1 |"))
+
+
+class ReviewFollowups3ReleaseTest(unittest.TestCase):
+    """Release 2.18.3 (review-followups-3): the version, the release constant,
+    the counts, the downgrade posture and the release-history row."""
+
+    CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
+               "scripts/workflow_protocol_test.py", "scripts/workflow_state.py",
+               "scripts/workflow_state_test.py")
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+
+    def test_the_release_names_2_18_3_and_adds_no_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.18.3")
         by_category = {}
         for entry in self.manifest["artifacts"]:
             by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
@@ -2378,7 +2404,7 @@ class ReviewFollowups2ReleaseTest(unittest.TestCase):
 
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.18.2"', text)
+        self.assertIn('WORKFLOW_RELEASE = "2.18.3"', text)
 
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
         for record in self.manifest["artifacts"]:
@@ -2388,15 +2414,15 @@ class ReviewFollowups2ReleaseTest(unittest.TestCase):
         for target in self.CHANGED:
             with self.subTest(target):
                 record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
-                self.assertIn("review-followups-2 (workflow-2.18.2)", record["rationale"])
+                self.assertIn("review-followups-3 (workflow-2.18.3)", record["rationale"])
 
     def test_the_manager_block_states_the_downgrade_posture(self):
         block = self.manifest["manager"]
         self.assertEqual(block["min_manager_version"], "1.13.0")
         posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.18.2", "2.18.1", "Orchestration Protocol stays 1.5",
-                       "/milestone-plan step 3 instead of step 1", "unwrapped guard lines",
-                       "workflow-manager update back to 2.18.1"):
+        for needle in ("2.18.3", "2.18.2", "Orchestration Protocol stays 1.5",
+                       "workflow-manager update back to 2.18.2", "WORKFLOW_RELEASE",
+                       "state_transaction docstring"):
             self.assertIn(needle, posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
         self.assertEqual(block["new_work_only"], [])
@@ -2404,11 +2430,11 @@ class ReviewFollowups2ReleaseTest(unittest.TestCase):
 
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
         text = (REPO_ROOT / "docs" / "release-history.md").read_text()
-        self.assertIn("Last checked with: Workflow 2.18.2.", text)
-        row = next(line for line in text.splitlines() if line.startswith("| 2.18.2 |"))
-        for needle in ("2.18.1", "60e", "64c", "39j", "Orchestration Protocol 1.5", "v2.18.2"):
+        self.assertIn("Last checked with: Workflow 2.18.3.", text)
+        row = next(line for line in text.splitlines() if line.startswith("| 2.18.3 |"))
+        for needle in ("2.18.2", "#71", "zsh", "Orchestration Protocol 1.5", "v2.18.3"):
             self.assertIn(needle, row)
-        self.assertLess(text.index("| 2.18.2 |"), text.index("| 2.18.1 |"))
+        self.assertLess(text.index("| 2.18.3 |"), text.index("| 2.18.2 |"))
 
 
 # -- the Manager metadata block ----------------------------------------------------
