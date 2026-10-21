@@ -373,8 +373,7 @@ conformance fixture, which is what CI runs):
 
 ```bash
 python3 tools/release/release.py stage-conformance --commit HEAD --out "$TMPDIR/fixture"
-suites=$(python3 -c "import json; print(*json.load(open('manifest.json'))['manager']['conformance']['suites'])")
-( cd "$TMPDIR/fixture/scripts" && for suite in $suites; do python3 -B "$TMPDIR/fixture/scripts/$suite" || exit 1; done )
+suites=$(python3 -c "import json; print(*json.load(open('manifest.json'))['manager']['conformance']['suites'], sep='\n')") && test -n "$suites" && ( cd "$TMPDIR/fixture/scripts" && while read -r suite; do python3 -B "$TMPDIR/fixture/scripts/$suite" </dev/null || exit 1; done <<< "$suites" )
 ```
 
 The fixture commands run in a subshell, so the working directory stays the repository root:
@@ -386,7 +385,10 @@ repository's root they would read its installed commands instead of the staged o
 and fail on any difference between the two.
 
 The loop runs each of the nine suites the manifest's `manager.conformance.suites`
-lists. Never run `payload/scripts/*_test.py`: it also picks up the opt-in historical
+lists, one name per line, and runs under bash and zsh alike (an unquoted
+parameter expansion in a `for` loop splits only under bash). `</dev/null` keeps a suite from
+consuming the remaining names, and `test -n "$suites"` fails an empty list instead of
+passing a loop that ran zero times. Never run `payload/scripts/*_test.py`: it also picks up the opt-in historical
 demo suites, which are not part of conformance. `stage-conformance`
 verifies the tree against the manifest, so a checkpoint that changed a shipped file
 before the release checkpoint (which is where the manifest records move) cannot stage

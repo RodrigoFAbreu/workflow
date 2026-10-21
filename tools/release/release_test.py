@@ -3201,7 +3201,10 @@ class VerificationCommandsSectionTest(unittest.TestCase):
         for needle in (
             "python3 tools/release/release.py stage-conformance --commit HEAD --out",
             'python3 -B "$TMPDIR/fixture/scripts/$suite"',
-            '( cd "$TMPDIR/fixture/scripts" && for suite in $suites',
+            '( cd "$TMPDIR/fixture/scripts" && while read -r suite; do',
+            '</dev/null || exit 1; done <<< "$suites" )',
+            'test -n "$suites"',
+            "runs under bash and zsh",
             "every block below runs, in order, from the repository root",
             "python -m unittest discover -s tools/release -p '*_test.py'",
             "python3 -m unittest discover -s tools/docs -p '*_test.py'",
@@ -3216,6 +3219,9 @@ class VerificationCommandsSectionTest(unittest.TestCase):
             "zero tests",
         ):
             self.assertIn(needle, self.section)
+
+    def test_the_suites_loop_does_not_rely_on_word_splitting(self):
+        self.assertNotIn("for suite in $suites", self.section)
 
     def test_the_payload_test_glob_appears_only_in_the_never_sentence(self):
         glob = "payload/scripts/*_test.py"
