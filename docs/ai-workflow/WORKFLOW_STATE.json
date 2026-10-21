@@ -12676,7 +12676,7 @@
       "registry_path": "docs/ai-workflow/registry/review-followups-2-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/review-followups-2-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -12789,7 +12789,210 @@
           "workflow_release": "2.18.1"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "08650d73aa601e397e0df6f2d0c7b8de8c0911674e12461d723c6c8372af3fc5",
+        "approved_review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+        "review_content_manifest": [
+          {
+            "path": "CLAUDE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "87c3b9706456021c7de8a227ea975485dedfb2df"
+          },
+          {
+            "path": "docs/RELEASING.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5078a65c37a0ee11c13ab6fa9cfcdcfde03a40e6"
+          },
+          {
+            "path": "docs/ai-workflow/registry/review-followups-2-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d50ce1eef283bd51e7aec989555eaf6a1dd5ce15"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bb25337bd1ef09e33a100f691a0fbc73da3cd384"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "782f5ff998bc2efc06cb06c892afe4aa2c86e32e"
+          },
+          {
+            "path": "payload/.claude/commands/accept-milestone.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "88466a86fd3b8776c083927ec80a07116a5fa326"
+          },
+          {
+            "path": "payload/.claude/commands/adopt-gate-policy.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "930eac5e40c7ad27d5dfbc4b8bf9513bba667934"
+          },
+          {
+            "path": "payload/.claude/commands/approve-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f77b0b9a0e9494fba5d7b507ccf18d4c709fcd38"
+          },
+          {
+            "path": "payload/.claude/commands/milestone-plan.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "18f8dda44d3339c02b5f4d296a625affb003cdce"
+          },
+          {
+            "path": "payload/.claude/commands/request-plan-amendment.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9bafb575de2afb65e9bef14b2195921d84e8d9e2"
+          },
+          {
+            "path": "payload/.claude/commands/resume-implementation.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b500080284efd4d8bc4ab3704c20078ed34d420c"
+          },
+          {
+            "path": "payload/.claude/commands/retire-legacy-work-item.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cff838f7448260b27bd94c1afefb8c100741385d"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4983f11a413fb0081ffb58918b5d24a67607840d"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "db76548dd3aa909e17f01c82c7e73b230ded753f"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bf1593f14128600e570e0585b3133f4fe4893f69"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4d419003d1538e769ab81da0f08c28c95a5dfaa6"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "fdb5c882135360e8b870eb5092f4e86277a35129"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "69d02b420996639ff3074dc7302e34807a3a095d"
+          },
+          {
+            "path": "tools/release/manager_block.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ecaae41bd7d612f359f522bf1060dedcf398c0d6"
+          },
+          {
+            "path": "tools/release/package.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bd6ced9f8021304a8df1ac5db179d4d0442e1916"
+          },
+          {
+            "path": "tools/release/release.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a2b19317a4374495bfef7d2bc0900e09fe525cc1"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0e74e0113529edfa3ec341280f7c2b65cc55c4ad"
+          }
+        ],
+        "reviewed_content_commit": "b0db611f1b0523044a0ad5773da4fbd01f4b2c16",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-21T00:15:48Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+            "ledger": {
+              "local": {
+                "bundle_id": "08650d73aa601e397e0df6f2d0c7b8de8c0911674e12461d723c6c8372af3fc5",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "eb1ef5ec7eaaa74f7c45acde74a63d4257dc50d966be2b1fa9bf13775d5fb72a",
+                "ledger_entry_sha256": "c096dec591cd62991158b77de471c587e3dbb66488cb021f37a7fbc15e48a30d",
+                "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "08650d73aa601e397e0df6f2d0c7b8de8c0911674e12461d723c6c8372af3fc5",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "ba6e542894c3a34e90b74759d574e09b5883aa7fae887326aa23c25229a5f4c3",
+                "ledger_entry_sha256": "06c173e55de0273d82c6ecf16ffe57e2b5b3e5c6df6725d9696ffbfda27202d8",
+                "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-21T00:15:48Z",
+          "workflow_release": "2.18.1"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "6ee088d1df3ef2e44c17ca15cdee84789b259fb3ad49b927a1c7d5e112e611de",
@@ -12820,12 +13023,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 16,
-      "last_transition": "2026-10-20T23:51:15Z",
+      "state_revision": 19,
+      "last_transition": "2026-10-21T00:15:48Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -12918,6 +13121,111 @@
               "at": "2026-10-20T22:24:59Z"
             }
           ]
+        },
+        "F-651060a9c33b": {
+          "digest": "651060a9c33b89226ff603a0e53f1d75b8c6f5aa4e2d0e2c0cb68582a5e98472",
+          "text": "**LIR-001 [substantive]: the `_MANAGER_VERSION_RE` pin is red first, though it is called a\n  pin that cannot be.** `tools/release/release_test.py` `test_the_manager_version_pattern_rejects_a_trailing_newline`\n  calls `.match` directly. Against the old `$` pattern it fails, which I confirmed by\n  reverting. The plan and comment claim it \"cannot fail first\". The comment's behavioural\n  statement is true, because the call site uses `fullmatch`. The test is stronger than\n  described, not weaker. A one-clause comment edit would make this exact.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T00:01:05Z"
+            }
+          ]
+        },
+        "F-4b495fa7a6f2": {
+          "digest": "4b495fa7a6f2483eaa67b365c9a5a39614cd583abdb001bb8b5d4ccc67950b1d",
+          "text": "**LIR-002 [substantive]: `docs/RELEASING.md` \"Verification commands\" says to run every\n  form from the repository root, but the first block ends inside the fixture.** It ends with\n  `cd \"$TMPDIR/fixture/scripts\"`. Pasting the blocks in order then runs\n  `python -m unittest discover -s tools/release …` from the fixture's `scripts/`. That fails\n  loudly (\"Start directory is not importable\"). A subshell (`(cd … && python3 -B …)`) or a\n  closing `cd -` would make the blocks composable.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T00:01:05Z"
+            }
+          ]
+        },
+        "F-41d2aa86c034": {
+          "digest": "41d2aa86c034d4b3af089a7c9f9a416138b3643d015d3e893dc62fb2095cc80b",
+          "text": "**LIR-003 [editorial]: the width test's single-span exemption also strips a list marker.**\n  `TestUserOnlyCommandLineWidth` exempts `- \\`span\\`` as well as an indented bare span. OD-3\n  says \"past its indentation\". This is consistent with D-64c's rationale (such a line cannot\n  be broken usefully at a space), and no such line exists today. The exemption is\n  marginally wider than OD-3's wording.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T00:01:05Z"
+            }
+          ]
+        },
+        "F-dbae77354d33": {
+          "digest": "dbae77354d33819491cec2fd58f8faff58a82eebb11450ecdb0e005832cc41fa",
+          "text": "**LIR-004 [editorial]: the corrected `state_transaction` docstring still opens with an\n  unqualified \"The original exception propagates;\".** Later in the same sentence it says\n  that a `KeyboardInterrupt` from `on_failure` \"replaces the original\". The needle test\n  pins only the new phrase, not the complete wording that EPR-001 asked for. \"The original\n  exception propagates unless `on_failure` raises a non-`Exception`\" would read without the\n  tension.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T00:01:05Z"
+            }
+          ]
+        },
+        "F-46a57925712a": {
+          "digest": "46a57925712abdbd190ae122d61f277855b9db8ad3596d78786547e4c69202e6",
+          "text": "**EIR-001 [substantive] — Restore the working directory between verification blocks.** `docs/RELEASING.md:376` leaves the shell inside `fixture/scripts`. Pasting the subsequent tooling block at line 398 fails with “Start directory is not importable”. A subshell or explicit return to the repository root would make the blocks composable.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T00:15:21Z"
+            }
+          ]
+        },
+        "F-d6b45bda123d": {
+          "digest": "d6b45bda123d6efe741c91b912e3235cd91adbebb22ceee3b5d3ddf4622f2cd3",
+          "text": "**EIR-002 [substantive] — Qualify the first exception-propagation clause.** `payload/scripts/workflow_state.py:1980` still states “The original exception propagates” without qualification, although lines 1982–1983 correctly explain that a callback `KeyboardInterrupt` or `SystemExit` replaces it. State that exception directly in the first clause and pin the complete wording.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T00:15:21Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "08650d73aa601e397e0df6f2d0c7b8de8c0911674e12461d723c6c8372af3fc5",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-21T00:01:05Z",
+          "verdict_sha256": "eb1ef5ec7eaaa74f7c45acde74a63d4257dc50d966be2b1fa9bf13775d5fb72a",
+          "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "08650d73aa601e397e0df6f2d0c7b8de8c0911674e12461d723c6c8372af3fc5",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-21T00:15:21Z",
+          "verdict_sha256": "ba6e542894c3a34e90b74759d574e09b5883aa7fae887326aa23c25229a5f4c3",
+          "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
