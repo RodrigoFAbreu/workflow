@@ -76,7 +76,58 @@ fixture), `tools/release` (zlib-ng Python), `tools/docs` and `check_docs.py`, `c
   `check_docs.py` clean; `check-manager-block` ok; `release.py build` succeeds; `workflow-manager
   verify .` matches 2.18.1 (the installation is unchanged).
 
+## Functional review checklist
+
+This is a process milestone (Workflow 2.18.2, a patch release); there is no app to run. The
+manual check is that the changed commands and documents behave as the CP verified states say.
+Run everything from the repository root on branch `milestone/review-followups-2` with a clean tree.
+
+### Setup
+
+- A disposable clone or a scratch directory for the staged fixture; do not run the suites from
+  inside this repository's installed tree (the integration suite reads the installed commands).
+- Python 3 for the suites; the zlib-ng Python for `tools/release` (see `docs/RELEASING.md`,
+  "Verification commands").
+
+### Test data
+
+None to seed. The staged fixture comes from `stage-conformance`; the collision flow below
+needs a scratch repository whose declared backlog already holds an id you then try to plan.
+
+### Flows
+
+1. **Verification commands section.** Open `docs/RELEASING.md` "Verification commands" and
+   `CLAUDE.md`'s "Releases" list. Expected: the section lists the nine suites (run from inside the
+   staged fixture), the `tools/release` tests, the `tools/docs` tests and checker,
+   `check-manager-block` with `--manager-releases`, and `workflow-manager verify .`; `CLAUDE.md`
+   points to it outside the managed block.
+2. **Run those commands as written.** Stage a fixture with `stage-conformance`, run one suite from
+   inside it, then run `unittest discover -s tools/docs -p '*_test.py'`, `check_docs.py`, and
+   `check-manager-block`. Expected: each exits 0 (a suite reports `OK`; `tools/docs` reports 34
+   tests); `check-manager-block` without `--manager-releases` exits 2 (usage error).
+3. **Early collision check (60e).** Read `payload/.claude/commands/milestone-plan.md` step 1's
+   `[2.1]` bullet. Expected: a "Declared-backlog collision check" precedes the `route_work_item`
+   call, and a refusal there stops the run with nothing written. Optionally, in a scratch
+   repository, plan an id that collides with a declared backlog entry. Expected: refusal, tree
+   byte-identical; an undeclared repository gets the plain template.
+4. **Guard re-wrap (64c).** Check the six user-only command files (`accept-milestone`,
+   `adopt-gate-policy`, `approve-review`, `request-plan-amendment`, `resume-implementation`,
+   `retire-legacy-work-item`). Expected: no prose line over 78 columns except `approve-review.md`'s
+   one unbreakable 91-column line; wording unchanged (whitespace-normalised text equals the base).
+5. **Trailing-newline hardening.** Expected: `TAG_RE`, `_SHA256_RE` and `_MANAGER_VERSION_RE` end in
+   `\Z`; a `v2.18.2\n` tag is not taken as a release.
+6. **Release 2.18.2 bytes.** Expected: `manifest.json` names `2.18.2`; `release.py build` succeeds;
+   `workflow-manager verify .` still matches 2.18.1 (this repository's installation is untouched
+   until the release is published and installed); published tags and assets are not modified.
+
+### Known limitations / out of scope
+
+- This repository's own installation (`.claude/`, `scripts/`, `docs/ai-workflow/` managed files)
+  stays at 2.18.1 until 2.18.2 is published and installed through `workflow-manager update`.
+- Publishing the release, the `workflow-manager` pin and the pull request are not part of this gate.
+- The one over-width line in `approve-review.md` is accepted (OD-3).
+
 ## Next action
 
-All checkpoints complete; the next `/milestone-implement review-followups-2` enters
-`SELF_REVIEWING_IMPLEMENTATION` wrap-up (steps 2-5).
+All checkpoints complete. Run the checklist above, then `/accept-milestone review-followups-2` if
+clean, or write findings to the feedback file and run `/apply-functional-review`.
