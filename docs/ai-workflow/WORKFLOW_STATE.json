@@ -12676,7 +12676,7 @@
       "registry_path": "docs/ai-workflow/registry/review-followups-2-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/review-followups-2-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 1,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -12790,10 +12790,10 @@
         }
       },
       "technical_approval": {
-        "status": "STALE",
+        "status": "CURRENT",
         "basis": "POLICY_SATISFIED",
-        "reviewed_bundle_id": "08650d73aa601e397e0df6f2d0c7b8de8c0911674e12461d723c6c8372af3fc5",
-        "approved_review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+        "reviewed_bundle_id": "b62720a4dc455edf0d4ee5046ee20741553cfe2022ec4232d477e7db445ccc0f",
+        "approved_review_content_id": "7e22f2b1d697932b0eec95208df1f098356b3766ce955e7d7566e15a1e866d56",
         "review_content_manifest": [
           {
             "path": "CLAUDE.md",
@@ -12805,7 +12805,7 @@
             "path": "docs/RELEASING.md",
             "exists": true,
             "mode": "100644",
-            "blob": "5078a65c37a0ee11c13ab6fa9cfcdcfde03a40e6"
+            "blob": "ac6f95bbc50d33f44eae84b2d14a138e6d593e69"
           },
           {
             "path": "docs/ai-workflow/registry/review-followups-2-artifacts.json",
@@ -12925,14 +12925,14 @@
             "path": "tools/release/release_test.py",
             "exists": true,
             "mode": "100644",
-            "blob": "0e74e0113529edfa3ec341280f7c2b65cc55c4ad"
+            "blob": "0399913db3818c2cfc1fcfee6ca9b096b24b5571"
           }
         ],
-        "reviewed_content_commit": "b0db611f1b0523044a0ad5773da4fbd01f4b2c16",
+        "reviewed_content_commit": "703b5793508e2163b9ba312291e1fcc65738f59c",
         "legacy_evidence": null,
         "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
         "waived_guarantees": [],
-        "recorded_at": "2026-10-21T00:15:48Z",
+        "recorded_at": "2026-10-21T01:50:02Z",
         "policy_evidence": {
           "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
           "policy_source": "default",
@@ -12962,24 +12962,24 @@
             }
           ],
           "inputs": {
-            "review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+            "review_content_id": "7e22f2b1d697932b0eec95208df1f098356b3766ce955e7d7566e15a1e866d56",
             "ledger": {
               "local": {
-                "bundle_id": "08650d73aa601e397e0df6f2d0c7b8de8c0911674e12461d723c6c8372af3fc5",
+                "bundle_id": "b62720a4dc455edf0d4ee5046ee20741553cfe2022ec4232d477e7db445ccc0f",
                 "verdict": "APPROVE",
-                "round": 1,
-                "verdict_sha256": "eb1ef5ec7eaaa74f7c45acde74a63d4257dc50d966be2b1fa9bf13775d5fb72a",
-                "ledger_entry_sha256": "c096dec591cd62991158b77de471c587e3dbb66488cb021f37a7fbc15e48a30d",
-                "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+                "round": 2,
+                "verdict_sha256": "dac048cd4a06f36769dc15b6084cc3d1bb6431c08ac70c1c890ae45d256d2d0d",
+                "ledger_entry_sha256": "de65afc2c61217b1f03a972c5d17169a074c80bffbb439c85e474571cd8118d7",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
                 "reviewer_model": "anthropic/claude-opus-5-5"
               },
               "manual": {
-                "bundle_id": "08650d73aa601e397e0df6f2d0c7b8de8c0911674e12461d723c6c8372af3fc5",
+                "bundle_id": "b62720a4dc455edf0d4ee5046ee20741553cfe2022ec4232d477e7db445ccc0f",
                 "verdict": "APPROVE",
-                "round": 1,
-                "verdict_sha256": "ba6e542894c3a34e90b74759d574e09b5883aa7fae887326aa23c25229a5f4c3",
-                "ledger_entry_sha256": "06c173e55de0273d82c6ecf16ffe57e2b5b3e5c6df6725d9696ffbfda27202d8",
-                "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+                "round": 2,
+                "verdict_sha256": "07c5a4280d469c13540c4345a6a0894abcf380e7995f1b8ced2abbffe5481f72",
+                "ledger_entry_sha256": "2c9b7db393ca610556188c3abe8c520325e44ef8fd1676fb426b3b2140caabf5",
+                "run_ref": "session:local.ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
                 "reviewer_model": "openai/gpt-6.1-sol"
               }
             },
@@ -12989,7 +12989,7 @@
           "trust": {
             "review_verdicts": "orchestrator"
           },
-          "evaluated_at": "2026-10-21T00:15:48Z",
+          "evaluated_at": "2026-10-21T01:50:02Z",
           "workflow_release": "2.18.1"
         }
       },
@@ -13023,12 +13023,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 1,
-          "external": 1
+          "local": 2,
+          "external": 2
         }
       },
-      "state_revision": 21,
-      "last_transition": "2026-10-21T01:11:54Z",
+      "state_revision": 24,
+      "last_transition": "2026-10-21T01:50:02Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -13205,26 +13205,110 @@
               "at": "2026-10-21T00:15:21Z"
             }
           ]
+        },
+        "F-822e91f373d2": {
+          "digest": "822e91f373d28d5d4f56384ef68908dfa36463da14c9a5821bd7e0412380362e",
+          "text": "**LIR-001 [substantive]: the suite loop depends on bash word splitting.** At `docs/RELEASING.md:376-377`, `for suite in $suites` iterates once per suite only because bash splits unquoted variables. zsh, the operator's login shell here, does not split them. If the block is pasted into zsh, the loop runs once with all nine names joined into one path. That fails loudly (file not found, so not a false pass), but the block no longer \"runs as written\" outside bash. Suggested fix: iterate over the command substitution directly, `for suite in $(python3 -c \"…\")`, which both bash and zsh split. Alternatively, wrap the block in `bash -c`. The fence is labelled `bash`, so this is Optional.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "7e22f2b1d697932b0eec95208df1f098356b3766ce955e7d7566e15a1e866d56",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T01:29:04Z"
+            }
+          ]
+        },
+        "F-7c1a991ce960": {
+          "digest": "7c1a991ce960709f33ff162a9da6e1cf5a569296fe96b11eb55ec98a263c8ace",
+          "text": "**LIR-002 [editorial]: the bundle prose describes revision 1 only.** `IMPLEMENTATION_SUMMARY.md` says `implementation_revision: 2`, but it and `REVIEW_REQUEST.md` name `b0db611`/`1efeb16` as the implemented HEAD and generation record. Neither mentions `0744575` or functional finding F2. `TEST_RESULTS.md` is still titled \"implementation revision 1\" and records the old `cd` form. A reviewer has to infer the revision-2 change from `CHANGES_SINCE_REVIEW.md` or `COMMITS.txt`. A post-fix bundle should add a short \"Revision 2\" section and the re-run evidence.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "7e22f2b1d697932b0eec95208df1f098356b3766ce955e7d7566e15a1e866d56",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T01:29:04Z"
+            }
+          ]
+        },
+        "F-5b8d023b9446": {
+          "digest": "5b8d023b9446ac85ca63d96662d99fa300fecd7c5255f3b9fe86a91d970dc49b",
+          "text": "**EIR-002 (carried from round 1, unaddressed) [editorial]: the first exception-propagation clause is still unqualified.** At `payload/scripts/workflow_state.py:1980`, \"The original exception propagates;\" still precedes the qualification that a `KeyboardInterrupt`/`SystemExit` from `on_failure` replaces the original exception.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "7e22f2b1d697932b0eec95208df1f098356b3766ce955e7d7566e15a1e866d56",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T01:29:04Z"
+            }
+          ]
+        },
+        "F-21045317f803": {
+          "digest": "21045317f8031bbfd5f9e38c430e59e3c9982e0be91cc17d65899c877c35430f",
+          "text": "**EIR-002 [substantive] — Qualify the opening propagation clause.** `payload/scripts/workflow_state.py:1980` still says “The original exception propagates” before correctly explaining that a callback interrupt replaces it. State the exception in the opening clause.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "7e22f2b1d697932b0eec95208df1f098356b3766ce955e7d7566e15a1e866d56",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T01:49:41Z"
+            }
+          ]
+        },
+        "F-025f0ef2f681": {
+          "digest": "025f0ef2f68105a74a172f5f9344ec55f85fbf8b854ba78d1b3bf8ef79a97e8d",
+          "text": "**EIR-003 [substantive] — Make the Bash requirement explicit.** `docs/RELEASING.md:377` relies on Bash splitting `$suites`; zsh iterates once over the complete string and fails. The Bash fence makes this Optional, but an explicit shell instruction would help operators pasting into zsh.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "7e22f2b1d697932b0eec95208df1f098356b3766ce955e7d7566e15a1e866d56",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T01:49:41Z"
+            }
+          ]
+        },
+        "F-18b4a2df1613": {
+          "digest": "18b4a2df1613a81267a21c9654af952dc0205662fc285249dc4277f6f70aeced",
+          "text": "**EIR-004 [apparatus] — Update the bundle’s revision narrative.** `.ai-review/review-followups-2/current/IMPLEMENTATION_SUMMARY.md:6` names the revision-1 implementation and generation commits, while `TEST_RESULTS.md:1` still presents revision-1 evidence. Add the post-fix change and revision-2 validation evidence.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "7e22f2b1d697932b0eec95208df1f098356b3766ce955e7d7566e15a1e866d56",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T01:49:41Z"
+            }
+          ]
         }
       },
       "implementation_review_stages": {
-        "review_content_id": "30350663f51a4b5dd3188f9ac5a7c6463b2fb380151bc5b0e7a76d6dd3ca5bc4",
+        "review_content_id": "7e22f2b1d697932b0eec95208df1f098356b3766ce955e7d7566e15a1e866d56",
         "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "08650d73aa601e397e0df6f2d0c7b8de8c0911674e12461d723c6c8372af3fc5",
+          "bundle_id": "b62720a4dc455edf0d4ee5046ee20741553cfe2022ec4232d477e7db445ccc0f",
           "verdict": "APPROVE",
-          "round": 1,
-          "completed_at": "2026-10-21T00:01:05Z",
-          "verdict_sha256": "eb1ef5ec7eaaa74f7c45acde74a63d4257dc50d966be2b1fa9bf13775d5fb72a",
-          "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+          "round": 2,
+          "completed_at": "2026-10-21T01:29:04Z",
+          "verdict_sha256": "dac048cd4a06f36769dc15b6084cc3d1bb6431c08ac70c1c890ae45d256d2d0d",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "anthropic/claude-opus-5-5"
         },
         "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "08650d73aa601e397e0df6f2d0c7b8de8c0911674e12461d723c6c8372af3fc5",
+          "bundle_id": "b62720a4dc455edf0d4ee5046ee20741553cfe2022ec4232d477e7db445ccc0f",
           "verdict": "APPROVE",
-          "round": 1,
-          "completed_at": "2026-10-21T00:15:21Z",
-          "verdict_sha256": "ba6e542894c3a34e90b74759d574e09b5883aa7fae887326aa23c25229a5f4c3",
-          "run_ref": "session:local .ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
+          "round": 2,
+          "completed_at": "2026-10-21T01:49:41Z",
+          "verdict_sha256": "07c5a4280d469c13540c4345a6a0894abcf380e7995f1b8ced2abbffe5481f72",
+          "run_ref": "session:local.ai-review/review-followups-2/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
