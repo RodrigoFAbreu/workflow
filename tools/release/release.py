@@ -95,7 +95,7 @@ ACCEPTED_FORM = (
     + ", ".join(sorted(TYPE_IMPACT))
 )
 
-TAG_RE = re.compile(r"^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
+TAG_RE = re.compile(r"^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\Z")
 
 RECOVERY = ("a failed publication: remove the residue and re-run Release "
             "(docs/RELEASING.md, \"Recovering from a failed publication\")")

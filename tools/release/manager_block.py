@@ -52,7 +52,7 @@ DETECTORS = {
     "item-field": ("key", "value"),
 }
 
-_MANAGER_VERSION_RE = re.compile(r"^[0-9]+(\.[0-9]+)*$")
+_MANAGER_VERSION_RE = re.compile(r"^[0-9]+(\.[0-9]+)*\Z")
 _KEBAB_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 _TAG_RE = re.compile(r"^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
 _VERSION_RE = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
