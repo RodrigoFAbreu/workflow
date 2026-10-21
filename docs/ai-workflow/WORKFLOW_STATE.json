@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "review-followups-3",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -13523,6 +13523,233 @@
         },
         "evaluated_at": "2026-10-21T02:52:46Z",
         "workflow_release": "2.18.1"
+      }
+    },
+    "review-followups-3": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "review-followups-3",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/REVIEW_FOLLOWUPS_3_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/review-followups-3-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/review-followups-3-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 2,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "6b63dcc621aa06ca6f286737e0fd6f04f01e92a0",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "4a4c1265421bac37d493468a5a523d86ec4732a43a266f419cec368536533400",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "4a4c1265421bac37d493468a5a523d86ec4732a43a266f419cec368536533400",
+        "approved_review_content_id": "3740e73cd030c11a39b5a1fee54e32fbad0506140b1c38f8a2f5e261e739554a",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/REVIEW_FOLLOWUPS_3_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "16af22d9a2b86b6ff4babf26b49f8b6107fa39e4"
+          },
+          {
+            "path": "docs/ai-workflow/registry/review-followups-3-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ed3b3756703bf91b60b1b0699b9af9e4fc958be4"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/review-followups-3-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "662ba692fed3e0adde7a97b10eb4a08d3b55a9b6"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-21T20:27:54Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "3740e73cd030c11a39b5a1fee54e32fbad0506140b1c38f8a2f5e261e739554a",
+            "ledger": {
+              "local": {
+                "bundle_id": "4a4c1265421bac37d493468a5a523d86ec4732a43a266f419cec368536533400",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "62b3546c374b33a85034f71d9f686c9adc8cc7dc84a91b979d918408e32fbea3",
+                "ledger_entry_sha256": "4c8354847938fff4ffb377f0e44bec505ae9598f0b85d7bc5ebb1fe048a24911",
+                "run_ref": "session:local .ai-review/review-followups-3/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "4a4c1265421bac37d493468a5a523d86ec4732a43a266f419cec368536533400",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "cb7926c00031acc7a70530dc58060b1b2e2dd9a2d01b22f3e6384945f1428ecc",
+                "ledger_entry_sha256": "f6f786ccc31b66d90ae6e63c1e8370f53966b1b9b120c0c4473bbbbef68b96af",
+                "run_ref": "session:local .ai-review/review-followups-3/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-21T20:27:54Z",
+          "workflow_release": "2.18.2"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "3740e73cd030c11a39b5a1fee54e32fbad0506140b1c38f8a2f5e261e739554a",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "4a4c1265421bac37d493468a5a523d86ec4732a43a266f419cec368536533400",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-21T20:20:39Z",
+          "verdict_sha256": "62b3546c374b33a85034f71d9f686c9adc8cc7dc84a91b979d918408e32fbea3",
+          "run_ref": "session:local .ai-review/review-followups-3/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "4a4c1265421bac37d493468a5a523d86ec4732a43a266f419cec368536533400",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-21T20:27:23Z",
+          "verdict_sha256": "cb7926c00031acc7a70530dc58060b1b2e2dd9a2d01b22f3e6384945f1428ecc",
+          "run_ref": "session:local .ai-review/review-followups-3/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-10-21T20:27:54Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-21T20:18:39Z",
+        "consumed": {
+          "review_content_id": "35a263c6c452882109c88053f70fc8cc80d5507d126ca81dea88979ece0a3d92",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "3740e73cd030c11a39b5a1fee54e32fbad0506140b1c38f8a2f5e261e739554a",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "3740e73cd030c11a39b5a1fee54e32fbad0506140b1c38f8a2f5e261e739554a",
+          "bundle_id": "4a4c1265421bac37d493468a5a523d86ec4732a43a266f419cec368536533400",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "35a263c6c452882109c88053f70fc8cc80d5507d126ca81dea88979ece0a3d92"
+      ],
+      "optional_findings": {
+        "F-ff91ca1a6192": {
+          "digest": "ff91ca1a619234eef0a397ecc6d039be58ea6e5674d3e8b278d5dbf8356af073",
+          "text": "**LPR-002: CP2's `**Files:**` names `docs/ROADMAP.md`, but its own bullet says row 20 is\n  `Current` from this plan and becomes Done at acceptance, \"not in this checkpoint\".** Either\n  drop it from CP2's Files paragraph or say what CP2 writes there. As written, the Files\n  paragraph and the bullet disagree about whether CP2 touches the file.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "35a263c6c452882109c88053f70fc8cc80d5507d126ca81dea88979ece0a3d92",
+              "verdict": "REVISE",
+              "at": "2026-10-21T20:16:22Z"
+            }
+          ]
+        },
+        "F-8860efc5f746": {
+          "digest": "8860efc5f7468ca398d212fc92b6ec9ca718b44f38408bd1053276e244dca73e",
+          "text": "**LPR-003: D-Patch's downgrade posture says going back to 2.18.2 \"restores only the\n  docstring\".** It also restores `WORKFLOW_RELEASE` 2.18.2, which is what the protocol envelope\n  reports as `workflow_release`. 2.18.2's own posture names the constant (\"the release constant\n  becomes 2.18.2\"). Name it here too, so the posture CP2 writes into the manifest is accurate.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "35a263c6c452882109c88053f70fc8cc80d5507d126ca81dea88979ece0a3d92",
+              "verdict": "REVISE",
+              "at": "2026-10-21T20:16:22Z"
+            }
+          ]
+        },
+        "F-b7076dbf4f72": {
+          "digest": "b7076dbf4f72314c16fe46fc4c24a47b8f524370077699e5575c5630964da90f",
+          "text": "**LPR-004: the line-wrapping limit on the existing phrase pin is not stated.**\n  `test_the_docstring_says_an_exception_not_a_base_exception_is_suppressed` checks the *raw*\n  docstring, and the plan keeps it unmodified. So the rewrapped docstring must keep \"an\n  `Exception` raised by `on_failure` is suppressed\" on one physical line, or that pin goes red.\n  Also state that the new absence check for \"The original exception propagates; an\n  `Exception`\" runs on the whitespace-normalised text: in today's docstring that text spans a\n  line break, so a raw-text `assertNotIn` would pass even against the unfixed docstring and\n  would not be red first.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "35a263c6c452882109c88053f70fc8cc80d5507d126ca81dea88979ece0a3d92",
+              "verdict": "REVISE",
+              "at": "2026-10-21T20:16:22Z"
+            }
+          ]
+        },
+        "F-1942ac895b9a": {
+          "digest": "1942ac895b9a4cca1cb578280e443efe11a35ea55f2ea5bfcbba573c0ed63cdb",
+          "text": "**LPR-005: `workflow-manager verify .` is a gate in section 1 but \"where the cache allows\" in\n  D-Shell.** Section 1 lists every block of \"Verification commands\" under bash and zsh, each\n  exiting 0, and `workflow-manager verify .` clean, as gates. D-Shell's \"Proof by running\"\n  qualifies the verify block with \"where the cache allows\". It runs with `HOME` set to a scratch\n  directory (D-Staging), which can empty the release cache, and the section itself says an empty\n  cache exits 1. CP1's Done then needs every block to exit 0. Say how the scratch run reaches\n  the cache (`--release-cache` or `$WORKFLOW_MANAGER_RELEASE_CACHE` pointing at the real cache),\n  or that CP1 records a cache-less verify as not run rather than as a pass. CP2's run from the\n  committed tree covers it either way.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "3740e73cd030c11a39b5a1fee54e32fbad0506140b1c38f8a2f5e261e739554a",
+              "verdict": "APPROVE",
+              "at": "2026-10-21T20:20:39Z"
+            }
+          ]
+        }
       }
     }
   }

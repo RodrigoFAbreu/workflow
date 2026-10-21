@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-followups-3",
+  "plan_revision": 2,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The docstring clause and the shell-neutral suites loop",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.18.3",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    }
+  ]
+}

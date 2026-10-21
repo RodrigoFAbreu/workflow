@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-followups-3",
+  "requirements": {
+    "R1": {
+      "description": "The `state_transaction` docstring's opening clause states its exception (a `BaseException` that is not an `Exception` raised by `on_failure` replaces the original), consistent with the code, and the test pins the complete corrected wording",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "The suites loop in `docs/RELEASING.md` \"Verification commands\" works under both bash and zsh, proven by running the section's blocks in sequence under both shells, and its pin is updated",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "Release 2.18.3: release constant and pinned assertions, manifest digests, sizes, measured suite counts and per-record rationales, release history closing #71, downgrade posture and the manager block (min_manager_version 1.13.0)",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
