@@ -1,0 +1,82 @@
+{
+  "dispositions": {
+    "F-025f0ef2f681": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#71",
+      "note": "Say bash explicitly above the RELEASING.md suites loop, or iterate in a way zsh also splits."
+    },
+    "F-18b4a2df1613": {
+      "disposition": "dropped",
+      "reason": "The bundle files (.ai-review/.../current/IMPLEMENTATION_SUMMARY.md, TEST_RESULTS.md, REVIEW_REQUEST.md) are gitignored review artifacts regenerated each round, not part of the release; the revision-2 change and its evidence are in commits 0744575 and 703b579 and in the functional round 2 results."
+    },
+    "F-1d548385717a": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#71",
+      "note": "Qualify the opening clause of the state_transaction docstring (payload/scripts/workflow_state.py:1980) for a non-Exception BaseException from on_failure, and pin the complete wording."
+    },
+    "F-21045317f803": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#71",
+      "note": "Qualify the opening clause of the state_transaction docstring (payload/scripts/workflow_state.py:1980) for a non-Exception BaseException from on_failure, and pin the complete wording."
+    },
+    "F-41d2aa86c034": {
+      "disposition": "dropped",
+      "reason": "The exemption follows D-64c's rationale (a single-span line cannot be broken usefully at a space), no such list-marker line exists, and the test still bounds every other line."
+    },
+    "F-46a57925712a": {
+      "disposition": "fixed",
+      "note": "Fixed by 0744575: the nine suites run in a subshell, so docs/RELEASING.md's Verification commands run top to bottom from the repository root (Codex post-fix review and functional round 2 confirm)."
+    },
+    "F-4b495fa7a6f2": {
+      "disposition": "fixed",
+      "note": "Fixed by 0744575 (the same subshell fix)."
+    },
+    "F-5b8d023b9446": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#71",
+      "note": "Qualify the opening clause of the state_transaction docstring (payload/scripts/workflow_state.py:1980) for a non-Exception BaseException from on_failure, and pin the complete wording."
+    },
+    "F-651060a9c33b": {
+      "disposition": "dropped",
+      "reason": "The test comment's behavioural statement is accurate (the only call site uses fullmatch, so no behaviour was wrong); the pin is simply stronger than the comment claims, which harms nothing."
+    },
+    "F-70d05f9b6f78": {
+      "disposition": "fixed",
+      "note": "Row 19 was marked Current by the narrative commit 69e9683 when the plan was approved, as the plan says."
+    },
+    "F-7c1a991ce960": {
+      "disposition": "dropped",
+      "reason": "The bundle files (.ai-review/.../current/IMPLEMENTATION_SUMMARY.md, TEST_RESULTS.md, REVIEW_REQUEST.md) are gitignored review artifacts regenerated each round, not part of the release; the revision-2 change and its evidence are in commits 0744575 and 703b579 and in the functional round 2 results."
+    },
+    "F-822e91f373d2": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#71",
+      "note": "Say bash explicitly above the RELEASING.md suites loop, or iterate in a way zsh also splits."
+    },
+    "F-a5134c16de49": {
+      "disposition": "dropped",
+      "reason": "The section-2 census is a reading aid, not a gate; the counts were right and the sentence was reworded in the next revision."
+    },
+    "F-d5075011a16d": {
+      "disposition": "dropped",
+      "reason": "The census is only an aid; the width gate is TestUserOnlyCommandLineWidth, which excludes tables correctly."
+    },
+    "F-d6b45bda123d": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#71",
+      "note": "Qualify the opening clause of the state_transaction docstring (payload/scripts/workflow_state.py:1980) for a non-Exception BaseException from on_failure, and pin the complete wording."
+    },
+    "F-dbae77354d33": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#71",
+      "note": "Qualify the opening clause of the state_transaction docstring (payload/scripts/workflow_state.py:1980) for a non-Exception BaseException from on_failure, and pin the complete wording."
+    },
+    "F-f46900995cb4": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#71",
+      "note": "Qualify the opening clause of the state_transaction docstring (payload/scripts/workflow_state.py:1980) for a non-Exception BaseException from on_failure, and pin the complete wording."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "review-followups-2"
+}

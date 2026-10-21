@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**In progress.** W16: `review-followups-2` (`process`, governing version `2.2`), branch
+**Complete** (accepted by policy; the release follows the merge). W16: `review-followups-2` (`process`, governing version `2.2`), branch
 `milestone/review-followups-2`, roadmap row 19 (RodrigoFAbreu/workflow#60 item 60e, #64 item
 64c, #68). Plan: `docs/ai-workflow/REVIEW_FOLLOWUPS_2_PLAN.md` (revision 1, approved by gate
 policy). The goal is Workflow 2.18.2, a patch release (`fix:`). The previous milestone, W15
@@ -146,5 +146,6 @@ needs a scratch repository whose declared backlog already holds an id you then t
 
 ## Next action
 
-All checkpoints complete. Run the checklist above, then `/accept-milestone review-followups-2` if
-clean, or write findings to the feedback file and run `/apply-functional-review`.
+Row 20 is deferred and unscheduled, so no item is ready for `/milestone-plan`. Publishing 2.18.2
+follows the pull request merge (#72); the Manager side is a `workflow-manager` pin pull request.
+The 8 follow-up findings are in RodrigoFAbreu/workflow#71.
