@@ -672,17 +672,55 @@ class ConformanceTemplate(unittest.TestCase):
         self.assertEqual(len(self.suites()), 9)
 
     @staticmethod
-    def with_constants(body, width_cap=4, shards=0):
-        """The kit's textual substitution: only the two constant lines change."""
+    def with_constants(body, width_cap=4, shards=0, longest=None):
+        """The kit's textual substitution: only the two constant lines change (and, for a
+        test of the fallback order, the `longest=` list)."""
         for name, value in (("width_cap", width_cap), ("shards", shards)):
             line = f"\n{name}="
             assert body.count(line) == 1, name
             start = body.index(line) + len(line)
             end = body.index("\n", start)
             body = body[:start] + str(value) + body[end:]
+        if longest is not None:
+            line = "\nlongest="
+            assert body.count(line) == 1
+            start = body.index(line) + len(line)
+            end = body.index("\n", start)
+            body = body[:start] + '"' + longest + '"' + body[end:]
         return body
 
     ACCEPTANCE = "workflow_acceptance_matrix_test.py"
+
+    # The suites that `longest` starts first when the shard names do not match the run
+    # (shards=2 here): the suites among the nine that `longest` lists, in its order.
+    LONGEST_SUITES = ["workflow_protocol_test.py", "workflow_state_test.py",
+                      "workflow_gate_policy_test.py",
+                      "workflow_fingerprint_generalization_test.py"]
+
+    # Median seconds per unit over the twelve green runs of the managed job, 2026-10-14 to
+    # 2026-10-21 (the per-run timings were a scratch artifact; this table is the record).
+    MEASURED = {
+        "workflow_protocol_test.py": 645, "workflow_state_test.py": 486,
+        "acceptance-1of4": 463.5, "acceptance-2of4": 405, "acceptance-3of4": 420.5,
+        "acceptance-4of4": 439, "workflow_gate_policy_test.py": 335,
+        "workflow_fingerprint_generalization_test.py": 218,
+        "workflow_state_completion_obligations_test.py": 39, "workflow_integration_test.py": 15,
+        "workflow_fingerprint_test.py": 13, "workflow_test_harness_test.py": 5}
+
+    @staticmethod
+    def makespan(order, durations, width=4):
+        """Greedy list scheduling: each unit starts on the earliest-free slot, as the queue does."""
+        free = [0.0] * width
+        for unit in order:
+            slot = free.index(min(free))
+            free[slot] += durations[unit]
+        return max(free)
+
+    def longest_names(self):
+        for line in self.step_body().splitlines():
+            if line.startswith("longest="):
+                return line[len("longest="):].strip('"').split()
+        self.fail("no longest= line")
 
     STANDIN_ACCEPTANCE = (
         "import os, pathlib, time, unittest\n"
@@ -712,7 +750,7 @@ class ConformanceTemplate(unittest.TestCase):
         "        self.assertTrue(@FAIL@)\n")
 
     def run_body(self, fail=(), uncopyable=False, shards=0, width_cap=4, failing_test=False,
-                 acceptance_extra="", check_stub=""):
+                 acceptance_extra="", check_stub="", longest=None):
         tmp = Path(tempfile.mkdtemp(prefix="conformance-job-"))
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
         ws, runner, counter = tmp / "ws", tmp / "runner", tmp / "counter"
@@ -746,7 +784,7 @@ class ConformanceTemplate(unittest.TestCase):
         summary = tmp / "summary.md"
         env = dict(os.environ, GITHUB_WORKSPACE=str(ws), RUNNER_TEMP=str(runner),
                    GITHUB_STEP_SUMMARY=str(summary))
-        body = self.with_constants(self.step_body(), width_cap, shards)
+        body = self.with_constants(self.step_body(), width_cap, shards, longest)
         if check_stub:
             body = self.stub_check(check_stub) + body
         proc = subprocess.run(["bash", "-eo", "pipefail", "-c", body],
@@ -1196,7 +1234,8 @@ class ConformanceTemplate(unittest.TestCase):
         self.assertEqual(order[1:3], ["acceptance 1/2", "acceptance 2/2"])
         self.assertNotIn("::error", proc.stdout)
         units = [u for u, _ in self.started(proc.stdout)]
-        self.assertEqual(units[:2], ["acceptance-1of2", "acceptance-2of2"])
+        self.assertEqual(units[:4], self.LONGEST_SUITES)
+        self.assertEqual(sorted(units[4:6]), ["acceptance-1of2", "acceptance-2of2"])
         self.assertEqual(len(units), 2 + 8)
         self.assertNotIn(self.ACCEPTANCE, units)
 
@@ -1291,12 +1330,65 @@ class ConformanceTemplate(unittest.TestCase):
         self.assertEqual(self.started(proc.stdout), [])
         self.assertEqual(list(counter.iterdir()), [])
 
+    def test_the_measured_order_starts_the_longest_unit_first_and_beats_the_old_order(self):
+        by_duration = sorted(self.MEASURED, key=lambda u: -self.MEASURED[u])
+        self.assertEqual(by_duration[:6], [
+            "workflow_protocol_test.py", "workflow_state_test.py", "acceptance-1of4",
+            "acceptance-4of4", "acceptance-3of4", "acceptance-2of4"])
+        proc, *_ = self.run_body(shards=4)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        started = [u for u, _ in self.started(proc.stdout)]
+        self.assertEqual(started, by_duration)
+        old = [f"acceptance-{i}of4" for i in (1, 2, 3, 4)] + [
+            u for u in self.suites() if u != self.ACCEPTANCE]
+        by_index = ["workflow_protocol_test.py", "workflow_state_test.py"] + [
+            f"acceptance-{i}of4" for i in (1, 2, 3, 4)] + [
+            u for u in self.suites() if u not in (self.ACCEPTANCE, "workflow_protocol_test.py",
+                                                  "workflow_state_test.py")]
+        lower = max(max(self.MEASURED.values()), sum(self.MEASURED.values()) / 4)
+        new = self.makespan(started, self.MEASURED)
+        self.assertEqual(self.makespan(old, self.MEASURED), 1050)
+        self.assertLess(self.makespan(by_index, self.MEASURED), self.makespan(old, self.MEASURED))
+        self.assertLessEqual(new, lower * 1.01)
+        self.assertLessEqual(new, self.makespan(old, self.MEASURED) - 120)
+
+    def test_every_name_in_longest_is_a_unit_of_the_run_and_listed_once(self):
+        names = self.longest_names()
+        self.assertEqual(len(names), len(set(names)))
+        shards = next(int(l[len("shards="):]) for l in self.step_body().splitlines()
+                      if l.startswith("shards="))
+        units = set(self.suites()) | {f"acceptance-{i}of{shards}" for i in range(1, shards + 1)}
+        for name in names:
+            self.assertIn(name, units)
+        self.assertEqual(names[0], self.ACCEPTANCE)
+        self.assertEqual(set(self.MEASURED),
+                         (set(names) | set(self.suites())) - {self.ACCEPTANCE})
+
+    def test_a_stale_or_empty_longest_still_runs_every_unit_once(self):
+        for label, kwargs in (("empty", dict(shards=4, longest="")),
+                              ("shard count not named", dict(shards=2)),
+                              ("unknown names", dict(shards=4, longest="nothing.py acceptance-9of9"))):
+            with self.subTest(label):
+                proc, ws, runner, counter, summary = self.run_body(**kwargs)
+                self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+                units = [u for u, _ in self.started(proc.stdout)]
+                shards = kwargs["shards"]
+                self.assertEqual(sorted(units), sorted(
+                    [f"acceptance-{i}of{shards}" for i in range(1, shards + 1)]
+                    + [u for u in self.suites() if u != self.ACCEPTANCE]))
+                self.assertIn("coverage: expected 7, recorded 7", proc.stdout)
+                self.assertNotIn("::error", proc.stdout)
+        proc, *_ = self.run_body(shards=4, longest="")
+        units = [u for u, _ in self.started(proc.stdout)]
+        self.assertEqual(units[:4], [f"acceptance-{i}of4" for i in (1, 2, 3, 4)])
+
     def test_shards_zero_runs_nine_units_and_no_shard_tool(self):
         proc, ws, runner, counter, summary = self.run_body(shards=0)
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
         started = self.started(proc.stdout)
         self.assertEqual(sorted(u for u, _ in started), sorted(self.suites()))
         self.assertEqual(started[0][0], self.ACCEPTANCE)
+        self.assertEqual([u for u, _ in started][:4], [self.ACCEPTANCE] + self.LONGEST_SUITES[:3])
         self.assertLessEqual(max(k for _, k in started), min(4, len(os.sched_getaffinity(0))))
         self.assertFalse((runner / "workflow-conformance" / "plan.json").exists())
         self.assertNotIn("coverage:", proc.stdout)
@@ -1562,7 +1654,8 @@ class SourceConformanceRunner(unittest.TestCase):
         return body[start:body.index("\nPY\n", start) + 1]
 
     def run_body(self, fail=(), uncopyable=False, nproc=None, drop_result=(), shards=0,
-                 width_cap=4, failing_test=False, acceptance_extra="", check_stub=""):
+                 width_cap=4, failing_test=False, acceptance_extra="", check_stub="",
+                 longest=None):
         tmp = Path(tempfile.mkdtemp(prefix="source-conformance-"))
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
         runner, counter = tmp / "runner", tmp / "counter"
@@ -1594,7 +1687,7 @@ class SourceConformanceRunner(unittest.TestCase):
                 "print('output of ' + name)\n"
                 f"sys.exit({1 if name in fail else 0})\n")
         summary = tmp / "summary.md"
-        body = ConformanceTemplate.with_constants(self.body, width_cap, shards)
+        body = ConformanceTemplate.with_constants(self.body, width_cap, shards, longest)
         if nproc is not None:
             body = f"nproc() {{ echo {nproc}; }}\n" + body
         if check_stub:
@@ -1764,6 +1857,13 @@ class SourceConformanceRunner(unittest.TestCase):
                                       "workflow_protocol_test.py", "workflow_state_test.py",
                                       "workflow_gate_policy_test.py"])
 
+    def test_the_sharded_queue_starts_the_units_in_decreasing_measured_duration(self):
+        proc, *_ = self.run_body(shards=4)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        measured = ConformanceTemplate.MEASURED
+        self.assertEqual([u for u, _ in self.started(proc.stdout)],
+                         sorted(measured, key=lambda u: -measured[u]))
+
     def test_width_follows_a_smaller_nproc(self):
         proc, _, _, counter, _ = self.run_body(nproc=2)
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
@@ -1807,7 +1907,8 @@ class SourceConformanceRunner(unittest.TestCase):
             self.assertIn(f"| acceptance {i}/2 | passed |", summary)
         self.assertNotIn("::error", proc.stdout)
         units = [u for u, _ in self.started(proc.stdout)]
-        self.assertEqual(units[:2], ["acceptance-1of2", "acceptance-2of2"])
+        self.assertEqual(units[:4], ConformanceTemplate.LONGEST_SUITES)
+        self.assertEqual(sorted(units[4:6]), ["acceptance-1of2", "acceptance-2of2"])
         self.assertEqual(len(units), 2 + 8)
         self.assertNotIn(self.ACCEPTANCE, units)
         logs = runner / "source-conformance-logs"
@@ -2517,8 +2618,8 @@ class ReviewFollowups2ReleaseTest(unittest.TestCase):
 
 
 class ReviewFollowups3ReleaseTest(unittest.TestCase):
-    """Release 2.18.3 (review-followups-3): the version, the release constant,
-    the counts, the downgrade posture and the release-history row."""
+    """Release 2.18.3 (review-followups-3): what stays true of it once a later
+    release is current -- the record sentences and the release-history row."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py", "scripts/workflow_state.py",
@@ -2527,8 +2628,46 @@ class ReviewFollowups3ReleaseTest(unittest.TestCase):
     def setUp(self):
         self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
 
-    def test_the_release_names_2_18_3_and_adds_no_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.18.3")
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for target in self.CHANGED:
+            with self.subTest(target):
+                record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+                self.assertIn("review-followups-3 (workflow-2.18.3)", record["rationale"])
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        text = (REPO_ROOT / "docs" / "release-history.md").read_text()
+        row = next(line for line in text.splitlines() if line.startswith("| 2.18.3 |"))
+        for needle in ("2.18.2", "#71", "zsh", "Orchestration Protocol 1.5", "v2.18.3"):
+            self.assertIn(needle, row)
+        self.assertLess(text.index("| 2.18.3 |"), text.index("| 2.18.2 |"))
+
+
+class ReviewFollowups4ReleaseTest(unittest.TestCase):
+    """Release 2.18.4 (review-followups-4): the version, the release constant,
+    the counts, the downgrade posture, the #50 correction with its command, and
+    the release-history row."""
+
+    CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+               ".claude/commands/resume-implementation.md",
+               ".claude/commands/retire-legacy-work-item.md",
+               "scripts/workflow_integration_test.py", "scripts/workflow_protocol.py",
+               "scripts/workflow_protocol_test.py")
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.history = (REPO_ROOT / "docs" / "release-history.md").read_text()
+
+    def row(self) -> str:
+        return next(line for line in self.history.splitlines() if line.startswith("| 2.18.4 |"))
+
+    def command(self) -> str:
+        """The comparison command, as the release-history row states it."""
+        match = re.search(r"`(for c in \$\(git log .*?; done)`", self.row())
+        self.assertIsNotNone(match)
+        return match.group(1)
+
+    def test_the_release_names_2_18_4_and_adds_no_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.18.4")
         by_category = {}
         for entry in self.manifest["artifacts"]:
             by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
@@ -2540,37 +2679,90 @@ class ReviewFollowups3ReleaseTest(unittest.TestCase):
 
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.18.3"', text)
+        self.assertIn('WORKFLOW_RELEASE = "2.18.4"', text)
 
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
-        for record in self.manifest["artifacts"]:
-            with self.subTest(record["target_path"]):
-                data = (REPO_ROOT / record["location"]).read_bytes()
-                self.assertEqual((record["sha256"], record["size"]), (_sha(data), len(data)))
+        for section in ("artifacts", "templates"):
+            for record in self.manifest[section]:
+                with self.subTest(record["target_path"]):
+                    data = (REPO_ROOT / record["location"]).read_bytes()
+                    self.assertEqual((record["sha256"], record["size"]), (_sha(data), len(data)))
         for target in self.CHANGED:
             with self.subTest(target):
                 record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
-                self.assertIn("review-followups-3 (workflow-2.18.3)", record["rationale"])
+                self.assertIn("review-followups-4 (workflow-2.18.4)", record["rationale"])
+        template = next(r for r in self.manifest["templates"]
+                        if r["target_path"] == ".github/workflows/workflow-conformance.yml")
+        self.assertIn("review-followups-4 (workflow-2.18.4) starts the queue's units longest first",
+                      template["derivation"])
 
-    def test_the_manager_block_states_the_downgrade_posture(self):
+    def test_the_manager_block_states_both_corrections_in_the_posture(self):
         block = self.manifest["manager"]
         self.assertEqual(block["min_manager_version"], "1.13.0")
         posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.18.3", "2.18.2", "Orchestration Protocol stays 1.5",
-                       "workflow-manager update back to 2.18.2", "WORKFLOW_RELEASE",
-                       "state_transaction docstring"):
+        for needle in ("2.18.4", "2.18.3", "Orchestration Protocol stays 1.5",
+                       "workflow-manager update back to 2.18.3", "WORKFLOW_RELEASE",
+                       "job order", "step 3",
+                       "MalformedBundleGenerationRecordCommitError", "optional_findings",
+                       "first parent", "2.15.0", "finish that item's implementation approval"):
             self.assertIn(needle, posture)
+        self.assertIn(self.command(), posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
         self.assertEqual(block["new_work_only"], [])
         self.assertEqual(block["gate_default_change"], "")
 
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
-        text = (REPO_ROOT / "docs" / "release-history.md").read_text()
-        self.assertIn("Last checked with: Workflow 2.18.3.", text)
-        row = next(line for line in text.splitlines() if line.startswith("| 2.18.3 |"))
-        for needle in ("2.18.2", "#71", "zsh", "Orchestration Protocol 1.5", "v2.18.3"):
-            self.assertIn(needle, row)
-        self.assertLess(text.index("| 2.18.3 |"), text.index("| 2.18.2 |"))
+        self.assertIn("Last checked with: Workflow 2.18.4.", self.history)
+        for needle in ("2.18.3", "#50", "#55", "longest first", "names no work item",
+                       "re-validates committed generation-record commits", "git diff HEAD",
+                       "Orchestration Protocol 1.5", "v2.18.4"):
+            self.assertIn(needle, self.row())
+        self.assertLess(self.history.index("| 2.18.4 |"), self.history.index("| 2.18.3 |"))
+
+    def run_command(self, repo: Path) -> str:
+        base = subprocess.run(["git", "rev-list", "--max-parents=0", "HEAD"], cwd=repo,
+                              capture_output=True, text=True, check=True).stdout.strip()
+        script = self.command().replace("<base_commit>", base).replace("<work_item_id>", "w1")
+        done = subprocess.run(["bash", "-c", script], cwd=repo, capture_output=True, text=True)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        return done.stdout
+
+    def scratch_repo(self, steps: list[tuple[str, dict]]) -> Path:
+        """A repository with a base commit and one generation-record commit per
+        step; each step is (extra key, the work item's fields at that commit)."""
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, True)
+        git = ["git", "-c", "user.name=t", "-c", "user.email=t@t"]
+        subprocess.run(git[:1] + ["init", "-q"], cwd=tmp, check=True)
+        state = tmp / "docs" / "ai-workflow" / "WORKFLOW_STATE.json"
+        state.parent.mkdir(parents=True)
+        for number, (label, fields) in enumerate([("base", {"x": 1})] + steps):
+            state.write_text(json.dumps({"work_items": {"w1": fields}}))
+            subprocess.run(["git", "add", "-A"], cwd=tmp, check=True)
+            message = ("base" if number == 0 else
+                       f"record {label}\n\nWorkflow-Bundle-Generation-Record: w1/{number}\n"
+                       "Workflow-Work-Item: w1")
+            subprocess.run(git + ["commit", "-q", "-m", message], cwd=tmp, check=True)
+        return tmp
+
+    def test_the_safe_procedure_reports_each_commit_the_older_release_refuses(self):
+        repo = self.scratch_repo([
+            ("adds the key with a finding", {"x": 1, "optional_findings": {"F-1": "open"}}),
+            ("changes a disposition in the ledger already present",
+             {"x": 1, "optional_findings": {"F-1": "fixed"}}),
+            ("adds the key with a null value", {"x": 1, "optional_findings": {"F-1": "fixed"},
+                                                 "review_round_counts": None}),
+        ])
+        hashes = subprocess.run(["git", "log", "--format=%H", "--reverse"], cwd=repo,
+                                capture_output=True, text=True, check=True).stdout.split()
+        lines = self.run_command(repo).splitlines()
+        self.assertEqual(sorted(lines), sorted([
+            f"{hashes[1]} optional_findings", f"{hashes[2]} optional_findings",
+            f"{hashes[3]} review_round_counts"]))
+
+    def test_the_safe_procedure_is_silent_without_such_a_commit(self):
+        repo = self.scratch_repo([("unrelated", {"x": 2}), ("unrelated again", {"x": 3})])
+        self.assertEqual(self.run_command(repo), "")
 
 
 # -- the Manager metadata block ----------------------------------------------------
