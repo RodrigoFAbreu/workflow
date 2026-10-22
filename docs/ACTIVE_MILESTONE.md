@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**In progress** (self-reviewing the implementation). W18: `review-followups-4` (`process`,
+**Complete** (accepted by policy; the release follows the merge). W18: `review-followups-4` (`process`,
 governing version `2.2`), branch `milestone/review-followups-4`, roadmap row 22
 (RodrigoFAbreu/workflow#50). Plan: `docs/ai-workflow/REVIEW_FOLLOWUPS_4_PLAN.md` (revision 7,
 approved by gate policy). The goal is Workflow 2.18.4, a patch release (`fix:`). The previous milestone, W17 `review-followups-3`, is
@@ -73,66 +73,8 @@ accepted (its record is in git history and `docs/release-history.md`).
 - No other finding: the three step copies are equal, the reorder keeps every unit exactly once,
   the counts and digests match, and nothing in the installation was touched.
 
-## Functional review checklist
+## Next action
 
-This milestone changes workflow files only (no app), so every flow below runs offline from a
-scratch directory; none needs a pull request, `gh`, `claude`, `codex`, `ssh` or the network. The
-product clone is read-only: write only under `$TMPDIR`. Use `python3 -B` and run from the
-repository root unless a step says otherwise.
-
-### Setup
-
-- Branch `milestone/review-followups-4`, clean working tree, `export T=$(mktemp -d)`.
-- No feature flags or seed data. The `tools/release` tests need the pinned zlib-ng Python and are
-  out of reach in a sandbox without it: flow 6 is skipped there and the implementation bundle's
-  recorded result stands.
-
-### Flows
-
-1. **The conformance step orders longest first (CP1).**
-   Extract the step's `run:` script from `templates/.github/workflows/workflow-conformance.yml`
-   (lines from `suites=` to just before `run_suite() {`), set `GITHUB_WORKSPACE=$T` and print
-   `$units` (or run `sed -n '/^ *longest=/p'` and read it).
-   Expected: with `shards=4` the start order follows the `longest` list:
-   protocol, state, acceptance-1of4, 4of4, 3of4, 2of4, gate_policy, fingerprint_generalization,
-   then the rest in `suites=` order; each unit appears exactly once.
-2. **A stale or empty `longest` degrades safely.**
-   Repeat flow 1 with `longest=""`, then with `longest="no_such_unit workflow_state_test.py"`.
-   Expected: empty -> the original order unchanged; unmatched name skipped, `workflow_state_test.py`
-   first, no duplicates, no unit lost.
-3. **The three copies of the step are equal.**
-   `diff` the step text in the template against both steps of `.github/workflows/workflow-ci.yml`
-   (the CI file is the release source's own, not the managed block).
-   Expected: the added `longest` block and `ordered` loops are identical in all three.
-4. **The unknown-id wording (CP2).**
-   `grep -n "names no work item" payload/.claude/commands/retire-legacy-work-item.md
-   payload/.claude/commands/resume-implementation.md`.
-   Expected: step 3 of each says the same `...WrongPhaseError` is raised with the message
-   "`<id>` names no work item" for an id that is not a key of `work_items`; the user-only guard
-   lines are unchanged (`git diff 75c3749..HEAD -- payload/.claude/commands/` shows one added
-   clause per file).
-5. **The nine payload suites pass (CP1-CP3).**
-   Run the "nine payload suites" block of `docs/RELEASING.md` "Verification commands" with
-   `TMPDIR=$T`. Expected: every suite exits 0 (long: the acceptance suite is about 30 minutes;
-   run the others, or one shard, if time is short, and say which).
-6. **Release 2.18.4 is consistent (CP3).**
-   `python3 tools/release/release.py check-manager-block` and
-   `python3 -m unittest discover -s tools/release -p '*_test.py'` (zlib-ng Python).
-   Expected: both pass. Then `python3 -c "import json;print(json.load(open('manifest.json'))['version'])"`
-   -> `2.18.4`, and the `docs/release-history.md` 2.18.4 row shows the quoted id
-   `<id> names no work item` as a code span, closes #50 and leaves #55 open.
-7. **Docs checks.** `python3 -m unittest discover -s tools/docs -p '*_test.py'` and
-   `python3 tools/docs/check_docs.py`. Expected: both pass.
-8. **The installation is untouched.** `workflow-manager verify .` (skip if the tool is not on
-   `PATH`) and `git diff 75c3749..HEAD --stat -- .claude scripts docs/ai-workflow/*.md` show no
-   installation change. Expected: verify clean; only the work item's own plan, registry and
-   state files appear under `docs/ai-workflow/`.
-
-### Known limitations and out of scope
-
-- The release is not published by this milestone: publishing happens when the pull request merges
-  and the `Release` workflow runs; the `workflow-manager` pin is a separate pull request.
-- The new order is measured, not adaptive: a change to the acceptance shard assignment needs a
-  re-measure (comment in the step; issue #55 remains open for the other wording fixes, W19).
-- CI wall-clock gains cannot be observed offline; the width-4 simulation in `release_test.py` is
-  the offline evidence.
+No milestone is ready for `/milestone-plan`: roadmap row 23 is the deferred list, not a planned
+milestone. Merge pull request #79, let the `Release` workflow publish Workflow 2.18.4, then pick
+the next item from "Later (open items)" in `docs/ROADMAP.md` (issue #55 is W19).
