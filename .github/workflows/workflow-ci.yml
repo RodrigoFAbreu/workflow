@@ -2,6 +2,14 @@
 # `fixtures/`, `templates/`) and its own Workflow installation
 # (docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md, CP2):
 #
+#   changes                     seconds long: whether the pull request touches
+#                               the release source (manifest.json, payload/,
+#                               fixtures/, templates/) or the CI that tests it
+#                               (tools/release/, this file), or the root
+#                               .gitattributes, which changes what `git archive`
+#                               stages from the release source. A push to main and
+#                               workflow_dispatch always answer yes; so does any
+#                               decision that cannot be computed.
 #   checks                      one job, one checkout and one install of the
 #                               pinned tools, with every check its own named
 #                               step. A failed step does not stop an unrelated
@@ -27,18 +35,24 @@
 #                               Manager is published (committed evidence,
 #                               offline) and is the pinned one; the committed
 #                               evidence is compared with the live list (never
-#                               failing on unavailability); the pre-publish
-#                               update fixture bootstraps the previous release,
-#                               updates to HEAD with the pinned Manager and
-#                               runs the nine frozen suites (docs/RELEASING.md,
-#                               "The Manager metadata block").
-#   release-source-conformance  the release source's own frozen suites, in its
-#                               conformance fixture: the acceptance-matrix suite
-#                               in 4 shards of whole test classes plus the eight
-#                               other suites, all under one limit (min(4, nproc)
-#                               at a time), each unit in its own copy of the
-#                               fixture, with a coverage gate on the shards.
-#   aggregate                   fails unless both jobs above succeeded. It is
+#                               failing on unavailability); see docs/RELEASING.md,
+#                               "The Manager metadata block".
+#   release-source-conformance  only when `changes` says yes. The release
+#                               source's own frozen suites, in its conformance
+#                               fixture: the acceptance-matrix suite in 4 shards
+#                               of whole test classes plus the eight other
+#                               suites, all under one limit (min(4, nproc) at a
+#                               time), each unit in its own copy of the fixture,
+#                               with a coverage gate on the shards.
+#   update-fixture              only when `changes` says yes. The pre-publish
+#                               update fixture: bootstraps the previous release,
+#                               updates to HEAD with the pinned Manager, runs the
+#                               same nine suites with the same scheduler (the
+#                               same step text) in the updated repository, then
+#                               the Manager's `verify` of it.
+#   aggregate                   fails unless `changes` and `checks` succeeded and
+#                               the two jobs above succeeded or were skipped
+#                               because `changes` succeeded and said no. It is
 #                               the required check, so adding a job here never
 #                               touches the ruleset.
 #
@@ -75,6 +89,28 @@ defaults:
     shell: bash
 
 jobs:
+  # A pull request that touches neither the release source nor the CI that tests
+  # it (docs, the roadmap, an installation) skips the two jobs that run the
+  # candidate's suites; `aggregate` accepts exactly that skip. Seconds long.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      changed: ${{ steps.decide.outputs.changed }}
+    steps:
+      # Two commits: on a pull request's merge ref, HEAD and its first parent, the base tip.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Decide whether the release source or its CI changed
+        id: decide
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: python3 tools/release/release.py release-source-changed --event "$EVENT_NAME" | tee -a "$GITHUB_OUTPUT"
+
   checks:
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -188,34 +224,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 tools/release/release.py compare-manager-releases --manager-releases tools/release/manager-releases.json
-      # Only a release that carries a block (after 2.12.0) is update-tested:
-      # from the highest published release below HEAD's version, with the pinned
-      # Manager (which check-manager-block holds equal to the block's minimum).
-      - name: Update fixture
-        if: ${{ !cancelled() && steps.releases.outcome == 'success' && steps.manager.outcome == 'success' && steps.deflate.outcome == 'success' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          previous="$(python3 - "$RUNNER_TEMP/releases.json" <<'PY'
-          import json, re, subprocess, sys
-          head = json.loads(subprocess.check_output(["git", "show", "HEAD:manifest.json"]))
-          key = lambda s: tuple(map(int, s.split(".")))
-          if "manager" not in head:
-              sys.exit(0)
-          tags = [r["tagName"][1:] for r in json.load(open(sys.argv[1]))
-                  if not r["isDraft"] and not r["isPrerelease"] and re.fullmatch(r"v\d+\.\d+\.\d+", r["tagName"])]
-          below = [t for t in tags if key(t) < key(head["workflow_version"])]
-          print(max(below, key=key) if below else "")
-          PY
-          )"
-          if [ -z "$previous" ]; then
-            echo "no manager block, or no earlier published release; nothing to update-test"
-            exit 0
-          fi
-          gh release download "v$previous" --dir "$RUNNER_TEMP/previous"
-          python3 tools/release/release.py update-fixture --commit HEAD --previous-assets "$RUNNER_TEMP/previous" --previous-version "$previous" --manager workflow-manager
 
   release-source-conformance:
+    needs: changes
+    if: ${{ needs.changes.outputs.changed == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -542,22 +554,416 @@ jobs:
           path: ${{ runner.temp }}/source-conformance-logs/
           if-no-files-found: ignore
 
+  # The update fixture (docs/RELEASING.md, "The Manager metadata block"): for a
+  # release that carries a block (after 2.12.0), bootstraps the highest published
+  # release below HEAD's version, updates it to HEAD with the pinned Manager (which
+  # check-manager-block holds equal to the block's minimum), then runs the nine
+  # frozen suites in the updated repository and the Manager's `verify` of it.
+  # The suites step is release-source-conformance's step, byte for byte (the
+  # fixture is at the same path, $RUNNER_TEMP/fixture, and so are the logs; only
+  # the artifact name differs); release_test.py pins them equal.
+  update-fixture:
+    needs: changes
+    if: ${{ needs.changes.outputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the pinned deflate runtime
+        run: |
+          python3 -m pip install --only-binary=:all: --require-hashes -r tools/release/deflate-requirements.txt
+          python3 -c 'from zlib_ng import zlib_ng; print("zlib-ng", zlib_ng.ZLIBNG_RUNTIME_VERSION)'
+      - name: Install the pinned Workflow Manager
+        run: |
+          read -r version wheel sha256 < <(python3 -c 'import json; p = json.load(open("tools/release/manager-pin.json")); print(p["version"], p["wheel"], p["sha256"])')
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$wheel" "https://github.com/RodrigoFAbreu/workflow-manager/releases/download/v$version/$wheel"
+          (cd "$RUNNER_TEMP" && echo "$sha256  $wheel" | sha256sum -c)
+          python3 -m pip install "$RUNNER_TEMP/$wheel"
+          workflow-manager --version
+      - name: Save the release list
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release list --json tagName,isDraft,isPrerelease --limit 1000 > "$RUNNER_TEMP/releases.json"
+      # Only a release that carries a block (after 2.12.0) is update-tested. With
+      # none, or with no earlier published release, `built` stays false and the
+      # two steps after this one are skipped.
+      - name: Update the previous release to HEAD
+        id: update
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          previous="$(python3 - "$RUNNER_TEMP/releases.json" <<'PY'
+          import json, re, subprocess, sys
+          head = json.loads(subprocess.check_output(["git", "show", "HEAD:manifest.json"]))
+          key = lambda s: tuple(map(int, s.split(".")))
+          if "manager" not in head:
+              sys.exit(0)
+          tags = [r["tagName"][1:] for r in json.load(open(sys.argv[1]))
+                  if not r["isDraft"] and not r["isPrerelease"] and re.fullmatch(r"v\d+\.\d+\.\d+", r["tagName"])]
+          below = [t for t in tags if key(t) < key(head["workflow_version"])]
+          print(max(below, key=key) if below else "")
+          PY
+          )"
+          if [ -z "$previous" ]; then
+            echo "no manager block, or no earlier published release; nothing to update-test"
+            echo "built=false" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+          gh release download "v$previous" --dir "$RUNNER_TEMP/previous"
+          python3 -c 'import sys; sys.path.insert(0, "tools/release"); import package; package.stage(".", "HEAD", sys.argv[1])' "$RUNNER_TEMP/candidate"
+          python3 tools/release/release.py update-fixture --release-dir "$RUNNER_TEMP/candidate" --previous-assets "$RUNNER_TEMP/previous" --previous-version "$previous" --manager workflow-manager --keep "$RUNNER_TEMP/fixture"
+          echo "built=true" >>"$GITHUB_OUTPUT"
+      - name: Run the frozen suites over the updated repository
+        if: ${{ steps.update.outputs.built == 'true' }}
+        run: |
+          suites="workflow_acceptance_matrix_test.py workflow_protocol_test.py workflow_state_test.py workflow_gate_policy_test.py workflow_fingerprint_generalization_test.py workflow_state_completion_obligations_test.py workflow_integration_test.py workflow_fingerprint_test.py workflow_test_harness_test.py"
+          acceptance=workflow_acceptance_matrix_test.py
+          width_cap=4
+          shards=4
+          width=$(nproc); [ "$width" -gt "$width_cap" ] && width=$width_cap
+          src="$RUNNER_TEMP/fixture"
+          base="$RUNNER_TEMP/source-conformance"; logs="$RUNNER_TEMP/source-conformance-logs"
+          rm -rf "$base" "$logs"; mkdir -p "$base" "$logs"
+          cat >"$base/shards.py" <<'PY'
+          import argparse
+          import collections
+          import importlib
+          import json
+          import os
+          import sys
+          import unittest
+
+          HOOKS = ("load_tests", "setUpModule", "tearDownModule")
+          RANK = {"ok": 0, "skip": 1, "xfail": 1, "unexpected_success": 3, "fail": 4, "error": 4}
+          BAD = ("fail", "error", "unexpected_success")
+
+
+          def die(message):
+              print("shards.py: " + message, file=sys.stderr)
+              sys.exit(1)
+
+
+          def flatten(suite):
+              for item in suite:
+                  if isinstance(item, unittest.TestSuite):
+                      yield from flatten(item)
+                  else:
+                      yield item
+
+
+          def load_module(directory, name):
+              sys.dont_write_bytecode = True
+              sys.path.insert(0, directory)
+              return importlib.import_module(name[:-3] if name.endswith(".py") else name)
+
+
+          def write_json(path, data):
+              with open(path + ".part", "w") as handle:
+                  json.dump(data, handle, indent=1)
+              os.replace(path + ".part", path)
+
+
+          def plan(args):
+              module = load_module(args.dir, args.module)
+              for hook in HOOKS:
+                  if hasattr(module, hook):
+                      die(f"{args.module} defines {hook}: a shard would not run it as the whole module does")
+              if args.shards < 1:
+                  die("the shard count must be at least 1")
+              by_class, expected = collections.defaultdict(list), []
+              for test in flatten(unittest.TestLoader().loadTestsFromModule(module)):
+                  name = type(test).__name__
+                  if getattr(module, name, None) is not type(test):
+                      die(f"{test.id()}: {name} is not a top-level class of {args.module}")
+                  by_class[name].append(test.id())
+                  expected.append(test.id())
+              if not expected:
+                  die(f"{args.module} has no tests")
+              count = min(args.shards, len(by_class))
+              bins = [{"classes": [], "ids": []} for _ in range(count)]
+              for name in sorted(by_class, key=lambda n: (-len(by_class[n]), n)):
+                  lightest = min(bins, key=lambda b: len(b["ids"]))
+                  lightest["classes"].append(name)
+                  lightest["ids"].extend(by_class[name])
+              shards = [{"index": i, "unit": f"acceptance-{i}of{count}", "name": f"acceptance {i}/{count}",
+                         "classes": sorted(b["classes"]), "ids": b["ids"]} for i, b in enumerate(bins, 1)]
+              write_json(args.out, {"module": args.module, "expected": expected, "shards": shards})
+              print(count)
+
+
+          class Recorder(unittest.TextTestResult):
+              def __init__(self, *args, **kwargs):
+                  super().__init__(*args, **kwargs)
+                  self.started, self.outcomes = [], {}
+
+              def note(self, test, outcome):
+                  sub = getattr(unittest.case, "_SubTest", ())
+                  key = (test.test_case if sub and isinstance(test, sub) else test).id()
+                  old = self.outcomes.get(key)
+                  if old is None or RANK[outcome] > RANK[old]:
+                      self.outcomes[key] = outcome
+
+              def startTest(self, test):
+                  self.started.append(test.id())
+                  super().startTest(test)
+
+              def addSuccess(self, test):
+                  self.note(test, "ok")
+                  super().addSuccess(test)
+
+              def addFailure(self, test, err):
+                  self.note(test, "fail")
+                  super().addFailure(test, err)
+
+              def addError(self, test, err):
+                  self.note(test, "error")
+                  super().addError(test, err)
+
+              def addSkip(self, test, reason):
+                  self.note(test, "skip")
+                  super().addSkip(test, reason)
+
+              def addExpectedFailure(self, test, err):
+                  self.note(test, "xfail")
+                  super().addExpectedFailure(test, err)
+
+              def addUnexpectedSuccess(self, test):
+                  self.note(test, "unexpected_success")
+                  super().addUnexpectedSuccess(test)
+
+              def addSubTest(self, test, subtest, err):
+                  if err is not None:
+                      self.note(test, "fail")
+                  super().addSubTest(test, subtest, err)
+
+
+          def run(args):
+              with open(args.plan) as handle:
+                  spec = json.load(handle)
+              shard = next(s for s in spec["shards"] if s["unit"] == args.unit)
+              result = {"unit": shard["unit"], "classes": shard["classes"], "completed": False,
+                        "started": [], "outcomes": {}}
+              module = load_module(args.dir, spec["module"])
+              loader = unittest.TestLoader()
+              suite = unittest.TestSuite(loader.loadTestsFromTestCase(getattr(module, c))
+                                         for c in shard["classes"])
+              if sorted(t.id() for t in flatten(suite)) != sorted(shard["ids"]):
+                  result["error"] = "the loaded tests differ from the plan"
+                  write_json(args.out, result)
+                  die(result["error"])
+              outcome = unittest.TextTestRunner(resultclass=Recorder, verbosity=2).run(suite)
+              result.update(completed=True, started=outcome.started, outcomes=outcome.outcomes)
+              write_json(args.out, result)
+              sys.exit(0 if outcome.wasSuccessful() else 1)
+
+
+          def names(ids):
+              return ", ".join(ids[:50]) + (f" (and {len(ids) - 50} more)" if len(ids) > 50 else "")
+
+
+          def inspect_shard(shard, base, recorded):
+              folder, problems, secs = os.path.join(base, shard["unit"]), [], 0
+              try:
+                  with open(os.path.join(folder, "result")) as handle:
+                      status, secs = (int(x) for x in handle.read().split())
+                  if status != 0:
+                      problems.append(f"exit {status}")
+              except (OSError, ValueError):
+                  return secs, ["did not finish (no result)"]
+              try:
+                  with open(os.path.join(folder, "shard.json")) as handle:
+                      found = json.load(handle)
+                  outcomes, started = found["outcomes"], found["started"]
+                  usable = (found["completed"] is True and found["unit"] == shard["unit"]
+                            and found["classes"] == shard["classes"] and isinstance(started, list)
+                            and isinstance(outcomes, dict)
+                            and all(isinstance(k, str) and v in RANK for k, v in outcomes.items()))
+              except (OSError, ValueError, KeyError, TypeError):
+                  usable = False
+              if not usable:
+                  return secs, problems + ["no complete shard file (missing, unparsable or incomplete)"]
+              recorded.update(outcomes.keys())
+              planned = set(shard["ids"])
+              for label, ids in (
+                      ("failed", sorted(i for i, o in outcomes.items() if o in BAD)),
+                      ("started and never finished", sorted(set(started) - set(outcomes))),
+                      ("executed more than once", sorted(i for i, n in collections.Counter(started).items() if n > 1)),
+                      ("missing", [i for i in shard["ids"] if i not in outcomes]),
+                      ("not in the plan", sorted(set(outcomes) - planned))):
+                  if ids:
+                      problems.append(f"{label}: {names(ids)}")
+              return secs, problems
+
+
+          def check(args):
+              with open(args.plan) as handle:
+                  spec = json.load(handle)
+              recorded, rows, longest, bad = collections.Counter(), [], 0, False
+              for shard in spec["shards"]:
+                  secs, problems = inspect_shard(shard, args.base, recorded)
+                  longest, bad = max(longest, secs), bad or bool(problems)
+                  message = f"{shard['name']} (classes {', '.join(shard['classes'])}): " + "; ".join(problems)
+                  rows.append("\t".join(["shard", shard["unit"], shard["name"], str(secs),
+                                         "bad" if problems else "ok", message if problems else ""]))
+              extra = []
+              if not bad and recorded != collections.Counter(spec["expected"]):
+                  bad = True
+                  extra.append("global\tthe recorded test ids differ from the expected ids")
+              print("\t".join(["total", str(len(spec["expected"])), str(sum(recorded.values())),
+                               str(len(spec["shards"])), str(longest), "bad" if bad else "ok"]))
+              print("\n".join(rows + extra))
+              sys.exit(1 if bad else 0)
+
+
+          parser = argparse.ArgumentParser()
+          sub = parser.add_subparsers(dest="command", required=True)
+          for name, handler in (("plan", plan), ("run", run), ("check", check)):
+              p = sub.add_parser(name)
+              p.set_defaults(handler=handler)
+              p.add_argument("--dir", default=".")
+              if name == "plan":
+                  p.add_argument("--module", required=True)
+                  p.add_argument("--shards", type=int, required=True)
+                  p.add_argument("--out", required=True)
+              if name == "run":
+                  p.add_argument("--plan", required=True)
+                  p.add_argument("--unit", required=True)
+                  p.add_argument("--out", required=True)
+              if name == "check":
+                  p.add_argument("--plan", required=True)
+                  p.add_argument("--base", required=True)
+          args = parser.parse_args()
+          args.handler(args)
+          PY
+          units="$suites"
+          if [ "$shards" -gt 0 ]; then
+            n=$(cd "$src/scripts" && python3 "$base/shards.py" plan --module "$acceptance" --shards "$shards" --out "$base/plan.json") || {
+              echo "::error title=acceptance plan failed::the acceptance tests could not be planned into shards"; exit 1; }
+            units=""; i=1
+            while [ "$i" -le "$n" ]; do units="$units acceptance-${i}of${n}"; i=$((i + 1)); done
+            for s in $suites; do if [ "$s" != "$acceptance" ]; then units="$units $s"; fi; done
+          fi
+          run_suite() {
+            d="$base/$1"; mkdir -p "$d/tmp" "$d/home"
+            cp -a "$src/." "$d/repo" >>"$d/log" 2>&1
+            start=$SECONDS
+            status=0
+            case "$1" in
+              acceptance-*of*) cmd=(python3 "$base/shards.py" run --plan "$base/plan.json" --unit "$1" --out "$d/shard.json") ;;
+              *) cmd=(python3 "$1") ;;
+            esac
+            (cd "$d/repo/scripts" && TMPDIR="$d/tmp" HOME="$d/home" "${cmd[@]}" >>"$d/log" 2>&1) || status=$?
+            echo "$status $((SECONDS - start))" >"$d/result"
+            echo "done  $1 exit $status in $((SECONDS - start))s"
+          }
+          for s in $units; do
+            while [ "$(jobs -rp | wc -l)" -ge "$width" ]; do wait -n || true; done
+            echo "start $s running $(( $(jobs -rp | wc -l) + 1 ))"
+            ( run_suite "$s" ) &
+          done
+          wait
+          # The diagnostic upload: every unit's log, result and shard file, the plan and the check.
+          for u in $units; do
+            for f in log result shard.json; do
+              if [ -f "$base/$u/$f" ]; then cp "$base/$u/$f" "$logs/$u.$f"; fi
+            done
+          done
+          if [ -f "$base/plan.json" ]; then cp "$base/plan.json" "$logs/plan.json"; fi
+          failed=0
+          row() { echo "| $1 | $2 | $3 |" >>"$GITHUB_STEP_SUMMARY"; }
+          passed_unit() { echo "::group::$2 passed in ${3}s"; cat "$base/$1/log"; echo "::endgroup::"; row "$2" passed "$3"; }
+          failed_unit() { failed=$((failed + 1)); echo "::error title=$2 failed::$4"; cat "$base/$1/log" 2>/dev/null || true; row "$2" "FAILED ($5)" "$3"; }
+          report_acceptance() {
+            checked=0; total_bad=0; rc=0; before=$failed
+            python3 "$base/shards.py" check --plan "$base/plan.json" --base "$base" >"$base/check.out" 2>"$base/check.err" || rc=$?
+            while IFS=$'\t' read -r kind a b c d e; do
+              case "$kind" in
+                total)
+                  checked=1
+                  if [ "$e" = ok ]; then
+                    row "$acceptance" "passed ($c shards, $b tests)" "$d"; echo "coverage: expected $a, recorded $b"
+                  else
+                    total_bad=1; row "$acceptance" "FAILED (see the shard rows)" "$d"; echo "coverage: expected $a, recorded $b"
+                  fi ;;
+                shard)
+                  if [ "$d" = ok ]; then passed_unit "$a" "$b" "$c"; else failed_unit "$a" "$b" "$c" "$e" "$e"; fi ;;
+                global)
+                  failed=$((failed + 1)); echo "::error title=acceptance coverage failed::$a"; row "$acceptance" "FAILED ($a)" 0 ;;
+              esac
+            done <"$base/check.out"
+            if [ "$checked" -eq 0 ]; then
+              failed=$((failed + 1)); echo "::error title=acceptance check failed::the shard check did not run"; cat "$base/check.err"
+              row "$acceptance" "FAILED (the shard check did not run)" 0
+            elif [ "$failed" -eq "$before" ] && { [ "$rc" -ne 0 ] || [ "$total_bad" -eq 1 ]; }; then
+              failed=$((failed + 1))
+              if [ "$rc" -ne 0 ]; then
+                msg="the shard check exited $rc without a failing shard row"; why="the shard check exited $rc"
+              else
+                msg="the acceptance coverage total is not ok, though the shard check exited 0"; why="the coverage total is not ok"
+              fi
+              echo "::error title=acceptance check failed::$msg"; cat "$base/check.err"
+              row "$acceptance" "FAILED ($why)" 0
+            fi
+          }
+          { echo "| suite | result | seconds |"; echo "| --- | --- | --- |"; } >>"$GITHUB_STEP_SUMMARY"
+          for s in $suites; do
+            if [ "$shards" -gt 0 ] && [ "$s" = "$acceptance" ]; then report_acceptance; continue; fi
+            d="$base/$s"; read -r status secs <"$d/result" 2>/dev/null || { status=missing; secs=0; }
+            if [ "$status" = 0 ]; then passed_unit "$s" "$s" "$secs"
+            else failed_unit "$s" "$s" "$secs" "exit $status after ${secs}s" "exit $status"; fi
+          done
+          for f in check.out check.err; do
+            if [ -f "$base/$f" ]; then cp "$base/$f" "$logs/$f"; fi
+          done
+          if [ "$failed" -ne 0 ]; then echo "$failed suite(s) failed"; exit 1; fi
+      # After the suites, and also when they failed, so one run shows both results.
+      - name: workflow-manager verify the updated repository
+        if: ${{ !cancelled() && steps.update.outputs.built == 'true' }}
+        run: workflow-manager --release-dir "$RUNNER_TEMP/candidate" verify "$RUNNER_TEMP/fixture"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: update-fixture-logs
+          path: ${{ runner.temp }}/source-conformance-logs/
+          if-no-files-found: ignore
+
   aggregate:
-    needs: [checks, release-source-conformance]
+    needs: [changes, checks, release-source-conformance, update-fixture]
     # Always, so a failed, skipped or cancelled job fails this required check
     # rather than skipping it.
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      # `changes` and `checks` must succeed. The two candidate-suite jobs must
+      # succeed too, or be skipped because `changes` itself succeeded and said
+      # the release source and its CI are unchanged: any other skip (a failed
+      # or cancelled `changes`, a failed dependency) fails this check.
       - name: Require every job
         env:
+          CHANGES: ${{ needs.changes.result }}
+          CHANGED: ${{ needs.changes.outputs.changed }}
           CHECKS: ${{ needs.checks.result }}
           CONFORMANCE: ${{ needs.release-source-conformance.result }}
+          UPDATE_FIXTURE: ${{ needs.update-fixture.result }}
         run: |
           status=0
-          for pair in "checks=$CHECKS" "release-source-conformance=$CONFORMANCE"; do
+          for pair in "changes=$CHANGES" "checks=$CHECKS"; do
             job="${pair%%=*}" result="${pair#*=}"
             if [ "$result" != success ]; then echo "::error::the $job job concluded $result"; status=1; fi
+          done
+          unchanged=0
+          if [ "$CHANGES" = success ] && [ "$CHANGED" = false ]; then unchanged=1; fi
+          for pair in "release-source-conformance=$CONFORMANCE" "update-fixture=$UPDATE_FIXTURE"; do
+            job="${pair%%=*}" result="${pair#*=}"
+            if [ "$result" = success ]; then continue; fi
+            if [ "$result" = skipped ] && [ "$unchanged" -eq 1 ]; then
+              echo "the $job job was skipped: the release source and its CI are unchanged"
+              continue
+            fi
+            echo "::error::the $job job concluded $result"; status=1
           done
           exit "$status"

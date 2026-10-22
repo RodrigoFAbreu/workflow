@@ -32,7 +32,12 @@ Subcommands:
     record-manager-releases       save the published Manager release list
     compare-manager-releases      the saved list against the live one
     update-fixture                bootstrap the previous release, update to the
-                                  candidate, run its suites
+                                  candidate, run its suites (with --keep: build
+                                  the updated repository and leave it in a
+                                  directory, for CI to run the suites and verify)
+    release-source-changed        whether a pull request touches the release
+                                  source or the CI that tests it (CI's `changes`
+                                  job)
 
 Exit codes: 0 success; 1 invalid title or refusal; 2 usage error. Every
 undecidable input refuses.
@@ -242,11 +247,40 @@ def manifest_version_at(repo: Path, commit: str) -> str:
     return version
 
 
-def release_source_changes(repo: Path, old: str, new: str) -> list[str]:
-    """Release-source paths that differ between `old` and `new`."""
-    proc = _git(repo, "diff", "--name-only", "--no-renames", old, new, "--",
-                *package.RELEASE_SOURCE_PATHS)
+def release_source_changes(repo: Path, old: str, new: str,
+                           paths: tuple[str, ...] = package.RELEASE_SOURCE_PATHS) -> list[str]:
+    """Release-source paths (or the given `paths`) that differ between `old` and `new`."""
+    proc = _git(repo, "diff", "--name-only", "--no-renames", old, new, "--", *paths)
     return [line for line in proc.stdout.splitlines() if line]
+
+
+#: What `Workflow CI`'s candidate-suite jobs test besides the release source itself: the
+#: tooling that stages and updates it, and the workflow that runs them.
+CANDIDATE_CI_PATHS = ("tools/release", ".github/workflows/workflow-ci.yml")
+#: The root `.gitattributes` is not release source, but `git archive` (`package.stage`) reads
+#: its `export-ignore` and `export-subst` lines, so it changes what is staged from the
+#: release-source paths. Attributes inside those paths are already covered by them.
+CANDIDATE_ARCHIVE_PATHS = (".gitattributes",)
+#: A pull request that changes none of these cannot change what those jobs measure.
+CANDIDATE_PATHS = (*package.RELEASE_SOURCE_PATHS, *CANDIDATE_CI_PATHS, *CANDIDATE_ARCHIVE_PATHS)
+
+
+def candidate_suites_needed(repo: Path, event: str, head: str = "HEAD") -> tuple[bool, str]:
+    """Whether `Workflow CI` must run the candidate-suite jobs, and why.
+
+    Only a pull request can answer no: `head`'s first parent is the base tip on a pull
+    request's merge ref. Every other event, and any decision that cannot be computed,
+    answers yes."""
+    if event != "pull_request":
+        return True, f"a {event} event always runs everything"
+    try:
+        new = resolve_commit(repo, head)
+        changed = release_source_changes(repo, first_parent(repo, new), new, CANDIDATE_PATHS)
+    except ReleaseError as exc:
+        return True, f"cannot decide ({exc}); running everything"
+    if changed:
+        return True, f"changed: {', '.join(changed[:20])}" + (" ..." if len(changed) > 20 else "")
+    return False, f"no path of {', '.join(CANDIDATE_PATHS)} changed"
 
 
 def _first_parent_history(repo: Path, tip: str) -> list[str]:
@@ -758,12 +792,43 @@ def _run_suite(repo: Path, suite: str, base: Path) -> tuple[str, int, str]:
     return suite, proc.returncode, proc.stdout + proc.stderr
 
 
+#: The workflow whose suites step (the managed template's scheduler) runs the frozen suites.
+SCHEDULER_WORKFLOW = (Path(__file__).resolve().parents[2] / ".github" / "workflows"
+                      / "workflow-ci.yml")
+
+
+def scheduler_suites(workflow: Path) -> list[str]:
+    """The suites the scheduler step of `workflow` runs: its `suites="..."` lines, which the
+    release-source and update-fixture jobs carry identically."""
+    try:
+        text = Path(workflow).read_text()
+    except OSError as exc:
+        raise ReleaseError(f"cannot read the scheduler workflow {workflow}: {exc}") from exc
+    found = {tuple(names.split()) for names in manager_block.SUITES_RE.findall(text)}
+    if len(found) != 1 or not next(iter(found)):
+        raise ReleaseError(f"{workflow} must name one non-empty suites=\"...\" list in every "
+                           f"suites line, found {len(found)} different")
+    return list(next(iter(found)))
+
+
+def cmd_release_source_changed(args) -> int:
+    needed, reason = candidate_suites_needed(args.repo, args.event, args.head)
+    print(f"changed={'true' if needed else 'false'}")
+    print(f"reason={reason}")
+    return EXIT_OK
+
+
 def cmd_update_fixture(args) -> int:
     """The pre-publish update fixture (the contract's check (f)): a scratch
     repository bootstrapped from the previous published release, updated to the
     candidate with the Manager, then the candidate's frozen suites and
-    `verify` in the result."""
+    `verify` in the result. With `--keep DIR` it stops once the updated
+    repository exists at `DIR`: CI runs the suites there with the conformance
+    scheduler, then `verify`."""
     parse_version(args.previous_version)
+    keep = args.keep.resolve() if args.keep is not None else None
+    if keep is not None and keep.exists() and (not keep.is_dir() or any(keep.iterdir())):
+        raise ReleaseError(f"--keep {args.keep} exists and is not an empty directory")
     manager = args.manager.split()
     with tempfile.TemporaryDirectory(prefix="workflow-update-fixture-") as tmp:
         scratch = Path(tmp)
@@ -776,7 +841,7 @@ def cmd_update_fixture(args) -> int:
             candidate = package.stage(args.repo, resolve_commit(args.repo, args.commit),
                                       scratch / "candidate")
         candidate_version = package.verify_release(candidate)
-        target = scratch / "target"
+        target = keep if keep is not None else scratch / "target"
         _git(scratch, "init", "-q", "-b", "main", str(target))
         for key, value in (("user.email", "fixture@example.invalid"),
                            ("user.name", "Workflow Fixture"), ("commit.gpgsign", "false"),
@@ -796,6 +861,18 @@ def cmd_update_fixture(args) -> int:
         except (OSError, manager_block.MeasureError) as exc:
             raise ReleaseError(f"the updated repository has no usable conformance "
                                f"workflow: {exc}") from exc
+        if keep is not None:
+            ran = scheduler_suites(args.scheduler_workflow)
+            if sorted(suites) != sorted(ran):
+                raise ReleaseError(
+                    f"the updated repository's conformance workflow names "
+                    f"{' '.join(suites)}, but the scheduler step of {args.scheduler_workflow} "
+                    f"runs {' '.join(ran)}: a release that changes its suites changes the "
+                    f"scheduler step with it")
+            print(f"ok: {args.previous_version} -> {candidate_version} updates cleanly; the "
+                  f"updated repository, with {len(suites)} suites, is {target}")
+            print(f"updated={target}")
+            return EXIT_OK
         width = max(1, min(4, os.cpu_count() or 1))
         failed = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=width) as pool:
@@ -900,7 +977,19 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--previous-assets", required=True, type=Path)
     p.add_argument("--previous-version", required=True)
     p.add_argument("--manager", default="workflow-manager")
+    p.add_argument("--keep", type=Path,
+                   help="build the updated repository in this new or empty directory and stop: "
+                        "run neither the suites nor verify; refuses when the updated "
+                        "repository's suite list differs from the scheduler's")
+    p.add_argument("--scheduler-workflow", type=Path, default=SCHEDULER_WORKFLOW,
+                   help="the workflow whose suites step --keep compares with (default: this "
+                        "repository's workflow-ci.yml)")
     p.set_defaults(func=cmd_update_fixture)
+
+    p = sub.add_parser("release-source-changed")
+    p.add_argument("--event", required=True, help="the GitHub event name")
+    p.add_argument("--head", default="HEAD")
+    p.set_defaults(func=cmd_release_source_changed)
     return parser
 
 
