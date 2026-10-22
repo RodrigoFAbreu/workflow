@@ -120,7 +120,7 @@ the branch itself.
 
 | job | checks |
 | --- | --- |
-| `changes` | seconds long: `release.py release-source-changed` over `HEAD^1..HEAD` (on a pull request's merge ref, the base tip and the merge) answers whether the change touches `manifest.json`, `payload/`, `fixtures/`, `templates/`, `tools/release/` or `.github/workflows/workflow-ci.yml`. A `push` to `main` and `workflow_dispatch` always answer yes, and so does a decision that cannot be computed (no parent, a git error) |
+| `changes` | seconds long: `release.py release-source-changed` over `HEAD^1..HEAD` (on a pull request's merge ref, the base tip and the merge) answers whether the change touches `manifest.json`, `payload/`, `fixtures/`, `templates/`, `tools/release/`, `.github/workflows/workflow-ci.yml` or the root `.gitattributes` (`git archive` reads its `export-ignore` and `export-subst` lines, so it changes what is staged from the release source). A `push` to `main` and `workflow_dispatch` always answer yes, and so does a decision that cannot be computed (no parent, a git error) |
 | `checks` | one checkout and one install of the pinned tools, then each check as its own named step: `workflow-manager verify .` with the pinned Manager; `release.py build --commit HEAD`, the Manager's `package verify` of the archive, a `--release-dir` bootstrap and verify of a scratch repository, and the three assets uploaded as the `package` artifact; `release.py check-pending` and `check-immutable` against the saved release list (and, when the manifest version is published, `check-immutable --published` against the downloaded `vV` assets); `tools/docs/`'s tests and checker; and `tools/release/release_test.py`, including the byte-for-byte reproduction of every published release (`v2.3.1` to `v2.6.0`) in the pinned deflate runtime; and, for a release after 2.12.0, the Manager block checks ("The Manager metadata block" below) |
 | `release-source-conformance` | only when `changes` says yes: `release.py stage-conformance --commit HEAD`, then the release source's own nine frozen suites in that fixture, the acceptance-matrix suite in 4 shards, all under one limit |
 | `update-fixture` | only when `changes` says yes: for a release that carries a Manager block, the pre-publish update fixture ("The Manager metadata block" below) builds the updated repository (previous published release, updated to HEAD with the pinned Manager), then runs the same nine frozen suites there with the same scheduler as `release-source-conformance` (the same step text, pinned equal by `release_test.py`), then the Manager's `verify` of it |
@@ -587,8 +587,11 @@ DIR --previous-assets DIR --previous-version V --keep OUT`, in the
 published release (the highest non-draft, non-prerelease release below HEAD's
 version) and runs `workflow-manager update` with the pinned Manager (held equal
 to the minimum by check (g)) against the candidate. With `--keep OUT` it stops
-there and leaves the updated repository in `OUT`; the job then runs the
-candidate's nine frozen suites in it, scheduled exactly as in
+there and leaves the updated repository in `OUT`, after checking that the suites
+the updated repository's conformance workflow names are exactly the ones the
+scheduler step in `workflow-ci.yml` runs (it refuses, naming both lists, when
+they differ: a release that changes its suites changes the scheduler step with
+it); the job then runs the candidate's nine frozen suites in it, scheduled exactly as in
 `release-source-conformance` (the acceptance-matrix suite in 4 shards, the
 coverage gate, one `::error` and one log per failed unit, the step summary
 table), and then `workflow-manager --release-dir <candidate> verify OUT`, which

@@ -257,8 +257,12 @@ def release_source_changes(repo: Path, old: str, new: str,
 #: What `Workflow CI`'s candidate-suite jobs test besides the release source itself: the
 #: tooling that stages and updates it, and the workflow that runs them.
 CANDIDATE_CI_PATHS = ("tools/release", ".github/workflows/workflow-ci.yml")
+#: The root `.gitattributes` is not release source, but `git archive` (`package.stage`) reads
+#: its `export-ignore` and `export-subst` lines, so it changes what is staged from the
+#: release-source paths. Attributes inside those paths are already covered by them.
+CANDIDATE_ARCHIVE_PATHS = (".gitattributes",)
 #: A pull request that changes none of these cannot change what those jobs measure.
-CANDIDATE_PATHS = (*package.RELEASE_SOURCE_PATHS, *CANDIDATE_CI_PATHS)
+CANDIDATE_PATHS = (*package.RELEASE_SOURCE_PATHS, *CANDIDATE_CI_PATHS, *CANDIDATE_ARCHIVE_PATHS)
 
 
 def candidate_suites_needed(repo: Path, event: str, head: str = "HEAD") -> tuple[bool, str]:
@@ -788,6 +792,25 @@ def _run_suite(repo: Path, suite: str, base: Path) -> tuple[str, int, str]:
     return suite, proc.returncode, proc.stdout + proc.stderr
 
 
+#: The workflow whose suites step (the managed template's scheduler) runs the frozen suites.
+SCHEDULER_WORKFLOW = (Path(__file__).resolve().parents[2] / ".github" / "workflows"
+                      / "workflow-ci.yml")
+
+
+def scheduler_suites(workflow: Path) -> list[str]:
+    """The suites the scheduler step of `workflow` runs: its `suites="..."` lines, which the
+    release-source and update-fixture jobs carry identically."""
+    try:
+        text = Path(workflow).read_text()
+    except OSError as exc:
+        raise ReleaseError(f"cannot read the scheduler workflow {workflow}: {exc}") from exc
+    found = {tuple(names.split()) for names in manager_block.SUITES_RE.findall(text)}
+    if len(found) != 1 or not next(iter(found)):
+        raise ReleaseError(f"{workflow} must name one non-empty suites=\"...\" list in every "
+                           f"suites line, found {len(found)} different")
+    return list(next(iter(found)))
+
+
 def cmd_release_source_changed(args) -> int:
     needed, reason = candidate_suites_needed(args.repo, args.event, args.head)
     print(f"changed={'true' if needed else 'false'}")
@@ -839,6 +862,13 @@ def cmd_update_fixture(args) -> int:
             raise ReleaseError(f"the updated repository has no usable conformance "
                                f"workflow: {exc}") from exc
         if keep is not None:
+            ran = scheduler_suites(args.scheduler_workflow)
+            if sorted(suites) != sorted(ran):
+                raise ReleaseError(
+                    f"the updated repository's conformance workflow names "
+                    f"{' '.join(suites)}, but the scheduler step of {args.scheduler_workflow} "
+                    f"runs {' '.join(ran)}: a release that changes its suites changes the "
+                    f"scheduler step with it")
             print(f"ok: {args.previous_version} -> {candidate_version} updates cleanly; the "
                   f"updated repository, with {len(suites)} suites, is {target}")
             print(f"updated={target}")
@@ -949,7 +979,11 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--manager", default="workflow-manager")
     p.add_argument("--keep", type=Path,
                    help="build the updated repository in this new or empty directory and stop: "
-                        "run neither the suites nor verify")
+                        "run neither the suites nor verify; refuses when the updated "
+                        "repository's suite list differs from the scheduler's")
+    p.add_argument("--scheduler-workflow", type=Path, default=SCHEDULER_WORKFLOW,
+                   help="the workflow whose suites step --keep compares with (default: this "
+                        "repository's workflow-ci.yml)")
     p.set_defaults(func=cmd_update_fixture)
 
     p = sub.add_parser("release-source-changed")

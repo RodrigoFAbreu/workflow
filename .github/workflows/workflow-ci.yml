@@ -5,7 +5,9 @@
 #   changes                     seconds long: whether the pull request touches
 #                               the release source (manifest.json, payload/,
 #                               fixtures/, templates/) or the CI that tests it
-#                               (tools/release/, this file). A push to main and
+#                               (tools/release/, this file), or the root
+#                               .gitattributes, which changes what `git archive`
+#                               stages from the release source. A push to main and
 #                               workflow_dispatch always answer yes; so does any
 #                               decision that cannot be computed.
 #   checks                      one job, one checkout and one install of the

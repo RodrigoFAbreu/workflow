@@ -1518,13 +1518,13 @@ class WorkflowCI(unittest.TestCase):
             '        run: workflow-manager --release-dir "$RUNNER_TEMP/candidate" verify '
             '"$RUNNER_TEMP/fixture"\n'))
 
-    def test_the_candidate_suite_paths_are_the_release_source_plus_its_tooling_and_ci(self):
+    def test_the_candidate_suite_paths_are_the_release_source_plus_its_tooling_ci_and_archive_rules(self):
         self.assertEqual(release.CANDIDATE_PATHS, (
             "manifest.json", "payload", "fixtures", "templates",
-            "tools/release", ".github/workflows/workflow-ci.yml"))
+            "tools/release", ".github/workflows/workflow-ci.yml", ".gitattributes"))
         self.assertEqual(release.CANDIDATE_PATHS,
                          (*package.RELEASE_SOURCE_PATHS, "tools/release",
-                          ".github/workflows/workflow-ci.yml"))
+                          ".github/workflows/workflow-ci.yml", ".gitattributes"))
 
 
 class SourceConformanceRunner(unittest.TestCase):
@@ -3264,12 +3264,21 @@ print(command, "ok")
 
     # ---- --keep: build the updated repository and stop; CI runs the suites and verify ----
 
-    def run_kept(self, candidate_suites, keep, previous="2.12.0"):
+    def scheduler_workflow(self, names) -> Path:
+        """A stand-in for `workflow-ci.yml` whose scheduler step runs `names`."""
+        path = self.tmp / "scheduler" / "workflow-ci.yml"
+        path.parent.mkdir(exist_ok=True)
+        path.write_text("".join(f'          suites="{" ".join(names)}"\n' for _ in range(2)))
+        return path
+
+    def run_kept(self, candidate_suites, keep, previous="2.12.0", scheduler=None):
         managed_release(self.repo.root, "2.13.0", candidate_suites, valid_block({}))
         commit = self.repo.commit("candidate")
+        scheduler = self.scheduler_workflow(candidate_suites if scheduler is None else scheduler)
         return self.cli("update-fixture", "--commit", commit, "--previous-assets",
                         str(self.previous_assets(previous)), "--previous-version", previous,
-                        "--manager", str(self.manager), "--keep", str(keep))
+                        "--manager", str(self.manager), "--keep", str(keep),
+                        "--scheduler-workflow", str(scheduler))
 
     def test_keep_leaves_the_updated_repository_and_runs_neither_suites_nor_verify(self):
         keep = self.tmp / "kept"
@@ -3317,6 +3326,40 @@ print(command, "ok")
                 self.assertEqual((full / "stray").read_text(), "x\n")
         self.assertFalse((self.manager.parent / "calls.log").exists())
 
+    def test_keep_refuses_an_updated_repository_whose_suites_are_not_the_schedulers(self):
+        both = {"a_test.py": SUITE_TWO, "b_test.py": SUITE_ONE}
+        for scheduler, naming in ((["a_test.py"], "runs a_test.py:"),
+                                  (["a_test.py", "b_test.py", "c_test.py"], "c_test.py"),
+                                  (["a_test.py", "c_test.py"], "c_test.py")):
+            with self.subTest(scheduler=scheduler):
+                keep = self.tmp / f"kept-{len(scheduler)}-{naming[:1]}"
+                code, out, err = self.run_kept(both, keep, scheduler=scheduler)
+                self.assertEqual(code, release.EXIT_FAIL, out)
+                self.assertIn("names a_test.py b_test.py, but the scheduler step of", err)
+                self.assertIn(naming, err)
+                self.assertNotIn("updated=", out)
+
+    def test_keep_takes_the_suites_in_any_order(self):
+        code, out, err = self.run_kept({"a_test.py": SUITE_TWO, "b_test.py": SUITE_ONE},
+                                       self.tmp / "kept", scheduler=["b_test.py", "a_test.py"])
+        self.assertEqual(code, release.EXIT_OK, out + err)
+
+    def test_the_scheduler_suites_come_from_every_suites_line_of_the_workflow(self):
+        path = self.scheduler_workflow(["a_test.py", "b_test.py"])
+        self.assertEqual(release.scheduler_suites(path), ["a_test.py", "b_test.py"])
+        path.write_text(path.read_text() + '          suites="a_test.py"\n')
+        with self.assertRaisesRegex(release.ReleaseError, "must name one non-empty"):
+            release.scheduler_suites(path)
+        path.write_text("no suites here\n")
+        with self.assertRaisesRegex(release.ReleaseError, "must name one non-empty"):
+            release.scheduler_suites(path)
+        with self.assertRaisesRegex(release.ReleaseError, "cannot read the scheduler workflow"):
+            release.scheduler_suites(self.tmp / "missing.yml")
+
+    def test_the_default_scheduler_is_the_workflow_ci_workflow_and_names_the_nine_suites(self):
+        self.assertEqual(release.SCHEDULER_WORKFLOW, REPO_ROOT / ".github/workflows/workflow-ci.yml")
+        self.assertEqual(len(release.scheduler_suites(release.SCHEDULER_WORKFLOW)), 9)
+
     def test_keep_still_reports_a_manager_failure(self):
         self.manager.write_text(self.MANAGER.replace(
             'print(command, "ok")', 'sys.stderr.write("no\\n"); sys.exit(3)'))
@@ -3330,7 +3373,9 @@ print(command, "ok")
         """`Update the previous release to HEAD`, then (when it built) the verify step."""
         text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
         job = _job_section(text, "update-fixture")
-        managed_release(self.repo.root, "2.13.0", {"a_test.py": SUITE_FAILS},
+        # The step passes no --scheduler-workflow: the candidate names the real nine suites.
+        managed_release(self.repo.root, "2.13.0",
+                        {n: SUITE_FAILS for n in release.scheduler_suites(release.SCHEDULER_WORKFLOW)},
                         valid_block({}) if block else None)
         self.repo.commit("candidate")
         (self.repo.root / "tools").symlink_to(REPO_ROOT / "tools")
@@ -3366,7 +3411,8 @@ print(command, "ok")
         self.assertEqual(Path(str(gh) + ".log").read_text().split()[:3],
                          ["release", "download", "v2.12.0"])
         self.assertEqual(self.calls(), [["bootstrap", "workflow-2.12.0"], ["update", "candidate"]])
-        self.assertEqual((runner / "fixture/scripts/a_test.py").read_text(), SUITE_FAILS)
+        self.assertEqual((runner / "fixture/scripts/workflow_protocol_test.py").read_text(),
+                         SUITE_FAILS)
         verify = run()
         self.assertEqual(verify.returncode, 0, verify.stdout + verify.stderr)
         self.assertEqual(self.calls()[-1], ["verify", "candidate"])
@@ -3415,12 +3461,28 @@ class CandidateSuitesDecisionTest(ScratchTestCase):
     def test_a_change_to_each_candidate_path_is_changed(self):
         for path in ("manifest.json", "payload/scripts/new.py", "payload/docs/guide.md",
                      "fixtures/new.md", "templates/new.txt", "tools/release/anything.py",
-                     "tools/release/nested/deeper.txt", ".github/workflows/workflow-ci.yml"):
+                     "tools/release/nested/deeper.txt", ".github/workflows/workflow-ci.yml",
+                     ".gitattributes"):
             with self.subTest(path=path):
                 self.change(path, f"changed {path}\n")
                 found = self.decide()
                 self.assertEqual(found["changed"], "true")
                 self.assertIn(path, found["reason"])
+
+    def test_a_gitattributes_change_alone_is_changed_because_it_changes_what_is_staged(self):
+        """The root `.gitattributes` is read by `git archive`: an `export-ignore` line drops a
+        payload file from the staged release source without touching any release-source path."""
+        self.repo.touch("payload/scripts/kept.py", "kept\n")
+        self.repo.commit("add a payload file")
+        before = self.repo.git("rev-parse", "HEAD")
+        self.change(".gitattributes", "payload/scripts/kept.py export-ignore\n")
+        staged = package.stage(self.repo.root, "HEAD", self.tmp / "staged-after")
+        self.assertFalse((staged / "payload/scripts/kept.py").exists())
+        self.assertTrue((package.stage(self.repo.root, before, self.tmp / "staged-before")
+                         / "payload/scripts/kept.py").is_file())
+        found = self.decide()
+        self.assertEqual(found["changed"], "true")
+        self.assertIn(".gitattributes", found["reason"])
 
     def test_a_change_elsewhere_is_unchanged(self):
         for path in ("docs/ROADMAP.md", "README.md", "CLAUDE.md", ".claude/commands/x.md",
