@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-followups-4",
+  "plan_revision": 7,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The managed conformance runs longest first",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "The unknown-id wording in the two command files",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 1,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Release 2.18.4",
+      "depends_on": [
+        "CP2"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    }
+  ]
+}

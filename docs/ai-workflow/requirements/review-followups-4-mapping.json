@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_item_id": "review-followups-4",
+  "requirements": {
+    "R1": {
+      "description": "The managed conformance template and both copies in this repository's CI start the units longest first in a fixed documented order from the measured durations, keeping width, shards, the coverage gate, isolation, the one heredoc text and the summary; the header is true; the scheduler tests are extended (sharded order, measured-table simulation, membership, fallback) and the byte-for-byte pins hold",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "For an unknown work-item id the retire-legacy-work-item and resume-implementation command files say the WrongPhaseError message names no work item, guard lines intact, pinned by a test; the Later paragraph is removed from the roadmap",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "R3": {
+      "description": "Release 2.18.4: release constant and pinned assertions, manifest digests, sizes, measured suite counts and per-record rationales, release history closing #50 only (#55 stays open for W19) with the real 2.14.0 move-back limit and the safe procedure, downgrade posture and the manager block (min_manager_version 1.13.0)",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    }
+  }
+}

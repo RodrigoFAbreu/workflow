@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "review-followups-4",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -14164,6 +14164,448 @@
         },
         "evaluated_at": "2026-10-22T04:15:59Z",
         "workflow_release": "2.18.2"
+      }
+    },
+    "review-followups-4": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "review-followups-4",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/REVIEW_FOLLOWUPS_4_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/review-followups-4-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/review-followups-4-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 7,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "75c3749f92ad6503502b02bf53c17b626d83b654",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "ab948ade688a9d308ee649705c57a69d31b650b2f163c699355d31e5500d3829",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "ab948ade688a9d308ee649705c57a69d31b650b2f163c699355d31e5500d3829",
+        "approved_review_content_id": "7238283114d0510229ded31aef57c4d019027185c5b93ee88a59b208405ed606",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/REVIEW_FOLLOWUPS_4_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "59111a5bb90719ea2c97b429319b948578038acb"
+          },
+          {
+            "path": "docs/ai-workflow/registry/review-followups-4-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "629b2479274e94f4e1b824af2824aff9f9f6c45f"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/review-followups-4-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "95810ff70ec0f6f9e051edc8d242667f549fc06b"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-22T12:15:48Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "7238283114d0510229ded31aef57c4d019027185c5b93ee88a59b208405ed606",
+            "ledger": {
+              "local": {
+                "bundle_id": "ab948ade688a9d308ee649705c57a69d31b650b2f163c699355d31e5500d3829",
+                "verdict": "APPROVE",
+                "round": 7,
+                "verdict_sha256": "115eab205ad1b33e13c228d75074e9c50b29780a13108963c96b75fa81d34ca2",
+                "ledger_entry_sha256": "25c5e16f79c832d75cce94f5e52c348efab8bf06ab5af074a32206c4ac00b36d",
+                "run_ref": "session:local .ai-review/review-followups-4/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "ab948ade688a9d308ee649705c57a69d31b650b2f163c699355d31e5500d3829",
+                "verdict": "APPROVE",
+                "round": 7,
+                "verdict_sha256": "61c9f255e42f8db3d88866927c4a7684d8bc00ba167b7a53c82332a203d2eecc",
+                "ledger_entry_sha256": "8065085d542017f25e94bf1d0935ebf444f97357a90d7f452d2efd202d54ce30",
+                "run_ref": "session:local .ai-review/review-followups-4/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-22T12:15:48Z",
+          "workflow_release": "2.18.3"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "7238283114d0510229ded31aef57c4d019027185c5b93ee88a59b208405ed606",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "ab948ade688a9d308ee649705c57a69d31b650b2f163c699355d31e5500d3829",
+          "verdict": "APPROVE",
+          "round": 7,
+          "completed_at": "2026-10-22T11:38:16Z",
+          "verdict_sha256": "115eab205ad1b33e13c228d75074e9c50b29780a13108963c96b75fa81d34ca2",
+          "run_ref": "session:local .ai-review/review-followups-4/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "ab948ade688a9d308ee649705c57a69d31b650b2f163c699355d31e5500d3829",
+          "verdict": "APPROVE",
+          "round": 7,
+          "completed_at": "2026-10-22T12:14:58Z",
+          "verdict_sha256": "61c9f255e42f8db3d88866927c4a7684d8bc00ba167b7a53c82332a203d2eecc",
+          "run_ref": "session:local .ai-review/review-followups-4/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 7,
+          "external": 2
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 25,
+      "last_transition": "2026-10-22T12:15:48Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-22T11:35:00Z",
+        "consumed": {
+          "review_content_id": "6e674d6d4dc3c0a7e7d4154b804e9e15a2fe0a95b9666a4ad97be5e47bd7b0f8",
+          "plan_revision": 6,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "7238283114d0510229ded31aef57c4d019027185c5b93ee88a59b208405ed606",
+          "plan_revision": 7
+        },
+        "bound": {
+          "review_content_id": "7238283114d0510229ded31aef57c4d019027185c5b93ee88a59b208405ed606",
+          "bundle_id": "ab948ade688a9d308ee649705c57a69d31b650b2f163c699355d31e5500d3829",
+          "plan_revision": 7
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "3b144d0c24d5adc6e9a607cbb1f097623b89738e8deec7943bbd5b2f5ab00e6f",
+        "4516db18d8a6d01bf10ec2f41b360cb48e8b0f6ec3957f037a6694c620deaae8",
+        "65e9bf15f3e5d74ec28a35b5bccba5dc610981757b456392449ed6723205f00e",
+        "6e674d6d4dc3c0a7e7d4154b804e9e15a2fe0a95b9666a4ad97be5e47bd7b0f8",
+        "94aa311227ebd388eeb05f2e45680888afbad7c80861a57d8fd5c2b36e9c30a9",
+        "b5c45d0461a8a04f562692866d893485c7c5c339f5f4b50970e992c3ef184e96"
+      ],
+      "optional_findings": {
+        "F-04cb85e4e383": {
+          "digest": "04cb85e4e383bf529d29a9de530ef29ab445500d5d627453869ff31cfc7498a4",
+          "text": "RF4-L1-O01: Goal item 1 says longest first \"gives about 830 s\", but by the plan's own medians the lower bound is max(645, 3485/4) ≈ 871 s, and a width-4 simulation gives about 875 s. The \"975-995 s\" job figure next to a \"1050 s queue critical path\" in section 2 also reads as inconsistent unless the two measure different things. Use the simulated figure, or say what each number measures.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "65e9bf15f3e5d74ec28a35b5bccba5dc610981757b456392449ed6723205f00e",
+              "verdict": "REVISE",
+              "at": "2026-10-22T10:35:49Z"
+            }
+          ]
+        },
+        "F-3ad4d502a668": {
+          "digest": "3ad4d502a668570b7ef20b7398f1f4324bc8e8b4c380d8cb5866f76ca0823c64",
+          "text": "RF4-L1-O02: D-Order bases \"shard 1 is the longest measured\" on the planner's greedy test-count binning, which gives bin 1 the largest class first. Say so in the comment above `longest`, so a future change to the planner's bin order is known to affect the start order.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "65e9bf15f3e5d74ec28a35b5bccba5dc610981757b456392449ed6723205f00e",
+              "verdict": "REVISE",
+              "at": "2026-10-22T10:35:49Z"
+            }
+          ]
+        },
+        "F-18fb57831526": {
+          "digest": "18fb578315268be86fa459a44677bceecff7edb5f6a0f15122ef81fc6a6fa32e",
+          "text": "RF4-L2-O01: D-Release's opening sentence still says the helper decides \"under the guards the amendment already takes (the lifecycle lock and `state_transaction`)\". With revision 2's guard window, that holds only for the no-claim shape. Align it with the four-step order below it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "94aa311227ebd388eeb05f2e45680888afbad7c80861a57d8fd5c2b36e9c30a9",
+              "verdict": "REVISE",
+              "at": "2026-10-22T10:41:30Z"
+            }
+          ]
+        },
+        "F-86338df0f651": {
+          "digest": "86338df0f651ba2be510317b0520667648b1e0ece72e75f022a84d9b3136f042",
+          "text": "RF4-L2-O02: Step 2 says a present guard refuses with `AmendmentCheckpointActiveError`, but `acquire_guard` raises `CheckpointOwnershipUnavailableError` in that branch. Say that the transaction translates it, keeping the original message as the cause, so the \"no new exception class\" claim and the refusal tests agree.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "94aa311227ebd388eeb05f2e45680888afbad7c80861a57d8fd5c2b36e9c30a9",
+              "verdict": "REVISE",
+              "at": "2026-10-22T10:41:30Z"
+            }
+          ]
+        },
+        "F-3ce694b2fe1e": {
+          "digest": "3ce694b2fe1ec0d6dbe4a18dd17f431f44b50c5661539fdce77d71a0602d75e6",
+          "text": "RF4-L3-O01: an amendment killed between steps 2 and 4 (SIGKILL or power loss; an exception runs the `finally`) leaves a current-epoch `DESTRUCTIVE` guard. A retried `/request-plan-amendment` then refuses with \"a `/milestone-implement` window is open; let it finish\". That text is misleading here, and takeover cannot break the guard. Name this leftover and its remedy under \"Failure order and residue\". Today the remedy is a `/milestone-implement` or `release_checkpoint` from this worktree, which reclaims it as its own leftover. If RF4-L3-I01 (b) is chosen, the remedy is a retried amendment.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "3b144d0c24d5adc6e9a607cbb1f097623b89738e8deec7943bbd5b2f5ab00e6f",
+              "verdict": "REVISE",
+              "at": "2026-10-22T10:46:06Z"
+            }
+          ]
+        },
+        "F-279d5df695e4": {
+          "digest": "279d5df695e4693d3cd3e93fe7890591f59efe16e9c10e13785626e3f3a87484",
+          "text": "RF4-L4-O01: `take_over_claim`'s docstring (~6875-6877) justifies the present-claim rotation running outside (9) with \"Rotating an existing claim needs no (9): the amendment side already refuses while any claim exists\". After D-Release that is no longer true: the amendment proceeds with a self-owned claim present, and the rotation is excluded by the amendment's `DESTRUCTIVE` guard instead. Name this docstring in CP2's code bullet next to the `acquire_guard` docstring, so the stated reason matches the mechanism.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "b5c45d0461a8a04f562692866d893485c7c5c339f5f4b50970e992c3ef184e96",
+              "verdict": "REVISE",
+              "at": "2026-10-22T10:50:34Z"
+            }
+          ]
+        },
+        "F-4fab6ea47e4d": {
+          "digest": "4fab6ea47e4db5037853a95337b3e35c3926c0958826a45e52fb1b8328e8465f",
+          "text": "RF4-L5-O01: The header line still reads \"**Plan revision:** 4 (round 3 of the local review applied: ...)\", while the title and the registry say revision 5, and round 4 (RF4-L4-I01, O01) is missing from the list. Update it the next time the plan is edited, or at implementation.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "4516db18d8a6d01bf10ec2f41b360cb48e8b0f6ec3957f037a6694c620deaae8",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T10:54:58Z"
+            }
+          ]
+        },
+        "F-28d250818bb6": {
+          "digest": "28d250818bb6e283491f3db094a0c29e308f9e0a6a189522e4b9ef5cd7cc71a5",
+          "text": "RF4-L5-O02: Step 4 (ii) names \"the residue below\", which D-Release describes as \"a self-owned claim for a checkpoint no longer in state\". In the route-1 residual, an authorized takeover has rotated the claim, so the claim left in place is not self-owned. Write the step-4 refusal message from what it observed: the claim's token (T or not) and the held lease. The remedy should then be `release_checkpoint` with the claim's token when it is T, and the takeover holder's own release otherwise.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "4516db18d8a6d01bf10ec2f41b360cb48e8b0f6ec3957f037a6694c620deaae8",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T10:54:58Z"
+            }
+          ]
+        },
+        "F-f417c93bb591": {
+          "digest": "f417c93bb591142db1f29751bbdcbeba76586c3eec7ac70466305b55263f78e6",
+          "text": "RF4-L5-O03: `.github/workflows/workflow-ci.yml` (a CP1 deliverable) is excluded at the implementation stage through the `.github/` prefix, so `technical_approval` does not bind its bytes. Today it is held only by `release_test.py`'s byte-for-byte pins to the protected template. That is adequate for this milestone. If the binding is meant to cover it, move the exact path into `implementation_stage.protected_paths`; otherwise say in CP1 that the pins are its fence.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "4516db18d8a6d01bf10ec2f41b360cb48e8b0f6ec3957f037a6694c620deaae8",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T10:54:58Z"
+            }
+          ]
+        },
+        "F-36438d533130": {
+          "digest": "36438d53313069389a0189899f84d9406f749eaa0126a273ee293717067e5b89",
+          "text": "**EPR-004 [apparatus] — Revision metadata is stale.**\n  `docs/ai-workflow/REVIEW_FOLLOWUPS_4_PLAN.md:12` still declares revision 4 and omits the round-4 dispositions, although the title and registry identify revision 5.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "4516db18d8a6d01bf10ec2f41b360cb48e8b0f6ec3957f037a6694c620deaae8",
+              "verdict": "REVISE",
+              "at": "2026-10-22T11:03:39Z"
+            }
+          ]
+        },
+        "F-39761282d3af": {
+          "digest": "39761282d3afd9a6c12b991f843872d329cae669b83b1935ae80d3bf6e564a4d",
+          "text": "**EPR-005 [substantive] — Match the older validator’s field-presence comparison.**\n  The downgrade checker at `docs/ai-workflow/REVIEW_FOLLOWUPS_4_PLAN.md:330` treats absent and null fields as equal. The 2.13.0 field-diff check distinguishes them. Include key presence in the comparison. This is Optional for `optional_findings`, because null is already invalid under its current schema.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "4516db18d8a6d01bf10ec2f41b360cb48e8b0f6ec3957f037a6694c620deaae8",
+              "verdict": "REVISE",
+              "at": "2026-10-22T11:03:39Z"
+            }
+          ]
+        },
+        "F-8ca15ff63259": {
+          "digest": "8ca15ff6325907394164e9a97c9890aac16c68d8ccdea68b5adf369b17a5ffe9",
+          "text": "**RF4-L6-O01 [substantive]: the new conjunct falls through to a different-worktree message.** In `_acquire_guard_locked` (`payload/scripts/workflow_state.py:6426-6436`), the \"own leftover\" `elif` is followed by the `OPUS-R82-002` `elif role == \"owner\" and held token == holder token` branch. Adding the `step != AMENDMENT_GUARD_STEP` conjunct only to the first branch sends a same-worktree owner, refused by the amendment's guard, into the branch whose message says the guard \"is held by worktree X ... this worktree is X\". The refusal class is right but the text is wrong. Name the amendment guard in its own branch, or condition the message. Plan line 229's quoted refusal text describes the amendment side only.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 6,
+              "review_content_id": "6e674d6d4dc3c0a7e7d4154b804e9e15a2fe0a95b9666a4ad97be5e47bd7b0f8",
+              "verdict": "REVISE",
+              "at": "2026-10-22T11:10:43Z"
+            }
+          ]
+        },
+        "F-ed4b1fb027cc": {
+          "digest": "ed4b1fb027cc8fa95d77f73f458deb3183c74e3e2467c7b4e0606227af2adf42",
+          "text": "**RF4-L6-O02 [apparatus]: arithmetic slip in Goal item 1.** `REVIEW_FOLLOWUPS_4_PLAN.md:23` writes \"3485/4\". The section-2 table sums to 3484, and 3484/4 = 871 exactly.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 6,
+              "review_content_id": "6e674d6d4dc3c0a7e7d4154b804e9e15a2fe0a95b9666a4ad97be5e47bd7b0f8",
+              "verdict": "REVISE",
+              "at": "2026-10-22T11:10:43Z"
+            }
+          ]
+        },
+        "F-c43c7894e267": {
+          "digest": "c43c7894e26737155c152ad17d33cf18f4bd939e32db02f0bb7a32e5af76f21d",
+          "text": "**RF4-R7-O01: the artifact declaration still says \"CP1 to CP4\".** The rationale strings for `docs/RELEASING.md`, `docs/release-history.md` and `manifest.json` in `review-followups-4-artifacts.json` (lines 36-38 and 66-68) say \"CP1 to CP4\". The plan now has three checkpoints. Regenerate the declaration with \"CP1 to CP3\" the next time it is written; the classification itself is unaffected.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 7,
+              "review_content_id": "7238283114d0510229ded31aef57c4d019027185c5b93ee88a59b208405ed606",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T11:38:16Z"
+            }
+          ]
+        },
+        "F-3e78c217d9f2": {
+          "digest": "3e78c217d9f267a9ecab0b4f6f3b02f80163e65c7cc6f686f414be59eba7af84",
+          "text": "**RF4-R7-O02: the roadmap's saving figure is stale.** Row 22 of `docs/ROADMAP.md` says \"about 2.7 minutes off\". The plan's own simulation gives 1050 - 874.5 = 175.5 s, about 2.9 minutes. CP2 already rewrites row 22 to drop #55, so it can correct the figure in the same edit.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 7,
+              "review_content_id": "7238283114d0510229ded31aef57c4d019027185c5b93ee88a59b208405ed606",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T11:38:16Z"
+            }
+          ]
+        },
+        "F-7d8b7f6c55f7": {
+          "digest": "7d8b7f6c55f79a32aee2c6d96e5f67a0e0b7985c283e29c1b9861d0985e53243",
+          "text": "**RF4-R7-O03: D-Wording points to a step that does not exist.** D-Wording says the commands refuse an unknown id \"earlier in step 1 or 0\". Neither `retire-legacy-work-item.md` nor `resume-implementation.md` has a step 0; both refuse in step 1. Say \"step 1\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 7,
+              "review_content_id": "7238283114d0510229ded31aef57c4d019027185c5b93ee88a59b208405ed606",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T11:38:16Z"
+            }
+          ]
+        },
+        "F-5d925b9ffdcc": {
+          "digest": "5d925b9ffdccfbe91d63c2fc9ea5234850263173a4828976e2cc684df72e4261",
+          "text": "**EPR-006 [apparatus] — Artifact rationales retain CP4 references.**\n  `docs/ai-workflow/registry/review-followups-4-artifacts.json:36` and `:66` begin rationale groups saying “CP1 to CP4”; the plan now has three checkpoints. Update these descriptions to CP1–CP3. Classification is unaffected.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 7,
+              "review_content_id": "7238283114d0510229ded31aef57c4d019027185c5b93ee88a59b208405ed606",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T12:14:58Z"
+            }
+          ]
+        },
+        "F-5b3eae683f1d": {
+          "digest": "5b3eae683f1d3c7366e4b18e87c2d6e3f2867d863647cd1e209a5b1e5eaf9f9e",
+          "text": "**EPR-007 [substantive] — D-Wording mentions a nonexistent step 0.**\n  `docs/ai-workflow/REVIEW_FOLLOWUPS_4_PLAN.md:218` says “step 1 or 0.” Both commands resolve unknown ids in step 1. Say “step 1.”",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 7,
+              "review_content_id": "7238283114d0510229ded31aef57c4d019027185c5b93ee88a59b208405ed606",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T12:14:58Z"
+            }
+          ]
+        },
+        "F-3c6c408c83ba": {
+          "digest": "3c6c408c83baece932256cf6c35d5c89ff0933bc7440843a2230b5753403831f",
+          "text": "**EPR-008 [apparatus] — The roadmap saving figure is stale.**\n  `docs/ROADMAP.md:40` says about 2.7 minutes. The revised simulation saves approximately 175 seconds, or 2.9 minutes. CP2 already edits this row and can correct the figure.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 7,
+              "review_content_id": "7238283114d0510229ded31aef57c4d019027185c5b93ee88a59b208405ed606",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T12:14:58Z"
+            }
+          ]
+        }
       }
     }
   }
