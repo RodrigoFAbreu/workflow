@@ -15153,18 +15153,22 @@
       "registry_path": "docs/ai-workflow/registry/takeover-fence-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/takeover-fence-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 1,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "0f74e24a6a1d57416d0c13fa319f33cfa92e0471",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "b39dde15e4d71d6f526ce7ce8f3a62bfc2aac24a"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "3b8c679ec67b5943841483ec4f90bf37033a1d8b"
         }
       },
       "current_bundle_id": "f22bc630ee3c771fa9ae0b0e7f6fb68435e31748d7403ca33997eb125df7f346",
@@ -15293,8 +15297,8 @@
           "external": 0
         }
       },
-      "state_revision": 8,
-      "last_transition": "2026-10-22T21:30:42Z",
+      "state_revision": 10,
+      "last_transition": "2026-10-22T22:49:35Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
