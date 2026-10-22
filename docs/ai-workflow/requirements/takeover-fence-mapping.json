@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "takeover-fence",
+  "requirements": {
+    "R1": {
+      "description": "A role=owner acquisition of the caller's own current-epoch takeover guard (same token and worktree) is refused by a new branch of the claim guard's decision placed between the superseded-epoch branch and the same-worktree reclaim, with its own accurate message; every other branch keeps its condition and message; a live same-worktree owner (1d and 1f-commit) is refused before and after the rotation and the takeover completes",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "The plan-approval journal guard gets the same rule (a role=owner acquisition of a guard whose step is takeover and whose token is the caller's is refused with its own message), with a deterministic before/after-rotation interleaving test",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "The next step a refusal names for a leftover takeover guard (a crashed takeover) is the route that clears it, re-running the takeover with the guard-release authorization, not clear_malformed_guard or the destructive recovery, proven by a test for both guards",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Release 2.18.5: release constant and pinned assertions, manifest digests, sizes, measured suite counts and per-record rationales, release history closing #82 only (#55 stays open for W19), downgrade posture and the manager block (min_manager_version 1.13.0)",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}

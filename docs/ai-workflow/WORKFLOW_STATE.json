@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "takeover-fence",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -15142,6 +15142,240 @@
         },
         "evaluated_at": "2026-10-22T16:19:54Z",
         "workflow_release": "2.18.3"
+      }
+    },
+    "takeover-fence": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "takeover-fence",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/TAKEOVER_FENCE_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/takeover-fence-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/takeover-fence-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 1,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "0f74e24a6a1d57416d0c13fa319f33cfa92e0471",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "f22bc630ee3c771fa9ae0b0e7f6fb68435e31748d7403ca33997eb125df7f346",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "f22bc630ee3c771fa9ae0b0e7f6fb68435e31748d7403ca33997eb125df7f346",
+        "approved_review_content_id": "f06648e87a4b0df03b3e40b9e70d92df0540a8e9cc129f241c18aea6a0ccc4db",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/TAKEOVER_FENCE_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "471abdcb1e0d2880af913a5fe5233d8aba8adb26"
+          },
+          {
+            "path": "docs/ai-workflow/registry/takeover-fence-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ba27e21c098694a4b4a24274e4276dcca7651139"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/takeover-fence-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c1fef6d9632cbec036685d4186f6ea49abe114dd"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-22T21:05:53Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "f06648e87a4b0df03b3e40b9e70d92df0540a8e9cc129f241c18aea6a0ccc4db",
+            "ledger": {
+              "local": {
+                "bundle_id": "f22bc630ee3c771fa9ae0b0e7f6fb68435e31748d7403ca33997eb125df7f346",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "29e4dda3b9ae5eeb826710c4bbd5057652fbd53814143abdf4ad4f5ddc2e43e5",
+                "ledger_entry_sha256": "424c2b66a59a95b5bfd3e63d7f7f580b21fdde3bb79a3374d1e62a1a82ba75e4",
+                "run_ref": "session:local .ai-review/takeover-fence/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "f22bc630ee3c771fa9ae0b0e7f6fb68435e31748d7403ca33997eb125df7f346",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "84e1a5c1c3b2b139900d4c7d1e5709463dca9e17ea0b6bf70c3a1beda6a55fa6",
+                "ledger_entry_sha256": "41aeb815beecab1e7a90af79020c8a16398b9782aca5a3d70ef326736f231970",
+                "run_ref": "session:local .ai-review/takeover-fence/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-22T21:05:53Z",
+          "workflow_release": "2.18.4"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "f06648e87a4b0df03b3e40b9e70d92df0540a8e9cc129f241c18aea6a0ccc4db",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "f22bc630ee3c771fa9ae0b0e7f6fb68435e31748d7403ca33997eb125df7f346",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-22T20:59:11Z",
+          "verdict_sha256": "29e4dda3b9ae5eeb826710c4bbd5057652fbd53814143abdf4ad4f5ddc2e43e5",
+          "run_ref": "session:local .ai-review/takeover-fence/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "f22bc630ee3c771fa9ae0b0e7f6fb68435e31748d7403ca33997eb125df7f346",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-22T21:05:07Z",
+          "verdict_sha256": "84e1a5c1c3b2b139900d4c7d1e5709463dca9e17ea0b6bf70c3a1beda6a55fa6",
+          "run_ref": "session:local .ai-review/takeover-fence/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 1,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 6,
+      "last_transition": "2026-10-22T21:05:53Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-22T20:55:25Z",
+        "consumed": null,
+        "published": {
+          "review_content_id": "f06648e87a4b0df03b3e40b9e70d92df0540a8e9cc129f241c18aea6a0ccc4db",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "f06648e87a4b0df03b3e40b9e70d92df0540a8e9cc129f241c18aea6a0ccc4db",
+          "bundle_id": "f22bc630ee3c771fa9ae0b0e7f6fb68435e31748d7403ca33997eb125df7f346",
+          "plan_revision": 1
+        }
+      },
+      "optional_findings": {
+        "F-f67a1a614c0e": {
+          "digest": "f67a1a614c0e330a9d79daab7a1408031171686a98757e9b28b31bf28c7ce68d",
+          "text": "**LPR-R1-001: \"step `1d` (ordinary)\" misstates the command's class.** In\n  `payload/.claude/commands/milestone-implement.md`, step 1d runs `owner_mutation(...,\n  step=\"1d\", step_class=workflow_state.DESTRUCTIVE)`. Step 1f-commit is `DESTRUCTIVE` too. The new\n  branch decides on the *held* guard's step, never on the presented class, so the test vector stays\n  valid. Still, either say the interleaving tests deliberately use both presented classes, because\n  the decision is independent of them, or label 1d `DESTRUCTIVE`, which is what the command uses. A\n  later reader should not take the plan's label as the command's.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f06648e87a4b0df03b3e40b9e70d92df0540a8e9cc129f241c18aea6a0ccc4db",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T20:59:11Z"
+            }
+          ]
+        },
+        "F-2e434dac626b": {
+          "digest": "2e434dac626bf691959723abee9aae0a94704c2db8f5d4de397914bdb543c79a",
+          "text": "**LPR-R1-002: the journal leftover test should model a real dead takeover.** A journal takeover\n  that dies between its guard acquisition and its rotation leaves both the guard and the\n  `PLAN_APPROVAL_JOURNAL.claim.<T>` hard link. If the leftover test plants only the guard, it skips\n  the dead-claim retry in `take_over_plan_approval_transaction` step 3. Plant both, so the test\n  proves the named route clears the real leftover state.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f06648e87a4b0df03b3e40b9e70d92df0540a8e9cc129f241c18aea6a0ccc4db",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T20:59:11Z"
+            }
+          ]
+        },
+        "F-c9ada5514da1": {
+          "digest": "c9ada5514da181093a1a82171673993730e72298c1dd83ef853dc97b03b28d22",
+          "text": "**LPR-R1-003: takeover-versus-takeover is out of scope; consider recording it.** After this fix,\n  only a second *authorized* `role=\"takeover\"` acquisition quoting the first takeover's lease can\n  break a live takeover's window. Neither takeover re-checks that its guard is still its own before\n  `_publish_claim_replacing` / `_replace_plan_approval_journal`. For the journal, the per-epoch\n  `.claim.<T>` link already serializes this. The claim takeover has no equivalent. The case needs a\n  human to quote a live takeover's lease, so it is not a defect in this plan. It may deserve a\n  roadmap note.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f06648e87a4b0df03b3e40b9e70d92df0540a8e9cc129f241c18aea6a0ccc4db",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T20:59:11Z"
+            }
+          ]
+        },
+        "F-f5f8b5126f5b": {
+          "digest": "f5f8b5126f5be5f72f23b16878de2b15fdea90282ecd4cb74b340f5453264668",
+          "text": "**LPR-R1-004: the foreign-worktree leftover has no named route.** If a takeover run from worktree\n  W2 dies, the owner in W1 gets branch (3)'s message, which names no next step. The plan correctly\n  keeps that branch byte for byte. The same re-run-takeover route applies there, and a later release\n  could name it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f06648e87a4b0df03b3e40b9e70d92df0540a8e9cc129f241c18aea6a0ccc4db",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T20:59:11Z"
+            }
+          ]
+        },
+        "F-84d527de06df": {
+          "digest": "84d527de06df052abbc22e8f1b3f442361ab073093085607dda14597c5b49efe",
+          "text": "**EPR-001 [apparatus] — Make the CP1 scratch snapshot explicit.**\n  D-Staging specifies a full clone followed by manifest adjustments (`docs/ai-workflow/TAKEOVER_FENCE_PLAN.md:203–210`). State whether verification clones the committed CP1 changes or copies pending changes into the clone first: `git clone` alone omits uncommitted implementation and tests. Comparing the three CP1 files’ hashes before staging would make the verification evidence unambiguous.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f06648e87a4b0df03b3e40b9e70d92df0540a8e9cc129f241c18aea6a0ccc4db",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T21:05:07Z"
+            }
+          ]
+        }
       }
     }
   }
