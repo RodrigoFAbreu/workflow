@@ -14175,7 +14175,7 @@
       "registry_path": "docs/ai-workflow/registry/review-followups-4-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/review-followups-4-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 7,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -14319,12 +14319,12 @@
           "external": 2
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 32,
-      "last_transition": "2026-10-22T14:10:22Z",
+      "state_revision": 34,
+      "last_transition": "2026-10-22T14:34:54Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -14618,7 +14618,62 @@
               "at": "2026-10-22T12:14:58Z"
             }
           ]
+        },
+        "F-8b34c71c58f2": {
+          "digest": "8b34c71c58f28bd26c6585e4fba1445f06f55415b3ae69b5b3e4b54bf3627d66",
+          "text": "**RF4-LI1-O01 [substantive] — The quoted message omits the repr quotes.** Both command files,\n  the two manifest rationales and the 2.18.4 release-history row give the message as\n  `\"<id> names no work item\"`. The writers emit `f\"{work_item_id!r} names no work item\"`, so the\n  real text is `'abc' names no work item`, with the id in single quotes. A reader matching on\n  the text still finds the phrase, so nothing is wrong. Writing `'<id>' names no work item`\n  would match the actual message exactly, if a later release touches these lines.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "e4ae6f978ec3e508e705d332f0b1646334f4a5863f854b78a40e511f3871dccc",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T14:22:53Z"
+            }
+          ]
+        },
+        "F-db7522ce3e95": {
+          "digest": "db7522ce3e950022274e83b9d593a4da8d1863f04d1124956d56e4f1b69195fd",
+          "text": "**RF4-LI1-O02 [apparatus] — No null-valued `optional_findings` case in the scratch test.**\n  D-Downgrade-50 (EPR-005) asks for a commit that adds the key \"also with a null value\".\n  `test_the_safe_procedure_reports_each_commit_the_older_release_refuses` covers a null-valued\n  key only for `review_round_counts`. The comparison is generic per field, so coverage is\n  equivalent, but a null `optional_findings` step would follow the plan's wording literally.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "e4ae6f978ec3e508e705d332f0b1646334f4a5863f854b78a40e511f3871dccc",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T14:22:53Z"
+            }
+          ]
+        },
+        "F-86f52b12141b": {
+          "digest": "86f52b12141b798ebff16df3707b9216bbc110eaf0663fecf860bec01edad1d5",
+          "text": "**RF4-LI1-O03 [apparatus] — The measured-order assertion is a new test, not an extension.**\n  D-Order says `test_width_is_never_exceeded_and_longest_run_first` \"gains the measured-order\n  assertion\". The implementation instead adds\n  `test_the_sharded_queue_starts_the_units_in_decreasing_measured_duration` next to it and\n  leaves the old test unchanged. The coverage is the same, and CP1's own text (\"keeps every\n  assertion it has\"; \"gains the sharded start-order assertion\") is satisfied.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "e4ae6f978ec3e508e705d332f0b1646334f4a5863f854b78a40e511f3871dccc",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T14:22:53Z"
+            }
+          ]
         }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "e4ae6f978ec3e508e705d332f0b1646334f4a5863f854b78a40e511f3871dccc",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "a0dc4b5171eaa62690a4e5acb9e00b4396b567fee89e123a44cccbac9455ab26",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-22T14:22:53Z",
+          "verdict_sha256": "f0075e4f22aa000276519e176c7831786704a29e380f861f3ace2532aef15ca7",
+          "run_ref": "session:local .ai-review/review-followups-4/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
       }
     }
   }
