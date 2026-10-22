@@ -145,9 +145,10 @@ acceptance-matrix suite (the longest, 453 tests) is split into `shards = 4`
 groups of whole test classes, balanced by test count, by a small stdlib-only
 tool the step writes next to the scheduler; its text is the template's, byte
 for byte, and `tools/release/release_test.py` pins them equal. The four
-shards and the eight other suites form one queue, acceptance shards first,
-run `min(width_cap, nproc)` at a time with `width_cap = 4`, each unit in its
-own complete copy of the staged fixture with its own `TMPDIR` and `HOME`
+shards and the eight other suites form one queue, longest first in a fixed order
+taken from measured durations (the `longest` list in the step), run
+`min(width_cap, nproc)` at a time with `width_cap = 4`, each unit in its own
+complete copy of the staged fixture with its own `TMPDIR` and `HOME`
 (the copy is part of the measured time). Every unit runs to its end, all
 results are collected before the step decides, and a unit that did not record
 a result counts as failed. A coverage gate then requires every acceptance test
