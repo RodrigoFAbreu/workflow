@@ -13,7 +13,7 @@ accepted (its record is in git history and `docs/release-history.md`).
 | id | name | state |
 | --- | --- | --- |
 | CP1 | The managed conformance runs longest first | **complete** |
-| CP2 | The unknown-id wording in the two command files | pending |
+| CP2 | The unknown-id wording in the two command files | **complete** |
 | CP3 | Release 2.18.4 | pending |
 
 ### CP1 verified state
@@ -29,3 +29,16 @@ accepted (its record is in git history and `docs/release-history.md`).
   the old order), the names in `longest`, and the fallback for an emptied or unmatched list.
   Red first: 8 failures against the unedited step.
 - Verified in a disposable clone (D-Staging); the results are in the implementation bundle.
+
+### CP2 verified state
+
+- Step 3 of `retire-legacy-work-item.md` and `resume-implementation.md` each gain one clause: the
+  same `...WrongPhaseError` is raised, with the message "<id> names no work item", for an id that
+  is not a key of `work_items`. The user-only guard lines are untouched.
+- `workflow_integration_test.py`: `test_the_unknown_id_refusal_is_described_in_step_three` pins the
+  clause and the guard phrases (red first: 2 failures before the wording); the two content-hash
+  rows follow with an intentional-change comment.
+- `docs/ROADMAP.md`: the Later "Small wording fixes" paragraph is removed; row 22 drops #55 and the
+  #55 issue-table line names W19.
+- Verified in a disposable clone (D-Staging): the nine suites pass (the integration suite after
+  re-wrapping the clause to the 90-column limit), `tools/docs` tests and `check_docs.py` pass.
