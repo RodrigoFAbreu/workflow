@@ -120,9 +120,17 @@ the branch itself.
 
 | job | checks |
 | --- | --- |
+| `changes` | seconds long: `release.py release-source-changed` over `HEAD^1..HEAD` (on a pull request's merge ref, the base tip and the merge) answers whether the change touches `manifest.json`, `payload/`, `fixtures/`, `templates/`, `tools/release/` or `.github/workflows/workflow-ci.yml`. A `push` to `main` and `workflow_dispatch` always answer yes, and so does a decision that cannot be computed (no parent, a git error) |
 | `checks` | one checkout and one install of the pinned tools, then each check as its own named step: `workflow-manager verify .` with the pinned Manager; `release.py build --commit HEAD`, the Manager's `package verify` of the archive, a `--release-dir` bootstrap and verify of a scratch repository, and the three assets uploaded as the `package` artifact; `release.py check-pending` and `check-immutable` against the saved release list (and, when the manifest version is published, `check-immutable --published` against the downloaded `vV` assets); `tools/docs/`'s tests and checker; and `tools/release/release_test.py`, including the byte-for-byte reproduction of every published release (`v2.3.1` to `v2.6.0`) in the pinned deflate runtime; and, for a release after 2.12.0, the Manager block checks ("The Manager metadata block" below) |
-| `release-source-conformance` | `release.py stage-conformance --commit HEAD`, then the release source's own nine frozen suites in that fixture, the acceptance-matrix suite in 4 shards, all under one limit |
-| `aggregate` | fails unless both jobs above succeeded |
+| `release-source-conformance` | only when `changes` says yes: `release.py stage-conformance --commit HEAD`, then the release source's own nine frozen suites in that fixture, the acceptance-matrix suite in 4 shards, all under one limit |
+| `update-fixture` | only when `changes` says yes: for a release that carries a Manager block, the pre-publish update fixture ("The Manager metadata block" below) builds the updated repository (previous published release, updated to HEAD with the pinned Manager), then runs the same nine frozen suites there with the same scheduler as `release-source-conformance` (the same step text, pinned equal by `release_test.py`), then the Manager's `verify` of it |
+| `aggregate` | fails unless `changes` and `checks` succeeded and each of `release-source-conformance` and `update-fixture` succeeded, or was skipped because `changes` succeeded and said the release source and its CI are unchanged (any other skip fails it, with an `::error` naming the job and its result) |
+
+A pull request that touches none of those paths (documentation, the roadmap, an
+installation of the Workflow in this repository) therefore skips the two jobs
+that run the candidate's suites, and `aggregate` still passes; `checks` always
+runs in full. The skip is the only weakening: a pull request that does touch
+one of them runs both jobs exactly as a `main` push does.
 
 In `checks`, a failed step does not hide an unrelated one: each later step
 runs unless the run was cancelled or a step it depends on (the deflate
@@ -153,7 +161,8 @@ rather than under the suite file. The step summary has one row per suite
 (the acceptance row reads `passed (4 shards, 453 tests)`) followed by one row
 per shard, and the logs, results, shard files, the plan and the coverage
 check are uploaded as the `source-conformance-logs` artifact whether the job
-passed or failed. No job name, required check or ruleset changes.
+passed or failed (the `update-fixture` job's, which runs the same step, is
+`update-fixture-logs`). No required check or ruleset changes.
 
 `PR title` runs `release.py check-title "$TITLE" --agree` on every pull
 request (`opened`, `edited`, `reopened`, `synchronize`). The installed
@@ -572,12 +581,22 @@ reports `consistent`, `snapshot-behind` (a warning) or `unavailable` (a notice);
 none of them fails the job. Check (c) is therefore red until the Manager release a
 Workflow release needs is published and recorded, which is the intended order.
 
-The pre-publish **update fixture** (`release.py update-fixture --commit HEAD
---previous-assets DIR --previous-version V`, a CI step) bootstraps a scratch
-repository from the previous published release, runs `workflow-manager update`
-with the pinned Manager (held equal to the minimum by check (g)) against the
-candidate, runs the candidate's nine frozen suites in the result and then
-`workflow-manager verify`. It runs only for a release that carries a block.
+The pre-publish **update fixture** (`release.py update-fixture --release-dir
+DIR --previous-assets DIR --previous-version V --keep OUT`, in the
+`update-fixture` job) bootstraps a scratch repository from the previous
+published release (the highest non-draft, non-prerelease release below HEAD's
+version) and runs `workflow-manager update` with the pinned Manager (held equal
+to the minimum by check (g)) against the candidate. With `--keep OUT` it stops
+there and leaves the updated repository in `OUT`; the job then runs the
+candidate's nine frozen suites in it, scheduled exactly as in
+`release-source-conformance` (the acceptance-matrix suite in 4 shards, the
+coverage gate, one `::error` and one log per failed unit, the step summary
+table), and then `workflow-manager --release-dir <candidate> verify OUT`, which
+also runs when a suite failed. Without `--keep` the command does all of it
+itself, the suites in four threads and then `verify`, and is the form to run
+locally. A release without a block, or one with no earlier published release,
+has nothing to update-test: the job concludes success with that message and
+skips the suites and the verify.
 
 Not checked: that a release which adds a persisted key, phase or status states a
 downgrade posture. That is a judgment no tool can make here.
