@@ -2618,8 +2618,8 @@ class ReviewFollowups2ReleaseTest(unittest.TestCase):
 
 
 class ReviewFollowups3ReleaseTest(unittest.TestCase):
-    """Release 2.18.3 (review-followups-3): the version, the release constant,
-    the counts, the downgrade posture and the release-history row."""
+    """Release 2.18.3 (review-followups-3): what stays true of it once a later
+    release is current -- the record sentences and the release-history row."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py", "scripts/workflow_state.py",
@@ -2628,8 +2628,46 @@ class ReviewFollowups3ReleaseTest(unittest.TestCase):
     def setUp(self):
         self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
 
-    def test_the_release_names_2_18_3_and_adds_no_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.18.3")
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for target in self.CHANGED:
+            with self.subTest(target):
+                record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+                self.assertIn("review-followups-3 (workflow-2.18.3)", record["rationale"])
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        text = (REPO_ROOT / "docs" / "release-history.md").read_text()
+        row = next(line for line in text.splitlines() if line.startswith("| 2.18.3 |"))
+        for needle in ("2.18.2", "#71", "zsh", "Orchestration Protocol 1.5", "v2.18.3"):
+            self.assertIn(needle, row)
+        self.assertLess(text.index("| 2.18.3 |"), text.index("| 2.18.2 |"))
+
+
+class ReviewFollowups4ReleaseTest(unittest.TestCase):
+    """Release 2.18.4 (review-followups-4): the version, the release constant,
+    the counts, the downgrade posture, the #50 correction with its command, and
+    the release-history row."""
+
+    CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+               ".claude/commands/resume-implementation.md",
+               ".claude/commands/retire-legacy-work-item.md",
+               "scripts/workflow_integration_test.py", "scripts/workflow_protocol.py",
+               "scripts/workflow_protocol_test.py")
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.history = (REPO_ROOT / "docs" / "release-history.md").read_text()
+
+    def row(self) -> str:
+        return next(line for line in self.history.splitlines() if line.startswith("| 2.18.4 |"))
+
+    def command(self) -> str:
+        """The comparison command, as the release-history row states it."""
+        match = re.search(r"`(for c in \$\(git log .*?; done)`", self.row())
+        self.assertIsNotNone(match)
+        return match.group(1)
+
+    def test_the_release_names_2_18_4_and_adds_no_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.18.4")
         by_category = {}
         for entry in self.manifest["artifacts"]:
             by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
@@ -2641,37 +2679,86 @@ class ReviewFollowups3ReleaseTest(unittest.TestCase):
 
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.18.3"', text)
+        self.assertIn('WORKFLOW_RELEASE = "2.18.4"', text)
 
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
-        for record in self.manifest["artifacts"]:
-            with self.subTest(record["target_path"]):
-                data = (REPO_ROOT / record["location"]).read_bytes()
-                self.assertEqual((record["sha256"], record["size"]), (_sha(data), len(data)))
+        for section in ("artifacts", "templates"):
+            for record in self.manifest[section]:
+                with self.subTest(record["target_path"]):
+                    data = (REPO_ROOT / record["location"]).read_bytes()
+                    self.assertEqual((record["sha256"], record["size"]), (_sha(data), len(data)))
         for target in self.CHANGED:
             with self.subTest(target):
                 record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
-                self.assertIn("review-followups-3 (workflow-2.18.3)", record["rationale"])
+                self.assertIn("review-followups-4 (workflow-2.18.4)", record["rationale"])
 
-    def test_the_manager_block_states_the_downgrade_posture(self):
+    def test_the_manager_block_states_both_corrections_in_the_posture(self):
         block = self.manifest["manager"]
         self.assertEqual(block["min_manager_version"], "1.13.0")
         posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.18.3", "2.18.2", "Orchestration Protocol stays 1.5",
-                       "workflow-manager update back to 2.18.2", "WORKFLOW_RELEASE",
-                       "state_transaction docstring"):
+        for needle in ("2.18.4", "2.18.3", "Orchestration Protocol stays 1.5",
+                       "workflow-manager update back to 2.18.3", "WORKFLOW_RELEASE",
+                       "job order", "step 3",
+                       "MalformedBundleGenerationRecordCommitError", "optional_findings",
+                       "first parent", "2.15.0", "finish that item's implementation approval"):
             self.assertIn(needle, posture)
+        self.assertIn(self.command(), posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
         self.assertEqual(block["new_work_only"], [])
         self.assertEqual(block["gate_default_change"], "")
 
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
-        text = (REPO_ROOT / "docs" / "release-history.md").read_text()
-        self.assertIn("Last checked with: Workflow 2.18.3.", text)
-        row = next(line for line in text.splitlines() if line.startswith("| 2.18.3 |"))
-        for needle in ("2.18.2", "#71", "zsh", "Orchestration Protocol 1.5", "v2.18.3"):
-            self.assertIn(needle, row)
-        self.assertLess(text.index("| 2.18.3 |"), text.index("| 2.18.2 |"))
+        self.assertIn("Last checked with: Workflow 2.18.4.", self.history)
+        for needle in ("2.18.3", "#50", "#55", "longest first", "names no work item",
+                       "re-validates committed generation-record commits", "git diff HEAD",
+                       "Orchestration Protocol 1.5", "v2.18.4"):
+            self.assertIn(needle, self.row())
+        self.assertLess(self.history.index("| 2.18.4 |"), self.history.index("| 2.18.3 |"))
+
+    def run_command(self, repo: Path) -> str:
+        base = subprocess.run(["git", "rev-list", "--max-parents=0", "HEAD"], cwd=repo,
+                              capture_output=True, text=True, check=True).stdout.strip()
+        script = self.command().replace("<base_commit>", base).replace("<work_item_id>", "w1")
+        done = subprocess.run(["bash", "-c", script], cwd=repo, capture_output=True, text=True)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        return done.stdout
+
+    def scratch_repo(self, steps: list[tuple[str, dict]]) -> Path:
+        """A repository with a base commit and one generation-record commit per
+        step; each step is (extra key, the work item's fields at that commit)."""
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, True)
+        git = ["git", "-c", "user.name=t", "-c", "user.email=t@t"]
+        subprocess.run(git[:1] + ["init", "-q"], cwd=tmp, check=True)
+        state = tmp / "docs" / "ai-workflow" / "WORKFLOW_STATE.json"
+        state.parent.mkdir(parents=True)
+        for number, (label, fields) in enumerate([("base", {"x": 1})] + steps):
+            state.write_text(json.dumps({"work_items": {"w1": fields}}))
+            subprocess.run(["git", "add", "-A"], cwd=tmp, check=True)
+            message = ("base" if number == 0 else
+                       f"record {label}\n\nWorkflow-Bundle-Generation-Record: w1/{number}\n"
+                       "Workflow-Work-Item: w1")
+            subprocess.run(git + ["commit", "-q", "-m", message], cwd=tmp, check=True)
+        return tmp
+
+    def test_the_safe_procedure_reports_each_commit_the_older_release_refuses(self):
+        repo = self.scratch_repo([
+            ("adds the key with a finding", {"x": 1, "optional_findings": {"F-1": "open"}}),
+            ("changes a disposition in the ledger already present",
+             {"x": 1, "optional_findings": {"F-1": "fixed"}}),
+            ("adds the key with a null value", {"x": 1, "optional_findings": {"F-1": "fixed"},
+                                                 "review_round_counts": None}),
+        ])
+        hashes = subprocess.run(["git", "log", "--format=%H", "--reverse"], cwd=repo,
+                                capture_output=True, text=True, check=True).stdout.split()
+        lines = self.run_command(repo).splitlines()
+        self.assertEqual(sorted(lines), sorted([
+            f"{hashes[1]} optional_findings", f"{hashes[2]} optional_findings",
+            f"{hashes[3]} review_round_counts"]))
+
+    def test_the_safe_procedure_is_silent_without_such_a_commit(self):
+        repo = self.scratch_repo([("unrelated", {"x": 2}), ("unrelated again", {"x": 3})])
+        self.assertEqual(self.run_command(repo), "")
 
 
 # -- the Manager metadata block ----------------------------------------------------
