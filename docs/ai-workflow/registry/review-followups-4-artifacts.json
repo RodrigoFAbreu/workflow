@@ -65,6 +65,7 @@
       "docs/ai-workflow/registry/review-followups-4-artifacts.json": "this file's own concrete, spelled-out path -- an editable-under-no-approval declarations file would let someone widen an exclusion and re-bless the resulting digest in the same session, with no gate ever having seen the classification change (OPUS-R25-006, OPUS-R26-004)",
       "docs/RELEASING.md": "the release source or user documentation of the Workflow, a deliverable of this milestone (CP1 to CP4); protected so technical_approval binds every released byte",
       "docs/release-history.md": "the release source or user documentation of the Workflow, a deliverable of this milestone (CP1 to CP4); protected so technical_approval binds every released byte",
+      ".github/workflows/workflow-ci.yml": "the repository's CI wiring is a deliverable of this milestone (CP1's two scheduler fixes); protected by its exact path so technical_approval binds it, while the rest of .github/ stays excluded (EIR-001)",
       "manifest.json": "the release source or user documentation of the Workflow, a deliverable of this milestone (CP1 to CP4); protected so technical_approval binds every released byte"
     },
     "protected_prefixes": {
