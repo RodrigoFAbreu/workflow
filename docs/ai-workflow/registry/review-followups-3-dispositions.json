@@ -1,0 +1,26 @@
+{
+  "dispositions": {
+    "F-1942ac895b9a": {
+      "disposition": "dropped",
+      "reason": "verify ran clean in every review with a primed cache (Codex implementation review, functional flow 6); the qualifier only describes the offline cache prerequisite the section itself documents."
+    },
+    "F-5c006bec3032": {
+      "disposition": "dropped",
+      "reason": "Wording only: the sentence under the suites block is accurate and the block runs under bash and zsh (functional flow 3); not worth a release-source change."
+    },
+    "F-8860efc5f746": {
+      "disposition": "fixed",
+      "note": "Plan revision 2 (line 87) and the 2.18.3 manifest posture name the release constant: going back restores WORKFLOW_RELEASE 2.18.2."
+    },
+    "F-b7076dbf4f72": {
+      "disposition": "fixed",
+      "note": "The phrase an `Exception` raised by `on_failure` is suppressed stays on one physical line (functional flow 1); the existing pin and the new complete-wording pin both pass."
+    },
+    "F-ff91ca1a6192": {
+      "disposition": "fixed",
+      "note": "Plan revision 2's CP2 Files paragraph no longer names docs/ROADMAP.md; row 20 is marked Current by the narrative commit and Done at acceptance."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "review-followups-3"
+}
