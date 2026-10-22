@@ -1319,11 +1319,12 @@ class WorkflowCI(unittest.TestCase):
                     and self.lines[i].strip().endswith(":")), len(self.lines))
         return "\n".join(self.lines[start:end])
 
-    def test_three_jobs(self):
+    def test_five_jobs(self):
         jobs = self.text.split("\njobs:\n", 1)[1]
         ids = [l for l in jobs.splitlines() if l.startswith("  ") and not l.startswith("   ")
                and l.strip().endswith(":")]
-        self.assertEqual(ids, ["  checks:", "  release-source-conformance:", "  aggregate:"])
+        self.assertEqual(ids, ["  changes:", "  checks:", "  release-source-conformance:",
+                               "  update-fixture:", "  aggregate:"])
 
     def test_triggers_permissions_and_concurrency_are_kept(self):
         self.assertIn("name: Workflow CI\n", self.text)
@@ -1335,7 +1336,7 @@ class WorkflowCI(unittest.TestCase):
                       "  cancel-in-progress: ${{ github.event_name == 'pull_request' }}\n",
                       self.text)
         self.assertIn("defaults:\n  run:\n    shell: bash\n", self.text)
-        self.assertEqual(self.text.count('python-version: "3.12"'), 2)
+        self.assertEqual(self.text.count('python-version: "3.12"'), 4)
 
     def test_checks_job_keeps_every_command_as_a_named_step(self):
         checks = self.job("checks")
@@ -1358,6 +1359,10 @@ class WorkflowCI(unittest.TestCase):
         self.assertIn("name: package", checks)
         self.assertIn("if-no-files-found: error", checks)
         self.assertNotIn("continue-on-error", self.text)
+        for gone in ("update-fixture", "Update fixture"):
+            self.assertNotIn(gone, checks)
+        for kept in ("Manager block is valid and measured", "Manager release list is current"):
+            self.assertIn(f"      - name: {kept}\n", checks)
 
     def test_the_update_fixture_previous_release_skips_prereleases(self):
         self.assertIn("gh release list --json tagName,isDraft,isPrerelease --limit 1000", self.text)
@@ -1386,22 +1391,140 @@ class WorkflowCI(unittest.TestCase):
         self.assertIn("steps.manager.outcome", conditions["name: workflow-manager verify ."])
         self.assertNotIn("deflate", conditions["name: workflow-manager verify ."])
 
-    def test_aggregate_requires_both_jobs_to_succeed(self):
-        aggregate = self.job("aggregate")
-        self.assertIn("needs: [checks, release-source-conformance]", aggregate)
-        self.assertIn("if: always()", aggregate)
-        lines = aggregate.splitlines()
-        start = next(i for i, l in enumerate(lines) if l.strip() == "run: |") + 1
-        body = "\n".join(l[10:] for l in lines[start:]) + "\n"
-        for checks, conformance, code in (("success", "success", 0), ("failure", "success", 1),
-                                          ("success", "skipped", 1), ("cancelled", "success", 1),
-                                          ("success", "cancelled", 1), ("skipped", "skipped", 1),
-                                          ("", "success", 1)):
-            with self.subTest(checks=checks, conformance=conformance):
-                proc = subprocess.run(["bash", "-eo", "pipefail", "-c", body],
-                                      env=dict(os.environ, CHECKS=checks, CONFORMANCE=conformance),
-                                      capture_output=True, text=True)
+    def aggregate(self, changes, changed, checks, conformance, update):
+        body = _step_script(self.job("aggregate"), "Require every job")
+        env = dict(os.environ, CHANGES=changes, CHANGED=changed, CHECKS=checks,
+                   CONFORMANCE=conformance, UPDATE_FIXTURE=update)
+        return subprocess.run(["bash", "-eo", "pipefail", "-c", body], env=env,
+                              capture_output=True, text=True)
+
+    def test_aggregate_needs_every_job_and_always_runs(self):
+        aggregate = self.job("aggregate") + "\n"
+        self.assertIn("    needs: [changes, checks, release-source-conformance, update-fixture]\n",
+                      aggregate)
+        self.assertIn("    if: always()\n", aggregate)
+        for variable, job in (("CHANGES", "changes"), ("CHECKS", "checks"),
+                              ("CONFORMANCE", "release-source-conformance"),
+                              ("UPDATE_FIXTURE", "update-fixture")):
+            self.assertIn(f"{variable}: ${{{{ needs.{job}.result }}}}\n", aggregate)
+        self.assertIn("CHANGED: ${{ needs.changes.outputs.changed }}\n", aggregate)
+
+    def test_aggregate_when_the_release_source_changed(self):
+        for checks, conformance, update, code in (
+                ("success", "success", "success", 0), ("failure", "success", "success", 1),
+                ("success", "failure", "success", 1), ("success", "success", "failure", 1),
+                ("success", "success", "cancelled", 1), ("cancelled", "success", "success", 1),
+                ("skipped", "success", "success", 1), ("", "success", "success", 1),
+                ("success", "skipped", "success", 1), ("success", "success", "skipped", 1),
+                ("success", "skipped", "skipped", 1)):
+            with self.subTest(checks=checks, conformance=conformance, update=update):
+                proc = self.aggregate("success", "true", checks, conformance, update)
                 self.assertEqual(proc.returncode, code, proc.stdout + proc.stderr)
+
+    def test_aggregate_accepts_a_skip_only_when_changes_succeeded_and_said_unchanged(self):
+        proc = self.aggregate("success", "false", "success", "skipped", "skipped")
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertNotIn("::error", proc.stdout)
+        for changes, changed in (("failure", "false"), ("cancelled", "false"),
+                                 ("skipped", "false"), ("", "false"), ("success", "true"),
+                                 ("success", ""), ("success", "False"), ("success", "no"),
+                                 ("failure", ""), ("failure", "true")):
+            with self.subTest(changes=changes, changed=changed):
+                proc = self.aggregate(changes, changed, "success", "skipped", "skipped")
+                self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+                for job in ("release-source-conformance", "update-fixture"):
+                    self.assertIn(f"::error::the {job} job concluded skipped", proc.stdout)
+
+    def test_aggregate_truth_table(self):
+        """Every combination of the results and `changed`, against a model of the rule."""
+        results = ("success", "failure", "cancelled", "skipped")
+        for changes in results + ("",):
+            for changed in ("true", "false", ""):
+                for checks in ("success", "failure", "skipped"):
+                    for conformance in results:
+                        for update in results:
+                            unchanged = changes == "success" and changed == "false"
+                            expected = [f"the {job} job concluded {result}" for job, result in (
+                                ("changes", changes), ("checks", checks))
+                                if result != "success"]
+                            expected += [f"the {job} job concluded {result}" for job, result in (
+                                ("release-source-conformance", conformance),
+                                ("update-fixture", update))
+                                if result != "success" and not (result == "skipped" and unchanged)]
+                            proc = self.aggregate(changes, changed, checks, conformance, update)
+                            context = (changes, changed, checks, conformance, update)
+                            self.assertEqual(proc.returncode, 1 if expected else 0,
+                                             f"{context}: {proc.stdout}{proc.stderr}")
+                            self.assertEqual(
+                                [l.removeprefix("::error::") for l in proc.stdout.splitlines()
+                                 if l.startswith("::error::")], expected, context)
+
+    def test_aggregate_names_each_rejected_job_and_its_result(self):
+        proc = self.aggregate("failure", "", "cancelled", "skipped", "failure")
+        self.assertEqual(proc.returncode, 1)
+        self.assertEqual(proc.stdout.splitlines(), [
+            "::error::the changes job concluded failure",
+            "::error::the checks job concluded cancelled",
+            "::error::the release-source-conformance job concluded skipped",
+            "::error::the update-fixture job concluded failure"])
+
+    # ---- the candidate-suite jobs run only when the release source or its CI changed
+
+    def test_the_candidate_suite_jobs_wait_for_changes_and_run_only_when_it_says_changed(self):
+        for name in ("release-source-conformance", "update-fixture"):
+            job = self.job(name) + "\n"
+            self.assertIn("\n    needs: changes\n", job, name)
+            self.assertIn("\n    if: ${{ needs.changes.outputs.changed == 'true' }}\n", job, name)
+        for name in ("changes", "checks"):
+            self.assertNotRegex(self.job(name), r"(?m)^    (if|needs):", name)
+
+    def test_the_changes_job_asks_the_subcommand_over_two_commits(self):
+        job = self.job("changes") + "\n"
+        self.assertIn("      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 2\n",
+                      job)
+        self.assertIn("    timeout-minutes: 5\n", job)
+        self.assertIn("    outputs:\n      changed: ${{ steps.decide.outputs.changed }}\n", job)
+        self.assertIn("          EVENT_NAME: ${{ github.event_name }}\n", job)
+        self.assertIn('        run: python3 tools/release/release.py release-source-changed '
+                      '--event "$EVENT_NAME" | tee -a "$GITHUB_OUTPUT"\n', job)
+        self.assertNotIn("permissions", job)
+
+    def test_the_update_fixture_job_keeps_its_installs_timeout_and_upload(self):
+        job = self.job("update-fixture") + "\n"
+        self.assertIn("    timeout-minutes: 45\n", job)
+        self.assertIn("--require-hashes -r tools/release/deflate-requirements.txt", job)
+        self.assertIn("tools/release/manager-pin.json", job)
+        self.assertIn('echo "$sha256  $wheel" | sha256sum -c', job)
+        self.assertIn("gh release list --json tagName,isDraft,isPrerelease --limit 1000", job)
+        self.assertIn("name: update-fixture-logs", job)
+        self.assertIn("path: ${{ runner.temp }}/source-conformance-logs/", job)
+        self.assertIn("        if: ${{ !cancelled() }}\n", job)
+        order = [job.index(f"- name: {n}\n") for n in (
+            "Save the release list", "Update the previous release to HEAD",
+            "Run the frozen suites over the updated repository",
+            "workflow-manager verify the updated repository")]
+        self.assertEqual(order, sorted(order))
+        self.assertLess(order[-1], job.index("actions/upload-artifact@v4"))
+
+    def test_the_suites_and_verify_run_only_when_an_update_was_built(self):
+        job = self.job("update-fixture") + "\n"
+        suites = job.split("- name: Run the frozen suites over the updated repository\n")[1]
+        self.assertTrue(suites.startswith(
+            "        if: ${{ steps.update.outputs.built == 'true' }}\n        run: |\n"))
+        # Verify also runs after failed suites, so one run shows both results.
+        verify = job.split("- name: workflow-manager verify the updated repository\n")[1]
+        self.assertTrue(verify.startswith(
+            "        if: ${{ !cancelled() && steps.update.outputs.built == 'true' }}\n"
+            '        run: workflow-manager --release-dir "$RUNNER_TEMP/candidate" verify '
+            '"$RUNNER_TEMP/fixture"\n'))
+
+    def test_the_candidate_suite_paths_are_the_release_source_plus_its_tooling_and_ci(self):
+        self.assertEqual(release.CANDIDATE_PATHS, (
+            "manifest.json", "payload", "fixtures", "templates",
+            "tools/release", ".github/workflows/workflow-ci.yml"))
+        self.assertEqual(release.CANDIDATE_PATHS,
+                         (*package.RELEASE_SOURCE_PATHS, "tools/release",
+                          ".github/workflows/workflow-ci.yml"))
 
 
 class SourceConformanceRunner(unittest.TestCase):
@@ -1538,6 +1661,19 @@ class SourceConformanceRunner(unittest.TestCase):
             mine = mine.replace(block, "")
         self.assertEqual(mine, expected)
 
+    def test_the_update_fixture_job_runs_the_same_step_over_the_updated_repository(self):
+        """Same text, byte for byte: the two jobs can never drift apart. The update job puts
+        the updated repository where this job stages the conformance fixture."""
+        text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+        mine = _step_script(_job_section(text, "update-fixture"),
+                            "Run the frozen suites over the updated repository")
+        self.assertEqual(mine, self.body)
+        self.assertEqual(self.heredoc(mine), self.heredoc(self.template_body))
+        self.assertIn('src="$RUNNER_TEMP/fixture"\n', mine)
+        update_step = _step_script(_job_section(text, "update-fixture"),
+                                   "Update the previous release to HEAD")
+        self.assertIn('--keep "$RUNNER_TEMP/fixture"', update_step)
+
     def test_the_constants_and_the_suites_are_the_templates(self):
         for line in ("width_cap=4", "shards=4"):
             self.assertEqual(self.body.splitlines().count(line), 1, line)
@@ -1550,7 +1686,7 @@ class SourceConformanceRunner(unittest.TestCase):
     def test_the_job_keeps_its_stage_timeout_upload_and_the_aggregate(self):
         lines = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text().splitlines()
         job = "\n".join(lines[lines.index("  release-source-conformance:"):
-                              lines.index("  aggregate:")])
+                              lines.index("  update-fixture:")])
         self.assertIn("timeout-minutes: 60", job)
         self.assertIn("release.py stage-conformance --commit HEAD --out "
                       '"$RUNNER_TEMP/fixture"', job)
@@ -3126,6 +3262,272 @@ print(command, "ok")
                             str(self.tmp), "--previous-version", "latest",
                             "--manager", str(self.manager), naming=("is not X.Y.Z",))
 
+    # ---- --keep: build the updated repository and stop; CI runs the suites and verify ----
+
+    def run_kept(self, candidate_suites, keep, previous="2.12.0"):
+        managed_release(self.repo.root, "2.13.0", candidate_suites, valid_block({}))
+        commit = self.repo.commit("candidate")
+        return self.cli("update-fixture", "--commit", commit, "--previous-assets",
+                        str(self.previous_assets(previous)), "--previous-version", previous,
+                        "--manager", str(self.manager), "--keep", str(keep))
+
+    def test_keep_leaves_the_updated_repository_and_runs_neither_suites_nor_verify(self):
+        keep = self.tmp / "kept"
+        # A suite that fails is not run here: CI runs it, with the scheduler.
+        code, out, err = self.run_kept({"a_test.py": SUITE_FAILS, "b_test.py": SUITE_TWO}, keep)
+        self.assertEqual(code, release.EXIT_OK, out + err)
+        self.assertEqual(self.calls(), [["bootstrap", "workflow-2.12.0"], ["update", "candidate"]])
+        self.assertNotIn("FAIL", out)
+        self.assertNotIn("ok   a_test.py", out)
+        self.assertEqual(self.outputs(out)["updated"], str(keep))
+        self.assertIn("2.12.0 -> 2.13.0 updates cleanly; the updated repository, with 2 suites",
+                      out)
+        self.assertTrue((keep / ".git").is_dir())
+        self.assertEqual((keep / "scripts/a_test.py").read_text(), SUITE_FAILS)
+        self.assertEqual((keep / "scripts/b_test.py").read_text(), SUITE_TWO)
+        log = subprocess.run(["git", "-C", str(keep), "log", "--format=%s"], check=True,
+                             capture_output=True, text=True).stdout.split()
+        self.assertEqual(log, ["update", "bootstrap"])
+        self.assertEqual(subprocess.run(["git", "-C", str(keep), "status", "--porcelain"],
+                                        check=True, capture_output=True, text=True).stdout, "")
+
+    def test_keep_takes_an_empty_directory_and_creates_a_missing_one(self):
+        empty = self.tmp / "empty"
+        empty.mkdir()
+        code, out, err = self.run_kept({"a_test.py": SUITE_TWO}, empty)
+        self.assertEqual(code, release.EXIT_OK, out + err)
+        self.assertTrue((empty / "scripts/a_test.py").is_file())
+        code, out, err = self.run_kept({"a_test.py": SUITE_TWO}, self.tmp / "nested" / "new")
+        self.assertEqual(code, release.EXIT_OK, out + err)
+        self.assertTrue((self.tmp / "nested" / "new" / "scripts/a_test.py").is_file())
+
+    def test_keep_refuses_a_directory_that_is_not_empty_and_a_file(self):
+        full = self.tmp / "full"
+        full.mkdir()
+        (full / "stray").write_text("x\n")
+        managed_release(self.repo.root, "2.13.0", {"a_test.py": SUITE_TWO}, valid_block({}))
+        commit = self.repo.commit("candidate")
+        for keep in (full, full / "stray"):
+            with self.subTest(keep=keep):
+                err = self.assert_refused(
+                    "update-fixture", "--commit", commit, "--previous-assets",
+                    str(self.previous_assets()), "--previous-version", "2.12.0",
+                    "--manager", str(self.manager), "--keep", str(keep),
+                    naming=("is not an empty directory",))
+                self.assertEqual((full / "stray").read_text(), "x\n")
+        self.assertFalse((self.manager.parent / "calls.log").exists())
+
+    def test_keep_still_reports_a_manager_failure(self):
+        self.manager.write_text(self.MANAGER.replace(
+            'print(command, "ok")', 'sys.stderr.write("no\\n"); sys.exit(3)'))
+        code, out, err = self.run_kept({"a_test.py": SUITE_TWO}, self.tmp / "kept")
+        self.assertEqual(code, release.EXIT_FAIL)
+        self.assertIn("bootstrapping 2.12.0 failed (exit 3)", err)
+
+    # ---- the CI step around it, run for real with stand-in `gh` and Manager ----
+
+    def run_ci_step(self, releases, block):
+        """`Update the previous release to HEAD`, then (when it built) the verify step."""
+        text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+        job = _job_section(text, "update-fixture")
+        managed_release(self.repo.root, "2.13.0", {"a_test.py": SUITE_FAILS},
+                        valid_block({}) if block else None)
+        self.repo.commit("candidate")
+        (self.repo.root / "tools").symlink_to(REPO_ROOT / "tools")
+        previous = self.previous_assets()
+        bin_dir = self.tmp / "bin"
+        bin_dir.mkdir()
+        python = bin_dir / "python3"
+        python.write_text(f'#!/bin/sh\nexec {shlex.quote(sys.executable)} "$@"\n')
+        gh = bin_dir / "gh"
+        gh.write_text('#!/bin/sh\necho "$@" >> "$0.log"\n'
+                      'test "$1 $2" = "release download" || exit 9\n'
+                      'mkdir -p "$5"\n'
+                      f'cp {shlex.quote(str(previous))}/* "$5"\n')
+        for stub in (python, gh):
+            stub.chmod(0o755)
+        runner, output = self.tmp / "runner", self.tmp / "github-output"
+        runner.mkdir()
+        listing = [{"tagName": t, "isDraft": False, "isPrerelease": False} for t in releases]
+        (runner / "releases.json").write_text(json.dumps(listing))
+        env = dict(os.environ, PATH=f"{bin_dir}:{self.manager.parent}:{os.environ['PATH']}",
+                   RUNNER_TEMP=str(runner), GITHUB_OUTPUT=str(output), GH_TOKEN="x")
+        run = lambda script: subprocess.run(["bash", "-eo", "pipefail", "-c", script], env=env,
+                                            cwd=self.repo.root, capture_output=True, text=True)
+        update = run(_step_script(job, "Update the previous release to HEAD"))
+        built = output.read_text() if output.exists() else ""
+        verify = re.search(r"\n        run: (workflow-manager --release-dir .*)\n", job).group(1)
+        return update, built, runner, gh, lambda: run(verify)
+
+    def test_the_ci_step_builds_the_update_for_the_highest_earlier_release(self):
+        update, built, runner, gh, run = self.run_ci_step(["v2.11.0", "v2.12.0", "v2.13.0"], True)
+        self.assertEqual(update.returncode, 0, update.stdout + update.stderr)
+        self.assertEqual(built, "built=true\n")
+        self.assertEqual(Path(str(gh) + ".log").read_text().split()[:3],
+                         ["release", "download", "v2.12.0"])
+        self.assertEqual(self.calls(), [["bootstrap", "workflow-2.12.0"], ["update", "candidate"]])
+        self.assertEqual((runner / "fixture/scripts/a_test.py").read_text(), SUITE_FAILS)
+        verify = run()
+        self.assertEqual(verify.returncode, 0, verify.stdout + verify.stderr)
+        self.assertEqual(self.calls()[-1], ["verify", "candidate"])
+
+    def test_the_ci_step_has_nothing_to_test_without_a_block(self):
+        update, built, runner, gh, _ = self.run_ci_step(["v2.12.0"], False)
+        self.assertEqual(update.returncode, 0, update.stdout + update.stderr)
+        self.assertIn("no manager block, or no earlier published release; nothing to update-test",
+                      update.stdout)
+        self.assertEqual(built, "built=false\n")
+        self.assertFalse(Path(str(gh) + ".log").exists())
+        self.assertFalse((runner / "fixture").exists())
+
+    def test_the_ci_step_has_nothing_to_test_without_an_earlier_release(self):
+        update, built, runner, gh, _ = self.run_ci_step(["v2.13.0", "v2.14.0"], True)
+        self.assertEqual(update.returncode, 0, update.stdout + update.stderr)
+        self.assertIn("nothing to update-test", update.stdout)
+        self.assertEqual(built, "built=false\n")
+        self.assertFalse(Path(str(gh) + ".log").exists())
+
+    def test_the_ci_step_fails_when_the_update_fails(self):
+        self.manager.write_text(self.MANAGER.replace(
+            'print(command, "ok")', 'sys.stderr.write("no\\n"); sys.exit(3)'))
+        update, built, *_ = self.run_ci_step(["v2.12.0"], True)
+        self.assertNotEqual(update.returncode, 0)
+        self.assertEqual(built, "")
+
+
+class CandidateSuitesDecisionTest(ScratchTestCase):
+    """`release.py release-source-changed`: `Workflow CI`'s `changes` job. Only a pull request
+    can skip the candidate-suite jobs; everything that cannot be decided runs them."""
+
+    def setUp(self):
+        super().setUp()
+        self.repo.release_commit("2.13.0", "base")
+
+    def decide(self, event="pull_request", *extra):
+        code, out, err = self.cli("release-source-changed", "--event", event, *extra)
+        self.assertEqual(code, release.EXIT_OK, out + err)
+        return self.outputs(out)
+
+    def change(self, path, text="changed\n"):
+        self.repo.touch(path, text)
+        self.repo.commit(f"edit {path}")
+
+    def test_a_change_to_each_candidate_path_is_changed(self):
+        for path in ("manifest.json", "payload/scripts/new.py", "payload/docs/guide.md",
+                     "fixtures/new.md", "templates/new.txt", "tools/release/anything.py",
+                     "tools/release/nested/deeper.txt", ".github/workflows/workflow-ci.yml"):
+            with self.subTest(path=path):
+                self.change(path, f"changed {path}\n")
+                found = self.decide()
+                self.assertEqual(found["changed"], "true")
+                self.assertIn(path, found["reason"])
+
+    def test_a_change_elsewhere_is_unchanged(self):
+        for path in ("docs/ROADMAP.md", "README.md", "CLAUDE.md", ".claude/commands/x.md",
+                     "scripts/workflow.py", "docs/ai-workflow/WORKFLOW_STATE.json",
+                     ".workflow-manager/installed.json", ".github/workflows/workflow-conformance.yml",
+                     ".github/workflows/release.yml", "tools/docs/check_docs.py",
+                     "tools/releases/other.py", "payloads/a.txt", "manifest.json.bak"):
+            with self.subTest(path=path):
+                self.change(path)
+                found = self.decide()
+                self.assertEqual(found["changed"], "false", path)
+                self.assertIn("no path of", found["reason"])
+
+    def test_one_candidate_path_among_many_is_enough(self):
+        self.repo.touch("docs/a.md", "a\n")
+        self.repo.touch("tools/release/b.py", "b\n")
+        self.repo.touch("README.md", "r\n")
+        self.repo.commit("mixed")
+        found = self.decide()
+        self.assertEqual(found["changed"], "true")
+        self.assertIn("tools/release/b.py", found["reason"])
+        self.assertNotIn("docs/a.md", found["reason"])
+
+    def test_only_the_last_commit_is_measured(self):
+        """HEAD^1 -> HEAD: a candidate path changed by an earlier commit does not count."""
+        self.change("payload/earlier.txt")
+        self.change("docs/later.md")
+        self.assertEqual(self.decide()["changed"], "false")
+
+    def test_a_merge_ref_measures_the_pull_requests_net_change_against_the_base_tip(self):
+        """HEAD^1 is the base tip: a release-source change that landed on the base after the
+        pull request branched is not the pull request's."""
+        self.repo.git("checkout", "-q", "-b", "pr")
+        self.change("docs/pr.md")
+        self.repo.git("checkout", "-q", "main")
+        self.change("payload/landed-on-main.txt")
+        self.repo.git("merge", "-q", "--no-ff", "-m", "merge ref", "pr")
+        self.assertEqual(self.repo.git("rev-list", "--parents", "-1", "HEAD").count(" "), 2)
+        self.assertEqual(self.decide()["changed"], "false")
+        self.repo.git("checkout", "-q", "pr")
+        self.change("fixtures/pr.md")
+        self.repo.git("checkout", "-q", "main")
+        self.repo.git("merge", "-q", "--no-ff", "-m", "merge ref 2", "pr")
+        self.assertEqual(self.decide()["changed"], "true")
+
+    def test_only_a_pull_request_can_answer_unchanged(self):
+        self.change("docs/only.md")
+        self.assertEqual(self.decide("pull_request")["changed"], "false")
+        for event in ("push", "workflow_dispatch", "schedule", "", "Pull_Request",
+                      "pull_request_target"):
+            with self.subTest(event=event):
+                found = self.decide(event)
+                self.assertEqual(found["changed"], "true")
+                self.assertIn("always runs everything", found["reason"])
+
+    def test_an_undecidable_pull_request_is_changed(self):
+        # No parent to measure against.
+        lone = ScratchRepo(self.tmp / "lone")
+        lone.touch("docs/a.md", "a\n")
+        lone.commit("only commit")
+        code, out, err = run_cli("--repo", str(lone.root), "release-source-changed",
+                                 "--event", "pull_request")
+        self.assertEqual(code, release.EXIT_OK, out + err)
+        self.assertEqual(self.outputs(out)["changed"], "true")
+        self.assertIn("no parent", self.outputs(out)["reason"])
+        # A head that is no commit, and a directory that is no repository.
+        self.change("docs/x.md")
+        found = self.decide("pull_request", "--head", "no-such-ref")
+        self.assertEqual(found["changed"], "true")
+        self.assertIn("cannot decide", found["reason"])
+        code, out, err = run_cli("--repo", str(self.tmp), "release-source-changed",
+                                 "--event", "pull_request")
+        self.assertEqual(code, release.EXIT_OK, out + err)
+        self.assertEqual(self.outputs(out)["changed"], "true")
+
+    def test_a_shallow_clone_to_the_parent_still_decides(self):
+        self.change("docs/x.md")
+        clone = self.tmp / "shallow"
+        subprocess.run(["git", "clone", "-q", "--depth", "2", f"file://{self.repo.root}", str(clone)],
+                       check=True, capture_output=True)
+        code, out, err = run_cli("--repo", str(clone), "release-source-changed",
+                                 "--event", "pull_request")
+        self.assertEqual((code, self.outputs(out)["changed"]), (release.EXIT_OK, "false"), err)
+        shallow_one = self.tmp / "shallow-one"
+        subprocess.run(["git", "clone", "-q", "--depth", "1", f"file://{self.repo.root}",
+                        str(shallow_one)], check=True, capture_output=True)
+        code, out, err = run_cli("--repo", str(shallow_one), "release-source-changed",
+                                 "--event", "pull_request")
+        self.assertEqual((code, self.outputs(out)["changed"]), (release.EXIT_OK, "true"), err)
+
+    def test_the_workflow_step_writes_the_answer_to_github_output(self):
+        text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+        command = re.search(r"\n        run: (python3 tools/release/release.py "
+                            r"release-source-changed .*)\n", _job_section(text, "changes")).group(1)
+        command = command.replace("python3 tools/release/release.py",
+                                  f"{shlex.quote(sys.executable)} {shlex.quote(str(HERE / 'release.py'))}")
+        output = self.tmp / "github-output"
+        self.change("docs/y.md")
+        for event, expected in (("pull_request", "false"), ("push", "true")):
+            output.write_text("")
+            proc = subprocess.run(["bash", "-eo", "pipefail", "-c", command],
+                                  env=dict(os.environ, EVENT_NAME=event, GITHUB_OUTPUT=str(output)),
+                                  cwd=self.repo.root, capture_output=True, text=True)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertEqual(self.outputs(output.read_text())["changed"], expected)
+            self.assertEqual(output.read_text(), proc.stdout)
+
 
 class ManagerBlockCiTest(unittest.TestCase):
     """The `Workflow CI` steps for the Manager block."""
@@ -3134,10 +3536,10 @@ class ManagerBlockCiTest(unittest.TestCase):
     def setUpClass(cls):
         cls.text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
 
-    def test_the_three_steps_follow_the_tooling_step_in_the_checks_job(self):
+    def test_the_two_steps_follow_the_tooling_step_in_the_checks_job(self):
         checks = _job_section(self.text, "checks")
         names = ["release_test.py", "Manager block is valid and measured",
-                 "Manager release list is current", "Update fixture"]
+                 "Manager release list is current"]
         positions = [checks.index(f"      - name: {n}\n") for n in names]
         self.assertEqual(positions, sorted(positions))
 
@@ -3153,7 +3555,7 @@ class ManagerBlockCiTest(unittest.TestCase):
         self.assertNotIn("continue-on-error", self.text)
 
     def previous_selection(self) -> str:
-        step = self.text.split("- name: Update fixture")[1]
+        step = self.text.split("- name: Update the previous release to HEAD")[1]
         body = step.split("<<'PY'\n", 1)[1].split("\n          PY\n", 1)[0]
         return "\n".join(line[10:] for line in body.splitlines()) + "\n"
 
