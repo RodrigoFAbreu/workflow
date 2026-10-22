@@ -2691,6 +2691,10 @@ class ReviewFollowups4ReleaseTest(unittest.TestCase):
             with self.subTest(target):
                 record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
                 self.assertIn("review-followups-4 (workflow-2.18.4)", record["rationale"])
+        template = next(r for r in self.manifest["templates"]
+                        if r["target_path"] == ".github/workflows/workflow-conformance.yml")
+        self.assertIn("review-followups-4 (workflow-2.18.4) starts the queue's units longest first",
+                      template["derivation"])
 
     def test_the_manager_block_states_both_corrections_in_the_posture(self):
         block = self.manifest["manager"]

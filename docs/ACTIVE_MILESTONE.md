@@ -2,10 +2,10 @@
 
 ## Milestone
 
-**In progress** (implementing). W18: `review-followups-4` (`process`, governing version `2.2`),
-branch `milestone/review-followups-4`, roadmap row 22 (RodrigoFAbreu/workflow#50). Plan:
-`docs/ai-workflow/REVIEW_FOLLOWUPS_4_PLAN.md` (revision 7, approved by gate policy). The goal is
-Workflow 2.18.4, a patch release (`fix:`). The previous milestone, W17 `review-followups-3`, is
+**In progress** (self-reviewing the implementation). W18: `review-followups-4` (`process`,
+governing version `2.2`), branch `milestone/review-followups-4`, roadmap row 22
+(RodrigoFAbreu/workflow#50). Plan: `docs/ai-workflow/REVIEW_FOLLOWUPS_4_PLAN.md` (revision 7,
+approved by gate policy). The goal is Workflow 2.18.4, a patch release (`fix:`). The previous milestone, W17 `review-followups-3`, is
 accepted (its record is in git history and `docs/release-history.md`).
 
 ## Checkpoints
@@ -61,3 +61,14 @@ accepted (its record is in git history and `docs/release-history.md`).
 - Verified in a disposable clone (D-Staging): nine suites from a `stage-conformance` fixture,
   `tools/release` tests (263, zlib-ng environment), `release.py build`, `check-manager-block`,
   `tools/docs` tests and checker; `workflow-manager verify .` clean here.
+
+### Self-review of the full diff
+
+- The template record's `derivation` lists every change to the managed conformance step, but
+  CP3 left 2.18.4 out of it (the template has no rationale, so the sentence check skipped it):
+  it now ends with a `review-followups-4 (workflow-2.18.4)` clause, and
+  `ReviewFollowups4ReleaseTest` pins it (red first: 1 failure against the CP3 manifest).
+- The 2.18.4 release-history row wrote `"<id> names no work item"` as bare text, which GitHub
+  renders as an HTML tag and drops, so the sentence lost the id: it is now a code span.
+- No other finding: the three step copies are equal, the reorder keeps every unit exactly once,
+  the counts and digests match, and nothing in the installation was touched.
