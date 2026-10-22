@@ -51,7 +51,7 @@ This repository is the AI development Workflow itself: the product that
 - **This repository's own installation** (`.claude/`, `scripts/`,
   `docs/ai-workflow/`, `.workflow-manager/`, the managed blocks of
   `CLAUDE.md` and `.gitignore`, and `.github/workflows/workflow-conformance.yml`):
-  the published Workflow 2.18.3, installed by `workflow-manager bootstrap`, which
+  the published Workflow 2.18.4, installed by `workflow-manager bootstrap`, which
   runs this repository's own milestones. Never edit it by hand. Change it only
   through `workflow-manager update`, and `workflow-manager verify .` must stay
   clean.
