@@ -1,0 +1,39 @@
+{
+ "schema_version": 1,
+ "work_item_id": "takeover-fence",
+ "dispositions": {
+  "F-2e434dac626b": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#85",
+   "note": "LPR-R1-002: the journal leftover test should also plant the claim link; test hardening."
+  },
+  "F-69881f73ef06": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#85",
+   "note": "OPT-2: pin the reclaim itself (lease_id and step) in both non-takeover pins; test hardening."
+  },
+  "F-f6f878215ec6": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#85",
+   "note": "OPT-1: pin the undecidable-claim refusal with a patched _current_owner_token; test hardening."
+  },
+  "F-f5f8b5126f5b": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#85",
+   "note": "LPR-R1-004: name the re-run route in the foreign-worktree leftover message; a message change for a later release."
+  },
+  "F-c9ada5514da1": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#85",
+   "note": "LPR-R1-003: takeover-versus-takeover is out of scope; recorded for the multi-worktree invariants table (roadmap row 25)."
+  },
+  "F-f67a1a614c0e": {
+   "disposition": "dropped",
+   "reason": "Plan-stage label only: the new branch decides on the held guard's step and never on the presented step class, and the tests exercise both 1d and 1f-commit vectors; the shipped code and tests are unaffected."
+  },
+  "F-84d527de06df": {
+   "disposition": "dropped",
+   "reason": "Apparatus wording about CP1's scratch staging: the checkpoint's three files were verified against their committed bytes by the external implementation review, which recomputed the manifest digests, so no shipped byte depends on the procedure."
+  }
+ }
+}
