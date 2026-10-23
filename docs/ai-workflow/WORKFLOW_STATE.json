@@ -15153,7 +15153,7 @@
       "registry_path": "docs/ai-workflow/registry/takeover-fence-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/takeover-fence-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -15262,7 +15262,138 @@
           "workflow_release": "2.18.4"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "c4b5e2bbb950be7fb6b0d43df003c9585d76a8fc1caf950f70151d888ec3e2ba",
+        "approved_review_content_id": "8d4eebb28fad7ee14d2b7605993074977cfd9099ceb89d6d84a8d8e4a80f4947",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/takeover-fence-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a34f5ff5e9f5a0b6301f7dadf203957f823d3211"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6c469ba43d1d6f18f9e055f7db857cdb5ed8cdf6"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9cd63802e55b018942e8307066a7ace1ee2285c0"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b3e0c756ed31274e1099635a2bfbf8866faccb72"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "42b205db3487f83f3d363194fc1517b0cb146462"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5f6915138dd0f22297a4c5d67eaab04bcbb12fdb"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e432f22e3c0b275628b5c393fd6b9ed17b83d63a"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "12f0a6c8c5a2f421aa3dd579e1ca7acc6d531763"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d6aff9f9977f1c1480abbb3923b6a63da84c43c2"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ce05ec4c930d58999146e13be313473718c49331"
+          }
+        ],
+        "reviewed_content_commit": "3c1de607669b1de74c25d613acb9d3cff16d9c52",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-23T00:15:01Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "8d4eebb28fad7ee14d2b7605993074977cfd9099ceb89d6d84a8d8e4a80f4947",
+            "ledger": {
+              "local": {
+                "bundle_id": "c4b5e2bbb950be7fb6b0d43df003c9585d76a8fc1caf950f70151d888ec3e2ba",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "3f31a54d1df883318de12dce19ac661d009f93b298e3d5585b153f0375b8320a",
+                "ledger_entry_sha256": "166e6e2a32c02004b0f588211afeab8bbc2f842c5a5003563d02a0d825da7369",
+                "run_ref": "session:local .ai-review/takeover-fence/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "c4b5e2bbb950be7fb6b0d43df003c9585d76a8fc1caf950f70151d888ec3e2ba",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "dc5cff5dddb8401c334d194c4740a1ed2296b72b7bf1172994ba976136b0b4a7",
+                "ledger_entry_sha256": "501dbbf9416446ab43196403649e1b280bdc65a4a918de1cdba15faa153bfba0",
+                "run_ref": "session:local .ai-review/takeover-fence/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-23T00:15:01Z",
+          "workflow_release": "2.18.4"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "f06648e87a4b0df03b3e40b9e70d92df0540a8e9cc129f241c18aea6a0ccc4db",
@@ -15293,12 +15424,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 11,
-      "last_transition": "2026-10-22T23:09:44Z",
+      "state_revision": 14,
+      "last_transition": "2026-10-23T00:15:01Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -15384,6 +15515,55 @@
               "at": "2026-10-22T21:05:07Z"
             }
           ]
+        },
+        "F-f6f878215ec6": {
+          "digest": "f6f878215ec63e28b879dca63fb5c15bdce2373f2bf0cf449f5e7c91ffee7c07",
+          "text": "OPT-1 (`payload/scripts/workflow_state_test.py`, `TestTakeoverGuardIsNotTheOwnersToReclaim`):\n  no test pins OD-4. Nothing asserts that an owner acquisition against a same-token,\n  same-worktree takeover guard is refused while the claim is undecidable. The behaviour is\n  correct by code reading and by this review's probe. A test that patches\n  `_current_owner_token` to `(None, False)` would keep a later reordering of the branches (for\n  example, making the new branch depend on `decidable`) from silently restoring the reclaim.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "8d4eebb28fad7ee14d2b7605993074977cfd9099ceb89d6d84a8d8e4a80f4947",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T23:31:30Z"
+            }
+          ]
+        },
+        "F-69881f73ef06": {
+          "digest": "69881f73ef065aadc95c8e59b783788a1ed7702a02be630decb4d5647479456f",
+          "text": "OPT-2 (both `test_non_takeover_guard_of_the_same_token_is_still_reclaimed` pins): the pins\n  assert only that the second acquisition does not raise. Asserting that the held guard now\n  carries the second acquisition's `lease_id` and `step` would pin the reclaim itself, not just\n  the absence of a refusal.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "8d4eebb28fad7ee14d2b7605993074977cfd9099ceb89d6d84a8d8e4a80f4947",
+              "verdict": "APPROVE",
+              "at": "2026-10-22T23:31:30Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "8d4eebb28fad7ee14d2b7605993074977cfd9099ceb89d6d84a8d8e4a80f4947",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "c4b5e2bbb950be7fb6b0d43df003c9585d76a8fc1caf950f70151d888ec3e2ba",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-22T23:31:30Z",
+          "verdict_sha256": "3f31a54d1df883318de12dce19ac661d009f93b298e3d5585b153f0375b8320a",
+          "run_ref": "session:local .ai-review/takeover-fence/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "c4b5e2bbb950be7fb6b0d43df003c9585d76a8fc1caf950f70151d888ec3e2ba",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-23T00:14:33Z",
+          "verdict_sha256": "dc5cff5dddb8401c334d194c4740a1ed2296b72b7bf1172994ba976136b0b4a7",
+          "run_ref": "session:local .ai-review/takeover-fence/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
