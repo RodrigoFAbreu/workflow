@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "takeover-fence",
+  "plan_revision": 1,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "A takeover's guard is not the owner's to reclaim",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.18.5",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    }
+  ]
+}

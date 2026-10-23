@@ -2643,9 +2643,9 @@ class ReviewFollowups3ReleaseTest(unittest.TestCase):
 
 
 class ReviewFollowups4ReleaseTest(unittest.TestCase):
-    """Release 2.18.4 (review-followups-4): the version, the release constant,
-    the counts, the downgrade posture, the #50 correction with its command, and
-    the release-history row."""
+    """Release 2.18.4 (review-followups-4): what stays true of it once a later
+    release is current -- the record sentences, the #50 correction with its
+    command, and the release-history row."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
                ".claude/commands/resume-implementation.md",
@@ -2666,27 +2666,7 @@ class ReviewFollowups4ReleaseTest(unittest.TestCase):
         self.assertIsNotNone(match)
         return match.group(1)
 
-    def test_the_release_names_2_18_4_and_adds_no_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.18.4")
-        by_category = {}
-        for entry in self.manifest["artifacts"]:
-            by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
-        counts = self.manifest["counts"]
-        self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
-        self.assertEqual(counts["templates"], len(self.manifest["templates"]))
-        self.assertEqual(counts["by_category"], by_category)
-        self.assertEqual((counts["artifacts"], counts["templates"]), (79, 6))
-
-    def test_the_release_constant_is_the_manifest_version(self):
-        text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.18.4"', text)
-
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
-        for section in ("artifacts", "templates"):
-            for record in self.manifest[section]:
-                with self.subTest(record["target_path"]):
-                    data = (REPO_ROOT / record["location"]).read_bytes()
-                    self.assertEqual((record["sha256"], record["size"]), (_sha(data), len(data)))
         for target in self.CHANGED:
             with self.subTest(target):
                 record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
@@ -2696,23 +2676,7 @@ class ReviewFollowups4ReleaseTest(unittest.TestCase):
         self.assertIn("review-followups-4 (workflow-2.18.4) starts the queue's units longest first",
                       template["derivation"])
 
-    def test_the_manager_block_states_both_corrections_in_the_posture(self):
-        block = self.manifest["manager"]
-        self.assertEqual(block["min_manager_version"], "1.13.0")
-        posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.18.4", "2.18.3", "Orchestration Protocol stays 1.5",
-                       "workflow-manager update back to 2.18.3", "WORKFLOW_RELEASE",
-                       "job order", "step 3",
-                       "MalformedBundleGenerationRecordCommitError", "optional_findings",
-                       "first parent", "2.15.0", "finish that item's implementation approval"):
-            self.assertIn(needle, posture)
-        self.assertIn(self.command(), posture)
-        self.assertEqual(block["downgrade_boundary"]["signals"], [])
-        self.assertEqual(block["new_work_only"], [])
-        self.assertEqual(block["gate_default_change"], "")
-
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
-        self.assertIn("Last checked with: Workflow 2.18.4.", self.history)
         for needle in ("2.18.3", "#50", "#55", "longest first", "names no work item",
                        "re-validates committed generation-record commits", "git diff HEAD",
                        "Orchestration Protocol 1.5", "v2.18.4"):
@@ -2763,6 +2727,69 @@ class ReviewFollowups4ReleaseTest(unittest.TestCase):
     def test_the_safe_procedure_is_silent_without_such_a_commit(self):
         repo = self.scratch_repo([("unrelated", {"x": 2}), ("unrelated again", {"x": 3})])
         self.assertEqual(self.run_command(repo), "")
+
+
+class TakeoverFenceReleaseTest(unittest.TestCase):
+    """Release 2.18.5 (takeover-fence): the version, the release constant, the
+    counts, the digests, the downgrade posture and the release-history row."""
+
+    CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+               "scripts/workflow_integration_test.py", "scripts/workflow_protocol.py",
+               "scripts/workflow_protocol_test.py", "scripts/workflow_state.py",
+               "scripts/workflow_state_test.py")
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.history = (REPO_ROOT / "docs" / "release-history.md").read_text()
+
+    def row(self) -> str:
+        return next(line for line in self.history.splitlines() if line.startswith("| 2.18.5 |"))
+
+    def test_the_release_names_2_18_5_and_adds_no_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.18.5")
+        by_category = {}
+        for entry in self.manifest["artifacts"]:
+            by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
+        counts = self.manifest["counts"]
+        self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
+        self.assertEqual(counts["templates"], len(self.manifest["templates"]))
+        self.assertEqual(counts["by_category"], by_category)
+        self.assertEqual((counts["artifacts"], counts["templates"]), (79, 6))
+
+    def test_the_release_constant_is_the_manifest_version(self):
+        text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
+        self.assertIn('WORKFLOW_RELEASE = "2.18.5"', text)
+
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for section in ("artifacts", "templates"):
+            for record in self.manifest[section]:
+                with self.subTest(record["target_path"]):
+                    data = (REPO_ROOT / record["location"]).read_bytes()
+                    self.assertEqual((record["sha256"], record["size"]), (_sha(data), len(data)))
+        for target in self.CHANGED:
+            with self.subTest(target):
+                record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+                self.assertIn("takeover-fence (workflow-2.18.5)", record["rationale"])
+
+    def test_the_manager_block_states_the_fence_and_the_way_back_in_the_posture(self):
+        block = self.manifest["manager"]
+        self.assertEqual(block["min_manager_version"], "1.13.0")
+        posture = block["downgrade_boundary"]["posture"]
+        for needle in ("2.18.5", "2.18.4", "Orchestration Protocol stays 1.5",
+                       "workflow-manager update back to 2.18.4", "WORKFLOW_RELEASE",
+                       "takeover", "reclaim", "never released",
+                       "correction of 2.18.4 still applies", "2.14.0"):
+            self.assertIn(needle, posture)
+        self.assertEqual(block["downgrade_boundary"]["signals"], [])
+        self.assertEqual(block["new_work_only"], [])
+        self.assertEqual(block["gate_default_change"], "")
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        self.assertIn("Last checked with: Workflow 2.18.5.", self.history)
+        for needle in ("2.18.4", "#82", "#55", "takeover", "guard-release",
+                       "Orchestration Protocol 1.5", "v2.18.5"):
+            self.assertIn(needle, self.row())
+        self.assertLess(self.history.index("| 2.18.5 |"), self.history.index("| 2.18.4 |"))
 
 
 # -- the Manager metadata block ----------------------------------------------------
