@@ -2,79 +2,109 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; the release follows the merge). W18: `review-followups-4` (`process`,
-governing version `2.2`), branch `milestone/review-followups-4`, roadmap row 22
-(RodrigoFAbreu/workflow#50). Plan: `docs/ai-workflow/REVIEW_FOLLOWUPS_4_PLAN.md` (revision 7,
-approved by gate policy). The goal is Workflow 2.18.4, a patch release (`fix:`). The previous milestone, W17 `review-followups-3`, is
-accepted (its record is in git history and `docs/release-history.md`).
+**In functional review.** W20: `takeover-fence` (`process`, governing version `2.2`), branch
+`milestone/takeover-fence`, roadmap row 23 (RodrigoFAbreu/workflow#82). Plan:
+`docs/ai-workflow/TAKEOVER_FENCE_PLAN.md` (revision 1, approved by gate policy). The goal is Workflow
+2.18.5, a patch release (`fix:`): a takeover's guard (`step="takeover"`) is not the owner's to reclaim,
+in both the claim guard and the plan-approval journal guard. The previous milestone, W18
+`review-followups-4`, is accepted (its record is in git history and `docs/release-history.md`).
 
 ## Checkpoints
 
 | id | name | state |
 | --- | --- | --- |
-| CP1 | The managed conformance runs longest first | **complete** |
-| CP2 | The unknown-id wording in the two command files | **complete** |
-| CP3 | Release 2.18.4 | **complete** |
+| CP1 | A takeover's guard is not the owner's to reclaim | **complete** |
+| CP2 | Release 2.18.5 | **complete** |
 
-### CP1 verified state
+## Functional review checklist
 
-- The managed conformance step (`templates/.github/workflows/workflow-conformance.yml`, and the
-  same text in both steps of `.github/workflows/workflow-ci.yml`) builds its queue from a fixed
-  `longest` list taken from measured durations, with the duration table in a comment; a name that
-  is not a unit of the run is skipped, and every other unit keeps its order. The header says
-  "longest first, in a fixed order taken from measured durations". `docs/RELEASING.md` says the
-  same.
-- `tools/release/release_test.py`: the stale `units[:2]` pins follow the new order; new tests pin
-  the measured table (start order, width-4 simulation within 1% of the lower bound and 120 s under
-  the old order), the names in `longest`, and the fallback for an emptied or unmatched list.
-  Red first: 8 failures against the unedited step.
-- Verified in a disposable clone (D-Staging); the results are in the implementation bundle.
+The Controller's functional tester runs offline in a sandbox: no network, no real `gh`/`claude`/`codex`/
+`ssh`, a read-only product clone. Every flow below runs from a staged fixture in `$TMPDIR` and writes
+nothing inside the clone. This milestone changes a Python state library, so the flows are
+command-line runs of its suites and of the defect's reproduction; there is no UI.
 
-### CP2 verified state
+### Setup
 
-- Step 3 of `retire-legacy-work-item.md` and `resume-implementation.md` each gain one clause: the
-  same `...WrongPhaseError` is raised, with the message "<id> names no work item", for an id that
-  is not a key of `work_items`. The user-only guard lines are untouched.
-- `workflow_integration_test.py`: `test_the_unknown_id_refusal_is_described_in_step_three` pins the
-  clause and the guard phrases (red first: 2 failures before the wording); the two content-hash
-  rows follow with an intentional-change comment.
-- `docs/ROADMAP.md`: the Later "Small wording fixes" paragraph is removed; row 22 drops #55 and the
-  #55 issue-table line names W19.
-- Verified in a disposable clone (D-Staging): the nine suites pass (the integration suite after
-  re-wrapping the clause to the 90-column limit), `tools/docs` tests and `check_docs.py` pass.
+```bash
+cd <product clone>                       # read-only; do not write here
+export WORK="${TMPDIR:?}/tf"; rm -rf "$WORK"; mkdir -p "$WORK"
+python3 tools/release/release.py stage-conformance --commit HEAD --out "$WORK/fixture"
+```
 
-### CP3 verified state
+Expected: the command exits 0 and `$WORK/fixture/scripts/` holds `workflow_state.py`,
+`workflow_state_test.py` and `workflow_integration_test.py`. If `stage-conformance` cannot run in the
+sandbox, say so in the findings and use flow 5 (read the diff) for what follows.
 
-- `WORKFLOW_RELEASE` is 2.18.4 with its two pinned assertions and the `ORCHESTRATION_PROTOCOL.md`
-  edits (tested-releases list, envelope example, protocol 1.5 note); the protocol version stays 1.5.
-- `manifest.json` 2.18.4: digests and sizes of the seven changed records (the conformance
-  template, the two command files, `workflow_integration_test.py`, `workflow_protocol.py` and its
-  test, `ORCHESTRATION_PROTOCOL.md`), a `review-followups-4 (workflow-2.18.4)` sentence on each of
-  the six artifact records (the template has no rationale), the posture (job order, wording, the
-  real 2.14.0 limit, the safe procedure and its command), and `conformance.suites` measured by
-  `release.py manager-block` from a staging of this content (integration suite 348 -> 349).
-- `docs/release-history.md`: the 2.18.4 row (closes #50, leaves #55 open) and "Last checked with".
-- `tools/release/release_test.py`: `ReviewFollowups4ReleaseTest` (version, constant, counts,
-  digests, sentences, posture, row, and the comparison command run on scratch repositories with a
-  commit that adds the key, one that changes a ledger's value, one that adds a null key, and none);
-  the 2.18.3 class keeps only what stays true of that release.
-- Verified in a disposable clone (D-Staging): nine suites from a `stage-conformance` fixture,
-  `tools/release` tests (263, zlib-ng environment), `release.py build`, `check-manager-block`,
-  `tools/docs` tests and checker; `workflow-manager verify .` clean here.
+Test data: none to seed; the tests build their own scratch repositories and work items.
 
-### Self-review of the full diff
+### Flows
 
-- The template record's `derivation` lists every change to the managed conformance step, but
-  CP3 left 2.18.4 out of it (the template has no rationale, so the sentence check skipped it):
-  it now ends with a `review-followups-4 (workflow-2.18.4)` clause, and
-  `ReviewFollowups4ReleaseTest` pins it (red first: 1 failure against the CP3 manifest).
-- The 2.18.4 release-history row wrote `"<id> names no work item"` as bare text, which GitHub
-  renders as an HTML tag and drops, so the sentence lost the id: it is now a code span.
-- No other finding: the three step copies are equal, the reorder keeps every unit exactly once,
-  the counts and digests match, and nothing in the installation was touched.
+1. **The new tests pass on the fixed code.**
+   ```bash
+   cd "$WORK/fixture/scripts"
+   python3 -B -m unittest workflow_state_test.TestTakeoverGuardIsNotTheOwnersToReclaim -v </dev/null
+   python3 -B -m unittest workflow_integration_test.TestPlanApprovalMutationGuardAndTakeover -v </dev/null
+   ```
+   Expected: both exit 0. The first runs 4 tests: `test_owner_cannot_enter_during_a_takeover_and_is_fenced_after_the_rotation`,
+   `test_leftover_takeover_guard_names_the_route_and_the_route_clears_it`,
+   `test_same_token_other_worktree_still_gets_the_foreign_worktree_message`,
+   `test_non_takeover_guard_of_the_same_token_is_still_reclaimed`. The second includes the plan-approval
+   journal counterparts of the first, second and fourth.
+
+2. **The defect reproduces without the fix (red-first check).** Replace the fixture's
+   `workflow_state.py` with the base commit's, in the scratch fixture only:
+   ```bash
+   git -C <product clone> show 0f74e24:payload/scripts/workflow_state.py > "$WORK/fixture/scripts/workflow_state.py"
+   cd "$WORK/fixture/scripts"
+   python3 -B -m unittest workflow_state_test.TestTakeoverGuardIsNotTheOwnersToReclaim </dev/null
+   ```
+   Expected: the run FAILS, and at least `test_owner_cannot_enter_during_a_takeover_and_is_fenced_after_the_rotation`
+   and `test_leftover_takeover_guard_names_the_route_and_the_route_clears_it` are among the failures
+   (the owner enters the takeover's window on 2.18.4). The foreign-worktree and non-takeover tests
+   should still pass on the old code, since those branches are unchanged. Re-stage the fixture
+   (setup command) before flow 3.
+
+3. **The full payload suites still pass.**
+   ```bash
+   suites=$(python3 -c "import json; print(*json.load(open('manifest.json'))['manager']['conformance']['suites'], sep='\n')") && test -n "$suites" && ( cd "$WORK/fixture/scripts" && while read -r s; do python3 -B "$WORK/fixture/scripts/$s" </dev/null || exit 1; done <<< "$suites" )
+   ```
+   (run with the product clone as the working directory). Expected: exit 0 for all nine suites. This
+   is long; if the sandbox time limit prevents it, report which suites completed.
+
+4. **The refusal messages read correctly.** In the fixed `payload/scripts/workflow_state.py`, find the
+   two new `takeover-fence (#82)` branches (in `_acquire_guard_locked` and
+   `_acquire_plan_approval_guard_locked`). Expected: each message says the guard is a takeover's and
+   carries the caller's own owner token, says to let a running takeover finish, and names the re-run
+   route (`takeover_evidence` then `take_over_claim`, or `plan_approval_takeover_evidence` then
+   `take_over_plan_approval_transaction`) with the guard-release literal. Neither mentions an owner
+   "reclaiming" its own leftover.
+
+5. **The diff is only what the plan allows.**
+   ```bash
+   git diff --stat 0f74e24..HEAD
+   git diff 0f74e24..HEAD -- payload/scripts/workflow_state.py
+   ```
+   Expected: `workflow_state.py` gains exactly two `elif` branches plus docstring bullets; no existing
+   branch condition or message changes; no new command, state field, ledger, phase, trailer or
+   protocol field. The installation (`.claude/`, `scripts/`, `.workflow-manager/`) is untouched.
+
+6. **Release bookkeeping agrees.** `python3 tools/docs/check_docs.py` exits 0; `manifest.json` names
+   release 2.18.5 and `docs/release-history.md` has a 2.18.5 row that closes #82 (read, do not edit).
+   Optional, if the zlib-ng environment is available:
+   `python -m unittest discover -s tools/release -p '*_test.py'`.
+
+### Known limitations and out of scope
+
+- The live-owner race itself (a real second process entering mid-takeover) is exercised by the tests
+  through a hook before the claim rotation, not by two real processes.
+- A leftover takeover guard is cleared only by re-running the takeover; no new "force release" command
+  exists, deliberately.
+- Releasing 2.18.5 and the `workflow-manager` pin are after merge and out of scope; this repository's
+  own installation stays at 2.18.4 until then.
+- No pull request, GitHub or forge flow can run in the sandbox; none is needed here.
 
 ## Next action
 
-No milestone is ready for `/milestone-plan`: roadmap row 23 is the deferred list, not a planned
-milestone. Merge pull request #79, let the `Release` workflow publish Workflow 2.18.4, then pick
-the next item from "Later (open items)" in `docs/ROADMAP.md` (issue #55 is W19).
+Run the checklist above and place findings at the feedback path reported by `/prepare-functional-review`.
+If testing is clean, `/accept-milestone` (every checkpoint is `COMPLETE`). Findings go to
+`/apply-functional-review`.
