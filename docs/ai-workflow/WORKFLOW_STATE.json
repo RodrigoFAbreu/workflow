@@ -16522,7 +16522,7 @@
       "registry_path": "docs/ai-workflow/registry/checkpoint-start-engine-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/checkpoint-start-engine-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 4,
       "implementation_revision": 3,
       "functional_review_round": null,
@@ -16631,7 +16631,150 @@
           "workflow_release": "2.18.6"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "bcbe75497735b96a08ca74301f798a475deaf52aeec00327c351db83a642cfef",
+        "approved_review_content_id": "6690a59c464b3379f918aeddfd4b770805cdd3c89423964290ac14551d6716c7",
+        "review_content_manifest": [
+          {
+            "path": "docs/CONCURRENCY_INVARIANTS.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4dac9e08b0e8025e9ca4b99b62aaf87ae82a7a94"
+          },
+          {
+            "path": "docs/ai-workflow/registry/checkpoint-start-engine-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a2d82d513c0d48a9d84a05aba7564c24710a3b00"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f49b6cf56e36814f89ba5c724a39d1c11bb50ada"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cf06451cc2b72d40db28ec2b084901ae6e4513b6"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ac7687dd6f71d3ac5d9ed33541392c2d1d5d4f85"
+          },
+          {
+            "path": "payload/docs/ai-workflow/dry-run/verify_372h_lock_primitive_predicate.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f160655e22f96d7382f3fa90ea393b187ef29718"
+          },
+          {
+            "path": "payload/docs/ai-workflow/dry-run/verify_372h_raw_edge_derivation.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "25e16d6197dc9cce72c97eacba7979f8a0ae05b1"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8038421b03c6582b2fb584598bdba032270b659c"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c7e340b0fa065dacb11101217f51d83845ca75b2"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f6b9ae4f5c25b4d53a143f67b74808ded32b3010"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "249078b4a19dbc21ab4aa9e29f58580096ff2084"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "129c89c4445de4682ea658307fa6fe43d818bd5e"
+          }
+        ],
+        "reviewed_content_commit": "f2e2edaac5432c4c20e40a668e0bf09a766dd4ba",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-24T10:59:42Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "6690a59c464b3379f918aeddfd4b770805cdd3c89423964290ac14551d6716c7",
+            "ledger": {
+              "local": {
+                "bundle_id": "bcbe75497735b96a08ca74301f798a475deaf52aeec00327c351db83a642cfef",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "75009bcf0478e484664f68bbc3dc2680a2d995011622558f484b5c4bb2ac8b93",
+                "ledger_entry_sha256": "b2a564018a45e03d18202947d98d14374a38b8c1a782e16c5388a3d7f79d1450",
+                "run_ref": "session:local .ai-review/checkpoint-start-engine/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "bcbe75497735b96a08ca74301f798a475deaf52aeec00327c351db83a642cfef",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "4e0b35b267589031344c395915ac725008c8ef4ddf9735cd5675f62084715f92",
+                "ledger_entry_sha256": "96c7f39d499ef3550af6317e803c5b6b642dd03a7ef7d9779ecff1378b2499d8",
+                "run_ref": "session:local .ai-review/checkpoint-start-engine/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-24T10:59:42Z",
+          "workflow_release": "2.18.6"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "bfaba71e2323f8bdecc143e7c2dd2038c2cf358a2a7701d7733e257c3d79ab0d",
@@ -16662,12 +16805,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 2,
-          "external": 0
+          "local": 3,
+          "external": 1
         }
       },
-      "state_revision": 24,
-      "last_transition": "2026-10-24T10:08:15Z",
+      "state_revision": 27,
+      "last_transition": "2026-10-24T10:59:42Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -16888,6 +17031,69 @@
               "at": "2026-10-24T09:45:51Z"
             }
           ]
+        },
+        "F-a80e40964fcb": {
+          "digest": "a80e40964fcbd7665d77757635ba2501c1da52c4b5824d701467cc4895ae77d9",
+          "text": "**OPT-003 (carried) [apparatus]: the plan's stale \"Plan revision: 3\" bullet.**\n  It is still unchanged. It is a plan-stage path, so fix it only through an amendment, or leave it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "6690a59c464b3379f918aeddfd4b770805cdd3c89423964290ac14551d6716c7",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T10:37:48Z"
+            }
+          ]
+        },
+        "F-8ba9c6cd9c8c": {
+          "digest": "8ba9c6cd9c8c41510e034c0e40d5066da6c32e8be4ef250bb6fe0892a24eb27f",
+          "text": "**EIR-001 [substantive] — Document the guardless recovery residue (carried EPR-001).** `docs/CONCURRENCY_INVARIANTS.md:90` still omits a recovery crash between deleting the old guard and publishing its replacement. A scratch replay left the claim and restored baseline without a guard; another call safely completed the release. This remains a documentation observation within the accepted residual.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "6690a59c464b3379f918aeddfd4b770805cdd3c89423964290ac14551d6716c7",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T10:59:21Z"
+            }
+          ]
+        },
+        "F-cc077da88cea": {
+          "digest": "cc077da88cea339c1ee571d5f9ac6c2b61969780bdb03928a7042d60ab7b50a0",
+          "text": "**EIR-002 [apparatus] — Stale plan revision metadata (carried EPR-002).** `docs/ai-workflow/CHECKPOINT_START_ENGINE_PLAN.md:14` still says revision 3, while the title and reviewed plan identify revision 4.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "6690a59c464b3379f918aeddfd4b770805cdd3c89423964290ac14551d6716c7",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T10:59:21Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "6690a59c464b3379f918aeddfd4b770805cdd3c89423964290ac14551d6716c7",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "bcbe75497735b96a08ca74301f798a475deaf52aeec00327c351db83a642cfef",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-24T10:37:48Z",
+          "verdict_sha256": "75009bcf0478e484664f68bbc3dc2680a2d995011622558f484b5c4bb2ac8b93",
+          "run_ref": "session:local .ai-review/checkpoint-start-engine/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "bcbe75497735b96a08ca74301f798a475deaf52aeec00327c351db83a642cfef",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-24T10:59:21Z",
+          "verdict_sha256": "4e0b35b267589031344c395915ac725008c8ef4ddf9735cd5675f62084715f92",
+          "run_ref": "session:local .ai-review/checkpoint-start-engine/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
