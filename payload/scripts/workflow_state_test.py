@@ -11507,6 +11507,13 @@ class TestReleaseCheckpointStartCommand(LiveGuardWorkerMixin, unittest.TestCase)
                 self._observe(repo)
 
     # -- C5 ------------------------------------------------------------------
+    def _assert_amendment_accepted(self, repo):
+        """The item's headline outcome (#55): once the start is released the amendment
+        is no longer refused with `AmendmentCheckpointActiveError`."""
+        state, _ = TestRequestPlanAmendment._state_with_approved_plan(repo, work_item_id=self.WI)
+        new_state = self._amend(repo, state)
+        self.assertEqual(new_state["work_items"][self.WI]["phase"], "AMENDING_PLAN")
+
     def test_c5_end_to_end_in_a_scratch_repository(self):
         with self.subTest("first flow: the command's steps in order"), ScratchRepo() as repo:
             self._start(repo)
@@ -11524,6 +11531,7 @@ class TestReleaseCheckpointStartCommand(LiveGuardWorkerMixin, unittest.TestCase)
             self.assertEqual(repo.head(), head)
             self.assertEqual(_git_in(repo.root, "diff", "--cached", "--name-only"), "")
             self.assertEqual(self._observe(repo)["kind"], "released")
+            self._assert_amendment_accepted(repo)
         with self.subTest("second flow: an interrupted release is finished by the same steps"), \
                 ScratchRepo() as repo:
             self._start(repo)
@@ -11566,6 +11574,7 @@ class TestReleaseCheckpointStartCommand(LiveGuardWorkerMixin, unittest.TestCase)
                     self.assertEqual(self._confirmed(repo, "")["kind"], "released")
                     self.assertEqual(self._snapshot(repo), before)
                 self.assertIsNone(ws.resolve_claim(repo.root, self.WI))
+                self._assert_amendment_accepted(repo)
 
 
 class TestExplicitTakeover(unittest.TestCase):
