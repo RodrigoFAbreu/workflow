@@ -2543,8 +2543,9 @@ class HarnessNeutralReleaseTest(unittest.TestCase):
 
 class ReviewFollowupsReleaseTest(unittest.TestCase):
     """Release 2.18.1 (review-followups-cleanup): what stays true of it once a
-    later release is current -- the counts, the template digest, the record
-    sentences and the release-history row."""
+    later release is current -- the counts' consistency, the template digest,
+    the record sentences and the release-history row. The current counts are
+    pinned by the current release's class (2.19.0 added a record)."""
 
     TEMPLATE = ".github/workflows/workflow-conformance.yml"
 
@@ -2559,7 +2560,6 @@ class ReviewFollowupsReleaseTest(unittest.TestCase):
         self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
         self.assertEqual(counts["templates"], len(self.manifest["templates"]))
         self.assertEqual(counts["by_category"], by_category)
-        self.assertEqual((counts["artifacts"], counts["templates"]), (79, 6))
 
     def test_the_template_record_names_the_change_and_its_digest_is_current(self):
         record = next(r for r in self.manifest["templates"] if r["target_path"] == self.TEMPLATE)
