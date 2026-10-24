@@ -15815,7 +15815,7 @@
       "registry_path": "docs/ai-workflow/registry/live-guard-visibility-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/live-guard-visibility-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 2,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -15924,7 +15924,150 @@
           "workflow_release": "2.18.5"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "347c7ff90a61aa56574300a8bef3af92db9e354c67114d02d8270d1e072c04b6",
+        "approved_review_content_id": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+        "review_content_manifest": [
+          {
+            "path": "docs/CONCURRENCY_INVARIANTS.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "93c00b6f0d735dc784fdc312a5922858949bc969"
+          },
+          {
+            "path": "docs/ai-workflow/registry/live-guard-visibility-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "49ab0cf6b336f4a6d5b4a5fe0cc797fa5443015d"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d97bb337c1ea99765b588cdac71b50a8abe00cc8"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9db097c003863d73d7e69ee247c52ca986da4b65"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "38f136d7b73bb9d671c7fc0f959dfe713d4595f3"
+          },
+          {
+            "path": "payload/docs/ai-workflow/dry-run/verify_372h_raw_edge_derivation.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "fcaee8d1bc228dc40b6bf003f3f6a10c30e51ed1"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9cf8425ebab07f6e752acf1133bfe32a66edad44"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "63ea78baaffceb59496274312b0653df33f25b1f"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f438826b005f3ac1545257dda5c2d441b5634f4b"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "92aa735cb050d1a09fd2c54f1e42b5b637a96a6c"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "529b13301d7d6c3a41dc0e928bcda2dee2502ccd"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7b9b552516a3ce19deceb17d5cdf4a172a20c838"
+          }
+        ],
+        "reviewed_content_commit": "1794b74bc7901b1ef935c21cac1e8e2d144414b9",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-24T04:16:55Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+            "ledger": {
+              "local": {
+                "bundle_id": "347c7ff90a61aa56574300a8bef3af92db9e354c67114d02d8270d1e072c04b6",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "633c39ce15bef5250423457d0bd55ad96f8b77ad04f8be591e47a35b1f25eb14",
+                "ledger_entry_sha256": "dd4321b200880ab9e77ba7a7abf95b5ed96070f79ac65ddbb4e2a8d3246d991e",
+                "run_ref": "session:local .ai-review/live-guard-visibility/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "347c7ff90a61aa56574300a8bef3af92db9e354c67114d02d8270d1e072c04b6",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "d67a9fcb6138c4ef0d2b7c8a9cd5dfcd5b441985c17eafc438dff06465cc3092",
+                "ledger_entry_sha256": "b77e60be11104d53efe455ae0a6dae264bc486e9e2065458bcad610724a5993a",
+                "run_ref": "session:local .ai-review/live-guard-visibility/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-24T04:16:55Z",
+          "workflow_release": "2.18.5"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "b296661404ee4c187fba690dadb88d4b308d743aed771a0303b89dcd5ccf19ec",
@@ -15955,12 +16098,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 1,
-          "external": 0
+          "local": 2,
+          "external": 1
         }
       },
-      "state_revision": 16,
-      "last_transition": "2026-10-24T03:19:18Z",
+      "state_revision": 19,
+      "last_transition": "2026-10-24T04:16:55Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -16123,6 +16266,55 @@
               "at": "2026-10-24T02:43:02Z"
             }
           ]
+        },
+        "F-99794e2bf403": {
+          "digest": "99794e2bf4031cd7042757c676b6de2e4fb0ceb18e79afe582c99d285e258ab5",
+          "text": "**LGVI-L2-001 [evidence] — `TEST_RESULTS.md` was not regenerated for revision 2.**\n  - It is still titled \"implementation round 1\" and names head `92ff2fd`.\n  - Its `release.py build` digests (`3814e1ec…`, `e2a67d82…`, `0a95187e…`) no longer reproduce at\n    HEAD, because two shipped files changed. HEAD builds `9708e79c…` / `16674a59…` / `a3c532e2…`.\n  - The round-2 section of `IMPLEMENTATION_SUMMARY.md` records the re-run, but without the build\n    digests or `workflow-manager verify .`.\n  - Every check passes when re-run independently, so this does not affect correctness. A manual\n    external reviewer reading the bundle would still see stale build evidence. In a later round,\n    regenerate `TEST_RESULTS.md` for the head under review.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T04:04:53Z"
+            }
+          ]
+        },
+        "F-a565f11a0bbb": {
+          "digest": "a565f11a0bbb927e64002d3d86f56a03cd35fde98e7d955af7f5274c66a7d412",
+          "text": "**EIR-001 [apparatus] — Refresh the revision-2 test evidence.** `.ai-review/live-guard-visibility/current/TEST_RESULTS.md:3` still names the revision-1 head, and `:23` records superseded build digests. Update that report to the reviewed revision’s results. Independent verification passes, so this remains optional, consistent with local finding LGVI-L2-001.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T04:16:29Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "347c7ff90a61aa56574300a8bef3af92db9e354c67114d02d8270d1e072c04b6",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-24T04:04:53Z",
+          "verdict_sha256": "633c39ce15bef5250423457d0bd55ad96f8b77ad04f8be591e47a35b1f25eb14",
+          "run_ref": "session:local .ai-review/live-guard-visibility/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "347c7ff90a61aa56574300a8bef3af92db9e354c67114d02d8270d1e072c04b6",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-24T04:16:29Z",
+          "verdict_sha256": "d67a9fcb6138c4ef0d2b7c8a9cd5dfcd5b441985c17eafc438dff06465cc3092",
+          "run_ref": "session:local .ai-review/live-guard-visibility/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
