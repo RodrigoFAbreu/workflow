@@ -10896,6 +10896,29 @@ class TestReleaseCheckpointStart(LiveGuardWorkerMixin, unittest.TestCase):
             self.assertEqual(self._entry(repo), self.DEMOTED)
             self.assertIsNone(ws.resolve_claim(repo.root, self.WI))
 
+    def test_t2_the_commit_rule_pins_its_state_comparison_and_ancestor_arms(self):
+        with self.subTest("an intermediate commit records the checkpoint other than as HEAD does"), \
+                ScratchRepo() as repo:
+            self._start(repo, demoted=True)
+            saved = (repo.root / _STATE_REL).read_bytes()
+            self._commit_state(repo, {"status": "IN_PROGRESS", "start_commit": "f" * 40})
+            self._commit_state(repo, self.DEMOTED)
+            (repo.root / _STATE_REL).write_bytes(saved)
+            self.assertEqual(self._head_entry(repo), self.DEMOTED)
+            error = self._refuses(repo, ws.CheckpointOwnershipStateMismatchError)
+            self.assertIn("other than as HEAD's baseline does", str(error))
+        with self.subTest("a start_commit that resolves but is not an ancestor of HEAD"), \
+                ScratchRepo() as repo:
+            self._start(repo)
+            _git_in(repo.root, "switch", "-q", "-c", "side")
+            repo.commit("side")
+            side = repo.head()
+            _git_in(repo.root, "switch", "-q", "-")
+            ws.state_transaction(repo.root, lambda s: ws.transition_checkpoint_in_progress(
+                s, self.WI, self.CP, start_commit=side, now="t3"))
+            error = self._refuses(repo, ws.CheckpointOwnershipStateMismatchError)
+            self.assertIn("does not resolve to an ancestor of HEAD", str(error))
+
     def test_t2_refusals_leave_state_claim_and_guard_byte_identical(self):
         with self.subTest("another worktree's claim"), ScratchRepo() as repo:
             self._commit_state(repo)
@@ -11048,7 +11071,7 @@ class TestReleaseCheckpointStart(LiveGuardWorkerMixin, unittest.TestCase):
             with mock.patch.object(ws, "claim_path", lambda *a, **k: _UnlinkFails(real(*a, **k))):
                 with self.assertRaises(ws.CheckpointOwnershipUnavailableError) as ctx:
                     self._release(repo)
-            self.assertIn("already removed", str(ctx.exception))
+            self.assertIn("claim was not unlinked", str(ctx.exception))
             self.assertIsNone(self._entry(repo))
             self.assertIsNotNone(ws.resolve_claim(repo.root, self.WI))
             self.assertIsNone(ws.read_guard(repo.root, self.WI))

@@ -6423,7 +6423,7 @@ def _classify_checkpoint_start(repo_root: Path, work_item_id: str, checkpoint_id
         raise CheckpointOwnershipStateMismatchError(
             f"the state committed at HEAD records {work_item_id!r} checkpoint {checkpoint_id!r} as "
             f"{baseline.get('status')!r}: it is committed past a start, so there is no uncommitted "
-            f"start to release")
+            f"start to release. If it is COMPLETE, step 1c releases this worktree's claim")
     if status == "IN_PROGRESS":
         return "entry", working, baseline, claim
     if working == baseline:
@@ -6526,14 +6526,14 @@ def release_checkpoint_start(repo_root: Path, work_item_id: str, checkpoint_id: 
                     or held is None or held.get("lease_id") not in _guard_holder_locks):
                 raise CheckpointOwnershipUnavailableError(
                     f"{work_item_id!r}'s claim or guard changed after {checkpoint_id!r}'s entry was "
-                    f"restored -- unlinking nothing; the entry is already removed, the claim is "
-                    f"not: call again to finish or be refused")
+                    f"restored -- this call unlinked nothing, and the entry now equals HEAD's: call "
+                    f"again to finish or be refused")
             try:
                 claim_path(repo_root, work_item_id).unlink(missing_ok=True)
             except OSError as exc:
                 raise CheckpointOwnershipUnavailableError(
-                    f"cannot remove {work_item_id!r}'s claim ({exc}) -- the entry is already "
-                    f"removed, the claim is not: calling again finishes the release") from exc
+                    f"cannot remove {work_item_id!r}'s claim ({exc}) -- the entry now equals HEAD's "
+                    f"and the claim was not unlinked: calling again finishes the release") from exc
 
 
 # ---------------------------------------------------------------------------
