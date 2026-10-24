@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "checkpoint-start-command",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -17334,6 +17334,290 @@
         },
         "evaluated_at": "2026-10-24T11:53:48Z",
         "workflow_release": "2.18.6"
+      }
+    },
+    "checkpoint-start-command": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "checkpoint-start-command",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/CHECKPOINT_START_COMMAND_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/checkpoint-start-command-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/checkpoint-start-command-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 3,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "ad1121a4c50de844555738c5d8d0ac86f50c0ce0",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+        "approved_review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/CHECKPOINT_START_COMMAND_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f93582321fb63f0481c2e491958a32a14fcbfe3d"
+          },
+          {
+            "path": "docs/ai-workflow/registry/checkpoint-start-command-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b83d3e9ca06000a44b2eb5e0625f3de0912132e3"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/checkpoint-start-command-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "69631050ce48f2cc02840d943ae665290e4fac21"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-24T14:10:21Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+            "ledger": {
+              "local": {
+                "bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "8d4f3471ccd33e81859e3b4109bc9223ce41dfc964886ab6c7b10dfb3f6f251b",
+                "ledger_entry_sha256": "31f0eeec9cd932602e6b64072914af5cf43e9803da15bbb8be250a97ecee6d95",
+                "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "9293387d2d966c8625ba4d9ed05ae01cb8cf1c22825a3b530a861bc5117c4f92",
+                "ledger_entry_sha256": "bd091606ef1f4623880c2e435db55210e4542a1f2a1d1327b15fbe715ba6ba7b",
+                "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-24T14:10:21Z",
+          "workflow_release": "2.18.7"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-24T13:52:23Z",
+          "verdict_sha256": "8d4f3471ccd33e81859e3b4109bc9223ce41dfc964886ab6c7b10dfb3f6f251b",
+          "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-24T14:09:35Z",
+          "verdict_sha256": "9293387d2d966c8625ba4d9ed05ae01cb8cf1c22825a3b530a861bc5117c4f92",
+          "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 3,
+          "external": 2
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 13,
+      "last_transition": "2026-10-24T14:10:21Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-24T13:49:12Z",
+        "consumed": {
+          "review_content_id": "54248b6c12d19ac65c3f0d0eb351f69603d47a9acd8117a6906df5effdce4419",
+          "plan_revision": 2,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+          "bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+          "plan_revision": 3
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "54248b6c12d19ac65c3f0d0eb351f69603d47a9acd8117a6906df5effdce4419",
+        "8532882dc01f7e26a74089243a62a42bb765918d1a63c2455067a17b56c78a65"
+      ],
+      "optional_findings": {
+        "F-67e45bcac216": {
+          "digest": "67e45bcac216804b50f0fbf66202e0a798efa8e6cab0f1a7c6c41a458a505e9a",
+          "text": "LPR-O1 — D-Amendment-Message: the next step it adds is not always the right one. At the first raise site (`workflow_state.py:14809`), an `IN_PROGRESS` entry may have no claim, and the release then refuses (`CheckpointOwnershipStateMismatchError`, \"step 1c adopts it first\"). At the second raise site (14816), the claim may be held by another worktree, and the release then refuses `CheckpointOwnedByOtherWorktreeError`. Consider having the message say \"from the worktree that holds the claim\" (the claim message already names it), and pin both cases in C4.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "8532882dc01f7e26a74089243a62a42bb765918d1a63c2455067a17b56c78a65",
+              "verdict": "REVISE",
+              "at": "2026-10-24T13:36:36Z"
+            }
+          ]
+        },
+        "F-ba25fe5f1d6b": {
+          "digest": "ba25fe5f1d6b05bc4ff37411130134ca04aefdf6b9eeac043508e309de8b68eb",
+          "text": "LPR-O2 — D-Release's downgrade posture: an interrupted release (claim plus a dead `release-start` guard, entry equal to `HEAD`'s) left in place when moving back to 2.18.7 has no command that finishes it there. Consider having the posture and the release-history row say: finish an interrupted release before moving back.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "8532882dc01f7e26a74089243a62a42bb765918d1a63c2455067a17b56c78a65",
+              "verdict": "REVISE",
+              "at": "2026-10-24T13:36:36Z"
+            }
+          ]
+        },
+        "F-5c89464af530": {
+          "digest": "5c89464af530ca106bd68cbd6ed7a0071744eb7ee80d38a153691848d5e419db",
+          "text": "LPR-O3 — OD-4: the existing claim literals (`takeover_authorization_literal`, `abandoned_guard_recovery_authorization_literal`, `workflow_state.py:7219`, 7365) bind `claim_observation_id`, the sha256 of the exact record bytes, under exact equality. The new sentence binds `owner_token[:12]` with an occurs-in-text check, the way the `validate_user_only_confirmation` family does. Both work. Consider one sentence in OD-4 on why the token prefix, rather than the observation id, is the identity being confirmed.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "8532882dc01f7e26a74089243a62a42bb765918d1a63c2455067a17b56c78a65",
+              "verdict": "REVISE",
+              "at": "2026-10-24T13:36:36Z"
+            }
+          ]
+        },
+        "F-d9c76fac0958": {
+          "digest": "d9c76fac0958c6062e1452ef58f2209af66b4db0330b729021d831a8787e51a0",
+          "text": "LPR-O4 — D-Literal: say whether the match is case-insensitive, as `validate_user_only_confirmation` is (`re.IGNORECASE`), and add that case to C1 either way.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "8532882dc01f7e26a74089243a62a42bb765918d1a63c2455067a17b56c78a65",
+              "verdict": "REVISE",
+              "at": "2026-10-24T13:36:36Z"
+            }
+          ]
+        },
+        "F-235ce7c2e86e": {
+          "digest": "235ce7c2e86e34f4044c91c0138dfb53aa7ce9ba0832606df4cb282f0e254aa4",
+          "text": "LPR-O5 — OD-4's justification has a factual slip. It says the owner token \"survives a rewrite of the record that keeps the token (an adoption)\". In the code, no claim rewrite keeps the token. Adoption (`adopt_claim`, `workflow_state.py:6609`) builds a new record with a freshly minted token, and only where no claim existed. Takeover (7350) and abandoned-guard recovery (7532) also mint a new token and move the old one to `previous_owner_tokens`. The conclusion still holds, and holds more strongly: every new claim gets a new token, so the prefix names the claim that was shown. Consider rewording the parenthetical to say this, so the reason does not cite a case that does not occur.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "54248b6c12d19ac65c3f0d0eb351f69603d47a9acd8117a6906df5effdce4419",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T13:41:35Z"
+            }
+          ]
+        },
+        "F-6a072f309615": {
+          "digest": "6a072f309615c65146ac7b6d6aee3a958a7c36a78f495d450cd3c925b1fd15b7",
+          "text": "**EPR-002 [substantive] — OD-4 misdescribes adoption.**\n  Section 4, OD-4, line 392, says adoption rewrites a claim while retaining its token. `adopt_claim` creates a new claim through `_build_claim_record`, which mints a fresh token. Correct the parenthetical; the confirmation-binding conclusion remains sound.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "54248b6c12d19ac65c3f0d0eb351f69603d47a9acd8117a6906df5effdce4419",
+              "verdict": "REVISE",
+              "at": "2026-10-24T13:46:45Z"
+            }
+          ]
+        },
+        "F-f1269c6b49c5": {
+          "digest": "f1269c6b49c507fdd5be87356a587a95a1b81ce557e7db1ec301c7317a4ab0ed",
+          "text": "LPR-R3-O1 — Wording of the `released` condition. D-Residual says \"no claim in this worktree for the work item\" and D-Command step 2 says \"this worktree holds no claim\". D-Functions says, correctly, \"`resolve_claim` finds no claim\", and claims are per work item across worktrees. Read literally, the first two phrasings would let an implementation answer `released` from worktree A while worktree B still holds a claim with an interrupted release. That would lift the obligation and reopen R-i. Consider saying \"no claim for the work item in any worktree\" in both places. Also consider pinning in C2 the case of a worktree whose entry equals HEAD's while another worktree holds the claim: it must still refuse `CheckpointOwnedByOtherWorktreeError` and never answer `released`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T13:52:23Z"
+            }
+          ]
+        },
+        "F-1b556317bfb3": {
+          "digest": "1b556317bfb3821067e874801b00c8a5d7012e5d908c7cc6c5a92ed2eefc5c96",
+          "text": "LPR-R3-O2 — Precedence and pass-through wording in D-Command step 2 and C2. Step 2 lists both \"stop when a window of the work item is running\" and \"stop, as a success, on kind `released`\" without saying which wins when both hold. Consider having the running-window stop come first. Also, C2's pass-through list still names \"no claim\" as an engine refusal. Since `released` now answers the no-claim state whose entry equals HEAD's, consider saying that list means no claim with a differing or IN_PROGRESS entry.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T13:52:23Z"
+            }
+          ]
+        }
       }
     }
   }

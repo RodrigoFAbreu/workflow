@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "work_item_id": "checkpoint-start-command",
+  "requirements": {
+    "R1": {
+      "description": "The user-only command /release-checkpoint-start <work-item-id> <checkpoint-id> calls the engine: ids from $ARGUMENTS only, an observation shown first (claim, kind of start, guard state, probe result), a stop when a window is running, the literal confirmation, the release, a report that names the next step and what to do after an interruption; a terminal read-only `released` outcome (no claim, entry equal to HEAD's) that asks for no sentence and lifts the pre-release obligation, so an interrupted release whose claim is gone can be finished; flagged disable-model-invocation with the user-only guard text of the other commands; it commits nothing",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "The confirmation literal binds a release to what the person was shown: one fixed sentence naming the checkpoint, the work item, the observed claim reference (owner_token prefix) and the attestation that the owner session is stopped, built and validated by dedicated functions; a stale claim, another work item, another checkpoint or an altered attestation is rejected with UserConfirmationRejectedError",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "The engine's accepted residual is NOT closed: option (a) turns it into a breach of an attested precondition (the observed probe plus the attestation, inside the literal, that the owner session is stopped and stays stopped until the release has completed), stated before the release so that an interruption that prints nothing is still covered; the engine's optional confirmed_claim_ref keyword refuses (CheckpointOwnershipStateMismatchError) a claim that is not the one confirmed; option (b) would need a second concurrency mechanism and is recorded as such; the divergence from the engine plan's check requirement, both routes by which the demoted case stays reachable (a broken true attestation, a false one) and its AmbiguousCheckpointTrailerError signature are documented",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R4": {
+      "description": "Every list of user-only commands is updated: COMMAND_FILES.md, the operator reference, MILESTONE_WORKFLOW.md, request-plan-amendment.md, the Orchestration Protocol document (one sentence, documentation only, protocol version unchanged), common problems and the concurrency page",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R5": {
+      "description": "AmendmentCheckpointActiveError keeps its name and conditions and, at both raise sites in request_plan_amendment, names /release-checkpoint-start as the next step",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R6": {
+      "description": "The #97 follow-ups that belong to the command: the guardless recovery residue row in the concurrency page; the benign HEAD movement decided (no engine widening: the engine already walks start_commit..HEAD for a checkpoint commit) and pinned through the command's steps; the COMPLETE refusal's next step naming a durable and an uncommitted completion pinned and repeated in the docs",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R7": {
+      "description": "Deterministic tests with no sleeps and no process left behind, red first: the literal, the observation, the confirmed release and the keyword, the amendment message, an end-to-end scratch-repository run of the command's steps through the engine (including an interruption and a benign merge-like commit), the command file guard, and the census tests that count command files",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R8": {
+      "description": "Release 2.19.0 (feat: minor, closes #55): WORKFLOW_RELEASE and its pinned assertions, the manifest record for the new command file with counts, digests, sizes, rationales and measured suite counts, release history, downgrade posture, manager block (min_manager_version equal to the CI pin, detector vocabulary unchanged, signals empty), docs updated in the same change",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
