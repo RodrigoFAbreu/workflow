@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "checkpoint-start-command",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -17345,7 +17345,7 @@
       "registry_path": "docs/ai-workflow/registry/checkpoint-start-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/checkpoint-start-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 3,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -17662,8 +17662,8 @@
           "external": 1
         }
       },
-      "state_revision": 23,
-      "last_transition": "2026-10-24T18:26:11Z",
+      "state_revision": 24,
+      "last_transition": "2026-10-24T19:14:41Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -17947,6 +17947,245 @@
           "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "w23-a1": {
+            "flow_id": "w23-a1",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "confirmation, observation and release",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/a123.log"
+            },
+            "log_digest": "d04f9be137e406b6fa3e1b0c3cb9d75c936a32995269090afe70864febdf1ed8",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          },
+          "w23-a2": {
+            "flow_id": "w23-a2",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "interruption cases: finished on re-run, released after unlink, a commit refuses",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/a2.log"
+            },
+            "log_digest": "b61dbbd6eb333f5829441075c3e5f539646241e9311c38de514c4133cce73b6a",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          },
+          "w23-a3": {
+            "flow_id": "w23-a3",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "stale sentence refused; amendment refusal names the command and is accepted after",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/a123.log"
+            },
+            "log_digest": "d04f9be137e406b6fa3e1b0c3cb9d75c936a32995269090afe70864febdf1ed8",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          },
+          "w23-a4": {
+            "flow_id": "w23-a4",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "state suite under the Manager's orphan reaper: no orphans",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/a4.log"
+            },
+            "log_digest": "cf2c3410eea338d7fbf78960eeba297f4a658e8584eb03323cf679b1a448bcdc",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          },
+          "w23-a5": {
+            "flow_id": "w23-a5",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "nine suites, tools/release, tools/docs, check_docs, manager block",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/a5-suites.txt"
+            },
+            "log_digest": "adc39d1bb3a262e3b0ab192c09e0d6aa31d8376b2d245f8e3c61a47b5b12a875",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          },
+          "w23-a6": {
+            "flow_id": "w23-a6",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "the user-only command lists agree (seven commands)",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "RESULTS.md"
+            },
+            "log_digest": "9b02de7cceded4f7b12254dbeb83dbd8c8cd3853a94d50fd8d54fc365f80409f",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 101,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/101"
+          },
+          "state": "open",
+          "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+          "observed_at": "2026-10-24T19:14:41Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "2c7446c8eb99bc128556a6edb3e177433bb8f9db",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-10-24T19:14:41Z",
+            "raw_sha256": "c10cdbaee3551ad6bc4285b0170218682dfdd19cc0f2bfda4185c94583fe2004",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "9e824061111fe5f5b6a5d5690909ba37abafca4a4ca830bdf83246d3c94afd21"
+          },
+          "fact_id": "981e5a0e7e971972c26b64daa2ed53dfbdd0a01dbbc221a6869c4afdfb2d4339"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['w23-a1', 'w23-a2', 'w23-a3', 'w23-a4', 'w23-a5', 'w23-a6'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #101 at 7e0f78025ecd230d9164f05c6b56a43719e9f7d0 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "2c7446c8eb99bc128556a6edb3e177433bb8f9db",
+          "anchor_identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:26:11Z"
+          },
+          "functional": {
+            "w23-a1": {
+              "evidence_id": "7f6e487e2182209edae7f644f362a919a4f40e71ce19e100494a01c9ad2f397d",
+              "log_digest": "d04f9be137e406b6fa3e1b0c3cb9d75c936a32995269090afe70864febdf1ed8",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            },
+            "w23-a2": {
+              "evidence_id": "a7c9e9288446b0fb8c653a16e5d8c2312779ab9d9892b04206644930e9eff7e2",
+              "log_digest": "b61dbbd6eb333f5829441075c3e5f539646241e9311c38de514c4133cce73b6a",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            },
+            "w23-a3": {
+              "evidence_id": "9d4ecb827c6607d06eece68cafae2e1b65440c15dd8fb46a662b0200c0888b02",
+              "log_digest": "d04f9be137e406b6fa3e1b0c3cb9d75c936a32995269090afe70864febdf1ed8",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            },
+            "w23-a4": {
+              "evidence_id": "0a7fddff7e5f4c1038ec1f1386a0e3d44433eb296860d364f7aff27174562d2f",
+              "log_digest": "cf2c3410eea338d7fbf78960eeba297f4a658e8584eb03323cf679b1a448bcdc",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            },
+            "w23-a5": {
+              "evidence_id": "4d3b6ec7b669583b3d9694392c49763db336003051485e2789319b72b6afe1c9",
+              "log_digest": "adc39d1bb3a262e3b0ab192c09e0d6aa31d8376b2d245f8e3c61a47b5b12a875",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            },
+            "w23-a6": {
+              "evidence_id": "cd262c4e8fae3bb1944e42959e2ee3fcb5b94dbe009cc846f09a9db3b01b625f",
+              "log_digest": "9b02de7cceded4f7b12254dbeb83dbd8c8cd3853a94d50fd8d54fc365f80409f",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "981e5a0e7e971972c26b64daa2ed53dfbdd0a01dbbc221a6869c4afdfb2d4339",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "provenance": "workflow_gh",
+            "raw_sha256": "c10cdbaee3551ad6bc4285b0170218682dfdd19cc0f2bfda4185c94583fe2004"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-10-24T19:14:41Z",
+        "workflow_release": "2.18.7"
       }
     }
   }

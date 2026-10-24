@@ -1,0 +1,84 @@
+{
+ "schema_version": 1,
+ "work_item_id": "checkpoint-start-command",
+ "dispositions": {
+  "F-0bfc5d3987de": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#100",
+   "note": "COMMAND_FILES.md:37 still says 'six commands'; docs wording."
+  },
+  "F-161d1537bcad": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#100",
+   "note": "First AmendmentCheckpointActiveError site may name a checkpoint whose release would refuse in an inconsistent state; message accuracy."
+  },
+  "F-1b556317bfb3": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording of precedence in D-Command step 2; the shipped command file orders the stops and the plan is an approved plan-stage path."
+  },
+  "F-235ce7c2e86e": {
+   "disposition": "fixed",
+   "note": "Plan revision 3 corrected OD-4: adoption mints a fresh token."
+  },
+  "F-33859c9f7269": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#100",
+   "note": "CONCURRENCY_INVARIANTS recovery cell: the engine re-classifies under (9), the command's observation does not."
+  },
+  "F-5c89464af530": {
+   "disposition": "dropped",
+   "reason": "OD-4 chose to bind the owner-token reference deliberately and both reviews approved the reasoning; not a defect."
+  },
+  "F-67e45bcac216": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#100",
+   "note": "The amendment refusal's added next step is not always right (an IN_PROGRESS entry with no claim); message accuracy."
+  },
+  "F-6a072f309615": {
+   "disposition": "fixed",
+   "note": "Plan revision 3 corrected OD-4: adoption mints a fresh token."
+  },
+  "F-75711db68286": {
+   "disposition": "dropped",
+   "reason": "IMPLEMENTATION_SUMMARY.md is generated review-bundle evidence; the technical-approval gate and the functional review (A5) ran the tools/release tests and the manager-block check on the final head."
+  },
+  "F-83b19efa480b": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#100",
+   "note": "Assert the IN_PROGRESS-entry arm of request_plan_amendment directly, not only the on-disk claim arm."
+  },
+  "F-9d857b9470a0": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#100",
+   "note": "The released condition is 'no claim for the work item in any worktree', not 'this worktree holds no claim'; wording."
+  },
+  "F-a3d3bea612b2": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#100",
+   "note": "The released condition is 'no claim for the work item in any worktree', not 'this worktree holds no claim'; wording."
+  },
+  "F-b3f2e59db6a1": {
+   "disposition": "dropped",
+   "reason": "Red-first output retention is bundle apparatus; the tests were shown to fail against the base and Codex re-ran them."
+  },
+  "F-ba25fe5f1d6b": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#100",
+   "note": "Say in the downgrade posture and history row how to finish an interrupted release on 2.18.7."
+  },
+  "F-d9c76fac0958": {
+   "disposition": "fixed",
+   "note": "The confirmation validator is case- and whitespace-insensitive and C1 pins it (functional flow A1)."
+  },
+  "F-ec54591cbaac": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#100",
+   "note": "Pin that the plan-approval raise carries no /release-checkpoint-start."
+  },
+  "F-f1269c6b49c5": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#100",
+   "note": "The released condition is 'no claim for the work item in any worktree', not 'this worktree holds no claim'; wording."
+  }
+ }
+}
