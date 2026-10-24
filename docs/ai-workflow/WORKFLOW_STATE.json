@@ -15815,7 +15815,7 @@
       "registry_path": "docs/ai-workflow/registry/live-guard-visibility-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/live-guard-visibility-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -15955,12 +15955,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 14,
-      "last_transition": "2026-10-24T02:24:59Z",
+      "state_revision": 15,
+      "last_transition": "2026-10-24T02:43:02Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -16079,6 +16079,48 @@
               "review_content_id": "b296661404ee4c187fba690dadb88d4b308d743aed771a0303b89dcd5ccf19ec",
               "verdict": "APPROVE",
               "at": "2026-10-24T00:22:47Z"
+            }
+          ]
+        },
+        "F-b558945a2ffe": {
+          "digest": "b558945a2ffe644deaf750535c6916d513b1d276fe577c7501a0d8e5eb522d8b",
+          "text": "**LGVI-L1-002 [substantive] — Record the holder lock before the temp-name unlink.** In both\n  `_publish_claim_exclusive` (with `lock_lease_id`) and `_publish_plan_approval_guard`, the `finally`\n  runs `tmp.unlink(missing_ok=True)` before recording `fd` in `_guard_holder_locks`. If that unlink raises\n  a non-`ENOENT` `OSError` after a successful `os.link`, the guard is published and locked, but the\n  descriptor is neither recorded nor closed. The process's own later probe would then see its own\n  `LOCK_EX` from a second open file description and answer \"another process\". That would be a\n  self-refusal, which fails safe but is confusing. Record or close the descriptor first and unlink last,\n  or put the unlink in its own `try`. It is a narrow edge, with no test needed beyond the existing ones.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "c01637248ec82b939962d5de139d51e0a37d4c8e8726f2a0fd42ad81d62b70c0",
+              "verdict": "REVISE",
+              "at": "2026-10-24T02:43:02Z"
+            }
+          ]
+        },
+        "F-8eeceeb57066": {
+          "digest": "8eeceeb57066ec4fd052d1695b33931b592d1cfcb763c5f137f5613b990e96f4",
+          "text": "**LGVI-L1-003 [wording] — The posture phrase \"a guard released before 2.18.6\".** In\n  `manifest.json` `manager.downgrade_boundary.posture` (pinned by the `LiveGuardVisibilityReleaseTest`\n  needle `\"released before 2.18.6\"`), the phrase reads as \"a guard that was released\". The\n  release-history row says it correctly: \"a guard published by a release before 2.18.6\". Consider\n  aligning the posture and its needle. This is not a correctness issue.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "c01637248ec82b939962d5de139d51e0a37d4c8e8726f2a0fd42ad81d62b70c0",
+              "verdict": "REVISE",
+              "at": "2026-10-24T02:43:02Z"
+            }
+          ]
+        },
+        "F-0cf19fb0e523": {
+          "digest": "0cf19fb0e5233a82820b3ac37dfd507f9b9f364238f461edaa962f73a3b94986",
+          "text": "**LGVI-L1-004 [test fidelity] — Self-review observation 1 stands.** The fork worker's child attempts\n  `step=\"1d\", step_class=ORDINARY`. Using `DESTRUCTIVE` would match production and EPR-001's choice for\n  the other cases. The refusal is class-independent, so this is optional.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "c01637248ec82b939962d5de139d51e0a37d4c8e8726f2a0fd42ad81d62b70c0",
+              "verdict": "REVISE",
+              "at": "2026-10-24T02:43:02Z"
             }
           ]
         }
