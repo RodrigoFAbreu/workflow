@@ -17345,7 +17345,7 @@
       "registry_path": "docs/ai-workflow/registry/checkpoint-start-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/checkpoint-start-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 3,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -17485,12 +17485,12 @@
           "external": 2
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 18,
-      "last_transition": "2026-10-24T16:19:38Z",
+      "state_revision": 19,
+      "last_transition": "2026-10-24T16:48:02Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -17624,6 +17624,76 @@
               "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
               "verdict": "APPROVE",
               "at": "2026-10-24T13:52:23Z"
+            }
+          ]
+        },
+        "F-a3d3bea612b2": {
+          "digest": "a3d3bea612b2cc01319f1b7c56db1cc54deca2c96a2ab4240a349ef6c740136b",
+          "text": "LIR-O1: `release-checkpoint-start.md` step 2's `released` bullet still says \"this worktree holds\n  no claim\". The code tests the work item's one shared claim (`resolve_claim` over\n  `claims_dir` = the git common dir), so the condition is \"no claim for the work item in any\n  worktree\". Consider that wording, as LPR-R3-O1 suggested. Read literally, the current text\n  understates the condition the success depends on.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dd9c3178d794f35036e1212ef8c4395fc33e4cfe2de91a5e90fc0ac6dd3d9ba2",
+              "verdict": "REVISE",
+              "at": "2026-10-24T16:48:02Z"
+            }
+          ]
+        },
+        "F-161d1537bcad": {
+          "digest": "161d1537bcada2b14506a5e2961e117a93e29ab25d8e369d1180246c6c818f11",
+          "text": "LIR-O2: Challenge 3. The first `AmendmentCheckpointActiveError` site names\n  `current_checkpoint_id or in_progress_ids[0]`. If `current_checkpoint_id` is set but is not one of\n  the `IN_PROGRESS` ids (a hand-edited or inconsistent state), the message names a checkpoint whose\n  release would refuse. Consider `current_checkpoint_id if current_checkpoint_id in in_progress_ids\n  else in_progress_ids[0]`. When several checkpoints are `IN_PROGRESS`, consider naming them all.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dd9c3178d794f35036e1212ef8c4395fc33e4cfe2de91a5e90fc0ac6dd3d9ba2",
+              "verdict": "REVISE",
+              "at": "2026-10-24T16:48:02Z"
+            }
+          ]
+        },
+        "F-33859c9f7269": {
+          "digest": "33859c9f7269001f32bdf1a2b39a6d672ffcdf69bbc94022f194834d0e7b4b55",
+          "text": "LIR-O3: `docs/CONCURRENCY_INVARIANTS.md` release-window recovery cell: \"it re-observes under (9)\".\n  The command's observation runs outside (9); the engine re-classifies under (9). Consider \"the\n  engine re-classifies under (9)\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dd9c3178d794f35036e1212ef8c4395fc33e4cfe2de91a5e90fc0ac6dd3d9ba2",
+              "verdict": "REVISE",
+              "at": "2026-10-24T16:48:02Z"
+            }
+          ]
+        },
+        "F-b3f2e59db6a1": {
+          "digest": "b3f2e59db6a15d850508e90e6b72b06a7c4aab0bcb50fc4c00beef08b87481c8",
+          "text": "LIR-O4: The red-first gate (section 1, \"each new test, shown to fail against the unedited code\n  first\"). For C1 to C5 the failures are recorded without their output, and C6 has no record at all.\n  Consider re-running C6 (and the C5 additions of LIR-001) against `ad1121a` once and keeping the\n  output in `docs/ACTIVE_MILESTONE.md`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dd9c3178d794f35036e1212ef8c4395fc33e4cfe2de91a5e90fc0ac6dd3d9ba2",
+              "verdict": "REVISE",
+              "at": "2026-10-24T16:48:02Z"
+            }
+          ]
+        },
+        "F-ec54591cbaac": {
+          "digest": "ec54591cbaac83ad2306093d028431da66aac510b5644b937ac7e7df5f60ab08",
+          "text": "LIR-O5: C4 does not pin that the third raise (the plan-approval open) is unchanged, as D-Tests C4\n  says. Consider a one-line assertion that its message carries no `/release-checkpoint-start`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dd9c3178d794f35036e1212ef8c4395fc33e4cfe2de91a5e90fc0ac6dd3d9ba2",
+              "verdict": "REVISE",
+              "at": "2026-10-24T16:48:02Z"
             }
           ]
         }
