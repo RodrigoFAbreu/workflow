@@ -917,14 +917,14 @@ MUTATION_UNCONDITIONAL_RELEASE_START = (
     "                    or held is None or held.get(\"lease_id\") not in _guard_holder_locks):\n"
     "                raise CheckpointOwnershipUnavailableError(\n"
     "                    f\"{work_item_id!r}'s claim or guard changed after {checkpoint_id!r}'s entry was \"\n"
-    "                    f\"restored -- unlinking nothing; the entry is already removed, the claim is \"\n"
-    "                    f\"not: call again to finish or be refused\")\n"
+    "                    f\"restored -- this call unlinked nothing, and the entry now equals HEAD's: call \"\n"
+    "                    f\"again to finish or be refused\")\n"
     "            try:\n"
     "                claim_path(repo_root, work_item_id).unlink(missing_ok=True)\n"
     "            except OSError as exc:\n"
     "                raise CheckpointOwnershipUnavailableError(\n"
-    "                    f\"cannot remove {work_item_id!r}'s claim ({exc}) -- the entry is already \"\n"
-    "                    f\"removed, the claim is not: calling again finishes the release\") from exc\n",
+    "                    f\"cannot remove {work_item_id!r}'s claim ({exc}) -- the entry now equals HEAD's \"\n"
+    "                    f\"and the claim was not unlinked: calling again finishes the release\") from exc\n",
     "        claim_path(repo_root, work_item_id).unlink(missing_ok=True)\n",
 )
 

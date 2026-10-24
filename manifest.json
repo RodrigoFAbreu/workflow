@@ -478,8 +478,8 @@
       "category": "distribution",
       "rule": "^docs/ai-workflow/dry-run/verify_372h_lock_primitive_predicate\\.py$",
       "rationale": "D-Repo-Global-Lifecycle (CP6): DECLARED_PRIMITIVES gains \"9\": ai-workflow/checkpoint-claims/<token>.lifecycle.lock (the lifecycle lock, a pure-source flock); the forward-direction comparison therefore expects nine pathnames, and the docstring and summary counts are restated. Discovery, resolution, the releasable conjunct and both regression mutations are unchanged. checkpoint-start-engine (workflow-2.18.7): the unconditional-release regression also replaces release_checkpoint_start's gated claim unlink; nothing else changes.",
-      "sha256": "246023258838d9dfee05aa92415b08c55b95ead4ef8b979843dfd1fd9a9c6a62",
-      "size": 51211,
+      "sha256": "ad3829378976f44d9d437f231c4a63696cba504333facfab12c931cdd31821a0",
+      "size": 51217,
       "executable": false
     },
     {
