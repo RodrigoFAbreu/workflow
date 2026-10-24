@@ -16522,7 +16522,7 @@
       "registry_path": "docs/ai-workflow/registry/checkpoint-start-engine-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/checkpoint-start-engine-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 4,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -16662,12 +16662,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 20,
-      "last_transition": "2026-10-24T08:42:25Z",
+      "state_revision": 21,
+      "last_transition": "2026-10-24T09:02:06Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -16816,6 +16816,48 @@
               "review_content_id": "bfaba71e2323f8bdecc143e7c2dd2038c2cf358a2a7701d7733e257c3d79ab0d",
               "verdict": "APPROVE",
               "at": "2026-10-24T07:26:45Z"
+            }
+          ]
+        },
+        "F-cc8673e411a9": {
+          "digest": "cc8673e411a9dbca4e5ab241fedfe6639932a7a3e297eb0caf6eebe9fd6035a1",
+          "text": "**OPT-001 [docs]: a garbled sentence in the 2.18.7 history row.**\n  The downgrade sentence of the 2.18.7 row in `docs/release-history.md` reads: \"`workflow-manager update` to 2.18.6 (minimum Manager 1.13.0) removes the function and nothing else, and the release constant 2.18.6 that the protocol envelope reports as `workflow_release`.\"\n\n  As written, it says the update *removes* the 2.18.6 constant, and it contradicts \"nothing else\". Earlier rows say the update \"restores … and the release constant X\". Suggested wording: \"removes the function and restores the release constant 2.18.6 that the protocol envelope reports as `workflow_release`\". The row is unpublished, so this can still be changed.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "afce5fb47102251cf5e6b80ec768b0ecbb91f3157b217ef8bb34c22816fe4696",
+              "verdict": "REVISE",
+              "at": "2026-10-24T09:02:06Z"
+            }
+          ]
+        },
+        "F-08ab6731fb22": {
+          "digest": "08ab6731fb2220da63dd828ff36db188b6353a3fed90e54bf5331cfb8c1b73ed",
+          "text": "**OPT-002 [usability]: refusal messages that do not state a true fact or the next step.**\n  D-Refusals asks every message to state what is true and the one next step. Three messages fall short:\n  - **`B` committed `COMPLETE`.** When `HEAD` records the checkpoint `COMPLETE` while this worktree still holds its claim (an owner that committed its completion and died before step 1f released the claim), the refusal \"committed past a start, so there is no uncommitted start to release\" names no next step. Step 1c releases the claim.\n  - **The re-read before the unlink.** Its message says \"the entry is already removed, the claim is not\". In the `\"baseline\"` branch, nothing was removed. When `current is None`, the claim *is* gone. The self-review noted the first case. A message that states only what is certain would be better: the entry equals `HEAD`'s and the claim was not unlinked by this call.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "afce5fb47102251cf5e6b80ec768b0ecbb91f3157b217ef8bb34c22816fe4696",
+              "verdict": "REVISE",
+              "at": "2026-10-24T09:02:06Z"
+            }
+          ]
+        },
+        "F-2dc4d3c8717a": {
+          "digest": "2dc4d3c8717a9d8f7e2065e9bb2b1b80d7ffec0051eb3d82ecadb3b23d1314d0",
+          "text": "**OPT-003 [apparatus]: the plan's revision bullet is still stale.**\n  `docs/ai-workflow/CHECKPOINT_START_ENGINE_PLAN.md:14` still says \"Plan revision: 3\". This is EPR-002 from the plan review, which the self-review saw. It is a plan-stage path, so fix it only through an amendment, or leave it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "afce5fb47102251cf5e6b80ec768b0ecbb91f3157b217ef8bb34c22816fe4696",
+              "verdict": "REVISE",
+              "at": "2026-10-24T09:02:06Z"
             }
           ]
         }
