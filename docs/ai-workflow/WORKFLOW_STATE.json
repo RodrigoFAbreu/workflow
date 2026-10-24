@@ -17335,6 +17335,858 @@
         "evaluated_at": "2026-10-24T11:53:48Z",
         "workflow_release": "2.18.6"
       }
+    },
+    "checkpoint-start-command": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "checkpoint-start-command",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/CHECKPOINT_START_COMMAND_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/checkpoint-start-command-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/checkpoint-start-command-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 3,
+      "implementation_revision": 2,
+      "functional_review_round": null,
+      "base_commit": "ad1121a4c50de844555738c5d8d0ac86f50c0ce0",
+      "reviewed_implementation_head": "2c7446c8eb99bc128556a6edb3e177433bb8f9db",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP2",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "14bb18f194a0d995533691618021673a0a377a5c"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "9685e7bb9bc6886b36fb1f39e48d0fb446e878fe"
+        }
+      },
+      "current_bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+        "approved_review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/CHECKPOINT_START_COMMAND_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f93582321fb63f0481c2e491958a32a14fcbfe3d"
+          },
+          {
+            "path": "docs/ai-workflow/registry/checkpoint-start-command-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b83d3e9ca06000a44b2eb5e0625f3de0912132e3"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/checkpoint-start-command-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "69631050ce48f2cc02840d943ae665290e4fac21"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-24T14:10:21Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+            "ledger": {
+              "local": {
+                "bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "8d4f3471ccd33e81859e3b4109bc9223ce41dfc964886ab6c7b10dfb3f6f251b",
+                "ledger_entry_sha256": "31f0eeec9cd932602e6b64072914af5cf43e9803da15bbb8be250a97ecee6d95",
+                "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "9293387d2d966c8625ba4d9ed05ae01cb8cf1c22825a3b530a861bc5117c4f92",
+                "ledger_entry_sha256": "bd091606ef1f4623880c2e435db55210e4542a1f2a1d1327b15fbe715ba6ba7b",
+                "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-24T14:10:21Z",
+          "workflow_release": "2.18.7"
+        }
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "89d96e52736088b4614e5951283dc35093256e66785c83578c0c7076abdd3e3d",
+        "approved_review_content_id": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+        "review_content_manifest": [
+          {
+            "path": "docs/CONCURRENCY_INVARIANTS.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5a63283c76bd51ac6b6979c7e234291c9eb08c66"
+          },
+          {
+            "path": "docs/ai-workflow/registry/checkpoint-start-command-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7b580f49d94c76fcb607927652551f702eea30f9"
+          },
+          {
+            "path": "docs/common-problems.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c00f4049537c7356b492ffe41b9a7a98c504afbd"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7a2bdbf407e00e92ff586cc295c85587eaa3d2f9"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "36372c0cd21e79164cb6bf7bc46bb06156041bd3"
+          },
+          {
+            "path": "payload/.claude/commands/release-checkpoint-start.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "82642410469645fe8460b79c9c144afbbe739dc3"
+          },
+          {
+            "path": "payload/.claude/commands/request-plan-amendment.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c55a2ad5b14edf0f500bed6e7cc9e4e7c7d6fdd9"
+          },
+          {
+            "path": "payload/docs/ai-workflow/COMMAND_FILES.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ea84ce0e03ee7017592fa5abe6984f5e5e15363d"
+          },
+          {
+            "path": "payload/docs/ai-workflow/MILESTONE_WORKFLOW.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "776857c02fb5424a95854087488a4f471d83a264"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5bf88d62e6859a892777948b3e015673b12f1670"
+          },
+          {
+            "path": "payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4c7a53dc0910e105a71f450c273de404366d5f25"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "74a48803a1661b193086b29a0b23f03b086b59d3"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "89d79e7db5d8c472f947387118de88a330a80e45"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d20160ebd4b8a9829837c688b95e13909f3f052a"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d2e8f1e54267799c90a6fff5d6b6f36d3354f873"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2b08cd741f0ead929d70b019263eec4287dd6d6a"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5ed67b44e4563d5a6a97e04405406ac1356585f7"
+          }
+        ],
+        "reviewed_content_commit": "2c7446c8eb99bc128556a6edb3e177433bb8f9db",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-24T18:26:11Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "ledger": {
+              "local": {
+                "bundle_id": "89d96e52736088b4614e5951283dc35093256e66785c83578c0c7076abdd3e3d",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "a4d507d2ccc9ff41cd38f2e29c05ee2faf4d7fd265fcb6068c3f2017628413e0",
+                "ledger_entry_sha256": "f787114f58d43ba5c3410fb1cf125f584873b26d215411dcb8ca4159d56fc896",
+                "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "89d96e52736088b4614e5951283dc35093256e66785c83578c0c7076abdd3e3d",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "6fdee6011eb59f5de6d9ea397f34973d143e52bd979d7193dcf9d3761fa1b1f0",
+                "ledger_entry_sha256": "eaa31615adca615450b952f2c53e98e2cfb83e058879675331bb581db7b9e2eb",
+                "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-24T18:26:11Z",
+          "workflow_release": "2.18.7"
+        }
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-24T13:52:23Z",
+          "verdict_sha256": "8d4f3471ccd33e81859e3b4109bc9223ce41dfc964886ab6c7b10dfb3f6f251b",
+          "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-24T14:09:35Z",
+          "verdict_sha256": "9293387d2d966c8625ba4d9ed05ae01cb8cf1c22825a3b530a861bc5117c4f92",
+          "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 3,
+          "external": 2
+        },
+        "implementation": {
+          "local": 2,
+          "external": 1
+        }
+      },
+      "state_revision": 24,
+      "last_transition": "2026-10-24T19:14:41Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-24T13:49:12Z",
+        "consumed": {
+          "review_content_id": "54248b6c12d19ac65c3f0d0eb351f69603d47a9acd8117a6906df5effdce4419",
+          "plan_revision": 2,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+          "bundle_id": "20b65aca1d6f2b534435ae25116b998e5cc6d8a2a776426e53a32002591fa770",
+          "plan_revision": 3
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "54248b6c12d19ac65c3f0d0eb351f69603d47a9acd8117a6906df5effdce4419",
+        "8532882dc01f7e26a74089243a62a42bb765918d1a63c2455067a17b56c78a65"
+      ],
+      "optional_findings": {
+        "F-67e45bcac216": {
+          "digest": "67e45bcac216804b50f0fbf66202e0a798efa8e6cab0f1a7c6c41a458a505e9a",
+          "text": "LPR-O1 — D-Amendment-Message: the next step it adds is not always the right one. At the first raise site (`workflow_state.py:14809`), an `IN_PROGRESS` entry may have no claim, and the release then refuses (`CheckpointOwnershipStateMismatchError`, \"step 1c adopts it first\"). At the second raise site (14816), the claim may be held by another worktree, and the release then refuses `CheckpointOwnedByOtherWorktreeError`. Consider having the message say \"from the worktree that holds the claim\" (the claim message already names it), and pin both cases in C4.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "8532882dc01f7e26a74089243a62a42bb765918d1a63c2455067a17b56c78a65",
+              "verdict": "REVISE",
+              "at": "2026-10-24T13:36:36Z"
+            }
+          ]
+        },
+        "F-ba25fe5f1d6b": {
+          "digest": "ba25fe5f1d6b05bc4ff37411130134ca04aefdf6b9eeac043508e309de8b68eb",
+          "text": "LPR-O2 — D-Release's downgrade posture: an interrupted release (claim plus a dead `release-start` guard, entry equal to `HEAD`'s) left in place when moving back to 2.18.7 has no command that finishes it there. Consider having the posture and the release-history row say: finish an interrupted release before moving back.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "8532882dc01f7e26a74089243a62a42bb765918d1a63c2455067a17b56c78a65",
+              "verdict": "REVISE",
+              "at": "2026-10-24T13:36:36Z"
+            }
+          ]
+        },
+        "F-5c89464af530": {
+          "digest": "5c89464af530ca106bd68cbd6ed7a0071744eb7ee80d38a153691848d5e419db",
+          "text": "LPR-O3 — OD-4: the existing claim literals (`takeover_authorization_literal`, `abandoned_guard_recovery_authorization_literal`, `workflow_state.py:7219`, 7365) bind `claim_observation_id`, the sha256 of the exact record bytes, under exact equality. The new sentence binds `owner_token[:12]` with an occurs-in-text check, the way the `validate_user_only_confirmation` family does. Both work. Consider one sentence in OD-4 on why the token prefix, rather than the observation id, is the identity being confirmed.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "8532882dc01f7e26a74089243a62a42bb765918d1a63c2455067a17b56c78a65",
+              "verdict": "REVISE",
+              "at": "2026-10-24T13:36:36Z"
+            }
+          ]
+        },
+        "F-d9c76fac0958": {
+          "digest": "d9c76fac0958c6062e1452ef58f2209af66b4db0330b729021d831a8787e51a0",
+          "text": "LPR-O4 — D-Literal: say whether the match is case-insensitive, as `validate_user_only_confirmation` is (`re.IGNORECASE`), and add that case to C1 either way.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "8532882dc01f7e26a74089243a62a42bb765918d1a63c2455067a17b56c78a65",
+              "verdict": "REVISE",
+              "at": "2026-10-24T13:36:36Z"
+            }
+          ]
+        },
+        "F-235ce7c2e86e": {
+          "digest": "235ce7c2e86e34f4044c91c0138dfb53aa7ce9ba0832606df4cb282f0e254aa4",
+          "text": "LPR-O5 — OD-4's justification has a factual slip. It says the owner token \"survives a rewrite of the record that keeps the token (an adoption)\". In the code, no claim rewrite keeps the token. Adoption (`adopt_claim`, `workflow_state.py:6609`) builds a new record with a freshly minted token, and only where no claim existed. Takeover (7350) and abandoned-guard recovery (7532) also mint a new token and move the old one to `previous_owner_tokens`. The conclusion still holds, and holds more strongly: every new claim gets a new token, so the prefix names the claim that was shown. Consider rewording the parenthetical to say this, so the reason does not cite a case that does not occur.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "54248b6c12d19ac65c3f0d0eb351f69603d47a9acd8117a6906df5effdce4419",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T13:41:35Z"
+            }
+          ]
+        },
+        "F-6a072f309615": {
+          "digest": "6a072f309615c65146ac7b6d6aee3a958a7c36a78f495d450cd3c925b1fd15b7",
+          "text": "**EPR-002 [substantive] — OD-4 misdescribes adoption.**\n  Section 4, OD-4, line 392, says adoption rewrites a claim while retaining its token. `adopt_claim` creates a new claim through `_build_claim_record`, which mints a fresh token. Correct the parenthetical; the confirmation-binding conclusion remains sound.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "54248b6c12d19ac65c3f0d0eb351f69603d47a9acd8117a6906df5effdce4419",
+              "verdict": "REVISE",
+              "at": "2026-10-24T13:46:45Z"
+            }
+          ]
+        },
+        "F-f1269c6b49c5": {
+          "digest": "f1269c6b49c507fdd5be87356a587a95a1b81ce557e7db1ec301c7317a4ab0ed",
+          "text": "LPR-R3-O1 — Wording of the `released` condition. D-Residual says \"no claim in this worktree for the work item\" and D-Command step 2 says \"this worktree holds no claim\". D-Functions says, correctly, \"`resolve_claim` finds no claim\", and claims are per work item across worktrees. Read literally, the first two phrasings would let an implementation answer `released` from worktree A while worktree B still holds a claim with an interrupted release. That would lift the obligation and reopen R-i. Consider saying \"no claim for the work item in any worktree\" in both places. Also consider pinning in C2 the case of a worktree whose entry equals HEAD's while another worktree holds the claim: it must still refuse `CheckpointOwnedByOtherWorktreeError` and never answer `released`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T13:52:23Z"
+            }
+          ]
+        },
+        "F-1b556317bfb3": {
+          "digest": "1b556317bfb3821067e874801b00c8a5d7012e5d908c7cc6c5a92ed2eefc5c96",
+          "text": "LPR-R3-O2 — Precedence and pass-through wording in D-Command step 2 and C2. Step 2 lists both \"stop when a window of the work item is running\" and \"stop, as a success, on kind `released`\" without saying which wins when both hold. Consider having the running-window stop come first. Also, C2's pass-through list still names \"no claim\" as an engine refusal. Since `released` now answers the no-claim state whose entry equals HEAD's, consider saying that list means no claim with a differing or IN_PROGRESS entry.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "690c35f3e19d652d78c914a52488d787ebeb4a9ce425886a74a7878aca38345c",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T13:52:23Z"
+            }
+          ]
+        },
+        "F-a3d3bea612b2": {
+          "digest": "a3d3bea612b2cc01319f1b7c56db1cc54deca2c96a2ab4240a349ef6c740136b",
+          "text": "LIR-O1: `release-checkpoint-start.md` step 2's `released` bullet still says \"this worktree holds\n  no claim\". The code tests the work item's one shared claim (`resolve_claim` over\n  `claims_dir` = the git common dir), so the condition is \"no claim for the work item in any\n  worktree\". Consider that wording, as LPR-R3-O1 suggested. Read literally, the current text\n  understates the condition the success depends on.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dd9c3178d794f35036e1212ef8c4395fc33e4cfe2de91a5e90fc0ac6dd3d9ba2",
+              "verdict": "REVISE",
+              "at": "2026-10-24T16:48:02Z"
+            }
+          ]
+        },
+        "F-161d1537bcad": {
+          "digest": "161d1537bcada2b14506a5e2961e117a93e29ab25d8e369d1180246c6c818f11",
+          "text": "LIR-O2: Challenge 3. The first `AmendmentCheckpointActiveError` site names\n  `current_checkpoint_id or in_progress_ids[0]`. If `current_checkpoint_id` is set but is not one of\n  the `IN_PROGRESS` ids (a hand-edited or inconsistent state), the message names a checkpoint whose\n  release would refuse. Consider `current_checkpoint_id if current_checkpoint_id in in_progress_ids\n  else in_progress_ids[0]`. When several checkpoints are `IN_PROGRESS`, consider naming them all.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dd9c3178d794f35036e1212ef8c4395fc33e4cfe2de91a5e90fc0ac6dd3d9ba2",
+              "verdict": "REVISE",
+              "at": "2026-10-24T16:48:02Z"
+            }
+          ]
+        },
+        "F-33859c9f7269": {
+          "digest": "33859c9f7269001f32bdf1a2b39a6d672ffcdf69bbc94022f194834d0e7b4b55",
+          "text": "LIR-O3: `docs/CONCURRENCY_INVARIANTS.md` release-window recovery cell: \"it re-observes under (9)\".\n  The command's observation runs outside (9); the engine re-classifies under (9). Consider \"the\n  engine re-classifies under (9)\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dd9c3178d794f35036e1212ef8c4395fc33e4cfe2de91a5e90fc0ac6dd3d9ba2",
+              "verdict": "REVISE",
+              "at": "2026-10-24T16:48:02Z"
+            }
+          ]
+        },
+        "F-b3f2e59db6a1": {
+          "digest": "b3f2e59db6a15d850508e90e6b72b06a7c4aab0bcb50fc4c00beef08b87481c8",
+          "text": "LIR-O4: The red-first gate (section 1, \"each new test, shown to fail against the unedited code\n  first\"). For C1 to C5 the failures are recorded without their output, and C6 has no record at all.\n  Consider re-running C6 (and the C5 additions of LIR-001) against `ad1121a` once and keeping the\n  output in `docs/ACTIVE_MILESTONE.md`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dd9c3178d794f35036e1212ef8c4395fc33e4cfe2de91a5e90fc0ac6dd3d9ba2",
+              "verdict": "REVISE",
+              "at": "2026-10-24T16:48:02Z"
+            }
+          ]
+        },
+        "F-ec54591cbaac": {
+          "digest": "ec54591cbaac83ad2306093d028431da66aac510b5644b937ac7e7df5f60ab08",
+          "text": "LIR-O5: C4 does not pin that the third raise (the plan-approval open) is unchanged, as D-Tests C4\n  says. Consider a one-line assertion that its message carries no `/release-checkpoint-start`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dd9c3178d794f35036e1212ef8c4395fc33e4cfe2de91a5e90fc0ac6dd3d9ba2",
+              "verdict": "REVISE",
+              "at": "2026-10-24T16:48:02Z"
+            }
+          ]
+        },
+        "F-75711db68286": {
+          "digest": "75711db682866cf97e7c07bf76e474bc96bee26488827d4b752e0675641c20df",
+          "text": "LIR-R2-O1: `IMPLEMENTATION_SUMMARY.md` says the `tools/release` tests \"were not rerun; this round\n  changes no file they cover\". Round 2 did change `manifest.json`: one record's sentence, and the\n  `workflow_state_test.py` digest and size. Those are exactly what the release tests and\n  `check-manager-block` read. I reran them and they pass, so the outcome holds, but the stated\n  reason is wrong. Also, `TEST_RESULTS.md` is still headed \"implementation revision 1\". Consider\n  rerunning `tools/release` after any manifest change, and refreshing `TEST_RESULTS.md` with each\n  post-fix bundle.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T17:47:16Z"
+            }
+          ]
+        },
+        "F-83b19efa480b": {
+          "digest": "83b19efa480b82021d44e74cf4c9801f36b15c78a53f7fe92574040b1e246938",
+          "text": "LIR-R2-O2: `_assert_amendment_accepted` builds a synthetic state with\n  `_state_with_approved_plan`. That state has no `CP` entry, so the assertion tests only the\n  on-disk claim arm of `request_plan_amendment`. The `IN_PROGRESS` entry arm is covered by the C5\n  assertions that the entry is gone (`_entry(repo) is None` and the unchanged snapshot), not by the\n  amendment call itself. Consider merging the repository's real `checkpoints` into the synthetic\n  state, so that one call covers both arms.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T17:47:16Z"
+            }
+          ]
+        },
+        "F-9d857b9470a0": {
+          "digest": "9d857b9470a014cbd7f373770c24738472d421dacec035d8c51600ffaffde6bb",
+          "text": "Carried over and still open, as deferred follow-ups: LIR-O1 (the `released` bullet's \"this\n  worktree holds no claim\" wording), LIR-O2 (which checkpoint the first `AmendmentCheckpointActiveError`\n  names when `current_checkpoint_id` is not `IN_PROGRESS`), LIR-O4 (keeping red-first output) and\n  LIR-O5 (pinning the unchanged third raise in C4).",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T17:47:16Z"
+            }
+          ]
+        },
+        "F-0bfc5d3987de": {
+          "digest": "0bfc5d3987ded593ba64406f91b7d8fb19444070b59238d2319af735e70912f4",
+          "text": "**EIR-001 [substantive] — Stale command count.** `payload/docs/ai-workflow/COMMAND_FILES.md:37` still says “six commands”; seven now carry the flag. The inventory below correctly lists all seven.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T18:25:48Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "89d96e52736088b4614e5951283dc35093256e66785c83578c0c7076abdd3e3d",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-24T17:47:16Z",
+          "verdict_sha256": "a4d507d2ccc9ff41cd38f2e29c05ee2faf4d7fd265fcb6068c3f2017628413e0",
+          "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "89d96e52736088b4614e5951283dc35093256e66785c83578c0c7076abdd3e3d",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-24T18:25:48Z",
+          "verdict_sha256": "6fdee6011eb59f5de6d9ea397f34973d143e52bd979d7193dcf9d3761fa1b1f0",
+          "run_ref": "session:local .ai-review/checkpoint-start-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "gate_evidence": {
+        "functional": {
+          "w23-a1": {
+            "flow_id": "w23-a1",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "confirmation, observation and release",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/a123.log"
+            },
+            "log_digest": "d04f9be137e406b6fa3e1b0c3cb9d75c936a32995269090afe70864febdf1ed8",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          },
+          "w23-a2": {
+            "flow_id": "w23-a2",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "interruption cases: finished on re-run, released after unlink, a commit refuses",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/a2.log"
+            },
+            "log_digest": "b61dbbd6eb333f5829441075c3e5f539646241e9311c38de514c4133cce73b6a",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          },
+          "w23-a3": {
+            "flow_id": "w23-a3",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "stale sentence refused; amendment refusal names the command and is accepted after",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/a123.log"
+            },
+            "log_digest": "d04f9be137e406b6fa3e1b0c3cb9d75c936a32995269090afe70864febdf1ed8",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          },
+          "w23-a4": {
+            "flow_id": "w23-a4",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "state suite under the Manager's orphan reaper: no orphans",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/a4.log"
+            },
+            "log_digest": "cf2c3410eea338d7fbf78960eeba297f4a658e8584eb03323cf679b1a448bcdc",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          },
+          "w23-a5": {
+            "flow_id": "w23-a5",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "nine suites, tools/release, tools/docs, check_docs, manager block",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/a5-suites.txt"
+            },
+            "log_digest": "adc39d1bb3a262e3b0ab192c09e0d6aa31d8376b2d245f8e3c61a47b5b12a875",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          },
+          "w23-a6": {
+            "flow_id": "w23-a6",
+            "status": "passed",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "ran_at": "2026-10-24T18:56:06Z",
+            "summary": {
+              "flow": "the user-only command lists agree (seven commands)",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "RESULTS.md"
+            },
+            "log_digest": "9b02de7cceded4f7b12254dbeb83dbd8c8cd3853a94d50fd8d54fc365f80409f",
+            "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:56:06Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 101,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/101"
+          },
+          "state": "open",
+          "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+          "observed_at": "2026-10-24T19:14:41Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "2c7446c8eb99bc128556a6edb3e177433bb8f9db",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-10-24T19:14:41Z",
+            "raw_sha256": "c10cdbaee3551ad6bc4285b0170218682dfdd19cc0f2bfda4185c94583fe2004",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "9e824061111fe5f5b6a5d5690909ba37abafca4a4ca830bdf83246d3c94afd21"
+          },
+          "fact_id": "981e5a0e7e971972c26b64daa2ed53dfbdd0a01dbbc221a6869c4afdfb2d4339"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['w23-a1', 'w23-a2', 'w23-a3', 'w23-a4', 'w23-a5', 'w23-a6'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #101 at 7e0f78025ecd230d9164f05c6b56a43719e9f7d0 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "2c7446c8eb99bc128556a6edb3e177433bb8f9db",
+          "anchor_identity": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "1beec06bce8f13e9384578e4e79560012536faff4de566533d1a4d1e4410f91d",
+            "recorded_at": "2026-10-24T18:26:11Z"
+          },
+          "functional": {
+            "w23-a1": {
+              "evidence_id": "7f6e487e2182209edae7f644f362a919a4f40e71ce19e100494a01c9ad2f397d",
+              "log_digest": "d04f9be137e406b6fa3e1b0c3cb9d75c936a32995269090afe70864febdf1ed8",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            },
+            "w23-a2": {
+              "evidence_id": "a7c9e9288446b0fb8c653a16e5d8c2312779ab9d9892b04206644930e9eff7e2",
+              "log_digest": "b61dbbd6eb333f5829441075c3e5f539646241e9311c38de514c4133cce73b6a",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            },
+            "w23-a3": {
+              "evidence_id": "9d4ecb827c6607d06eece68cafae2e1b65440c15dd8fb46a662b0200c0888b02",
+              "log_digest": "d04f9be137e406b6fa3e1b0c3cb9d75c936a32995269090afe70864febdf1ed8",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            },
+            "w23-a4": {
+              "evidence_id": "0a7fddff7e5f4c1038ec1f1386a0e3d44433eb296860d364f7aff27174562d2f",
+              "log_digest": "cf2c3410eea338d7fbf78960eeba297f4a658e8584eb03323cf679b1a448bcdc",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            },
+            "w23-a5": {
+              "evidence_id": "4d3b6ec7b669583b3d9694392c49763db336003051485e2789319b72b6afe1c9",
+              "log_digest": "adc39d1bb3a262e3b0ab192c09e0d6aa31d8376b2d245f8e3c61a47b5b12a875",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            },
+            "w23-a6": {
+              "evidence_id": "cd262c4e8fae3bb1944e42959e2ee3fcb5b94dbe009cc846f09a9db3b01b625f",
+              "log_digest": "9b02de7cceded4f7b12254dbeb83dbd8c8cd3853a94d50fd8d54fc365f80409f",
+              "run_ref": "manager-orchestrator:runs-workflow/w23-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "981e5a0e7e971972c26b64daa2ed53dfbdd0a01dbbc221a6869c4afdfb2d4339",
+            "head": "7e0f78025ecd230d9164f05c6b56a43719e9f7d0",
+            "provenance": "workflow_gh",
+            "raw_sha256": "c10cdbaee3551ad6bc4285b0170218682dfdd19cc0f2bfda4185c94583fe2004"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-10-24T19:14:41Z",
+        "workflow_release": "2.18.7"
+      }
     }
   }
 }

@@ -2543,8 +2543,9 @@ class HarnessNeutralReleaseTest(unittest.TestCase):
 
 class ReviewFollowupsReleaseTest(unittest.TestCase):
     """Release 2.18.1 (review-followups-cleanup): what stays true of it once a
-    later release is current -- the counts, the template digest, the record
-    sentences and the release-history row."""
+    later release is current -- the counts' consistency, the template digest,
+    the record sentences and the release-history row. The current counts are
+    pinned by the current release's class (2.19.0 added a record)."""
 
     TEMPLATE = ".github/workflows/workflow-conformance.yml"
 
@@ -2559,7 +2560,6 @@ class ReviewFollowupsReleaseTest(unittest.TestCase):
         self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
         self.assertEqual(counts["templates"], len(self.manifest["templates"]))
         self.assertEqual(counts["by_category"], by_category)
-        self.assertEqual((counts["artifacts"], counts["templates"]), (79, 6))
 
     def test_the_template_record_names_the_change_and_its_digest_is_current(self):
         record = next(r for r in self.manifest["templates"] if r["target_path"] == self.TEMPLATE)
@@ -2789,8 +2789,8 @@ class LiveGuardVisibilityReleaseTest(unittest.TestCase):
 
 
 class CheckpointStartEngineReleaseTest(unittest.TestCase):
-    """Release 2.18.7 (checkpoint-start-engine): the version, the release constant, the
-    counts, the digests, the downgrade posture and the release-history row."""
+    """Release 2.18.7 (checkpoint-start-engine): what stays true of it once a later
+    release is current -- the record sentences and the release-history row."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
                "docs/ai-workflow/dry-run/verify_372h_lock_primitive_predicate.py",
@@ -2805,8 +2805,41 @@ class CheckpointStartEngineReleaseTest(unittest.TestCase):
     def row(self) -> str:
         return next(line for line in self.history.splitlines() if line.startswith("| 2.18.7 |"))
 
-    def test_the_release_names_2_18_7_and_adds_no_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.18.7")
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for target in self.CHANGED:
+            with self.subTest(target):
+                record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+                self.assertIn("checkpoint-start-engine (workflow-2.18.7)", record["rationale"])
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        for needle in ("2.18.6", "#95", "#55", "release_checkpoint_start", "AmbiguousCheckpointTrailerError",
+                       "subreaper", "Orchestration Protocol 1.5", "v2.18.7"):
+            self.assertIn(needle, self.row())
+        self.assertLess(self.history.index("| 2.18.7 |"), self.history.index("| 2.18.6 |"))
+
+
+class CheckpointStartCommandReleaseTest(unittest.TestCase):
+    """Release 2.19.0 (checkpoint-start-command): the version, the release constant, the
+    counts, the digests, the downgrade posture and the release-history row."""
+
+    CHANGED = (".claude/commands/release-checkpoint-start.md",
+               ".claude/commands/request-plan-amendment.md",
+               "docs/ai-workflow/COMMAND_FILES.md", "docs/ai-workflow/MILESTONE_WORKFLOW.md",
+               "docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+               "docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+               "scripts/workflow_integration_test.py", "scripts/workflow_protocol.py",
+               "scripts/workflow_protocol_test.py", "scripts/workflow_state.py",
+               "scripts/workflow_state_test.py")
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.history = (REPO_ROOT / "docs" / "release-history.md").read_text()
+
+    def row(self) -> str:
+        return next(line for line in self.history.splitlines() if line.startswith("| 2.19.0 |"))
+
+    def test_the_release_names_2_19_0_and_adds_the_command_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.19.0")
         by_category = {}
         for entry in self.manifest["artifacts"]:
             by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
@@ -2814,11 +2847,12 @@ class CheckpointStartEngineReleaseTest(unittest.TestCase):
         self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
         self.assertEqual(counts["templates"], len(self.manifest["templates"]))
         self.assertEqual(counts["by_category"], by_category)
-        self.assertEqual((counts["artifacts"], counts["templates"]), (79, 6))
+        self.assertEqual((counts["artifacts"], counts["templates"]), (80, 6))
+        self.assertEqual(by_category["distribution"], 54)
 
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.18.7"', text)
+        self.assertIn('WORKFLOW_RELEASE = "2.19.0"', text)
 
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
         for section in ("artifacts", "templates"):
@@ -2829,27 +2863,29 @@ class CheckpointStartEngineReleaseTest(unittest.TestCase):
         for target in self.CHANGED:
             with self.subTest(target):
                 record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
-                self.assertIn("checkpoint-start-engine (workflow-2.18.7)", record["rationale"])
+                self.assertIn("checkpoint-start-command (workflow-2.19.0)", record["rationale"])
 
-    def test_the_manager_block_states_the_engine_and_the_way_back_in_the_posture(self):
+    def test_the_manager_block_states_the_command_and_the_way_back_in_the_posture(self):
         block = self.manifest["manager"]
         self.assertEqual(block["min_manager_version"], "1.13.0")
         posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.18.7", "2.18.6", "Orchestration Protocol stays 1.5",
-                       "workflow-manager update back to 2.18.6", "WORKFLOW_RELEASE",
-                       "release_checkpoint_start", "nothing calls it yet", "release-start",
-                       "recover_abandoned_destructive_guard", "2.14.0"):
+        for needle in ("2.19.0", "2.18.7", "Orchestration Protocol stays 1.5",
+                       "workflow-manager update back to 2.18.7", "WORKFLOW_RELEASE",
+                       "/release-checkpoint-start", "release_checkpoint_start_confirmed",
+                       "release-start", "Finish an interrupted release before moving back",
+                       "2.14.0"):
             self.assertIn(needle, posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
         self.assertEqual(block["new_work_only"], [])
         self.assertEqual(block["gate_default_change"], "")
 
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
-        self.assertIn("Last checked with: Workflow 2.18.7.", self.history)
-        for needle in ("2.18.6", "#95", "#55", "release_checkpoint_start", "AmbiguousCheckpointTrailerError",
-                       "subreaper", "Orchestration Protocol 1.5", "v2.18.7"):
+        self.assertIn("Last checked with: Workflow 2.19.0.", self.history)
+        for needle in ("2.18.7", "#55", "/release-checkpoint-start", "checkpoint_start_release_confirmation",
+                       "R-i", "R-ii", "finish an interrupted release first",
+                       "Orchestration Protocol 1.5", "v2.19.0"):
             self.assertIn(needle, self.row())
-        self.assertLess(self.history.index("| 2.18.7 |"), self.history.index("| 2.18.6 |"))
+        self.assertLess(self.history.index("| 2.19.0 |"), self.history.index("| 2.18.7 |"))
 
 
 # -- the Manager metadata block ----------------------------------------------------

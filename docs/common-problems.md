@@ -95,6 +95,18 @@ and the word `resumption`. It returns a 2.1 or 2.2 item to `IMPLEMENTING` and
 marks its technical approval stale; then `/milestone-implement` continues. An
 item governed by version `1` is not handled by this command.
 
+### A plan amendment is refused because a checkpoint is started
+
+`/request-plan-amendment` refuses with `AmendmentCheckpointActiveError` while a
+checkpoint is `IN_PROGRESS` or any claim exists. If the checkpoint's own
+approved plan forbids completing it and its start was never committed, stop the
+session that started it and run the user-only `/release-checkpoint-start
+<work-item-id> <checkpoint-id>` from the worktree that holds the claim; your own
+message supplies the sentence it prints, which says the owner session is stopped.
+It commits nothing. If the run is interrupted, run it again before any session
+resumes the checkpoint; a run that reports the start already released ends the
+obligation. Then run `/request-plan-amendment` again.
+
 ### A REVISE round is refused with "must always transition phase"
 
 Either the review stage's `REVISE` write, or `/apply-implementation-review`'s
