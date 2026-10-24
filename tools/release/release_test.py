@@ -2759,8 +2759,8 @@ class TakeoverFenceReleaseTest(unittest.TestCase):
 
 
 class LiveGuardVisibilityReleaseTest(unittest.TestCase):
-    """Release 2.18.6 (live-guard-visibility): the version, the release constant, the
-    counts, the digests, the downgrade posture and the release-history row."""
+    """Release 2.18.6 (live-guard-visibility): what stays true of it once a later
+    release is current -- the record sentences and the release-history row."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
                "docs/ai-workflow/dry-run/verify_372h_raw_edge_derivation.py",
@@ -2775,8 +2775,38 @@ class LiveGuardVisibilityReleaseTest(unittest.TestCase):
     def row(self) -> str:
         return next(line for line in self.history.splitlines() if line.startswith("| 2.18.6 |"))
 
-    def test_the_release_names_2_18_6_and_adds_no_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.18.6")
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for target in self.CHANGED:
+            with self.subTest(target):
+                record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+                self.assertIn("live-guard-visibility (workflow-2.18.6)", record["rationale"])
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        for needle in ("2.18.5", "#91", "#55", "holder", "guard_holder_is_running",
+                       "Orchestration Protocol 1.5", "v2.18.6"):
+            self.assertIn(needle, self.row())
+        self.assertLess(self.history.index("| 2.18.6 |"), self.history.index("| 2.18.5 |"))
+
+
+class CheckpointStartEngineReleaseTest(unittest.TestCase):
+    """Release 2.18.7 (checkpoint-start-engine): the version, the release constant, the
+    counts, the digests, the downgrade posture and the release-history row."""
+
+    CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+               "docs/ai-workflow/dry-run/verify_372h_lock_primitive_predicate.py",
+               "docs/ai-workflow/dry-run/verify_372h_raw_edge_derivation.py",
+               "scripts/workflow_protocol.py", "scripts/workflow_protocol_test.py",
+               "scripts/workflow_state.py", "scripts/workflow_state_test.py")
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.history = (REPO_ROOT / "docs" / "release-history.md").read_text()
+
+    def row(self) -> str:
+        return next(line for line in self.history.splitlines() if line.startswith("| 2.18.7 |"))
+
+    def test_the_release_names_2_18_7_and_adds_no_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.18.7")
         by_category = {}
         for entry in self.manifest["artifacts"]:
             by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
@@ -2788,7 +2818,7 @@ class LiveGuardVisibilityReleaseTest(unittest.TestCase):
 
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.18.6"', text)
+        self.assertIn('WORKFLOW_RELEASE = "2.18.7"', text)
 
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
         for section in ("artifacts", "templates"):
@@ -2799,27 +2829,27 @@ class LiveGuardVisibilityReleaseTest(unittest.TestCase):
         for target in self.CHANGED:
             with self.subTest(target):
                 record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
-                self.assertIn("live-guard-visibility (workflow-2.18.6)", record["rationale"])
+                self.assertIn("checkpoint-start-engine (workflow-2.18.7)", record["rationale"])
 
-    def test_the_manager_block_states_the_lock_and_the_way_back_in_the_posture(self):
+    def test_the_manager_block_states_the_engine_and_the_way_back_in_the_posture(self):
         block = self.manifest["manager"]
         self.assertEqual(block["min_manager_version"], "1.13.0")
         posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.18.6", "2.18.5", "Orchestration Protocol stays 1.5",
-                       "workflow-manager update back to 2.18.5", "WORKFLOW_RELEASE",
-                       "lock", "guard_holder_is_running", "reclaim",
-                       "released before 2.18.6"):
+        for needle in ("2.18.7", "2.18.6", "Orchestration Protocol stays 1.5",
+                       "workflow-manager update back to 2.18.6", "WORKFLOW_RELEASE",
+                       "release_checkpoint_start", "nothing calls it yet", "release-start",
+                       "recover_abandoned_destructive_guard", "2.14.0"):
             self.assertIn(needle, posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
         self.assertEqual(block["new_work_only"], [])
         self.assertEqual(block["gate_default_change"], "")
 
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
-        self.assertIn("Last checked with: Workflow 2.18.6.", self.history)
-        for needle in ("2.18.5", "#91", "#55", "holder", "guard_holder_is_running",
-                       "Orchestration Protocol 1.5", "v2.18.6"):
+        self.assertIn("Last checked with: Workflow 2.18.7.", self.history)
+        for needle in ("2.18.6", "#95", "#55", "release_checkpoint_start", "AmbiguousCheckpointTrailerError",
+                       "subreaper", "Orchestration Protocol 1.5", "v2.18.7"):
             self.assertIn(needle, self.row())
-        self.assertLess(self.history.index("| 2.18.6 |"), self.history.index("| 2.18.5 |"))
+        self.assertLess(self.history.index("| 2.18.7 |"), self.history.index("| 2.18.6 |"))
 
 
 # -- the Manager metadata block ----------------------------------------------------
