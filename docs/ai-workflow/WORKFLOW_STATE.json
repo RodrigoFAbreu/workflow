@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "live-guard-visibility",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -15815,7 +15815,7 @@
       "registry_path": "docs/ai-workflow/registry/live-guard-visibility-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/live-guard-visibility-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 2,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -16102,8 +16102,8 @@
           "external": 1
         }
       },
-      "state_revision": 19,
-      "last_transition": "2026-10-24T04:16:55Z",
+      "state_revision": 20,
+      "last_transition": "2026-10-24T04:40:42Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -16316,6 +16316,201 @@
           "run_ref": "session:local .ai-review/live-guard-visibility/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "w21-f1": {
+            "flow_id": "w21-f1",
+            "status": "passed",
+            "head": "87bd137790e5550beb9e715316b60ade3cc95e9f",
+            "ran_at": "2026-10-24T04:22:43Z",
+            "summary": {
+              "flow": "automated live-guard suites",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/F1.log"
+            },
+            "log_digest": "fa794985384bfc608728116662c79eab2038a5a13ad9a9b10c6f89fb61fc0f60",
+            "run_ref": "manager-orchestrator:runs-workflow/w21-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+            "recorded_at": "2026-10-24T04:22:43Z"
+          },
+          "w21-f2": {
+            "flow_id": "w21-f2",
+            "status": "passed",
+            "head": "87bd137790e5550beb9e715316b60ade3cc95e9f",
+            "ran_at": "2026-10-24T04:22:43Z",
+            "summary": {
+              "flow": "a live owner's second window is refused",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/F2.log"
+            },
+            "log_digest": "197d14fc452836e27866df002063232dc8bbf6e9c2c7cfad611c757421f276c2",
+            "run_ref": "manager-orchestrator:runs-workflow/w21-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+            "recorded_at": "2026-10-24T04:22:43Z"
+          },
+          "w21-f3": {
+            "flow_id": "w21-f3",
+            "status": "passed",
+            "head": "87bd137790e5550beb9e715316b60ade3cc95e9f",
+            "ran_at": "2026-10-24T04:22:43Z",
+            "summary": {
+              "flow": "a crashed owner's leftover is reclaimed",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/F3.log"
+            },
+            "log_digest": "329799c960aa1d0d313d90b48a785f74b690eb44ba84b046ac0efdfba4cdaebc",
+            "run_ref": "manager-orchestrator:runs-workflow/w21-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+            "recorded_at": "2026-10-24T04:22:43Z"
+          },
+          "w21-f4": {
+            "flow_id": "w21-f4",
+            "status": "passed",
+            "head": "87bd137790e5550beb9e715316b60ade3cc95e9f",
+            "ran_at": "2026-10-24T04:22:43Z",
+            "summary": {
+              "flow": "journal guard and fork cases (covered by F1)",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/F1.log"
+            },
+            "log_digest": "fa794985384bfc608728116662c79eab2038a5a13ad9a9b10c6f89fb61fc0f60",
+            "run_ref": "manager-orchestrator:runs-workflow/w21-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+            "recorded_at": "2026-10-24T04:22:43Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 94,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/94"
+          },
+          "state": "open",
+          "head": "87bd137790e5550beb9e715316b60ade3cc95e9f",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+          "observed_at": "2026-10-24T04:40:42Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "1794b74bc7901b1ef935c21cac1e8e2d144414b9",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-10-24T04:40:42Z",
+            "raw_sha256": "edee79ea5ac09523fa55054f73f416fb74ae74599f4c72bef3389b14578d9381",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "9e824061111fe5f5b6a5d5690909ba37abafca4a4ca830bdf83246d3c94afd21"
+          },
+          "fact_id": "cdf0c130979d7331ea9a29273e7432db868043711e6122a4108d7634ed3b3050"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['w21-f1', 'w21-f2', 'w21-f3', 'w21-f4'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #94 at 87bd137790e5550beb9e715316b60ade3cc95e9f is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "1794b74bc7901b1ef935c21cac1e8e2d144414b9",
+          "anchor_identity": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "563a37b8b5bd56ca73064b549bdf5ad6f4996ce7bd2e29c03546671d286075d5",
+            "recorded_at": "2026-10-24T04:16:55Z"
+          },
+          "functional": {
+            "w21-f1": {
+              "evidence_id": "23a8d40f24cd944e8ef9fa8cb25a41a06f241956cc7b9878a4383afd7a5b843d",
+              "log_digest": "fa794985384bfc608728116662c79eab2038a5a13ad9a9b10c6f89fb61fc0f60",
+              "run_ref": "manager-orchestrator:runs-workflow/w21-functional-r1"
+            },
+            "w21-f2": {
+              "evidence_id": "85dcbda18b65560913628c25d74e0d8e5a2f219c2d8aa069c7485ee1fc5c16a0",
+              "log_digest": "197d14fc452836e27866df002063232dc8bbf6e9c2c7cfad611c757421f276c2",
+              "run_ref": "manager-orchestrator:runs-workflow/w21-functional-r1"
+            },
+            "w21-f3": {
+              "evidence_id": "2c4c4ab8a362d11e5d129c1e9fa5927d11ae01a0e4b0acbd3d87af8700ea425a",
+              "log_digest": "329799c960aa1d0d313d90b48a785f74b690eb44ba84b046ac0efdfba4cdaebc",
+              "run_ref": "manager-orchestrator:runs-workflow/w21-functional-r1"
+            },
+            "w21-f4": {
+              "evidence_id": "bbb3df8be6508269906c01c03128afda642f3c5e9557e1d3a96c5e6c0c7eef50",
+              "log_digest": "fa794985384bfc608728116662c79eab2038a5a13ad9a9b10c6f89fb61fc0f60",
+              "run_ref": "manager-orchestrator:runs-workflow/w21-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "cdf0c130979d7331ea9a29273e7432db868043711e6122a4108d7634ed3b3050",
+            "head": "87bd137790e5550beb9e715316b60ade3cc95e9f",
+            "provenance": "workflow_gh",
+            "raw_sha256": "edee79ea5ac09523fa55054f73f416fb74ae74599f4c72bef3389b14578d9381"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-10-24T04:40:42Z",
+        "workflow_release": "2.18.5"
       }
     }
   }
