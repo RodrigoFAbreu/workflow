@@ -15,7 +15,7 @@ calling the W22 engine after a confirmation bound to the claim the user was show
 | id | name | state |
 | --- | --- | --- |
 | CP1 | The command, its confirmation, the amendment message and their tests | **complete** |
-| CP2 | Release 2.19.0 | pending |
+| CP2 | Release 2.19.0 | **complete** |
 
 ## Verified state
 
@@ -25,9 +25,14 @@ calling the W22 engine after a confirmation bound to the claim the user was show
   `TestReleaseCheckpointStartCommand` (C1 to C5) was shown red against the unedited code and passes;
   `TestReleaseCheckpointStartCommandFile` (C6) pins the command file; the command file, `COMMAND_FILES.md`, the
   operator reference, `MILESTONE_WORKFLOW.md`, `request-plan-amendment.md` and the census tests are updated.
+- CP2: `manifest.json` names 2.19.0 (80 artifacts, 54 distribution; the command file has its record; every
+  changed record has its digest, size and `checkpoint-start-command (workflow-2.19.0)` sentence; the manager
+  block's posture and measured suite counts are rewritten); `WORKFLOW_RELEASE` and its two pinned assertions,
+  `ORCHESTRATION_PROTOCOL.md` (protocol stays 1.5), `docs/release-history.md`, `docs/CONCURRENCY_INVARIANTS.md`,
+  `docs/common-problems.md` and a 2.19.0 class in `tools/release/release_test.py` are updated.
 - No lock, guard, claim, `os.link` or `flock` site was added.
 - Verified in a disposable clone (D-Staging): see the commit message of CP1 for the exact runs.
 
 ## Next action
 
-`/milestone-implement checkpoint-start-command` for CP2 (Release 2.19.0).
+Self-review and the full verification (the wrap-up of `/milestone-implement`), then the implementation review bundle.
