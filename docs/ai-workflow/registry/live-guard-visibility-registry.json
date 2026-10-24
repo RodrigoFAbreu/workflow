@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "live-guard-visibility",
+  "plan_revision": 2,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "A live holder's guard is visible and not reclaimable",
+      "depends_on": [],
+      "complexity": 4,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.18.6",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    }
+  ]
+}

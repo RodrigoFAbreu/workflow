@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "work_item_id": "live-guard-visibility",
+  "requirements": {
+    "R1": {
+      "description": "Each guard's holder keeps a non-blocking kernel lock on the guard's own inode, taken before the guard is published and held for the whole window, dropped on release and by the kernel on a crash; no new file, state field or guard-body key",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "The own-leftover reclaim of the checkpoint guard and of the plan-approval guard refuses a guard whose lock another process holds, with an accurate message and next step and the existing exception classes; a crashed holder's leftover, a lock held by the calling process, the superseded epoch, takeover, recovery and every other branch behave as before",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "One small public liveness probe, guard_holder_is_running, with its contract and its own tests (no guard, own guard, live other process, killed holder, undecidable guard, guard without a lock)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Deterministic two-process tests, red first against the unfixed code: live owner A and same-token B (1d and 1f-commit), A killed then B reclaims, the journal sibling, the unchanged takeover and recovery routes, fork and descriptor hygiene; the one existing test that asserts the defect is rewritten; docs/CONCURRENCY_INVARIANTS.md updated in the same change",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "Release 2.18.6: release constant and pinned assertions, manifest digests, sizes, measured suite counts and per-record rationales, release history closing #91 only (#55 stays open), downgrade posture and the manager block (min_manager_version 1.13.0 equal to the CI pin)",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}

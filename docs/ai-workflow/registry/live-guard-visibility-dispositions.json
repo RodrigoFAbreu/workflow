@@ -1,0 +1,54 @@
+{
+ "schema_version": 1,
+ "work_item_id": "live-guard-visibility",
+ "dispositions": {
+  "F-0bdd84299ca0": {
+   "disposition": "fixed",
+   "note": "EPR-003: _guard_held_by_another_process translates every open/flock error other than absent and contended into the neighbouring 'unavailable' exception (payload/scripts/workflow_state.py)."
+  },
+  "F-a942c38660ee": {
+   "disposition": "fixed",
+   "note": "LGV-L2-001: same as EPR-003; the helper's error paths are specified and translated to the unavailable exception."
+  },
+  "F-ecc176c8e3d2": {
+   "disposition": "fixed",
+   "note": "EPR-002: _stage_claim_payload keeps automatic descriptor closure for lockless callers; only the guard publisher passes keep_open."
+  },
+  "F-640958a5df00": {
+   "disposition": "fixed",
+   "note": "LGV-L2-002: the staging helper's third caller (the claim rotation) is lockless and keeps the automatic close; keep_open is an opt-in."
+  },
+  "F-1e244f691f85": {
+   "disposition": "fixed",
+   "note": "LGV-L1-002: the publisher seam is named in the plan and the mkstemp descriptor is the one locked (keep_open)."
+  },
+  "F-7a6676ae1514": {
+   "disposition": "fixed",
+   "note": "LGV-L1-003: the worker-source assertion is named in the plan; every suite passes unchanged apart from the deliberately changed test."
+  },
+  "F-b558945a2ffe": {
+   "disposition": "fixed",
+   "note": "LGVI-L1-002: fixed in 1794b74 (the holder lock is recorded before the temp-name unlink)."
+  },
+  "F-3c2132cfbae7": {
+   "disposition": "dropped",
+   "reason": "EPR-001: the refusal is independent of the step class and the 1d case of the checklist and the claim-guard tests runs with DESTRUCTIVE as the command does; the fork worker's ORDINARY child only exercises the same branch."
+  },
+  "F-0cf19fb0e523": {
+   "disposition": "dropped",
+   "reason": "LGVI-L1-004: same as EPR-001; the refusal is class-independent and the production class is covered elsewhere."
+  },
+  "F-8eeceeb57066": {
+   "disposition": "dropped",
+   "reason": "LGVI-L1-003: wording of the downgrade posture phrase; the manifest bytes are pinned by the reviewed bundle and the release-history row says it correctly; unambiguous in context."
+  },
+  "F-99794e2bf403": {
+   "disposition": "dropped",
+   "reason": "LGVI-L2-001: TEST_RESULTS.md is generated, gitignored review-bundle evidence; the round-2 results are in IMPLEMENTATION_SUMMARY.md and Codex reproduced them independently."
+  },
+  "F-a565f11a0bbb": {
+   "disposition": "dropped",
+   "reason": "EIR-001: same as LGVI-L2-001; bundle evidence apparatus, independently verified by the external review."
+  }
+ }
+}
