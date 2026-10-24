@@ -3675,11 +3675,11 @@ def _publish_plan_approval_guard(repo_root: Path, body: dict, path: Path) -> Non
         os.link(tmp_name, full_path)
         published = True
     finally:
-        Path(tmp_name).unlink(missing_ok=True)
         if published:
             _guard_holder_locks[body["lease_id"]] = fd
         else:
             os.close(fd)
+        Path(tmp_name).unlink(missing_ok=True)
     _note_primitive_acquired("1", body["lease_id"])
 
 
@@ -6223,12 +6223,12 @@ def _publish_claim_exclusive(path: Path, record: dict, *, lock_lease_id: str | N
             f"cannot be made discoverable to this repository's other worktrees"
         ) from exc
     finally:
-        tmp.unlink(missing_ok=True)
         if fd is not None:
             if published:
                 _guard_holder_locks[lock_lease_id] = fd
             else:
                 os.close(fd)
+        tmp.unlink(missing_ok=True)
 
 
 def _claim_or_refuse(repo_root: Path, work_item_id: str, record: dict) -> dict:

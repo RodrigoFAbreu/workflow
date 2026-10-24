@@ -6218,6 +6218,9 @@ class TestLiveGuardVisibilityJournal(unittest.TestCase):
                 ws._publish_plan_approval_guard(repo.root, {"lease_id": "lost"},
                                                 ws.PLAN_APPROVAL_GUARD_PATH)
             self.assertNotIn("lost", ws._guard_holder_locks)
+            ws.release_plan_approval_guard(repo.root, {"lease_id": "taken"})
+            self.assertEqual(ws._guard_holder_locks, {})
+            self.assertNotIn("1", [kind for kind, _ in ws.held_primitives()])
 
 
 class TestPlanApprovalStateBlobPinAndMaterialize(unittest.TestCase):
