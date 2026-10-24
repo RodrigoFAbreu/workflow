@@ -2,32 +2,31 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; the release follows the merge). W20: `takeover-fence` (`process`, governing version `2.2`), branch
-`milestone/takeover-fence`, roadmap row 23 (RodrigoFAbreu/workflow#82). Plan:
-`docs/ai-workflow/TAKEOVER_FENCE_PLAN.md` (revision 1, approved by gate policy). The goal is Workflow
-2.18.5, a patch release (`fix:`): a takeover's guard (`step="takeover"`) is not the owner's to reclaim,
-in both the claim guard and the plan-approval journal guard. The previous milestone, W18
-`review-followups-4`, is accepted (its record is in git history and `docs/release-history.md`).
+**Implemented, awaiting implementation review.** W21: `live-guard-visibility` (`process`, governing version `2.2`),
+branch `milestone/live-guard-visibility`, roadmap row 24a (RodrigoFAbreu/workflow#91). Plan:
+`docs/ai-workflow/LIVE_GUARD_VISIBILITY_PLAN.md` (revision 2, approved by gate policy). The goal is Workflow
+2.18.6, a patch release (`fix:`): a live owner's guard is visible and not reclaimable, in both the claim guard
+and the plan-approval journal guard. The previous milestone, W20 `takeover-fence`, is accepted (its record is
+in git history and `docs/release-history.md`).
 
 ## Checkpoints
 
 | id | name | state |
 | --- | --- | --- |
-| CP1 | A takeover's guard is not the owner's to reclaim | **complete** |
-| CP2 | Release 2.18.5 | **complete** |
+| CP1 | A live holder's guard is visible and not reclaimable | **complete** |
+| CP2 | Release 2.18.6 | **complete** |
 
 ## Verified state
 
-- A takeover's guard (`step="takeover"`) is refused to its own owner token with its own message, in
-  both `_acquire_guard_locked` and `_acquire_plan_approval_guard_locked`; a leftover takeover guard
-  is cleared only by re-running the takeover. Release 2.18.5 bookkeeping is in `manifest.json`,
-  `docs/release-history.md` and `tools/release/release_test.py`.
-- Functional review: six flows (`w20-f1` to `w20-f6`) passed at the approved content, recorded as
-  orchestrator evidence; the acceptance record is the work item's `acceptance_satisfaction`.
-- Optional findings: seven recorded, all dispositioned (five follow-ups on
-  RodrigoFAbreu/workflow#85, two dropped); see `docs/milestones/completed/takeover-fence-findings.md`.
+- The holder of a guard keeps a non-blocking `flock` on the guard's inode for its window; the own-leftover
+  reclaim of each guard refuses while another process holds it, and `guard_holder_is_running` answers whether
+  a window is running. Release 2.18.6 bookkeeping is in `manifest.json`, `docs/release-history.md`,
+  `docs/CONCURRENCY_INVARIANTS.md` and `tools/release/release_test.py`.
+- Verified in a disposable clone (D-Staging): the nine suites, `check-manager-block`, `check_docs.py`, the
+  `tools/docs` tests, `release.py build --commit HEAD`, and the `tools/release` tests in the zlib-ng
+  environment; `workflow-manager verify .` is clean.
 
 ## Next action
 
-Merge pull request #86, let the `Release` workflow publish Workflow 2.18.5, then plan roadmap row 24
-(W19, `/milestone-plan`), which resumes after row 23 with a fresh, simpler design.
+Review the implementation bundle (`/review-implementation live-guard-visibility`); then merge, let the
+`Release` workflow publish Workflow 2.18.6, and plan roadmap row 24 (W19, `/milestone-plan`).
