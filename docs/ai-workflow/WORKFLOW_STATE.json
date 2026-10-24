@@ -16522,7 +16522,7 @@
       "registry_path": "docs/ai-workflow/registry/checkpoint-start-engine-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/checkpoint-start-engine-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 4,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -16662,12 +16662,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 1,
+          "local": 2,
           "external": 0
         }
       },
-      "state_revision": 22,
-      "last_transition": "2026-10-24T10:00:00Z",
+      "state_revision": 23,
+      "last_transition": "2026-10-24T09:45:51Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -16858,6 +16858,34 @@
               "review_content_id": "afce5fb47102251cf5e6b80ec768b0ecbb91f3157b217ef8bb34c22816fe4696",
               "verdict": "REVISE",
               "at": "2026-10-24T09:02:06Z"
+            }
+          ]
+        },
+        "F-0ae252dd7b4b": {
+          "digest": "0ae252dd7b4b958a46e050f20a4bc3c5c085c5be0c1cb2af0711590fc4131f57",
+          "text": "**OPT-004 [apparatus]: `TEST_RESULTS.md` is round 1's.**\n  It still names head `1abf7a4` and count 1226, and has no round-2 run. The only round-2 evidence is one line in `IMPLEMENTATION_SUMMARY.md`. Regenerate it with the round-3 results, per suite, at the reviewed head.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "65d3ffa9b0395bdcc1f24b2f535ab563275dc19649e33cd97c3b309471513867",
+              "verdict": "REVISE",
+              "at": "2026-10-24T09:45:51Z"
+            }
+          ]
+        },
+        "F-81d4fe03f301": {
+          "digest": "81d4fe03f301465679747abcfd87e8f939dc3be053066b1b5f48fa04d4f58b67",
+          "text": "**OPT-003 (carried) [apparatus]: the plan's stale \"Plan revision: 3\" bullet.** It is unchanged. As before, fix it only through an amendment, or leave it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "65d3ffa9b0395bdcc1f24b2f535ab563275dc19649e33cd97c3b309471513867",
+              "verdict": "REVISE",
+              "at": "2026-10-24T09:45:51Z"
             }
           ]
         }
