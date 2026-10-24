@@ -15,7 +15,7 @@ entry, then the claim) as one window. It adds no command; row 24c adds that. The
 | id | name | state |
 | --- | --- | --- |
 | CP1 | The release engine, its tests and the fork-test fix | **complete** |
-| CP2 | Release 2.18.7 | pending |
+| CP2 | Release 2.18.7 | **complete** |
 
 ## Verified state
 
@@ -29,7 +29,19 @@ entry, then the claim) as one window. It adds no command; row 24c adds that. The
   `workflow-manager verify .` is clean.
 - Plan deviation: the plan names `prove_checkpoint_completions`, which the payload does not have; T9(c) pins
   the same wedge through `discover_checkpoint_commits`, which raises `AmbiguousCheckpointTrailerError`.
+- CP2: `manifest.json` 2.18.7 (digests and sizes of the seven changed records, their
+  `checkpoint-start-engine (workflow-2.18.7)` sentences, the downgrade posture, and `conformance.suites`
+  measured by `release.py manager-block --write`: only `workflow_state_test.py` changed, 1214 to 1226);
+  `WORKFLOW_RELEASE`, its two pinned assertions and `ORCHESTRATION_PROTOCOL.md`; the `docs/release-history.md`
+  row; the release-window row, the `release-start` step and the narrowed #55 gap in
+  `docs/CONCURRENCY_INVARIANTS.md`; the `CheckpointStartEngineReleaseTest` class in `release_test.py`.
+- Verified in a disposable clone (D-Staging; the tree committed there): the nine suites in a stock
+  `stage-conformance --commit HEAD` fixture, `release.py build --commit HEAD`, `check-manager-block`,
+  `check_docs.py`, the `tools/docs` tests and the 269 `tools/release` tests in the zlib-ng environment;
+  `workflow-manager verify .` is clean (the installation is untouched and stays 2.18.6).
+- The plan names `prove_checkpoint_completions` for the residual's wedge; the docs name
+  `discover_checkpoint_commits`, which is what raises `AmbiguousCheckpointTrailerError` (see CP1).
 
 ## Next action
 
-`/milestone-implement checkpoint-start-engine` for CP2 (Release 2.18.7).
+Step 2 of `/milestone-implement checkpoint-start-engine`: all checkpoints are complete.
