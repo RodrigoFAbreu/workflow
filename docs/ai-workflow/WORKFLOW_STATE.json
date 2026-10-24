@@ -16522,12 +16522,12 @@
       "registry_path": "docs/ai-workflow/registry/checkpoint-start-engine-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/checkpoint-start-engine-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "APPLYING_REVIEW_FEEDBACK",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 4,
-      "implementation_revision": 2,
+      "implementation_revision": 3,
       "functional_review_round": null,
       "base_commit": "5645896fa41d19d47b316b6c5356ebd89768cd44",
-      "reviewed_implementation_head": "8cebb9603172a351d575b4c6bb047cd56e736f15",
+      "reviewed_implementation_head": "f2e2edaac5432c4c20e40a668e0bf09a766dd4ba",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -16666,8 +16666,8 @@
           "external": 0
         }
       },
-      "state_revision": 23,
-      "last_transition": "2026-10-24T09:45:51Z",
+      "state_revision": 24,
+      "last_transition": "2026-10-24T10:08:15Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
