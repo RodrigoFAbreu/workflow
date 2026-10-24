@@ -17345,12 +17345,12 @@
       "registry_path": "docs/ai-workflow/registry/checkpoint-start-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/checkpoint-start-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 3,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "ad1121a4c50de844555738c5d8d0ac86f50c0ce0",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "729acceec870376d4919c5384531a2a85127db76",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -17489,8 +17489,8 @@
           "external": 0
         }
       },
-      "state_revision": 17,
-      "last_transition": "2026-10-24T15:26:46Z",
+      "state_revision": 18,
+      "last_transition": "2026-10-24T16:19:38Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
