@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "checkpoint-start-engine",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -16511,6 +16511,305 @@
         },
         "evaluated_at": "2026-10-24T04:40:42Z",
         "workflow_release": "2.18.5"
+      }
+    },
+    "checkpoint-start-engine": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "checkpoint-start-engine",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/CHECKPOINT_START_ENGINE_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/checkpoint-start-engine-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/checkpoint-start-engine-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 4,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "5645896fa41d19d47b316b6c5356ebd89768cd44",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "816678fbecb9b643ee156aa60a163ca4927313446a919d1013ce9fdc8071867d",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "816678fbecb9b643ee156aa60a163ca4927313446a919d1013ce9fdc8071867d",
+        "approved_review_content_id": "bfaba71e2323f8bdecc143e7c2dd2038c2cf358a2a7701d7733e257c3d79ab0d",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/CHECKPOINT_START_ENGINE_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d81c459ced8ec9936cb14ce7035589a94a649ca6"
+          },
+          {
+            "path": "docs/ai-workflow/registry/checkpoint-start-engine-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "65aa5b78dac25b262acf4cd354235244499754dd"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/checkpoint-start-engine-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6e65db9c9f3b8f31122757db061849a6b9a6a541"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-24T07:27:29Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "bfaba71e2323f8bdecc143e7c2dd2038c2cf358a2a7701d7733e257c3d79ab0d",
+            "ledger": {
+              "local": {
+                "bundle_id": "816678fbecb9b643ee156aa60a163ca4927313446a919d1013ce9fdc8071867d",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "027ef3a663541ec8a9de9e35ea1bff005dc6aae7e149da8194432586a2982b44",
+                "ledger_entry_sha256": "d1c48337ec43133a5b740c905ea27086e3a14d6d07aacc84f95e707f4fad2a0d",
+                "run_ref": "session:local .ai-review/checkpoint-start-engine/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "816678fbecb9b643ee156aa60a163ca4927313446a919d1013ce9fdc8071867d",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "f5eb0a9a8835eec2a1523b3b619192a3cbb831a266c707cba6ab924266ad9b92",
+                "ledger_entry_sha256": "8ce553aa72f254934cf5577de4e50e825a438da076a71ca1baf6cb7d2a87d98e",
+                "run_ref": "session:local .ai-review/checkpoint-start-engine/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-24T07:27:29Z",
+          "workflow_release": "2.18.6"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "bfaba71e2323f8bdecc143e7c2dd2038c2cf358a2a7701d7733e257c3d79ab0d",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "816678fbecb9b643ee156aa60a163ca4927313446a919d1013ce9fdc8071867d",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-10-24T07:19:36Z",
+          "verdict_sha256": "027ef3a663541ec8a9de9e35ea1bff005dc6aae7e149da8194432586a2982b44",
+          "run_ref": "session:local .ai-review/checkpoint-start-engine/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "816678fbecb9b643ee156aa60a163ca4927313446a919d1013ce9fdc8071867d",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-10-24T07:26:45Z",
+          "verdict_sha256": "f5eb0a9a8835eec2a1523b3b619192a3cbb831a266c707cba6ab924266ad9b92",
+          "run_ref": "session:local .ai-review/checkpoint-start-engine/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 4,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 15,
+      "last_transition": "2026-10-24T07:27:29Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-24T07:17:20Z",
+        "consumed": {
+          "review_content_id": "7f8a70be3dc7d4bf6944bc63e81111a74b0198f5cf36690a20f89cd8992118de",
+          "plan_revision": 3,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "bfaba71e2323f8bdecc143e7c2dd2038c2cf358a2a7701d7733e257c3d79ab0d",
+          "plan_revision": 4
+        },
+        "bound": {
+          "review_content_id": "bfaba71e2323f8bdecc143e7c2dd2038c2cf358a2a7701d7733e257c3d79ab0d",
+          "bundle_id": "816678fbecb9b643ee156aa60a163ca4927313446a919d1013ce9fdc8071867d",
+          "plan_revision": 4
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "0778e867a948ba9f2b2fa7f175111aa618b1d30ed5a3a27e4822d92d9e2bf7fe",
+        "27218a1685aeb0d086a71741903aafbd87c4f42a703c57769698e6f24c52f8f5",
+        "7f8a70be3dc7d4bf6944bc63e81111a74b0198f5cf36690a20f89cd8992118de"
+      ],
+      "optional_findings": {
+        "F-5f94c03eee98": {
+          "digest": "5f94c03eee98e25711cc4d8def9b356c342691b96c9dd71dfc69300000dd5310",
+          "text": "**OPT-1. Name the seams for the residues `state_transaction` does not bracket (T4, T7).** The listed seams are\n  wrappers over `ws.state_transaction` and `ws.lifecycle_lock`. The entry-absent branch calls no\n  `state_transaction`, nothing of the two sits between the claim unlink and the guard release (T4's \"after the\n  unlink\"), and T7's failing unlink needs an injection point that does not also break `resolve_claim`'s read of the\n  same path or the guard release. Naming them (for example a wrapper over `ws.release_guard` that `os._exit`s before\n  delegating; an unlink failure injected only at the engine's call) keeps \"explicit seams over existing functions,\n  no engine hooks\" checkable at plan time.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "27218a1685aeb0d086a71741903aafbd87c4f42a703c57769698e6f24c52f8f5",
+              "verdict": "REVISE",
+              "at": "2026-10-24T07:06:03Z"
+            }
+          ]
+        },
+        "F-3a25b9ff0f65": {
+          "digest": "3a25b9ff0f65684a2e783a7679eccfe658b2ca79a85496e8373851866cec8575",
+          "text": "**OPT-2. Pin that step 5's guard re-read takes no (6) inside the body (D-Lock-Order).** Anything reachable from the\n  `with owner_mutation(...)` body that reaches `guard_mutation_lock` (calling `guard_holder_is_running`, or re-reading\n  the guard under (6)) makes the graph arm derive `(5)->(6)`, which the specification's table does not draw; the\n  \"table and counts need no edit\" claim then fails. State that the re-read is `read_guard` plus the in-process\n  `_guard_holder_locks` membership of its `lease_id`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "27218a1685aeb0d086a71741903aafbd87c4f42a703c57769698e6f24c52f8f5",
+              "verdict": "REVISE",
+              "at": "2026-10-24T07:06:03Z"
+            }
+          ]
+        },
+        "F-8fe38b40670a": {
+          "digest": "8fe38b40670a1a4230b0e74e1739ccae95a8f58678b96a0de15c981a6d004793",
+          "text": "**OPT-3. The `HEAD == start_commit` rule has no next step for benign HEAD movement.** Any commit after the start\n  (for example a merge into the branch while the checkpoint is open) makes the start unreleasable by this engine,\n  which is #55's wedge again for that case, and D-Refusals gives the refusal no next step. Either say so in the\n  refusal's message and the docs, or use the entry-absent branch's rule (\"no commit in `start_commit..HEAD` records\n  the checkpoint / carries its trailer\") for both branches.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "27218a1685aeb0d086a71741903aafbd87c4f42a703c57769698e6f24c52f8f5",
+              "verdict": "REVISE",
+              "at": "2026-10-24T07:06:03Z"
+            }
+          ]
+        },
+        "F-43e5c7c0c063": {
+          "digest": "43e5c7c0c06332742fa0b696b67fc4c25073d65702662841b7b4830fc0094df7",
+          "text": "**OPT-4. The `COMPLETE` refusal's next step assumes a durable completion.** D-Refusals says \"step 1c releases a\n  durable completion\", but an owner killed in `1f-commit` after persisting `COMPLETE` and before committing (T3's kill\n  case) leaves a `COMPLETE` working-tree entry with no commit. The message should name both cases (committed: step\n  1c releases it; uncommitted: resume step 1f in the owner's worktree), and T3 should say where its kill lands.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "27218a1685aeb0d086a71741903aafbd87c4f42a703c57769698e6f24c52f8f5",
+              "verdict": "REVISE",
+              "at": "2026-10-24T07:06:03Z"
+            }
+          ]
+        },
+        "F-51e3e46ed652": {
+          "digest": "51e3e46ed652014e59d4906fe904239921443d5ebc857f2ec110c8d8352c7b02",
+          "text": "**OPT-1. `GUARD_STEP_CLASSES` names classes, not steps (section 2, \"(5) Guard\").** At `5645896` it is\n  `frozenset({ORDINARY, DESTRUCTIVE})`; a step is destructive because its caller passes `step_class=DESTRUCTIVE`.\n  \"(`GUARD_STEP_CLASSES`: `1d` and `1f-commit` are destructive)\" reads as if a step table exists that\n  `release-start` must be added to. Say that the engine passes `step_class=DESTRUCTIVE`, and that no table changes.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "0778e867a948ba9f2b2fa7f175111aa618b1d30ed5a3a27e4822d92d9e2bf7fe",
+              "verdict": "REVISE",
+              "at": "2026-10-24T07:10:44Z"
+            }
+          ]
+        },
+        "F-28b3d92cdeb6": {
+          "digest": "28b3d92cdeb6a3dafba8b6c4cbee7d6facfd6dcbe61b8820ac20f43d633dc923",
+          "text": "**OPT-1. Two refusals have no explicit row in D-Refusals.** The table is meant to list every refusal. Two cases are\n  missing:\n  - (a) **A demoted checkpoint with nothing left to release.** This is the state after a successful release of a\n    re-started checkpoint, or D-Recovery's \"after the unlink\" row. The checkpoint has no claim, and its working entry\n    equals the `NEEDS_REVALIDATION` `B`. Row 1 covers \"neither recorded nor claimed\", but this checkpoint *is*\n    recorded, so no row names the class of the \"nothing to release\" refusal. T4 asserts that refusal, and T11 does\n    not cover a second call after success.\n  - (b) **A claim that changes between step 2 and the guard.** It is refused by `assert_claim_owner`, which raises\n    `CheckpointOwnershipStateMismatchError`, or `CheckpointOwnedByOtherWorktreeError` when the claim has moved to\n    another worktree. D-Refusals' row 4 lists \"a claim or guard changed before the unlink\" under\n    `CheckpointOwnershipUnavailableError`, which a reader may take to cover step 3 as well.\n\n  Suggested fix: word row 1 as \"no claim and a working entry equal to `B`\" (`CheckpointNotInProgressLocallyError`).\n  Name the step-3 classes as `assert_c",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "bfaba71e2323f8bdecc143e7c2dd2038c2cf358a2a7701d7733e257c3d79ab0d",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T07:19:36Z"
+            }
+          ]
+        },
+        "F-9d8eb1514963": {
+          "digest": "9d8eb1514963630ebbc14a581a9ed6c7c5f0d4e5fb5b81038e7cc5d471752a2d",
+          "text": "**OPT-2. The header's revision line is stale.** Line 14 still reads \"Plan revision: 3 (round 2 of the local review\n  applied ...)\", while the title, the registry and the state are at revision 4 with round 3 applied. Update the line\n  at the next revision.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "bfaba71e2323f8bdecc143e7c2dd2038c2cf358a2a7701d7733e257c3d79ab0d",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T07:19:36Z"
+            }
+          ]
+        },
+        "F-9c367a5cc609": {
+          "digest": "9c367a5cc60941fa48da894726106f8be1b10086c4deae504af1c2bc136852bb",
+          "text": "**EPR-001 [substantive] — Include the guardless reclamation residue.**\n  D-Recovery (`docs/ai-workflow/CHECKPOINT_START_ENGINE_PLAN.md:194`) calls its table exhaustive, but existing guard reclamation deletes the old guard before publishing its replacement. A recovery crash between those operations leaves the claim and restored baseline entry, with no guard. A deterministic scratch replay reproduced this earlier recovery gap.\n  \n  Another call still recovers, and owner entry falls within the accepted unfenced-owner residual, so this does not block the engine. Consider adding this residue and qualifying I1’s guard-present wording at line 31; no second mechanism is needed merely to document it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "bfaba71e2323f8bdecc143e7c2dd2038c2cf358a2a7701d7733e257c3d79ab0d",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T07:26:45Z"
+            }
+          ]
+        },
+        "F-c08635d5ce7f": {
+          "digest": "c08635d5ce7f618ee14ba05821e12e6dc25fb65224dd14ad6b1cd92d0de6f88e",
+          "text": "**EPR-002 [apparatus] — Correct the stale revision line.**\n  The header metadata at `docs/ai-workflow/CHECKPOINT_START_ENGINE_PLAN.md:14` still says revision 3. The title, registry, state and reviewed bundle identify revision 4.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "bfaba71e2323f8bdecc143e7c2dd2038c2cf358a2a7701d7733e257c3d79ab0d",
+              "verdict": "APPROVE",
+              "at": "2026-10-24T07:26:45Z"
+            }
+          ]
+        }
       }
     }
   }

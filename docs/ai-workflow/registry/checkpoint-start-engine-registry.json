@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "checkpoint-start-engine",
+  "plan_revision": 4,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The release engine, its tests and the fork-test fix",
+      "depends_on": [],
+      "complexity": 4,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.18.7",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    }
+  ]
+}

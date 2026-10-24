@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "work_item_id": "checkpoint-start-engine",
+  "requirements": {
+    "R1": {
+      "description": "release_checkpoint_start: one continuous window under the lifecycle lock (9) and one destructive release-start guard taken through owner_mutation; everything re-verified under the guard; the IN_PROGRESS entry removed first and the claim unlinked second, immediately after re-reading the claim and the guard; nothing committed; the guard released at the end; no command, state field, ledger, phase, trailer, commit shape or protocol change",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "Refusals with existing exception classes and an accurate message and next step, each leaving state, claim and guard unchanged: a commit since start_commit, another worktree's claim, a claim for another checkpoint, a live owner (guard_holder_is_running and the owner role's own refusal), a checkpoint not IN_PROGRESS, an unknown id, an entry with no claim, an undecidable claim or guard",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "Recovery by calling the function again: a crash after each step leaves exactly the residue the plan's table lists and a re-run finishes the release or refuses; the entry-absent branch checks that the committed state at HEAD does not record the checkpoint; the accepted residual (an unfenced owner between an interruption and the re-run) is stated and pinned by a test",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Deterministic real-process tests with explicit seams and no sleeps as synchronisation, red first on the base: success, every refusal, the live owner, a crash after each step then a re-run, two concurrent releases, the old race (a live same-worktree owner attempting 1f-commit after the release never recreates the entry), a failed claim cleanup, a changed claim or guard before the unlink, the residual, the entry-absent cases",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "The lock-order detectors accept the window: (5)->(2) becomes code-derivable and the completeness arm's unconditional-release regression covers the engine's own gated claim unlink; the specification's table and counts do not change",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R6": {
+      "description": "RodrigoFAbreu/workflow#95: the fork test makes the test process the child subreaper of its own orphan for that one test and waits for the child's exit, bounded, so the Manager's orphan wrapper reports nothing; the new tests also leave no process behind",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R7": {
+      "description": "Release 2.18.7 (a fix: patch): release constant and its two pinned assertions, manifest digests, sizes, measured suite counts and a per-record rationale for each changed file, release history closing #95 only (#55 stays open for the command), the downgrade posture and the manager block (min_manager_version 1.13.0 equal to the CI pin)",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "R8": {
+      "description": "docs/CONCURRENCY_INVARIANTS.md updated in the same change: the release-start step, a row for the release window with its invariant, lock order, residue table and tests, the narrowed gap for the unreleasable start, and the Last-checked line",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
