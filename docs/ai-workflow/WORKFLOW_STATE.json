@@ -19808,18 +19808,22 @@
       "registry_path": "docs/ai-workflow/registry/retention-report-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-report-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 2,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "e0267810ff8a220f8d65e672a2ffb98209f59327",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "7a524472c7f658295e7ff154dbfdd8290127d2f8"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "b8f18559a638564e083cc0751523d3683e6f57a5"
         }
       },
       "current_bundle_id": "4fc483f9c7c3f83c9e1693fa9a1b39424478820aadd0e659c01a7c765ed092af",
@@ -19948,8 +19952,8 @@
           "external": 0
         }
       },
-      "state_revision": 15,
-      "last_transition": "2026-10-25T16:43:52Z",
+      "state_revision": 17,
+      "last_transition": "2026-10-25T17:14:23Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",

@@ -15,7 +15,7 @@ W25 `command-wording`, is accepted (Workflow 2.19.2).
 | id | name | state |
 | --- | --- | --- |
 | CP1 | The report script, its tests and the documents | **complete** (verified in a scratch clone, see below) |
-| CP2 | Release 2.20.0 | not started |
+| CP2 | Release 2.20.0 | **complete** (verified in a scratch clone, see below) |
 
 ## Verified state
 
@@ -30,6 +30,15 @@ W25 `command-wording`, is accepted (Workflow 2.19.2).
   declared scratch patch of the two pinned counts), `tools/docs` (34), `check_docs.py`, `check-manager-block`, and the
   nine suites from the staged fixture (see the implementation bundle's `TEST_RESULTS.md`).
 
+- CP2: `manifest.json` 2.20.0 (the added `scripts/workflow_retention.py` record, counts 81/6, `distribution` 55, the posture,
+  `conformance.suites` measured by `release.py manager-block --write`, `workflow_state_completion_obligations_test.py` 208),
+  `WORKFLOW_RELEASE` 2.20.0 with its two pinned assertions and the `ORCHESTRATION_PROTOCOL.md` edits, the 2.20.0 row of
+  `docs/release-history.md`, and the 2.20.0 release class of `tools/release/release_test.py` (the 2.19.2 class keeps what
+  stays true of it). Verified in a scratch clone holding the CP2 commit: the nine suites from a stock `stage-conformance`
+  fixture, `tools/release` (279, zlib-ng 2.2.5), `tools/docs` (34), `check_docs.py`, `check-manager-block`,
+  `release.py build --commit HEAD`; `workflow-manager verify .` clean in the checkout.
+
 ## Next action
 
-CP2: `/milestone-implement retention-report` again, for the release bookkeeping of Workflow 2.20.0.
+Implementation is complete: `/milestone-implement retention-report` again, for the self-review, the full verification and the
+implementation bundle.
