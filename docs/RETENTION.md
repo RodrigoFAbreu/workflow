@@ -38,7 +38,7 @@ A work item is **finished** when all three hold:
    field.
 
 The stored fact is not enough on its own. It is written while the pull
-request is reviewed, before the merge, and nothing refreshes it afterwards:
+request is reviewed, before the merge, and the normal completion flow does not refresh it afterwards (only an explicit `/apply-pr-review` can store a fresh one):
 on 2026-10-25 every finished item's stored fact says `open` (21 here, 8 in
 the Manager, 24 in the Controller) or is absent (4, 8 and 19). So the tooling
 must take a fresh fact from the query `/apply-pr-review` runs
