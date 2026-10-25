@@ -128,38 +128,66 @@ def _tracked_counts(repo_root: Path) -> dict[str, int]:
     return counts
 
 
-def _review_folder(repo_root: Path, item_id: str, tracked: dict[str, int]) -> dict:
+def _unreadable(errors: dict[str, str], path, exc: OSError) -> None:
+    """Records a read failure that is not plain absence, once per path."""
+    errors.setdefault(str(path), f"{type(exc).__name__}: {exc.strerror or exc}")
+
+
+def _absent(exc: OSError) -> bool:
+    return isinstance(exc, (FileNotFoundError, NotADirectoryError))
+
+
+def _review_folder(repo_root: Path, item_id: str, tracked: dict[str, int], errors: dict[str, str]) -> dict:
     folder = repo_root / ".ai-review" / item_id
     files = size = 0
     present = False
+    complete = True
     try:
         present = stat.S_ISDIR(os.lstat(folder).st_mode)
-    except OSError:
-        pass
+    except OSError as exc:
+        if not _absent(exc):
+            _unreadable(errors, folder, exc)
+            complete = False
     if present:
-        for directory, _, names in os.walk(folder, followlinks=False):
+        def walk_failed(exc: OSError) -> None:
+            nonlocal complete
+            _unreadable(errors, exc.filename or folder, exc)
+            complete = False
+
+        for directory, _, names in os.walk(folder, onerror=walk_failed, followlinks=False):
             for name in names:
+                full = os.path.join(directory, name)
                 try:
-                    info = os.lstat(os.path.join(directory, name))
-                except OSError:
+                    info = os.lstat(full)
+                except OSError as exc:
+                    if not _absent(exc):
+                        _unreadable(errors, full, exc)
+                        complete = False
                     continue
                 if stat.S_ISREG(info.st_mode):
                     files += 1
                     size += info.st_size
-    return {"present": present, "files": files, "bytes": size, "tracked_files": tracked.get(item_id, 0)}
+    return {"present": present, "complete": complete, "files": files, "bytes": size,
+            "tracked_files": tracked.get(item_id, 0)}
 
 
-def _archive_fact(path: Path, now: datetime.datetime, ttl_days: int) -> dict:
-    absent = {"present": False, "bytes": None, "modified": None, "age_days": None, "prunable": False}
+def _archive_fact(path: Path, now: datetime.datetime, ttl_days: int, errors: dict[str, str]) -> dict:
+    """`readable` is false when the archive could not be looked at, which is not
+    the same as absent: its `present` then says nothing."""
+    absent = {"present": False, "readable": True, "bytes": None, "modified": None, "age_days": None,
+              "prunable": False}
     try:
         info = os.lstat(path)
-    except OSError:
+    except OSError as exc:
+        if not _absent(exc):
+            _unreadable(errors, path, exc)
+            return {**absent, "readable": False}
         return absent
     if not stat.S_ISREG(info.st_mode):
         return absent
     modified = datetime.datetime.fromtimestamp(info.st_mtime, datetime.timezone.utc)
     age = max(0, int((now - modified).total_seconds() // 86400))
-    return {"present": True, "bytes": info.st_size, "modified": _iso(modified), "age_days": age,
+    return {"present": True, "readable": True, "bytes": info.st_size, "modified": _iso(modified), "age_days": age,
             "prunable": age > ttl_days}
 
 
@@ -241,33 +269,36 @@ def build_report(repo_root, *, archive_root, ttl_days: int = DEFAULT_TTL_DAYS, n
             reject(key, entry, f"pr_not_merged:{facts.get('state')}")
 
     tracked = _tracked_counts(repo_root)
+    errors: dict[str, str] = {}
 
     def listing(last, key, facts):
         pr = facts.get("pr") if isinstance(facts.get("pr"), dict) else {}
         return {"work_item_id": key, "last_transition": last or None,
                 "pull_request": {"number": pr.get("number"), "url": pr.get("url")},
-                "review_folder": _review_folder(repo_root, key, tracked)}
+                "review_folder": _review_folder(repo_root, key, tracked, errors)}
 
     kept_recent = [listing(last, key, facts) for last, key, _, facts in merged[:KEEP_RECENT]]
     finished = []
     for last, key, _, facts in merged[KEEP_RECENT:]:
         record = listing(last, key, facts)
-        record["archive"] = _archive_fact(archive_dir / f"{key}{ARCHIVE_SUFFIX}", now, ttl_days)
+        record["archive"] = _archive_fact(archive_dir / f"{key}{ARCHIVE_SUFFIX}", now, ttl_days, errors)
         finished.append(record)
 
     classes = {record["work_item_id"]: "finished" for record in finished}
     classes.update({record["work_item_id"]: "recent" for record in kept_recent})
     classes.update({record["work_item_id"]: "open" for record in not_finished})
     archives = []
+    names: list[str] = []
     try:
-        listed = stat.S_ISDIR(os.lstat(archive_dir).st_mode)
-    except OSError:
-        listed = False
-    if listed:
-        for name in os.listdir(archive_dir):
-            if not name.endswith(ARCHIVE_SUFFIX) or name == ARCHIVE_SUFFIX:
-                continue
-            fact = _archive_fact(archive_dir / name, now, ttl_days)
+        if stat.S_ISDIR(os.lstat(archive_dir).st_mode):
+            names = os.listdir(archive_dir)
+    except OSError as exc:
+        if not _absent(exc):
+            _unreadable(errors, archive_dir, exc)
+    for name in names:
+        if name.endswith(ARCHIVE_SUFFIX) and name != ARCHIVE_SUFFIX:
+            fact = _archive_fact(archive_dir / name, now, ttl_days, errors)
+            fact.pop("readable")
             if not fact.pop("present"):
                 continue
             stem = name[:-len(ARCHIVE_SUFFIX)]
@@ -279,7 +310,8 @@ def build_report(repo_root, *, archive_root, ttl_days: int = DEFAULT_TTL_DAYS, n
         "schema_version": SCHEMA_VERSION, "kind": "retention-report", "generated_at": _iso(now),
         "repository": repository, "archive_dir": str(archive_dir), "ttl_days": ttl_days,
         "keep_recent": KEEP_RECENT, "finished": finished, "kept_recent": kept_recent,
-        "not_finished": not_finished, "archives": archives,
+        "not_finished": not_finished, "archives": archives, "complete": not errors,
+        "read_errors": [{"path": path, "error": errors[path]} for path in sorted(errors)],
         "totals": {"finished": len(finished),
                    "finished_folder_bytes": sum(r["review_folder"]["bytes"] for r in finished),
                    "archives": len(archives), "prunable": sum(1 for a in archives if a["prunable"])},
@@ -324,6 +356,10 @@ def render_text(report: dict) -> str:
     lines += ["", f"Archives ({len(report['archives'])}), prunable ({len(prunable)}):"]
     lines += [f"  {a['name']}: {_size(a['bytes'])}, {a['age_days']} days old, {a['item']}" for a in prunable] \
         or ["  none prunable"]
+    if not report["complete"]:
+        lines += ["", f"INCOMPLETE: {len(report['read_errors'])} path(s) could not be read; the sizes, archives and "
+                      "absences above are not reliable for them:"]
+        lines += [f"  {e['path']}: {e['error']}" for e in report["read_errors"]]
     return "\n".join(lines) + "\n"
 
 
@@ -359,6 +395,9 @@ def main(argv=None, *, run=None, resolve=None, now: datetime.datetime | None = N
         sys.stdout.write(json.dumps(report, sort_keys=True) + "\n")
     else:
         sys.stdout.write(render_text(report))
+    if not report["complete"]:
+        print(f"warning: incomplete: {len(report['read_errors'])} path(s) could not be read "
+              "(see read_errors); a missing size or archive may be unreadable, not absent", file=sys.stderr)
     return 0
 
 

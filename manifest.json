@@ -802,9 +802,9 @@
       "location": "payload/scripts/workflow_retention.py",
       "category": "distribution",
       "rule": "^scripts/workflow_retention\\.py$",
-      "rationale": "The read-only retention report (`python3 scripts/workflow_retention.py report [--json] [--archive-root] [--ttl-days] [--repo-root]`): lists the finished work items by the rule of docs/RETENTION.md, the size of their untracked review folders and the archives older than the time to live. It writes nothing, is called by no Workflow command, and a failed pull-request query puts the item in not_finished rather than aborting. retention-report (workflow-2.20.0): new script, references #84 step 2.",
-      "sha256": "eadfd4c34d86cc4bd876e250df1b26be0f3e3b0d1a4114894ea6d7bac69243d7",
-      "size": 16343,
+      "rationale": "The read-only retention report (`python3 scripts/workflow_retention.py report [--json] [--archive-root] [--ttl-days] [--repo-root]`): lists the finished work items by the rule of docs/RETENTION.md, the size of their untracked review folders and the archives older than the time to live. It writes nothing, is called by no Workflow command, and a failed pull-request query puts the item in not_finished rather than aborting. retention-report (workflow-2.20.0): new script, references #84 step 2. A path that exists but cannot be read is reported (complete, read_errors, review_folder.complete, archive.readable), never as absence.",
+      "sha256": "7ddd1e3fc0a5c26fa41bcd828c64e64f7655fa89c2d3b5033cef166fbdc3fef9",
+      "size": 18348,
       "executable": false
     },
     {
@@ -822,9 +822,9 @@
       "location": "payload/scripts/workflow_state_completion_obligations_test.py",
       "category": "distribution",
       "rule": "^scripts/workflow_state_completion_obligations_test\\.py$",
-      "rationale": "TestNeverPersistedPhaseVocabulary's PERSISTED frozenset and its AST-derivation helper widened for the two new persisted phases, one of them (AWAITING_LOCAL_IMPLEMENTATION_REVIEW) reachable only through bundle_generation_target_phase's call indirection (D-Implementation-Review-Stages, CP11). backlog-file (workflow-2.17.0): the backlog parser, schema, selection, edit, page, command-line, declaration and document tests, as the release notes state. review-followups-cleanup (workflow-2.18.1): backlog tests for a quoted \"?\" entry, a trailing comment on a key with no inline value, protected_conflicts on item-page paths and prefixes, and the two backlog document sentences. retention-report (workflow-2.20.0): the RetentionReport tests (fifteen added), which run the read-only report script against synthetic repositories and pin its output, its refusals and that it writes nothing; every pre-existing test is unmodified.",
-      "sha256": "ca2da6fd5b280d8b5aedeebda1193d59424d8e8d055af93656a38697d1b08bd4",
-      "size": 214254,
+      "rationale": "TestNeverPersistedPhaseVocabulary's PERSISTED frozenset and its AST-derivation helper widened for the two new persisted phases, one of them (AWAITING_LOCAL_IMPLEMENTATION_REVIEW) reachable only through bundle_generation_target_phase's call indirection (D-Implementation-Review-Stages, CP11). backlog-file (workflow-2.17.0): the backlog parser, schema, selection, edit, page, command-line, declaration and document tests, as the release notes state. review-followups-cleanup (workflow-2.18.1): backlog tests for a quoted \"?\" entry, a trailing comment on a key with no inline value, protected_conflicts on item-page paths and prefixes, and the two backlog document sentences. retention-report (workflow-2.20.0): the RetentionReport tests (sixteen added), which run the read-only report script against synthetic repositories and pin its output, its refusals and that it writes nothing; every pre-existing test is unmodified.",
+      "sha256": "cf82ff0ebbe67cc64e222a68376f6146257e8d2ef0d9a4f0f5cf84667a311506",
+      "size": 218344,
       "executable": false
     },
     {

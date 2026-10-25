@@ -25,7 +25,7 @@ code in `payload/scripts/` and the shipped documents.
 | `python3 scripts/workflow_backlog.py` | 0 | the command succeeded, or the repository declares no backlog (`{"declared": false}`); `status` always exits 0 | read the JSON |
 | | 1 | `check` found the roadmap page stale (`roadmap_stale`) | run `generate` and commit the page |
 | | 2 | a refusal (`error: <code>: <message>` and `next step:` on stderr) or a usage error | follow the next step; the codes are in [the backlog file](../payload/docs/ai-workflow/BACKLOG_FILE.md#commands-and-exit-codes) |
-| `python3 scripts/workflow_retention.py report` | 0 | the report was printed (also when some pull-request queries failed: those items are in `not_finished`) | read it; the command writes nothing |
+| `python3 scripts/workflow_retention.py report` | 0 | the report was printed (also when some pull-request queries failed: those items are in `not_finished`, and also when some paths could not be read: `complete` is then `false`, `read_errors` lists them and `warning: incomplete:` is printed on stderr) | read it, and check `complete` before trusting a size or an absent archive; the command writes nothing |
 | | 2 | a refusal (`error: <code>: <message>` and `next step:` on stderr: `state_missing`, `state_invalid`, `repository_unknown`, `usage`) or a usage error | follow the next step; the command is described in [the retention rule](RETENTION.md#the-report) |
 
 Two scripts only tell success from failure. `prepare-ai-review.sh` documents

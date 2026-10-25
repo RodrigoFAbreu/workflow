@@ -298,13 +298,24 @@ run it between work items.
 {"schema_version": 1, "kind": "<report kind>", "generated_at": "<UTC>", "repository": "<owner>/<name>",
  "archive_dir": "<path>", "ttl_days": 30, "keep_recent": 3,
  "finished":     [{"work_item_id", "last_transition", "pull_request": {"number", "url"},
-                   "review_folder": {"present", "files", "bytes", "tracked_files"},
-                   "archive": {"present", "bytes", "modified", "age_days", "prunable"}}],
+                   "review_folder": {"present", "complete", "files", "bytes", "tracked_files"},
+                   "archive": {"present", "readable", "bytes", "modified", "age_days", "prunable"}}],
  "kept_recent":  [{"work_item_id", "last_transition", "pull_request", "review_folder"}],
  "not_finished": [{"work_item_id", "phase", "reason"}],
  "archives":     [{"name", "work_item_id", "bytes", "modified", "age_days", "prunable", "item"}],
+ "complete": true, "read_errors": [{"path", "error"}],
  "totals": {"finished", "finished_folder_bytes", "archives", "prunable"}}
 ```
+
+A path that does not exist is absence; a path that exists and cannot be read
+(permission denied, an I/O error) is not. The report never turns the second
+into the first: the unreadable path is listed in `read_errors`, `complete`
+is `false`, the folder's `review_folder.complete` or the archive's
+`archive.readable` is `false`, the text form ends with an `INCOMPLETE`
+section and a `warning: incomplete:` line goes to stderr. Sizes, archive
+facts and the totals are then lower bounds, and an unreadable archive
+directory is not evidence that there is no archive. The exit status stays 0:
+the report was printed, and a caller reads `complete`.
 
 An archive is `prunable` when its age in whole days (from the file's
 modification time) is strictly greater than the time to live. `archives`

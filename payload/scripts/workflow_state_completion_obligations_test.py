@@ -3859,10 +3859,10 @@ class RetentionReport(unittest.TestCase):
             _write(rr.repo, ".ai-review/w02/t.txt", "1")
             _run(["git", "add", "-f", ".ai-review/w02/t.txt"], cwd=rr.root)
             by_id = {r["work_item_id"]: r for r in rr.build()["finished"] + rr.build()["kept_recent"]}
-            self.assertEqual(by_id["w00"]["review_folder"], {"present": True, "files": 2, "bytes": 8, "tracked_files": 0})
+            self.assertEqual(by_id["w00"]["review_folder"], {"present": True, "complete": True, "files": 2, "bytes": 8, "tracked_files": 0})
             self.assertFalse(by_id["w01"]["review_folder"]["present"])
             self.assertEqual(by_id["w02"]["review_folder"]["tracked_files"], 1)
-            self.assertEqual(by_id["w03"]["review_folder"], {"present": False, "files": 0, "bytes": 0, "tracked_files": 0})
+            self.assertEqual(by_id["w03"]["review_folder"], {"present": False, "complete": True, "files": 0, "bytes": 0, "tracked_files": 0})
 
     def test_t6_archive_presence_age_and_prunable(self):
         items = _rr_many(6)
@@ -3902,7 +3902,8 @@ class RetentionReport(unittest.TestCase):
             report = rr.build()
             self.assertEqual([a["item"] for a in report["archives"]], ["open"])
             self.assertEqual(report["finished"][0]["archive"],
-                             {"present": False, "bytes": None, "modified": None, "age_days": None, "prunable": False})
+                             {"present": False, "readable": True, "bytes": None, "modified": None, "age_days": None,
+                              "prunable": False})
 
     def _every_failure_path(self):
         from workflow_forge import ForgeUnavailableError, ForgeUndecidableError
@@ -3958,6 +3959,80 @@ class RetentionReport(unittest.TestCase):
             _write(rr.repo, "docs/ai-workflow/WORKFLOW_STATE.json", "{not json")
             refused_leaves_everything_as_it_was()          # state_invalid
 
+    def _deny(self, path):
+        mode = os.stat(path).st_mode
+        os.chmod(path, 0)
+
+        def restore():
+            try:
+                os.chmod(path, mode)
+            except FileNotFoundError:
+                pass
+
+        self.addCleanup(restore)
+
+    def test_t7c_unreadable_review_and_archive_paths_are_marked_incomplete_and_nothing_is_written(self):
+        if os.geteuid() == 0:
+            self.skipTest("permission denial cannot be provoked as root")
+        with _RR(_rr_many(4)) as rr:
+            _write(rr.repo, ".ai-review/w00/a.txt", "12345")
+            _write(rr.repo, ".ai-review/w00/sub/b.txt", "123")
+            _write(rr.repo, ".ai-review/w00/sub/deep/c.txt", "12")
+            _write(rr.repo, ".ai-review/w01/keep.txt", "1")
+            rr.archive("w00.tar.zst", 40 * 86400, size=20)
+            clean = {r["work_item_id"]: r for r in rr.build()["finished"] + rr.build()["kept_recent"]}
+            self.assertEqual(clean["w00"]["review_folder"]["bytes"], 10)
+            self.assertTrue(rr.build()["complete"])
+            before = _rr_snapshot(rr.root, rr.archive_root)
+            sub = rr.root / ".ai-review/w00/sub"
+            self._deny(sub)
+            for args in ((), ("--json",)):
+                code, out, err = rr.cli(*args)
+                self.assertEqual(code, 0)
+                self.assertTrue(err.startswith("warning: incomplete: 1 path(s)"), err)
+                self.assertIn("INCOMPLETE" if not args else '"complete": false', out)
+            report = rr.build()
+            by_id = {r["work_item_id"]: r for r in report["finished"] + report["kept_recent"]}
+            self.assertFalse(by_id["w00"]["review_folder"]["complete"])
+            self.assertEqual(by_id["w00"]["review_folder"]["bytes"], 5)
+            self.assertTrue(by_id["w01"]["review_folder"]["complete"])
+            self.assertFalse(report["complete"])
+            self.assertEqual([e["path"] for e in report["read_errors"]], [str(sub)])
+            self.assertIn("PermissionError", report["read_errors"][0]["error"])
+            os.chmod(sub, 0o755)
+            nested = sub / "deep"
+            self._deny(nested)
+            self.assertEqual([e["path"] for e in rr.build()["read_errors"]], [str(nested)])
+            os.chmod(nested, 0o755)
+            # an unreadable file's directory: entries cannot be examined
+            self._deny(rr.root / ".ai-review/w00/sub")
+            os.chmod(rr.root / ".ai-review/w00/sub", 0o644)
+            self.assertFalse(rr.build()["complete"])
+            os.chmod(rr.root / ".ai-review/w00/sub", 0o755)
+            # the archive root cannot be searched: absence is not claimed
+            self._deny(rr.archive_root)
+            report = rr.build()
+            self.assertFalse(report["complete"])
+            self.assertEqual(report["archives"], [])
+            archive = {r["work_item_id"]: r["archive"] for r in report["finished"]}
+            self.assertFalse(archive["w00"]["readable"])
+            self.assertFalse(report["read_errors"] == [])
+            self.assertTrue(all("PermissionError" in e["error"] for e in report["read_errors"]))
+            code, out, err = rr.cli("--json")
+            self.assertEqual(code, 0)
+            self.assertFalse(json.loads(out)["complete"])
+            self.assertIn("warning: incomplete", err)
+            os.chmod(rr.archive_root, 0o755)
+            # the archive directory itself cannot be listed
+            self._deny(rr.archive_root / "widgets")
+            report = rr.build()
+            self.assertFalse(report["complete"])
+            self.assertEqual(report["archives"], [])
+            self.assertIn(str(rr.archive_root / "widgets"), [e["path"] for e in report["read_errors"]])
+            os.chmod(rr.archive_root / "widgets", 0o755)
+            self.assertEqual(_rr_snapshot(rr.root, rr.archive_root), before)
+            self.assertTrue(rr.build()["complete"])
+
     def test_t8_cli_json_text_and_refusals(self):
         items = _rr_many(5)
         items["busy"] = _rr_item(phase="IMPLEMENTING")
@@ -3967,9 +4042,10 @@ class RetentionReport(unittest.TestCase):
             self.assertEqual((code, err), (0, ""))
             self.assertTrue(out.endswith("\n"))
             report = json.loads(out)
-            self.assertEqual(sorted(report), ["archive_dir", "archives", "finished", "generated_at", "keep_recent",
-                                              "kept_recent", "kind", "not_finished", "repository", "schema_version",
-                                              "totals", "ttl_days"])
+            self.assertEqual(sorted(report), ["archive_dir", "archives", "complete", "finished", "generated_at",
+                                              "keep_recent", "kept_recent", "kind", "not_finished", "read_errors",
+                                              "repository", "schema_version", "totals", "ttl_days"])
+            self.assertEqual((report["complete"], report["read_errors"]), (True, []))
             self.assertEqual(report["repository"], "acme/widgets")
             self.assertEqual(report["kind"], "retention-report")
             self.assertEqual(report["generated_at"], "2026-11-01T12:00:00Z")
