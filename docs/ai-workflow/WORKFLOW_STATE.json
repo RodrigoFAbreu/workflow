@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "interleaving-pins",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -18186,6 +18186,261 @@
         },
         "evaluated_at": "2026-10-24T19:14:41Z",
         "workflow_release": "2.18.7"
+      }
+    },
+    "interleaving-pins": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "interleaving-pins",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/INTERLEAVING_PINS_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/interleaving-pins-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/interleaving-pins-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 2,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "e8aff0af0342700e4098f88cd7f969b4c028f733",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "30419499db9b7fa4f637c0e4b0e24f0222c3b91b14406b77efa02546366260d5",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "30419499db9b7fa4f637c0e4b0e24f0222c3b91b14406b77efa02546366260d5",
+        "approved_review_content_id": "fb8bcd74fbf2547e34022083d31c8f023ef7fc64583a5df19b6f16581b950524",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/INTERLEAVING_PINS_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "fff3bf1f60b2b7105715410240c1b472b1882303"
+          },
+          {
+            "path": "docs/ai-workflow/registry/interleaving-pins-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "05ee99dcc2f2946bce6a310f2a37c71724fa26c1"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/interleaving-pins-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7bc099da22b03030791460143b11186694cacbe7"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-25T00:06:02Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "fb8bcd74fbf2547e34022083d31c8f023ef7fc64583a5df19b6f16581b950524",
+            "ledger": {
+              "local": {
+                "bundle_id": "30419499db9b7fa4f637c0e4b0e24f0222c3b91b14406b77efa02546366260d5",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "7261e8630e55b5d9e0b7341843afae0896044096c50ebca4c0bee0228f7489e9",
+                "ledger_entry_sha256": "aacbdf3397c4f9af3cda683f3fdea6076273750f278fe638b320ae848882cff7",
+                "run_ref": "session:local .ai-review/interleaving-pins/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "30419499db9b7fa4f637c0e4b0e24f0222c3b91b14406b77efa02546366260d5",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "aca16b69a41a2131c27fb44d9037f84a75c206e6a5fc80bbf34729fbbd739476",
+                "ledger_entry_sha256": "32667f5de226bc2de2273c42a9c6deacc0d0b5bf4995aa6b14c54e2e3b07e452",
+                "run_ref": "session:local .ai-review/interleaving-pins/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-25T00:06:02Z",
+          "workflow_release": "2.19.0"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "fb8bcd74fbf2547e34022083d31c8f023ef7fc64583a5df19b6f16581b950524",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "30419499db9b7fa4f637c0e4b0e24f0222c3b91b14406b77efa02546366260d5",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-25T00:00:36Z",
+          "verdict_sha256": "7261e8630e55b5d9e0b7341843afae0896044096c50ebca4c0bee0228f7489e9",
+          "run_ref": "session:local .ai-review/interleaving-pins/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "30419499db9b7fa4f637c0e4b0e24f0222c3b91b14406b77efa02546366260d5",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-25T00:05:16Z",
+          "verdict_sha256": "aca16b69a41a2131c27fb44d9037f84a75c206e6a5fc80bbf34729fbbd739476",
+          "run_ref": "session:local .ai-review/interleaving-pins/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-10-25T00:06:02Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-24T23:58:02Z",
+        "consumed": {
+          "review_content_id": "3d466cd15175b02180ca93939e655ce95df03b02774ed9ffab38200dd483cbdf",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "fb8bcd74fbf2547e34022083d31c8f023ef7fc64583a5df19b6f16581b950524",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "fb8bcd74fbf2547e34022083d31c8f023ef7fc64583a5df19b6f16581b950524",
+          "bundle_id": "30419499db9b7fa4f637c0e4b0e24f0222c3b91b14406b77efa02546366260d5",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "3d466cd15175b02180ca93939e655ce95df03b02774ed9ffab38200dd483cbdf"
+      ],
+      "optional_findings": {
+        "F-20eedecaf6d0": {
+          "digest": "20eedecaf6d06bce33e6f031d4c0d6f440abdf736aadb012dddf6db6569276bb",
+          "text": "**LPR-003 — Section 2's seam statement contradicts the D-P2 table.** Section 2 says \"for kind `baseline` no seam of the worker fires at all (it has no `state_transaction` call)\". The worker's `crash_after_unlink` wrapper over `release_guard` (`S-gap`) does fire on kind `baseline`, as the D-P2 table itself says (\"both kinds\"). What is true is that no existing test runs it on that kind. Reword to say so.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "3d466cd15175b02180ca93939e655ce95df03b02774ed9ffab38200dd483cbdf",
+              "verdict": "REVISE",
+              "at": "2026-10-24T23:55:36Z"
+            }
+          ]
+        },
+        "F-1b7aa081d16e": {
+          "digest": "1b7aa081d16e52f6430b4b430195ed10fec6ad41376e2d5639d942ab5b0b7ece",
+          "text": "**LPR-004 — Pin the exact outside count.** D-P1's non-vacuity check asks that the lock be entered outside the body \"at least twice\", but the plan names three entries (the probe, the guard's acquire, its release). Asserting exactly three, or naming the three, would also catch a spy that misses the release-time edge.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "3d466cd15175b02180ca93939e655ce95df03b02774ed9ffab38200dd483cbdf",
+              "verdict": "REVISE",
+              "at": "2026-10-24T23:55:36Z"
+            }
+          ]
+        },
+        "F-2ee7b4501c94": {
+          "digest": "2ee7b4501c944f83f2c95973cc331251971710f65a14f0b626ca8549cd8ea46e",
+          "text": "**LPR-005 — Say whether the overlay replaces or merges.** D-P4 overlays \"the real on-disk `checkpoints`\" on `_state_with_approved_plan`'s item, which carries `CP1` `COMPLETE` and `last_completed_checkpoint_id: CP1`. State whether the overlay replaces the `checkpoints` map or merges into it, so the after-release acceptance is not decided by a leftover `CP1` entry nobody chose.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "3d466cd15175b02180ca93939e655ce95df03b02774ed9ffab38200dd483cbdf",
+              "verdict": "REVISE",
+              "at": "2026-10-24T23:55:36Z"
+            }
+          ]
+        },
+        "F-7988baa181a3": {
+          "digest": "7988baa181a34e60ecb54a41ab704e31d009bc8269ad5a56cd077f10e3ad404e",
+          "text": "**LPR-006 — D-P1 still claims the five scenarios run every statement of the body.**\n  - The `CheckpointNotInProgressLocallyError` raise inside `restore` (`kind_now != \"entry\"`) is still reached by no scenario.\n  - D-P1 names only one kind `entry` success, so one of the two `restore` branches (`base is None`, which pops the entry, or the demoted restore of `base`) runs only if that success is run both undemoted and demoted.\n  - The mutants M1a to M1c say what is pinned, and a (6) in those spots is unlikely, so this is not a gap in the pin itself. Fix it in one of two ways:\n    - Run the entry success over both an undemoted and a demoted start, and add a sixth scenario whose patched `state_transaction` rewrites the entry away from `IN_PROGRESS` before the real write.\n    - Or soften the claim to \"every statement except the `kind_now` race refusal\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "fb8bcd74fbf2547e34022083d31c8f023ef7fc64583a5df19b6f16581b950524",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T00:00:36Z"
+            }
+          ]
+        },
+        "F-937b07f3fbdb": {
+          "digest": "937b07f3fbdb25d2682eda4021d34383ddf45649aaf138f3f5e247e2cc51bef8",
+          "text": "**LPR-007 — Reuse the first amendment state in D-P4.** `_state_with_approved_plan` makes an \"approve plan\" commit every time it is called. Have D-P4 build the after-release overlay from the state it built before the release, rather than calling the helper a second time. A second call adds a second approval commit with the same `review_content_id`, and `discover_plan_approval_commit` would then decide between two commits.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "fb8bcd74fbf2547e34022083d31c8f023ef7fc64583a5df19b6f16581b950524",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T00:00:36Z"
+            }
+          ]
+        },
+        "F-2202bede9685": {
+          "digest": "2202bede96851b042f83cf02362957d8de229f61efaa796be7237887baf32cbf",
+          "text": "**EPR-001 [substantive] — Narrow the exhaustive coverage claim.**\n  D-P1, lines 116–124, says the five scenarios cover every body exit and statement. They do not exercise the `kind_now != \"entry\"` refusal inside `restore`, and the single entry-success scenario does not explicitly require both baseline-restoration branches. Either qualify that statement or add those scenarios. This corroborates LPR-006; the specified mutants remain distinguishable, so another review round is unnecessary.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "fb8bcd74fbf2547e34022083d31c8f023ef7fc64583a5df19b6f16581b950524",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T00:05:16Z"
+            }
+          ]
+        }
       }
     }
   }

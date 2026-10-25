@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "work_item_id": "interleaving-pins",
+  "requirements": {
+    "R1": {
+      "description": "P1 (#97 item 4): a test fails if a path reachable from the owner_mutation body of release_checkpoint_start acquires the checkpoint guardlock (6) -- a recording spy over owner_mutation and guard_mutation_lock, non-vacuous (the lock is entered outside the body exactly three times) and run over an entry success, a baseline success, a failed unlink, a refusal inside the restore mutator and the re-read refusal before the unlink",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "P2 (#97 item 5): the seams for the two residues state_transaction does not bracket are named (S-write, S-unlink, S-gap), test-only and over existing function boundaries, and tests interrupt the entry-absent (baseline) branch at the unlink and in the gap after the unlink, fail its unlink, and pin that it calls no state_transaction; the worker gains the crash_at_unlink mode",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "P3 and P4 (#100): the third raise of AmendmentCheckpointActiveError (the plan-approval open) carries no /release-checkpoint-start; the IN_PROGRESS-entry arm of request_plan_amendment is refused before and accepted after a real release, over the real on-disk entry of an undemoted and a demoted start",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Evidence and limits: every new test is shown to fail against a mutant that removes the property it pins (command and result recorded in the evidence file), runs with no sleep as synchronisation and leaves no process behind (the Manager's orphan wrapper); no production change (workflow_state.py is untouched), no wording or message fix (roadmap row 26b)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "Release 2.19.1, a fix patch: WORKFLOW_RELEASE and its two pinned assertions, manifest digests, sizes, measured suite counts and an accurate per-record sentence, the release-history row (references #97 and #100, closes nothing), the downgrade posture, min_manager_version equal to the CI pin, the tests cell of the release-window row of the concurrency page, a 2.19.1 class in the release tests",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
