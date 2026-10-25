@@ -13,7 +13,7 @@ previous milestone, W23 `checkpoint-start-command`, is accepted (Workflow 2.19.0
 | id | name | state |
 | --- | --- | --- |
 | CP1 | The four pins and their evidence | **complete** |
-| CP2 | Release 2.19.1 | pending |
+| CP2 | Release 2.19.1 | **complete** |
 
 ## Verified state
 
@@ -24,7 +24,12 @@ previous milestone, W23 `checkpoint-start-command`, is accepted (Workflow 2.19.0
 - Verified in a disposable clone (D-Staging): the nine suites, the whole `workflow_state_test.py` chunk and the new
   tests under the orphan wrapper (no orphan beyond Git), the `tools/release` and `tools/docs` tests, `check_docs.py`
   and `check-manager-block`; `workflow-manager verify .` is clean.
+- CP2: Workflow 2.19.1 (`fix:`): `WORKFLOW_RELEASE`, its two pinned assertions and the Orchestration Protocol
+  lists name 2.19.1 (protocol stays 1.5); `manifest.json` moves the four changed records (digest, size, an
+  `interleaving-pins (workflow-2.19.1)` sentence), the posture and the measured `workflow_state_test.py` count
+  (1232 to 1239); the release-history row (closes nothing), the invariants page and a 2.19.1 release class in
+  `tools/release/release_test.py`. Counts stay (80, 6).
 
 ## Next action
 
-`/milestone-implement interleaving-pins` for CP2 (Release 2.19.1).
+Self-review, then external implementation review of the whole milestone.

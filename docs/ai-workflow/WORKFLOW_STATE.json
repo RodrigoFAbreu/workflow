@@ -18197,18 +18197,22 @@
       "registry_path": "docs/ai-workflow/registry/interleaving-pins-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/interleaving-pins-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 2,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "e8aff0af0342700e4098f88cd7f969b4c028f733",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "c83fd742943245a5524f20c2f06adf0fcc57eb45"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "7be84db9fc53dd3dd2d17593c14eedb57af690ed"
         }
       },
       "current_bundle_id": "30419499db9b7fa4f637c0e4b0e24f0222c3b91b14406b77efa02546366260d5",
@@ -18337,8 +18341,8 @@
           "external": 0
         }
       },
-      "state_revision": 11,
-      "last_transition": "2026-10-25T00:51:25Z",
+      "state_revision": 13,
+      "last_transition": "2026-10-25T01:41:55Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
