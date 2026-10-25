@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "command-wording",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -18933,6 +18933,334 @@
         },
         "evaluated_at": "2026-10-25T04:05:42Z",
         "workflow_release": "2.19.0"
+      }
+    },
+    "command-wording": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "command-wording",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/COMMAND_WORDING_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/command-wording-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/command-wording-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 3,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "bebf2d24b5fd27b6d9e1611c08f42dfc9c0698e1",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "209cc44984b6c3dfe054c63a35c213826bcd048d50cc1af5becfa0c9477766c0",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "209cc44984b6c3dfe054c63a35c213826bcd048d50cc1af5becfa0c9477766c0",
+        "approved_review_content_id": "e3e6c7181f6ce2b8bdf40e91552b1b89dfd309a5ce3c3106d87910ba974dcfba",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/COMMAND_WORDING_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "483132aff66e144d43d0062e9be1d93dcf75bad4"
+          },
+          {
+            "path": "docs/ai-workflow/registry/command-wording-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b693ace82060c20b67cd98ecf6999575c44cb1f6"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/command-wording-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0a690e28c262c530ad90b27fe91dbaf1168258df"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-25T05:57:39Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "e3e6c7181f6ce2b8bdf40e91552b1b89dfd309a5ce3c3106d87910ba974dcfba",
+            "ledger": {
+              "local": {
+                "bundle_id": "209cc44984b6c3dfe054c63a35c213826bcd048d50cc1af5becfa0c9477766c0",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "069fab79bb89f4cfdad0fa876a2dbd63d2fdfe21d5feccbd49e2c45505251bbf",
+                "ledger_entry_sha256": "b2ec51b25bdf61fb793149d6c88ecd5dbae4e806e4bc0f637c70ea84178e1e2d",
+                "run_ref": "session:local .ai-review/command-wording/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "209cc44984b6c3dfe054c63a35c213826bcd048d50cc1af5becfa0c9477766c0",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "26bb3da2d42b76372186cdfefc0d4d0c307b6405b80212e56bfcc15fa66ccfc9",
+                "ledger_entry_sha256": "d1504df5ec884326582ff6367ab9de22fc3f030377d5c32c597ea30b5da18fc2",
+                "run_ref": "session:local .ai-review/command-wording/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-25T05:57:39Z",
+          "workflow_release": "2.19.1"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "e3e6c7181f6ce2b8bdf40e91552b1b89dfd309a5ce3c3106d87910ba974dcfba",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "209cc44984b6c3dfe054c63a35c213826bcd048d50cc1af5becfa0c9477766c0",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-10-25T05:51:42Z",
+          "verdict_sha256": "069fab79bb89f4cfdad0fa876a2dbd63d2fdfe21d5feccbd49e2c45505251bbf",
+          "run_ref": "session:local .ai-review/command-wording/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "209cc44984b6c3dfe054c63a35c213826bcd048d50cc1af5becfa0c9477766c0",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-10-25T05:56:56Z",
+          "verdict_sha256": "26bb3da2d42b76372186cdfefc0d4d0c307b6405b80212e56bfcc15fa66ccfc9",
+          "run_ref": "session:local .ai-review/command-wording/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 5,
+          "external": 2
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 19,
+      "last_transition": "2026-10-25T05:57:39Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-25T05:49:03Z",
+        "consumed": {
+          "review_content_id": "7a2cb03ea1356cc73aa26655a398d818d420854d55ab330dcb0578a6f8f944b1",
+          "plan_revision": 2,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "e3e6c7181f6ce2b8bdf40e91552b1b89dfd309a5ce3c3106d87910ba974dcfba",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "e3e6c7181f6ce2b8bdf40e91552b1b89dfd309a5ce3c3106d87910ba974dcfba",
+          "bundle_id": "209cc44984b6c3dfe054c63a35c213826bcd048d50cc1af5becfa0c9477766c0",
+          "plan_revision": 3
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "093df1ecb7ff12b8469fcdc3745abb92b5efd211fe43c7cb2238e50ec79b109f",
+        "7a2cb03ea1356cc73aa26655a398d818d420854d55ab330dcb0578a6f8f944b1",
+        "b46c8ef7a426bfb6cca832927628f09a13c3a49414e2aef0a45be62420a46b97",
+        "db2b99a2eb7e020ce8f17839b22479940c87fa39b9339b799ae5085d8700547f"
+      ],
+      "optional_findings": {
+        "F-5e0a5b9658a9": {
+          "digest": "5e0a5b9658a933d8203587f1c2c0d0d595fbadddbf75fee0242455324ac81140",
+          "text": "**LPR-O1 — M1 \"the first (sorted) `IN_PROGRESS` id\" changes the fallback order.** Today the fallback `in_progress_ids[0]` follows the `checkpoints` dict's insertion order, and the plan silently switches it to sorted order. Both are fine for a message. State that the change is deliberate (it gives a deterministic name), or keep insertion order so the diff carries only the `current_checkpoint_id in in_progress_ids` choice that LIR-O2 suggested. #100's LIR-O2 also floated naming every `IN_PROGRESS` id when there are several; one sentence on why the plan does not would close the item fully.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "db2b99a2eb7e020ce8f17839b22479940c87fa39b9339b799ae5085d8700547f",
+              "verdict": "REVISE",
+              "at": "2026-10-25T05:27:11Z"
+            }
+          ]
+        },
+        "F-471eccbc3c41": {
+          "digest": "471eccbc3c41a010fec73efe11e53ad8fb1d4ddbe2454505cf5055c671736111",
+          "text": "**LPR-O2 — The W5 pin says \"every command file carrying the flag is named on that line\", but the statement spans lines 34-35 and will wrap further once it lists seven commands.** Write the pin over the bullet (from `**User-only commands**` to the next bullet), not over one physical line, so a reflow does not break it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "db2b99a2eb7e020ce8f17839b22479940c87fa39b9339b799ae5085d8700547f",
+              "verdict": "REVISE",
+              "at": "2026-10-25T05:27:11Z"
+            }
+          ]
+        },
+        "F-9f6631fc4a8b": {
+          "digest": "9f6631fc4a8baff5d82105242ded544c71ece9da57ce2279c756ffa36303e84e",
+          "text": "**LPR2-O1 — Section 2's line citation for the last `COMPLETE` refusal is off.** The plan cites `workflow_state.py:6437-6442`, but at `bebf2d2` that refusal is lines 6431-6435. Line 6437 is `def _assert_no_commit_past_start`. The `HEAD`-baseline citation (6421-6426) is right. Correct the range, or cite the refusal by its text (\"is {status!r} in this worktree, not IN_PROGRESS\") so the citation does not go out of date.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "b46c8ef7a426bfb6cca832927628f09a13c3a49414e2aef0a45be62420a46b97",
+              "verdict": "REVISE",
+              "at": "2026-10-25T05:30:57Z"
+            }
+          ]
+        },
+        "F-116f7817283a": {
+          "digest": "116f7817283a96463e77f215afa32864a4f725367caf49ea46a635d717b83528",
+          "text": "**LPR3-O1 — M1 leaves `_release_start_next_step`'s docstring untrue.** At `bebf2d2` the docstring says the release has two refusals \"the raise sites cannot see: an `IN_PROGRESS` entry with no claim, and a claim held by another worktree\". Once M1 adds the `entry_may_be_unclaimed` keyword and the first raise names the step-1c adoption, the first half of that sentence is no longer true. Edit the docstring in the same change. The CP1 / f6 limit (\"`git diff` shows only message text, the optional keyword and the choice of the named checkpoint\") should then also allow that docstring edit, so the check does not fail on it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "093df1ecb7ff12b8469fcdc3745abb92b5efd211fe43c7cb2238e50ec79b109f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T05:35:50Z"
+            }
+          ]
+        },
+        "F-c32c5d5ddf7a": {
+          "digest": "c32c5d5ddf7aae4ff7a6613ea8180028d7996c7ed28bd0090b9dcab8e9d9c575",
+          "text": "**LPR3-O2 — The appended sentence says step 1c *always* adopts.** \"If nothing claims the entry, `/milestone-implement <work_item_id>` (step 1c) adopts it first\" repeats the release's own refusal (\"step 1c adopts it first\"), which is consistent. But `milestone-implement.md` step 1c says only that it *may* run `adopt_claim`. It can also stop with an ownership refusal (for example `CheckpointOriginationUnprovableError`) and name the escape. Wording such as \"step 1c adopts it, or names why it cannot\" would be exactly true. Keeping the engine's wording is also acceptable.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "093df1ecb7ff12b8469fcdc3745abb92b5efd211fe43c7cb2238e50ec79b109f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T05:35:50Z"
+            }
+          ]
+        },
+        "F-a9a5bbf425e5": {
+          "digest": "a9a5bbf425e51a34238bfe967120b7ea478ed75bf1992edcd684697191dfc235",
+          "text": "**LPR4-O1 — Sentence (ii) is true only from the worktree that holds the claim.** If the claim for another checkpoint is held by a different worktree, the release run here refuses first with `CheckpointOwnedByOtherWorktreeError`, which names the worktree, not the checkpoint. The message's existing clause \"from the worktree that holds the claim\" covers this, but (ii) can be read on its own. Consider \"run from the worktree that holds the claim, the release of this one refuses with the claim's checkpoint named\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "7a2cb03ea1356cc73aa26655a398d818d420854d55ab330dcb0578a6f8f944b1",
+              "verdict": "REVISE",
+              "at": "2026-10-25T05:46:41Z"
+            }
+          ]
+        },
+        "F-3113c62cd439": {
+          "digest": "3113c62cd4397326e2e92e88829ebd200d3f05fca66ec3dcb21d10ac1321c982",
+          "text": "**LPR4-O2 — The plan header's revision line names only round 1.** Line 13 says revision 2 came from local round 1. Section 4 also records local round 2 and the manual external round 1, all still revision 2. One clause in the header would keep it accurate.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "7a2cb03ea1356cc73aa26655a398d818d420854d55ab330dcb0578a6f8f944b1",
+              "verdict": "REVISE",
+              "at": "2026-10-25T05:46:41Z"
+            }
+          ]
+        },
+        "F-3b54b137edd2": {
+          "digest": "3b54b137edd27919bc739de6054ea5732be5e53dcf1c07d65a94e857dae56d74",
+          "text": "**LPR5-O1: A few stale \"one message\" enumerations remain outside the sections LPR4-002 named.** OD-1's recommendation still reads \"shipped documents, one message and suites change\". The posture sentence in D-Release says `workflow-manager update` back to 2.19.1 \"restores the previous documents, message and suites\", where the line before it says \"both changed messages\". The hard limit's closing re-check says the diff \"contains only message text and the choice of the named checkpoint\", without the optional keyword that CP1 and f6 name. D-Orphan names `request_plan_amendment` and `observe_checkpoint_start_release` as the functions the new tests call, but tests (c) to (e) also call `resolve_checkpoint_ownership` and `release_checkpoint_start`. None of them start a process, so D-Orphan's conclusion holds. These do not change what is built, but the CP2 posture and history row are written from this text, so align them when the plan is next touched. Otherwise the implementation should take the two-message wording of D-Release and CP2.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "e3e6c7181f6ce2b8bdf40e91552b1b89dfd309a5ce3c3106d87910ba974dcfba",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T05:51:42Z"
+            }
+          ]
+        },
+        "F-96513808bce9": {
+          "digest": "96513808bce97aa626cb103791db3d880a951e855f4bf96b2f7c9b705b37be40",
+          "text": "**LPR5-O2: CP1 test (b) is partly a non-regression check, and as described it may pass against `bebf2d2`.** Its claim-arm half (\"byte-identical to today's\") passes against the old text by design. Its unclaimed half (\"names the release, still names the command\") is also true of the old text. CP1's **Done** says \"each fails against `bebf2d2`'s `workflow_state.py`\", and E1 lists (a) to (d). Either have (b)'s unclaimed half assert something new (for example, the absence of the old unqualified wording, or the presence of the keyword's sentences), or have the evidence file mark (b)'s claim-arm half as a guard that must pass against both texts. Otherwise E1 reports a \"failing\" test that does not fail.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "e3e6c7181f6ce2b8bdf40e91552b1b89dfd309a5ce3c3106d87910ba974dcfba",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T05:51:42Z"
+            }
+          ]
+        },
+        "F-df6b87be9e59": {
+          "digest": "df6b87be9e59cb50cc7535c9628a62db629d405a6e977c1e1b8316c3efde2fb5",
+          "text": "**LPR5-O3: Tests (c) and (e) need the \"other\" checkpoint to be non-`IN_PROGRESS` to observe `FRESH`.** If `current_checkpoint_id` names another checkpoint that is itself `IN_PROGRESS`, `local_in_progress` is that checkpoint and `resolve_checkpoint_ownership` does not return `FRESH`. It goes down the adoption or mismatch path, and `selected_id` must not be `None` to get `FRESH` rather than `NO_CHECKPOINT`. The plan's expected value implies this setup. Stating it in the test descriptions would keep the pins from being built on a state that tests something else.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "e3e6c7181f6ce2b8bdf40e91552b1b89dfd309a5ce3c3106d87910ba974dcfba",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T05:51:42Z"
+            }
+          ]
+        },
+        "F-f96a105dd454": {
+          "digest": "f96a105dd454cc301c2c591e642746a63c66b63c11cfa50c1d7868f072990efd",
+          "text": "**EPR-O1 [apparatus] — Distinguish regression checks from tests expected to fail against old text.**\n  Plan §5 CP1, lines 340–342, describes test (b) using properties already true at the base: naming the release command and preserving the claim-arm text. Yet §3 D-Evidence, line 207, and CP1, lines 355–356, require it to fail against the old implementation. Have its unclaimed subcase assert the newly qualified sentences; record the unchanged claim-arm comparison as a regression check that passes against both versions. This agrees with local finding LPR5-O2.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "e3e6c7181f6ce2b8bdf40e91552b1b89dfd309a5ce3c3106d87910ba974dcfba",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T05:56:56Z"
+            }
+          ]
+        }
       }
     }
   }

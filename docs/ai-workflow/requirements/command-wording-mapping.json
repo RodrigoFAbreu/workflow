@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "work_item_id": "command-wording",
+  "requirements": {
+    "R1": {
+      "description": "Documents (W1, W2, W3, W5 of #100 and the tests cell of #105): COMMAND_FILES.md says seven commands, the released bullet says no claim for the work item in any worktree, the operator reference line 34 lists every user-only command, the invariants page gives the observation to the command and the re-classification under (9) to the engine and attributes test_p4_* to TestReleaseCheckpointStartCommand; each pinned by a test that fails against the previous text",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "Messages M1 and M1b: the first AmendmentCheckpointActiveError site of request_plan_amendment names an IN_PROGRESS checkpoint (current_checkpoint_id when it is one of them, else the first in dict order) and the release with two qualified facts: an entry nothing claims is adopted by step 1c only when current_checkpoint_id names it, and a claim held by this worktree for another checkpoint makes the release refuse with that checkpoint named, which is the one to release; the release refusal for an unclaimed IN_PROGRESS entry in _classify_checkpoint_start states the same pointer condition instead of an unconditional adoption; the claim arm is unchanged; no new read, branch or refusal class",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "Evidence and limits: every new test is shown to fail against the text it replaces and to pass against the new one (command and result in the evidence file), the new tests and the changed suites' chunks run under the orphan wrapper, and workflow_state.py changes only the text of two messages, one optional keyword and the choice of the named checkpoint",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Release 2.19.2, a fix patch: WORKFLOW_RELEASE and its two pinned assertions, manifest digests, sizes, measured suite counts and an accurate per-record sentence, the release-history row (references #100 and #105 as done), the downgrade posture (what an older release does with the changed message), min_manager_version equal to the CI pin, a 2.19.2 class in the release tests",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "R5": {
+      "description": "W4: the 2.19.2 posture and history row say how to finish an interrupted checkpoint-start release when moving back to 2.18.7 (finish first; or update forward, finish, move back; the library function only with the owner stopped), without editing the 2.19.0 or 2.19.1 records",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
