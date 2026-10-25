@@ -2819,8 +2819,10 @@ class CheckpointStartEngineReleaseTest(unittest.TestCase):
 
 
 class CheckpointStartCommandReleaseTest(unittest.TestCase):
-    """Release 2.19.0 (checkpoint-start-command): the version, the release constant, the
-    counts, the digests, the downgrade posture and the release-history row."""
+    """Release 2.19.0 (checkpoint-start-command): what stays true of it once a later
+    release is current -- the record sentences and the release-history row. The
+    current version, constant, counts and posture are pinned by the current release's
+    class (2.19.1)."""
 
     CHANGED = (".claude/commands/release-checkpoint-start.md",
                ".claude/commands/request-plan-amendment.md",
@@ -2838,8 +2840,36 @@ class CheckpointStartCommandReleaseTest(unittest.TestCase):
     def row(self) -> str:
         return next(line for line in self.history.splitlines() if line.startswith("| 2.19.0 |"))
 
-    def test_the_release_names_2_19_0_and_adds_the_command_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.19.0")
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for target in self.CHANGED:
+            with self.subTest(target):
+                record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+                self.assertIn("checkpoint-start-command (workflow-2.19.0)", record["rationale"])
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        for needle in ("2.18.7", "#55", "/release-checkpoint-start", "checkpoint_start_release_confirmation",
+                       "R-i", "R-ii", "finish an interrupted release first",
+                       "Orchestration Protocol 1.5", "v2.19.0"):
+            self.assertIn(needle, self.row())
+        self.assertLess(self.history.index("| 2.19.0 |"), self.history.index("| 2.18.7 |"))
+
+
+class InterleavingPinsReleaseTest(unittest.TestCase):
+    """Release 2.19.1 (interleaving-pins): the version, the release constant, the
+    counts, the digests, the downgrade posture and the release-history row."""
+
+    CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
+               "scripts/workflow_protocol_test.py", "scripts/workflow_state_test.py")
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.history = (REPO_ROOT / "docs" / "release-history.md").read_text()
+
+    def row(self) -> str:
+        return next(line for line in self.history.splitlines() if line.startswith("| 2.19.1 |"))
+
+    def test_the_release_names_2_19_1_and_adds_no_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.19.1")
         by_category = {}
         for entry in self.manifest["artifacts"]:
             by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
@@ -2852,7 +2882,7 @@ class CheckpointStartCommandReleaseTest(unittest.TestCase):
 
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.19.0"', text)
+        self.assertIn('WORKFLOW_RELEASE = "2.19.1"', text)
 
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
         for section in ("artifacts", "templates"):
@@ -2863,29 +2893,31 @@ class CheckpointStartCommandReleaseTest(unittest.TestCase):
         for target in self.CHANGED:
             with self.subTest(target):
                 record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
-                self.assertIn("checkpoint-start-command (workflow-2.19.0)", record["rationale"])
+                self.assertIn("interleaving-pins (workflow-2.19.1)", record["rationale"])
+        others = [r["target_path"] for r in self.manifest["artifacts"]
+                  if "interleaving-pins (workflow-2.19.1)" in r["rationale"]]
+        self.assertEqual(sorted(others), sorted(self.CHANGED))
 
-    def test_the_manager_block_states_the_command_and_the_way_back_in_the_posture(self):
+    def test_the_manager_block_states_the_patch_and_the_way_back_in_the_posture(self):
         block = self.manifest["manager"]
         self.assertEqual(block["min_manager_version"], "1.13.0")
         posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.19.0", "2.18.7", "Orchestration Protocol stays 1.5",
-                       "workflow-manager update back to 2.18.7", "WORKFLOW_RELEASE",
-                       "/release-checkpoint-start", "release_checkpoint_start_confirmed",
-                       "release-start", "Finish an interrupted release before moving back",
-                       "2.14.0"):
+        for needle in ("2.19.1", "2.19.0", "Orchestration Protocol stays 1.5",
+                       "workflow-manager update back to 2.19.0", "WORKFLOW_RELEASE",
+                       "workflow_state_test.py", "/release-checkpoint-start",
+                       "before moving back below 2.19.0", "2.14.0"):
             self.assertIn(needle, posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
         self.assertEqual(block["new_work_only"], [])
         self.assertEqual(block["gate_default_change"], "")
 
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
-        self.assertIn("Last checked with: Workflow 2.19.0.", self.history)
-        for needle in ("2.18.7", "#55", "/release-checkpoint-start", "checkpoint_start_release_confirmation",
-                       "R-i", "R-ii", "finish an interrupted release first",
-                       "Orchestration Protocol 1.5", "v2.19.0"):
+        self.assertIn("Last checked with: Workflow 2.19.1.", self.history)
+        for needle in ("2.19.0", "#97", "#100", "crash_at_unlink", "changes no behaviour",
+                       "AmendmentCheckpointActiveError", "Orchestration Protocol 1.5", "v2.19.1"):
             self.assertIn(needle, self.row())
-        self.assertLess(self.history.index("| 2.19.0 |"), self.history.index("| 2.18.7 |"))
+        self.assertNotIn("closes #", self.row())
+        self.assertLess(self.history.index("| 2.19.1 |"), self.history.index("| 2.19.0 |"))
 
 
 # -- the Manager metadata block ----------------------------------------------------

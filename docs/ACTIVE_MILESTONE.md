@@ -2,43 +2,36 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; the release follows the merge). W23: `checkpoint-start-command` (`process`, governing version `2.2`), branch
-`milestone/checkpoint-start-command`, roadmap row 24c (RodrigoFAbreu/workflow#55 and the three command items of
-#97). Plan: `docs/ai-workflow/CHECKPOINT_START_COMMAND_PLAN.md` (revision 3, approved by gate policy).
-The goal is Workflow 2.19.0, a minor release (`feat:`): the user-only command
-`/release-checkpoint-start <work-item-id> <checkpoint-id>`, which releases an uncommitted checkpoint start by
-calling the W22 engine after a confirmation bound to the claim the user was shown. The previous milestone, W22
-`checkpoint-start-engine`, is accepted (Workflow 2.18.7).
+**Complete** (accepted by policy; the release follows the merge). W24: `interleaving-pins` (`process`, governing version `2.2`), branch
+`milestone/interleaving-pins`, roadmap row 26a (RodrigoFAbreu/workflow#97 items 4 and 5 and the two pins of
+#100). Plan: `docs/ai-workflow/INTERLEAVING_PINS_PLAN.md` (revision 2, approved by gate policy). The goal is
+Workflow 2.19.1, a `fix:` patch that adds four pins to the shipped test suites and changes no behaviour. The
+previous milestone, W23 `checkpoint-start-command`, is accepted (Workflow 2.19.0).
 
 ## Checkpoints
 
 | id | name | state |
 | --- | --- | --- |
-| CP1 | The command, its confirmation, the amendment message and their tests | **complete** |
-| CP2 | Release 2.19.0 | **complete** |
+| CP1 | The four pins and their evidence | **complete** |
+| CP2 | Release 2.19.1 | **complete** |
 
 ## Verified state
 
-- CP1: `observe_checkpoint_start_release`, `release_checkpoint_start_confirmed`, the sentence builder and
-  validator, `claim_reference` and the engine keyword `confirmed_claim_ref` are in
-  `payload/scripts/workflow_state.py`; both `AmendmentCheckpointActiveError` raise sites name the command.
-  `TestReleaseCheckpointStartCommand` (C1 to C5) was shown red against the unedited code and passes;
-  `TestReleaseCheckpointStartCommandFile` (C6) pins the command file; the command file, `COMMAND_FILES.md`, the
-  operator reference, `MILESTONE_WORKFLOW.md`, `request-plan-amendment.md` and the census tests are updated.
-- CP2: `manifest.json` names 2.19.0 (80 artifacts, 54 distribution; the command file has its record; every
-  changed record has its digest, size and `checkpoint-start-command (workflow-2.19.0)` sentence; the manager
-  block's posture and measured suite counts are rewritten); `WORKFLOW_RELEASE` and its two pinned assertions,
-  `ORCHESTRATION_PROTOCOL.md` (protocol stays 1.5), `docs/release-history.md`, `docs/CONCURRENCY_INVARIANTS.md`,
-  `docs/common-problems.md` and a 2.19.0 class in `tools/release/release_test.py` are updated.
-- No lock, guard, claim, `os.link` or `flock` site was added.
-- Verified in a disposable clone (D-Staging): see the commit message of CP1 for the exact runs.
-- Functional review: six automated flows (`w23-a1` to `w23-a6`) passed at the approved content, recorded as
-  orchestrator evidence by an independent executor; the manual flows M1 to M6 need a person in Claude Code and
-  were not run (the owner's optional check). The acceptance record is the work item's `acceptance_satisfaction`.
-- Optional findings: seventeen recorded, all dispositioned (three fixed, four dropped, ten follow-ups on
-  RodrigoFAbreu/workflow#100); see `docs/milestones/completed/checkpoint-start-command-findings.md`.
+- CP1: seven new tests in `payload/scripts/workflow_state_test.py` (`test_p1_*`, four `test_p2_*`,
+  `test_the_journal_refusal_names_no_release_command`, `test_p4_*`) and the worker mode `crash_at_unlink`; each is
+  shown red against its own mutant (M1a to M7) and green unmutated, recorded with its exact substitutions in
+  `docs/ai-workflow/INTERLEAVING_PINS_EVIDENCE.md`. `payload/scripts/workflow_state.py` is unchanged.
+- Verified in a disposable clone (D-Staging): the nine suites, the whole `workflow_state_test.py` chunk and the new
+  tests under the orphan wrapper (no orphan beyond Git), the `tools/release` and `tools/docs` tests, `check_docs.py`
+  and `check-manager-block`; `workflow-manager verify .` is clean.
+- CP2: Workflow 2.19.1 (`fix:`): `WORKFLOW_RELEASE`, its two pinned assertions and the Orchestration Protocol
+  lists name 2.19.1 (protocol stays 1.5); `manifest.json` moves the four changed records (digest, size, an
+  `interleaving-pins (workflow-2.19.1)` sentence), the posture and the measured `workflow_state_test.py` count
+  (1232 to 1239); the release-history row (closes nothing), the invariants page and a 2.19.1 release class in
+  `tools/release/release_test.py`. Counts stay (80, 6).
 
 ## Next action
 
-Merge pull request #101, let the `Release` workflow publish Workflow 2.19.0, then plan the next roadmap row
-(`/milestone-plan`).
+The next incomplete milestone in `docs/ROADMAP.md` is row 26b (wording and message accuracy of the
+checkpoint-start command, W25, RodrigoFAbreu/workflow#100), ready for `PLANNING`: run `/milestone-plan`. The
+Workflow 2.19.1 release follows the merge of this milestone's pull request.
