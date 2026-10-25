@@ -18,6 +18,7 @@
 | install the tooling | [Workflow Manager](https://github.com/RodrigoFAbreu/workflow-manager#readme) |
 | build and publish a release (maintainers) | [Releasing](RELEASING.md) |
 | check the locks, claims and guards before changing one (maintainers) | [Concurrency invariants](CONCURRENCY_INVARIANTS.md) |
+| decide which files of a finished work item stay, move to the archive or are deleted (maintainers) | [Retention rule](RETENTION.md) |
 | read the exact rules (maintainers) | the shipped documents in [payload/docs/ai-workflow](../payload/docs/ai-workflow/) |
 
 The shipped reference documents most readers need:
