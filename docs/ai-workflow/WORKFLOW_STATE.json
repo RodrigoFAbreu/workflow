@@ -19808,7 +19808,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-report-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-report-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -19948,12 +19948,12 @@
           "external": 2
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 18,
-      "last_transition": "2026-10-25T18:00:56Z",
+      "state_revision": 20,
+      "last_transition": "2026-10-25T18:46:59Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -20159,7 +20159,90 @@
               "at": "2026-10-25T16:06:19Z"
             }
           ]
+        },
+        "F-fa31a8847eea": {
+          "digest": "fa31a8847eea3b1804d99fc8e2af479351953d3b9265d108222475eeeb505992",
+          "text": "**LIR-R1-O1: some unexpected input ends in a traceback with exit 1, outside the documented 0/2 contract.**\n  - **What I saw:** `_load_state` catches `FileNotFoundError` and `OSError` around `read_text`, but a state\n    file that is not valid UTF-8 raises `UnicodeDecodeError` (a `ValueError`). I reproduced it: a state file\n    containing byte `0xff` gives a traceback and exit 1, not `error: state_invalid` and exit 2.\n  - The same thing happens to a `PermissionError` from `os.listdir(archive_dir)`, and to the strict decoding of\n    `git ls-files` that the request already names.\n  - **The risk:** D-Output and `docs/exit-codes.md` promise only 0 and 2. A Manager or Controller caller that\n    reads the code would get an undocumented 1. It fails loudly and writes nothing, so it is not blocking.\n  - **The fix:** catch `UnicodeDecodeError` beside the JSON error as `state_invalid`. Turn an `OSError` from\n    the archive listing into a refusal, or into an empty listing with a note.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "18b326f1259356bdbc1c558d2b73e0e682f6f3e1dc03e79b4c24c954b53db50f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T18:24:07Z"
+            }
+          ]
+        },
+        "F-b371b8c682b4": {
+          "digest": "b371b8c682b479ebe626180a744c81cffb8e05e4f240494271694f269f35b825",
+          "text": "**LIR-R1-O2: `archive_dir` takes the repository name from `origin` without excluding `.` or `..`.**\n  - **What I saw:** `workflow_forge._REPOSITORY_RE` accepts `owner/..`. With `origin` set to\n    `https://github.com/acme/..`, I got `archive_dir` = `<archive-root>/..`, so `archives` lists the\n    `*.tar.zst` files of the archive root's parent.\n  - GitHub does not allow those names, and the report only reads. But row 27d prunes from `archives`.\n  - **The fix:** refuse a repository name of `.` or `..` as `repository_unknown` here, or record the check as\n    an obligation of rows 27c and 27d.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "18b326f1259356bdbc1c558d2b73e0e682f6f3e1dc03e79b4c24c954b53db50f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T18:24:07Z"
+            }
+          ]
+        },
+        "F-4226191cd5f1": {
+          "digest": "4226191cd5f1c020f0f3cb288e453e69cf802abcdee1d62ce909223b99124ce2",
+          "text": "**LIR-R1-O3: a symlinked `<archive-root>/<repo>` directory (the request's known limitation 2).**\n  - I agree it errs on the safe side: `archives` is empty, so `totals.prunable` is 0.\n  - It does not need a fix now. Record it as an obligation of row 27c/27d: prune only from `archives`, never\n    from `finished[].archive`, and refuse a symlinked per-repository directory. Or make `_archive_fact`\n    report absent when the directory itself is a symlink, so the two halves agree.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "18b326f1259356bdbc1c558d2b73e0e682f6f3e1dc03e79b4c24c954b53db50f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T18:24:07Z"
+            }
+          ]
+        },
+        "F-f57f84090f2c": {
+          "digest": "f57f84090f2ce7c8f003ab14ca80197460416f336fe8280e37057174fa0e0185",
+          "text": "**LIR-R1-O4: no test pins the future-mtime clamp or `build_report(run=None)`.**\n  - **The future-mtime clamp:** `max(0, ...)` in `_archive_fact` is right, but no T6 case covers it.\n  - **`build_report(run=None)`:** the forwarding of `run=None` is correct (`kwargs` only when it is set). No\n    test proves it, as LPR-R2-O1 noted at the plan stage.\n  - **The risk:** T8c and T9(a) stop at `repository_unknown`, and T9(b) passes a seam. So a regression to\n    `run=run` would turn every real query into `query_failed:unexpected`, and no test would see it.\n  - **The fix:** a one-line T6 case for the clamp, and a T4 case that calls `build_report` without `run`.\n    Patch `workflow_forge.query_forge_pr_facts.__kwdefaults__[\"run\"]`, not the module attribute\n    `_default_run`: the default is bound when the function is defined.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "18b326f1259356bdbc1c558d2b73e0e682f6f3e1dc03e79b4c24c954b53db50f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T18:24:07Z"
+            }
+          ]
+        },
+        "F-091b240d7663": {
+          "digest": "091b240d76633dd4d8450727907ceae3161f187be810a95186f0ff7d339cbf7e",
+          "text": "**LIR-R1-O5: documentation nits.**\n  - `docs/exit-codes.md` and the manifest rationale give the command without `-I`, while \"The report\" in\n    `docs/RETENTION.md` uses `python3 -I`. This is the plan-stage LPR-R3-O2 again.\n  - \"`archives` lists every `*.tar.zst` file\" should say \"regular file\".\n  - The continuation lines of guarantee 5 are not indented, as already disclosed.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "18b326f1259356bdbc1c558d2b73e0e682f6f3e1dc03e79b4c24c954b53db50f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T18:24:07Z"
+            }
+          ]
         }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "18b326f1259356bdbc1c558d2b73e0e682f6f3e1dc03e79b4c24c954b53db50f",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "515136de9360d2fa34dc54755998926431f9eaf883d830786ffb70c0dd280e98",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-25T18:24:07Z",
+          "verdict_sha256": "64ac826e729d979113e598a574137a06ac060aa98447a2e6be5754d9d8a75ecd",
+          "run_ref": "session:local .ai-review/retention-report/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
       }
     }
   }
