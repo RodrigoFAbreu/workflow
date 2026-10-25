@@ -1,6 +1,6 @@
 # Concurrency invariants
 
-> For: maintainers who change a lock, claim, guard, journal or lease in the Workflow's scripts. Last checked with: Workflow 2.19.1.
+> For: maintainers who change a lock, claim, guard, journal or lease in the Workflow's scripts. Last checked with: Workflow 2.19.2.
 
 This page lists, in one table, every primitive that serializes Workflow
 processes or records who owns a piece of work. Every cell comes from the

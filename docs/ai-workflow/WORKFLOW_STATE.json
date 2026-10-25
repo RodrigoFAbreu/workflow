@@ -18944,18 +18944,22 @@
       "registry_path": "docs/ai-workflow/registry/command-wording-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/command-wording-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 3,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "bebf2d24b5fd27b6d9e1611c08f42dfc9c0698e1",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "b56bd8d70e5ce483a9433a3df4cad7864ccf02ba"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "df0afb53a95d6980c53011407c171beb7641e319"
         }
       },
       "current_bundle_id": "209cc44984b6c3dfe054c63a35c213826bcd048d50cc1af5becfa0c9477766c0",
@@ -19084,8 +19088,8 @@
           "external": 0
         }
       },
-      "state_revision": 21,
-      "last_transition": "2026-10-25T07:18:23Z",
+      "state_revision": 23,
+      "last_transition": "2026-10-25T07:40:46Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",

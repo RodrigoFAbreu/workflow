@@ -13,7 +13,7 @@ previous milestone, W24 `interleaving-pins`, is accepted (Workflow 2.19.1).
 | id | name | state |
 | --- | --- | --- |
 | CP1 | The documents, the message and their pins | **complete** |
-| CP2 | Release 2.19.2 | pending |
+| CP2 | Release 2.19.2 | **complete** |
 
 ## Verified state
 
@@ -27,6 +27,16 @@ previous milestone, W24 `interleaving-pins`, is accepted (Workflow 2.19.1).
   wrapper, no orphan beyond Git), the `tools/release` (275) and `tools/docs` tests, `check_docs.py`,
   `check-manager-block`; `workflow-manager verify .` is clean.
 
+- CP2: `manifest.json` 2.19.2 (nine changed records with their digests, sizes and a `command-wording
+  (workflow-2.19.2)` sentence each; posture with the D-Downgrade clauses; suite counts measured by `release.py
+  manager-block --release-dir ... --write`: `workflow_state_test.py` 1244, `workflow_integration_test.py` 364),
+  `WORKFLOW_RELEASE` 2.19.2 with its two pinned assertions and the protocol document edits, the 2.19.2 history row
+  and the two "Last checked with" lines, and `CommandWordingReleaseTest` (the 2.19.1 class keeps what stays true of
+  it). Verified in a scratch clone of the committed content: `tools/release` (277) in the zlib-ng environment,
+  `tools/docs` (34), `check_docs.py`, `check-manager-block` and `release.py build --commit HEAD`; the nine suites
+  from a stock `stage-conformance` fixture (see the implementation bundle's `TEST_RESULTS.md`).
+
 ## Next action
 
-CP2 (Release 2.19.2): run `/milestone-implement command-wording` again.
+The checkpoints are complete: run `/milestone-implement command-wording` again to enter self-review and prepare
+the implementation bundle.
