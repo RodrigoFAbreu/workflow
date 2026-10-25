@@ -24,6 +24,7 @@ and `workflow_integration_test.TestUserOnlyCommandListings` (2 tests).
 | E2 | `payload/docs/ai-workflow/COMMAND_FILES.md` | `TestUserOnlyCommandListings.test_the_command_files_row_states_the_number_of_flagged_commands` fails |
 | E3 | `payload/.claude/commands/release-checkpoint-start.md` | `TestReleaseCheckpointStartCommandFile.test_the_released_bullet_states_the_work_items_one_claim_in_any_worktree` fails |
 | E4 | `payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md` | `TestUserOnlyCommandListings.test_the_operator_reference_names_every_user_only_command` fails (`failures=6`) |
+| E4, second subcase (round 1, IMP-001) | only the `**User-only commands**` bullet of `WORKFLOW_V2_1_OPERATOR_REFERENCE.md`, restored to its `82f9a47` text | `test_the_operator_reference_names_every_user_only_command` fails on `'(the exact work item, and' unexpectedly found` (`failures=1`); green against the fix |
 | E5 | `docs/CONCURRENCY_INVARIANTS.md`, in the checkout (stashed to the committed text) | `python3 -B -m unittest tools.release.release_test.ConcurrencyInvariantsReleaseWindowRowTest` fails (`failures=2`) |
 
 ## Other gates
