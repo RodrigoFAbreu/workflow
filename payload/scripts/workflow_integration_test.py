@@ -3328,6 +3328,8 @@ class TestUserOnlyCommandListings(unittest.TestCase):
             with self.subTest(command=name):
                 self.assertIn(f"`/{name}`", bullet)
         self.assertNotIn("naming the exact work item and stage.", bullet)
+        self.assertNotIn("(the exact work item, and", bullet)
+        self.assertIn("for `/adopt-gate-policy` the policy digest", bullet)
 
 
 class TestTrailerParagraphWordingConformance(unittest.TestCase):

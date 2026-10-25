@@ -38,9 +38,11 @@ Where they disagree, see [Known discrepancies](#known-discrepancies).
   The control each of them carries itself, under every harness, is the
   literal-confirmation check: they refuse to write anything unless *your
   current-turn message* contains literal confirmation text naming what the
-  command acts on (the exact work item, and for most the stage, checkpoint or
-  digest; each command file states its own). The flag is an additional layer where the harness
-  enforces it; it does not replace the check. The agent must never run them;
+  command acts on (for six of them the exact work item, with a stage,
+  checkpoint or keyword where the command needs one; for `/adopt-gate-policy`
+  the policy digest; each command file states its own). The flag is an
+  additional layer where the harness enforces it; it does not replace the
+  check. The agent must never run them;
   where the harness enforces the flag they cannot be launched for it and do
   not appear in its command list. To run the commands from
   another harness, see `docs/ai-workflow/COMMAND_FILES.md`.
