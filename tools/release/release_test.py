@@ -2855,8 +2855,10 @@ class CheckpointStartCommandReleaseTest(unittest.TestCase):
 
 
 class InterleavingPinsReleaseTest(unittest.TestCase):
-    """Release 2.19.1 (interleaving-pins): the version, the release constant, the
-    counts, the digests, the downgrade posture and the release-history row."""
+    """Release 2.19.1 (interleaving-pins): what stays true of it once a later release
+    is current -- the record sentences and the release-history row. The current
+    version, constant, counts and posture are pinned by the current release's class
+    (2.19.2)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py", "scripts/workflow_state_test.py")
@@ -2868,8 +2870,43 @@ class InterleavingPinsReleaseTest(unittest.TestCase):
     def row(self) -> str:
         return next(line for line in self.history.splitlines() if line.startswith("| 2.19.1 |"))
 
-    def test_the_release_names_2_19_1_and_adds_no_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.19.1")
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for target in self.CHANGED:
+            with self.subTest(target):
+                record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+                self.assertIn("interleaving-pins (workflow-2.19.1)", record["rationale"])
+        others = [r["target_path"] for r in self.manifest["artifacts"]
+                  if "interleaving-pins (workflow-2.19.1)" in r["rationale"]]
+        self.assertEqual(sorted(others), sorted(self.CHANGED))
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        for needle in ("2.19.0", "#97", "#100", "crash_at_unlink", "changes no behaviour",
+                       "AmendmentCheckpointActiveError", "Orchestration Protocol 1.5", "v2.19.1"):
+            self.assertIn(needle, self.row())
+        self.assertNotIn("closes #", self.row())
+        self.assertLess(self.history.index("| 2.19.1 |"), self.history.index("| 2.19.0 |"))
+
+
+class CommandWordingReleaseTest(unittest.TestCase):
+    """Release 2.19.2 (command-wording): the version, the release constant, the
+    counts, the digests, the downgrade posture and the release-history row."""
+
+    CHANGED = (".claude/commands/release-checkpoint-start.md", "docs/ai-workflow/COMMAND_FILES.md",
+               "docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+               "docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+               "scripts/workflow_integration_test.py", "scripts/workflow_protocol.py",
+               "scripts/workflow_protocol_test.py", "scripts/workflow_state.py",
+               "scripts/workflow_state_test.py")
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.history = (REPO_ROOT / "docs" / "release-history.md").read_text()
+
+    def row(self) -> str:
+        return next(line for line in self.history.splitlines() if line.startswith("| 2.19.2 |"))
+
+    def test_the_release_names_2_19_2_and_adds_no_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.19.2")
         by_category = {}
         for entry in self.manifest["artifacts"]:
             by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
@@ -2882,7 +2919,7 @@ class InterleavingPinsReleaseTest(unittest.TestCase):
 
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.19.1"', text)
+        self.assertIn('WORKFLOW_RELEASE = "2.19.2"', text)
 
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
         for section in ("artifacts", "templates"):
@@ -2893,31 +2930,39 @@ class InterleavingPinsReleaseTest(unittest.TestCase):
         for target in self.CHANGED:
             with self.subTest(target):
                 record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
-                self.assertIn("interleaving-pins (workflow-2.19.1)", record["rationale"])
+                self.assertIn("command-wording (workflow-2.19.2)", record["rationale"])
         others = [r["target_path"] for r in self.manifest["artifacts"]
-                  if "interleaving-pins (workflow-2.19.1)" in r["rationale"]]
+                  if "command-wording (workflow-2.19.2)" in r["rationale"]]
         self.assertEqual(sorted(others), sorted(self.CHANGED))
 
     def test_the_manager_block_states_the_patch_and_the_way_back_in_the_posture(self):
         block = self.manifest["manager"]
         self.assertEqual(block["min_manager_version"], "1.13.0")
         posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.19.1", "2.19.0", "Orchestration Protocol stays 1.5",
-                       "workflow-manager update back to 2.19.0", "WORKFLOW_RELEASE",
-                       "workflow_state_test.py", "/release-checkpoint-start",
-                       "before moving back below 2.19.0", "2.14.0"):
+        for needle in ("2.19.2", "2.19.1", "2.19.0", "Orchestration Protocol stays 1.5",
+                       "workflow-manager update back to 2.19.1", "WORKFLOW_RELEASE",
+                       "AmendmentCheckpointActiveError", "/release-checkpoint-start",
+                       "before moving back below 2.19.0", "update forward to a release that has "
+                       "the command (2.19.0 or later), finish the release there, and move back",
+                       "call release_checkpoint_start from the library directly",
+                       "carries none of the command's attestation",
+                       "2.18.7's amendment refusals name no release step", "2.14.0"):
             self.assertIn(needle, posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
         self.assertEqual(block["new_work_only"], [])
         self.assertEqual(block["gate_default_change"], "")
 
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
-        self.assertIn("Last checked with: Workflow 2.19.1.", self.history)
-        for needle in ("2.19.0", "#97", "#100", "crash_at_unlink", "changes no behaviour",
-                       "AmendmentCheckpointActiveError", "Orchestration Protocol 1.5", "v2.19.1"):
+        self.assertIn("Last checked with: Workflow 2.19.2.", self.history)
+        self.assertIn("Last checked with: Workflow 2.19.2.",
+                      (REPO_ROOT / "docs" / "CONCURRENCY_INVARIANTS.md").read_text())
+        for needle in ("2.19.1", "#100", "#105", "Six items", "changes no behaviour",
+                       "AmendmentCheckpointActiveError", "Orchestration Protocol 1.5",
+                       "update forward to 2.19.0 or later", "release_checkpoint_start",
+                       "carries none of the command's attestation", "v2.19.2"):
             self.assertIn(needle, self.row())
         self.assertNotIn("closes #", self.row())
-        self.assertLess(self.history.index("| 2.19.1 |"), self.history.index("| 2.19.0 |"))
+        self.assertLess(self.history.index("| 2.19.2 |"), self.history.index("| 2.19.1 |"))
 
 
 # -- the Manager metadata block ----------------------------------------------------
@@ -2974,6 +3019,30 @@ def managed_release(root: Path, version: str, suites: dict[str, str], block: dic
     if block is not None:
         manifest["manager"] = block
     (root / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+
+
+class ConcurrencyInvariantsReleaseWindowRowTest(unittest.TestCase):
+    """command-wording (W3): the release-window row of the invariants page gives the
+    command's acts to the command and the re-classification to the engine, and attributes
+    each test pin to the class it is in."""
+
+    def row(self) -> str:
+        text = (REPO_ROOT / "docs" / "CONCURRENCY_INVARIANTS.md").read_text()
+        return " ".join(next(line for line in text.splitlines()
+                             if line.startswith("| **Checkpoint-start release window**")).split())
+
+    def test_the_recovery_cell_says_the_command_observes_and_the_engine_reclassifies(self):
+        row = self.row()
+        self.assertIn("the command observes the claim outside (9) and, while a claim exists, "
+                      "asks for the same attestation with the fresh claim; the engine then "
+                      "re-classifies under (9)", row)
+        self.assertNotIn("the engine re-classifies under (9) and, while a claim exists, asks", row)
+
+    def test_the_tests_cell_puts_the_p4_pin_under_the_command_class(self):
+        row = self.row()
+        self.assertIn("`::TestReleaseCheckpointStartCommand` (including the `test_p4_*` pin)", row)
+        self.assertIn("`::TestAmendmentResolutionReservation` (the journal refusal)", row)
+        self.assertNotIn("`::TestAmendmentResolutionReservation` (the `test_p4_*` pin", row)
 
 
 class ManagerBlockContractTest(unittest.TestCase):
