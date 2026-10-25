@@ -1,0 +1,55 @@
+{
+ "schema_version": 1,
+ "work_item_id": "interleaving-pins",
+ "dispositions": {
+  "F-1b7aa081d16e": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording of an approved plan-stage path (docs/ai-workflow/INTERLEAVING_PINS_PLAN.md); the shipped tests are checked by the eight mutants of the functional review (F2: each turns exactly its pin red), so the detail does not change what is shipped."
+  },
+  "F-20eedecaf6d0": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording of an approved plan-stage path (docs/ai-workflow/INTERLEAVING_PINS_PLAN.md); the shipped tests are checked by the eight mutants of the functional review (F2: each turns exactly its pin red), so the detail does not change what is shipped."
+  },
+  "F-2202bede9685": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#105",
+   "note": "Pin 1's five scenarios leave two body statements uncovered (the demoted restore branch and the kind_now != 'entry' refusal); add scenarios or narrow the claim."
+  },
+  "F-2ee7b4501c94": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording of an approved plan-stage path (docs/ai-workflow/INTERLEAVING_PINS_PLAN.md); the shipped tests are checked by the eight mutants of the functional review (F2: each turns exactly its pin red), so the detail does not change what is shipped."
+  },
+  "F-7988baa181a3": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#105",
+   "note": "Pin 1's five scenarios leave two body statements uncovered (the demoted restore branch and the kind_now != 'entry' refusal); add scenarios or narrow the claim."
+  },
+  "F-92cee696e589": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#105",
+   "note": "Pin 1's five scenarios leave two body statements uncovered (the demoted restore branch and the kind_now != 'entry' refusal); add scenarios or narrow the claim."
+  },
+  "F-937b07f3fbdb": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording of an approved plan-stage path (docs/ai-workflow/INTERLEAVING_PINS_PLAN.md); the shipped tests are checked by the eight mutants of the functional review (F2: each turns exactly its pin red), so the detail does not change what is shipped."
+  },
+  "F-c7201b4e9237": {
+   "disposition": "dropped",
+   "reason": "Evidence-file apparatus (the newline convention of mutant blocks that end mid-line); the functional review reproduced all eight mutants with the convention and every failure matches the record."
+  },
+  "F-ca4ddae14f47": {
+   "disposition": "dropped",
+   "reason": "Evidence-file apparatus (the newline convention of mutant blocks that end mid-line); the functional review reproduced all eight mutants with the convention and every failure matches the record."
+  },
+  "F-d8ea4af52c2c": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#105",
+   "note": "Pin 1's five scenarios leave two body statements uncovered (the demoted restore branch and the kind_now != 'entry' refusal); add scenarios or narrow the claim."
+  },
+  "F-f6e71ff0019a": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#105",
+   "note": "docs/CONCURRENCY_INVARIANTS.md attributes test_p4_* to the wrong test class; documents only."
+  }
+ }
+}
