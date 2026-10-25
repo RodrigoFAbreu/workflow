@@ -1,6 +1,6 @@
 # Exit codes
 
-> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.17.0.
+> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.20.0.
 
 This is the one table of exit statuses for the scripts a person or an
 orchestrator runs. Slash commands (such as `/milestone-plan`) have no exit
@@ -25,6 +25,8 @@ code in `payload/scripts/` and the shipped documents.
 | `python3 scripts/workflow_backlog.py` | 0 | the command succeeded, or the repository declares no backlog (`{"declared": false}`); `status` always exits 0 | read the JSON |
 | | 1 | `check` found the roadmap page stale (`roadmap_stale`) | run `generate` and commit the page |
 | | 2 | a refusal (`error: <code>: <message>` and `next step:` on stderr) or a usage error | follow the next step; the codes are in [the backlog file](../payload/docs/ai-workflow/BACKLOG_FILE.md#commands-and-exit-codes) |
+| `python3 scripts/workflow_retention.py report` | 0 | the report was printed (also when some pull-request queries failed: those items are in `not_finished`) | read it; the command writes nothing |
+| | 2 | a refusal (`error: <code>: <message>` and `next step:` on stderr: `state_missing`, `state_invalid`, `repository_unknown`, `usage`) or a usage error | follow the next step; the command is described in [the retention rule](RETENTION.md#the-report) |
 
 Two scripts only tell success from failure. `prepare-ai-review.sh` documents
 no status beyond 0 and 1, and `workflow_fingerprint.py` documents only 0, 1 and
