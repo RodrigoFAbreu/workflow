@@ -18197,7 +18197,7 @@
       "registry_path": "docs/ai-workflow/registry/interleaving-pins-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/interleaving-pins-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -18306,7 +18306,138 @@
           "workflow_release": "2.19.0"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "8807ec1fd22f0edbfede3bff377ee96c6721ae6905e83c3b3c6f08be72ec92b9",
+        "approved_review_content_id": "4b8265a7816a075aa6a6d403cd0243155a219766b5600ef91aff18ba87be5d3c",
+        "review_content_manifest": [
+          {
+            "path": "docs/CONCURRENCY_INVARIANTS.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "96596092a5ed1a582e50a9ab9bdbe75ca87f8e6f"
+          },
+          {
+            "path": "docs/ai-workflow/INTERLEAVING_PINS_EVIDENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "78f2af297d3c3f21eda40497265c1cea69a97119"
+          },
+          {
+            "path": "docs/ai-workflow/registry/interleaving-pins-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5047b3c4b3c9c8f01bfcd764826d91187f1e9c74"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a15772e179011a4159af1f827ddaee500036c394"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0f94473507c30b848edc04315038add44974cd53"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "db673d7b191701ce869b19f191b621f370595156"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2670e41d109d0e1a0156a9010356aaae1b981518"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "32bc4fe965c8bd2869b7c5bd5d58e49313d98a73"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "524705f42328bc4c96a1efdb45dc15a74f7771e3"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a5c44d71360c3e6e450f14f7ac6a0d601c44178f"
+          }
+        ],
+        "reviewed_content_commit": "41c232e185aadbdfb9ddba60bf00a9672267e9bf",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-25T03:13:29Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "4b8265a7816a075aa6a6d403cd0243155a219766b5600ef91aff18ba87be5d3c",
+            "ledger": {
+              "local": {
+                "bundle_id": "8807ec1fd22f0edbfede3bff377ee96c6721ae6905e83c3b3c6f08be72ec92b9",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "042e72659ed0e6a69aa34ace6010c869ad9af56f911f94e34ce416911b1d0d5f",
+                "ledger_entry_sha256": "de3a362dde3ce5f2498c7f51b5b89f9e84d59eeb24d9e08c1ec650c0e87982c4",
+                "run_ref": "session:local .ai-review/interleaving-pins/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "8807ec1fd22f0edbfede3bff377ee96c6721ae6905e83c3b3c6f08be72ec92b9",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "fba66f37b536413eddd8dd17db378800b2f3fd567803a631eeb6e1ebc074aad9",
+                "ledger_entry_sha256": "4600d76810ce817588c9c206ea284598ae45de27646f927ee7080eb09958f329",
+                "run_ref": "session:local .ai-review/interleaving-pins/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-25T03:13:29Z",
+          "workflow_release": "2.19.0"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "fb8bcd74fbf2547e34022083d31c8f023ef7fc64583a5df19b6f16581b950524",
@@ -18337,12 +18468,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 14,
-      "last_transition": "2026-10-25T02:26:08Z",
+      "state_revision": 17,
+      "last_transition": "2026-10-25T03:13:29Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -18449,6 +18580,97 @@
               "at": "2026-10-25T00:05:16Z"
             }
           ]
+        },
+        "F-92cee696e589": {
+          "digest": "92cee696e589f7bcded5c405854f3add09765e7601578cc214699b06445f3bf5",
+          "text": "**P1's five scenarios do not reach two statements of the `owner_mutation` body.** The plan's D-P1 rejects\n   AST reachability on the claim that \"the five scenarios exercise every statement of the body\". Two body\n   statements fall outside them:\n   - The demoted restore branch (`item[\"checkpoints\"][checkpoint_id] = copy.deepcopy(base)`): the\n     \"a kind entry success\" scenario is undemoted only.\n   - The mutator's `kind_now != \"entry\"` raise.\n\n   A `with guard_mutation_lock(...)` mutant in either place (my X1 and X2) passes `test_p1_*`. Both are\n   still caught by `TestGlobalLockOrderItem372h.test_graph_arm_edges_acyclicity_and_single_attempt_discriminator`,\n   so the shipped suite still pins the property. Fix: add a sixth subtest, \"a kind entry demoted success\"\n   (`{\"demoted\": True}`), which closes X1. Also qualify the coverage claim in the next plan that touches\n   this, or note that the AST arm backs it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4b8265a7816a075aa6a6d403cd0243155a219766b5600ef91aff18ba87be5d3c",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T02:58:49Z"
+            }
+          ]
+        },
+        "F-f6e71ff0019a": {
+          "digest": "f6e71ff0019aebbb50439b4c971d05dd0ebdf67d67210ed6d750daa018f2f380",
+          "text": "**The concurrency page's tests cell gives the wrong class for `test_p4_*`.** `docs/CONCURRENCY_INVARIANTS.md`\n   reads \"`::TestReleaseCheckpointStartCommand`, `::TestAmendmentResolutionReservation` (the `test_p4_*`\n   pin and the journal refusal)\". `test_p4_*` is in `TestReleaseCheckpointStartCommand`; only the journal\n   refusal is in `TestAmendmentResolutionReservation`. Suggested text: \"`::TestReleaseCheckpointStartCommand`\n   (the `test_p4_*` pin), `::TestAmendmentResolutionReservation` (the journal refusal)\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4b8265a7816a075aa6a6d403cd0243155a219766b5600ef91aff18ba87be5d3c",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T02:58:49Z"
+            }
+          ]
+        },
+        "F-c7201b4e9237": {
+          "digest": "c7201b4e923756e0f2f2bb8d2e733ea4ade0ea3def402ee1622f9ba68dcfa631",
+          "text": "**Three of the evidence file's substitutions do not apply as written.** In\n   `INTERLEAVING_PINS_EVIDENCE.md`, M1c, M2 and M7 have an old text that ends partway through a source line\n   (`…changed after`, `current = resolve_claim`, `def restore`), and the code fence adds a newline that is\n   not in the source. A literal re-application finds them 0 times. Strip the closing newline of both blocks\n   and they apply exactly once and reproduce the recorded results. The file says it is flow f2's \"complete\n   input\", so state that convention in the file (or end each old text at a line end).",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4b8265a7816a075aa6a6d403cd0243155a219766b5600ef91aff18ba87be5d3c",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T02:58:49Z"
+            }
+          ]
+        },
+        "F-ca4ddae14f47": {
+          "digest": "ca4ddae14f4734e99c0de704a24e2022a0e980489dfa09779584ffe8eb39d3bc",
+          "text": "**EIR-001 [apparatus] — Specify the mutant-block newline convention.** `docs/ai-workflow/INTERLEAVING_PINS_EVIDENCE.md:4` describes complete substitution input, but M1c, M2 and M7 end mid-line. Preserving the newline before the closing fence produces zero matches; removing that newline produces exactly one match and reproduces every recorded failure. Document this convention or use complete source lines.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4b8265a7816a075aa6a6d403cd0243155a219766b5600ef91aff18ba87be5d3c",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T03:13:02Z"
+            }
+          ]
+        },
+        "F-d8ea4af52c2c": {
+          "digest": "d8ea4af52c2c71449e00517e664e4dd386a90844a99c429aa322ba430ae4ace6",
+          "text": "**EIR-002 [substantive] — Carry forward EPR-001’s coverage qualification.** `docs/ai-workflow/INTERLEAVING_PINS_PLAN.md:116` still claims exhaustive body coverage. The five scenarios omit the demoted-entry restoration branch and the `kind_now != \"entry\"` refusal. Narrow the claim as previously suggested; the specified mutants remain distinguishable.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4b8265a7816a075aa6a6d403cd0243155a219766b5600ef91aff18ba87be5d3c",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T03:13:02Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "4b8265a7816a075aa6a6d403cd0243155a219766b5600ef91aff18ba87be5d3c",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "8807ec1fd22f0edbfede3bff377ee96c6721ae6905e83c3b3c6f08be72ec92b9",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-25T02:58:49Z",
+          "verdict_sha256": "042e72659ed0e6a69aa34ace6010c869ad9af56f911f94e34ce416911b1d0d5f",
+          "run_ref": "session:local .ai-review/interleaving-pins/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "8807ec1fd22f0edbfede3bff377ee96c6721ae6905e83c3b3c6f08be72ec92b9",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-25T03:13:02Z",
+          "verdict_sha256": "fba66f37b536413eddd8dd17db378800b2f3fd567803a631eeb6e1ebc074aad9",
+          "run_ref": "session:local .ai-review/interleaving-pins/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
