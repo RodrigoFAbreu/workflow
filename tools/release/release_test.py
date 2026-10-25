@@ -2976,6 +2976,30 @@ def managed_release(root: Path, version: str, suites: dict[str, str], block: dic
     (root / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
 
+class ConcurrencyInvariantsReleaseWindowRowTest(unittest.TestCase):
+    """command-wording (W3): the release-window row of the invariants page gives the
+    command's acts to the command and the re-classification to the engine, and attributes
+    each test pin to the class it is in."""
+
+    def row(self) -> str:
+        text = (REPO_ROOT / "docs" / "CONCURRENCY_INVARIANTS.md").read_text()
+        return " ".join(next(line for line in text.splitlines()
+                             if line.startswith("| **Checkpoint-start release window**")).split())
+
+    def test_the_recovery_cell_says_the_command_observes_and_the_engine_reclassifies(self):
+        row = self.row()
+        self.assertIn("the command observes the claim outside (9) and, while a claim exists, "
+                      "asks for the same attestation with the fresh claim; the engine then "
+                      "re-classifies under (9)", row)
+        self.assertNotIn("the engine re-classifies under (9) and, while a claim exists, asks", row)
+
+    def test_the_tests_cell_puts_the_p4_pin_under_the_command_class(self):
+        row = self.row()
+        self.assertIn("`::TestReleaseCheckpointStartCommand` (including the `test_p4_*` pin)", row)
+        self.assertIn("`::TestAmendmentResolutionReservation` (the journal refusal)", row)
+        self.assertNotIn("`::TestAmendmentResolutionReservation` (the `test_p4_*` pin", row)
+
+
 class ManagerBlockContractTest(unittest.TestCase):
     def problems(self, mutate) -> str:
         block = valid_block()
