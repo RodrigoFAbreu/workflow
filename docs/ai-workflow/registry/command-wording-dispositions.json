@@ -1,0 +1,79 @@
+{
+ "schema_version": 1,
+ "work_item_id": "command-wording",
+ "dispositions": {
+  "F-08bdf90289e4": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording or review-bundle apparatus of an approved plan-stage or generated path; the shipped documents and messages are checked by the functional review (f2: every case fails on the old text and passes on the candidate) and by Codex."
+  },
+  "F-116f7817283a": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#108",
+   "note": "_release_start_next_step docstring counts two refusals; there are three cases."
+  },
+  "F-3113c62cd439": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording or review-bundle apparatus of an approved plan-stage or generated path; the shipped documents and messages are checked by the functional review (f2: every case fails on the old text and passes on the candidate) and by Codex."
+  },
+  "F-3b54b137edd2": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording or review-bundle apparatus of an approved plan-stage or generated path; the shipped documents and messages are checked by the functional review (f2: every case fails on the old text and passes on the candidate) and by Codex."
+  },
+  "F-3ce931f28d81": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording or review-bundle apparatus of an approved plan-stage or generated path; the shipped documents and messages are checked by the functional review (f2: every case fails on the old text and passes on the candidate) and by Codex."
+  },
+  "F-471eccbc3c41": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording or review-bundle apparatus of an approved plan-stage or generated path; the shipped documents and messages are checked by the functional review (f2: every case fails on the old text and passes on the candidate) and by Codex."
+  },
+  "F-4fd8a0c91d65": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#108",
+   "note": "Add a pointer-on-an-existing-non-IN_PROGRESS-checkpoint subtest to tests (c) and (e)."
+  },
+  "F-5e0a5b9658a9": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording or review-bundle apparatus of an approved plan-stage or generated path; the shipped documents and messages are checked by the functional review (f2: every case fails on the old text and passes on the candidate) and by Codex."
+  },
+  "F-96513808bce9": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording or review-bundle apparatus of an approved plan-stage or generated path; the shipped documents and messages are checked by the functional review (f2: every case fails on the old text and passes on the candidate) and by Codex."
+  },
+  "F-9f6631fc4a8b": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording or review-bundle apparatus of an approved plan-stage or generated path; the shipped documents and messages are checked by the functional review (f2: every case fails on the old text and passes on the candidate) and by Codex."
+  },
+  "F-a9a5bbf425e5": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#108",
+   "note": "Sentence (ii) is true only from the worktree that holds the claim."
+  },
+  "F-af17f28ba3ec": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording or review-bundle apparatus of an approved plan-stage or generated path; the shipped documents and messages are checked by the functional review (f2: every case fails on the old text and passes on the candidate) and by Codex."
+  },
+  "F-b8b9a73726a8": {
+   "disposition": "dropped",
+   "reason": "Line width of a reflowed bullet: no width pin covers it and the file has longer lines."
+  },
+  "F-be8af3a158b2": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording or review-bundle apparatus of an approved plan-stage or generated path; the shipped documents and messages are checked by the functional review (f2: every case fails on the old text and passes on the candidate) and by Codex."
+  },
+  "F-c32c5d5ddf7a": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#108",
+   "note": "Step 1c may adopt; the appended sentence says it always does."
+  },
+  "F-df6b87be9e59": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#108",
+   "note": "Add a pointer-on-an-existing-non-IN_PROGRESS-checkpoint subtest to tests (c) and (e)."
+  },
+  "F-f96a105dd454": {
+   "disposition": "dropped",
+   "reason": "Plan-document wording or review-bundle apparatus of an approved plan-stage or generated path; the shipped documents and messages are checked by the functional review (f2: every case fails on the old text and passes on the candidate) and by Codex."
+  }
+ }
+}
