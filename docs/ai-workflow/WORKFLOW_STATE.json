@@ -19798,6 +19798,864 @@
         "evaluated_at": "2026-10-25T11:01:42Z",
         "workflow_release": "2.19.1"
       }
+    },
+    "retention-report": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "retention-report",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/RETENTION_REPORT_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/retention-report-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/retention-report-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 2,
+      "implementation_revision": 2,
+      "functional_review_round": null,
+      "base_commit": "e0267810ff8a220f8d65e672a2ffb98209f59327",
+      "reviewed_implementation_head": "3eb8a4be69ac92acdeb87ffe7ebb7319ecbc9c65",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP2",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "7a524472c7f658295e7ff154dbfdd8290127d2f8"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "b8f18559a638564e083cc0751523d3683e6f57a5"
+        }
+      },
+      "current_bundle_id": "4fc483f9c7c3f83c9e1693fa9a1b39424478820aadd0e659c01a7c765ed092af",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "4fc483f9c7c3f83c9e1693fa9a1b39424478820aadd0e659c01a7c765ed092af",
+        "approved_review_content_id": "b9cc7fc86528c2a3cf226e3f3dafcc8ed875dad7c25683f12209caeecf8cbde8",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/RETENTION_REPORT_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "af1c47f71932d9a0f4ec25e6f10f2a4415cf7330"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-report-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1fda1d8244d94085f1055f274957b24747c62980"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/retention-report-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "07d6128beca541b39454344ac34dd38defc144f7"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-25T16:19:03Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "b9cc7fc86528c2a3cf226e3f3dafcc8ed875dad7c25683f12209caeecf8cbde8",
+            "ledger": {
+              "local": {
+                "bundle_id": "4fc483f9c7c3f83c9e1693fa9a1b39424478820aadd0e659c01a7c765ed092af",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "7aab90bb5e6c54c78c87ebc1b3c867893ebee9ac7c564cf0955270c2768ab983",
+                "ledger_entry_sha256": "faca83a6131d77d561b19e354e8491fd8c7047244206371b0190a58a8aa8a6f0",
+                "run_ref": "session:local .ai-review/retention-report/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "4fc483f9c7c3f83c9e1693fa9a1b39424478820aadd0e659c01a7c765ed092af",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "a00a1ed5c311f0e32f0be69f94dca9c8f706aa46f29da7363813a124ee3e3a41",
+                "ledger_entry_sha256": "49b1c11ce2953a95b4d43dfcb2ed43b7a98c06ca8004ce621032f4e83804be7a",
+                "run_ref": "session:local .ai-review/retention-report/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-25T16:19:03Z",
+          "workflow_release": "2.19.2"
+        }
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "11f641dc0a2e4e130e4ab1bf903710f1ad4c459c4d2d782e979e756bf46fd5be",
+        "approved_review_content_id": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+        "review_content_manifest": [
+          {
+            "path": "docs/RETENTION.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "677b68c3a1d4fc5c015c633762e50bc4e5b16409"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-report-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f7396cf6471c05e3dc243ccb77fa871e6ed957de"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8b295ab40c2b5c013c4afe349dbc2066d1ce7e38"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bb57b35669e135cb8790703531bfd17a62553cc0"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "10eed025387a598abde31f5816990997f427e01d"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "19b07cdb12a4bc7c9812833df20ecfa37bb83d9d"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e33ec7cf652f86491cff7a4595eb1f91ad0d9a99"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1e99b81f824b120d32eb10ddf5d24009a5782f97"
+          },
+          {
+            "path": "payload/scripts/workflow_retention.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6d34269ca0b10372a66ba1788b111967e5efab2c"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ed1fd58311b32d12ba18108ffb39eea381af19b5"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2a038a84b395fcbb96beb614c3b221061749dfab"
+          }
+        ],
+        "reviewed_content_commit": "3eb8a4be69ac92acdeb87ffe7ebb7319ecbc9c65",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-25T20:04:37Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+            "ledger": {
+              "local": {
+                "bundle_id": "11f641dc0a2e4e130e4ab1bf903710f1ad4c459c4d2d782e979e756bf46fd5be",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "bd9a60b58f587815ae05c86fa9bce4c442e57a9eff2c3931a91254e73f8070d2",
+                "ledger_entry_sha256": "4fa054188d0e22a2752c31b436a05e1751748e72267bafd7c6471a1b66d4d757",
+                "run_ref": "session:local .ai-review/retention-report/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "11f641dc0a2e4e130e4ab1bf903710f1ad4c459c4d2d782e979e756bf46fd5be",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "258306c602a1d3099f2908cdb96da531f36fa41782ca91b6676c70020275b6cc",
+                "ledger_entry_sha256": "2fed504daee90f2d08ce665a566029916e20387a7321c69cad437753fe1e7aa0",
+                "run_ref": "session:local .ai-review/retention-report/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-25T20:04:37Z",
+          "workflow_release": "2.19.2"
+        }
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "b9cc7fc86528c2a3cf226e3f3dafcc8ed875dad7c25683f12209caeecf8cbde8",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "4fc483f9c7c3f83c9e1693fa9a1b39424478820aadd0e659c01a7c765ed092af",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-25T16:06:19Z",
+          "verdict_sha256": "7aab90bb5e6c54c78c87ebc1b3c867893ebee9ac7c564cf0955270c2768ab983",
+          "run_ref": "session:local .ai-review/retention-report/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "4fc483f9c7c3f83c9e1693fa9a1b39424478820aadd0e659c01a7c765ed092af",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-25T16:17:52Z",
+          "verdict_sha256": "a00a1ed5c311f0e32f0be69f94dca9c8f706aa46f29da7363813a124ee3e3a41",
+          "run_ref": "session:local .ai-review/retention-report/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 3,
+          "external": 2
+        },
+        "implementation": {
+          "local": 2,
+          "external": 2
+        }
+      },
+      "state_revision": 25,
+      "last_transition": "2026-10-25T20:37:20Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-25T16:03:04Z",
+        "consumed": {
+          "review_content_id": "f0be31e8d9861cb5342f4a54b41323487da3de499f9ca96af18cea75cc21c5d3",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "b9cc7fc86528c2a3cf226e3f3dafcc8ed875dad7c25683f12209caeecf8cbde8",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "b9cc7fc86528c2a3cf226e3f3dafcc8ed875dad7c25683f12209caeecf8cbde8",
+          "bundle_id": "4fc483f9c7c3f83c9e1693fa9a1b39424478820aadd0e659c01a7c765ed092af",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "a37988f1ecf6b08b822da9a5fac4078e17637058d26414cd74499566374cd79a",
+        "f0be31e8d9861cb5342f4a54b41323487da3de499f9ca96af18cea75cc21c5d3"
+      ],
+      "optional_findings": {
+        "F-7f6886b809d6": {
+          "digest": "7f6886b809d638e67c6230f96b3fdd4fd5122a1da2c209b1ddd55e22ea04b840",
+          "text": "LPR-R1-O1: under `python3 -I` the script's directory is not on `sys.path`, so `import workflow_forge` fails unless the script inserts its own directory first (the precedent is `payload/scripts/workflow_protocol.py:39`). Name that step in D-Writes beside `sys.dont_write_bytecode`. T8's `python3 -I` subprocess would catch the omission, but only by failing.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "a37988f1ecf6b08b822da9a5fac4078e17637058d26414cd74499566374cd79a",
+              "verdict": "REVISE",
+              "at": "2026-10-25T15:47:47Z"
+            }
+          ]
+        },
+        "F-14f6a824d295": {
+          "digest": "14f6a824d2953f2754213843ae133318b4fcba246f1227fcc51df8d7d8655f09",
+          "text": "LPR-R1-O2: D-Writes says the script \"runs `git ls-files` and `git remote get-url` only\". `query_forge_pr_facts` also runs `git remote get-url origin` and, through `resolve_gh` and `_worktree_roots`, `git worktree list --porcelain` for every queried item. Both are read-only, so I1 holds, but the sentence should list them, or say \"and the read-only Git calls of `workflow_forge`\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "a37988f1ecf6b08b822da9a5fac4078e17637058d26414cd74499566374cd79a",
+              "verdict": "REVISE",
+              "at": "2026-10-25T15:47:47Z"
+            }
+          ]
+        },
+        "F-90d949076d39": {
+          "digest": "90d949076d39e57e4a6212e77747432adb7681db3bc63ccc0907f307abb513a0",
+          "text": "LPR-R1-O3: section 2 says the report uses \"the same commit\" as `anchor_of`, but `anchor_of` takes `reviewed_content_commit` only when `approved_review_content_id` is also present, and otherwise falls back to `reviewed_implementation_head`. State the same two-field condition in D-Finished step 4 so the queried commit always equals the one `/apply-pr-review` queries.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "a37988f1ecf6b08b822da9a5fac4078e17637058d26414cd74499566374cd79a",
+              "verdict": "REVISE",
+              "at": "2026-10-25T15:47:47Z"
+            }
+          ]
+        },
+        "F-a7b820aba375": {
+          "digest": "a7b820aba375e4a79b398cf9e1b5a5269a27d91f228e3aff0c3b40eadb375e53",
+          "text": "LPR-R1-O4: the `archives[].item` values (`finished`, `recent`, `other`) do not say what an archive whose stem names a `not_finished` item is called, for example an item reopened after it was archived. Row 27d will act on this field. Give it its own value, for example `open`, or say explicitly that it is `other`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "a37988f1ecf6b08b822da9a5fac4078e17637058d26414cd74499566374cd79a",
+              "verdict": "REVISE",
+              "at": "2026-10-25T15:47:47Z"
+            }
+          ]
+        },
+        "F-fc613bc27496": {
+          "digest": "fc613bc274962ffd4fdc42e125e42ab457bc8ea7a499c8175717ea119443434e",
+          "text": "LPR-R1-O5: D-Report says `prunable` is \"the age strictly more than the TTL\", with `age_days` as whole days. Say whether the comparison uses whole days (30.9 days is not prunable) or the exact age, and pin a T6 case just over 30 days.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "a37988f1ecf6b08b822da9a5fac4078e17637058d26414cd74499566374cd79a",
+              "verdict": "REVISE",
+              "at": "2026-10-25T15:47:47Z"
+            }
+          ]
+        },
+        "F-d317fb5b3379": {
+          "digest": "d317fb5b33796f7a579b3f2f3a101912155bdee03fd8776f71fdb6714dd96053",
+          "text": "LPR-R2-O1: `build_report(..., run=None, resolve=None)` passes the seam on to `query_forge_pr_facts`, whose own default is `run=_default_run`, not `None`.\n  - **The risk:** a plain `run=run` would make every query raise a `TypeError`. D-Finished step 5's catch-all would turn that into `query_failed:unexpected`, and the report would list nothing as finished. Every T case and f6 passes a fake `run`, and T8's real subprocess stops at `repository_unknown` before any query. So no gate would catch this.\n  - **The fix:** state the existing idiom in D-Finished or CP1 (`kwargs = {\"run\": run} if run is not None else {}`, as at `workflow_state.py:21097`). Add a T4 case that calls `build_report` with `run=None` and a patched `workflow_forge._default_run`, then asserts the patched runner was called.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "f0be31e8d9861cb5342f4a54b41323487da3de499f9ca96af18cea75cc21c5d3",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T15:52:51Z"
+            }
+          ]
+        },
+        "F-de2102bc8c59": {
+          "digest": "de2102bc8c59d4b86ad50a983dd9ea10234f9127c23b035e69088c43524f0076",
+          "text": "LPR-R2-O2: the D-Docs row for lines 159 to 161 changes the archive layout, but line 162 keeps the listing check `tar -tzf`, which is gzip-only. Line 160 keeps `tar -czf`.\n  - **The risk:** `-z` cannot list a zstd tarball. A `.tar.zst` name on `-czf` output would hold gzip data.\n  - **The fix:** extend that row to line 162 and name the zstd forms, for example `tar --zstd -cf` and `tar --zstd -tf`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "f0be31e8d9861cb5342f4a54b41323487da3de499f9ca96af18cea75cc21c5d3",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T15:52:51Z"
+            }
+          ]
+        },
+        "F-a95f4e9be8f6": {
+          "digest": "a95f4e9be8f6d90dc72a5020b42325ee8cddfd82d4c8fa8a8ddc643acc74d2a3",
+          "text": "LPR-R2-O3: open decision 2 puts an obligation on row 27c: it must never touch an archive's mtime after writing it. The `docs/ROADMAP.md` row 27c, written with this plan, does not say so, and the obligation is easy to lose before row 27c is planned. Add one sentence to row 27c, or to the \"The report\" section of `docs/RETENTION.md`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "f0be31e8d9861cb5342f4a54b41323487da3de499f9ca96af18cea75cc21c5d3",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T15:52:51Z"
+            }
+          ]
+        },
+        "F-44c6aebf4869": {
+          "digest": "44c6aebf48694a052bef37a62d3cf8df45f5da382222d8949a399915352f471f",
+          "text": "LPR-R2-O4: a work item whose id is `runtime` or `archive` passes the id regex. Its review folder would then be `.ai-review/runtime/`, the lock directory, or the top-level `.ai-review/archive/`. The report would measure that folder, and row 27c would act on the report's list.\n  - No such id exists today, and the Workflow reserves neither name.\n  - **The fix:** at least list `runtime` and `archive` as `not_finished: invalid_id` in D-Finished step 1, or name the reservation for row 27c to enforce.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "f0be31e8d9861cb5342f4a54b41323487da3de499f9ca96af18cea75cc21c5d3",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T15:52:51Z"
+            }
+          ]
+        },
+        "F-2cf5ae6146cc": {
+          "digest": "2cf5ae6146cc704b16024d232e82ea0ec072a00821ebaff11c5c4286f9903f18",
+          "text": "**EPR-004 [substantive] — Complete the JSON determinism and absence conventions.**\n  Plan §3, D-Output, lines 133–149 specifies sorted keys but leaves `archives` and `not_finished` ordering unspecified, along with values/types for absent archive metadata. Document these conventions and check stable output with a fixed `now` and reordered inputs.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "f0be31e8d9861cb5342f4a54b41323487da3de499f9ca96af18cea75cc21c5d3",
+              "verdict": "REVISE",
+              "at": "2026-10-25T16:00:31Z"
+            }
+          ]
+        },
+        "F-39e5d8834d56": {
+          "digest": "39e5d8834d56f2cad2ba003bda52d665b428b8b1e35679d30f24facfc6958526",
+          "text": "**LPR-R3-O1:** The first row of the D-Docs table cites line 15 of `docs/RETENTION.md` at `e026781` for \"Steps 2 to 4 ...\". The sentence is on lines 13-14, and line 15 is \"The last section says what they must guarantee.\" The quoted text is exact, so the implementer will find it. Correct the line number so the table can be read line by line, as CP1's Done criterion asks.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "b9cc7fc86528c2a3cf226e3f3dafcc8ed875dad7c25683f12209caeecf8cbde8",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T16:06:19Z"
+            }
+          ]
+        },
+        "F-3186246162db": {
+          "digest": "3186246162db46eaa46d70b009859c14979feade35ba1e9ac15a12bed871d673",
+          "text": "**LPR-R3-O2:** The Goal (line 24) and D-Surface (line 94) give the caller's command as `python3 scripts/workflow_retention.py report`, without `-I`. D-Writes names `python3 -I scripts/workflow_retention.py report ...` as the supported form for the Manager and the Controller. The guarantee holds either way: `__main__` is never cached, and the assignment comes before the sibling import. Use one command line in all three places so the Manager row 17 wiring copies the right form, and so `docs/RETENTION.md` \"The report\" does not inherit the mismatch.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "b9cc7fc86528c2a3cf226e3f3dafcc8ed875dad7c25683f12209caeecf8cbde8",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T16:06:19Z"
+            }
+          ]
+        },
+        "F-263c57d1476a": {
+          "digest": "263c57d1476ad04bef98c1f0bdd4e6947121d50922a95023f33e08b4380435ba",
+          "text": "**LPR-R3-O3:** The plan does not fix the order of the refusals (`state_missing`, `state_invalid`, `repository_unknown`). T8's subprocess and T9(a) expect `repository_unknown` on \"a repository with no origin\". That works only if that repository also has a valid state file, or if the origin check runs first. T9(a) runs `<copy>/workflow_retention.py` with the default repo root, which is the copy's parent. So the copy has to sit at `<scratch repo>/scripts/`, or the run has to pass `--repo-root`. State the refusal order in D-Output, and the repository layout in T9(a), so each test reaches the refusal it names.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "b9cc7fc86528c2a3cf226e3f3dafcc8ed875dad7c25683f12209caeecf8cbde8",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T16:06:19Z"
+            }
+          ]
+        },
+        "F-fa31a8847eea": {
+          "digest": "fa31a8847eea3b1804d99fc8e2af479351953d3b9265d108222475eeeb505992",
+          "text": "**LIR-R1-O1: some unexpected input ends in a traceback with exit 1, outside the documented 0/2 contract.**\n  - **What I saw:** `_load_state` catches `FileNotFoundError` and `OSError` around `read_text`, but a state\n    file that is not valid UTF-8 raises `UnicodeDecodeError` (a `ValueError`). I reproduced it: a state file\n    containing byte `0xff` gives a traceback and exit 1, not `error: state_invalid` and exit 2.\n  - The same thing happens to a `PermissionError` from `os.listdir(archive_dir)`, and to the strict decoding of\n    `git ls-files` that the request already names.\n  - **The risk:** D-Output and `docs/exit-codes.md` promise only 0 and 2. A Manager or Controller caller that\n    reads the code would get an undocumented 1. It fails loudly and writes nothing, so it is not blocking.\n  - **The fix:** catch `UnicodeDecodeError` beside the JSON error as `state_invalid`. Turn an `OSError` from\n    the archive listing into a refusal, or into an empty listing with a note.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "18b326f1259356bdbc1c558d2b73e0e682f6f3e1dc03e79b4c24c954b53db50f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T18:24:07Z"
+            }
+          ]
+        },
+        "F-b371b8c682b4": {
+          "digest": "b371b8c682b479ebe626180a744c81cffb8e05e4f240494271694f269f35b825",
+          "text": "**LIR-R1-O2: `archive_dir` takes the repository name from `origin` without excluding `.` or `..`.**\n  - **What I saw:** `workflow_forge._REPOSITORY_RE` accepts `owner/..`. With `origin` set to\n    `https://github.com/acme/..`, I got `archive_dir` = `<archive-root>/..`, so `archives` lists the\n    `*.tar.zst` files of the archive root's parent.\n  - GitHub does not allow those names, and the report only reads. But row 27d prunes from `archives`.\n  - **The fix:** refuse a repository name of `.` or `..` as `repository_unknown` here, or record the check as\n    an obligation of rows 27c and 27d.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "18b326f1259356bdbc1c558d2b73e0e682f6f3e1dc03e79b4c24c954b53db50f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T18:24:07Z"
+            }
+          ]
+        },
+        "F-4226191cd5f1": {
+          "digest": "4226191cd5f1c020f0f3cb288e453e69cf802abcdee1d62ce909223b99124ce2",
+          "text": "**LIR-R1-O3: a symlinked `<archive-root>/<repo>` directory (the request's known limitation 2).**\n  - I agree it errs on the safe side: `archives` is empty, so `totals.prunable` is 0.\n  - It does not need a fix now. Record it as an obligation of row 27c/27d: prune only from `archives`, never\n    from `finished[].archive`, and refuse a symlinked per-repository directory. Or make `_archive_fact`\n    report absent when the directory itself is a symlink, so the two halves agree.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "18b326f1259356bdbc1c558d2b73e0e682f6f3e1dc03e79b4c24c954b53db50f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T18:24:07Z"
+            }
+          ]
+        },
+        "F-f57f84090f2c": {
+          "digest": "f57f84090f2ce7c8f003ab14ca80197460416f336fe8280e37057174fa0e0185",
+          "text": "**LIR-R1-O4: no test pins the future-mtime clamp or `build_report(run=None)`.**\n  - **The future-mtime clamp:** `max(0, ...)` in `_archive_fact` is right, but no T6 case covers it.\n  - **`build_report(run=None)`:** the forwarding of `run=None` is correct (`kwargs` only when it is set). No\n    test proves it, as LPR-R2-O1 noted at the plan stage.\n  - **The risk:** T8c and T9(a) stop at `repository_unknown`, and T9(b) passes a seam. So a regression to\n    `run=run` would turn every real query into `query_failed:unexpected`, and no test would see it.\n  - **The fix:** a one-line T6 case for the clamp, and a T4 case that calls `build_report` without `run`.\n    Patch `workflow_forge.query_forge_pr_facts.__kwdefaults__[\"run\"]`, not the module attribute\n    `_default_run`: the default is bound when the function is defined.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "18b326f1259356bdbc1c558d2b73e0e682f6f3e1dc03e79b4c24c954b53db50f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T18:24:07Z"
+            }
+          ]
+        },
+        "F-091b240d7663": {
+          "digest": "091b240d76633dd4d8450727907ceae3161f187be810a95186f0ff7d339cbf7e",
+          "text": "**LIR-R1-O5: documentation nits.**\n  - `docs/exit-codes.md` and the manifest rationale give the command without `-I`, while \"The report\" in\n    `docs/RETENTION.md` uses `python3 -I`. This is the plan-stage LPR-R3-O2 again.\n  - \"`archives` lists every `*.tar.zst` file\" should say \"regular file\".\n  - The continuation lines of guarantee 5 are not indented, as already disclosed.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "18b326f1259356bdbc1c558d2b73e0e682f6f3e1dc03e79b4c24c954b53db50f",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T18:24:07Z"
+            }
+          ]
+        },
+        "F-ab927a3ef214": {
+          "digest": "ab927a3ef214f53f6fc7fbc634b52c8b17a504a7b5d3e9b81b9c12b74bd0bdf4",
+          "text": "**LIR-2-001 — The text form's per-item line still states absence for an unreadable path.** At `payload/scripts/workflow_retention.py:337-342`, a finished item whose archive has `readable: false` prints `no archive`, and a review folder whose `lstat` was denied prints `no review folder`. The trailing `INCOMPLETE` section and the stderr warning do say the line is not reliable, so nothing is hidden. Still, the line itself repeats the absence claim EIR-001 was about. Printing `archive unreadable` / `review folder unreadable` (and marking a partially counted folder's size as a lower bound) would make each line true on its own. The JSON is already correct.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T19:41:49Z"
+            }
+          ]
+        },
+        "F-69491e3c2b22": {
+          "digest": "69491e3c2b229cb0b5f1400dd4f2bc5a3a1ac9bcf8a8d8def703950d9106a9f6",
+          "text": "**LIR-2-002 — `TEST_RESULTS.md` still describes revision 1 only.** Its heading and tables are for implementation revision 1 at `220a056` (obligations 208). The revision-2 runs (209 tests, the release-class subset) are recorded only in `IMPLEMENTATION_SUMMARY.md`'s round-1 section. A reader of `TEST_RESULTS.md` alone sees stale counts. Regenerating it per revision, or adding a revision-2 section, would keep the two documents consistent.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+              "verdict": "APPROVE",
+              "at": "2026-10-25T19:41:49Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "11f641dc0a2e4e130e4ab1bf903710f1ad4c459c4d2d782e979e756bf46fd5be",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-25T19:41:49Z",
+          "verdict_sha256": "bd9a60b58f587815ae05c86fa9bce4c442e57a9eff2c3931a91254e73f8070d2",
+          "run_ref": "session:local .ai-review/retention-report/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "11f641dc0a2e4e130e4ab1bf903710f1ad4c459c4d2d782e979e756bf46fd5be",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-25T20:03:58Z",
+          "verdict_sha256": "258306c602a1d3099f2908cdb96da531f36fa41782ca91b6676c70020275b6cc",
+          "run_ref": "session:local .ai-review/retention-report/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "7759228876ad5d0d24ccf51e4c11afd57d50e54a",
+            "ran_at": "2026-10-25T20:18:47Z",
+            "summary": {
+              "flow": "refusals",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/F1.log"
+            },
+            "log_digest": "c77bfc01c66e229ef093a80f50cf0d2ca6dfeb7ea969b594395c03bab1dcb5f0",
+            "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+            "recorded_at": "2026-10-25T20:18:47Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "7759228876ad5d0d24ccf51e4c11afd57d50e54a",
+            "ran_at": "2026-10-25T20:18:47Z",
+            "summary": {
+              "flow": "listing with the forge refusing",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/F2.log"
+            },
+            "log_digest": "d35f40f9a038bb23d375e56a69542b5bff9b30c7e905e0bf7dc715ac833c5bab",
+            "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+            "recorded_at": "2026-10-25T20:18:47Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "7759228876ad5d0d24ccf51e4c11afd57d50e54a",
+            "ran_at": "2026-10-25T20:18:47Z",
+            "summary": {
+              "flow": "archives and the TTL",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/F3.log"
+            },
+            "log_digest": "8cc9a48f466b7c07051e81a2e049f5c9a0c74ae5f03b79351dea13a8133d8ce7",
+            "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+            "recorded_at": "2026-10-25T20:18:47Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "7759228876ad5d0d24ccf51e4c11afd57d50e54a",
+            "ran_at": "2026-10-25T20:18:47Z",
+            "summary": {
+              "flow": "unreadable path",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/F4.log"
+            },
+            "log_digest": "f2fcf4bb2255bd75f1d95269c33620b05d1db721109c6264b0d7ae95b730377d",
+            "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+            "recorded_at": "2026-10-25T20:18:47Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "7759228876ad5d0d24ccf51e4c11afd57d50e54a",
+            "ran_at": "2026-10-25T20:18:47Z",
+            "summary": {
+              "flow": "nothing written",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/F5.log"
+            },
+            "log_digest": "5c95672c400508a934330e9711c28fd370228204db60a7813e12bbd7f7f61017",
+            "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+            "recorded_at": "2026-10-25T20:18:47Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "7759228876ad5d0d24ccf51e4c11afd57d50e54a",
+            "ran_at": "2026-10-25T20:18:47Z",
+            "summary": {
+              "flow": "forge facts with the real gh (read-only)",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "out/F6.log"
+            },
+            "log_digest": "25b9598bc5e662f0b91d96ad9fb265b4448022f9165d32c1f826c56cdea83a9e",
+            "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+            "recorded_at": "2026-10-25T20:18:47Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 114,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/114"
+          },
+          "state": "open",
+          "head": "7759228876ad5d0d24ccf51e4c11afd57d50e54a",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+          "observed_at": "2026-10-25T20:37:20Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "3eb8a4be69ac92acdeb87ffe7ebb7319ecbc9c65",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-10-25T20:37:20Z",
+            "raw_sha256": "6ff24ddbc12249e203ba0f9da4812960cfadd668ba2507a45facf4684fedd8b1",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "9e824061111fe5f5b6a5d5690909ba37abafca4a4ca830bdf83246d3c94afd21"
+          },
+          "fact_id": "70125fee647b37ce87b34495a922b382bcc9177cf26060da0add7f0f2ff0150d"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #114 at 7759228876ad5d0d24ccf51e4c11afd57d50e54a is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "3eb8a4be69ac92acdeb87ffe7ebb7319ecbc9c65",
+          "anchor_identity": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "ffe8b8915773ce1a1361460b7d84bc471365ac428203318030670b0c4094b3e0",
+            "recorded_at": "2026-10-25T20:04:37Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "70e597a82cf6ba5bf9e75232a710c36c857687bd3f6d644d16c0d46e95e2cc84",
+              "log_digest": "c77bfc01c66e229ef093a80f50cf0d2ca6dfeb7ea969b594395c03bab1dcb5f0",
+              "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1"
+            },
+            "flow-2": {
+              "evidence_id": "5794ca5df7e26d5fba5cee3be1a07012a3280b26a43660e70660fca23954f09c",
+              "log_digest": "d35f40f9a038bb23d375e56a69542b5bff9b30c7e905e0bf7dc715ac833c5bab",
+              "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1"
+            },
+            "flow-3": {
+              "evidence_id": "54e369d6f058810e3530030b46381e4f69726731bd2821edc297ee4ebcfbd30e",
+              "log_digest": "8cc9a48f466b7c07051e81a2e049f5c9a0c74ae5f03b79351dea13a8133d8ce7",
+              "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1"
+            },
+            "flow-4": {
+              "evidence_id": "ace587660385222466d6a20fbb85b3bc5f0f301a3e53df45619be9cd3d993c59",
+              "log_digest": "f2fcf4bb2255bd75f1d95269c33620b05d1db721109c6264b0d7ae95b730377d",
+              "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1"
+            },
+            "flow-5": {
+              "evidence_id": "669acb6dedd10fb2b1a2b5091f7f0032345d6f53d537cf7a2b5e5c894d89f229",
+              "log_digest": "5c95672c400508a934330e9711c28fd370228204db60a7813e12bbd7f7f61017",
+              "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1"
+            },
+            "flow-6": {
+              "evidence_id": "7a3b5c145b4c839809aaca1db5dd3ea6188e83febf882b697c4411c82e3e83a5",
+              "log_digest": "25b9598bc5e662f0b91d96ad9fb265b4448022f9165d32c1f826c56cdea83a9e",
+              "run_ref": "manager-orchestrator:runs-workflow/w27-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "70125fee647b37ce87b34495a922b382bcc9177cf26060da0add7f0f2ff0150d",
+            "head": "7759228876ad5d0d24ccf51e4c11afd57d50e54a",
+            "provenance": "workflow_gh",
+            "raw_sha256": "6ff24ddbc12249e203ba0f9da4812960cfadd668ba2507a45facf4684fedd8b1"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-10-25T20:37:20Z",
+        "workflow_release": "2.19.2"
+      }
     }
   }
 }

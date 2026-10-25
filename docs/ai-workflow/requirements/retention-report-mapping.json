@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-report",
+  "requirements": {
+    "R1": {
+      "description": "The read-only report: python3 scripts/workflow_retention.py report [--json] lists the finished work items by the rule of docs/RETENTION.md (phase MILESTONE_COMPLETE for the item, its parent and its children, a fresh query saying merged, not the 3 newest, never an open item) with, for each, the size of its untracked .ai-review/<id>/ folder and whether an archive exists at <archive-root>/<repo>/<id>.tar.zst and is older than the TTL (default 30 days, a flag) and so prunable; JSON for the Manager and the Controller plus a text form",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "The report writes nothing: no archive, no removal, no state write, no stored fact, no bytecode; the repository tree and the archive directory are byte-identical before and after a run, proved by a test and a functional flow",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "A failed or empty query means not finished and an open item is never queried: forge errors, an unexpected exception, no pull request, open or closed, a missing anchor and an open parent or child each put the item in not_finished with a reason, and one failure does not stop the report",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Documents and roadmap: docs/RETENTION.md gets the section The report and corrected references to rows 27b, 27c and 27d, docs/exit-codes.md gets the script rows, and docs/ROADMAP.md carries the split rows 27b (report, Current), 27c (archive command) and 27d (prune)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "One mechanism, no protocol or state change: payload changes are the new script and its tests in an existing suite, plus the release constant; no protocol operation, state key, phase, trailer, command file or WORKFLOW_CONFIG key is added, and no tenth conformance suite",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R6": {
+      "description": "Release 2.20.0, a feat minor: WORKFLOW_RELEASE and its pinned assertions, the added scripts/workflow_retention.py record (counts 81 and 6), changed digests and sizes with a retention-report sentence each, measured suite counts, the release-history row, the downgrade posture, min_manager_version equal to the CI pin, a 2.20.0 class in the release tests",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Retention of finished work-item files
 
-> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.19.2.
+> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.20.0.
 
 Files of finished work keep piling up (#84): in the Controller repository, 43
 finished work items leave about 240 tracked files and 140 MiB of untracked
@@ -10,9 +10,13 @@ For a work item that is finished, it says which tracked files stay in the
 working tree and which move to the archive, and why the untracked review
 folders are kept until their owner decides.
 
-This page changes no code, no state and no protocol. Steps 2 to 4 (the
-`verify` report, the command that applies the rule, and the link check) are
-later roadmap rows. The last section says what they must guarantee.
+The rule itself changes no code, no state and no protocol. Step 2 is the
+[retention report](#the-report) (roadmap row 27b, Workflow 2.20.0): a
+read-only script that lists the finished items and their review folders and
+archives. The command that archives a review folder (row 27c) and the prune of
+old archives (row 27d) follow. The tracked-file command and the link check are
+a later row, not yet scheduled. The last section says what that tooling must
+guarantee.
 
 A reader named `file:function` is in `payload/scripts/` of this repository,
 unless the cell names another directory or a sibling repository. "Not
@@ -44,7 +48,8 @@ the Manager, 24 in the Controller) or is absent (4, 8 and 19). So the tooling
 must take a fresh fact from the query `/apply-pr-review` runs
 (`workflow_forge.py:query_forge_pr_facts`, which writes nothing). Whether it
 also stores that fact, which is a state write
-(`workflow_gate_policy.py:store_workflow_pr_fact`), is for row 27c's plan. An
+(`workflow_gate_policy.py:store_workflow_pr_fact`), is for the plan of a later
+row, not yet scheduled (none of rows 27b to 27d stores it). An
 item whose query fails, or finds no pull request, is not finished.
 
 Every other work item is **open** for this rule, and the rule never touches
@@ -67,7 +72,7 @@ about 45 MiB.
 | Findings record | `docs/milestones/completed/<id>-findings.md` | **Stays** | The decision record: every Optional finding of the item, with its disposition. `workflow_state.py:write_finding_dispositions_record` writes it at acceptance and rewrites it at a re-acceptance. [Common problems](common-problems.md#acceptance-is-refused-because-an-optional-finding-has-no-disposition) sends readers to it, and `check_docs.py:work_item_ids` reads its name |
 | Dispositions | `docs/ai-workflow/registry/<id>-dispositions.json` | **Stays** | The decision itself, which the findings record renders. `workflow_state.py:read_finding_dispositions` reads it at acceptance (and `--finding-dispositions` prints it). It is small: 61 KiB for 14 items here |
 | Artifact declaration | `docs/ai-workflow/registry/<id>-artifacts.json` | **Moves** | The state names it only as a historical record, never as a live path (see [Historical and live references](#historical-and-live-references)): the item's `technical_approval.review_content_manifest` records its `exists`, `mode` and `blob` at approval time. Every live reader derives the path from the id (`workflow_fingerprint.py:artifacts_path_for_work_item`) and works on the item under review, approval or reopening (`resolve_plan_stage_metadata`, `workflow_gate_policy.py:identity_at`, `workflow_state.py:build_policy_approval_record`), which condition 2 rules out. The Manager's `compatibility.py:_item_findings` reads declarations only for items not at `MILESTONE_COMPLETE`. The tests of the three repositories build their own declarations and read no real one. Removing all 25 finished declarations in a scratch clone of this repository left `verify` healthy and `check_docs` green. The largest registry class: 642 KiB of the 728 KiB of these registry files here |
-| Plan archive copy | `docs/milestones/completed/<NAME>_PLAN.md` | **Stays** | `/accept-milestone` step 5 copies the plan here so that a reopen can restore it (`reopen_plan_archived`). No Workflow code reads it after the merge, but `tools/docs/check_docs.py:work_item_ids`, and the same function in the Manager's and the Controller's `tools/check_docs.py`, takes every file name there as an internal id that user pages must not mention. Moving a copy fails no check: it silently drops the name from that check. The copy can move once `check_docs` also takes these names from the archive index (row 27d). Where `plan_path` no longer resolves (two finished items in the Manager, whose plans were moved here at acceptance), the copy is the only tree copy of the plan and stays in any case |
+| Plan archive copy | `docs/milestones/completed/<NAME>_PLAN.md` | **Stays** | `/accept-milestone` step 5 copies the plan here so that a reopen can restore it (`reopen_plan_archived`). No Workflow code reads it after the merge, but `tools/docs/check_docs.py:work_item_ids`, and the same function in the Manager's and the Controller's `tools/check_docs.py`, takes every file name there as an internal id that user pages must not mention. Moving a copy fails no check: it silently drops the name from that check. The copy can move once `check_docs` also takes these names from the archive index (a later row, not yet scheduled: the historical-links row was dropped). Where `plan_path` no longer resolves (two finished items in the Manager, whose plans were moved here at acceptance), the copy is the only tree copy of the plan and stays in any case |
 | Requirement ledger | `docs/ai-workflow/requirements/<id>-ledger.md` | **Moves** | No reader found by the reader scan below: none in `payload/scripts/`, the command files, `tools/`, the tests or the CI workflows of this repository, nor in the Manager's or the Controller's code, tests or CI. Three of this repository's six ledgers are managed files, outside the rule |
 | Evidence record | `docs/ai-workflow/<NAME>_EVIDENCE.md`, declared in the item's artifact declaration | **Stays** | `tools/release/release_test.py` (`ConformanceTemplate.test_constants_are_the_outcome_the_evidence_selects`) reads `CONFORMANCE_SHARDING_EVIDENCE.md` to check the shipped sharding constants, and CI runs that file (`.github/workflows/workflow-ci.yml`, step `release_test.py`). Without the record the test fails with `FileNotFoundError`, while `verify` and `check_docs` stay green. The other two records here, `COMMAND_WORDING_EVIDENCE.md` and `INTERLEAVING_PINS_EVIDENCE.md`, have no reader in the scan, but a measured record is what a test pins, so the class stays whole. A later revision of this rule may move those two by name, after a fresh scan |
 | Review folder | `.ai-review/<id>/` (untracked, one per worktree) | **Kept** until its owner decides | It holds author-written files that are never committed, so no history can recover them (see [What a review folder holds](#what-a-review-folder-holds)). Its readers work on an item under review (`workflow_fingerprint.py:resolve_bundle_dir`, `_pin_dir_for_work_item`, `record_stage_baseline`), so keeping it costs disk space only. The archival step in that section is an option for the owner, not the default |
@@ -157,9 +162,10 @@ finding.
 
 So the default keeps the folder. The rule offers the owner one option
 instead: write the folder to a tarball outside the working tree, for example
-`tar -czf <dir>/<repository>-<id>.tar.gz .ai-review/<id>` with `<dir>`
-outside every repository, check the archive lists every file
-(`tar -tzf`), and only then delete the folder. That decision belongs to
+a tarball at `~/.local/share/workflow-archive/<repo>/<id>.tar.zst` (outside
+every repository, the file [the report](#the-report) reads), check the archive
+lists every file (`tar --zstd -tf`), and only then delete the folder. The
+archive command (row 27c) writes that file. That decision belongs to
 the owner of the folder's content, per repository, and is not part of the
 archive commit.
 
@@ -223,7 +229,7 @@ Freeing more needs changes this rule does not make:
   every gate mode. That would remove one reason to keep the review folders;
   the author inputs would still need the owner's decision.
 - **Tool changes:** `check_docs` reading the archived plan names from the
-  index (row 27d) frees the plan archive copies (1.0, 0.9 and 1.5 MiB), and a
+  index (a later row, not yet scheduled) frees the plan archive copies (1.0, 0.9 and 1.5 MiB), and a
   release test that no longer reads the evidence record frees that class.
 
 ## The archive is the default branch's history
@@ -260,10 +266,74 @@ every Markdown file name there as a work-item id. A reader finds the item in
 the index and runs `git show <commit>:<path>`, or opens
 `https://github.com/RodrigoFAbreu/<repository>/blob/<commit>/<path>`.
 
+## The report
+
+```
+python3 -I scripts/workflow_retention.py report [--json] [--archive-root DIR] [--ttl-days N] [--repo-root DIR]
+```
+
+It reports which work items of the repository are finished by the rule above
+(the phase of the item, its parent and its children are `MILESTONE_COMPLETE`,
+a fresh pull-request query says `merged`, and it is not one of the 3 most
+recent), how large each one's untracked `.ai-review/<id>/` folder is, and
+whether an archive of it exists at `<archive-root>/<repo>/<id>.tar.zst`
+(default root `~/.local/share/workflow-archive`) and is older than the time to
+live (`--ttl-days`, default 30, from 1 to 3650). The stored
+`gate_evidence.pr` is ignored, because it is stale. An item whose query fails,
+or finds no pull request, is not finished and appears in `not_finished` with a
+reason; an item that is not at `MILESTONE_COMPLETE` is never queried.
+
+**It writes nothing:** no archive, no removal, no state write, no stored fact.
+Run as the command above it leaves no bytecode either. A program that imports
+`workflow_retention` for `build_report` must set `sys.dont_write_bytecode =
+True` (or run with `-B`) before the first import; otherwise Python may leave a
+`__pycache__` in the scripts directory.
+
+**The cost:** one forge query (`gh`) for each item at `MILESTONE_COMPLETE`, so
+run it between work items.
+
+`--json` prints one object, keys sorted, ending in a newline:
+
+```
+{"schema_version": 1, "kind": "<report kind>", "generated_at": "<UTC>", "repository": "<owner>/<name>",
+ "archive_dir": "<path>", "ttl_days": 30, "keep_recent": 3,
+ "finished":     [{"work_item_id", "last_transition", "pull_request": {"number", "url"},
+                   "review_folder": {"present", "complete", "files", "bytes", "tracked_files"},
+                   "archive": {"present", "readable", "bytes", "modified", "age_days", "prunable"}}],
+ "kept_recent":  [{"work_item_id", "last_transition", "pull_request", "review_folder"}],
+ "not_finished": [{"work_item_id", "phase", "reason"}],
+ "archives":     [{"name", "work_item_id", "bytes", "modified", "age_days", "prunable", "item"}],
+ "complete": true, "read_errors": [{"path", "error"}],
+ "totals": {"finished", "finished_folder_bytes", "archives", "prunable"}}
+```
+
+A path that does not exist is absence; a path that exists and cannot be read
+(permission denied, an I/O error) is not. The report never turns the second
+into the first: the unreadable path is listed in `read_errors`, `complete`
+is `false`, the folder's `review_folder.complete` or the archive's
+`archive.readable` is `false`, the text form ends with an `INCOMPLETE`
+section and a `warning: incomplete:` line goes to stderr. Sizes, archive
+facts and the totals are then lower bounds, and an unreadable archive
+directory is not evidence that there is no archive. The exit status stays 0:
+the report was printed, and a caller reads `complete`.
+
+An archive is `prunable` when its age in whole days (from the file's
+modification time) is strictly greater than the time to live. `archives`
+lists every `*.tar.zst` file in the archive directory, with `item` set to
+`finished`, `recent`, `open` (the item exists but is not finished) or `other`
+(no such item). `tracked_files` counts paths under the folder that Git tracks.
+The reasons are `invalid_id`, `invalid_entry`, `open_phase`, `family_open`,
+`no_anchor`, `no_pull_request`, `pr_not_merged:<state>` and
+`query_failed:<code>`. Exit status 0 means the report was printed; 2 means a
+refusal (`state_missing`, `state_invalid`, `repository_unknown`, `usage`). See
+[Exit codes](exit-codes.md).
+
 ## What the later tooling must guarantee
 
-Rows 27b (`verify` reports the clutter), 27c (a command applies the rule) and
-27d (historical links keep working) must guarantee:
+The tooling that applies the rule to tracked files and links, a later row not
+yet scheduled, must guarantee 1 to 6. The review-folder archive command (row
+27c) keeps 1 (never touch an open item, here by the report's finished set),
+the last sentence of 4 and 5:
 
 1. **Never touch an open work item.** The tooling reads phases, parents and
    children from the state, and the merged fact from a fresh Workflow query
@@ -294,7 +364,9 @@ Rows 27b (`verify` reports the clutter), 27c (a command applies the rule) and
    worktree only, after the tarball is written and its listing checked.
 5. **Dry run by default.** Without an explicit apply flag, the command lists
    each path, its decision and its size, and changes nothing. Whether
-   applying it is a user-only step is for row 27c's plan to decide.
+   applying it is a user-only step is, for the archive command (row 27c), settled
+by its roadmap row, and for the tracked-file command, for the plan of that
+later row to decide.
 6. **Links keep working.** In the same commit, every relative link to a
    moved path becomes a link to the blob at the index commit (the form
    `blob/<commit>/<path>`, which `check_docs` accepts). No stub file is left
@@ -305,11 +377,11 @@ Rows 27b (`verify` reports the clutter), 27c (a command applies the rule) and
    path blocks the move of that path, because managed pages cannot be edited
    by hand. The dry run also lists plain-text mentions of moved paths, for
    example a path in backticks in `docs/RELEASING.md`.
-7. **The pile cannot regrow unnoticed.** Row 27b's `verify` check warns when
-   a finished item past the newest three still has a file the rule moves. It
-   fails only above a limit that row 27b's plan chooses. It reports the size
-   of the review folders without warning, until their owner's decision sets
-   a limit for them.
+7. **The pile cannot regrow unnoticed.** A later row, not yet scheduled, warns
+   when a finished item past the newest three still has a file the rule moves,
+   and fails only above a limit that row's plan chooses. The report of row 27b
+   does **not** implement this: it reports review-folder sizes and archives
+   only, warns about nothing and chooses no limit.
 
 ## Not verified
 
