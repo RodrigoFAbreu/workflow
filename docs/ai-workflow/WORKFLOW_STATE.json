@@ -18944,7 +18944,7 @@
       "registry_path": "docs/ai-workflow/registry/command-wording-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/command-wording-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 3,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -19084,12 +19084,12 @@
           "external": 2
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 24,
-      "last_transition": "2026-10-25T08:24:15Z",
+      "state_revision": 25,
+      "last_transition": "2026-10-25T08:44:40Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -19267,6 +19267,48 @@
               "review_content_id": "e3e6c7181f6ce2b8bdf40e91552b1b89dfd309a5ce3c3106d87910ba974dcfba",
               "verdict": "APPROVE",
               "at": "2026-10-25T05:56:56Z"
+            }
+          ]
+        },
+        "F-b8b9a73726a8": {
+          "digest": "b8b9a73726a8e20616859653f1697d70a366b24f29816b66e6f8a833aea86ae2",
+          "text": "**OPT-1:** the reflowed W5 bullet leaves line 42 of the operator reference at 94 columns (\"digest; each\n  command file states its own). The flag is an additional layer where the harness\"). The file has longer\n  lines already and no width pin covers it, but the IMP-001 rewrite is a natural moment to re-wrap the\n  bullet within the surrounding width.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "5668dd8cb74a11de7236008b9abe484c74202d561e472a601fb60984aeaa3f25",
+              "verdict": "REVISE",
+              "at": "2026-10-25T08:44:40Z"
+            }
+          ]
+        },
+        "F-af17f28ba3ec": {
+          "digest": "af17f28ba3ecad644fa9ec237133ab82801c829f7d47236a99bf79d6eeaabbeb",
+          "text": "**OPT-2 (the question in REVIEW_REQUEST.md):** the 2.19.2 history row's \"Six items\" list counts M1b as its\n  own item, and states W4 (the 2.18.7 finishing rule) after the list rather than in it. The list is\n  internally consistent: six entries, and W4 is fully stated in the same row. So it is accurate as written.\n  Changing \"Six items\" to \"Six changes\" or \"The changes\", or listing W4 in it, would align it with the plan's\n  section 1, but it is not required.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "5668dd8cb74a11de7236008b9abe484c74202d561e472a601fb60984aeaa3f25",
+              "verdict": "REVISE",
+              "at": "2026-10-25T08:44:40Z"
+            }
+          ]
+        },
+        "F-4fd8a0c91d65": {
+          "digest": "4fd8a0c91d6587bf45e32bad2570d9389a21d0a3a7b3a44123577641aa969cc9",
+          "text": "**OPT-3:** tests (c) and (e) model the \"pointer naming another checkpoint\" case with `\"CP9\"`, an id with no\n  `checkpoints` entry. `resolve_checkpoint_ownership` treats this the same as a pointer to an existing\n  non-`IN_PROGRESS` checkpoint, since both give `local_in_progress is None`. A subtest with the pointer on an\n  existing `COMPLETE` entry would match the realistic stale-pointer case more closely. It is not required.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "5668dd8cb74a11de7236008b9abe484c74202d561e472a601fb60984aeaa3f25",
+              "verdict": "REVISE",
+              "at": "2026-10-25T08:44:40Z"
             }
           ]
         }
