@@ -20666,7 +20666,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-archive-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-archive-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 7,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -20806,12 +20806,12 @@
           "external": 4
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 32,
-      "last_transition": "2026-10-26T11:08:22Z",
+      "state_revision": 33,
+      "last_transition": "2026-10-26T11:32:20Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -21187,6 +21187,48 @@
               "review_content_id": "a25698dad5f29f9d49dfd1c405ef43b024f750b55dd26e21398fddb43af34123",
               "verdict": "APPROVE",
               "at": "2026-10-26T09:03:20Z"
+            }
+          ]
+        },
+        "F-3918a231c1fb": {
+          "digest": "3918a231c1fbea86c194901ff61b0084e1c349a97e75b648e72e166dc381c985",
+          "text": "**IMPL-R1-003: the report's anchored traversal can name the wrong directory in `read_errors`.** `_review_folder.walk_failed` builds the path from `here`, the most recently yielded directory, not the parent of the directory that failed. `os.fwalk` is iterative, so after a sibling's subtree has been yielded, an unreadable directory `.ai-review/w00/zz` is recorded as `.ai-review/w00/empty/zz` (reproduced). 2.20.0's `os.walk` named the real path. `complete` stays false, and the engine's `unreadable` still triggers because the wrong path is still under the folder, so only the diagnostic is wrong. Fix: pass a function as `onerror` that does not depend on yield order, or track each directory's parent path in the walk.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4818e693169f3e42f8725afaf804c261b4e1e103aefa26a64cb0f12cde96cf70",
+              "verdict": "REVISE",
+              "at": "2026-10-26T11:32:20Z"
+            }
+          ]
+        },
+        "F-d9a5c2b2002b": {
+          "digest": "d9a5c2b2002bade543018b117de613f4f7b17cafec963d547e6ec5154561db4a",
+          "text": "**IMPL-R1-004: the undo releases the lock before it removes the created directories.** D-Place's undo says \"...`os.rmdir` the directories this run created... then release the lock\". `_undo` unlocks inside the `adir_fd` block, before the `rmdir` loop. With `LOCK_NB` and the ENOTEMPTY tolerance it is harmless in practice, but it differs from the plan text. Either move the unlock after the loop or note the reason.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4818e693169f3e42f8725afaf804c261b4e1e103aefa26a64cb0f12cde96cf70",
+              "verdict": "REVISE",
+              "at": "2026-10-26T11:32:20Z"
+            }
+          ]
+        },
+        "F-228615245db6": {
+          "digest": "228615245db6a8acc61924ccadd2e48dbbd5912e4676ad3aae674b9bbb157bea",
+          "text": "**IMPL-R1-005: `build_report` now refuses `path_unsafe` on a platform without descriptor-relative access**, a report behaviour that is not among D-Obligations' four checks and not in the report rows of `docs/exit-codes.md`. It is unreachable on Linux and macOS. Consider documenting it in the report row.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4818e693169f3e42f8725afaf804c261b4e1e103aefa26a64cb0f12cde96cf70",
+              "verdict": "REVISE",
+              "at": "2026-10-26T11:32:20Z"
             }
           ]
         }
