@@ -16,7 +16,7 @@ previous milestone, W27 `retention-report`, is accepted (Workflow 2.20.0).
 | id | name | state |
 | --- | --- | --- |
 | CP1 | The archive engine, its tests and the documents | **complete** (verified in a scratch clone, see below) |
-| CP2 | Release 2.21.0 | not started |
+| CP2 | Release 2.21.0 | **complete** (verified in a stock `stage-conformance` fixture, see below) |
 
 ## Verified state
 
@@ -31,7 +31,12 @@ previous milestone, W27 `retention-report`, is accepted (Workflow 2.20.0).
   `check_docs.py`, `check-manager-block`, `tools/release` (zlib-ng), and the new and the whole obligations tests under
   the orphan wrapper (no orphan beyond Git's own detached maintenance).
 
+- CP2: `manifest.json` 2.21.0 (counts unchanged at 81, 6 and `distribution` 55; `sha256`, `size` and a `retention-archive
+  (workflow-2.21.0)` sentence for the five changed records; the posture; `conformance.suites` measured), `WORKFLOW_RELEASE`
+  2.21.0 with its two pinned assertions, `ORCHESTRATION_PROTOCOL.md`, the 2.21.0 row of `docs/release-history.md`, the
+  "Last checked with" lines of the three pages, and the 2.21.0 release class of `tools/release/release_test.py`.
+
 ## Next action
 
-CP2 (release 2.21.0): run `/milestone-implement retention-archive` again. The Workflow 2.21.0 release follows the merge
-of this milestone's pull request.
+Self-review and the full verification, then the implementation review bundle: run `/milestone-implement retention-archive`
+again. The Workflow 2.21.0 release follows the merge of this milestone's pull request.
