@@ -4605,6 +4605,46 @@ class RetentionArchive(unittest.TestCase):
         self.assertEqual(_ra_snap(rr.root / ".ai-review" / item), folder_before)
         return result
 
+    def test_a5_the_index_count_and_the_result_state_what_was_archived_not_what_the_selection_scan_saw(self):
+        rr = self.ra()
+        folder = rr.folder()
+        real_popen, fired = subprocess.Popen, []
+
+        def popen(argv, *args, **kwargs):
+            if "-T1" in argv and not fired:
+                fired.append(True)
+                (folder / "late.txt").write_text("late arrival\n")
+            return real_popen(argv, *args, **kwargs)
+        with unittest.mock.patch.object(subprocess, "Popen", popen):
+            result = rr.call(apply=True)
+        self.assertEqual(result.code, 0, result.error)
+        self.assertTrue(fired)
+        extracted = Path(tempfile.mkdtemp(prefix="wfo-extract-"))
+        self._dirs.append(extracted)
+        names = _ra_extract(rr.adir / "w00.tar.zst", extracted)
+        self.assertIn("w00/late.txt", names)
+        archived = [n for n in names if (extracted / n).is_file() and not os.path.islink(extracted / n)]
+        line = json.loads((rr.adir / "index.jsonl").read_text().splitlines()[0])
+        self.assertEqual(line["files"], len(archived))
+        self.assertEqual(line["files"], 4)
+        self.assertEqual(result.result["result"]["index_line"]["files"], 4)
+        self.assertEqual(result.result["review_folder"]["files"], 4)
+        self.assertIn("late.txt", [e["path"] for e in result.result["review_folder"]["entries"]])
+
+    @unittest.skipIf(os.geteuid() == 0, "root reads a mode-000 file, so the refusal cannot be provoked")
+    def test_a5_a_file_this_user_cannot_read_is_unreadable_with_an_access_next_step_and_nothing_is_kept(self):
+        rr = self.ra()
+        folder = rr.folder()
+        os.chmod(folder / "a.txt", 0)
+        self.addCleanup(os.chmod, folder / "a.txt", 0o644)
+        before = _ra_snap(rr.archive_root, times=False)
+        result = rr.call(apply=True)
+        rr.refused(self, result, "unreadable")
+        self.assertIn("a.txt", result.error.message)
+        self.assertIn("grant read access", result.error.next_step)
+        self.assertNotIn("run it again", result.error.next_step)
+        self.assertEqual(_ra_snap(rr.archive_root, times=False), before)
+
     def test_a5_zstd_missing_is_refused_in_both_modes_with_an_empty_path(self):
         rr = self.ra()
         rr.folder()

@@ -803,8 +803,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_retention\\.py$",
       "rationale": "The read-only retention report (`python3 scripts/workflow_retention.py report [--json] [--archive-root] [--ttl-days] [--repo-root]`): lists the finished work items by the rule of docs/RETENTION.md, the size of their untracked review folders and the archives older than the time to live. It writes nothing, is called by no Workflow command, and a failed pull-request query puts the item in not_finished rather than aborting. retention-report (workflow-2.20.0): new script, references #84 step 2. A path that exists but cannot be read is reported (complete, read_errors, review_folder.complete, archive.readable), never as absence. retention-archive (workflow-2.21.0): adds the `archive <work-item-id>` subcommand (a dry run by default; with `--apply` it packs a finished item's untracked review folder into a verified `.tar.zst` outside the repository, links it into place without overwriting, appends one `index.jsonl` line and makes everything durable; it removes, renames and modifies nothing in the folder or the repository, and needs the `zstd` program), references #84 step 3 and #113 items 3 and 4. The report gains four name and anchor checks (a repository `.` or `..`, a symlinked per-repository directory, the ids `runtime` and `archive`, and a symlinked `.ai-review` that is not read).",
-      "sha256": "0a0503b3ebbb32597116f0c130987aebebdf86f00714f4feaf3a4569fb0fc1f8",
-      "size": 58922,
+      "sha256": "c3e2e284c669d59f6083b28327a50946ca7ac02ec6927e77636c061782fd4b5c",
+      "size": 60081,
       "executable": false
     },
     {
@@ -822,9 +822,9 @@
       "location": "payload/scripts/workflow_state_completion_obligations_test.py",
       "category": "distribution",
       "rule": "^scripts/workflow_state_completion_obligations_test\\.py$",
-      "rationale": "TestNeverPersistedPhaseVocabulary's PERSISTED frozenset and its AST-derivation helper widened for the two new persisted phases, one of them (AWAITING_LOCAL_IMPLEMENTATION_REVIEW) reachable only through bundle_generation_target_phase's call indirection (D-Implementation-Review-Stages, CP11). backlog-file (workflow-2.17.0): the backlog parser, schema, selection, edit, page, command-line, declaration and document tests, as the release notes state. review-followups-cleanup (workflow-2.18.1): backlog tests for a quoted \"?\" entry, a trailing comment on a key with no inline value, protected_conflicts on item-page paths and prefixes, and the two backlog document sentences. retention-report (workflow-2.20.0): the RetentionReport tests (sixteen added), which run the read-only report script against synthetic repositories and pin its output, its refusals and that it writes nothing; every pre-existing test is unmodified. retention-archive (workflow-2.21.0): the RetentionArchive tests (twenty-nine added, which also pin the report's four new checks), which run the archive subcommand against synthetic repositories and pin its dry run, its refusals, its placement, index and durability steps and that it never touches the review folder; every pre-existing test is unmodified.",
-      "sha256": "967eb49e4e529dce39cb69ed6d3b654da9485e40345357ff25b0576c42e610c7",
-      "size": 276862,
+      "rationale": "TestNeverPersistedPhaseVocabulary's PERSISTED frozenset and its AST-derivation helper widened for the two new persisted phases, one of them (AWAITING_LOCAL_IMPLEMENTATION_REVIEW) reachable only through bundle_generation_target_phase's call indirection (D-Implementation-Review-Stages, CP11). backlog-file (workflow-2.17.0): the backlog parser, schema, selection, edit, page, command-line, declaration and document tests, as the release notes state. review-followups-cleanup (workflow-2.18.1): backlog tests for a quoted \"?\" entry, a trailing comment on a key with no inline value, protected_conflicts on item-page paths and prefixes, and the two backlog document sentences. retention-report (workflow-2.20.0): the RetentionReport tests (sixteen added), which run the read-only report script against synthetic repositories and pin its output, its refusals and that it writes nothing; every pre-existing test is unmodified. retention-archive (workflow-2.21.0): the RetentionArchive tests (thirty-one added, which also pin the report's four new checks), which run the archive subcommand against synthetic repositories and pin its dry run, its refusals, its placement, index and durability steps and that it never touches the review folder; every pre-existing test is unmodified.",
+      "sha256": "44b86ecc32f24d3724827efe3477232f5fada88c43d950cfa1c318bf23706e7a",
+      "size": 279015,
       "executable": false
     },
     {
@@ -3867,7 +3867,7 @@
         "workflow_state_test.py": 1244,
         "workflow_gate_policy_test.py": 316,
         "workflow_fingerprint_generalization_test.py": 142,
-        "workflow_state_completion_obligations_test.py": 238,
+        "workflow_state_completion_obligations_test.py": 240,
         "workflow_integration_test.py": 364,
         "workflow_fingerprint_test.py": 283,
         "workflow_test_harness_test.py": 27

@@ -360,7 +360,9 @@ the user-only command with its literal confirmation is row 27e.
 **A dry run is the default.** Without `--apply` it prints every entry it would
 pack (path, type, size), the archive, the temporary and the index it would
 write, and writes nothing: no directory, no file, no lock, no bytecode, and it
-refuses everything `--apply` would refuse before its first write.
+refuses everything `--apply` would refuse before its first write, except a
+file in the folder that this user cannot read: the dry run only reads metadata, so
+`--apply` refuses that one as `unreadable` ("grant read access to the review folder").
 
 **What it accepts.** It acts only on an item the report lists as `finished`,
 from a fresh forge query: an open item, one of the 3 most recent, an unknown id,

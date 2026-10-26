@@ -23,7 +23,7 @@ previous milestone, W27 `retention-report`, is accepted (Workflow 2.20.0).
 - CP1: `payload/scripts/workflow_retention.py` (`archive_item`, the `archive` subcommand, the `zstd` seam, and the report's
   four checks: a repository `.`/`..`, a symlinked per-repository directory, the ids `runtime`/`archive`, and the
   traversal anchored on a `.ai-review` descriptor), the `RetentionArchive` tests in
-  `workflow_state_completion_obligations_test.py` (208 -> 238 counting the report's), `docs/RETENTION.md` (the section
+  `workflow_state_completion_obligations_test.py` (208 -> 240 counting the report's), `docs/RETENTION.md` (the section
   "The archive command" and the re-targeted row references) and `docs/exit-codes.md`. `git diff f1c78ef --stat -- payload`
   lists the script and its test file only. Each mutation the plan lists fails at least one test in a scratch copy (the
   results are in the implementation bundle's `TEST_RESULTS.md`).

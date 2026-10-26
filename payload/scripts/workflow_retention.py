@@ -504,6 +504,10 @@ def _open_file(name: str, dirfd: int, shown: str) -> int:
                 raise
             return os.open(name, flags, dir_fd=dirfd)
     except OSError as exc:
+        if exc.errno in (errno.EACCES, errno.EPERM):
+            raise _refuse("unreadable", f"{shown} cannot be read ({exc.strerror or exc})",
+                          "grant read access to the review folder; the engine does not archive from a partial view"
+                          ) from None
         raise _refuse("folder_changed", f"{shown} changed while the folder was read ({exc.strerror or exc})",
                       "run it again when nothing writes to the review folder") from None
 
@@ -513,10 +517,15 @@ class _Hashing:
 
     def __init__(self, fd: int, size: int):
         self.fd, self.size, self.count, self.digest = fd, size, 0, hashlib.sha256()
+        self.error: OSError | None = None
 
     def read(self, n: int = -1) -> bytes:
         n = min(_CHUNK, self.size - self.count) if n is None or n < 0 else min(n, self.size - self.count)
-        data = os.read(self.fd, n) if n > 0 else b""
+        try:
+            data = os.read(self.fd, n) if n > 0 else b""
+        except OSError as exc:
+            self.error = exc
+            raise
         self.count += len(data)
         self.digest.update(data)
         return data
@@ -567,6 +576,9 @@ def _pack(ai_fd: int, item_id: str, tar: tarfile.TarFile) -> list[dict]:
                 except BrokenPipeError:
                     raise
                 except OSError:
+                    if source.error is not None:
+                        raise _refuse("unreadable", f"{shown} cannot be read ({source.error.strerror or source.error})",
+                                      "repair it; the engine does not archive from a partial view") from None
                     if source.count == opened.st_size:
                         raise
                 if source.count != opened.st_size or os.read(fd, 1):
@@ -965,7 +977,12 @@ def archive_item(repo_root, item_id: str, *, apply: bool = False, archive_root=D
             "zstd": program, "result": {"archived": False},
         }
         if apply:
-            result["result"] = _apply(ai_fd, item_id, program, resolved, fds, created, record, len(files), now)
+            result["result"], packed = _apply(ai_fd, item_id, program, resolved, fds, created, record, now)
+            packed_files = [r for r in packed if r["type"] == "file"]
+            result["review_folder"].update(
+                files=len(packed_files), bytes=sum(r["size"] for r in packed_files),
+                entries=[{"path": r["path"], "type": r["type"], "bytes": r["size"]}
+                         for r in sorted(packed, key=lambda r: r["path"]) if r["path"]])
         return result
     finally:
         for fd in reversed(fds):
@@ -993,7 +1010,7 @@ def _is_real_dir(ai_fd: int, item_id: str) -> bool:
         return False
 
 
-def _apply(ai_fd, item_id, program, resolved, fds, created, record, nfiles, now) -> dict:
+def _apply(ai_fd, item_id, program, resolved, fds, created, record, now) -> tuple[dict, list[dict]]:
     """D-Place: durable hierarchy, pack and verify into the temporary, lock,
     link, append, fsync, release. Any failure undoes what this run created."""
     final = f"{item_id}{ARCHIVE_SUFFIX}"
@@ -1060,7 +1077,7 @@ def _apply(ai_fd, item_id, program, resolved, fds, created, record, nfiles, now)
         state["tmp"] = False
         _fsync(adir_fd, "the archive directory")
         # 3. the index line, durable
-        line_obj = {"archived_at": _iso(now), "bytes": size, "files": nfiles,
+        line_obj = {"archived_at": _iso(now), "bytes": size, "files": sum(1 for r in records if r["type"] == "file"),
                     "pull_request": record["pull_request"], "work_item_id": item_id}
         line = (json.dumps(line_obj, sort_keys=True) + "\n").encode("utf-8")
         fd, created_index = _open_index(adir_fd, write=True, create=True)
@@ -1081,7 +1098,7 @@ def _apply(ai_fd, item_id, program, resolved, fds, created, record, nfiles, now)
         # 4. release; only now is the item archived
         fcntl.flock(adir_fd, fcntl.LOCK_UN)
         state["locked"] = False
-        return {"archived": True, "bytes": size, "index_line": line_obj}
+        return {"archived": True, "bytes": size, "index_line": line_obj}, records
     except BaseException:
         _undo(adir_fd, item_id, final, tmp_name, state, created)
         raise
@@ -1109,8 +1126,6 @@ def _undo(adir_fd, item_id, final, tmp_name, state, created) -> None:
             _remove_quietly(drop, problems, final)
         if state["tmp"]:
             _remove_quietly(lambda: os.unlink(tmp_name, dir_fd=adir_fd), problems, tmp_name)
-        if state["locked"]:
-            _remove_quietly(lambda: fcntl.flock(adir_fd, fcntl.LOCK_UN), problems, "the lock")
     for parent, name in reversed(created):
         def rmdir(parent=parent, name=name):
             try:
@@ -1121,6 +1136,8 @@ def _undo(adir_fd, item_id, final, tmp_name, state, created) -> None:
                 raise
             os.fsync(parent)
         _remove_quietly(rmdir, problems, name)
+    if adir_fd is not None and state["locked"]:
+        _remove_quietly(lambda: fcntl.flock(adir_fd, fcntl.LOCK_UN), problems, "the lock")
     if problems:
         sys.stderr.write("warning: the undo could not remove: " + "; ".join(problems) + "\n")
 
