@@ -1,6 +1,6 @@
 # Retention of finished work-item files
 
-> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.20.0.
+> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.21.0.
 
 Files of finished work keep piling up (#84): in the Controller repository, 43
 finished work items leave about 240 tracked files and 140 MiB of untracked
@@ -13,8 +13,11 @@ folders are kept until their owner decides.
 The rule itself changes no code, no state and no protocol. Step 2 is the
 [retention report](#the-report) (roadmap row 27b, Workflow 2.20.0): a
 read-only script that lists the finished items and their review folders and
-archives. The command that archives a review folder (row 27c) and the prune of
-old archives (row 27d) follow. The tracked-file command and the link check are
+archives. Step 3 is [the archive command](#the-archive-command) (row 27c,
+Workflow 2.21.0): it packs a finished item's review folder into a verified
+tarball outside the repository and removes nothing. The removal of an archived
+folder (row 27d), the user-only command that runs both (row 27e) and the prune
+of old archives (row 27f) follow. The tracked-file command and the link check are
 a later row, not yet scheduled. The last section says what that tooling must
 guarantee.
 
@@ -49,7 +52,7 @@ must take a fresh fact from the query `/apply-pr-review` runs
 (`workflow_forge.py:query_forge_pr_facts`, which writes nothing). Whether it
 also stores that fact, which is a state write
 (`workflow_gate_policy.py:store_workflow_pr_fact`), is for the plan of a later
-row, not yet scheduled (none of rows 27b to 27d stores it). An
+row, not yet scheduled (none of rows 27b to 27f stores it). An
 item whose query fails, or finds no pull request, is not finished.
 
 Every other work item is **open** for this rule, and the rule never touches
@@ -164,8 +167,9 @@ So the default keeps the folder. The rule offers the owner one option
 instead: write the folder to a tarball outside the working tree, for example
 a tarball at `~/.local/share/workflow-archive/<repo>/<id>.tar.zst` (outside
 every repository, the file [the report](#the-report) reads), check the archive
-lists every file (`tar --zstd -tf`), and only then delete the folder. The
-archive command (row 27c) writes that file. That decision belongs to
+lists every file (`zstd -dc <archive> | tar -tf -`), and only then delete the
+folder. The archive command (row 27c) writes and checks that file but never
+deletes the folder: deleting it, only after the check, is row 27d's. That decision belongs to
 the owner of the folder's content, per repository, and is not part of the
 archive commit.
 
@@ -328,12 +332,119 @@ The reasons are `invalid_id`, `invalid_entry`, `open_phase`, `family_open`,
 refusal (`state_missing`, `state_invalid`, `repository_unknown`, `usage`). See
 [Exit codes](exit-codes.md).
 
+Four checks keep the report from reading or naming a path through a link
+(Workflow 2.21.0). A repository named `.` or `..` is `repository_unknown`. The
+ids `runtime` and `archive` are `invalid_id`. A per-repository archive
+directory that is a symlink is not read: it is one `read_errors` entry
+(`complete` is `false`) and every archive counts as absent. The folders are
+read only through a descriptor of `.ai-review` opened without following links,
+so a `.ai-review` that is a symlink, or not a directory, is not read either: it
+is one `read_errors` entry and every folder is `present: false`.
+
+## The archive command
+
+```
+python3 -I scripts/workflow_retention.py archive <work-item-id> [--apply] [--json] [--archive-root DIR] [--repo-root DIR]
+```
+
+It packs the untracked `.ai-review/<id>/` folder of one finished item into
+`<archive-root>/<repo>/<id>.tar.zst` (outside the repository; `<repo>` is the
+part after the slash of `origin`), checks the tarball, links it into place
+without overwriting, appends one line to `<archive-root>/<repo>/index.jsonl`,
+and stops. **It never removes, renames, moves or modifies anything under
+`.ai-review/<id>/` or anywhere in the repository.** The folder stays under its
+own name, byte for byte, and [the report](#the-report) keeps showing the item
+as finished with an archive present. Removing the folder is a later row (27d);
+the user-only command with its literal confirmation is row 27e.
+
+**A dry run is the default.** Without `--apply` it prints every entry it would
+pack (path, type, size), the archive, the temporary and the index it would
+write, and writes nothing: no directory, no file, no lock, no bytecode, and it
+refuses everything `--apply` would refuse before its first write, except a
+file in the folder that this user cannot read: the dry run only reads metadata, so
+`--apply` refuses that one as `unreadable` ("grant read access to the review folder").
+
+**What it accepts.** It acts only on an item the report lists as `finished`,
+from a fresh forge query: an open item, one of the 3 most recent, an unknown id,
+a failed or empty query, and the ids `runtime` and `archive` are refused. A
+tracked file, or a gitlink, at the folder's path or beneath it is refused too
+(this command archives the untracked folder). A socket, FIFO, device, or a file
+with more than one hard link in the folder is refused. A symlink inside the
+folder is packed as a symlink and never followed.
+
+**Where it writes.** The archive directory must be outside the checkout (an
+`--archive-root` that resolves inside it is refused in both modes). The folder,
+`.ai-review/` and the per-repository archive directory must be real
+directories; every access is relative to a descriptor opened without following
+links, so a link swapped in after the check is refused, never followed.
+
+**The steps of `--apply`, in order.** (1) The archive directory chain is
+created (mode 0700) and every directory of it, whoever created it, is made
+durable (`fsync` of the directory and of its parent, from the root down).
+(2) The folder is packed into `.<id>.partial`, a stream of `tar` into
+`zstd -T1`, each file read once through a no-follow descriptor. (3) The
+tarball is read back and compared, entry by entry, with what was read: names,
+types, sizes, symlink targets and the SHA-256 of every file. (4) The folder is
+walked again by `stat` and compared with the first walk (path, type, size,
+modification and change time): a folder that moved while it was read is
+`folder_changed` and nothing is placed. (5) The archive directory is locked
+(`flock`; a second `archive` run for the same repository gets `archive_busy`),
+the checks of the dry run are repeated under the lock, and the temporary is
+made durable and linked to `<id>.tar.zst` with `link` and `unlink`, never a
+rename that could replace a file. (6) The index line is appended and made
+durable. Only then does the item count as archived and the command exit 0. The
+command never changes the archive's modification time afterwards: the report
+ages archives by it.
+
+**The index.** One line per archived item, keys sorted:
+`{"archived_at", "bytes", "files", "pull_request": {"number", "url"},
+"work_item_id"}`. It is never rewritten; a second line for an id is refused
+(`already_indexed`). It must be an ordinary file with one link, every line a
+JSON object, ending in a newline, or the run refuses (`index_unsafe`,
+`index_invalid`). The lock protects against this command's own concurrent runs,
+not against another program writing the file.
+
+**It needs the `zstd` program** on the `PATH` (`zstd_missing` otherwise, in the
+dry run too). The format is fixed by the name `.tar.zst`; Python's own `zstd`
+module exists only from Python 3.14, and this script runs on the Python the
+Workflow supports.
+
+**A failure leaves the archive directory as it was.** The temporary, the archive,
+the index line and every directory this run created are removed, and a file this
+run did not create never is. The folder is not at risk because it is never
+written. A run killed outright (power loss, `SIGKILL`) leaves archive-side
+files only, and the next run says which, by what is on disk:
+
+| Found | Code | What to do |
+| --- | --- | --- |
+| `.<id>.partial` | `partial_present` | confirm no other `archive` run is active, remove that file by hand and run again |
+| `<id>.tar.zst` and its index line | `already_archived` | the item is archived; nothing to do |
+| `<id>.tar.zst`, no index line | `already_archived` | a run was killed after placing it; the folder is intact: compare (`zstd -dc <archive> \| tar -tvf -`), remove the archive (and a `.<id>.partial` beside it) by hand, run again |
+| an index line, no archive | `already_indexed` | the archive was pruned or removed by hand; the command never rewrites the index, so the owner decides |
+| an index line cut off, or not JSON | `index_invalid` | repair or remove the named line by hand |
+| `index.jsonl` a symlink, a directory, a FIFO or a shared file | `index_unsafe` | replace it by an ordinary file by hand |
+| a symlinked component of the archive path, or one without read permission | `archive_dir_unsafe`, `unreadable` | fix the named component, or choose another `--archive-root` |
+
+`--json` prints one object, keys sorted, ending in a newline, with the same
+facts as the text form:
+
+```
+{"schema_version": 1, "kind": "<archive kind>", "mode": "dry-run" | "apply", "generated_at": "<UTC>",
+ "repository": "<owner>/<name>", "work_item_id": "<id>", "pull_request": {"number", "url"},
+ "review_folder": {"path", "files", "bytes", "entries": [{"path", "type", "bytes"}]},
+ "target": {"archive", "temporary", "index"}, "zstd": "<path>",
+ "result": {"archived": false} | {"archived": true, "bytes", "index_line"}}
+```
+
+Exit status 0 means the dry run was printed, or the item was archived and is
+durable; 2 means a refusal with a code, listed in [Exit codes](exit-codes.md).
+
 ## What the later tooling must guarantee
 
 The tooling that applies the rule to tracked files and links, a later row not
-yet scheduled, must guarantee 1 to 6. The review-folder archive command (row
-27c) keeps 1 (never touch an open item, here by the report's finished set),
-the last sentence of 4 and 5:
+yet scheduled, must guarantee 1 to 6. The archive command (row 27c)
+keeps 1 (never touch an open item, here by the report's finished set), the
+last sentence of 4, since it removes nothing, and 5 for its dry run:
 
 1. **Never touch an open work item.** The tooling reads phases, parents and
    children from the state, and the merged fact from a fresh Workflow query
@@ -364,9 +475,9 @@ the last sentence of 4 and 5:
    worktree only, after the tarball is written and its listing checked.
 5. **Dry run by default.** Without an explicit apply flag, the command lists
    each path, its decision and its size, and changes nothing. Whether
-   applying it is a user-only step is, for the archive command (row 27c), settled
-by its roadmap row, and for the tracked-file command, for the plan of that
-later row to decide.
+   applying it is a user-only step is, for the archive command, settled by
+   row 27e (which calls rows 27c and 27d), and for the tracked-file command,
+   for the plan of that later row to decide.
 6. **Links keep working.** In the same commit, every relative link to a
    moved path becomes a link to the blob at the index commit (the form
    `blob/<commit>/<path>`, which `check_docs` accepts). No stub file is left

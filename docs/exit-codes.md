@@ -1,6 +1,6 @@
 # Exit codes
 
-> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.20.0.
+> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.21.0.
 
 This is the one table of exit statuses for the scripts a person or an
 orchestrator runs. Slash commands (such as `/milestone-plan`) have no exit
@@ -27,6 +27,8 @@ code in `payload/scripts/` and the shipped documents.
 | | 2 | a refusal (`error: <code>: <message>` and `next step:` on stderr) or a usage error | follow the next step; the codes are in [the backlog file](../payload/docs/ai-workflow/BACKLOG_FILE.md#commands-and-exit-codes) |
 | `python3 scripts/workflow_retention.py report` | 0 | the report was printed (also when some pull-request queries failed: those items are in `not_finished`, and also when some paths could not be read: `complete` is then `false`, `read_errors` lists them and `warning: incomplete:` is printed on stderr) | read it, and check `complete` before trusting a size or an absent archive; the command writes nothing |
 | | 2 | a refusal (`error: <code>: <message>` and `next step:` on stderr: `state_missing`, `state_invalid`, `repository_unknown`, `usage`) or a usage error | follow the next step; the command is described in [the retention rule](RETENTION.md#the-report) |
+| `python3 scripts/workflow_retention.py archive` | 0 | the dry run was printed (nothing was written), or the item was archived and the archive, the index line and every directory the run created are durable; the review folder is never touched | read it; run with `--apply` to archive |
+| | 2 | a refusal (`error: <code>: <message>` and `next step:` on stderr). The report's codes (`state_missing`, `state_invalid`, `repository_unknown`, `usage`) and the archive's: `invalid_id`, `not_finished:<reason>`, `kept_recent`, `unknown_item`, `review_folder_absent`, `tracked_files`, `unreadable`, `archive_dir_unsafe`, `archive_inside_repository`, `path_unsafe`, `already_archived`, `already_indexed`, `index_invalid`, `index_unsafe`, `partial_present`, `unsupported_entry`, `zstd_missing`, `archive_busy` (never in a dry run), `pack_failed`, `verify_failed`, `folder_changed`, `place_failed`, `index_failed`. Every failure leaves the review folder as it was and the archive directory as it was | follow the next step; the command is described in [the archive command](RETENTION.md#the-archive-command) |
 
 Two scripts only tell success from failure. `prepare-ai-review.sh` documents
 no status beyond 0 and 1, and `workflow_fingerprint.py` documents only 0, 1 and
