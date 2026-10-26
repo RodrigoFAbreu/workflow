@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-archive",
+  "requirements": {
+    "R1": {
+      "description": "The archive creation: python3 -I scripts/workflow_retention.py archive <work-item-id> [--apply] [--json] packs the untracked .ai-review/<id>/ folder of one finished item into <archive-root>/<repo>/<id>.tar.zst, verifies that the tarball holds every file with its size (and content hash), places it without overwriting, appends one index line (id, date, size, merged pull request), makes the archive, the index and every newly created directory entry durable, and stops; one item per run; it never removes, renames, moves or modifies anything under .ai-review/<id>/ or in the repository",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "Dry run is the default and writes nothing: without --apply the command prints every entry (path, type, size), the target, the temporary name and the index file, and the repository and the archive root are byte-identical before and after, on the dry run and on every refusal, proved by a test and a functional flow",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "Only an item the report lists as finished, from a fresh forge query: an open item, a kept_recent item, an unknown id, a failed or empty query, a folder that is absent or a symlink, a tracked file under the folder, an existing archive and an existing index line are each refused with a stable code and exit 2, and the engine never takes a path",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "The folder and the repository are never written, and a failure leaves the archive directory as it was: any failure (zstd missing, a failed or truncated pack, a folder changed during packing, a placement, durability or index failure) leaves the folder byte-identical, removes the temporary file, any archive this run placed, the index line it appended and every directory it created; a repeated run on an archived item refuses; each failure path has its own no-write proof and a guard proves that no mutating call touches the repository",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "The obligations of #113 items 3 and 4: a repository named . or .. , a symlinked per-repository archive directory and the ids runtime and archive are refused (in the report and the engine alike), symlinks inside the folder are packed as symlinks and never followed, and an archive's modification time is never touched after the placement",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R6": {
+      "description": "The dependency is stated: the zstd program on PATH, driven through subprocess with tarfile writing and reading the stream; a missing program is the refusal zstd_missing in the dry run and the apply alike; no 3.14-only module is used",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R7": {
+      "description": "Documents and roadmap: docs/RETENTION.md gets the section The archive command and re-targeted references to the rows 27a to 27f, docs/exit-codes.md gets the subcommand rows, and docs/ROADMAP.md carries the re-sliced rows 27c (the archive creation, Current), 27d (the removal of an archived finished item's folder, design open), 27e (the user-only command) and 27f (the prune)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R8": {
+      "description": "One mechanism, no protocol or state change: the payload changes are the script and its tests in an existing suite plus the release constant; no protocol operation, state key, phase, trailer, command file, WORKFLOW_CONFIG key, manifest record or tenth conformance suite is added",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R9": {
+      "description": "Release 2.21.0, a feat: minor: manifest version, the changed records with their sentence and digests, counts unchanged, the measured suites, the downgrade posture, the history row, the release class of tools/release/release_test.py",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "R10": {
+      "description": "Safe by construction (external review EPR-002, EPR-003 to -009, -011): every access to the folder, the report's own traversal included, and to the archive directory is descriptor-relative and never follows a link (a symlinked .ai-review/ is path_unsafe in the engine and is not read by the report); the engine counts tracked entries itself, gitlinks at the item root included; an archive destination inside the repository is refused; the shared index is a regular one-link file, written under a lock and fsynced (and its directory when created) with an undo that restores everything; every directory this run created is made durable (the directory and its parent) before the item counts as archived, with no half-state on failure; proved by tests A11 to A18 and the failure-only mutations m1 to m16",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    }
+  }
+}
