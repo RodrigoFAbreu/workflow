@@ -18,7 +18,7 @@ milestone, W28 `retention-archive`, is accepted (Workflow 2.21.0).
 | id | name | state |
 | --- | --- | --- |
 | CP1 | The removal, its tests and the documents | **complete** (verified in a scratch clone, see below) |
-| CP2 | Release 2.22.0 | not started |
+| CP2 | Release 2.22.0 | **complete** (verified in a scratch clone, see below) |
 
 ## Verified state
 
@@ -34,8 +34,16 @@ milestone, W28 `retention-archive`, is accepted (Workflow 2.21.0).
   `check_docs.py`, `check-manager-block`, `tools/release` (zlib-ng), and the new and the whole obligations tests under
   the orphan wrapper.
 
+- CP2: `manifest.json` 2.22.0 (counts 81, 6, 55 unchanged; the five changed records carry their `retention-removal
+  (workflow-2.22.0)` sentence, every digest and size recomputed, `conformance.suites` measured by `release.py
+  manager-block --write`: obligations 240 -> 255, the others unchanged), `WORKFLOW_RELEASE` and its two pinned
+  assertions, `ORCHESTRATION_PROTOCOL.md` (protocol stays 1.5), the 2.22.0 row of `docs/release-history.md` with the
+  downgrade note, the "Last checked with" lines of the three pages, and `RetentionRemovalReleaseTest` in
+  `tools/release/release_test.py` (the 2.21.0 class keeps what stays true of it).
+- Verified in a scratch clone committed with the CP2 content: stock `stage-conformance --commit HEAD` and the nine
+  suites, `release.py build` (zlib-ng, 88 files), `check-manager-block`, `tools/docs` (34) and `check_docs.py`, and
+  `tools/release` (285, zlib-ng interpreter).
+
 ## Next action
 
-CP2, Release 2.22.0 (`/milestone-implement retention-removal`): `manifest.json`, the release constant and its pinned
-assertions, `ORCHESTRATION_PROTOCOL.md`, the `docs/release-history.md` row, the "Last checked with" lines and the
-2.22.0 class of `tools/release/release_test.py`.
+Self-review, then the implementation review bundle (`/milestone-implement retention-removal` again).
