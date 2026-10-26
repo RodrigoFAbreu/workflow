@@ -1,0 +1,134 @@
+{
+ "schema_version": 1,
+ "work_item_id": "retention-archive",
+ "dispositions": {
+  "F-0d78c5a37374": {
+   "disposition": "fixed",
+   "note": "LPR-R1-005: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-0e75fd30492e": {
+   "disposition": "fixed",
+   "note": "LPR-R5-004: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-11e8a654ca10": {
+   "disposition": "fixed",
+   "note": "LPR-R6-004: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-13f1df78b2b0": {
+   "disposition": "fixed",
+   "note": "LPR-R6-005: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-1b0c5f6ec6c8": {
+   "disposition": "fixed",
+   "note": "LPR-R2-002: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-1ce82db6307a": {
+   "disposition": "fixed",
+   "note": "LPR-R4-002: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-228615245db6": {
+   "disposition": "dropped",
+   "reason": "IMPL-R1-005: path_unsafe on a platform without descriptor-relative access is unreachable on Linux and macOS; documenting it adds nothing a user can act on"
+  },
+  "F-235f5635a633": {
+   "disposition": "fixed",
+   "note": "LPR-R6-003: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-239f4098d76e": {
+   "disposition": "fixed",
+   "note": "LPR-R2-001: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-378e13e68c6d": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#116",
+   "note": "LPR-R7-001: index-open timing (item 4)"
+  },
+  "F-3918a231c1fb": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#116",
+   "note": "IMPL-R1-003: report read_errors path (item 1)"
+  },
+  "F-3f7d3ee2f372": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#116",
+   "note": "IMPL-R2-001: pack read-error test pin (item 2)"
+  },
+  "F-555154a6dc0b": {
+   "disposition": "fixed",
+   "note": "LPR-R5-005: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-6c9eedd0c3d6": {
+   "disposition": "fixed",
+   "note": "LPR-R4-001: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-749441de48ec": {
+   "disposition": "fixed",
+   "note": "LPR-R1-003: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-b169ed67f82f": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#116",
+   "note": "EPR-011: race hooks after the selection checks (item 3)"
+  },
+  "F-b41fc6a591ce": {
+   "disposition": "fixed",
+   "note": "LPR-R3-003: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-b98b2f387726": {
+   "disposition": "fixed",
+   "note": "LPR-R1-006: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-bcff7427bf23": {
+   "disposition": "fixed",
+   "note": "LPR-R3-004: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-c783c3298e7f": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#116",
+   "note": "EIR-001: hash-comparison regression (item 2)"
+  },
+  "F-cad8b64e9345": {
+   "disposition": "fixed",
+   "note": "LPR-R5-003: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-cba4be5e1236": {
+   "disposition": "fixed",
+   "note": "EPR-012: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-cc8fa0f62494": {
+   "disposition": "dropped",
+   "reason": "LPR-R4-003: the quarantine rename-back guard; no quarantine in this item. Carried to row 27d (#116 item 7)"
+  },
+  "F-cd450465b7a9": {
+   "disposition": "fixed",
+   "note": "LPR-R5-001: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-d4e290603c06": {
+   "disposition": "fixed",
+   "note": "LPR-R1-004: answered in the plan revisions 2 to 7 (or the implementation), confirmed by the later local rounds and Codex plan round 4 / implementation round 1"
+  },
+  "F-d9a5c2b2002b": {
+   "disposition": "dropped",
+   "reason": "IMPL-R1-004: the lock is released before the created directories are removed; harmless with LOCK_NB and the ENOTEMPTY tolerance, and the plan text only names the order"
+  },
+  "F-e0c1261503f2": {
+   "disposition": "dropped",
+   "reason": "LPR-R3-002: the quarantine rename-back; this item has no quarantine or removal. Carried to row 27d (#116 item 7)"
+  },
+  "F-e457c3b31a0a": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#116",
+   "note": "EPR-013: index-open timing (item 4)"
+  },
+  "F-e6bc2028a719": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#116",
+   "note": "LPR-R5-002: index-open timing (item 4)"
+  },
+  "F-f43b272137d5": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#116",
+   "note": "EPR-011: race hooks after the selection checks (item 3)"
+  }
+ }
+}
