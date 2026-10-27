@@ -2956,8 +2956,8 @@ class RetentionReportReleaseTest(unittest.TestCase):
         self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
         self.assertEqual(counts["templates"], len(self.manifest["templates"]))
         self.assertEqual(counts["by_category"], by_category)
-        self.assertEqual((counts["artifacts"], counts["templates"]), (81, 6))
-        self.assertEqual(by_category["distribution"], 55)
+        self.assertEqual((counts["artifacts"], counts["templates"]), (82, 6))
+        self.assertEqual(by_category["distribution"], 56)
         record = next(r for r in self.manifest["artifacts"]
                       if r["target_path"] == "scripts/workflow_retention.py")
         self.assertEqual((record["location"], record["category"], record["rule"], record["executable"]),
@@ -3009,8 +3009,8 @@ class RetentionArchiveReleaseTest(unittest.TestCase):
         self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
         self.assertEqual(counts["templates"], len(self.manifest["templates"]))
         self.assertEqual(counts["by_category"], by_category)
-        self.assertEqual((counts["artifacts"], counts["templates"]), (81, 6))
-        self.assertEqual(by_category["distribution"], 55)
+        self.assertEqual((counts["artifacts"], counts["templates"]), (82, 6))
+        self.assertEqual(by_category["distribution"], 56)
 
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
         for target in self.CHANGED:
@@ -3057,8 +3057,8 @@ class RetentionRemovalReleaseTest(unittest.TestCase):
         self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
         self.assertEqual(counts["templates"], len(self.manifest["templates"]))
         self.assertEqual(counts["by_category"], by_category)
-        self.assertEqual((counts["artifacts"], counts["templates"]), (81, 6))
-        self.assertEqual(by_category["distribution"], 55)
+        self.assertEqual((counts["artifacts"], counts["templates"]), (82, 6))
+        self.assertEqual(by_category["distribution"], 56)
 
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
