@@ -2,50 +2,40 @@
 
 ## Milestone
 
-**Complete (accepted by policy).** W29: `retention-removal` (`process`, governing version `2.2`), branch `milestone/retention-removal`,
-roadmap row 27d (RodrigoFAbreu/workflow#116 item 7, and the obligations EPR-001 and EPR-010). Plan:
-`docs/ai-workflow/RETENTION_REMOVAL_PLAN.md` (revision 1, approved by gate policy). The goal, Workflow 2.22.0 (released
-after the merge of the pull request), a `feat:` minor that adds the removal, `scripts/workflow_retention.py remove <id>`:
-a dry run by default, and with `--apply` it takes a finished, archived item's untracked review folder out of the
-repository with one atomic rename into `<archive-root>/<repo>/.removing/<id>`, verifies the archive against the moved
-folder by contents (the listing and the SHA-256 of every file), and deletes it entry by entry, or renames it back and
-refuses naming the difference. An interrupted run leaves one recognisable leftover, which the report lists and the next
-run completes or renames back. The user-only command (27e) and the prune (27f) are not part of this item. The previous
-milestone, W28 `retention-archive`, is accepted (Workflow 2.21.0).
+**Complete (accepted by policy).** W30: `retention-command` (`process`, governing version `2.2`), branch
+`milestone/retention-command`, roadmap row 27e (RodrigoFAbreu/workflow#84, the user-gated step of the retention tool).
+Plan: `docs/ai-workflow/RETENTION_COMMAND_PLAN.md` (revision 3, approved by gate policy). The goal, Workflow 2.23.0 (a
+`feat:` minor, released after the merge of the pull request): one user-only command file,
+`/archive-finished-item <work-item-id>`. It previews the dry runs of `scripts/workflow_retention.py archive` and
+`remove` for ONE finished item, and runs `archive --apply` and then `remove --apply` only after the user's own
+current-turn message carries the sentence `Archive and remove the review folder of <id>.`. The engines are unchanged;
+the command packs, verifies, renames and deletes nothing itself. Base commit `e6c12be`; the previous milestone,
+W29 `retention-removal`, is accepted (Workflow 2.22.0). The prune (roadmap row 27f) is not part of this item.
 
 ## Checkpoints
 
 | id | name | state |
 | --- | --- | --- |
-| CP1 | The removal, its tests and the documents | **complete** (verified in a scratch clone, see below) |
-| CP2 | Release 2.22.0 | **complete** (verified in a scratch clone, see below) |
+| CP1 | The command, its tests and the documents | **complete** |
+| CP2 | Release 2.23.0 | **complete** |
 
 ## Verified state
 
-- CP1: `payload/scripts/workflow_retention.py` (`_select_finished` extracted from `archive_item`, `remove_item`,
-  `_archive_table`, `_hash_folder`, `_differences`, `_remove_tree`, the rename back, the `remove` subcommand, and the
-  report's `removing` key and text line), the `RetentionRemove` tests in
-  `workflow_state_completion_obligations_test.py` (240 -> 255), `docs/RETENTION.md` (the section "The remove command",
-  the `removing` key, the archive table's new `unreadable` cause and the re-read references to rows 27c to 27f) and
-  `docs/exit-codes.md`. `git diff 0c06330 --stat -- payload` lists the script and its test file only. Each mutation m1
-  to m20 fails at least one named case in a scratch copy, and the control passes (the results are in the
-  implementation bundle's `TEST_RESULTS.md`).
-- Verified in a disposable clone (D-Staging): the nine suites from the staged fixture, `tools/docs` (34),
-  `check_docs.py`, `check-manager-block`, `tools/release` (zlib-ng), and the new and the whole obligations tests under
-  the orphan wrapper.
-
-- CP2: `manifest.json` 2.22.0 (counts 81, 6, 55 unchanged; the five changed records carry their `retention-removal
-  (workflow-2.22.0)` sentence, every digest and size recomputed, `conformance.suites` measured by `release.py
-  manager-block --write`: obligations 240 -> 255, the others unchanged), `WORKFLOW_RELEASE` and its two pinned
-  assertions, `ORCHESTRATION_PROTOCOL.md` (protocol stays 1.5), the 2.22.0 row of `docs/release-history.md` with the
-  downgrade note, the "Last checked with" lines of the three pages, and `RetentionRemovalReleaseTest` in
-  `tools/release/release_test.py` (the 2.21.0 class keeps what stays true of it).
-- Verified in a scratch clone committed with the CP2 content: stock `stage-conformance --commit HEAD` and the nine
-  suites, `release.py build` (zlib-ng, 88 files), `check-manager-block`, `tools/docs` (34) and `check_docs.py`, and
-  `tools/release` (285, zlib-ng interpreter).
+- Gates: plan approval and technical approval `CURRENT`, basis `POLICY_SATISFIED` (local and manual external reviews
+  APPROVE). Technical approval at the review content `6379ce13`.
+- Implementation revision 2 is the post-review-fix tree: round 1's findings were fixed in `858f3f3`. The 20 recorded
+  Optional findings are dispositioned in `docs/ai-workflow/registry/retention-command-dispositions.json` (fixed,
+  dropped with reasons, and four follow-ups on RodrigoFAbreu/workflow#123).
+- Automated verification, run at `858f3f3`: the nine suites from a stock `release.py stage-conformance --commit HEAD`
+  fixture (453 / 344 / 1244 / 316 / 142 / 255 / 370 / 283 / 27, all OK; the 370 include
+  `TestArchiveFinishedItemCommand`, T1 to T8); `tools/release` 288 OK (zlib-ng); `tools/docs` 34 OK; `check_docs.py`
+  rc 0; `check-manager-block` ok; `release.py build` ok; `workflow-manager verify .` clean at 2.22.0.
+- Functional review: round 1 at `884d05e`, an independent Claude executor (`claude-sonnet-5-5`), flows F1 to F9 (with
+  F7b and F7c) passed in scratch repositories; the evidence is recorded in `WORKFLOW_STATE.json`.
+- Acceptance: pull request #124 at `884d05e`, checks green, read by the Workflow's own `gh` query.
 
 ## Next action
 
-W29 `retention-removal` is accepted by policy (Workflow 2.22.0 is released after the merge of the pull request). The
-next incomplete roadmap row is 27e, the user-only archive command, which is planned after rows 27c and 27d: run
-`/milestone-plan` when it is ready for `PLANNING`.
+W30 `retention-command` is accepted by policy (Workflow 2.23.0 is released after the merge of the pull request). The
+next incomplete roadmap row is 27f, the user-only prune of archives past the TTL: run `/milestone-plan` when it is
+ready for `PLANNING`.

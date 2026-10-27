@@ -1,0 +1,90 @@
+{
+ "schema_version": 1,
+ "work_item_id": "retention-command",
+ "dispositions": {
+  "F-038264776a4b": {
+   "disposition": "dropped",
+   "reason": "RC-EXT-O1: wording of a review-bundle narrative file, regenerated every round and not shipped"
+  },
+  "F-14cf2ef8a047": {
+   "disposition": "dropped",
+   "reason": "RC-R3-O1: wording of a plan sentence; the plan's own CP1 check and flow f9 state it correctly and the implementation matches"
+  },
+  "F-3f4c88582e4d": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#123",
+   "note": "RC-IMPL-R2-O2: operator-reference wording (item 2)"
+  },
+  "F-472c981b437a": {
+   "disposition": "dropped",
+   "reason": "RC-EXT-O2: stale line in a review-bundle narrative file, regenerated every round and not shipped"
+  },
+  "F-49636ad8eccb": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#123",
+   "note": "RC-R3-O2: release-class docstring pointers (item 3)"
+  },
+  "F-65f9d3e21592": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-70413326aea2": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-8a6ee9b790ec": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-9b44d6569432": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-9fc65818f33f": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-a02c34e9c743": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#123",
+   "note": "external implementation O1: preview-result branches not pinned (item 4)"
+  },
+  "F-ad11d6fd1099": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-cf0f8e210a7b": {
+   "disposition": "dropped",
+   "reason": "RC-IMPL-R2-O1: round-1 text in review-bundle narrative files, regenerated every round and not shipped"
+  },
+  "F-d41269347e93": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-d7132c854f4d": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-de1e50828ab9": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-e2b455ad8487": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-ec31c5c9b635": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-efbc5143dacb": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-fa3612947d66": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#123",
+   "note": "RC-R2-O1: user-only list in the protocol document (issue item 1)"
+  }
+ }
+}

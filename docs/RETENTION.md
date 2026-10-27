@@ -1,6 +1,6 @@
 # Retention of finished work-item files
 
-> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.22.0.
+> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.23.0.
 
 Files of finished work keep piling up (#84): in the Controller repository, 43
 finished work items leave about 240 tracked files and 140 MiB of untracked
@@ -18,8 +18,9 @@ Workflow 2.21.0): it packs a finished item's review folder into a verified
 tarball outside the repository and removes nothing. Step 4 is [the remove
 command](#the-remove-command) (row 27d, Workflow 2.22.0): it removes an
 archived finished item's review folder, only after comparing its contents with
-the archive. The user-only command that runs both (row 27e) and the prune of
-old archives (row 27f) follow. The tracked-file command and the link check are
+the archive. Step 5 is [the archive-finished-item
+command](#the-archive-finished-item-command) (row 27e, Workflow 2.23.0): the
+user-only command that runs both. The prune of old archives (row 27f) follows. The tracked-file command and the link check are
 a later row, not yet scheduled. The last section says what that tooling must
 guarantee.
 
@@ -366,8 +367,8 @@ and stops. **It never removes, renames, moves or modifies anything under
 `.ai-review/<id>/` or anywhere in the repository.** The folder stays under its
 own name, byte for byte, and [the report](#the-report) keeps showing the item
 as finished with an archive present. [The remove command](#the-remove-command)
-(row 27d) removes the folder; the user-only command that runs both, with its
-literal confirmation, is row 27e.
+(row 27d) removes the folder; [the user-only command](#the-archive-finished-item-command)
+(row 27e) runs both, with its literal confirmation.
 
 **A dry run is the default.** Without `--apply` it prints every entry it would
 pack (path, type, size), the archive, the temporary and the index it would
@@ -560,6 +561,46 @@ one exists. After a killed or stopped removal and a downgrade, the folder (whole
 or smaller) sits in `<archive-root>/<repo>/.removing/<id>/` unseen: inspect it and
 preserve it by hand (`mv` it back to `.ai-review/<id>`, or keep it).
 
+## The archive-finished-item command
+
+```
+/archive-finished-item <work-item-id>
+```
+
+A user-only command file (`.claude/commands/archive-finished-item.md`) that archives
+and removes the review folder of **one** finished item in one act. It contains no
+mechanism: it calls [the archive command](#the-archive-command) and [the remove
+command](#the-remove-command) and nothing else, and it runs no `tar`, `zstd`, `rm` or
+`mv`, passes no `--archive-root` or `--repo-root`, and writes neither the state file nor
+the archive store.
+
+1. **Resolve.** `$ARGUMENTS` must be exactly one id (a lowercase letter or digit, then up to 63
+   lowercase letters, digits, underscores or hyphens);
+   anything else is refused before anything runs. The id never comes from the
+   confirmation and never from the active item.
+2. **Preview.** It runs `archive <id>` and `remove <id>` as dry runs and prints both
+   outputs in full. Before the first archive, `remove` refuses `not_archived`: that is
+   expected and means "archive then remove". With the archive already present (an
+   earlier run stopped after `archive`), `archive` refuses `already_archived` and `remove`
+   passes: "remove only". Any other combination stops with both codes and next steps, and
+   asks for nothing.
+3. **Ask and stop.** It prints `Archive and remove the review folder of <id>.` and waits
+   for the user's own next message to carry that sentence, with the id as an exact
+   token (`m-1` never authorizes `m-10`, nor the reverse). The check is on the
+   whitespace-collapsed message, ignores case and does not need the full stop. It has no
+   left-hand context, so a message that negates the sentence still matches: that is an
+   accepted limit, as in the other user-only commands, and the preview, the printed
+   sentence and the engines' own checks stand behind it. A sentence carried over from an
+   earlier turn, or arriving in `$ARGUMENTS`, applies nothing.
+4. **Apply.** `archive <id> --apply`, then `remove <id> --apply`. On any non-zero exit it
+   reports the engine's code and `next step:` verbatim and stops: it never retries and
+   never runs `remove` after an `archive` that did not succeed. The engines decide at
+   that moment which item is finished, kept or archived, and `remove` still compares the
+   archive with the moved folder by contents before it deletes anything.
+
+Downgrading to a release before 2.23.0 removes the command and leaves the archives,
+the index and the folders as they are.
+
 ## What the later tooling must guarantee
 
 The tooling that applies the rule to tracked files and links, a later row not
@@ -599,7 +640,8 @@ a folder it has verified against an archive:
 5. **Dry run by default.** Without an explicit apply flag, the command lists
    each path, its decision and its size, and changes nothing. Whether
    applying it is a user-only step is, for the archive command, settled by
-   row 27e (which calls rows 27c and 27d), and for the tracked-file command,
+   [the archive-finished-item command](#the-archive-finished-item-command) (row 27e,
+   which calls rows 27c and 27d), and for the tracked-file command,
    for the plan of that later row to decide.
 6. **Links keep working.** In the same commit, every relative link to a
    moved path becomes a link to the blob at the index commit (the form
