@@ -21800,7 +21800,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-removal-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-removal-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -21909,7 +21909,144 @@
           "workflow_release": "2.21.0"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "f695fe7a01868fbcc47fb59fcb834a5defeb50781fcdbc4e1db3a3d49e8e3da2",
+        "approved_review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+        "review_content_manifest": [
+          {
+            "path": "docs/RETENTION.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1acc71623c019e1afaf99f32d3db844ea8e29d86"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-removal-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "383c37e357d7c8721181365baaa191534300da5a"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a5d386058e818689b890004458cf7778d4e0e3fe"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "32edb9264580669bf828949771ece8f33532c674"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c41cc63f28fea246781e63885a3ce91493c48cf4"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ddc989fdd28e778a068f6cd7b26a8142d134ba2a"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6dd6c64cc54b90bd5bbc305192a3a352c110916d"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "712b7a0dc252520a1430e999cbfdd61e67001ead"
+          },
+          {
+            "path": "payload/scripts/workflow_retention.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2dc518b82ca1b5d31607caa2784ca78ee9848b53"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "024f31a3b6eced4268be7b062c196db9fc91308e"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6ae13c8aafe3c37c2aedecdf0bd869b1054c6401"
+          }
+        ],
+        "reviewed_content_commit": "a0222e2e75e2176f6624ee326cda9d334c4ef2e3",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-27T00:34:50Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "ledger": {
+              "local": {
+                "bundle_id": "f695fe7a01868fbcc47fb59fcb834a5defeb50781fcdbc4e1db3a3d49e8e3da2",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "857ef22bebb6c503de66debdffe859876bd1e57bc0367a842e6fccf29d703ede",
+                "ledger_entry_sha256": "63fa9c9713fcb42e5f29ddcff1ded23445c62cf4a36309d480a99bb08b9510a7",
+                "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "f695fe7a01868fbcc47fb59fcb834a5defeb50781fcdbc4e1db3a3d49e8e3da2",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "87c7fecced230324028cd90572bcf156968e3162ecac2a49d5ea1a02315fca46",
+                "ledger_entry_sha256": "74b8bed453804002afeb397e080132a7bb9ddb7f0ce45648aaa0e7a048b40393",
+                "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-27T00:34:50Z",
+          "workflow_release": "2.21.0"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "7bbf8b9970e0368ec6fb16ae15e6b1fd0e48ea2db9fe8d70fe352ccdb531e4e3",
@@ -21940,12 +22077,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 31,
-      "last_transition": "2026-10-26T23:44:28Z",
+      "state_revision": 34,
+      "last_transition": "2026-10-27T00:34:50Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -22421,6 +22558,69 @@
               "at": "2026-10-26T21:29:36Z"
             }
           ]
+        },
+        "F-fb900353eb38": {
+          "digest": "fb900353eb384aa0333d7caa3abea4ca532087bbee54f019bbbfd437b5b992ae",
+          "text": "**LIR-R1-001 (the implementer's limitations 1 and 2, and the same class elsewhere): uncaught `OSError` in the removal flow.** Several calls are not wrapped:\n  - `os.readlink` in `_hash_folder` (`payload/scripts/workflow_retention.py:1283`), in `_scan` during the D-Flow 5 re-check (`:528`), and in `_remove_tree`'s per-entry check (`:1396`).\n  - `fcntl.flock` raising anything other than `BlockingIOError`, such as `ENOLCK` (`:1630`).\n  - `_lstat_at` raising anything other than `ENOENT`.\n\n  Any of these gives a traceback and exit 1 instead of a documented refusal with exit 2. Every case is data-safe:\n  - In L0 after the rename, the folder stays whole in `.removing/<id>` rather than being renamed back, as a `folder_changed` would do.\n  - In `_remove_tree`, every entry already deleted was verified.\n  - The next run resumes the folder as L1.\n\n  The threat model (no concurrent writer to a finished item's folder) makes these races unlikely, and the plan does not name the `readlink` window. Answer to the bundle's unresolved question: carry them to a later row rather than reopen this release. When they are fixed, wrap each call into `folder_changed` (or `unreadable` for `EACCES`) so the L0 pa",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T00:12:33Z"
+            }
+          ]
+        },
+        "F-edae74baf45d": {
+          "digest": "edae74baf45d3b962cb197f211786eb4c0c9fbca10a02e460ee0056dcfb52ac6",
+          "text": "**LIR-R1-002: next-step wording inherited from `archive`.** In a `remove` refusal, three helpers that `remove` reuses still speak of archiving:\n  - `_walk_folder`'s `failed` says \"or leave the item unarchived\" (`:480`).\n  - `_entry_error` says \"or leave the item unarchived\" (`:460`).\n  - `_open_file`'s `EACCES` step says \"the engine does not archive from a partial view\" (`:546`).\n\n  These are the codes `unreadable` and `unsupported_entry` from selection 9 and D-Flow 5. The refusal is correct; only the hint is off. Fix it by passing the verb through, as `_select_finished` does.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T00:12:33Z"
+            }
+          ]
+        },
+        "F-4c8b50aba5f1": {
+          "digest": "4c8b50aba5f1757edfbc6aa17f91b07c3e6b3cb906823b980f220fff969be85b",
+          "text": "**LIR-R1-003: the code for a change seen under the lock.** `_flow` step 1 (`:1637`) uses `place_failed` when the re-selection under the lock finds a different archive directory inode or L-state. `place_failed` is documented for creating `.removing` and for the rename, so `leftover_conflict` or `folder_changed` would describe this case better. No case or mutation pins this path (the plan calls it defence in depth), and nothing is moved before it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T00:12:33Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "f695fe7a01868fbcc47fb59fcb834a5defeb50781fcdbc4e1db3a3d49e8e3da2",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-27T00:12:33Z",
+          "verdict_sha256": "857ef22bebb6c503de66debdffe859876bd1e57bc0367a842e6fccf29d703ede",
+          "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "f695fe7a01868fbcc47fb59fcb834a5defeb50781fcdbc4e1db3a3d49e8e3da2",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-27T00:34:29Z",
+          "verdict_sha256": "87c7fecced230324028cd90572bcf156968e3162ecac2a49d5ea1a02315fca46",
+          "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
