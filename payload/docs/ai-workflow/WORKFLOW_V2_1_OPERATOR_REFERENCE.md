@@ -38,7 +38,7 @@ Where they disagree, see [Known discrepancies](#known-discrepancies).
   The control each of them carries itself, under every harness, is the
   literal-confirmation check: they refuse to write anything unless *your
   current-turn message* contains literal confirmation text naming what the
-  command acts on (for six of them the exact work item, with a stage,
+  command acts on (for seven of them the exact work item, with a stage,
   checkpoint or keyword where the command needs one; for `/adopt-gate-policy`
   the policy digest; each command file states its own). The flag is an
   additional layer where the harness enforces it; it does not replace the
@@ -954,7 +954,8 @@ committed"); if a round was refused with "must always transition phase", see
 ### `/archive-finished-item <work-item-id>` — user-only
 - **When**: a finished work item's untracked `.ai-review/<id>/` folder is to be packed into
   the archive store and removed (`docs/RETENTION.md`, roadmap row 27e; Workflow 2.23.0).
-- **Expects**: exactly one id in `$ARGUMENTS` (never the active item), and, after the
+- **Expects**: exactly one id in `$ARGUMENTS` (the id comes from `$ARGUMENTS` only,
+  never from the active item), and, after the
   preview, your current-turn message carrying the sentence `Archive and remove the review
   folder of <id>.` with the id as an exact token (`m-1` never authorizes `m-10`).
 - **Does**: previews `workflow_retention.py archive <id>` and `remove <id>` (dry runs that

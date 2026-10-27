@@ -67,7 +67,7 @@ archived or left over; this command re-derives none of it.
 
    Say which of "archive then remove" or "remove only" it authorizes and that the
    folder is deleted only after the engine has verified the archive against it. Then
-   print the sentence and stop until the user's own next message carries it. The check
+   stop until the user's own next message carries it. The check
    is exact: collapse the whitespace of that message, then it must match this pattern,
    where `ID` is the resolved id passed through `re.escape`:
 

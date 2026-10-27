@@ -7756,8 +7756,8 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         reclassified `/review-implementation`'s own frontmatter from
         `false` to `true` (it is the authoritative
         `LOCAL_MODEL_IMPLEMENTATION_REVIEW` stage writer for a `"2.2"` item
-        at `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`), so exactly two
-        remain."""
+        at `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`), so two remained;
+        `/archive-finished-item` (workflow-2.23.0) makes the third."""
         stems = _declared_state_writer_false()
         self.assertEqual(stems, {"prepare-review", "review-functional", "archive-finished-item"})
         text = _operator_reference_text()
@@ -9086,6 +9086,8 @@ class TestArchiveFinishedItemCommand(unittest.TestCase):
             self.assertIn(f"- `/{stem}`", doc)
             self.assertIn(f"`/{stem}`", reference)
         self.assertIn("### `/archive-finished-item <work-item-id>` \u2014 user-only", reference)
+        self.assertIn("for seven of them the exact work item", reference)
+        self.assertNotIn("for six of them", reference)
 
 
 class TestReviewProtocolBaselineClauses(unittest.TestCase):
