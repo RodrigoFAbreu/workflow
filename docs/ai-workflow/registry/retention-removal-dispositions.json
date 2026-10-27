@@ -1,0 +1,163 @@
+{
+ "schema_version": 1,
+ "work_item_id": "retention-removal",
+ "dispositions": {
+  "F-020f20332845": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R6-004: remove_failed advice (item 6)"
+  },
+  "F-069434fd1e5c": {
+   "disposition": "fixed",
+   "note": "LPR-R1-006: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-118338ee5166": {
+   "disposition": "fixed",
+   "note": "LPR-R5-004: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-136092490f77": {
+   "disposition": "dropped",
+   "reason": "LPR-R5-007: backtick nesting in message templates of the plan; the docs and code were checked by check_docs and the reviews"
+  },
+  "F-1645041e56a4": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R5-006: unreadable archive manual way out (item 6)"
+  },
+  "F-1bc12968fbd5": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R3-002: inherited wording in shared selection messages (item 2)"
+  },
+  "F-1c3df06498a5": {
+   "disposition": "fixed",
+   "note": "LPR-R4-002: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-212423c2af3d": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R4-006: restore_failed keeps the differences (item 6)"
+  },
+  "F-23fd1218b88a": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "EPR-020: f6 initial container state (functional notes item 8)"
+  },
+  "F-24df5e065260": {
+   "disposition": "fixed",
+   "note": "LPR-R1-004: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-3270c294a48e": {
+   "disposition": "fixed",
+   "note": "LPR-R2-004: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-38261276e55c": {
+   "disposition": "dropped",
+   "reason": "LPR-R6-002: the plan's payload file list wording; f9's literal list was fixed at the functional review (the executor confirmed the diff)"
+  },
+  "F-3aa48f65b972": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R7-001: remove_failed wording test (item 4)"
+  },
+  "F-4b0d8d8f68ea": {
+   "disposition": "fixed",
+   "note": "LPR-R3-001: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-4c8b50aba5f1": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LIR-R1-003: place_failed under the lock (item 3)"
+  },
+  "F-74bddd1525d4": {
+   "disposition": "dropped",
+   "reason": "LPR-R6-003: T4 'in order' wording; the order itself is consistent across the plan"
+  },
+  "F-76580084b2c9": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R1-005: untested re-checks (item 4)"
+  },
+  "F-79bf7037ad9b": {
+   "disposition": "fixed",
+   "note": "LPR-R5-003: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-7fed359b16ec": {
+   "disposition": "fixed",
+   "note": "LPR-R5-002: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-8595b0ea34a9": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R7-002: container rule wording (item 5)"
+  },
+  "F-87448ad4bfda": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R4-005: T14 RetentionError only (item 4)"
+  },
+  "F-8fe71284ab40": {
+   "disposition": "fixed",
+   "note": "LPR-R2-003: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-a6a92e9625f3": {
+   "disposition": "fixed",
+   "note": "EPR-018: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-a7581259bcc2": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R6-005: L1 folder_changed next step (item 6)"
+  },
+  "F-ad85f1fbd268": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R5-005: row 27f clause not added yet (item 7)"
+  },
+  "F-bf77d80172ac": {
+   "disposition": "fixed",
+   "note": "LPR-R2-002: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-bffe3f39761e": {
+   "disposition": "fixed",
+   "note": "LPR-R1-007: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-c0e4e2d5e86b": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R4-003: L1 refusals name the place (item 6)"
+  },
+  "F-cd19311a7d7d": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LPR-R7-003: new in 2.22.0 wording (item 6)"
+  },
+  "F-ddd92b5d66fc": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "EPR-019: T6 empty-destination case (item 4)"
+  },
+  "F-edae74baf45d": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LIR-R1-002: inherited wording (item 2)"
+  },
+  "F-ef0e5bbfefb0": {
+   "disposition": "fixed",
+   "note": "LPR-R5-001: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-f75d6b6b7690": {
+   "disposition": "fixed",
+   "note": "LPR-R4-004: answered in the plan revisions or the implementation, confirmed by the later local rounds, Codex plan round 3 and implementation round 1"
+  },
+  "F-fb70944dc28b": {
+   "disposition": "dropped",
+   "reason": "LPR-R4-007: the sizing guard wording of the plan; the guard did its job (one split earlier, none needed here)"
+  },
+  "F-fb900353eb38": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#119",
+   "note": "LIR-R1-001: uncaught OSError (item 1)"
+  }
+ }
+}

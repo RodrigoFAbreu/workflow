@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-removal",
+  "plan_revision": 1,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The removal, its tests and the documents",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.22.0",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}

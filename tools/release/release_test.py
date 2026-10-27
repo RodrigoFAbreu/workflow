@@ -2858,7 +2858,7 @@ class InterleavingPinsReleaseTest(unittest.TestCase):
     """Release 2.19.1 (interleaving-pins): what stays true of it once a later release
     is current -- the record sentences and the release-history row. The current
     version, constant, counts and posture are pinned by the current release's class
-    (2.21.0)."""
+    (2.22.0)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py", "scripts/workflow_state_test.py")
@@ -2891,7 +2891,7 @@ class CommandWordingReleaseTest(unittest.TestCase):
     """Release 2.19.2 (command-wording): what stays true of it once a later release
     is current -- the record sentences and the release-history row. The current
     version, constant, counts, digests and posture are pinned by the current
-    release's class (2.21.0)."""
+    release's class (2.22.0)."""
 
     CHANGED = (".claude/commands/release-checkpoint-start.md", "docs/ai-workflow/COMMAND_FILES.md",
                "docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
@@ -2933,7 +2933,7 @@ class RetentionReportReleaseTest(unittest.TestCase):
     is current -- the counts, the added record, the record sentences and the
     release-history row. The current version, constant, digests, pages' "Last
     checked with" lines and posture are pinned by the current release's class
-    (2.21.0)."""
+    (2.22.0)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -2983,9 +2983,10 @@ class RetentionReportReleaseTest(unittest.TestCase):
 
 
 class RetentionArchiveReleaseTest(unittest.TestCase):
-    """Release 2.21.0 (retention-archive): the version, the release constant, the
-    unchanged counts, the digests, the downgrade posture and the release-history
-    row."""
+    """Release 2.21.0 (retention-archive): what stays true of it once a later release
+    is current -- the unchanged counts, the record sentences and the release-history
+    row. The current version, constant, digests, pages' "Last checked with" lines
+    and posture are pinned by the current release's class (2.22.0)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -3000,8 +3001,55 @@ class RetentionArchiveReleaseTest(unittest.TestCase):
     def row(self) -> str:
         return next(line for line in self.history.splitlines() if line.startswith("| 2.21.0 |"))
 
-    def test_the_release_names_2_21_0_and_adds_no_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.21.0")
+    def test_the_release_added_no_record(self):
+        by_category = {}
+        for entry in self.manifest["artifacts"]:
+            by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
+        counts = self.manifest["counts"]
+        self.assertEqual(counts["artifacts"], len(self.manifest["artifacts"]))
+        self.assertEqual(counts["templates"], len(self.manifest["templates"]))
+        self.assertEqual(counts["by_category"], by_category)
+        self.assertEqual((counts["artifacts"], counts["templates"]), (81, 6))
+        self.assertEqual(by_category["distribution"], 55)
+
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for target in self.CHANGED:
+            with self.subTest(target):
+                record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+                self.assertIn(self.SENTENCE, record["rationale"])
+        others = [r["target_path"] for r in self.manifest["artifacts"]
+                  if self.SENTENCE in r["rationale"]]
+        self.assertEqual(sorted(others), sorted(self.CHANGED))
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        for needle in ("#84", "step 3", "#113", "scripts/workflow_retention.py archive", "dry run",
+                       "--apply", "removes, renames and modifies nothing", "zstd", "adds no command",
+                       "Orchestration Protocol 1.5", "2.20.0", "only `report`", "v2.21.0"):
+            self.assertIn(needle, self.row())
+        self.assertNotIn("closes #", self.row())
+        self.assertLess(self.history.index("| 2.21.0 |"), self.history.index("| 2.20.0 |"))
+
+
+class RetentionRemovalReleaseTest(unittest.TestCase):
+    """Release 2.22.0 (retention-removal): the version, the release constant, the
+    unchanged counts, the digests, the downgrade posture and the release-history
+    row."""
+
+    CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
+               "scripts/workflow_protocol_test.py",
+               "scripts/workflow_state_completion_obligations_test.py",
+               "scripts/workflow_retention.py")
+    SENTENCE = "retention-removal (workflow-2.22.0)"
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.history = (REPO_ROOT / "docs" / "release-history.md").read_text()
+
+    def row(self) -> str:
+        return next(line for line in self.history.splitlines() if line.startswith("| 2.22.0 |"))
+
+    def test_the_release_names_2_22_0_and_adds_no_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.22.0")
         by_category = {}
         for entry in self.manifest["artifacts"]:
             by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
@@ -3014,7 +3062,7 @@ class RetentionArchiveReleaseTest(unittest.TestCase):
 
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.21.0"', text)
+        self.assertIn('WORKFLOW_RELEASE = "2.22.0"', text)
 
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
         for section in ("artifacts", "templates"):
@@ -3034,27 +3082,28 @@ class RetentionArchiveReleaseTest(unittest.TestCase):
         block = self.manifest["manager"]
         self.assertEqual(block["min_manager_version"], "1.13.0")
         posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.21.0", "2.20.0", "scripts/workflow_retention.py", "archive",
-                       "Orchestration Protocol stays 1.5", "workflow-manager update back to 2.20.0",
-                       "WORKFLOW_RELEASE", "only report", "nothing needs undoing",
-                       "/release-checkpoint-start", "2.14.0"):
+        for needle in ("2.22.0", "2.21.0", "scripts/workflow_retention.py", "remove",
+                       "Orchestration Protocol stays 1.5", "workflow-manager update back to 2.21.0",
+                       "WORKFLOW_RELEASE", "report and archive only", "neither detects nor resumes",
+                       ".removing", "must not delete it", "/release-checkpoint-start", "2.14.0"):
             self.assertIn(needle, posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
         self.assertEqual(block["new_work_only"], [])
         self.assertEqual(block["gate_default_change"], "")
 
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
-        self.assertIn("Last checked with: Workflow 2.21.0.", self.history)
+        self.assertIn("Last checked with: Workflow 2.22.0.", self.history)
         for page in ("RETENTION.md", "exit-codes.md"):
             with self.subTest(page):
-                self.assertIn("Last checked with: Workflow 2.21.0.",
+                self.assertIn("Last checked with: Workflow 2.22.0.",
                               (REPO_ROOT / "docs" / page).read_text())
-        for needle in ("#84", "step 3", "#113", "scripts/workflow_retention.py archive", "dry run",
-                       "--apply", "removes, renames and modifies nothing", "zstd", "adds no command",
-                       "Orchestration Protocol 1.5", "2.20.0", "only `report`", "v2.21.0"):
+        for needle in ("#116", "item 7", "#84", "scripts/workflow_retention.py remove", "dry run",
+                       "--apply", "SHA-256", ".removing", "renames it back", "zstd", "adds no command",
+                       "Orchestration Protocol 1.5", "2.21.0", "no `remove`",
+                       "neither detects nor resumes a leftover", "preserve it by hand", "v2.22.0"):
             self.assertIn(needle, self.row())
         self.assertNotIn("closes #", self.row())
-        self.assertLess(self.history.index("| 2.21.0 |"), self.history.index("| 2.20.0 |"))
+        self.assertLess(self.history.index("| 2.22.0 |"), self.history.index("| 2.21.0 |"))
 
 
 # -- the Manager metadata block ----------------------------------------------------

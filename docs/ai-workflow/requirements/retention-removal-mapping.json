@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-removal",
+  "requirements": {
+    "R1": {
+      "description": "The removal: python3 -I scripts/workflow_retention.py remove <work-item-id> [--apply] [--json] re-derives with a fresh forge query that the item is finished by the report's rules (the three most recent kept) and that an archive file and its index line exist, takes the archive directory lock, takes the untracked .ai-review/<id>/ folder out of the repository with one atomic rename into the tool-owned directory .removing/<id> of the archive store (same file system, EXDEV refused as cross_device, no copy fallback), verifies the archive against the renamed folder by contents (listing and SHA-256 of every file, symlinks as symlinks), then deletes it entry by entry when equal or renames it back without replacing anything and refuses naming the difference when not; one item per run",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "Dry run is the default and writes nothing: without --apply the command prints every entry, the target and whether the contents match, and the repository, the folder and the archive store are byte-identical before and after, on the dry run and on every refusal, proved by a test and a functional flow",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "Only what is proven archived is deleted, and nothing else: an open item, a kept_recent item, an unknown id, a failed query, a tracked file or a gitlink at the item root, a missing archive, a missing or half index line, an absent folder and an unsupported entry are each refused with a stable code in one stated order and exit 2; a difference of same-size changed bytes, an added or removed file or a retargeted symlink refuses and loses nothing (EPR-010: contents, never a listing)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Crash safety: an interrupted run leaves one recognisable leftover .removing/<id>, listed by the report in an additive removing key; the next run verifies it by contents with every deleted entry required present in the archive and either completes the delete or renames it back, handles a conflict (both folders present, a non-directory leftover), a missing archive and a partial index line without moving anything, proved by a real SIGKILL test and hand-built states",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "The delete is bound to what was verified (EPR-001): the moved directory's identity is compared, each entry is compared with its verified record at its own unlink, a changed or added entry stops the walk and is kept, links are unlinked and never followed, and the rename back never replaces; the residual of a process already holding a file open is stated in docs/RETENTION.md",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R6": {
+      "description": "Documents and roadmap: docs/RETENTION.md gets the section The remove command and re-read references to the rows 27a to 27f, docs/exit-codes.md gets the remove rows, and docs/ROADMAP.md carries row 27d as Current with the chosen design and rows 27e and 27f consistent",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R7": {
+      "description": "One mechanism, no protocol or state change: the payload changes are the script and its tests in an existing suite plus the release constant; no protocol operation, state key, phase, trailer, command file, WORKFLOW_CONFIG key, manifest record or tenth conformance suite is added",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R8": {
+      "description": "Release 2.22.0, a feat: minor: manifest version, the changed records with their sentence and digests, counts unchanged, the measured suites, the downgrade posture, the history row, the release class of tools/release/release_test.py",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}

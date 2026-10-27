@@ -1,6 +1,6 @@
 # Retention of finished work-item files
 
-> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.21.0.
+> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.22.0.
 
 Files of finished work keep piling up (#84): in the Controller repository, 43
 finished work items leave about 240 tracked files and 140 MiB of untracked
@@ -15,9 +15,11 @@ The rule itself changes no code, no state and no protocol. Step 2 is the
 read-only script that lists the finished items and their review folders and
 archives. Step 3 is [the archive command](#the-archive-command) (row 27c,
 Workflow 2.21.0): it packs a finished item's review folder into a verified
-tarball outside the repository and removes nothing. The removal of an archived
-folder (row 27d), the user-only command that runs both (row 27e) and the prune
-of old archives (row 27f) follow. The tracked-file command and the link check are
+tarball outside the repository and removes nothing. Step 4 is [the remove
+command](#the-remove-command) (row 27d, Workflow 2.22.0): it removes an
+archived finished item's review folder, only after comparing its contents with
+the archive. The user-only command that runs both (row 27e) and the prune of
+old archives (row 27f) follow. The tracked-file command and the link check are
 a later row, not yet scheduled. The last section says what that tooling must
 guarantee.
 
@@ -169,9 +171,10 @@ a tarball at `~/.local/share/workflow-archive/<repo>/<id>.tar.zst` (outside
 every repository, the file [the report](#the-report) reads), check the archive
 lists every file (`zstd -dc <archive> | tar -tf -`), and only then delete the
 folder. The archive command (row 27c) writes and checks that file but never
-deletes the folder: deleting it, only after the check, is row 27d's. That decision belongs to
-the owner of the folder's content, per repository, and is not part of the
-archive commit.
+deletes the folder. The remove command (row 27d) deletes it, and only after it
+has compared the folder's contents, file by file, with the archive. That
+decision belongs to the owner of the folder's content, per repository, and is
+not part of the archive commit.
 
 Outside the rule (never touched by it):
 
@@ -307,6 +310,7 @@ run it between work items.
  "kept_recent":  [{"work_item_id", "last_transition", "pull_request", "review_folder"}],
  "not_finished": [{"work_item_id", "phase", "reason"}],
  "archives":     [{"name", "work_item_id", "bytes", "modified", "age_days", "prunable", "item"}],
+ "removing": ["<work item id>"],
  "complete": true, "read_errors": [{"path", "error"}],
  "totals": {"finished", "finished_folder_bytes", "archives", "prunable"}}
 ```
@@ -332,6 +336,13 @@ The reasons are `invalid_id`, `invalid_entry`, `open_phase`, `family_open`,
 refusal (`state_missing`, `state_invalid`, `repository_unknown`, `usage`). See
 [Exit codes](exit-codes.md).
 
+`removing` (Workflow 2.22.0) lists the directories of
+`<archive-root>/<repo>/.removing/`, sorted: each is the leftover of a removal
+that was interrupted (see [the remove command](#the-remove-command)). The text
+form adds `Interrupted removals (n): <ids>, finish them with `remove <id>
+--apply`` when there is one. A `.removing` that is a symlink, is not a
+directory or cannot be read is one `read_errors` entry, so `complete` is `false`.
+
 Four checks keep the report from reading or naming a path through a link
 (Workflow 2.21.0). A repository named `.` or `..` is `repository_unknown`. The
 ids `runtime` and `archive` are `invalid_id`. A per-repository archive
@@ -354,8 +365,9 @@ without overwriting, appends one line to `<archive-root>/<repo>/index.jsonl`,
 and stops. **It never removes, renames, moves or modifies anything under
 `.ai-review/<id>/` or anywhere in the repository.** The folder stays under its
 own name, byte for byte, and [the report](#the-report) keeps showing the item
-as finished with an archive present. Removing the folder is a later row (27d);
-the user-only command with its literal confirmation is row 27e.
+as finished with an archive present. [The remove command](#the-remove-command)
+(row 27d) removes the folder; the user-only command that runs both, with its
+literal confirmation, is row 27e.
 
 **A dry run is the default.** Without `--apply` it prints every entry it would
 pack (path, type, size), the archive, the temporary and the index it would
@@ -424,6 +436,7 @@ files only, and the next run says which, by what is on disk:
 | an index line cut off, or not JSON | `index_invalid` | repair or remove the named line by hand |
 | `index.jsonl` a symlink, a directory, a FIFO or a shared file | `index_unsafe` | replace it by an ordinary file by hand |
 | a symlinked component of the archive path, or one without read permission | `archive_dir_unsafe`, `unreadable` | fix the named component, or choose another `--archive-root` |
+| a `.removing` in the archive directory that is a symlink, is not a directory or cannot be read (new in Workflow 2.22.0, from the remove command) | `unreadable` | repair it by hand; the command does not archive from a partial view. If it is an interrupted removal's leftover, see [the remove command](#the-remove-command) first |
 
 `--json` prints one object, keys sorted, ending in a newline, with the same
 facts as the text form:
@@ -439,12 +452,122 @@ facts as the text form:
 Exit status 0 means the dry run was printed, or the item was archived and is
 durable; 2 means a refusal with a code, listed in [Exit codes](exit-codes.md).
 
+## The remove command
+
+```
+python3 -I scripts/workflow_retention.py remove <work-item-id> [--apply] [--json] [--archive-root DIR] [--repo-root DIR]
+```
+
+It removes the untracked `.ai-review/<id>/` folder of one finished item whose
+archive [the archive command](#the-archive-command) made, and nothing else. It
+never removes a tracked file, anything outside that folder, an open item, one of
+the 3 most recent, or any folder that has no verified archive. **A dry run is the
+default;** `--apply` removes. One item per run. It needs the `zstd` program.
+
+**How it removes.** The threat is accidental loss, not an adversary: the item is
+finished and merged and nothing in the Workflow writes to its review folder.
+One mechanism protects the folder:
+
+1. It re-derives that the item is finished (the report's rules, the 3 most recent
+   kept, a fresh forge query), that `<id>.tar.zst` and its index line exist, and
+   takes the lock of the archive directory.
+2. It moves the folder out of the repository with **one atomic rename** into
+   `<archive-root>/<repo>/.removing/<id>`, a directory only this command uses,
+   on the same file system. A different file system is refused
+   (`cross_device`); there is no copy fallback.
+3. It **verifies the archive against the moved folder by contents**: the listing
+   and the SHA-256 of every file, symlinks as symlinks. Nothing in the repository
+   refers to the folder any more.
+4. If they are equal, it deletes the moved folder entry by entry. If they differ,
+   it renames the folder back, never replacing anything, and refuses, naming the
+   differences.
+
+Nothing is deleted that is not proven present in the archive with matching
+contents, at the moment of its own `unlink`: each entry is checked against what
+was verified, and a changed or new entry stops the delete and stays. Sizes and
+modification times are never trusted to equal the archived ones: a file with the
+same size and a restored time but other bytes is a difference. A symlink inside
+the folder is unlinked as a symlink and never followed.
+
+**The dry run** writes nothing, on any path, a refusal included: no directory, no
+rename, no lock, no bytecode. It reads the folder and the archive and says
+whether they match. A folder that does not match is the `archive_mismatch`
+refusal in the dry run too.
+
+**Refusals, in the order the command checks them.** `invalid_id` (also the ids
+`runtime` and `archive`); `path_unsafe`, `unreadable`; the report's own
+(`state_missing`, `state_invalid`, `repository_unknown`); `not_finished:<reason>`,
+`kept_recent`, `unknown_item`; `archive_inside_repository`, `archive_dir_unsafe`,
+`unreadable` (including a `.removing` that is a symlink, not a directory or
+unreadable: the command does not remove from a partial view); `not_archived` (no
+archive file, or no index line), `index_unsafe`, `index_invalid` (a half index
+line stops the run, because nothing is deleted under an index that cannot be
+read); `tracked_files`; `leftover_conflict`; `review_folder_absent`,
+`unreadable`, `unsupported_entry`; `cross_device`; `zstd_missing`; and in the dry
+run `archive_mismatch`. `--apply` then takes the lock (`archive_busy`, never in a
+dry run) and creates `.removing` (`place_failed`), and its own failures are
+`folder_changed`, `archive_mismatch`, `remove_failed` and `restore_failed`. They
+are listed in [Exit codes](exit-codes.md). The `unreadable` refusal for a broken
+`.removing` is new in Workflow 2.22.0 and applies to `archive` as well.
+
+**A run that is stopped leaves one recognisable leftover,** `.removing/<id>`,
+which [the report](#the-report) lists under `removing`. What is on disk, and what
+the next run does:
+
+| State | On disk | The next run |
+| --- | --- | --- |
+| L0 | `.ai-review/<id>` is there, no `.removing/<id>` | a fresh removal; a run killed before the rename left this |
+| L1 | `.removing/<id>` is a real directory and `.ai-review/<id>` is absent: a run was killed or stopped after the rename, during the verify, during the delete (the folder is then smaller) or during the rename back | `remove <id> --apply` again: the same checks apply, an archived entry that is missing from the leftover is forgiven (an earlier delete removed it), an entry that is extra or differs is not. Equal: it completes the delete. Different: it renames the remainder back and says which entries differ and, when some archived entries are missing, that they exist only in the archive (extract them with `zstd -dc <archive> \| tar -x -C <scratch>` and merge by hand) |
+| conflict | `.removing/<id>` is not a real directory, or both folders exist | `leftover_conflict`: nothing is moved or deleted; compare them by hand and move one aside |
+
+A leftover whose archive is gone, whose index cannot be read, or that has a
+tracked file or an unsupported entry, is refused with its place named and left
+untouched. If the leftover cannot be renamed back (`.ai-review/<id>` exists or
+`.ai-review` is absent) nothing is moved: the refusal says the folder stays in
+`.removing/<id>`, and the next step is to create the directory or move the other
+one aside and `mv` it back. A failure after a completed step names the place that
+step reached (`restore_failed`: where the folder is; `remove_failed`: how many
+entries were deleted, or that the folder is deleted and only its durability is
+unconfirmed), never a place it did not reach. **Do not delete `.removing/<id>` as
+clutter:** it may hold entries that exist only there.
+
+`--json` prints one object, keys sorted, ending in a newline:
+
+```
+{"schema_version": 1, "kind": "<remove kind>", "mode": "dry-run" | "apply", "generated_at": "<UTC>",
+ "repository": "<owner>/<name>", "work_item_id": "<id>", "pull_request": {"number", "url"},
+ "review_folder": {"path", "state": "in_place" | "leftover", "files", "bytes", "entries": [{"path", "type", "bytes"}]},
+ "archive": {"path", "bytes", "indexed": true}, "target": {"removing": "<path>"},
+ "verify": {"matches": true}, "zstd": "<path>",
+ "result": {"removed": false} | {"removed": true, "files", "bytes"}}
+```
+
+Exit status 0 means the dry run was printed, or the folder was removed; 2 means a
+refusal, on standard error only: nothing is printed on standard output, `--json`
+included.
+
+**What it does not claim.** A process that held a file of the folder open before
+the rename could still write to it; a finished item has none. The comparison and
+the per-entry check stand against it, but a write between one entry's check and
+its `unlink` is not excluded. Nor does it protect against a hand replacement of
+`.removing/<id>` during the run (a swap it can see is refused) or a file-system
+crash.
+
+**Downgrade.** Workflow 2.22.0 writes no state key, phase, trailer, command file
+or protocol field, and adds one key to the report. An older release has no
+`remove`, and neither detects nor resumes a leftover, nor tells the operator that
+one exists. After a killed or stopped removal and a downgrade, the folder (whole
+or smaller) sits in `<archive-root>/<repo>/.removing/<id>/` unseen: inspect it and
+preserve it by hand (`mv` it back to `.ai-review/<id>`, or keep it).
+
 ## What the later tooling must guarantee
 
 The tooling that applies the rule to tracked files and links, a later row not
 yet scheduled, must guarantee 1 to 6. The archive command (row 27c)
 keeps 1 (never touch an open item, here by the report's finished set), the
-last sentence of 4, since it removes nothing, and 5 for its dry run:
+last sentence of 4, since it removes nothing, and 5 for its dry run. The
+remove command (row 27d) keeps 1 and 5, and the last sentence of 4 only for
+a folder it has verified against an archive:
 
 1. **Never touch an open work item.** The tooling reads phases, parents and
    children from the state, and the merged fact from a fresh Workflow query

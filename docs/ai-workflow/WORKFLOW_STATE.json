@@ -21790,6 +21790,1320 @@
         "evaluated_at": "2026-10-26T13:33:56Z",
         "workflow_release": "2.20.0"
       }
+    },
+    "retention-removal": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "retention-removal",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/RETENTION_REMOVAL_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/retention-removal-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/retention-removal-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 1,
+      "implementation_revision": 1,
+      "functional_review_round": null,
+      "base_commit": "0c06330727d72d418d1d00f36d53343ea455c211",
+      "reviewed_implementation_head": "a0222e2e75e2176f6624ee326cda9d334c4ef2e3",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP2",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "8f82fc33aa5edded5708b0420ab059fa39b104e9"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "a8e400bcc9315e6f29e6d5b353dc94b39eec1261"
+        }
+      },
+      "current_bundle_id": "25b2fcb2c5dc537b04cdc192415d30bf8918a6ec50b67bfecd7bdcb5aeb02786",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "25b2fcb2c5dc537b04cdc192415d30bf8918a6ec50b67bfecd7bdcb5aeb02786",
+        "approved_review_content_id": "7bbf8b9970e0368ec6fb16ae15e6b1fd0e48ea2db9fe8d70fe352ccdb531e4e3",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/RETENTION_REMOVAL_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e60c003f19fe8d530981a9dce831caf2a557e49d"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-removal-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "93a75990e953851a81e4e9287b0305d49cf24e82"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/retention-removal-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3b5c18c6b40c4a5b2fec0979d3848606fa299889"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-26T21:30:26Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "7bbf8b9970e0368ec6fb16ae15e6b1fd0e48ea2db9fe8d70fe352ccdb531e4e3",
+            "ledger": {
+              "local": {
+                "bundle_id": "25b2fcb2c5dc537b04cdc192415d30bf8918a6ec50b67bfecd7bdcb5aeb02786",
+                "verdict": "APPROVE",
+                "round": 7,
+                "verdict_sha256": "bb8566ca69410d270a8f2f7801ec9dbd68c25552c913587dcba08fc9a90cb2a8",
+                "ledger_entry_sha256": "c8f514b9bee5cdcf053feedbf02389db57647d62802332da3add7ff008dee65a",
+                "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "25b2fcb2c5dc537b04cdc192415d30bf8918a6ec50b67bfecd7bdcb5aeb02786",
+                "verdict": "APPROVE",
+                "round": 7,
+                "verdict_sha256": "4d63a91f87105e32fd4a6d402504f29408c182c74f36cfe472dcca2b9f6b90bc",
+                "ledger_entry_sha256": "2b585e2091e9aa9d3836124c32ce3f9e7442a9d82f94154cfc4b48c803e302bd",
+                "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-26T21:30:26Z",
+          "workflow_release": "2.21.0"
+        }
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "f695fe7a01868fbcc47fb59fcb834a5defeb50781fcdbc4e1db3a3d49e8e3da2",
+        "approved_review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+        "review_content_manifest": [
+          {
+            "path": "docs/RETENTION.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1acc71623c019e1afaf99f32d3db844ea8e29d86"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-removal-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "383c37e357d7c8721181365baaa191534300da5a"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a5d386058e818689b890004458cf7778d4e0e3fe"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "32edb9264580669bf828949771ece8f33532c674"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c41cc63f28fea246781e63885a3ce91493c48cf4"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ddc989fdd28e778a068f6cd7b26a8142d134ba2a"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6dd6c64cc54b90bd5bbc305192a3a352c110916d"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "712b7a0dc252520a1430e999cbfdd61e67001ead"
+          },
+          {
+            "path": "payload/scripts/workflow_retention.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2dc518b82ca1b5d31607caa2784ca78ee9848b53"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "024f31a3b6eced4268be7b062c196db9fc91308e"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6ae13c8aafe3c37c2aedecdf0bd869b1054c6401"
+          }
+        ],
+        "reviewed_content_commit": "a0222e2e75e2176f6624ee326cda9d334c4ef2e3",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-27T00:34:50Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "ledger": {
+              "local": {
+                "bundle_id": "f695fe7a01868fbcc47fb59fcb834a5defeb50781fcdbc4e1db3a3d49e8e3da2",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "857ef22bebb6c503de66debdffe859876bd1e57bc0367a842e6fccf29d703ede",
+                "ledger_entry_sha256": "63fa9c9713fcb42e5f29ddcff1ded23445c62cf4a36309d480a99bb08b9510a7",
+                "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "f695fe7a01868fbcc47fb59fcb834a5defeb50781fcdbc4e1db3a3d49e8e3da2",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "87c7fecced230324028cd90572bcf156968e3162ecac2a49d5ea1a02315fca46",
+                "ledger_entry_sha256": "74b8bed453804002afeb397e080132a7bb9ddb7f0ce45648aaa0e7a048b40393",
+                "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-27T00:34:50Z",
+          "workflow_release": "2.21.0"
+        }
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "7bbf8b9970e0368ec6fb16ae15e6b1fd0e48ea2db9fe8d70fe352ccdb531e4e3",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "25b2fcb2c5dc537b04cdc192415d30bf8918a6ec50b67bfecd7bdcb5aeb02786",
+          "verdict": "APPROVE",
+          "round": 7,
+          "completed_at": "2026-10-26T21:19:06Z",
+          "verdict_sha256": "bb8566ca69410d270a8f2f7801ec9dbd68c25552c913587dcba08fc9a90cb2a8",
+          "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "25b2fcb2c5dc537b04cdc192415d30bf8918a6ec50b67bfecd7bdcb5aeb02786",
+          "verdict": "APPROVE",
+          "round": 7,
+          "completed_at": "2026-10-26T21:29:36Z",
+          "verdict_sha256": "4d63a91f87105e32fd4a6d402504f29408c182c74f36cfe472dcca2b9f6b90bc",
+          "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 7,
+          "external": 3
+        },
+        "implementation": {
+          "local": 1,
+          "external": 1
+        }
+      },
+      "state_revision": 35,
+      "last_transition": "2026-10-27T01:23:57Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-26T21:17:44Z",
+        "consumed": {
+          "review_content_id": "2fdd8600e8f9d1345d871e49491d62fdb7ea3bb02fa5bca663d106e2f6aba434",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "7bbf8b9970e0368ec6fb16ae15e6b1fd0e48ea2db9fe8d70fe352ccdb531e4e3",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "7bbf8b9970e0368ec6fb16ae15e6b1fd0e48ea2db9fe8d70fe352ccdb531e4e3",
+          "bundle_id": "25b2fcb2c5dc537b04cdc192415d30bf8918a6ec50b67bfecd7bdcb5aeb02786",
+          "plan_revision": 1
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "1c9da5a82234932e394d32123c595b650a3fe4144900451192cd045eea84b5e7",
+        "2fdd8600e8f9d1345d871e49491d62fdb7ea3bb02fa5bca663d106e2f6aba434",
+        "4625a043a55ea691b9fc8227cec43868dae422491272ae0a91bf99864a87b1a8",
+        "ab2b8f94927531aac5b94fe010121ae36e624ccab9cdd2245c9eb99a2088eddb",
+        "c781897a857ce6e04d6189752c316ae997b37e18a70847990201f527e446daa7",
+        "c89df869923bab48473087be517b105e0c10e349b0bed6af7081390289c56971"
+      ],
+      "optional_findings": {
+        "F-24df5e065260": {
+          "digest": "24df5e06526025e8bd6ff348043efec14fcc8daac8108819736ef07201bbfe96",
+          "text": "LPR-R1-004: D-Report makes a bad `.removing` (a symlink, not a directory, or unreadable) a `read_errors` entry beneath `<archive-root>/<repo>`. `archive_item` (`payload/scripts/workflow_retention.py:943`, `_underneath(entry[\"path\"], unresolved)`) refuses `unreadable` for any `read_errors` entry beneath that directory. So from 2.22.0, a broken `.removing` makes `archive` refuse every item, and with `unreadable` rather than `archive_dir_unsafe`. That is a change to the archive command that the plan does not state, and no case or document covers it. State it in D-Report and `docs/RETENTION.md`'s archive refusal table, and add one `RetentionArchive` or `RetentionRemove` case, or exclude `.removing` errors from the archive's check on purpose.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "c89df869923bab48473087be517b105e0c10e349b0bed6af7081390289c56971",
+              "verdict": "REVISE",
+              "at": "2026-10-26T19:46:36Z"
+            }
+          ]
+        },
+        "F-76580084b2c9": {
+          "digest": "76580084b2c9b7af3a9f4f94503f74f327336c51e4b92cd3d198b4f79a935cb3",
+          "text": "LPR-R1-005: Some checks have no named case or mutation. D-Flow 5's stat-only `_scan` re-check after hashing (`folder_changed` during the verify) and D-Flow 1's repeat of selection 5 to 11 under the lock are untested. T4 says \"one case per code of D-Selection in order\" but lists no case for the pass-through codes (`state_missing`, `state_invalid`, `repository_unknown`) or for `unreadable`. Add the cases, or say why a code is covered elsewhere. A mutation that drops the D-Flow 5 re-scan would currently survive, because D-Delete's per-entry check also catches a write during the verify. Either keep the re-scan as stated defence in depth or drop it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "c89df869923bab48473087be517b105e0c10e349b0bed6af7081390289c56971",
+              "verdict": "REVISE",
+              "at": "2026-10-26T19:46:36Z"
+            }
+          ]
+        },
+        "F-069434fd1e5c": {
+          "digest": "069434fd1e5c603ef212989e5f2e4f0a01f1ed223b3901a6fa3b7b01f891efd3",
+          "text": "LPR-R1-006: Several refusal codes are unspecified or inconsistent. D-Delete makes `ENOTEMPTY` on the last `rmdir(<id>)` `folder_changed`, but on a nested directory's `rmdir` the same cause (an entry added after that directory was listed) falls into \"another `OSError` is `remove_failed`\". D-Flow 2 (creating or opening `.removing` fails, or its `fsync` fails) names no code. D-Flow 3 names no code for the `lstat` finding `.removing/<id>` present after selection 8 ran under the lock (presumably `leftover_conflict`).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "c89df869923bab48473087be517b105e0c10e349b0bed6af7081390289c56971",
+              "verdict": "REVISE",
+              "at": "2026-10-26T19:46:36Z"
+            }
+          ]
+        },
+        "F-bffe3f39761e": {
+          "digest": "bffe3f39761ea107e38beb006362d8685ff190db6bf36c3e28c5f6459fc47981",
+          "text": "LPR-R1-007: The lines that section 2 says to extract unchanged into `_select_finished` (`archive_item` lines 900 to 948) straddle the `try:` whose `finally` closes `fds` and `ai_fd`. Moving them changes who owns those descriptors. State how a refusal inside `_select_finished` closes what it opened. The existing cases do not detect a descriptor leak, so their passing unchanged does not prove this.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "c89df869923bab48473087be517b105e0c10e349b0bed6af7081390289c56971",
+              "verdict": "REVISE",
+              "at": "2026-10-26T19:46:36Z"
+            }
+          ]
+        },
+        "F-bf77d80172ac": {
+          "digest": "bf77d80172acf68775f18eb65a4bf87d2d4a71bba44ca74a1accb91684f5b1ab",
+          "text": "LPR-R2-002: D-Output lists `place_failed` among the \"new codes\", but the archive command already raises it (`_walk_chain` line 752, `_fsync`'s default code at line 878, `_apply` lines 1042, 1069 and 1075). It belongs with \"every other code is the archive command's\". `docs/exit-codes.md` should give it `remove` rows, not a new code entry.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "ab2b8f94927531aac5b94fe010121ae36e624ccab9cdd2245c9eb99a2088eddb",
+              "verdict": "REVISE",
+              "at": "2026-10-26T19:54:02Z"
+            }
+          ]
+        },
+        "F-8fe71284ab40": {
+          "digest": "8fe71284ab40346094645e36a27c9305e4b17fae7063e22fbfff2e292b9d14dc",
+          "text": "LPR-R2-003: T4 counts open descriptors through `/proc/self/fd`, which does not exist on macOS. `_platform_ok` and the archive's next step (\"run it on Linux or macOS\") treat macOS as supported. Use `/dev/fd` when `/proc/self/fd` is absent, or `skipUnless` the descriptor assertion with its reason, so that the case does not fail on a supported platform.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "ab2b8f94927531aac5b94fe010121ae36e624ccab9cdd2245c9eb99a2088eddb",
+              "verdict": "REVISE",
+              "at": "2026-10-26T19:54:02Z"
+            }
+          ]
+        },
+        "F-3270c294a48e": {
+          "digest": "3270c294a48ecce4e0e6ea6bed6978eaaa4c15c28830ccc3ac8a2f76ec0955b9",
+          "text": "LPR-R2-004: CP1's script bullet (line 367) still says \"`_select_finished` extracted unchanged\". Section 2 now says the descriptor handling changes, because the caller owns `fds` and `ai_fd`. Say \"extracted with the descriptor ownership of section 2\" so that the two lines agree. LPR-R2-001's fix touches the same wording.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "ab2b8f94927531aac5b94fe010121ae36e624ccab9cdd2245c9eb99a2088eddb",
+              "verdict": "REVISE",
+              "at": "2026-10-26T19:54:02Z"
+            }
+          ]
+        },
+        "F-4b0d8d8f68ea": {
+          "digest": "4b0d8d8f68ea0087958f484d0060f86a7f92806653ffedee62a59f67ef409b6c",
+          "text": "LPR-R3-001: D-Restore says to `lstat` `.ai-review/<id>` and rename back \"through `ai_fd`\". In state L1, `.ai-review` itself can be absent (for example after `git clean -X`). In that case `_open_review_root` returns `None` with no error, so D-Selection 2 does not refuse. `os.lstat(name, dir_fd=None)` and `os.rename(..., dst_dir_fd=None)` resolve against the process's working directory. So a literal implementation would rename a mismatching leftover into the current directory and report that it was put back. State that when `ai_fd` is `None`, D-Restore moves nothing and refuses with I6 (b), saying the folder stays whole in `.removing/<id>`. Or refuse L1 at selection 2 or 8 when `.ai-review` is absent. Then add one T10 case.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "4625a043a55ea691b9fc8227cec43868dae422491272ae0a91bf99864a87b1a8",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T19:58:46Z"
+            }
+          ]
+        },
+        "F-1bc12968fbd5": {
+          "digest": "1bc12968fbd5b2ce9bb6f10be2f5dd2b7df4f18dc0b7e014dad4edf88b4bbd60",
+          "text": "LPR-R3-002: CP1 changes only the `unreadable` next step in `_select_finished` to take the command name (\"selection otherwise unchanged\"). Other messages in the extracted lines (`archive_item` lines 921 to 929) still speak of archiving: `not_finished` says \"only an item the report lists as finished can be archived\", and `kept_recent` says \"it becomes archivable when newer items are merged\". Under `remove` these are still accurate but read oddly. Pass the command name to these messages too, or state that they keep the archive's wording on purpose.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "4625a043a55ea691b9fc8227cec43868dae422491272ae0a91bf99864a87b1a8",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T19:58:46Z"
+            }
+          ]
+        },
+        "F-1c3df06498a5": {
+          "digest": "1c3df06498a52bb53883ed03136de5a0565d1e55f16e0e4a7fdbb7d695536c90",
+          "text": "LPR-R4-002: D-Output's JSON shape (line 241) still lists `\"verify\": {\"matches\", \"differences\": [{\"path\", \"why\"}]}`, while lines 245-246 say `differences` is dropped from the shape. Remove `differences` from the literal so that `docs/RETENTION.md`, T13 and the code cannot follow the shape instead of the sentence.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "1c9da5a82234932e394d32123c595b650a3fe4144900451192cd045eea84b5e7",
+              "verdict": "REVISE",
+              "at": "2026-10-26T20:14:21Z"
+            }
+          ]
+        },
+        "F-c0e4e2d5e86b": {
+          "digest": "c0e4e2d5e86ba9433635145735ca502a0b965774ff3673fa9a4b6489c7565d6a",
+          "text": "LPR-R4-003: I6 says each refusal names the place, but in L1 only selection 6 (D-Leftover, lines 226-227) and D-Restore say so. A refusal in L1 at selection 7, 9 or 11 (`tracked_files`, `unsupported_entry`, `zstd_missing`), at D-Flow 1 (`archive_busy`) or at D-Flow 2 (opening `.removing` fails, `place_failed`) reuses the archive's next steps, which do not mention `.removing/<id>`. State one shared suffix for every refusal in L1 that names the leftover, and assert it in one T10 case.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "1c9da5a82234932e394d32123c595b650a3fe4144900451192cd045eea84b5e7",
+              "verdict": "REVISE",
+              "at": "2026-10-26T20:14:21Z"
+            }
+          ]
+        },
+        "F-f75d6b6b7690": {
+          "digest": "f75d6b6b769073edfff532f4851c48c06f66db2fa69de61028681fab20ed5580",
+          "text": "LPR-R4-004: the snapshots by outcome (lines 263-266) cover (a) in place, (b) whole in `.removing/<id>` and (c) a stopped delete. T15's \"after the last `rmdir`: `remove_failed` saying the folder is deleted\" is none of these. Add (d) deleted with durability unconfirmed: `.removing/<id>` absent, everything else identical. Also say whether a `.removing` this run created is removed after a `restore_failed` that comes after a successful rename back.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "1c9da5a82234932e394d32123c595b650a3fe4144900451192cd045eea84b5e7",
+              "verdict": "REVISE",
+              "at": "2026-10-26T20:14:21Z"
+            }
+          ]
+        },
+        "F-87448ad4bfda": {
+          "digest": "87448ad4bfda9e0dac66970e609dcee8a369313b856ada188676dc9ad7c7b6db",
+          "text": "LPR-R4-005: T14's expected outcomes (after the outward rename an interruption leaves L1, not restored) require the rename back to run on a `RetentionError` only. `archive_item`'s `_apply` undoes on `except BaseException` (`workflow_retention.py:1102`), and an implementer who copies that pattern would rename back on `KeyboardInterrupt`. Say in D-Flow 6 that only a refusal renames back, and that an interruption leaves the state T14 names.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "1c9da5a82234932e394d32123c595b650a3fe4144900451192cd045eea84b5e7",
+              "verdict": "REVISE",
+              "at": "2026-10-26T20:14:21Z"
+            }
+          ]
+        },
+        "F-212423c2af3d": {
+          "digest": "212423c2af3dda93ee7292df6dbcd1f1df398d0a5844d1070196d71c5026a7a6",
+          "text": "LPR-R4-006: a `restore_failed` raised while renaming back after an `archive_mismatch` (D-Restore, fsync after the rename) replaces the mismatch refusal. State that it still carries the differences and EPR-010's \"keep them\" text, so that the one run that found unarchived bytes does not drop that fact.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "1c9da5a82234932e394d32123c595b650a3fe4144900451192cd045eea84b5e7",
+              "verdict": "REVISE",
+              "at": "2026-10-26T20:14:21Z"
+            }
+          ]
+        },
+        "F-fb70944dc28b": {
+          "digest": "fb70944dc28ba42a5adb34b6f6466a4501a00d251e2086b40c995b4e710bb46e",
+          "text": "LPR-R4-007: the sizing guard (lines 62-63) replaced its line limit (\"under 450\") with a statement of growth, but still ends \"If either grows, STOP and split\". \"Either\" now has one referent. Restate the guard as it now applies, either the table alone or a new line limit, so the stop condition can be checked.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "1c9da5a82234932e394d32123c595b650a3fe4144900451192cd045eea84b5e7",
+              "verdict": "REVISE",
+              "at": "2026-10-26T20:14:21Z"
+            }
+          ]
+        },
+        "F-ef0e5bbfefb0": {
+          "digest": "ef0e5bbfefb03a025c550ce75daf7f87f55d6c77c5fdee93137e3b2eb9768aa9",
+          "text": "LPR-R5-001: D-Restore says a returning folder is **incomplete** (`missing` above zero). That paragraph is framed as part of the `archive_mismatch` refusal. D-Flow 6 also renames an L1 leftover back on a `folder_changed` from the re-check, after `_differences` has returned. State that the \"incomplete\" addition is part of every L1 rename back with `missing` above zero, `folder_changed` included. Today the re-check `folder_changed` in L1 has no case at all.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "c781897a857ce6e04d6189752c316ae997b37e18a70847990201f527e446daa7",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T20:18:57Z"
+            }
+          ]
+        },
+        "F-7fed359b16ec": {
+          "digest": "7fed359b16ecb46bc5cdccf0724150f46ce7676c07a3bf92d88be88c92cfc169",
+          "text": "LPR-R5-002: the outcome snapshots do not fit an L1 leftover that is renamed back (T7's rerun, T10c, T10d). Snapshot (a) asks for the archive store to be byte-identical, but `.removing/<id>` is gone afterwards. Add the outcome: the folder in place, equal to the leftover before the run; `.removing` present and empty; everything else identical. The D-Flow preamble (lines 161 to 162, \"a refusal that leaves the folder in its place also leaves the archive store as it was\") also needs the same two exceptions: this case, and D-Restore's `restore_failed` (snapshot e).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "c781897a857ce6e04d6189752c316ae997b37e18a70847990201f527e446daa7",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T20:18:57Z"
+            }
+          ]
+        },
+        "F-79bf7037ad9b": {
+          "digest": "79bf7037ad9b8e5def64bdb3cf8de1da5bed3ea2bc70ae008129d74db946bd73",
+          "text": "LPR-R5-003: the hard limits (lines 58 to 61) say the change to `payload/` is \"the script, its tests in the existing suite and the release constant\". CP2 also changes `payload/scripts/workflow_protocol_test.py` and `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`, as D-Release and f9 say. Name them in the hard limits too, so that the scope statement and f9 agree.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "c781897a857ce6e04d6189752c316ae997b37e18a70847990201f527e446daa7",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T20:18:57Z"
+            }
+          ]
+        },
+        "F-118338ee5166": {
+          "digest": "118338ee5166d1aa33ce38f13acab7497b06e1c63febcdd45128386bd2bae061",
+          "text": "LPR-R5-004: the downgrade posture (line 381) says `.removing` is ignored by the 2.20.0 report and the 2.21.0 archive \"apart from the `unreadable` case above\". That exception is 2.22.0's behaviour. Under 2.20.0 and 2.21.0, `.removing` is ignored entirely, so a leftover is invisible after a downgrade. Say that instead, so the operator knows to look for `.removing/<id>` by hand.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "c781897a857ce6e04d6189752c316ae997b37e18a70847990201f527e446daa7",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T20:18:57Z"
+            }
+          ]
+        },
+        "F-ad85f1fbd268": {
+          "digest": "ad85f1fbd26899f68aca83d597a534d1a12ce29d6bf8f0fb2805debae1aa269a",
+          "text": "LPR-R5-005: row 27f (the prune), written with this plan, does not say that an archive whose id is listed under the report's `removing` is never pruned. That archive is the only copy of a partial leftover's missing entries (D-Restore, D-Flow 6 in L1). Add the clause to row 27f in `docs/ROADMAP.md` now, while the plan writes the row.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "c781897a857ce6e04d6189752c316ae997b37e18a70847990201f527e446daa7",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T20:18:57Z"
+            }
+          ]
+        },
+        "F-1645041e56a4": {
+          "digest": "1645041e56a483482b16d29dad1c3bea13beedc2558a91a94845fe096c31b93f",
+          "text": "LPR-R5-006: in L1, when an `unreadable` archive leaves the leftover in place, the next step is \"repair the archive or the access\". A truncated archive cannot be repaired. Also name the way out that remains: `mv` the leftover back by hand, keeping it as the only surviving copy.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "c781897a857ce6e04d6189752c316ae997b37e18a70847990201f527e446daa7",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T20:18:57Z"
+            }
+          ]
+        },
+        "F-136092490f77": {
+          "digest": "136092490f77d25fc84f394c4281ca01f3b8ea4e9d4169b07728a1e42fc091a1",
+          "text": "LPR-R5-007: the message templates at lines 137 to 138, 204 to 205, 226 to 227 and 250 nest backticks inside backtick spans, so the spans break when rendered. When copying them into `docs/RETENTION.md` and the code, quote the inner command differently.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "c781897a857ce6e04d6189752c316ae997b37e18a70847990201f527e446daa7",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T20:18:57Z"
+            }
+          ]
+        },
+        "F-a6a92e9625f3": {
+          "digest": "a6a92e9625f39bfc3b2e6d265f234fa2dfea0676e6bd2bb3da0083b08797ab16",
+          "text": "**EPR-018 [apparatus] — Move the identity-test hook before the identity check.**\n  Plan §3, D-Tests T7–T8, lines 307–312; mutations, lines 348–349.\n  T8 reuses the descending-delete-walk hook, which occurs after D-Flow 4’s identity check. Place the swap immediately after the outward rename and before that check so removing the check distinguishes m6. Hand substitution remains outside the agreed threat model.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "c781897a857ce6e04d6189752c316ae997b37e18a70847990201f527e446daa7",
+              "verdict": "REVISE",
+              "at": "2026-10-26T20:26:50Z"
+            }
+          ]
+        },
+        "F-38261276e55c": {
+          "digest": "38261276e55cab58a6bbb5a641640169a76e37ff2314b23ad3ec46481df8a2a8",
+          "text": "**LPR-R6-002: the payload change lists omit two CP2 files.** §1 \"Hard limits\" (lines 58-61: \"the script, its tests in the existing suite and the release constant\") and §7 f9 (line 508: \"the script, its test file, the release constant and the protocol document edits only\") leave out `payload/scripts/workflow_protocol_test.py`, whose two pinned assertions CP2 changes (D-Release line 391, CP2 line 463). The hard-limits list also leaves out `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`. A functional reviewer running f9 against the literal text would see an extra file. Name both, or say \"the CP2 files of D-Release\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 6,
+              "review_content_id": "2fdd8600e8f9d1345d871e49491d62fdb7ea3bb02fa5bca663d106e2f6aba434",
+              "verdict": "REVISE",
+              "at": "2026-10-26T20:32:19Z"
+            }
+          ]
+        },
+        "F-74bddd1525d4": {
+          "digest": "74bddd1525d4db22233c1e985d673bc6de6f3fedb5e395598dba67c349f4ee83",
+          "text": "**LPR-R6-003: T4 says \"in order\" but does not list its cases in D-Selection's order.** Line 308 says \"one case per code of D-Selection in order\", but the list runs a FIFO (selection 9), `zstd` missing (11), an absent folder (9), then `archive_busy` (D-Flow 1, not D-Selection), and ends with the report's pass-through codes (selection 3). Either reorder the list or drop \"in order\", so that nobody reads T4 as a test of the refusal order. (The order itself is consistent across D-Selection, D-Flow, D-Leftover and T10.)",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 6,
+              "review_content_id": "2fdd8600e8f9d1345d871e49491d62fdb7ea3bb02fa5bca663d106e2f6aba434",
+              "verdict": "REVISE",
+              "at": "2026-10-26T20:32:19Z"
+            }
+          ]
+        },
+        "F-020f20332845": {
+          "digest": "020f2033284531905d3298853144b7c29d4d4b27074bfc67a6084ef0930609ea",
+          "text": "**LPR-R6-004: a persistent `remove_failed` advises a retry that cannot succeed.** D-Delete (lines 202-205) sends every non-`ENOTEMPTY` `OSError` to `remove_failed` with the next step `remove <id> --apply`. A cause that persists, such as `EACCES` on an entry inside a read-only subdirectory of the folder, makes each rerun delete nothing more and print the same advice. Naming the errno and adding \"check the permissions of `.removing/<id>`\" to that next step would close the loop. No data is at risk: every deleted entry was proven archived.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 6,
+              "review_content_id": "2fdd8600e8f9d1345d871e49491d62fdb7ea3bb02fa5bca663d106e2f6aba434",
+              "verdict": "REVISE",
+              "at": "2026-10-26T20:32:19Z"
+            }
+          ]
+        },
+        "F-a7581259bcc2": {
+          "digest": "a7581259bcc2446003dd5406c4071527cefe9aa36fa11a7917892afdbb65f85a",
+          "text": "**LPR-R6-005: the next step for an L1 `folder_changed` raised before the comparison.** D-Flow 6 (lines 185-190) keeps the leftover in place for any L1 refusal raised before `_differences` returns, and names the next step for `unreadable`/`unsupported_entry` only (\"repair the archive or the access\"). A `folder_changed` from `_hash_folder`'s walk (an entry vanished while it was read) takes the same no-rename path, but that advice does not fit it. Say what it prints (for example, \"run it again when nothing writes to `.removing/<id>`\").",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 6,
+              "review_content_id": "2fdd8600e8f9d1345d871e49491d62fdb7ea3bb02fa5bca663d106e2f6aba434",
+              "verdict": "REVISE",
+              "at": "2026-10-26T20:32:19Z"
+            }
+          ]
+        },
+        "F-3aa48f65b972": {
+          "digest": "3aa48f65b9727db002101ba90be7eed72ceedebe331080921f1ca88d92abbc80",
+          "text": "**LPR-R7-001: the new `remove_failed` wording has no test.** D-Delete (lines 205-207) now says `remove_failed` names the errno and the entry and adds \"check the permissions of `.removing/<id>`\" to the next step. T12 (`os.unlink` raising `EIO`) checks only `.removing/w00`, the count and `remove w00 --apply`. Add the errno (`EIO`) and the entry's path to T12's expected message, so the LPR-R6-004 fix cannot regress unnoticed. The hint also fits a permissions cause (`EACCES`/`EPERM`) better than `EIO`. The implementation may print it only for those errnos, as long as D-Delete says so.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 7,
+              "review_content_id": "7bbf8b9970e0368ec6fb16ae15e6b1fd0e48ea2db9fe8d70fe352ccdb531e4e3",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T21:19:06Z"
+            }
+          ]
+        },
+        "F-8595b0ea34a9": {
+          "digest": "8595b0ea34a9fe7458766334b118cbbb1913452de72f626be66dd8eb2dbad974",
+          "text": "**LPR-R7-002: \"present and empty\" assumes `.removing` held only this item's leftover.** The container rule of D-Tests (lines 287-293) and T3's L1 clause expect `.removing` \"present and empty\" after an L1 rename back. If another item's leftover also sits in `.removing`, the container is not empty, and the rule should read \"holds what it held before, less `<id>`\". This changes no case that the plan specifies, because each one builds a single leftover. The wording is for whoever extends the cases.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 7,
+              "review_content_id": "7bbf8b9970e0368ec6fb16ae15e6b1fd0e48ea2db9fe8d70fe352ccdb531e4e3",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T21:19:06Z"
+            }
+          ]
+        },
+        "F-cd19311a7d7d": {
+          "digest": "cd19311a7d7d132bfee704cc50b16c71ee1f18b8f9ad09a51aa2a2227a053145",
+          "text": "**LPR-R7-003: \"a deliberate change from 2.22.0\" (D-Selection 5, line 115).** This reads as a change relative to 2.22.0. D-Release says the `unreadable` refusal for a broken `.removing` is \"new in 2.22.0\". Use the same words here, so that `docs/RETENTION.md`'s archive table does not copy the ambiguity.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 7,
+              "review_content_id": "7bbf8b9970e0368ec6fb16ae15e6b1fd0e48ea2db9fe8d70fe352ccdb531e4e3",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T21:19:06Z"
+            }
+          ]
+        },
+        "F-ddd92b5d66fc": {
+          "digest": "ddd92b5d66fcb1b1c3f3e798c86661022fc77997f3c397cdebb3d1c2dcfe20c5",
+          "text": "**EPR-019 [apparatus] — T6 does not distinguish removal of the rename-back guard.**\n  Plan §3, D-Tests T6, lines 324–325; mutation m4, lines 368–369.\n  T6 creates a populated destination. Without the `lstat` guard, `os.rename` still refuses with `ENOTEMPTY`, preserving both directories; scratch reproduction confirmed this. Add an empty-destination case before the guard, asserting that it remains untouched and the leftover stays in `.removing`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 7,
+              "review_content_id": "7bbf8b9970e0368ec6fb16ae15e6b1fd0e48ea2db9fe8d70fe352ccdb531e4e3",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T21:29:36Z"
+            }
+          ]
+        },
+        "F-23fd1218b88a": {
+          "digest": "23fd1218b88ae5bcbed42b2c1853bb44f121c94ff683f6a6b502e61972bbdac8",
+          "text": "**EPR-020 [apparatus] — Specify f6’s initial container state.**\n  Plan §7, flows f5–f6, lines 512–513.\n  If these flows reuse the scratch repository sequentially, f5 leaves `.removing` present, whereas f6 requires it absent. Give f6 a fresh setup with the container absent, or predicate its assertion on the container’s state before the run, matching D-Tests.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 7,
+              "review_content_id": "7bbf8b9970e0368ec6fb16ae15e6b1fd0e48ea2db9fe8d70fe352ccdb531e4e3",
+              "verdict": "APPROVE",
+              "at": "2026-10-26T21:29:36Z"
+            }
+          ]
+        },
+        "F-fb900353eb38": {
+          "digest": "fb900353eb384aa0333d7caa3abea4ca532087bbee54f019bbbfd437b5b992ae",
+          "text": "**LIR-R1-001 (the implementer's limitations 1 and 2, and the same class elsewhere): uncaught `OSError` in the removal flow.** Several calls are not wrapped:\n  - `os.readlink` in `_hash_folder` (`payload/scripts/workflow_retention.py:1283`), in `_scan` during the D-Flow 5 re-check (`:528`), and in `_remove_tree`'s per-entry check (`:1396`).\n  - `fcntl.flock` raising anything other than `BlockingIOError`, such as `ENOLCK` (`:1630`).\n  - `_lstat_at` raising anything other than `ENOENT`.\n\n  Any of these gives a traceback and exit 1 instead of a documented refusal with exit 2. Every case is data-safe:\n  - In L0 after the rename, the folder stays whole in `.removing/<id>` rather than being renamed back, as a `folder_changed` would do.\n  - In `_remove_tree`, every entry already deleted was verified.\n  - The next run resumes the folder as L1.\n\n  The threat model (no concurrent writer to a finished item's folder) makes these races unlikely, and the plan does not name the `readlink` window. Answer to the bundle's unresolved question: carry them to a later row rather than reopen this release. When they are fixed, wrap each call into `folder_changed` (or `unreadable` for `EACCES`) so the L0 pa",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T00:12:33Z"
+            }
+          ]
+        },
+        "F-edae74baf45d": {
+          "digest": "edae74baf45d3b962cb197f211786eb4c0c9fbca10a02e460ee0056dcfb52ac6",
+          "text": "**LIR-R1-002: next-step wording inherited from `archive`.** In a `remove` refusal, three helpers that `remove` reuses still speak of archiving:\n  - `_walk_folder`'s `failed` says \"or leave the item unarchived\" (`:480`).\n  - `_entry_error` says \"or leave the item unarchived\" (`:460`).\n  - `_open_file`'s `EACCES` step says \"the engine does not archive from a partial view\" (`:546`).\n\n  These are the codes `unreadable` and `unsupported_entry` from selection 9 and D-Flow 5. The refusal is correct; only the hint is off. Fix it by passing the verb through, as `_select_finished` does.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T00:12:33Z"
+            }
+          ]
+        },
+        "F-4c8b50aba5f1": {
+          "digest": "4c8b50aba5f1757edfbc6aa17f91b07c3e6b3cb906823b980f220fff969be85b",
+          "text": "**LIR-R1-003: the code for a change seen under the lock.** `_flow` step 1 (`:1637`) uses `place_failed` when the re-selection under the lock finds a different archive directory inode or L-state. `place_failed` is documented for creating `.removing` and for the rename, so `leftover_conflict` or `folder_changed` would describe this case better. No case or mutation pins this path (the plan calls it defence in depth), and nothing is moved before it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T00:12:33Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "f695fe7a01868fbcc47fb59fcb834a5defeb50781fcdbc4e1db3a3d49e8e3da2",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-27T00:12:33Z",
+          "verdict_sha256": "857ef22bebb6c503de66debdffe859876bd1e57bc0367a842e6fccf29d703ede",
+          "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "f695fe7a01868fbcc47fb59fcb834a5defeb50781fcdbc4e1db3a3d49e8e3da2",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-27T00:34:29Z",
+          "verdict_sha256": "87c7fecced230324028cd90572bcf156968e3162ecac2a49d5ea1a02315fca46",
+          "run_ref": "session:local .ai-review/retention-removal/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-e1": {
+            "flow_id": "flow-e1",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "a killed or failing delete resumes",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "E1fail.log"
+            },
+            "log_digest": "89bddac844074cfd2958375b46ff01db926b8db39c3960010ba410e592d7c5d9",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:54Z"
+          },
+          "flow-e2": {
+            "flow_id": "flow-e2",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "a leftover whose archive is missing is kept",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "E2.log"
+            },
+            "log_digest": "d3fddbf62f638ad56baaa2e3be9087e29483639f5094d37981abe0fff1d1b761",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:54Z"
+          },
+          "flow-e3": {
+            "flow_id": "flow-e3",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "a same-size changed file with preserved mtime is refused",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "E3.log"
+            },
+            "log_digest": "a5fe692e5fb569da958c792f61087560a54dacea2d6a2255c5f1e9da0679e5e0",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:54Z"
+          },
+          "flow-f10": {
+            "flow_id": "flow-f10",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "a different file system is refused",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "F10.log"
+            },
+            "log_digest": "af575de82df8a2c29753fa19845b3f045cac38f07cbfb79c5201b96605095afd",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:54Z"
+          },
+          "flow-f1": {
+            "flow_id": "flow-f1",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "dry run of a finished archived item",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "F1F2.log"
+            },
+            "log_digest": "b7b5531cbf9d3a54b8504fc53093777ef8ec85220d13bf57e661d1dbd4973042",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:54Z"
+          },
+          "flow-f2": {
+            "flow_id": "flow-f2",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "JSON dry run",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "F1F2.log"
+            },
+            "log_digest": "b7b5531cbf9d3a54b8504fc53093777ef8ec85220d13bf57e661d1dbd4973042",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:54Z"
+          },
+          "flow-f3": {
+            "flow_id": "flow-f3",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "apply removes the folder",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "F3F4.log"
+            },
+            "log_digest": "f5d606941a146ff80c7df3b7db66ece877a367bfbc25bea8c5d76bb5b2fb3232",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:54Z"
+          },
+          "flow-f4": {
+            "flow_id": "flow-f4",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "a second apply finds nothing to remove",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "F3F4.log"
+            },
+            "log_digest": "f5d606941a146ff80c7df3b7db66ece877a367bfbc25bea8c5d76bb5b2fb3232",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:54Z"
+          },
+          "flow-f5": {
+            "flow_id": "flow-f5",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "a changed file stops the removal and nothing is deleted",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "F5.log"
+            },
+            "log_digest": "2220912bdd909cf132665cdc13179fa95f85e4993872c88d81db5393944d50d1",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:55Z"
+          },
+          "flow-f6": {
+            "flow_id": "flow-f6",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "a symlink is removed as a link",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "F6.log"
+            },
+            "log_digest": "0ddc2aa4b782d313b248494c6969ce3edc872078fe61e013927b84708159a101",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:55Z"
+          },
+          "flow-f7": {
+            "flow_id": "flow-f7",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "a leftover is completed",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "F7.log"
+            },
+            "log_digest": "d5243cb58186365ffbf2ee67ff470f378f3cc8035d8d911231a5d0f1529e9f84",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:55Z"
+          },
+          "flow-f8": {
+            "flow_id": "flow-f8",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "a leftover that differs is renamed back",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "F8.log"
+            },
+            "log_digest": "891b931b1e4e0969deddf6c0e82789a88b8df35f2729bd2331e97a832135e9f2",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:55Z"
+          },
+          "flow-f9": {
+            "flow_id": "flow-f9",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "a kept_recent item is refused",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "F9F10.log"
+            },
+            "log_digest": "8caabc4ad29ae4abb50a92e4b2e218309d6400f83d2bdd6d96893515020db226",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:55Z"
+          },
+          "flow-o1": {
+            "flow_id": "flow-o1",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "invalid id is refused",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "O.log"
+            },
+            "log_digest": "baf2eb199984eba919548a7a760c81851f771d54978949bf13bd5587c0d1e1be",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:55Z"
+          },
+          "flow-o2": {
+            "flow_id": "flow-o2",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "an open item is refused",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "O.log"
+            },
+            "log_digest": "baf2eb199984eba919548a7a760c81851f771d54978949bf13bd5587c0d1e1be",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:55Z"
+          },
+          "flow-o3": {
+            "flow_id": "flow-o3",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "a non-GitHub origin is refused",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "O.log"
+            },
+            "log_digest": "baf2eb199984eba919548a7a760c81851f771d54978949bf13bd5587c0d1e1be",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:55Z"
+          },
+          "flow-o4": {
+            "flow_id": "flow-o4",
+            "status": "passed",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "ran_at": "2026-10-27T01:05:54Z",
+            "summary": {
+              "flow": "--apply on a refused item writes nothing",
+              "result": "PASSED",
+              "results": "RESULTS.md",
+              "log": "O.log"
+            },
+            "log_digest": "baf2eb199984eba919548a7a760c81851f771d54978949bf13bd5587c0d1e1be",
+            "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1",
+            "reporter": "manager-orchestrator (independent executor claude claude-sonnet-5-5)",
+            "identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T01:05:55Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 120,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/120"
+          },
+          "state": "open",
+          "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+          "observed_at": "2026-10-27T01:23:57Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "a0222e2e75e2176f6624ee326cda9d334c4ef2e3",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-10-27T01:23:57Z",
+            "raw_sha256": "fd3cc5570274487cef7a9ff994f2281c0f3c768d05946c8bc4066bbda68045c0",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "9e824061111fe5f5b6a5d5690909ba37abafca4a4ca830bdf83246d3c94afd21"
+          },
+          "fact_id": "520203b7fa1c295bff887299c2ac97e80defebfcbee3ecfa5ba5a914e0debd43"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-e1', 'flow-e2', 'flow-e3', 'flow-f1', 'flow-f10', 'flow-f2', 'flow-f3', 'flow-f4', 'flow-f5', 'flow-f6', 'flow-f7', 'flow-f8', 'flow-f9', 'flow-o1', 'flow-o2', 'flow-o3', 'flow-o4'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #120 at 827e4410b6a669de25396a62c322164fb0da9f8b is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "a0222e2e75e2176f6624ee326cda9d334c4ef2e3",
+          "anchor_identity": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "76540b8cf326f38ce22f68ec94d7d8dbbfa27f5a896263ae814cbd6b5b9e388f",
+            "recorded_at": "2026-10-27T00:34:50Z"
+          },
+          "functional": {
+            "flow-e1": {
+              "evidence_id": "f699ed527adea06e0c8b3add251cb4646f70544e596ad1a223c7cb606770d6fe",
+              "log_digest": "89bddac844074cfd2958375b46ff01db926b8db39c3960010ba410e592d7c5d9",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-e2": {
+              "evidence_id": "421e207f4cae4716fa636142eb290e13f03a31da54c0a102d2e9daa65ac0017e",
+              "log_digest": "d3fddbf62f638ad56baaa2e3be9087e29483639f5094d37981abe0fff1d1b761",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-e3": {
+              "evidence_id": "224193170fc018d565a16b47a21c46983314b098bbfca0d57e1f4e889a9d84ad",
+              "log_digest": "a5fe692e5fb569da958c792f61087560a54dacea2d6a2255c5f1e9da0679e5e0",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-f1": {
+              "evidence_id": "55f634a1f7d85f3965b140bea386bf3cae4f0cb72ed18dc8349a238b393f15dc",
+              "log_digest": "b7b5531cbf9d3a54b8504fc53093777ef8ec85220d13bf57e661d1dbd4973042",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-f10": {
+              "evidence_id": "ba63f19aea612f7baa844767594462e85f21e1db055c84501f8a6f5756addabe",
+              "log_digest": "af575de82df8a2c29753fa19845b3f045cac38f07cbfb79c5201b96605095afd",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-f2": {
+              "evidence_id": "b287a981af89623b7625221accc46198a101908fd7223f21f8e7135febb8e576",
+              "log_digest": "b7b5531cbf9d3a54b8504fc53093777ef8ec85220d13bf57e661d1dbd4973042",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-f3": {
+              "evidence_id": "1cb341113d96cedaad2dc23647c83e08840c2a8c2344bca0cebb82567f8a304d",
+              "log_digest": "f5d606941a146ff80c7df3b7db66ece877a367bfbc25bea8c5d76bb5b2fb3232",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-f4": {
+              "evidence_id": "5912e748882403244b4d1eb04f7c8686918c8860b73e6120868efc08a3406fdf",
+              "log_digest": "f5d606941a146ff80c7df3b7db66ece877a367bfbc25bea8c5d76bb5b2fb3232",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-f5": {
+              "evidence_id": "3521a05dade7273170a2d8d2a5e6813fe4b0c7b6ab1b0414b56f25a4da35bca8",
+              "log_digest": "2220912bdd909cf132665cdc13179fa95f85e4993872c88d81db5393944d50d1",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-f6": {
+              "evidence_id": "b3c9c6c53ad6c17f095f7f40187ba4c03727343afcf5b2fbf0feb376846903a4",
+              "log_digest": "0ddc2aa4b782d313b248494c6969ce3edc872078fe61e013927b84708159a101",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-f7": {
+              "evidence_id": "6351d8ccd18bd3c7dcae7ee039bd8ebc5b6ee6b554b9b115ede321c718d809f8",
+              "log_digest": "d5243cb58186365ffbf2ee67ff470f378f3cc8035d8d911231a5d0f1529e9f84",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-f8": {
+              "evidence_id": "c46640b0179542ffb65331c827010f8222ef7005e8ec38658475ba869046b1e0",
+              "log_digest": "891b931b1e4e0969deddf6c0e82789a88b8df35f2729bd2331e97a832135e9f2",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-f9": {
+              "evidence_id": "1b1228868001651f7cb4e2c5c4202bca15f74b0248e6d72336a4cdffe5525a9b",
+              "log_digest": "8caabc4ad29ae4abb50a92e4b2e218309d6400f83d2bdd6d96893515020db226",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-o1": {
+              "evidence_id": "e0967d234a820f5f143010ec522e7f70934efa4b3cabd98068ea3122e37060ed",
+              "log_digest": "baf2eb199984eba919548a7a760c81851f771d54978949bf13bd5587c0d1e1be",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-o2": {
+              "evidence_id": "211ed627ee424e1f2ebd7c4a226b2a9cf0f0a25e14d2f3696bfec05a0bb5fe4b",
+              "log_digest": "baf2eb199984eba919548a7a760c81851f771d54978949bf13bd5587c0d1e1be",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-o3": {
+              "evidence_id": "7f81623a23bdf602cc73027ac911c692e996854e76656680dc7a737f6fdb42c3",
+              "log_digest": "baf2eb199984eba919548a7a760c81851f771d54978949bf13bd5587c0d1e1be",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            },
+            "flow-o4": {
+              "evidence_id": "9a8f1bc9108e07a353497c9eac2a88f59cb9bb97a6d64c074aa748ceef7a7806",
+              "log_digest": "baf2eb199984eba919548a7a760c81851f771d54978949bf13bd5587c0d1e1be",
+              "run_ref": "manager-orchestrator:runs-workflow/w29-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "520203b7fa1c295bff887299c2ac97e80defebfcbee3ecfa5ba5a914e0debd43",
+            "head": "827e4410b6a669de25396a62c322164fb0da9f8b",
+            "provenance": "workflow_gh",
+            "raw_sha256": "fd3cc5570274487cef7a9ff994f2281c0f3c768d05946c8bc4066bbda68045c0"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-10-27T01:23:57Z",
+        "workflow_release": "2.21.0"
+      }
     }
   }
 }
