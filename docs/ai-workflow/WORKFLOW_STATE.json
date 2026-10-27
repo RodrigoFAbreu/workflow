@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "retention-command",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -23103,6 +23103,360 @@
         },
         "evaluated_at": "2026-10-27T01:23:57Z",
         "workflow_release": "2.21.0"
+      }
+    },
+    "retention-command": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "retention-command",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/RETENTION_COMMAND_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/retention-command-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/retention-command-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 3,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "e6c12beccd2fe839ba4426518888c7ccd41dbfc3",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "06dc245f54fd752ac3dc8160a948fd33c191ea10ce54c20adab1bb5ad2e46ba0",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "06dc245f54fd752ac3dc8160a948fd33c191ea10ce54c20adab1bb5ad2e46ba0",
+        "approved_review_content_id": "36687435a0f15199eecf76dbfd1d09af48420c31b58d420ea040fc8601f7cea5",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/RETENTION_COMMAND_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7b6a53cb5bee0da00cfac257e2448c99afdd04e6"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-command-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d2fa9a2159c4f2972fe59ec1b31da805823e8726"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/retention-command-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a67f7aac0a3148d750aab246efdaeb0a509dbaed"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-27T18:12:30Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "36687435a0f15199eecf76dbfd1d09af48420c31b58d420ea040fc8601f7cea5",
+            "ledger": {
+              "local": {
+                "bundle_id": "06dc245f54fd752ac3dc8160a948fd33c191ea10ce54c20adab1bb5ad2e46ba0",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "7fbe781283a30fc2e063cb89deb09eb11b79b241db5fa678d69a49bdef14e5a6",
+                "ledger_entry_sha256": "a1c8e26610a854f303d45822654ce4d4bac427dc34093d8ebbecaa752912af76",
+                "run_ref": "session:local .ai-review/retention-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "06dc245f54fd752ac3dc8160a948fd33c191ea10ce54c20adab1bb5ad2e46ba0",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "05ceff647f97b95f54d2e0277333a7c4084e1e722e1c2208b27de0360556a146",
+                "ledger_entry_sha256": "6b97d566ab87337bc5635c15041180fa125290deecd7c2c4c5fb45f2189a5df4",
+                "run_ref": "codex:20261027T180913Z-41f489a3",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-27T18:12:30Z",
+          "workflow_release": "2.22.0"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "36687435a0f15199eecf76dbfd1d09af48420c31b58d420ea040fc8601f7cea5",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "06dc245f54fd752ac3dc8160a948fd33c191ea10ce54c20adab1bb5ad2e46ba0",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-27T18:08:58Z",
+          "verdict_sha256": "7fbe781283a30fc2e063cb89deb09eb11b79b241db5fa678d69a49bdef14e5a6",
+          "run_ref": "session:local .ai-review/retention-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "06dc245f54fd752ac3dc8160a948fd33c191ea10ce54c20adab1bb5ad2e46ba0",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-27T18:11:11Z",
+          "verdict_sha256": "05ceff647f97b95f54d2e0277333a7c4084e1e722e1c2208b27de0360556a146",
+          "run_ref": "codex:20261027T180913Z-41f489a3",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 3,
+          "external": 2
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 13,
+      "last_transition": "2026-10-27T18:12:30Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-27T18:05:53Z",
+        "consumed": {
+          "review_content_id": "da337b06594ad900f073cc0f3497ad6d3e5ae8dba85c542bf2fb6c9e3057fb31",
+          "plan_revision": 2,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "36687435a0f15199eecf76dbfd1d09af48420c31b58d420ea040fc8601f7cea5",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "36687435a0f15199eecf76dbfd1d09af48420c31b58d420ea040fc8601f7cea5",
+          "bundle_id": "06dc245f54fd752ac3dc8160a948fd33c191ea10ce54c20adab1bb5ad2e46ba0",
+          "plan_revision": 3
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "da337b06594ad900f073cc0f3497ad6d3e5ae8dba85c542bf2fb6c9e3057fb31",
+        "df1f39a8b3ea7de717618d4f371e094fb8aad5cc608d712d84fbb81c46feed9e"
+      ],
+      "optional_findings": {
+        "F-65f9d3e21592": {
+          "digest": "65f9d3e215927c91ed741298e5f83d7e5a548f9732f1aca09aa336f8006dcf43",
+          "text": "**RC-R1-O1** D-Release names \"the 2.20.0 and 2.22.0 classes\", but section 2 correctly says three classes pin 81/55. The third is `RetentionArchiveReleaseTest` (2.21.0, `tools/release/release_test.py` lines 3012-3013), next to `RetentionReportReleaseTest` (2959-2960) and `RetentionRemovalReleaseTest` (3060-3061). The phrase \"become the counts of their own release only where they are read from the current manifest\" is also hard to act on. The precedent (`9eb2eb1`, which moved 80 to 81 in the older classes) suggests saying plainly that each of the three keeps the consistency asserts and either drops its hard-coded count or moves it to the current (82, 56), and that the 2.22.0 class gives up the current-release pins to the 2.23.0 class.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "df1f39a8b3ea7de717618d4f371e094fb8aad5cc608d712d84fbb81c46feed9e",
+              "verdict": "REVISE",
+              "at": "2026-10-27T17:56:42Z"
+            }
+          ]
+        },
+        "F-ec31c5c9b635": {
+          "digest": "ec31c5c9b63526ae819fc9471917427763a9605434c9802df5ab9bd50e47c4c3",
+          "text": "**RC-R1-O2** The guard pattern has no left-hand context and \"the message may carry other words\", so a message such as \"do not archive and remove the review folder of m-1\" matches. This is the same posture as `validate_user_only_confirmation` (token-based), so it is not a regression. Still, either state it as an accepted limit in D-Guard or require the sentence to start the message or a line.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "df1f39a8b3ea7de717618d4f371e094fb8aad5cc608d712d84fbb81c46feed9e",
+              "verdict": "REVISE",
+              "at": "2026-10-27T17:56:42Z"
+            }
+          ]
+        },
+        "F-e2b455ad8487": {
+          "digest": "e2b455ad848797f1dcfacf0ada3a0acbd36cf39b80ef7e8d9a2b818c08a4a749",
+          "text": "**RC-R1-O3** On the \"archive then remove\" path the `remove` preview stops at `not_archived` (`_judge_removal_archive`, selection step 6), before its `tracked_files`, `cross_device` and `zstd_missing` checks (steps 7, 10 and 11). `archive`'s own preview covers `tracked_files` and `zstd_missing`, but `cross_device` first appears at `remove --apply`, after the archive is written. D-Steps step 2 could name this so the user knows that outcome ahead of time: the archive is kept and the folder is untouched.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "df1f39a8b3ea7de717618d4f371e094fb8aad5cc608d712d84fbb81c46feed9e",
+              "verdict": "REVISE",
+              "at": "2026-10-27T17:56:42Z"
+            }
+          ]
+        },
+        "F-d41269347e93": {
+          "digest": "d41269347e93a1b055d990f5867b3f87a5a15ce58cd168029016d96b6ae8ed04",
+          "text": "**RC-R1-O4** T5's \"no mention of the state file\" conflicts with D-Steps' own sentence \"No step reads or writes the state file\". Name the forbidden tokens instead (for example `WORKFLOW_STATE.json`, `state_transaction`, `state_lock`), and define \"command\" in \"no fenced or inline command other than those four forms\" (for example an inline or fenced span starting with `python`, `tar`, `zstd`, `rm`, `mv`), because the body necessarily carries other code spans (`$ARGUMENTS`, the regex, `error: <code>:`).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "df1f39a8b3ea7de717618d4f371e094fb8aad5cc608d712d84fbb81c46feed9e",
+              "verdict": "REVISE",
+              "at": "2026-10-27T17:56:42Z"
+            }
+          ]
+        },
+        "F-70413326aea2": {
+          "digest": "70413326aea22cfcb6382ef6293362835ad03aa5a696dcec5f9b8e0c7e5b12f3",
+          "text": "**RC-R1-O5** Roadmap row 27f still says \"May ride with row 27e\" while its status now reads \"after row 27e\" and this plan says pruning is not here. Drop the stale clause.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "df1f39a8b3ea7de717618d4f371e094fb8aad5cc608d712d84fbb81c46feed9e",
+              "verdict": "REVISE",
+              "at": "2026-10-27T17:56:42Z"
+            }
+          ]
+        },
+        "F-9fc65818f33f": {
+          "digest": "9fc65818f33f6be7aa31ccc18ed15127ade295b47f4a52513cf652275a8f87d3",
+          "text": "**RC-R1-O6** Section 7's scratch state has five finished items, so with `KEEP_RECENT = 3` only two can be archived. f4 to f7 need several archivable items (m-1 and m-10 among them) or a reset between flows. Say which, so the functional checklist is reproducible.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "df1f39a8b3ea7de717618d4f371e094fb8aad5cc608d712d84fbb81c46feed9e",
+              "verdict": "REVISE",
+              "at": "2026-10-27T17:56:42Z"
+            }
+          ]
+        },
+        "F-fa3612947d66": {
+          "digest": "fa3612947d6686bdde7f9ba854ae366e4c456e1728154abd232d8158b18a1dae",
+          "text": "**RC-R2-O1** `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md` section 6.1 (lines 541-544) lists the user-only commands that are not actions: \"`/request-plan-amendment`, `/adopt-gate-policy` and `/release-checkpoint-start`. `next-action` never names them.\" `/archive-finished-item` is user-only and is not an action either (the plan adds no `wp.ACTIONS` entry and no catalogue row), so after this release that list is incomplete. No test pins the list: `test_user_only_matches_the_command_files_flag` iterates `wp.ACTIONS` only. The document is already in CP2's **Files** for the release constant, so add the command to that sentence in the same edit, and name it in D-Docs.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "da337b06594ad900f073cc0f3497ad6d3e5ae8dba85c542bf2fb6c9e3057fb31",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T18:02:18Z"
+            }
+          ]
+        },
+        "F-ad11d6fd1099": {
+          "digest": "ad11d6fd10997a165507f6c3f5ac2d70a5bf916f963cd15218c87cf691ad81bb",
+          "text": "**RC-R2-O2** T3 moves a tripwire that the plan does not name, which is the same kind of gap as RC-R1-001. The existing `test_the_state_writer_false_claim_matches_the_frontmatter` (`payload/scripts/workflow_integration_test.py` lines 7752-7771) asserts `stems == {\"prepare-review\", \"review-functional\"}` and the operator-reference string \"One of the two commands\\n  unconditionally declaring `state_writer: false`\" (operator reference line 1025). Adding the command makes it fail. Say that T3 is this test moved (three stems, \"three commands\", the \"two commands\" form added as a stale form), so that the edit is planned and not discovered. The width test's docstring (\"the seven user-only command bodies\", line 2771) moves with T2 as well.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "da337b06594ad900f073cc0f3497ad6d3e5ae8dba85c542bf2fb6c9e3057fb31",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T18:02:18Z"
+            }
+          ]
+        },
+        "F-de1e50828ab9": {
+          "digest": "de1e50828ab91fdd54db42497e61d97ba15353ea77bbb35cf6b796100d05a76d",
+          "text": "**RC-R2-O3** f7 needs the scratch repository and the scratch `HOME` on two different file systems. Section 7 places both under `$TMPDIR`, so state the concrete pair, for example a disk-backed directory for the repository and `/dev/shm` for `HOME`. Also say that the flow first checks `st_dev` differs and records it. If no second file system is available, a skip that is not recorded would leave D-Steps step 4's apply-time `remove` branch proven only by f7b.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "da337b06594ad900f073cc0f3497ad6d3e5ae8dba85c542bf2fb6c9e3057fb31",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T18:02:18Z"
+            }
+          ]
+        },
+        "F-038264776a4b": {
+          "digest": "038264776a4bf4b769f94fb183474ec60f82efb59651cf50c59590bb084e2f64",
+          "text": "**RC-EXT-O1 — The bundle overstates classification coverage.** `TEST_RESULTS.md` says every backticked repository path classifies at both stages, but `docs/RELEASING.md` is unclassified at both. The coverage check passes because it examines checkpoint `Files` paragraphs. Narrow the claim to those paths, or classify this additional reference explicitly.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "da337b06594ad900f073cc0f3497ad6d3e5ae8dba85c542bf2fb6c9e3057fb31",
+              "verdict": "REVISE",
+              "at": "2026-10-27T18:04:31Z"
+            }
+          ]
+        },
+        "F-14cf2ef8a047": {
+          "digest": "14cf2ef8a047e7bfadfee18120863f939c8a49eb8ec9edebb9d56ed1d4624266",
+          "text": "**RC-R3-O1** The hard limits (plan lines 47-49) say \"`payload/` changes are ... the three release classes' count asserts (CP1)\". Those asserts are in `tools/release/release_test.py`, not under `payload/`. CP1's own check (\"`git diff e6c12be --stat -- payload` lists the command file, the suite and the two documents only\") and f9 have it right. Move the clause out of the `payload/` sentence, for example: \"...the two documents that list the commands, and (CP2) the release constant and its pinned assertions; outside `payload/`, `tools/release/release_test.py` (CP1 counts, CP2 class)\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "36687435a0f15199eecf76dbfd1d09af48420c31b58d420ea040fc8601f7cea5",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T18:08:58Z"
+            }
+          ]
+        },
+        "F-49636ad8eccb": {
+          "digest": "49636ad8eccb135d415cf55adf85f4be9367bc5abb08930c20143b10d27e4ad8",
+          "text": "**RC-R3-O2** After CP1, `RetentionArchiveReleaseTest.test_the_release_added_no_record` and `RetentionRemovalReleaseTest.test_the_release_names_2_22_0_and_adds_no_record` assert 82/56 under names that describe their own release. The docstrings of the 2.20.0 and 2.21.0 classes also still say that the current release's class is \"(2.22.0)\". This is harmless, and the `9eb2eb1` precedent did the same. CP2 should still move those docstring pointers to 2.23.0 when the 2.22.0 class gives up its current-release pins, as `9eb2eb1` did for 2.19.2 to 2.20.0.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "36687435a0f15199eecf76dbfd1d09af48420c31b58d420ea040fc8601f7cea5",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T18:08:58Z"
+            }
+          ]
+        },
+        "F-472c981b437a": {
+          "digest": "472c981b437a7c2562a2708080be5818273ca25ee602f8657586e030dca6397c",
+          "text": "**RC-EXT-O2 — Stale checkpoint in test results.** `.ai-review/retention-command/current/TEST_RESULTS.md:15` still says the release classes’ count assertions move in CP2. Update this to CP1 to match revision 3.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "36687435a0f15199eecf76dbfd1d09af48420c31b58d420ea040fc8601f7cea5",
+              "verdict": "APPROVE",
+              "at": "2026-10-27T18:11:11Z"
+            }
+          ]
+        }
       }
     }
   }

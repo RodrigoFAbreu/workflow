@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-command",
+  "requirements": {
+    "R1": {
+      "description": "The user-only command /archive-finished-item <work-item-id> (disable-model-invocation, state_writer false, review-subject none): one id from $ARGUMENTS, refused otherwise; applies nothing without the user's own current-turn sentence 'Archive and remove the review folder of <id>.' with the id as a prefix-safe exact token, checked by a pattern stated in the body and run by a test; a missing sentence, another id, a prefix id or a sentence inside the arguments applies nothing",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "The command only calls the engines: it previews with the dry runs of workflow_retention.py archive and remove and prints both, then after the sentence runs archive --apply and then remove --apply; on any engine refusal it reports the code and next step, never retries, never runs remove after a failed archive, and handles one item per run; it packs, verifies and removes nothing itself and writes no state, archive or index; the one recovery case is remove only after archive refuses already_archived and the remove preview succeeds",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "Tests and documents: T1 to T8 in the integration suite (user-only table, guard width, state_writer false set, operator reference sections and counts of 24, invocation forms parsed by the engine's own parser, order, the confirmation pattern with accepted and rejected sentences, the refusal wording, the command listings), each mutation failing a case; COMMAND_FILES.md and the operator reference list and describe the command; docs/RETENTION.md documents it; no engine, state or protocol change",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Release 2.23.0, a feat minor: the manifest gains the command's record (counts 82 and 56) and the changed records with their retention-command sentence, WORKFLOW_RELEASE and its pinned assertions, the history row, the pages' Last checked with lines, a 2.23.0 class in the release tests, conformance.suites measured; the protocol stays 1.5",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
