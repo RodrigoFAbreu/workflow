@@ -16,7 +16,7 @@ The user-only command is row 27g and is not part of this item. Base commit `4529
 | id | name | state |
 | --- | --- | --- |
 | CP1 | The prune engine, its tests and the documents | **complete** |
-| CP2 | Release 2.24.0 | not started |
+| CP2 | Release 2.24.0 | **complete** |
 
 ## Verified state
 
@@ -33,4 +33,11 @@ The user-only command is row 27g and is not part of this item. Base commit `4529
 
 ## Next action
 
-CP2: release 2.24.0 (`/milestone-implement retention-prune`, once).
+CP2 changed `manifest.json` (2.24.0, five records, posture, obligations suite count 265), `workflow_protocol.py` and its test
+(`WORKFLOW_RELEASE`), `ORCHESTRATION_PROTOCOL.md`, `docs/release-history.md` (2.24.0 row), the "Last checked with" lines of
+`docs/RETENTION.md` and `docs/exit-codes.md`, and `tools/release/release_test.py` (2.24.0 class). Verified in a scratch clone of
+the CP2 content: `stage-conformance` ok; nine suites OK (453, 344, 1244 via its own runner, 316, 142, 265, 370, 283, 27);
+`build` ok (zlib-ng); `check-manager-block` ok; `tools/docs` 34 OK; `check_docs.py` rc 0; `tools/release` 291 OK (zlib-ng);
+`workflow-manager verify .` clean against the installed 2.23.0.
+
+CP2 is complete. Next: `/milestone-implement retention-prune` again for the self-review, full verification and the review bundle.

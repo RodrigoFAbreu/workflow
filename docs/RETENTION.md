@@ -1,6 +1,6 @@
 # Retention of finished work-item files
 
-> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.23.0.
+> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.24.0.
 
 Files of finished work keep piling up (#84): in the Controller repository, 43
 finished work items leave about 240 tracked files and 140 MiB of untracked
