@@ -24210,7 +24210,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-prune-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-prune-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -24350,12 +24350,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 14,
-      "last_transition": "2026-10-28T00:58:56Z",
+      "state_revision": 16,
+      "last_transition": "2026-10-28T01:28:38Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -24490,7 +24490,76 @@
               "at": "2026-10-27T23:33:56Z"
             }
           ]
+        },
+        "F-d2943cc0f681": {
+          "digest": "d2943cc0f681ee55fc48cc026f25bf3d7b83ff489c1037b004644aea5400c900",
+          "text": "`TEST_RESULTS.md` does not record the per-mutation results of m1 to m17, or the orphan-wrapper run, although the plan's D-Tests says \"Results are recorded in `TEST_RESULTS.md`\" and CP1 requires that each result \"is recorded\". Only `docs/ACTIVE_MILESTONE.md` states a one-line summary. This reviewer reproduced all seventeen mutations in a scratch copy of the staged `367967b` fixture. The control passed, and each mutation failed at least one named `RetentionPrune` case: m1 (P3, P6, P7, P8), m2 (P3), m3 (P3b), m4 (P2, P3), m5 (P4), m6 (P4), m7 (P4), m8 (P5), m9 (P2, P5), m10 (P1, P3, P3b, P6, P7, P8), m11 (P2, P6), m12 (P3b, P4), m13 (P3, P6, P7), m14 (P2 to P6), m15 (P3), m16 (P3b), m17 (P1, P3). The gap is evidence only, not behavior. Record the table in the next bundle's `TEST_RESULTS.md`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "9d9491f645c850340e079c74ff83e66e4f1f0c61d66325d4c674814a83c5be2f",
+              "verdict": "APPROVE",
+              "at": "2026-10-28T01:24:24Z"
+            }
+          ]
+        },
+        "F-6819c1189a48": {
+          "digest": "6819c1189a483d6b4e6fc74ffb11b5110015f205ceb40db76031c4dd32176af7",
+          "text": "`_lstat_at` (`payload/scripts/workflow_retention.py`, used by D-Check at steps 9 and 12 and at step 13 (a)) catches only `FileNotFoundError`. Any other `OSError` from the descriptor-relative `stat` (for example `EACCES` after a permission change in the middle of a run) escapes `main` as a traceback with exit 1, not a stable exit-2 refusal. After the first unlink it also loses the `removed:`/`not removed:` lists that I6 promises. This is outside the plan's stated threat model and shared with `archive`/`remove`, so it is not a defect against the plan. Consider mapping it to `archive_changed`/`prune_failed` in a later row.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "9d9491f645c850340e079c74ff83e66e4f1f0c61d66325d4c674814a83c5be2f",
+              "verdict": "APPROVE",
+              "at": "2026-10-28T01:24:24Z"
+            }
+          ]
+        },
+        "F-337e2cbf761d": {
+          "digest": "337e2cbf761d6d39415cbe6ed3a591aff1cddcdaf7c0a9a14cb7d879df8a7acc",
+          "text": "`docs/RETENTION.md`, prune table, step 12: \"under the lock, every named archive differs from what step 9 saw\" reads as if all of them must differ. The engine refuses when any one differs. Suggested wording: \"a named archive differs\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "9d9491f645c850340e079c74ff83e66e4f1f0c61d66325d4c674814a83c5be2f",
+              "verdict": "APPROVE",
+              "at": "2026-10-28T01:24:24Z"
+            }
+          ]
+        },
+        "F-888e9a615da0": {
+          "digest": "888e9a615da0471942cf3d87470d4e8dfbfb8754e7f00b623663eb19539b3883",
+          "text": "**O1 — The index-open guard misses pathlib reads.** `_RP.guard` in `payload/scripts/workflow_state_completion_obligations_test.py:6448` intercepts `os.open` and `builtins.open`, but `Path.read_bytes()` uses `io.open`. A read-only probe inside this guard read a file while recording no opens. Consequently, an added `Path(index).read_bytes()` could evade P6. Consider intercepting `io.open` and checking the index-open invariant on every guarded call.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "9d9491f645c850340e079c74ff83e66e4f1f0c61d66325d4c674814a83c5be2f",
+              "verdict": "REVISE",
+              "at": "2026-10-28T01:28:38Z"
+            }
+          ]
         }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "9d9491f645c850340e079c74ff83e66e4f1f0c61d66325d4c674814a83c5be2f",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "897fe6f9de88814fd9ce42add92525572216fea6f9287db613a18a35b1b4c74c",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-28T01:24:24Z",
+          "verdict_sha256": "85ecdc2b9bf28feb145da81c25fc896a0e8d7dc7f649ff0d6a45c4cff22f05d3",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/retention-prune/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
       }
     }
   }
