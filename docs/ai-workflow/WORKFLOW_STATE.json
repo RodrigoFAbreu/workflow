@@ -25005,7 +25005,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-prune-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-prune-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 1,
       "implementation_revision": 3,
       "functional_review_round": null,
@@ -25114,7 +25114,150 @@
           "workflow_release": "2.24.0"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "0e60c29a2dcae4bed257a676ba710de157fca55e3aa802aa4d283109e1af7c28",
+        "approved_review_content_id": "f09fbbd0593be4989dd7614a60b3251d41fa3b5e6789e26ed955da27dab30d08",
+        "review_content_manifest": [
+          {
+            "path": "docs/RETENTION.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4198b2e1029c6c40ac9ae4b17938f125101d11e2"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-prune-command-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6c135b71f3c36865f3e8f81de49a33827a86ff94"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a1f15ed31897d9a6ede9a05aadb261687fa6027f"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "43d60ce4c202a4614ca9d74aa423c7fba694a1b2"
+          },
+          {
+            "path": "payload/.claude/commands/prune-archives.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "749a1966c9cb76a9a747a6215ba48dd83ef207e1"
+          },
+          {
+            "path": "payload/docs/ai-workflow/COMMAND_FILES.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5fd13459f142670a4a80eef0ed6a535015abb23b"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4be6ff5dde6ccfe0045126a0d607759ac0a2e7d7"
+          },
+          {
+            "path": "payload/docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c296dcb0130eab2cd3d6bc39d15f2d903a66c6c6"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "240b7c2cce67f4984373ab3f038ae3ddb66a61ba"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3923b36c3928999a766de8a7c62155284d63ea8d"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "314ad0255c24578d4ed9c078d32a80151faf8c5e"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "20f9948fcf0045e3b14a6e01fb6cdf04bddb9738"
+          }
+        ],
+        "reviewed_content_commit": "026261f9fd8f5355edbda89683bc241f3a919411",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-28T07:24:20Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "f09fbbd0593be4989dd7614a60b3251d41fa3b5e6789e26ed955da27dab30d08",
+            "ledger": {
+              "local": {
+                "bundle_id": "0e60c29a2dcae4bed257a676ba710de157fca55e3aa802aa4d283109e1af7c28",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "510c44a1dbfb894154519a699ab620a7b71c2f7547a17e608d1986f9c0b421c4",
+                "ledger_entry_sha256": "2e386d1f77fe91c025c3fd2588cbe9cdee92ce3e263e816040bf82f879844d61",
+                "run_ref": "session:local .ai-review/retention-prune-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "0e60c29a2dcae4bed257a676ba710de157fca55e3aa802aa4d283109e1af7c28",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "8fb93f37a4fe9c2d978d6d7b4193ec2beb6e2a34dee3cd34652533bf93bc7803",
+                "ledger_entry_sha256": "9a3f989223ea186b3b0a4f6d684b65a657b23791296775532964b1ce3d31a2b9",
+                "run_ref": "codex:20261028T072017Z-7d816a95",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-28T07:24:20Z",
+          "workflow_release": "2.24.0"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "3741b9713564fe217f407369d6f1fab9b3ab2283a14a74e95041f158092c3840",
@@ -25145,12 +25288,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 2,
-          "external": 0
+          "local": 3,
+          "external": 1
         }
       },
-      "state_revision": 18,
-      "last_transition": "2026-10-28T07:11:30Z",
+      "state_revision": 21,
+      "last_transition": "2026-10-28T07:24:20Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -25313,6 +25456,55 @@
               "at": "2026-10-28T06:20:22Z"
             }
           ]
+        },
+        "F-087e4542d423": {
+          "digest": "087e4542d423feb2f3889bc3f8c9ea46a3cadfdcfd45096fa86501b651ed5f26",
+          "text": "**RPC-IMPL-R3-O1: the bundle's narrative headers are stale.** `IMPLEMENTATION_SUMMARY.md` still\n  says \"HEAD `b84597b` is the generation-record commit\", and `TEST_RESULTS.md`'s header still says\n  `implementation_revision: 2` and `head: b84597b...`. The bundle is at revision 3 and its generation\n  head is `7724bd6`. The per-round sections below those headers are correct, and `MANIFEST.md` binds\n  the right values, so nothing is wrong. The headers only mislead a reader. Refresh them when the\n  bundle is next regenerated, or leave them as they are.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "f09fbbd0593be4989dd7614a60b3251d41fa3b5e6789e26ed955da27dab30d08",
+              "verdict": "APPROVE",
+              "at": "2026-10-28T07:19:38Z"
+            }
+          ]
+        },
+        "F-094c5b256c50": {
+          "digest": "094c5b256c50c469be326df821da8d4949b108b3f4b9bc282c4793dd2fe3fbad",
+          "text": "The introductory metadata in `IMPLEMENTATION_SUMMARY.md` and `TEST_RESULTS.md` still references earlier heads, and the latter says revision 2. Refresh these to match revision 3. The manifest and per-round results correctly identify the reviewed implementation.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "f09fbbd0593be4989dd7614a60b3251d41fa3b5e6789e26ed955da27dab30d08",
+              "verdict": "APPROVE",
+              "at": "2026-10-28T07:23:42Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "f09fbbd0593be4989dd7614a60b3251d41fa3b5e6789e26ed955da27dab30d08",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "0e60c29a2dcae4bed257a676ba710de157fca55e3aa802aa4d283109e1af7c28",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-28T07:19:38Z",
+          "verdict_sha256": "510c44a1dbfb894154519a699ab620a7b71c2f7547a17e608d1986f9c0b421c4",
+          "run_ref": "session:local .ai-review/retention-prune-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "0e60c29a2dcae4bed257a676ba710de157fca55e3aa802aa4d283109e1af7c28",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-28T07:23:42Z",
+          "verdict_sha256": "8fb93f37a4fe9c2d978d6d7b4193ec2beb6e2a34dee3cd34652533bf93bc7803",
+          "run_ref": "codex:20261028T072017Z-7d816a95",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
