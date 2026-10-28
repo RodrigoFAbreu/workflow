@@ -6447,7 +6447,7 @@ class _RP(_RA):
 
         patches = [unittest.mock.patch.object(os, name, wrap(name)) for name in self.real]
         patches += [unittest.mock.patch.object(os, "open", open_), unittest.mock.patch.object(os, "fsync", fsync),
-                    unittest.mock.patch("builtins.open", builtin)]
+                    unittest.mock.patch("builtins.open", builtin), unittest.mock.patch("io.open", builtin)]
         with contextlib.ExitStack() as stack:
             for patch in patches:
                 stack.enter_context(patch)
@@ -6787,6 +6787,30 @@ class RetentionPrune(unittest.TestCase):
         self.assertFalse(rr.archive_name("w00").exists())
         self.assertTrue(rr.archive_name("w01").exists())
         self.assertEqual(rr.pr(["w01"], apply=True).code, 0)
+        # a stat error other than ENOENT on the second archive's final check, after the first unlink
+        rr = self.env()
+        real_stat, unlinks = os.stat, []
+        real_unlink = os.unlink
+
+        def counting(name, *a, **k):
+            unlinks.append(name)
+            return real_unlink(name, *a, **k)
+
+        def stat_fails(path, *a, **k):
+            if path == "w01.tar.zst" and k.get("dir_fd") is not None and unlinks:
+                raise OSError(errno.EIO, "Input/output error")
+            return real_stat(path, *a, **k)
+        fds = _fd_count()
+        with unittest.mock.patch.object(os, "unlink", counting), unittest.mock.patch.object(os, "stat", stat_fails):
+            result = rr.pr(["w00", "w01", "w02"], apply=True, guard=False)
+        self.assertEqual((result.code, result.err_code, result.result), (2, "prune_failed", None))
+        for text in ("removed: w00", "not removed: w01, w02", "EIO"):
+            self.assertIn(text, result.error.message)
+        self.assertEqual(unlinks, ["w00.tar.zst"])
+        self.assertFalse(rr.archive_name("w00").exists())
+        self.assertTrue(rr.archive_name("w01").exists() and rr.archive_name("w02").exists())
+        self.assertEqual(_fd_count(), fds)
+        self.assertEqual(rr.pr(["w01", "w02"], apply=True).code, 0)  # the lock was released
         # an interruption before the first unlink and one between two
         for stop_at, left in ((0, ["w00", "w01"]), (1, ["w01"])):
             with self.subTest(stop_at=stop_at):

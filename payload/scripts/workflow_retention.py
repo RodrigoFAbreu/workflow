@@ -1811,6 +1811,22 @@ def _unchanged(entry: dict, adir_fd: int, seen: tuple) -> bool:
     return info is not None and stat.S_ISREG(info.st_mode) and (info.st_size, info.st_mtime_ns) == seen
 
 
+def _check_unchanged(entry: dict, adir_fd: int, seen: tuple, removed: list[str], pending: list[str],
+                     resolved: str) -> None:
+    """The check just before an unlink: `archive_changed` when the file differs, `prune_failed` (with the
+    progress so far) when it cannot be examined."""
+    try:
+        same = _unchanged(entry, adir_fd, seen)
+    except OSError as exc:
+        raise _refuse("prune_failed", _stop_after(removed, pending, f"{entry['name']} could not be examined: "
+                                                   f"{errno.errorcode.get(exc.errno, exc.errno)} "
+                                                   f"{exc.strerror or exc}"),
+                      f"check the permissions of {resolved}; {_PRUNE_AGAIN}") from None
+    if not same:
+        raise _refuse("archive_changed", _stop_after(removed, pending, f"{entry['name']} changed after the "
+                                                      "preview"), _PRUNE_AGAIN)
+
+
 def _stop_after(removed: list[str], pending: list[str], why: str) -> str:
     return f"{why}; removed: {', '.join(removed) or 'none'}; not removed: {', '.join(pending) or 'none'}"
 
@@ -1822,9 +1838,7 @@ def _prune_delete(entries: list[dict], seen: dict, adir_fd: int, resolved: str, 
     for position, entry in enumerate(entries):
         item_id = entry["work_item_id"]
         pending = ids[position:]
-        if not _unchanged(entry, adir_fd, seen[item_id]):                              # 13 (a)
-            raise _refuse("archive_changed", _stop_after(removed, pending, f"{entry['name']} changed after the "
-                                                          "preview"), _PRUNE_AGAIN)
+        _check_unchanged(entry, adir_fd, seen[item_id], removed, pending, resolved)    # 13 (a)
         try:                                                                           # (b)
             os.unlink(entry["name"], dir_fd=adir_fd)
         except OSError as exc:
@@ -1878,9 +1892,7 @@ def prune_archives(repo_root, ids, *, apply: bool = False, archive_root=DEFAULT_
                     raise _refuse("unreadable", f"{path} cannot be read ({why})",
                                   "repair it; the engine does not prune from a partial view")
                 for entry in entries:                                                  # 12
-                    if not _unchanged(entry, adir_fd, seen[entry["work_item_id"]]):
-                        raise _refuse("archive_changed", f"{entry['name']} changed after the preview",
-                                      f"{_PRUNE_AGAIN}; nothing was removed")
+                    _check_unchanged(entry, adir_fd, seen[entry["work_item_id"]], [], ids, resolved)
                 removed = _prune_delete(entries, seen, adir_fd, resolved, ids)         # 13
             finally:
                 _remove_quietly(lambda: fcntl.flock(adir_fd, fcntl.LOCK_UN), [], "the lock")
