@@ -9169,9 +9169,8 @@ class TestPruneArchivesCommand(unittest.TestCase):
             self.assertFalse(self._authorizes(message, both), message)
         # The comparison is written in `_authorizes`; the body must state the same rule.
         body = " ".join(self._body().split())
-        for needle in ("The confirmation holds when there is at least one match and, in every match, "
-                       "the lower-cased names, as a set, equal the set of names of step 1."):
-            self.assertIn(needle, body)
+        self.assertIn("The confirmation holds when there is at least one match and, in every match, "
+                      "the lower-cased names, as a set, equal the set of names of step 1.", body)
         for loosened in ("in some match", "each name of step 1 is present", "among the lower-cased names"):
             self.assertNotIn(loosened, body)
         self.assertFalse(self._authorizes("Prune the archives m-10.", ["m-1"]))
