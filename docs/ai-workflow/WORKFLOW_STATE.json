@@ -24210,7 +24210,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-prune-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-prune-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 2,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -24319,7 +24319,144 @@
           "workflow_release": "2.23.0"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "026665d29df02320755754c1f658df64f2094d23db05387bcdbbb6417761ccad",
+        "approved_review_content_id": "28af5ae61da16364f7dbd67e5dfb2c9ad44fb624d2b0a6afce7efd79595974f6",
+        "review_content_manifest": [
+          {
+            "path": "docs/RETENTION.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8e8f1a461b8de54bfe8e826a2cbfb75ab5996a79"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-prune-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5e996725b76ca88751586ff3b10e8ffc1e93fd85"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f7df6d23a68c69ef6fc6817a0f3df182ef75cb12"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "df5e81fd6dc15e8ec11580ea2ce1db6aebe3465a"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2d1b1a0f9f06eca56728bbf014616dc3d3edb61e"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5ce3ea5ff9fbe6af02b5d7b842a38f60a2ccccbc"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3125ca3a66f7adb86a0de391ae59ca01d3814e65"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "607fb0d1d0e842c3bda22a53b950347ef11729b8"
+          },
+          {
+            "path": "payload/scripts/workflow_retention.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f2e25c3c0e41802f76b44c729d8376d9eb5dede1"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d63c9cb1dc7c04c14ad7995a22df790c94445f79"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "34b673bcecd4c45a715250ba7a03a394521a8a1a"
+          }
+        ],
+        "reviewed_content_commit": "766aead6a40743bb13de5bfb419ff56e40459142",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-28T02:10:11Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "28af5ae61da16364f7dbd67e5dfb2c9ad44fb624d2b0a6afce7efd79595974f6",
+            "ledger": {
+              "local": {
+                "bundle_id": "026665d29df02320755754c1f658df64f2094d23db05387bcdbbb6417761ccad",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "dcd2ab22d62ac3a5951dc707c32c27b8b8aae3f637ade899af60d0407668b719",
+                "ledger_entry_sha256": "036e47eac71892b0d14184e622cf9fe53179a7a22bbc4d755fc4d7970368a927",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/retention-prune/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "026665d29df02320755754c1f658df64f2094d23db05387bcdbbb6417761ccad",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "d731c031ce321d051cbfd7300aaa24c47cbd6f0a70b69b37c279a98eb021bfdd",
+                "ledger_entry_sha256": "72047bb9f03c1b0268767cee456838cdc56424bef90d91b55e923427f3d54fe7",
+                "run_ref": "codex:20261028T020701Z-c75f8164",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-28T02:10:11Z",
+          "workflow_release": "2.23.0"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "f20b4f8b70c6caf886455813eaaf8b04889ef49520f4ad203a5635905eb697dd",
@@ -24350,12 +24487,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 1,
-          "external": 1
+          "local": 2,
+          "external": 2
         }
       },
-      "state_revision": 17,
-      "last_transition": "2026-10-28T01:47:26Z",
+      "state_revision": 20,
+      "last_transition": "2026-10-28T02:10:11Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -24546,20 +24683,70 @@
               "at": "2026-10-28T01:28:38Z"
             }
           ]
+        },
+        "F-5fe5d42d46b2": {
+          "digest": "5fe5d42d46b2c31bd324747e29f81adf43b6ae78e62326d664fcf5493fcef7f0",
+          "text": "**LIR-R2-O1: A stat error at step 9 escapes as a raw `OSError`.** `_prune_select` step 9 (`payload/scripts/workflow_retention.py:1802`) calls `_lstat_at`, which catches only `FileNotFoundError`; `main` catches only `RetentionError`. Reproduced: an `EIO` from `os.stat(name, dir_fd=...)` after the report escapes `prune_archives` as `OSError`, so the CLI would print a traceback and exit 1, not the stable `error:`/`next step:` exit-2 refusal D-Selection promises for every step. Nothing is removed (it is before the lock and the unlinks), and a persistent error is already caught by the report's `read_errors` at step 4, so only a transient error in that window reaches it. It is the same class as I1, left at the one stat `_check_unchanged` does not wrap. Consider wrapping it as `unreadable` (or `archive_changed`) with \"nothing was removed\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "28af5ae61da16364f7dbd67e5dfb2c9ad44fb624d2b0a6afce7efd79595974f6",
+              "verdict": "APPROVE",
+              "at": "2026-10-28T02:06:43Z"
+            }
+          ]
+        },
+        "F-ad2c876dda59": {
+          "digest": "ad2c876dda594f6c7054331638927a7448df5d5c9e0cab229ee8352424d99e23",
+          "text": "**LIR-R2-O2: The documents do not name the new `prune_failed` cause.** `docs/RETENTION.md` (\"How an archive is removed\", and the table's rows 12 and 13) and the plan's D-Selection step 12 name `prune_failed` only for a failed `unlink` or `fsync`; after the I1 fix a stat that cannot be made at step 12 or 13 (a) is also `prune_failed`. Step 12's `archive_changed` next step also no longer says \"nothing was removed\" (the message carries `removed: none` instead). The generic sentence \"A failure stops the run ... names `removed:` and `not removed:`\" still holds, so this is wording only.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "28af5ae61da16364f7dbd67e5dfb2c9ad44fb624d2b0a6afce7efd79595974f6",
+              "verdict": "APPROVE",
+              "at": "2026-10-28T02:06:43Z"
+            }
+          ]
+        },
+        "F-a83c36a2abba": {
+          "digest": "a83c36a2abba337380c719d7cb13c1802b18b6aae68e66cc0d278d55b5574edc",
+          "text": "**LIR-R2-O3: `TEST_RESULTS.md` is the revision-1 record.** It says `implementation_revision: 1` and code at `367967b`; the post-fix verification is only one line of `IMPLEMENTATION_SUMMARY.md`, whose header still names HEAD `9074178`/code `367967b` and whose O1 bullet names `_RR.guard` (the class is `_RP`). This review re-ran everything independently (below), so nothing rests on the stale record.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "28af5ae61da16364f7dbd67e5dfb2c9ad44fb624d2b0a6afce7efd79595974f6",
+              "verdict": "APPROVE",
+              "at": "2026-10-28T02:06:43Z"
+            }
+          ]
         }
       },
       "implementation_review_stages": {
-        "review_content_id": "9d9491f645c850340e079c74ff83e66e4f1f0c61d66325d4c674814a83c5be2f",
+        "review_content_id": "28af5ae61da16364f7dbd67e5dfb2c9ad44fb624d2b0a6afce7efd79595974f6",
         "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
-          "bundle_id": "897fe6f9de88814fd9ce42add92525572216fea6f9287db613a18a35b1b4c74c",
+          "bundle_id": "026665d29df02320755754c1f658df64f2094d23db05387bcdbbb6417761ccad",
           "verdict": "APPROVE",
-          "round": 1,
-          "completed_at": "2026-10-28T01:24:24Z",
-          "verdict_sha256": "85ecdc2b9bf28feb145da81c25fc896a0e8d7dc7f649ff0d6a45c4cff22f05d3",
+          "round": 2,
+          "completed_at": "2026-10-28T02:06:43Z",
+          "verdict_sha256": "dcd2ab22d62ac3a5951dc707c32c27b8b8aae3f637ade899af60d0407668b719",
           "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/retention-prune/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "anthropic/claude-opus-5-5"
         },
-        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "026665d29df02320755754c1f658df64f2094d23db05387bcdbbb6417761ccad",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-28T02:09:48Z",
+          "verdict_sha256": "d731c031ce321d051cbfd7300aaa24c47cbd6f0a70b69b37c279a98eb021bfdd",
+          "run_ref": "codex:20261028T020701Z-c75f8164",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
       }
     }
   }
