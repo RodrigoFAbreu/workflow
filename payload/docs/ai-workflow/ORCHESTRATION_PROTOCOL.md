@@ -540,7 +540,8 @@ person runs it. An action with no command (`plan.review.external`,
 `functional.review`) is work done outside the repository's commands.
 Some user-only commands are not actions at all, because no phase or state
 row can see the situation they answer: `/request-plan-amendment`,
-`/adopt-gate-policy` and `/release-checkpoint-start`. `next-action` never
+`/adopt-gate-policy`, `/release-checkpoint-start`, `/archive-finished-item`
+and `/prune-archives`. `next-action` never
 names them.
 
 ### 6.2 Terms used in the conditions
