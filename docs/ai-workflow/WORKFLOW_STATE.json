@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "retention-prune-command",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -24994,6 +24994,289 @@
         },
         "evaluated_at": "2026-10-28T02:54:47Z",
         "workflow_release": "2.23.0"
+      }
+    },
+    "retention-prune-command": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "retention-prune-command",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/RETENTION_PRUNE_COMMAND_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/retention-prune-command-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/retention-prune-command-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 1,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "8537d23f3d3a28872540703dfc00d99f78c486d8",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "1096d4a94d76582f7c9851678c248a5868f4ce9eeda8540c16470443e7d77fdd",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "1096d4a94d76582f7c9851678c248a5868f4ce9eeda8540c16470443e7d77fdd",
+        "approved_review_content_id": "3741b9713564fe217f407369d6f1fab9b3ab2283a14a74e95041f158092c3840",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/RETENTION_PRUNE_COMMAND_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ab9cf05f918689621031de04135d076289cb5e02"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-prune-command-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4ba8e5048581185319470b88aca28cff708b7b6b"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/retention-prune-command-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "754921f9e000df23e0670ce947da2659c7812dd7"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-28T04:18:15Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "3741b9713564fe217f407369d6f1fab9b3ab2283a14a74e95041f158092c3840",
+            "ledger": {
+              "local": {
+                "bundle_id": "1096d4a94d76582f7c9851678c248a5868f4ce9eeda8540c16470443e7d77fdd",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "7b91ad21a5d39ad4546824a4b695ed1522f96318992b7a00015c0e2cf622349c",
+                "ledger_entry_sha256": "dc21de94d7903043331ed58ad677584cdf57cc6692faf2f050f600c749830992",
+                "run_ref": "session:local .ai-review/retention-prune-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "1096d4a94d76582f7c9851678c248a5868f4ce9eeda8540c16470443e7d77fdd",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "b8239f9bf14a146fbc8ee009ea3c3b126ca1ac4fa186f66a3898d0909361c3a9",
+                "ledger_entry_sha256": "5b02a3e7eb0776b86fab85f7a86138cc04992253d39975f529791533ac537951",
+                "run_ref": "codex:20261028T041450Z-ffc3d78f",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-28T04:18:15Z",
+          "workflow_release": "2.24.0"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "3741b9713564fe217f407369d6f1fab9b3ab2283a14a74e95041f158092c3840",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "1096d4a94d76582f7c9851678c248a5868f4ce9eeda8540c16470443e7d77fdd",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-28T04:14:19Z",
+          "verdict_sha256": "7b91ad21a5d39ad4546824a4b695ed1522f96318992b7a00015c0e2cf622349c",
+          "run_ref": "session:local .ai-review/retention-prune-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "1096d4a94d76582f7c9851678c248a5868f4ce9eeda8540c16470443e7d77fdd",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-28T04:17:40Z",
+          "verdict_sha256": "b8239f9bf14a146fbc8ee009ea3c3b126ca1ac4fa186f66a3898d0909361c3a9",
+          "run_ref": "codex:20261028T041450Z-ffc3d78f",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-10-28T04:18:15Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-28T04:12:10Z",
+        "consumed": {
+          "review_content_id": "ddcb2bd1ec4d14ae7900168a1e19d8844ffc551be740912a07284185d02e53e5",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "3741b9713564fe217f407369d6f1fab9b3ab2283a14a74e95041f158092c3840",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "3741b9713564fe217f407369d6f1fab9b3ab2283a14a74e95041f158092c3840",
+          "bundle_id": "1096d4a94d76582f7c9851678c248a5868f4ce9eeda8540c16470443e7d77fdd",
+          "plan_revision": 1
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "ddcb2bd1ec4d14ae7900168a1e19d8844ffc551be740912a07284185d02e53e5"
+      ],
+      "optional_findings": {
+        "F-8b863d0f4f94": {
+          "digest": "8b863d0f4f946e5ea7e4ca3fbc4128f3b9058cbfe19e3450ef087093908c6f1d",
+          "text": "**RPC-R1-O1 — \"Archive name\" and \"archive file stem\" do not match what the engine takes.** D-Name's\n  `argument-hint: \"<archive-name>...\"` and the Goal's \"each an `archives` entry of the report, the archive file\n  stem\" invite the user to copy the report's `name` (`m-1.tar.zst`), which step 1 refuses; the stem of\n  `m-1.tar.zst` is `m-1.tar`. The engine's own words are the work item id (`_PRUNE_IDS_NEXT`: \"pass the ids\n  exactly as the report's `archives` lists them\"; `docs/RETENTION.md`: \"by work item id, never by a path\"). Say\n  \"the work item id of each archive (its name without `.tar.zst`)\" in the body, the operator reference section\n  and the refusal text of step 1, whatever the hint is called.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ddcb2bd1ec4d14ae7900168a1e19d8844ffc551be740912a07284185d02e53e5",
+              "verdict": "REVISE",
+              "at": "2026-10-28T04:10:38Z"
+            }
+          ]
+        },
+        "F-10b91b3718b5": {
+          "digest": "10b91b3718b584d43b607e13f3b84dec2118b886764b35d3c74364f030015936",
+          "text": "**RPC-R1-O2 — \"for eight of them the exact work item\" would be inaccurate.** Operator reference line 41 says\n  the confirmation names \"for seven of them the exact work item\"; the new command names one or more archives,\n  not one work item. Prefer \"for seven of them the exact work item ...; for `/prune-archives` the exact\n  archives; for `/adopt-gate-policy` the policy digest\", and pin that form in T8 instead of moving the count.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ddcb2bd1ec4d14ae7900168a1e19d8844ffc551be740912a07284185d02e53e5",
+              "verdict": "REVISE",
+              "at": "2026-10-28T04:10:38Z"
+            }
+          ]
+        },
+        "F-6c5c72ec0109": {
+          "digest": "6c5c72ec010920526e0f7968174fdd0c78355ad76a928ff352cdbadb25e125a4",
+          "text": "**RPC-R1-O3 — The mismatch branch of step 3 is not stated.** The sibling says \"If the message does not\n  match, apply nothing, print the sentence again and stop\". D-Steps step 3 says only \"stop until the user's\n  own next message carries it\", and T7 does not pin the branch; f3's second half relies on it. State it in\n  D-Steps and pin the phrase in T7.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ddcb2bd1ec4d14ae7900168a1e19d8844ffc551be740912a07284185d02e53e5",
+              "verdict": "REVISE",
+              "at": "2026-10-28T04:10:38Z"
+            }
+          ]
+        },
+        "F-6f17181142d8": {
+          "digest": "6f17181142d87f54a60edafba60a19d8f5d0648ab423195436cd9eb1d4c7a870",
+          "text": "**RPC-R1-O4 — Section 8 item 3 does not name the cause #126 item 3 is about.** The `prune_failed` cause the\n  page does not name is the failed `lstat` at steps 12 and 13a (\"could not be examined\", `_check_unchanged`,\n  `workflow_retention.py` 1815-1827); the page already names the failed `unlink` and `fsync` and the\n  `removed:`/`not removed:` lists. Say \"a failed `lstat` (the archive could not be examined) is also\n  `prune_failed`\" so the edit is planned, not rediscovered; row 12 can then read \"`archive_changed` or\n  `prune_failed`\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ddcb2bd1ec4d14ae7900168a1e19d8844ffc551be740912a07284185d02e53e5",
+              "verdict": "REVISE",
+              "at": "2026-10-28T04:10:38Z"
+            }
+          ]
+        },
+        "F-bd4e9364087a": {
+          "digest": "bd4e9364087aa8d51dfb9315afe9f3537502885dc30f4b5099e3e683fe674840",
+          "text": "**RPC-R1-O5 — The width test's docstring moves with T2.** `TestUserOnlyCommandLineWidth`'s docstring says\n  \"the eight user-only command bodies\" (`payload/scripts/workflow_integration_test.py` 2771); T2 should name it\n  becoming nine, as RC-R2-O2 asked for the sibling.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ddcb2bd1ec4d14ae7900168a1e19d8844ffc551be740912a07284185d02e53e5",
+              "verdict": "REVISE",
+              "at": "2026-10-28T04:10:38Z"
+            }
+          ]
+        },
+        "F-3e2ecc598240": {
+          "digest": "3e2ecc598240772b2858caafddb0040433d90e6ed6cde86ec62172b254cb0bb4",
+          "text": "**RPC-R2-O1 — f6b and D-Steps step 4 expect `removed:`/`not removed:` lists from refusals that carry none.** f6b\n  says each of its actions is \"reported with its exact code, the `next step:` line and the `removed:`/`not removed:`\n  lists verbatim\". Only `prune_failed` and the in-delete `archive_changed` messages carry the lists\n  (`_stop_after`). The step-6 `removal_interrupted` and step-7 `not_prunable` messages do not, so a literal checklist\n  item would record a false failure for those two actions. Say \"and, for `prune_failed`, the `removed:`/`not\n  removed:` lists\", and let D-Steps step 4 read \"the lists when the message carries them\", so the command body\n  does not promise lists the engine does not print.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "3741b9713564fe217f407369d6f1fab9b3ab2283a14a74e95041f158092c3840",
+              "verdict": "APPROVE",
+              "at": "2026-10-28T04:14:19Z"
+            }
+          ]
+        },
+        "F-1ea0d0a880c1": {
+          "digest": "1ea0d0a880c193e8a53129cff34b147237a3bf041484756307cc24d18c958063",
+          "text": "**RPC-R2-O2 — Mapping R1 still says `<archive-name>...`.** `docs/ai-workflow/requirements/retention-prune-command-mapping.json`\n  R1 begins \"/prune-archives <archive-name>...\". The plan renamed the argument to `<work-item-id>` (RPC-R1-O1). Align\n  the requirement text with D-Name at the next edit of the mapping.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "3741b9713564fe217f407369d6f1fab9b3ab2283a14a74e95041f158092c3840",
+              "verdict": "APPROVE",
+              "at": "2026-10-28T04:14:19Z"
+            }
+          ]
+        },
+        "F-c7e08a650f40": {
+          "digest": "c7e08a650f40538df5658055fb72136d0abf4c162b52b6b63ebc81af3d97c3fa",
+          "text": "**RPC-EXT-O1 — Exercise multiple confirmation matches in T6.** Add a message containing an exact confirmation followed by a subset or superset confirmation, and test the reverse order. Both must fail. The listed single-sentence cases would also pass an implementation that checks only the first match, leaving D-Guard’s “every match” requirement unprotected.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "3741b9713564fe217f407369d6f1fab9b3ab2283a14a74e95041f158092c3840",
+              "verdict": "APPROVE",
+              "at": "2026-10-28T04:17:40Z"
+            }
+          ]
+        }
       }
     }
   }

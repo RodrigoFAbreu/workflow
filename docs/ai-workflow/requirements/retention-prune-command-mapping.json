@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-prune-command",
+  "requirements": {
+    "R1": {
+      "description": "/prune-archives <archive-name>...: user-only; previews prune <names> (a dry run), prints the sentence \"Prune the archives <n1>, <n2>.\" and stops; only a current-turn sentence whose set of names equals the named set (full stop required, prefix-safe, subsets and supersets rejected) runs prune <names> --apply; any engine refusal is reported with its code and next step, never retried; never an archive not named; the command deletes nothing itself",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "Tests and documents: T1 to T8 with failure-only mutations; COMMAND_FILES.md nine, operator reference section and counts 25, section 6.1 of ORCHESTRATION_PROTOCOL.md lists /archive-finished-item and /prune-archives (#123 item 1), docs/RETENTION.md section and the two prune-table edits (#126 items 2 and 3); the four release classes move to 83/57; no engine, state or protocol change",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "Release 2.25.0, a feat minor: the command record added (83, 6, 57), changed records with their retention-prune-command sentence, WORKFLOW_RELEASE and its pinned assertions, the history row, the pages Last checked with lines, a 2.25.0 class in the release tests, conformance.suites measured; the protocol stays 1.5",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
