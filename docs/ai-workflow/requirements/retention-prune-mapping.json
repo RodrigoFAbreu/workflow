@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-prune",
+  "requirements": {
+    "R1": {
+      "description": "workflow_retention.py prune <work-item-id>... (dry run by default, --apply removes, --ttl-days as the report): each named archive must be a current archives entry of a fresh report with prunable true; the refusal order of D-Selection (invalid_id, path_unsafe, the report's refusals, the destination checks, not_in_report, removal_interrupted, not_prunable, archive_changed, archive_busy) judges the whole run before the first unlink, so one bad name removes nothing; shared checks are extracted, not copied",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "Deletion: only <id>.tar.zst in the per-repository directory, one unlink through the directory descriptor after an lstat immediately before (regular, not a symlink, same size and mtime as seen), fsync of the directory each time; a failure stops the run, leaves the rest as they were and names removed and not removed; the index is never opened; an archive under the report's interrupted removals, also re-read under the lock, is never pruned; the dry run writes nothing",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "Tests and documents: class RetentionPrune (P1 to P8) with the failure-only mutations m1 to m15 and the orphan wrapper, docs/RETENTION.md section and re-read row references (27a to 27g), docs/exit-codes.md rows; no state, protocol or command-file change, payload limited to the script and its test file at this checkpoint",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Release 2.24.0, a feat minor: no manifest record added (82, 6, 56), changed records with their retention-prune sentence, WORKFLOW_RELEASE and its pinned assertions, ORCHESTRATION_PROTOCOL.md edits, the history row, the pages' Last checked with lines, a 2.24.0 class in the release tests, conformance.suites measured; the protocol stays 1.5",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}

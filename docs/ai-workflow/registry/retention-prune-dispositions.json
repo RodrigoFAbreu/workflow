@@ -1,0 +1,71 @@
+{
+ "schema_version": 1,
+ "work_item_id": "retention-prune",
+ "dispositions": {
+  "F-051fc9965085": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-0c2807a02146": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-337e2cbf761d": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#126",
+   "note": "RETENTION.md step 12 wording (issue item 2)"
+  },
+  "F-3ed1f4a383c5": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-5fe5d42d46b2": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#126",
+   "note": "raw OSError at step 9 (item 1)"
+  },
+  "F-6819c1189a48": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#126",
+   "note": "_lstat_at catches only FileNotFoundError (item 1)"
+  },
+  "F-888e9a615da0": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-a83c36a2abba": {
+   "disposition": "dropped",
+   "reason": "review-bundle narrative file, regenerated every round and not shipped"
+  },
+  "F-a8bdbb96a54b": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#126",
+   "note": "mapping file not synchronized with revision 2 (item 4)"
+  },
+  "F-ad2c876dda59": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#126",
+   "note": "prune_failed cause not named in the documents (item 3)"
+  },
+  "F-bea8589b0fd5": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-c9af5249f909": {
+   "disposition": "dropped",
+   "reason": "plan wording in D-Output; the implementation and documents already state the accepted items"
+  },
+  "F-d2943cc0f681": {
+   "disposition": "dropped",
+   "reason": "review-bundle narrative file, regenerated every round and not shipped"
+  },
+  "F-e54e6b663d3d": {
+   "disposition": "dropped",
+   "reason": "plan wording on which rule step 8 carries; no code or shipped document affected"
+  },
+  "F-f91dceb684a1": {
+   "disposition": "dropped",
+   "reason": "grammar of one plan sentence"
+  }
+ }
+}

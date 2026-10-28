@@ -1,6 +1,6 @@
 # Retention of finished work-item files
 
-> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.23.0.
+> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.24.0.
 
 Files of finished work keep piling up (#84): in the Controller repository, 43
 finished work items leave about 240 tracked files and 140 MiB of untracked
@@ -20,8 +20,10 @@ command](#the-remove-command) (row 27d, Workflow 2.22.0): it removes an
 archived finished item's review folder, only after comparing its contents with
 the archive. Step 5 is [the archive-finished-item
 command](#the-archive-finished-item-command) (row 27e, Workflow 2.23.0): the
-user-only command that runs both. The prune of old archives (row 27f) follows. The tracked-file command and the link check are
-a later row, not yet scheduled. The last section says what that tooling must
+user-only command that runs both. Step 6 is [the prune
+command](#the-prune-command) (row 27f, Workflow 2.24.0): the engine that removes
+old archives; the user-only command that applies it is a later row, 27g. The
+tracked-file command and the link check are a later row, not yet scheduled. The last section says what that tooling must
 guarantee.
 
 A reader named `file:function` is in `payload/scripts/` of this repository,
@@ -433,7 +435,7 @@ files only, and the next run says which, by what is on disk:
 | `.<id>.partial` | `partial_present` | confirm no other `archive` run is active, remove that file by hand and run again |
 | `<id>.tar.zst` and its index line | `already_archived` | the item is archived; nothing to do |
 | `<id>.tar.zst`, no index line | `already_archived` | a run was killed after placing it; the folder is intact: compare (`zstd -dc <archive> \| tar -tvf -`), remove the archive (and a `.<id>.partial` beside it) by hand, run again |
-| an index line, no archive | `already_indexed` | the archive was pruned or removed by hand; the command never rewrites the index, so the owner decides |
+| an index line, no archive | `already_indexed` | the archive was pruned (by [the prune command](#the-prune-command), which keeps the index line) or removed by hand; the command never rewrites the index, so the owner decides |
 | an index line cut off, or not JSON | `index_invalid` | repair or remove the named line by hand |
 | `index.jsonl` a symlink, a directory, a FIFO or a shared file | `index_unsafe` | replace it by an ordinary file by hand |
 | a symlinked component of the archive path, or one without read permission | `archive_dir_unsafe`, `unreadable` | fix the named component, or choose another `--archive-root` |
@@ -601,6 +603,92 @@ the archive store.
 Downgrading to a release before 2.23.0 removes the command and leaves the archives,
 the index and the folders as they are.
 
+## The prune command
+
+```
+python3 -I scripts/workflow_retention.py prune <work-item-id>... [--apply] [--json] [--ttl-days N] [--archive-root DIR] [--repo-root DIR]
+```
+
+It removes archives `<archive-root>/<repo>/<id>.tar.zst` that are past the time
+to live: 30 days by default, the report's own rule (the archive's age by
+modification time is above `--ttl-days`, so `--ttl-days` here and in
+[the report](#the-report) agree on what is prunable). The archives are named
+explicitly, one or more, by work item id, never by a path. Each must be a current
+`archives` entry of a report derived fresh, with `prunable` true. The user-only
+command that asks for a literal confirmation and calls this engine is row 27g, a
+later row; this page describes the engine only.
+
+**A dry run is the default.** Without `--apply` it prints the archives it would
+remove (name, size, age and the report's class of the item: `finished`, `recent`,
+`open` or `other`) and writes nothing: no unlink, no lock file, no directory, no
+bytecode. `--apply` removes. The archives are processed in sorted order, and a
+name given twice counts once.
+
+**What it removes and what it keeps.** Only the named archives are removed, each
+by one `unlink` through the descriptor of the per-repository archive directory.
+Nothing else is touched: not another archive, not `.removing`, not
+`.ai-review`, not the repository. **The index is never opened:** `index.jsonl`
+keeps every line, so a pruned id stays indexed. Afterwards [the archive
+command](#the-archive-command) says `already_indexed` for that id, and [the
+remove command](#the-remove-command) says `not_archived`. An archive of a
+finished item whose review folder still exists is prunable like any other: the
+folder is the data, and the prune does not read it.
+
+**The refusals, in this order.** The whole run is judged first, so one bad name
+stops all of them and nothing is removed. Steps 1 to 9 are also the dry run's;
+steps 10 to 12 run under the lock, before the first unlink. Each refusal is
+`error: <code>: <message>` and `next step: ...` on stderr, exit 2, with nothing
+on stdout (`--json` included).
+
+| Step | Code | When |
+| --- | --- | --- |
+| 1 | `invalid_id` | a name is not a lowercase letter or digit followed by up to 63 lowercase letters, digits, underscores or hyphens, or is `runtime` or `archive` |
+| 2 | `path_unsafe` | the platform has no descriptor-relative `unlink` and `stat` |
+| 3 | `state_missing`, `state_invalid`, `repository_unknown` | the report's own refusals (`repository_unknown` also covers a repository named `.` or `..`) |
+| 4 | `archive_inside_repository`, `archive_dir_unsafe`, `unreadable` | the archive directory is inside the checkout, is a symlink or not a directory, or has a `read_errors` entry beneath it (a broken `.removing` included): the engine does not prune from a partial view |
+| 5 | `not_in_report` | a name has no entry in the report's `archives`: absent, a symlink, a directory, or no archive directory at all |
+| 6 | `removal_interrupted` | the id has a leftover under `.removing`: finish it first with `remove <id> --apply`, because the archive may be the only copy of the leftover's missing entries |
+| 7 | `not_prunable` | the archive is not older than the time to live (exactly 30 days is not past it); the message gives both |
+| 8 | `item_not_finished` | the item is `open` (a failed pull-request query, no anchor, an open phase) or `recent` (one of the newest three): rule 1 of [the guarantees](#what-the-later-tooling-must-guarantee) never touches an open item's files, and its archive may be the only copy of its review folder. `finished` and `other` (an id absent from the state, so no item to protect) pass |
+| 9 | `archive_changed` | the `lstat` of the archive is not a regular file of the size and modification time the report saw |
+| 10 | `archive_busy` | another `archive`, `remove` or `prune` run holds the lock on the archive directory (never in a dry run) |
+| 11 | `removal_interrupted`, `unreadable` | under the lock, `.removing` is read again: a `remove` began after step 6, or `.removing` became a symlink, a non-directory or unreadable |
+| 12 | `archive_changed` | under the lock, every named archive differs from what step 9 saw; nothing was removed |
+| 13 | `prune_failed`, `archive_changed` | during the deletes, as below |
+
+**How an archive is removed.** For each archive, in order: an `lstat` through
+the directory descriptor (a regular file, not a symlink, still the size and
+modification time seen at step 9; otherwise `archive_changed`), one `unlink` with
+the bare validated name, and an `fsync` of the directory. A failure stops the
+run: the archives not yet reached are left as they were, and the message names
+`removed:` and `not removed:`. A failed `unlink` is `prune_failed` with the
+errno; a failed `fsync` is `prune_failed` saying that the archive **is removed**
+and its durability is unconfirmed. There is no retry. An interruption leaves
+the archives removed so far removed, the rest present and the index untouched,
+and running `prune` again for a fresh preview finishes it.
+
+**What it does not claim.** A write between one archive's `lstat` and its
+`unlink` is not excluded; a hand replacement of the archive directory during
+the run is refused only where the `lstat` sees it; a hard link or a replaced
+file with a restored time is not detected; and a file-system crash is not
+covered. The threat is accidental loss, as in the removal. A store entry whose
+name is not a valid id can only be removed by hand.
+
+**The JSON** is one object with sorted keys: `schema_version`, `kind`,
+`mode` (`dry-run` or `apply`), `generated_at`,
+`repository`, `archive_dir`, `ttl_days`, `archives` (`work_item_id`, `name`,
+`path`, `bytes`, `modified`, `age_days`, `item`), `index` (the path, shown as
+untouched) and `result` (`removed`, the ids, and `bytes`).
+
+**Not the report's count.** The report's `prunable` is a count of archives past
+the time to live. The prune also requires that the item is not `open` or
+`recent`, that no removal is interrupted, and that the file is the one the report
+saw, so it can refuse an archive the report counts.
+
+**Downgrade.** Workflow 2.24.0 writes no state key, phase, trailer, command file
+or protocol field. An older release has no `prune`. Archives already pruned stay
+pruned and their index lines stay.
+
 ## What the later tooling must guarantee
 
 The tooling that applies the rule to tracked files and links, a later row not
@@ -608,7 +696,11 @@ yet scheduled, must guarantee 1 to 6. The archive command (row 27c)
 keeps 1 (never touch an open item, here by the report's finished set), the
 last sentence of 4, since it removes nothing, and 5 for its dry run. The
 remove command (row 27d) keeps 1 and 5, and the last sentence of 4 only for
-a folder it has verified against an archive:
+a folder it has verified against an archive. The prune command (row 27f)
+keeps 1 and 5: an `open` or `recent` item's archive is never pruned
+(`item_not_finished`), and its dry run is the default. It reaches none of the
+others: it removes no review folder, tracked file or index line, so 2, 3 and 6 do
+not apply to it, and it makes no commit:
 
 1. **Never touch an open work item.** The tooling reads phases, parents and
    children from the state, and the merged fact from a fresh Workflow query

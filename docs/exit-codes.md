@@ -1,6 +1,6 @@
 # Exit codes
 
-> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.22.0.
+> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.24.0.
 
 This is the one table of exit statuses for the scripts a person or an
 orchestrator runs. Slash commands (such as `/milestone-plan`) have no exit
@@ -31,6 +31,8 @@ code in `payload/scripts/` and the shipped documents.
 | | 2 | a refusal (`error: <code>: <message>` and `next step:` on stderr). The report's codes (`state_missing`, `state_invalid`, `repository_unknown`, `usage`) and the archive's: `invalid_id`, `not_finished:<reason>`, `kept_recent`, `unknown_item`, `review_folder_absent`, `tracked_files`, `unreadable`, `archive_dir_unsafe`, `archive_inside_repository`, `path_unsafe`, `already_archived`, `already_indexed`, `index_invalid`, `index_unsafe`, `partial_present`, `unsupported_entry`, `zstd_missing`, `archive_busy` (never in a dry run), `pack_failed`, `verify_failed`, `folder_changed`, `place_failed`, `index_failed`. Every failure leaves the review folder as it was and the archive directory as it was | follow the next step; the command is described in [the archive command](RETENTION.md#the-archive-command) |
 | `python3 scripts/workflow_retention.py remove` | 0 | the dry run was printed (nothing was written), or the review folder was verified against its archive and removed | read it; run with `--apply` to remove |
 | | 2 | a refusal (`error: <code>: <message>` and `next step:` on stderr, nothing on stdout, `--json` included). The report's and the archive's codes, plus `not_archived`, `archive_mismatch`, `leftover_conflict`, `cross_device`, `remove_failed` and `restore_failed`. A refusal after the rename names the place the folder is in: its original place, a whole copy in `<archive-root>/<repo>/.removing/<id>`, or a smaller leftover there after a stopped delete | follow the next step and keep `.removing/<id>`; the command is described in [the remove command](RETENTION.md#the-remove-command) |
+| `python3 scripts/workflow_retention.py prune` | 0 | the dry run was printed (nothing was written), or the named archives were removed, each one checked just before and the archive directory made durable; the index and every other file are never touched | read it; run with `--apply` to remove |
+| | 2 | a refusal (`error: <code>: <message>` and `next step:` on stderr, nothing on stdout, `--json` included) or a usage error (no id, a bad `--ttl-days`). The report's and the archive's codes (`invalid_id`, `path_unsafe`, `state_missing`, `state_invalid`, `repository_unknown`, `archive_inside_repository`, `archive_dir_unsafe`, `unreadable`, `archive_busy`, `usage`) and the prune's: `not_in_report`, `removal_interrupted`, `not_prunable`, `item_not_finished`, `archive_changed` and `prune_failed`. A refusal before the first unlink removes nothing; one after it names `removed:` and `not removed:` | follow the next step; the command is described in [the prune command](RETENTION.md#the-prune-command) |
 
 Two scripts only tell success from failure. `prepare-ai-review.sh` documents
 no status beyond 0 and 1, and `workflow_fingerprint.py` documents only 0, 1 and
