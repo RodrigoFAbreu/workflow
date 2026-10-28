@@ -25005,7 +25005,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-prune-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-prune-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 1,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -25145,12 +25145,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 1,
+          "local": 2,
           "external": 0
         }
       },
-      "state_revision": 16,
-      "last_transition": "2026-10-28T06:33:27Z",
+      "state_revision": 17,
+      "last_transition": "2026-10-28T06:59:13Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
