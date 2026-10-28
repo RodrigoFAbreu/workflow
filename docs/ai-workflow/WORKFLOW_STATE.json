@@ -24210,12 +24210,12 @@
       "registry_path": "docs/ai-workflow/registry/retention-prune-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-prune-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 2,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "4529f218af343078a6768e6129b0e6be68116c02",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "367967bc620929bbea388207abff0cafebdb0de0",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -24354,8 +24354,8 @@
           "external": 0
         }
       },
-      "state_revision": 13,
-      "last_transition": "2026-10-28T00:31:50Z",
+      "state_revision": 14,
+      "last_transition": "2026-10-28T00:58:56Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
