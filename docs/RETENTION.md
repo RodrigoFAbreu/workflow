@@ -1,6 +1,6 @@
 # Retention of finished work-item files
 
-> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.24.0.
+> For: maintainers who prune the files a finished work item leaves in the Workflow, Manager or Controller repository. Last checked with: Workflow 2.25.0.
 
 Files of finished work keep piling up (#84): in the Controller repository, 43
 finished work items leave about 240 tracked files and 140 MiB of untracked
@@ -22,7 +22,9 @@ the archive. Step 5 is [the archive-finished-item
 command](#the-archive-finished-item-command) (row 27e, Workflow 2.23.0): the
 user-only command that runs both. Step 6 is [the prune
 command](#the-prune-command) (row 27f, Workflow 2.24.0): the engine that removes
-old archives; the user-only command that applies it is a later row, 27g. The
+old archives. Step 7 is [the prune-archives
+command](#the-prune-archives-command) (row 27g, Workflow 2.25.0): the user-only
+command that applies it. The
 tracked-file command and the link check are a later row, not yet scheduled. The last section says what that tooling must
 guarantee.
 
@@ -615,8 +617,8 @@ modification time is above `--ttl-days`, so `--ttl-days` here and in
 [the report](#the-report) agree on what is prunable). The archives are named
 explicitly, one or more, by work item id, never by a path. Each must be a current
 `archives` entry of a report derived fresh, with `prunable` true. The user-only
-command that asks for a literal confirmation and calls this engine is row 27g, a
-later row; this page describes the engine only.
+command that asks for a literal confirmation and calls this engine is [the
+prune-archives command](#the-prune-archives-command).
 
 **A dry run is the default.** Without `--apply` it prints the archives it would
 remove (name, size, age and the report's class of the item: `finished`, `recent`,
@@ -653,12 +655,12 @@ on stdout (`--json` included).
 | 9 | `archive_changed` | the `lstat` of the archive is not a regular file of the size and modification time the report saw |
 | 10 | `archive_busy` | another `archive`, `remove` or `prune` run holds the lock on the archive directory (never in a dry run) |
 | 11 | `removal_interrupted`, `unreadable` | under the lock, `.removing` is read again: a `remove` began after step 6, or `.removing` became a symlink, a non-directory or unreadable |
-| 12 | `archive_changed` | under the lock, every named archive differs from what step 9 saw; nothing was removed |
-| 13 | `prune_failed`, `archive_changed` | during the deletes, as below |
+| 12 | `archive_changed`, `prune_failed` | under the lock, **any** named archive differs from what step 9 saw (or cannot be examined: a failed `lstat` is `prune_failed`); nothing was removed |
+| 13 | `prune_failed`, `archive_changed` | during the deletes, as below; `prune_failed` names `removed:` and `not removed:` |
 
 **How an archive is removed.** For each archive, in order: an `lstat` through
 the directory descriptor (a regular file, not a symlink, still the size and
-modification time seen at step 9; otherwise `archive_changed`), one `unlink` with
+modification time seen at step 9; otherwise `archive_changed`; an `lstat` that fails, so the archive could not be examined, is `prune_failed`), one `unlink` with
 the bare validated name, and an `fsync` of the directory. A failure stops the
 run: the archives not yet reached are left as they were, and the message names
 `removed:` and `not removed:`. A failed `unlink` is `prune_failed` with the
@@ -688,6 +690,51 @@ saw, so it can refuse an archive the report counts.
 **Downgrade.** Workflow 2.24.0 writes no state key, phase, trailer, command file
 or protocol field. An older release has no `prune`. Archives already pruned stay
 pruned and their index lines stay.
+
+## The prune-archives command
+
+```
+/prune-archives <work-item-id>...
+```
+
+A user-only command file (`.claude/commands/prune-archives.md`) that deletes the named
+archives in one act. It contains no mechanism: it calls [the prune
+command](#the-prune-command) twice, as a dry run and then with `--apply`, and nothing
+else. It runs no `tar`, `zstd`, `rm` or `mv`, passes no `--archive-root`, `--repo-root`,
+`--ttl-days` or `--json`, and writes neither the state file, an archive nor the index.
+
+1. **Resolve.** `$ARGUMENTS` must be one or more distinct ids, each the work item id of an
+   archive: its name without `.tar.zst`, never a file name or a path (`m-1`, not
+   `m-1.tar.zst`). Each id is a lowercase letter or digit, then up to 63 lowercase
+   letters, digits, underscores or hyphens. Anything else (none, a repeat, a malformed
+   token) is refused before anything runs. The ids never come from the confirmation, the
+   active item or a listing.
+2. **Preview.** It runs `prune <ids>` as a dry run and prints the output in full. The dry
+   run exits 0 only when every named archive would be removed, so one preview decides the
+   run. On any refusal it reports the engine's code and `next step:` verbatim and stops,
+   asking for nothing.
+3. **Ask and stop.** It prints `Prune the archives <n1>, <n2>.`, the ids in the order given,
+   separated by a comma and a space, with the final full stop, and waits for the user's
+   own next message to carry it. The check is on the whitespace-collapsed message and
+   ignores case; it compares the **set** of names in every matching sentence with the
+   set given, so a sentence naming only some of the archives, others besides, a prefix or
+   an extension of a name (`m-1` for `m-10`), an "and" list or no final full stop applies
+   nothing. The order does not matter. It has no left-hand context, so a message that
+   negates the sentence still matches: an accepted limit, as in the other user-only
+   commands, with the preview, the printed sentence and the engine's own checks standing
+   behind it. A sentence carried over from an earlier turn, or arriving in `$ARGUMENTS`,
+   applies nothing.
+4. **Apply.** `prune <ids> --apply`, with the same ids. On a non-zero exit it reports the
+   code, the `next step:` line and the `removed:` and `not removed:` lists verbatim and
+   stops: it never retries. The apply is a new process that judges from scratch; which
+   archive is prunable, which item is open or recent and which removal is interrupted
+   is decided by the engine at that moment, not by the preview.
+5. **Report** the removed archives and the bytes. The index keeps its lines, so a later
+   `archive` of a pruned id says `already_indexed`.
+
+**Downgrade.** Workflow 2.25.0 writes no state key, phase, trailer or protocol field.
+An older release has no `/prune-archives`; the archives, the index and the engine are as
+they were.
 
 ## What the later tooling must guarantee
 
@@ -733,7 +780,8 @@ not apply to it, and it makes no commit:
    each path, its decision and its size, and changes nothing. Whether
    applying it is a user-only step is, for the archive command, settled by
    [the archive-finished-item command](#the-archive-finished-item-command) (row 27e,
-   which calls rows 27c and 27d), and for the tracked-file command,
+   which calls rows 27c and 27d), for the prune by `/prune-archives` (row 27g, which
+   calls row 27f), and for the tracked-file command,
    for the plan of that later row to decide.
 6. **Links keep working.** In the same commit, every relative link to a
    moved path becomes a link to the blob at the index commit (the form

@@ -1,0 +1,55 @@
+{
+ "schema_version": 1,
+ "work_item_id": "retention-prune-command",
+ "dispositions": {
+  "F-087e4542d423": {
+   "disposition": "dropped",
+   "reason": "review-bundle narrative file, regenerated every round and not shipped"
+  },
+  "F-094c5b256c50": {
+   "disposition": "dropped",
+   "reason": "review-bundle narrative file, regenerated every round and not shipped"
+  },
+  "F-10b91b3718b5": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-1ea0d0a880c1": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#129",
+   "note": "RPC-R2-O2: mapping file wording (issue item 1)"
+  },
+  "F-36334f071ac5": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-3e2ecc598240": {
+   "disposition": "dropped",
+   "reason": "plan wording on the removed/not removed lists; the checklist and the command body state it correctly"
+  },
+  "F-6c5c72ec0109": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-6f17181142d8": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-8b863d0f4f94": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-bd4e9364087a": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-c7e08a650f40": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-e7075db30d06": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  }
+ }
+}
