@@ -780,7 +780,8 @@ not apply to it, and it makes no commit:
    each path, its decision and its size, and changes nothing. Whether
    applying it is a user-only step is, for the archive command, settled by
    [the archive-finished-item command](#the-archive-finished-item-command) (row 27e,
-   which calls rows 27c and 27d), and for the tracked-file command,
+   which calls rows 27c and 27d), for the prune by `/prune-archives` (row 27g, which
+   calls row 27f), and for the tracked-file command,
    for the plan of that later row to decide.
 6. **Links keep working.** In the same commit, every relative link to a
    moved path becomes a link to the blob at the index commit (the form
