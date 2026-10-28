@@ -25005,7 +25005,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-prune-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-prune-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -25145,12 +25145,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 14,
-      "last_transition": "2026-10-28T06:05:37Z",
+      "state_revision": 15,
+      "last_transition": "2026-10-28T06:20:22Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -25283,6 +25283,34 @@
               "review_content_id": "3741b9713564fe217f407369d6f1fab9b3ab2283a14a74e95041f158092c3840",
               "verdict": "APPROVE",
               "at": "2026-10-28T04:17:40Z"
+            }
+          ]
+        },
+        "F-e7075db30d06": {
+          "digest": "e7075db30d06b2b020b7c5f7bd852afa9d1d37c69c4c4aa0d6cd74214fece019",
+          "text": "**RPC-IMPL-O1: the multiple-sentence case is tested in one order only.** T6 checks \"exact\n  sentence, then a subset\", which catches a first-match-only check, but not the reverse\n  (\"Prune the archives m-1. Prune the archives m-1, m-2.\"), which would catch a\n  last-match-only one (the external plan reviewer's RPC-EXT-O1 asked for both orders).\n  Add the reverse case.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "44ab7b4536aafab96812df2b4ebfe9c802ffd283dd7782f3b6b47deb68685402",
+              "verdict": "REVISE",
+              "at": "2026-10-28T06:20:22Z"
+            }
+          ]
+        },
+        "F-36334f071ac5": {
+          "digest": "36334f071ac562e181024b89bc6d0bc86eefed5b252881c08e37edcb4afc2784",
+          "text": "**RPC-IMPL-O2: guarantee 5 of `docs/RETENTION.md` does not name the new command.** \"What the\n  later tooling must guarantee\", item 5, says whether applying is user-only is settled for\n  the archive command by `/archive-finished-item`. The prune (row 27f) keeps guarantee 5 too,\n  and `/prune-archives` now settles it for the prune. One clause would make that page agree\n  with the new section.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "44ab7b4536aafab96812df2b4ebfe9c802ffd283dd7782f3b6b47deb68685402",
+              "verdict": "REVISE",
+              "at": "2026-10-28T06:20:22Z"
             }
           ]
         }
