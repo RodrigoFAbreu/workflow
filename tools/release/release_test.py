@@ -2858,7 +2858,7 @@ class InterleavingPinsReleaseTest(unittest.TestCase):
     """Release 2.19.1 (interleaving-pins): what stays true of it once a later release
     is current -- the record sentences and the release-history row. The current
     version, constant, counts and posture are pinned by the current release's class
-    (2.25.0)."""
+    (2.25.1)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py", "scripts/workflow_state_test.py")
@@ -2891,7 +2891,7 @@ class CommandWordingReleaseTest(unittest.TestCase):
     """Release 2.19.2 (command-wording): what stays true of it once a later release
     is current -- the record sentences and the release-history row. The current
     version, constant, counts, digests and posture are pinned by the current
-    release's class (2.25.0)."""
+    release's class (2.25.1)."""
 
     CHANGED = (".claude/commands/release-checkpoint-start.md", "docs/ai-workflow/COMMAND_FILES.md",
                "docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
@@ -2933,7 +2933,7 @@ class RetentionReportReleaseTest(unittest.TestCase):
     is current -- the counts, the added record, the record sentences and the
     release-history row. The current version, constant, digests, pages' "Last
     checked with" lines and posture are pinned by the current release's class
-    (2.25.0)."""
+    (2.25.1)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -2986,7 +2986,7 @@ class RetentionArchiveReleaseTest(unittest.TestCase):
     """Release 2.21.0 (retention-archive): what stays true of it once a later release
     is current -- the unchanged counts, the record sentences and the release-history
     row. The current version, constant, digests, pages' "Last checked with" lines
-    and posture are pinned by the current release's class (2.25.0)."""
+    and posture are pinned by the current release's class (2.25.1)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -3034,7 +3034,7 @@ class RetentionRemovalReleaseTest(unittest.TestCase):
     """Release 2.22.0 (retention-removal): what stays true of it once a later release
     is current -- the counts, the record sentences and the release-history row. The
     current version, constant, digests, pages' "Last checked with" lines and posture
-    are pinned by the current release's class (2.25.0)."""
+    are pinned by the current release's class (2.25.1)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -3084,7 +3084,7 @@ class RetentionCommandReleaseTest(unittest.TestCase):
     is current -- the added command record, the record sentences and the
     release-history row. The current version, constant, counts, digests, pages'
     "Last checked with" lines and posture are pinned by the current release's class
-    (2.25.0)."""
+    (2.25.1)."""
 
     CHANGED = ("docs/ai-workflow/COMMAND_FILES.md",
                "docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
@@ -3129,7 +3129,7 @@ class RetentionPruneReleaseTest(unittest.TestCase):
     """Release 2.24.0 (retention-prune): what stays true of it once a later release
     is current -- the record sentences and the release-history row. The current
     version, constant, counts, digests, pages' "Last checked with" lines and posture
-    are pinned by the current release's class (2.25.0)."""
+    are pinned by the current release's class (2.25.1)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -3163,9 +3163,10 @@ class RetentionPruneReleaseTest(unittest.TestCase):
 
 
 class PruneArchivesCommandReleaseTest(unittest.TestCase):
-    """Release 2.25.0 (retention-prune-command): the version, the release constant, the
-    added command record and the counts, the digests, the downgrade posture, the pages'
-    "Last checked with" lines and the release-history row."""
+    """Release 2.25.0 (retention-prune-command): what stays true of it once a later release
+    is current -- the added command record, the record sentences and the release-history
+    row. The current version, constant, counts, digests, pages' "Last checked with" lines
+    and posture are pinned by the current release's class (2.25.1)."""
 
     CHANGED = ("docs/ai-workflow/COMMAND_FILES.md",
                "docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
@@ -3182,8 +3183,50 @@ class PruneArchivesCommandReleaseTest(unittest.TestCase):
     def row(self) -> str:
         return next(line for line in self.history.splitlines() if line.startswith("| 2.25.0 |"))
 
-    def test_the_release_names_2_25_0_and_adds_the_command_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.25.0")
+    def test_the_release_added_the_command_record(self):
+        added = next(r for r in self.manifest["artifacts"] if r["target_path"] == self.ADDED)
+        self.assertEqual((added["category"], added["executable"]), ("distribution", False))
+        self.assertEqual(added["rule"], r"^\.claude/commands/prune-archives\.md$")
+
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for target in self.CHANGED + (self.ADDED,):
+            with self.subTest(target):
+                record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+                self.assertIn(self.SENTENCE, record["rationale"])
+        others = [r["target_path"] for r in self.manifest["artifacts"]
+                  if self.SENTENCE in r["rationale"]]
+        self.assertEqual(sorted(others), sorted(self.CHANGED + (self.ADDED,)))
+
+    def test_the_release_history_row_names_the_release_and_the_way_back(self):
+        for needle in ("#123", "item 1", "/prune-archives", "dry-run", "--apply",
+                       "Prune the archives", "never retries", "disable-model-invocation",
+                       "Orchestration Protocol 1.5", "2.24.0", "removes the command",
+                       "leaves the archives, the index and the engine", "v2.25.0"):
+            self.assertIn(needle, self.row())
+        self.assertNotIn("closes #", self.row())
+        self.assertLess(self.history.index("| 2.25.0 |"), self.history.index("| 2.24.0 |"))
+
+
+class RetentionLstatErrorsReleaseTest(unittest.TestCase):
+    """Release 2.25.1 (retention-lstat-errors): the version, the release constant, the
+    counts, the digests, the downgrade posture, the pages' "Last checked with" lines and
+    the release-history row."""
+
+    CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
+               "scripts/workflow_protocol_test.py",
+               "scripts/workflow_state_completion_obligations_test.py",
+               "scripts/workflow_retention.py")
+    SENTENCE = "retention-lstat-errors (workflow-2.25.1)"
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.history = (REPO_ROOT / "docs" / "release-history.md").read_text()
+
+    def row(self) -> str:
+        return next(line for line in self.history.splitlines() if line.startswith("| 2.25.1 |"))
+
+    def test_the_release_names_2_25_1_and_adds_no_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.25.1")
         by_category = {}
         for entry in self.manifest["artifacts"]:
             by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
@@ -3193,13 +3236,10 @@ class PruneArchivesCommandReleaseTest(unittest.TestCase):
         self.assertEqual(counts["by_category"], by_category)
         self.assertEqual((counts["artifacts"], counts["templates"]), (83, 6))
         self.assertEqual(by_category["distribution"], 57)
-        added = next(r for r in self.manifest["artifacts"] if r["target_path"] == self.ADDED)
-        self.assertEqual((added["category"], added["executable"]), ("distribution", False))
-        self.assertEqual(added["rule"], r"^\.claude/commands/prune-archives\.md$")
 
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.25.0"', text)
+        self.assertIn('WORKFLOW_RELEASE = "2.25.1"', text)
 
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
         for section in ("artifacts", "templates"):
@@ -3207,21 +3247,21 @@ class PruneArchivesCommandReleaseTest(unittest.TestCase):
                 with self.subTest(record["target_path"]):
                     data = (REPO_ROOT / record["location"]).read_bytes()
                     self.assertEqual((record["sha256"], record["size"]), (_sha(data), len(data)))
-        for target in self.CHANGED + (self.ADDED,):
+        for target in self.CHANGED:
             with self.subTest(target):
                 record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
                 self.assertIn(self.SENTENCE, record["rationale"])
         others = [r["target_path"] for r in self.manifest["artifacts"]
                   if self.SENTENCE in r["rationale"]]
-        self.assertEqual(sorted(others), sorted(self.CHANGED + (self.ADDED,)))
+        self.assertEqual(sorted(others), sorted(self.CHANGED))
 
-    def test_the_manager_block_states_the_minor_and_the_way_back_in_the_posture(self):
+    def test_the_manager_block_states_the_patch_and_the_way_back_in_the_posture(self):
         block = self.manifest["manager"]
         self.assertEqual(block["min_manager_version"], "1.13.0")
         posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.25.0", "2.24.0", "/prune-archives", "scripts/workflow_retention.py",
-                       "Orchestration Protocol stays 1.5", "workflow-manager update back to 2.24.0",
-                       "WORKFLOW_RELEASE", "removes the command", "nothing needs undoing",
+        for needle in ("2.25.1", "2.25.0", "scripts/workflow_retention.py", "EACCES",
+                       "Orchestration Protocol stays 1.5", "workflow-manager update back to 2.25.0",
+                       "WORKFLOW_RELEASE", "restores the traceback", "nothing needs undoing",
                        "/release-checkpoint-start", "2.14.0"):
             self.assertIn(needle, posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
@@ -3229,16 +3269,17 @@ class PruneArchivesCommandReleaseTest(unittest.TestCase):
         self.assertEqual(block["gate_default_change"], "")
 
     def test_the_release_history_row_names_the_release_and_the_way_back(self):
-        self.assertIn("Last checked with: Workflow 2.25.0.", self.history)
-        self.assertIn("Last checked with: Workflow 2.25.0.",
-                      (REPO_ROOT / "docs" / "RETENTION.md").read_text())
-        for needle in ("#123", "item 1", "/prune-archives", "dry-run", "--apply",
-                       "Prune the archives", "never retries", "disable-model-invocation",
-                       "Orchestration Protocol 1.5", "2.24.0", "removes the command",
-                       "leaves the archives, the index and the engine", "v2.25.0"):
+        for page in ("release-history.md", "RETENTION.md", "exit-codes.md"):
+            with self.subTest(page):
+                self.assertIn("Last checked with: Workflow 2.25.1.",
+                              (REPO_ROOT / "docs" / page).read_text())
+        for needle in ("#126", "item 1", "scripts/workflow_retention.py", "EACCES", "unreadable",
+                       "restore_failed", "prune_failed", "next step:",
+                       "Orchestration Protocol 1.5", "2.25.0", "restores the traceback",
+                       "nothing needs undoing", "v2.25.1"):
             self.assertIn(needle, self.row())
         self.assertNotIn("closes #", self.row())
-        self.assertLess(self.history.index("| 2.25.0 |"), self.history.index("| 2.24.0 |"))
+        self.assertLess(self.history.index("| 2.25.1 |"), self.history.index("| 2.25.0 |"))
 
 
 # -- the Manager metadata block ----------------------------------------------------
