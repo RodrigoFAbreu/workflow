@@ -1,0 +1,38 @@
+{
+ "schema_version": 1,
+ "work_item_id": "retention-polish",
+ "dispositions": {
+  "F-223ec916aaf9": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-2280d5e2fc61": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-7dd153548ca4": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-84d89ad3daf1": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-b1b9611f7845": {
+   "disposition": "dropped",
+   "reason": "plan wording on an expected count; functional flow 7 and the suites verify the actual count"
+  },
+  "F-d34fd470b598": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-f0f5590b8b7b": {
+   "disposition": "dropped",
+   "reason": "rationale text in the item's own artifact declaration, a non-shipped bookkeeping record"
+  },
+  "F-ff437c856776": {
+   "disposition": "dropped",
+   "reason": "same artifact-declaration rationale text as F-f0f5590b8b7b; not shipped"
+  }
+ }
+}
