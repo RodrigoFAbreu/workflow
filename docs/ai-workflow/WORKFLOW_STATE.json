@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "retention-polish",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -26702,6 +26702,275 @@
         },
         "evaluated_at": "2026-10-30T18:43:12Z",
         "workflow_release": "2.25.0"
+      }
+    },
+    "retention-polish": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "retention-polish",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/RETENTION_POLISH_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/retention-polish-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/retention-polish-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 2,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "586c86c99335192981b7b335d97347f473091b39",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "4fb09174ebce6f2c1f2b5491342f487be5d5e9bb94e0674b7443cde34cf43a1f",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "4fb09174ebce6f2c1f2b5491342f487be5d5e9bb94e0674b7443cde34cf43a1f",
+        "approved_review_content_id": "7901328569bdf67c0cd6042343fd4e90baf9449b46275449009b01ee893ebd95",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/RETENTION_POLISH_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "77b2da561b74f56d129efe656c3b0e4c89e78cde"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-polish-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "de589ec31d3ab60a0d01d28080cd5ede89916192"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/retention-polish-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7801e42af8f00ac81dcf54414c3f2e964ba25ad9"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-30T20:51:17Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "7901328569bdf67c0cd6042343fd4e90baf9449b46275449009b01ee893ebd95",
+            "ledger": {
+              "local": {
+                "bundle_id": "4fb09174ebce6f2c1f2b5491342f487be5d5e9bb94e0674b7443cde34cf43a1f",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "848f3d379bc646ee361a65469749fea7708c8807fa9af9ac937f7443372dba12",
+                "ledger_entry_sha256": "c7dc5324061019149c8ac9829961c524ffe7f6fad25779bad9f9fdf8c05c53ed",
+                "run_ref": "session:local .ai-review/retention-polish/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "4fb09174ebce6f2c1f2b5491342f487be5d5e9bb94e0674b7443cde34cf43a1f",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "ef7fb627a29d76a671944163c173503a9caca38d27e129836ae539252041559a",
+                "ledger_entry_sha256": "1c22389c9a4f83fe7e70ac556b479968b7120b96915ebfdcd0fced75e08b4f9b",
+                "run_ref": "codex:20261030T204823Z-b87fcf62",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-30T20:51:17Z",
+          "workflow_release": "2.25.1"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "7901328569bdf67c0cd6042343fd4e90baf9449b46275449009b01ee893ebd95",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "4fb09174ebce6f2c1f2b5491342f487be5d5e9bb94e0674b7443cde34cf43a1f",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-30T20:47:57Z",
+          "verdict_sha256": "848f3d379bc646ee361a65469749fea7708c8807fa9af9ac937f7443372dba12",
+          "run_ref": "session:local .ai-review/retention-polish/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "4fb09174ebce6f2c1f2b5491342f487be5d5e9bb94e0674b7443cde34cf43a1f",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-30T20:50:21Z",
+          "verdict_sha256": "ef7fb627a29d76a671944163c173503a9caca38d27e129836ae539252041559a",
+          "run_ref": "codex:20261030T204823Z-b87fcf62",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-10-30T20:51:17Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-30T21:10:00Z",
+        "consumed": {
+          "review_content_id": "eee1164e6fa5028260780ac2bc7c51da2d6bd7604db46292e03211bb8b1b9c25",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "7901328569bdf67c0cd6042343fd4e90baf9449b46275449009b01ee893ebd95",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "7901328569bdf67c0cd6042343fd4e90baf9449b46275449009b01ee893ebd95",
+          "bundle_id": "4fb09174ebce6f2c1f2b5491342f487be5d5e9bb94e0674b7443cde34cf43a1f",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "eee1164e6fa5028260780ac2bc7c51da2d6bd7604db46292e03211bb8b1b9c25"
+      ],
+      "optional_findings": {
+        "F-223ec916aaf9": {
+          "digest": "223ec916aaf9036c21ac0bd0da1cff1c16101a12dc418a32b33997167be1c5d2",
+          "text": "**RP-R1-O1: the manifest record of `scripts/workflow_retention.py` has the same omission as the 2.25.1 history row.** Its rationale says \"a stat error other than \\\"not found\\\" on an archive-directory entry or a `.removing` entry is a coded refusal\", and the 2.25.1 downgrade posture says the same. #132 item 2 names only the history row, so leaving the record alone is defensible. Either correct the record sentence in the 2.25.2 manifest (it then becomes a seventh changed record, and the 2.25.2 class's `CHANGED` tuple must list it), or list it as out of scope in section 2 so it does not read as a miss.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "eee1164e6fa5028260780ac2bc7c51da2d6bd7604db46292e03211bb8b1b9c25",
+              "verdict": "REVISE",
+              "at": "2026-10-30T20:44:05Z"
+            }
+          ]
+        },
+        "F-84d89ad3daf1": {
+          "digest": "84d89ad3daf1b422c420e37917483d4c2845053c1bcec4a2ffd18be05d4d3e39",
+          "text": "**RP-R1-O2: say who pins the two pages that stay at 2.25.1.** `RetentionLstatErrorsReleaseTest.test_the_release_history_row_names_the_release_and_the_way_back` pins \"Last checked with: Workflow 2.25.1.\" on `release-history.md`, `RETENTION.md` and `exit-codes.md`. After CP2, `release-history.md` moves to 2.25.2 and the other two stay at 2.25.1 (section 2). Say whether the 2.25.1 class keeps the pin on `RETENTION.md`/`exit-codes.md` or the 2.25.2 class takes it over, so \"gives up the current-release pins\" is unambiguous.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "eee1164e6fa5028260780ac2bc7c51da2d6bd7604db46292e03211bb8b1b9c25",
+              "verdict": "REVISE",
+              "at": "2026-10-30T20:44:05Z"
+            }
+          ]
+        },
+        "F-d34fd470b598": {
+          "digest": "d34fd470b5980a2b304a3dfd72a2f3f39ef4f36a2fb7f7bf4a4f48027c7981d9",
+          "text": "**RP-R1-O3: D-Pin's \"the codes named after 'refuses'\".** Step 2 of the command file also says \"if one refuses there\", which names no code. Pin the pattern to a backticked code that directly follows `refuses ` (`refuses \\`<code>\\``), so the \"exactly two codes\" assertion cannot be read as covering that phrase or the parenthesised `tracked_files`, `cross_device` and `zstd_missing` list.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "eee1164e6fa5028260780ac2bc7c51da2d6bd7604db46292e03211bb8b1b9c25",
+              "verdict": "REVISE",
+              "at": "2026-10-30T20:44:05Z"
+            }
+          ]
+        },
+        "F-2280d5e2fc61": {
+          "digest": "2280d5e2fc61cc18847ddd3be2962be576bc2ade33205a2a30c698ab023cc5eb",
+          "text": "**RP-R1-O4: stale labels in the artifact declaration.** In `retention-polish-artifacts.json`, the plan-stage exclusion rationales of `payload/`, `tools/`, `fixtures/`, `templates/` and `docs/RETENTION.md` say \"(Workflow 2.25.1)\" / \"(workflow-2.25.1)\", copied from the previous item, and `docs/RETENTION.md` is called \"a deliverable of this milestone's implementation\" although section 2 says it is not edited. Protecting it at the implementation stage is still right (it guards against drift). Only the rationale text is wrong.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "eee1164e6fa5028260780ac2bc7c51da2d6bd7604db46292e03211bb8b1b9c25",
+              "verdict": "REVISE",
+              "at": "2026-10-30T20:44:05Z"
+            }
+          ]
+        },
+        "F-7dd153548ca4": {
+          "digest": "7dd153548ca41bbfafa483eb6acac0e50b4070c69489b8ca5586c4e34e757af5",
+          "text": "**RP-R1-O5: flow 4's wording.** \"with the old helper line deleted and again with the new one\" reads as if a line of the old helper is deleted. Say \"once without the new `assertIn` line (the 2.25.1 helper) and once with it\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "eee1164e6fa5028260780ac2bc7c51da2d6bd7604db46292e03211bb8b1b9c25",
+              "verdict": "REVISE",
+              "at": "2026-10-30T20:44:05Z"
+            }
+          ]
+        },
+        "F-f0f5590b8b7b": {
+          "digest": "f0f5590b8b7b1c5d44a8958e1d8625fd7d048b7feb5b9024d7a1ab0af9a4a8be",
+          "text": "**RP-R2-O1: what is left of RP-R1-O4 in the artifact declaration.** The plan-stage labels now say 2.25.2, but three rationales are still inaccurate. At the implementation stage, `docs/RETENTION.md` is \"a deliverable of this milestone's implementation\" although section 2 says it is not edited; the plan-stage wording (\"a Workflow document this milestone does not edit ... protected ... so it cannot drift\") is the accurate one. At the plan stage, `manifest.json` and `docs/release-history.md` say \"(CP1 and CP2)\" although only CP2's **Files** paragraph names them. The classification itself is right; only the text is wrong.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "7901328569bdf67c0cd6042343fd4e90baf9449b46275449009b01ee893ebd95",
+              "verdict": "APPROVE",
+              "at": "2026-10-30T20:47:57Z"
+            }
+          ]
+        },
+        "F-b1b9611f7845": {
+          "digest": "b1b9611f78458dd94c6a4551aa4b077020f0e956c5a6e82fb98906d360c041cd",
+          "text": "**RP-R2-O2: the expected count of 9 assumes the new class's docstring does not end in `(2.25.2).\"\"\"`.** The current class's docstring begins \"Release 2.25.1 (retention-lstat-errors): ...\", so a 2.25.2 class written the same way keeps the count at 9. If CP2 words its new docstring differently, `grep -c` prints 10 and the check fails falsely (it cannot pass falsely). Say in CP2 that the new class follows the \"Release 2.25.2 (retention-polish): ...\" shape, or accept \"9 or 10\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "7901328569bdf67c0cd6042343fd4e90baf9449b46275449009b01ee893ebd95",
+              "verdict": "APPROVE",
+              "at": "2026-10-30T20:47:57Z"
+            }
+          ]
+        }
       }
     }
   }
