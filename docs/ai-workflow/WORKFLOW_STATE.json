@@ -25904,7 +25904,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-lstat-errors-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-lstat-errors-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 4,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -26044,12 +26044,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 20,
-      "last_transition": "2026-10-30T16:31:00Z",
+      "state_revision": 22,
+      "last_transition": "2026-10-30T16:48:14Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -26228,7 +26228,48 @@
               "at": "2026-10-30T15:11:12Z"
             }
           ]
+        },
+        "F-f4a7e206307c": {
+          "digest": "f4a7e206307cfba80b2236ab27820b4ffdd64a66ab1a778769d2ee0e1f98f9fd",
+          "text": "LIR-R1-O1 (`docs/release-history.md`, the 2.25.1 row): \"caught only 'not found' from the `lstat` of an archive file or a `.removing` entry\" omits the `.ai-review/<id>` entry stat'ed by S4 probe 2 and S7, and \"Nothing is written or removed by a refused run\" is inexact for S6 `L0`, where this run already renamed the folder into `.removing/<id>` before refusing (the same row says so a sentence earlier, and the refusal names the place). A wording fix for a later release; the published-to-be row is otherwise accurate.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "262ea6b0acd61845defb40c7a0adffe21def27a769d9045a98de9cfd330d841b",
+              "verdict": "APPROVE",
+              "at": "2026-10-30T16:45:02Z"
+            }
+          ]
+        },
+        "F-6eff53adba95": {
+          "digest": "6eff53adba9538187a6fa1705d0478bd17d07fafa0321a30ac50d05f1635cacf",
+          "text": "LIR-R1-O2 (`payload/scripts/workflow_state_completion_obligations_test.py`, `RetentionRemove.stat_refused`): unlike the archive class's helper, it does not assert the `check the permissions of` prefix of the next step, only that `shown` appears in it; T2 to T5 would still pass if a site's next step dropped the permission advice. T9 pins the helper's text, so this is test tightening only.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "262ea6b0acd61845defb40c7a0adffe21def27a769d9045a98de9cfd330d841b",
+              "verdict": "APPROVE",
+              "at": "2026-10-30T16:45:02Z"
+            }
+          ]
         }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "262ea6b0acd61845defb40c7a0adffe21def27a769d9045a98de9cfd330d841b",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "7e8b47e7313aa26df2928d2c57c1ec06490b1bcdd001619b886ad9d31808bf18",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-10-30T16:45:02Z",
+          "verdict_sha256": "098a2918ce6b60fb2759d4fe6a4481504c1e9c6b121e36ce185bab493ec89063",
+          "run_ref": "session:local .ai-review/retention-lstat-errors/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
       }
     }
   }
