@@ -441,6 +441,7 @@ files only, and the next run says which, by what is on disk:
 | an index line cut off, or not JSON | `index_invalid` | repair or remove the named line by hand |
 | `index.jsonl` a symlink, a directory, a FIFO or a shared file | `index_unsafe` | replace it by an ordinary file by hand |
 | a symlinked component of the archive path, or one without read permission | `archive_dir_unsafe`, `unreadable` | fix the named component, or choose another `--archive-root` |
+| an archive-directory entry (`<id>.tar.zst`, `.<id>.partial`) whose `lstat` fails for a reason other than "not found" (`EACCES`, `ELOOP`, `ENAMETOOLONG`, `EIO`, `ENOTDIR`; a traceback before Workflow 2.25.1), including the final check under the lock | `unreadable` | grant access to the named path and the directory that holds it; nothing was written, and a failure under the lock removes the temporary and the directories this run created |
 | a `.removing` in the archive directory that is a symlink, is not a directory or cannot be read (new in Workflow 2.22.0, from the remove command) | `unreadable` | repair it by hand; the command does not archive from a partial view. If it is an interrupted removal's leftover, see [the remove command](#the-remove-command) first |
 
 `--json` prints one object, keys sorted, ending in a newline, with the same
@@ -504,7 +505,8 @@ refusal in the dry run too.
 (`state_missing`, `state_invalid`, `repository_unknown`); `not_finished:<reason>`,
 `kept_recent`, `unknown_item`; `archive_inside_repository`, `archive_dir_unsafe`,
 `unreadable` (including a `.removing` that is a symlink, not a directory or
-unreadable: the command does not remove from a partial view); `not_archived` (no
+unreadable: the command does not remove from a partial view, and an entry of the
+archive directory or of `.ai-review` whose `lstat` fails other than "not found"); `not_archived` (no
 archive file, or no index line), `index_unsafe`, `index_invalid` (a half index
 line stops the run, because nothing is deleted under an index that cannot be
 read); `tracked_files`; `leftover_conflict`; `review_folder_absent`,
@@ -533,7 +535,12 @@ untouched. If the leftover cannot be renamed back (`.ai-review/<id>` exists or
 one aside and `mv` it back. A failure after a completed step names the place that
 step reached (`restore_failed`: where the folder is; `remove_failed`: how many
 entries were deleted, or that the folder is deleted and only its durability is
-unconfirmed), never a place it did not reach. **Do not delete `.removing/<id>` as
+unconfirmed), never a place it did not reach. A stat error other than "not found"
+is `unreadable` before the rename (nothing moved) and after it (the message says
+whether the folder is whole in `.removing/<id>` or a leftover that may be
+incomplete, and that `remove <id> --apply` resumes), and `restore_failed` while a
+refused verification is being undone (the message carries both causes and says
+where the folder is); it was a traceback before Workflow 2.25.1. **Do not delete `.removing/<id>` as
 clutter:** it may hold entries that exist only there.
 
 `--json` prints one object, keys sorted, ending in a newline:
@@ -652,7 +659,7 @@ on stdout (`--json` included).
 | 6 | `removal_interrupted` | the id has a leftover under `.removing`: finish it first with `remove <id> --apply`, because the archive may be the only copy of the leftover's missing entries |
 | 7 | `not_prunable` | the archive is not older than the time to live (exactly 30 days is not past it); the message gives both |
 | 8 | `item_not_finished` | the item is `open` (a failed pull-request query, no anchor, an open phase) or `recent` (one of the newest three): rule 1 of [the guarantees](#what-the-later-tooling-must-guarantee) never touches an open item's files, and its archive may be the only copy of its review folder. `finished` and `other` (an id absent from the state, so no item to protect) pass |
-| 9 | `archive_changed` | the `lstat` of the archive is not a regular file of the size and modification time the report saw |
+| 9 | `archive_changed`, `prune_failed` | the `lstat` of the archive is not a regular file of the size and modification time the report saw (`archive_changed`), or cannot be examined (`prune_failed`, `removed: none`; steps 12 and 13 report it the same way) |
 | 10 | `archive_busy` | another `archive`, `remove` or `prune` run holds the lock on the archive directory (never in a dry run) |
 | 11 | `removal_interrupted`, `unreadable` | under the lock, `.removing` is read again: a `remove` began after step 6, or `.removing` became a symlink, a non-directory or unreadable |
 | 12 | `archive_changed`, `prune_failed` | under the lock, **any** named archive differs from what step 9 saw (or cannot be examined: a failed `lstat` is `prune_failed`); nothing was removed |
