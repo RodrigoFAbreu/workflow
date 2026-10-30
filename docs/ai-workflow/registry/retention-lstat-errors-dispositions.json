@@ -1,0 +1,60 @@
+{
+ "schema_version": 1,
+ "work_item_id": "retention-lstat-errors",
+ "dispositions": {
+  "F-0fb88ca2e6c5": {
+   "disposition": "dropped",
+   "reason": "plan wording on test T8's expected progress lists; functional flow 7 verifies the actual removed / not removed lists"
+  },
+  "F-15af6d81862e": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-2414ec3450be": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-30a1f1a6285e": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-6eff53adba95": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#132",
+   "note": "helper does not assert the next-step prefix (issue item 1)"
+  },
+  "F-769b88ee4237": {
+   "disposition": "dropped",
+   "reason": "plan wording on the snapshot assertion; the implementation tests state the exceptions and the reviews approved them"
+  },
+  "F-8c5fb1bcb786": {
+   "disposition": "dropped",
+   "reason": "plan header revision number; plan text only, archived at acceptance"
+  },
+  "F-980acf063793": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-aa4fbed0927e": {
+   "disposition": "dropped",
+   "reason": "plan wording on test T3's probe setup; the test and functional flow 3 set it up correctly"
+  },
+  "F-c8edfec1e60c": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-c99fada29ad6": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-e95aebf1be59": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-f4a7e206307c": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#132",
+   "note": "release-history row wording (issue item 2)"
+  }
+ }
+}
