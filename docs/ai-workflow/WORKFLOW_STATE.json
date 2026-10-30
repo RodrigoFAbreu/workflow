@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "retention-lstat-errors",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -25893,6 +25893,333 @@
         },
         "evaluated_at": "2026-10-28T08:07:33Z",
         "workflow_release": "2.24.0"
+      }
+    },
+    "retention-lstat-errors": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "retention-lstat-errors",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/RETENTION_LSTAT_ERRORS_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/retention-lstat-errors-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/retention-lstat-errors-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 4,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "d101bebae7401a00364da702b37baaf69fc9f7b0",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "b5365ac135ee9e7a79268cd84e6b0c44c2582d50ffb62667bd1996af68f3d3a1",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "b5365ac135ee9e7a79268cd84e6b0c44c2582d50ffb62667bd1996af68f3d3a1",
+        "approved_review_content_id": "ce434304404abab0479531fe9d956f74dbe89d191f29774654db4111711a530b",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/RETENTION_LSTAT_ERRORS_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "565b73978a828c46dfcf0dd35ffbc2da6f245ce4"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-lstat-errors-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2ca7f3cf39f5e64eb5ab6d2956a2acb43a27a686"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/retention-lstat-errors-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d724d42cf561d3016d97f3db855b54e1d99a0580"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-30T15:12:03Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "ce434304404abab0479531fe9d956f74dbe89d191f29774654db4111711a530b",
+            "ledger": {
+              "local": {
+                "bundle_id": "b5365ac135ee9e7a79268cd84e6b0c44c2582d50ffb62667bd1996af68f3d3a1",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "a61af7ca3d735da619b40fc57ac205a3f640e9c58d15f7a2a4262433882f2810",
+                "ledger_entry_sha256": "801b87c5f65428f226b1a3964176a35128b131b63fc8e4a146d582bc01d47a5e",
+                "run_ref": "session:local .ai-review/retention-lstat-errors/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "b5365ac135ee9e7a79268cd84e6b0c44c2582d50ffb62667bd1996af68f3d3a1",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "3b5849a8041a95ad3fb5fe643d60f9cdb585ace08cf7d590958a664f0e2633c7",
+                "ledger_entry_sha256": "638cd697c810707dccfdd371504515daf375db13659dc183982d8f54a297ac22",
+                "run_ref": "codex:20261030T150802Z-121692bb",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-30T15:12:03Z",
+          "workflow_release": "2.25.0"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "ce434304404abab0479531fe9d956f74dbe89d191f29774654db4111711a530b",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "b5365ac135ee9e7a79268cd84e6b0c44c2582d50ffb62667bd1996af68f3d3a1",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-10-30T15:07:07Z",
+          "verdict_sha256": "a61af7ca3d735da619b40fc57ac205a3f640e9c58d15f7a2a4262433882f2810",
+          "run_ref": "session:local .ai-review/retention-lstat-errors/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "b5365ac135ee9e7a79268cd84e6b0c44c2582d50ffb62667bd1996af68f3d3a1",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-10-30T15:11:12Z",
+          "verdict_sha256": "3b5849a8041a95ad3fb5fe643d60f9cdb585ace08cf7d590958a664f0e2633c7",
+          "run_ref": "codex:20261030T150802Z-121692bb",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 4,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 15,
+      "last_transition": "2026-10-30T15:12:03Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-30T15:05:40Z",
+        "consumed": {
+          "review_content_id": "e0d51c6c80615f5ac0a69afe6f76645b57e360ed26e0b1f7d8af27474318419a",
+          "plan_revision": 3,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "ce434304404abab0479531fe9d956f74dbe89d191f29774654db4111711a530b",
+          "plan_revision": 4
+        },
+        "bound": {
+          "review_content_id": "ce434304404abab0479531fe9d956f74dbe89d191f29774654db4111711a530b",
+          "bundle_id": "b5365ac135ee9e7a79268cd84e6b0c44c2582d50ffb62667bd1996af68f3d3a1",
+          "plan_revision": 4
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "3942526021dd05aa8311cd947be99bec1dff24baade6f0c914dacce97c1ce380",
+        "ad8e2ae9ef7193f1afc775db8e30043371f65a1e41bbc3f0b656701730561f9d",
+        "e0d51c6c80615f5ac0a69afe6f76645b57e360ed26e0b1f7d8af27474318419a"
+      ],
+      "optional_findings": {
+        "F-c99fada29ad6": {
+          "digest": "c99fada29ad66207bccdcd5318f69dc6d58284ae73c9843802a81e4340fd6373",
+          "text": "**LPR-R1-O1: The `Last checked with` line of `docs/exit-codes.md` has no owner.** It reads `Workflow 2.24.0`. CP1\n  edits the page but keeps the header (\"unchanged until CP2\"), and D-Docs says the \"Last checked with\" lines move in CP2.\n  But CP2's **Files** paragraph does not list `docs/exit-codes.md`, and the D-Docs/CP2 text names only `RETENTION.md`'s\n  line and the history's. Either add `docs/exit-codes.md` to CP2's **Files** and bullets (moving it to 2.25.1, as #127 did\n  when it last edited the page), or say explicitly that it stays at 2.24.0.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ad8e2ae9ef7193f1afc775db8e30043371f65a1e41bbc3f0b656701730561f9d",
+              "verdict": "REVISE",
+              "at": "2026-10-30T14:54:01Z"
+            }
+          ]
+        },
+        "F-15af6d81862e": {
+          "digest": "15af6d81862efedb1e96f8f766de093a4c31b97a61531a5d8fab5a0c3d144ae9",
+          "text": "**LPR-R1-O2: Make the injector's counting rule explicit.** Say that only calls reaching `os.stat` through\n  `_lstat_at`/`_lstat_raw` count toward a site's matches and `skip`, and that a direct `os.stat` made by the site itself\n  does not. An example is `_flow`'s `before = os.stat(item_id, dir_fd=ai_fd, ...)` at line 1686, between S5 and S6. If\n  that direct call counted, flow 5's `--skip 1` would hit it and give `folder_changed` (\"vanished before it was moved\")\n  instead of S6. Say also which of the two `_select_removal` runs of `remove --apply` (the selection, or the re-run under\n  the lock in `_flow`) T3 and flow 3 hit, and with which `skip`. A failure in the re-run under the lock is the case\n  D-Sites' S4 row describes.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ad8e2ae9ef7193f1afc775db8e30043371f65a1e41bbc3f0b656701730561f9d",
+              "verdict": "REVISE",
+              "at": "2026-10-30T14:54:01Z"
+            }
+          ]
+        },
+        "F-2414ec3450be": {
+          "digest": "2414ec3450be83c0877d89bb8ef5e06513eaf69b37cdc4caf386269208273287",
+          "text": "**LPR-R1-O3: The exclusion and protection reasons for `fixtures/`, `payload/`, `templates/` and `tools/` in\n  `retention-lstat-errors-artifacts.json` say \"Workflow 2.25.0\".** They were copied from the previous item; this\n  milestone ships 2.25.1. The reasons are cosmetic, but they are reviewed content.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ad8e2ae9ef7193f1afc775db8e30043371f65a1e41bbc3f0b656701730561f9d",
+              "verdict": "REVISE",
+              "at": "2026-10-30T14:54:01Z"
+            }
+          ]
+        },
+        "F-30a1f1a6285e": {
+          "digest": "30a1f1a6285e36283b83658e90f34b4e70436161b34efa65afe43c5ea76caf36",
+          "text": "**LPR-R2-O1: S8's \"shown\" column says `os.path.join(resolved, <name>)`, but its Refusal cell reuses `_check_unchanged`'s\n  existing text, which names the bare `<name>` in the message and `resolved` in the next step.** D-Tests requires every test\n  to pin \"the exact message prefix with the site's `shown` path\", so T7 is ambiguous. If the full path goes into the\n  shared builder, the text of steps 12 and 13a changes, which T8 forbids. If it stays out, S8 differs from its own\n  column. Say in the S8 row that its message and next step are `_check_unchanged`'s unchanged (bare `<name>`, then\n  `check the permissions of <resolved>`), and that T7 pins that text.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "3942526021dd05aa8311cd947be99bec1dff24baade6f0c914dacce97c1ce380",
+              "verdict": "REVISE",
+              "at": "2026-10-30T14:59:20Z"
+            }
+          ]
+        },
+        "F-c8edfec1e60c": {
+          "digest": "c8edfec1e60c76d7a2bc7f91a58cf7e2caeb496c9942c5843652945f1ceeaba4",
+          "text": "**LPR-R2-O2: D-Sites' parenthetical row says \"S4 and S1 to S3 run twice\".** S2 runs only in the selection: `_apply`\n  passes `check_partial=False`, as the S2 row itself says. S1's two runs are already the separate rows S1a and S1b.\n  Write \"S3 and S4 run twice in `remove --apply`\". Optionally, note that T2 covers only S3's selection run. The re-run\n  under the lock in `_flow` goes through the same `except RetentionError` → `note` path as S4's, which T3 covers.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "3942526021dd05aa8311cd947be99bec1dff24baade6f0c914dacce97c1ce380",
+              "verdict": "REVISE",
+              "at": "2026-10-30T14:59:20Z"
+            }
+          ]
+        },
+        "F-e95aebf1be59": {
+          "digest": "e95aebf1be59b487139faca7f27c92b9822e0e1a8fbb33bc1bff0353564dc287",
+          "text": "**LPR-R2-O3: Flow 4's Expect cell says \"the stat of that name made by `_flow` itself before the rename\".** Under\n  D-Tests' counting rule, the direct `os.stat` at 1686 is the call made by `_flow` itself, and it does not count. Write\n  \"the helper stat of `.removing/m-1` at step 3 (S5)\" instead.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "3942526021dd05aa8311cd947be99bec1dff24baade6f0c914dacce97c1ce380",
+              "verdict": "REVISE",
+              "at": "2026-10-30T14:59:20Z"
+            }
+          ]
+        },
+        "F-980acf063793": {
+          "digest": "980acf06379326a2312cf9c05abd2a3b72a37b623eb08124216c10e1e3fd047b",
+          "text": "**LPR-R3-O1: No mutation pins S6's `leftover`-chosen `after`.** A build that always uses the L0 text (\"the folder is\n  whole\") fails T5's L1 case, but no listed mutation proves that. Consider adding one, for example \"m15: S6 always uses\n  the L0 `after` (T5 L1 fails)\". LPR-R1-001 was about exactly this text.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "e0d51c6c80615f5ac0a69afe6f76645b57e360ed26e0b1f7d8af27474318419a",
+              "verdict": "REVISE",
+              "at": "2026-10-30T15:03:07Z"
+            }
+          ]
+        },
+        "F-8c5fb1bcb786": {
+          "digest": "8c5fb1bcb786fcd7875756c6563421e542cc4c620fdbc336e513326fc386e4ca",
+          "text": "**LPR-R4-O1: The plan's header still says revision 3.** Line 10 reads \"**Plan revision:** 3 (rounds 1 and 2 of the\n  local review applied ...)\". The title, the registry and the state say revision 4, and section 4 records round 3. Make\n  it 4 and add round 3 (LPR-R3-001 and LPR-R3-O1).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "ce434304404abab0479531fe9d956f74dbe89d191f29774654db4111711a530b",
+              "verdict": "APPROVE",
+              "at": "2026-10-30T15:07:07Z"
+            }
+          ]
+        },
+        "F-aa4fbed0927e": {
+          "digest": "aa4fbed0927ee40b8f725e4cb3e718b2f5b9d957b041ddf2e75eab78d3a1c080",
+          "text": "**LPR-R4-O2: T3's probe 3 needs a leftover, which T3's setup does not state.** Line 1554 runs only when probe 1 found\n  `.removing/<id>` (`leftover` is true). A `.removing` container alone, which T3 and flow 3 set up, reaches probes 1 and\n  2 only. m5 mutates lines 1551 and 1554 together, so T3's probe-1 case makes it fail even if probe 3 is never hit.\n  Say that T3's probe-3 case creates `.removing/<id>`. With it present the matching calls are probe 1, probe 2 and\n  probe 3, so probe 3 is `skip 2`, and in `remove --apply` the re-run under the lock starts at `skip 3`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "ce434304404abab0479531fe9d956f74dbe89d191f29774654db4111711a530b",
+              "verdict": "APPROVE",
+              "at": "2026-10-30T15:07:07Z"
+            }
+          ]
+        },
+        "F-0fb88ca2e6c5": {
+          "digest": "0fb88ca2e6c578070577beefb70281c958981be3b46a2c899d23a190b2c210b6",
+          "text": "**O1 — Clarify T8’s expected progress lists.** Step 12 runs before every unlink, so its failure should report `removed: none` and all requested IDs pending. Reserve `removed: w00; not removed: w01, w02` for the step 13a failure after the first unlink.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "ce434304404abab0479531fe9d956f74dbe89d191f29774654db4111711a530b",
+              "verdict": "APPROVE",
+              "at": "2026-10-30T15:11:12Z"
+            }
+          ]
+        },
+        "F-769b88ee4237": {
+          "digest": "769b88ee42377e77b3db5a59157f8f09ff85ab0c81df88b821ab3c43b6229572",
+          "text": "**O2 — Qualify D-Tests’ blanket “snap identical” assertion.** S1b creates and removes a temporary file, changing directory timestamps; S6 and S7 retain the folder at its moved location. Apply unchanged snapshots to selection failures and use the already-described cleanup, location and content assertions for these later failures.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "ce434304404abab0479531fe9d956f74dbe89d191f29774654db4111711a530b",
+              "verdict": "APPROVE",
+              "at": "2026-10-30T15:11:12Z"
+            }
+          ]
+        }
       }
     }
   }

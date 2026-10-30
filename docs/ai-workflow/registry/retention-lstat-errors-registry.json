@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-lstat-errors",
+  "plan_revision": 4,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The coded refusal, its call sites, tests and documents",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.25.1",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}
