@@ -12,7 +12,7 @@ patch): wording and test pins of finished retention work, no behaviour change. B
 | id | name | state |
 | --- | --- | --- |
 | CP1 | The four in-scope items: wording, three assertions | **complete** |
-| CP2 | Release 2.25.2 | pending |
+| CP2 | Release 2.25.2 | **complete** |
 
 ## Verified state
 
@@ -21,6 +21,13 @@ patch): wording and test pins of finished retention work, no behaviour change. B
   (integration 377); mutations m1 to m7 each fail as the plan says; `workflow_retention.py` and `payload/.claude` are
   byte-identical to the base.
 
+- CP2: Workflow 2.25.2 (manifest, the six records, the posture, `conformance.suites` integration 377; the release
+  constant, its assertions and the protocol document; the 2.25.2 and corrected 2.25.1 history rows; the
+  `RetentionPolishReleaseTest` class and the nine docstring pointers). Verified from a squashed scratch clone of the
+  candidate: the nine suites from `stage-conformance`, `build`, `check-manager-block`, the `tools/release` tests (299)
+  and `tools/docs`; m8 fails `RetentionPolishReleaseTest` and the baseline passes.
+
 ## Next action
 
-Run `/milestone-implement retention-polish` again for CP2 (the release).
+Run `/milestone-implement retention-polish` again: all checkpoints are complete, so it runs the full-milestone review
+and prepares the implementation review bundle.

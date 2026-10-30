@@ -26713,18 +26713,22 @@
       "registry_path": "docs/ai-workflow/registry/retention-polish-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-polish-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 2,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "586c86c99335192981b7b335d97347f473091b39",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "629158e7f9114ed95465bdc13f15734618ccc56e"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "9ed4bfb7c2ccf6a85eb9250dc204c1fd0eaddc1d"
         }
       },
       "current_bundle_id": "4fb09174ebce6f2c1f2b5491342f487be5d5e9bb94e0674b7443cde34cf43a1f",
@@ -26853,8 +26857,8 @@
           "external": 0
         }
       },
-      "state_revision": 11,
-      "last_transition": "2026-10-30T21:14:06Z",
+      "state_revision": 13,
+      "last_transition": "2026-10-30T21:49:32Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
