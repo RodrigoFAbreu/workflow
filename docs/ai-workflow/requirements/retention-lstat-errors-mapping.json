@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-lstat-errors",
+  "requirements": {
+    "R1": {
+      "description": "_lstat_at turns a stat error that is not 'not found' into a coded refusal (unreadable at the archive and removal selection and after the rename, restore_failed in the restore, prune_failed with removed/not removed at prune step 9); _lstat_raw keeps the raw stat for prune steps 12 and 13a and the leftover probe; no new code, every existing behaviour byte-identical; one test per changed site with the injected error and no write or removal, T1 to T9, failure-only mutations m1 to m16",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "docs/RETENTION.md and docs/exit-codes.md name the coded refusals; no page names an internal milestone id; no state, protocol or command-file change",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "Release 2.25.1, a fix patch: workflow_version, changed records, WORKFLOW_RELEASE and its pinned assertions, the history row, the pages' Last checked with lines, a 2.25.1 release-test class, conformance.suites measured; counts unchanged; protocol stays 1.5",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
