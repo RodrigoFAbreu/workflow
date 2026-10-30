@@ -25904,12 +25904,12 @@
       "registry_path": "docs/ai-workflow/registry/retention-lstat-errors-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-lstat-errors-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "APPLYING_REVIEW_FEEDBACK",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 4,
-      "implementation_revision": 2,
+      "implementation_revision": 3,
       "functional_review_round": null,
       "base_commit": "d101bebae7401a00364da702b37baaf69fc9f7b0",
-      "reviewed_implementation_head": "e8d90f70cae4b5015d232d3addfa33274e80e0f8",
+      "reviewed_implementation_head": "bea39a8fc119c406bc2fb9c808551799f699e6aa",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -26048,8 +26048,8 @@
           "external": 1
         }
       },
-      "state_revision": 24,
-      "last_transition": "2026-10-30T16:57:28Z",
+      "state_revision": 25,
+      "last_transition": "2026-10-30T17:16:32Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
