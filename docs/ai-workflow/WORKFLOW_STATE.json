@@ -28137,12 +28137,12 @@
       "registry_path": "docs/ai-workflow/registry/check-time-by-value-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/check-time-by-value-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 1,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "e70ccb13434a381106a36ae030f68c880c9b7c92",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "34881afac73c5c8f35997896821f2478b88d0f9b",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -28281,8 +28281,8 @@
           "external": 0
         }
       },
-      "state_revision": 17,
-      "last_transition": "2026-10-31T13:56:39Z",
+      "state_revision": 18,
+      "last_transition": "2026-10-31T14:31:46Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
