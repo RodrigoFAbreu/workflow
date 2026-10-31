@@ -1,6 +1,6 @@
 # Exit codes
 
-> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.25.1.
+> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.25.5.
 
 This is the one table of exit statuses for the scripts a person or an
 orchestrator runs. Slash commands (such as `/milestone-plan`) have no exit
