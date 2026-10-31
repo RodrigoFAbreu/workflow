@@ -28137,18 +28137,22 @@
       "registry_path": "docs/ai-workflow/registry/check-time-by-value-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/check-time-by-value-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 1,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "e70ccb13434a381106a36ae030f68c880c9b7c92",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "70009b9ff6cf1f804dbea57d69419fd4ca1e4654"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "4b25190f689b18dfcde6e9aa26134e9a5dc9070f"
         }
       },
       "current_bundle_id": "e7d1fc1242b1352dcd627ba53629abfef14fcc98e50d43c7f29f85e1f781abda",
@@ -28277,8 +28281,8 @@
           "external": 0
         }
       },
-      "state_revision": 15,
-      "last_transition": "2026-10-31T13:27:36Z",
+      "state_revision": 17,
+      "last_transition": "2026-10-31T13:56:39Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
