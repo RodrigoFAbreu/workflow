@@ -1,0 +1,48 @@
+{
+ "schema_version": 1,
+ "work_item_id": "check-time-by-value",
+ "dispositions": {
+  "F-041344cbac5d": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-0bae6bda52ea": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-3739faea0577": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-44d24732bb30": {
+   "disposition": "dropped",
+   "reason": "plan line width; plan text only, archived at acceptance"
+  },
+  "F-4924b30764d9": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#137",
+   "note": "unused unpacked variable in test_t11 (comment on #137, a)"
+  },
+  "F-96f439dc57f5": {
+   "disposition": "dropped",
+   "reason": "plan section 7 cites flow 9 for the ROADMAP row; the row is verified by D-Docs and the diff, plan text only"
+  },
+  "F-b4fdc47bcc06": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-d5baa970bbea": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-f25ccf723294": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#137",
+   "note": "no mutation proves t13's over-rejection guard (comment on #137, b)"
+  },
+  "F-fd936605961f": {
+   "disposition": "dropped",
+   "reason": "plan wording for mutations m12 and m13; the implementation's tests and recorded mutations were reviewed and approved"
+  }
+ }
+}
