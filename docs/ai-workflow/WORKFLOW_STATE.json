@@ -27424,12 +27424,12 @@
       "registry_path": "docs/ai-workflow/registry/ci-latest-check-run-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/ci-latest-check-run-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 2,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "198b82bfdaa921993354a36497674533afd47a31",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "63fb23829f6bc05d0205f81f972d003285379138",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -27568,8 +27568,8 @@
           "external": 0
         }
       },
-      "state_revision": 13,
-      "last_transition": "2026-10-31T10:21:24Z",
+      "state_revision": 14,
+      "last_transition": "2026-10-31T11:05:47Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
