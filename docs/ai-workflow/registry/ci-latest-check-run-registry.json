@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "ci-latest-check-run",
+  "plan_revision": 2,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The latest run per check: the change, its tests and its sentence",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.25.3",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}

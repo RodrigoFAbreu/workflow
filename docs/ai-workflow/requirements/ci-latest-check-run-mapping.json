@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_item_id": "ci-latest-check-run",
+  "requirements": {
+    "R1": {
+      "description": "_checks keeps the latest run per check identity (CheckRun: workflow name plus check name; StatusContext: its context), ordered by startedAt, an earlier run superseded only when it completed before the latest started (overlapping runs are concurrent and keep the worst state): failure then success is success, success then failure is failure, failure then pending is pending, different workflows with the same check name are separate identities; the issue's two-entry data is success (t1 to t4, t10, m1 to m3, m5, m10)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "A tie, an unusable timestamp or an overlapping run for a repeated identity keeps the worst state (fail closed); single entries behave byte-identically; failing names only identities whose latest run failed; {state, failing} keeps its shape; the gh query, its field list, pin and provenance do not change (t5 to t8, t10, m4, m6, m7, m9, m10)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "GATE_POLICY.md says the checks are those of the latest run of each check (t9, m8); Release 2.25.3, a fix patch: workflow_version, the six changed records, WORKFLOW_RELEASE and its pinned assertions, the 2.25.3 history row, a 2.25.3 release-test class, every older docstring pointer moved, conformance.suites measured (gate policy 326); counts unchanged; protocol stays 1.5",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    }
+  }
+}

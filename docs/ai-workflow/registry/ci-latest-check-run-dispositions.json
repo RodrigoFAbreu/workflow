@@ -1,0 +1,58 @@
+{
+ "schema_version": 1,
+ "work_item_id": "ci-latest-check-run",
+ "dispositions": {
+  "F-213eb203d9dd": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-3c36ff53b958": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#137",
+   "note": "no test catches a usable zero startedAt (item 2)"
+  },
+  "F-43bf73300bd0": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#137",
+   "note": "plan test table order (item 5)"
+  },
+  "F-4a1fc69d49d5": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#137",
+   "note": "residual names only the push/pull_request pair (item 4)"
+  },
+  "F-843a3f1e4d61": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#137",
+   "note": "zero time recognised by literal only (issue item 1)"
+  },
+  "F-90a745bb296e": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#137",
+   "note": "ROADMAP row 30 describes revision 1's rule (item 3)"
+  },
+  "F-e28a163e42d8": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#137",
+   "note": "same: zero-time spellings (item 1)"
+  },
+  "F-e5f140cffe77": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-f38b8a7aa678": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#137",
+   "note": "t5's zero-time case does not flip (item 2)"
+  },
+  "F-f533d55f5039": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#137",
+   "note": "same t5 gap (item 2)"
+  },
+  "F-f5f2ebd0b7eb": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  }
+ }
+}
