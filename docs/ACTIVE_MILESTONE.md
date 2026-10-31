@@ -2,33 +2,33 @@
 
 ## Milestone
 
-**Complete (accepted by policy).** W36: `check-time-by-value` (`process`, governing version `2.2`), branch
-`milestone/check-time-by-value`, roadmap row 31 (RodrigoFAbreu/workflow#137, items 1 to 4). Plan:
-`docs/ai-workflow/CHECK_TIME_BY_VALUE_PLAN.md` (revision 1, approved by gate policy). The goal, Workflow 2.25.4 (a
-`fix:` patch, released after the merge of the pull request): the latest-run judge recognises the zero instant
-`0001-01-01T00:00:00Z` by value, in every spelling that denotes it, so a green run can no longer supersede a failure
-because of how the zero time is written. Base commit `e70ccb1`; the previous milestone, W35 `ci-latest-check-run`, is
-accepted (Workflow 2.25.3).
+**Complete (accepted by policy).** W37: `retention-error-paths` (`process`, governing version `2.2`), branch
+`milestone/retention-error-paths`, roadmap row 32 (RodrigoFAbreu/workflow#119 item 1 and #113 item 2). Plan:
+`docs/ai-workflow/RETENTION_ERROR_PATHS_PLAN.md` (revision 1, approved by gate policy). The goal, Workflow 2.25.5 (a
+`fix:` patch, released after the merge of the pull request): an unreadable symlink in a review folder, and a state
+file or tracked path that is not valid UTF-8, are coded refusals (exit 2, a `next step:`) instead of a traceback.
+Base commit `69ebb46`; the previous milestone, W36 `check-time-by-value`, is accepted (Workflow 2.25.4).
 
 ## Checkpoints
 
 | id | name | state |
 | --- | --- | --- |
-| CP1 | The zero instant by value: the change, its tests, its sentence and the roadmap rows | **complete** |
-| CP2 | Release 2.25.4 | **complete** |
+| CP1 | The helpers, their call sites, tests and documents | **complete** |
+| CP2 | Release 2.25.5 | **complete** (see the commit of this checkpoint) |
 
 ## Verified state
 
 - Gates: plan approval and technical approval `CURRENT`, basis `POLICY_SATISFIED`. Technical approval at the review
-  content `b68e2c7d`, reviewed implementation head `34881af`.
-- The 10 recorded Optional findings are dispositioned in
-  `docs/ai-workflow/registry/check-time-by-value-dispositions.json` (5 fixed, 3 dropped, 2 follow-ups on
-  RodrigoFAbreu/workflow#137).
-- Functional review: flows 1 to 7 by the Controller's automated tester (run `controller:20261031T150737Z-f8815030`),
+  content `8664a0e4`, reviewed implementation head `c7f863f`.
+- The 13 recorded Optional findings are dispositioned in
+  `docs/ai-workflow/registry/retention-error-paths-dispositions.json` (5 fixed, 4 dropped, 4 follow-ups on
+  RodrigoFAbreu/workflow#143).
+- Functional review: flows 1 to 9 by the Controller's automated tester (run `controller:20261031T191455Z-45ffe2b0`),
   all passed at the approved content. The evidence is recorded in `WORKFLOW_STATE.json`.
-- Acceptance: pull request #140 at `c9458b0`, checks green, read by the Workflow's own `gh` query.
+- Acceptance: pull request #144 at `be97c94`, checks green, read by the Workflow's own `gh` query.
 
 ## Next action
 
-W36 `check-time-by-value` is accepted by policy (Workflow 2.25.4 is released after the merge of the pull request).
-Choose the next row of `docs/ROADMAP.md` with the owner before running `/milestone-plan`.
+W37 `retention-error-paths` is accepted by policy (Workflow 2.25.5 is released after the merge of the pull request).
+The next incomplete row of `docs/ROADMAP.md` is row 33 (the retention report says `unreadable` where it cannot tell);
+confirm it with the owner before running `/milestone-plan`.

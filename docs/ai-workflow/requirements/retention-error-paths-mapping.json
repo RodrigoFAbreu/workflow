@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-error-paths",
+  "requirements": {
+    "R1": {
+      "description": "the four os.readlink sites (_scan, the pack, _hash_folder, _remove_tree) become coded refusals through one helper: unreadable, or folder_changed for ENOENT/EINVAL; _remove_tree keeps its stopped-after-deleting text; no new code; the pack's readlink failure, `pack_failed` today, becomes `unreadable`/`folder_changed` (the one named exception), and every other existing output stays byte-identical; tests T1 to T6 inject the error with no write or removal, failure-only mutations m1 to m7",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "a state file or a git ls-files path that is not valid UTF-8 is state_invalid / repository_unknown with exit 2 and a next step, never a traceback; _git_tracked and the index reader pinned unchanged; tests T7 and T8, mutations m8 to m10",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "docs/RETENTION.md and docs/exit-codes.md name the coded refusals; no page names an internal milestone id; no state, protocol or command-file change",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Release 2.25.5, a fix patch: workflow_version, changed records, WORKFLOW_RELEASE and its pinned assertions, the history row, the pages' Last checked with lines, a 2.25.5 release-test class, conformance.suites measured; counts unchanged; protocol stays 1.5",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
