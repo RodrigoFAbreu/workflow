@@ -1,0 +1,62 @@
+{
+ "schema_version": 1,
+ "work_item_id": "retention-error-paths",
+ "dispositions": {
+  "F-0cb34471411c": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#143",
+   "note": "explicit UTF-8 decode vs locale decoding, a documented limit (item 4)"
+  },
+  "F-0df260cd3083": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-2b0af5ec446b": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-36d2b9c5324d": {
+   "disposition": "dropped",
+   "reason": "plan and flow wording (backticks, helper name); no code or shipped document affected"
+  },
+  "F-3fd23fd8305e": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-4b055c1e8d9c": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-4debe5d978d1": {
+   "disposition": "dropped",
+   "reason": "plan wording on the leftover note; the implementation and flow 5 verify the behaviour"
+  },
+  "F-512557adef42": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#143",
+   "note": "RETENTION.md rename-back sentence (item 2)"
+  },
+  "F-5f52f1910b70": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#143",
+   "note": "release-history downgrade sentence (issue item 1)"
+  },
+  "F-91cf511ab369": {
+   "disposition": "dropped",
+   "reason": "plan section 0 line reference; plan text only"
+  },
+  "F-9775dd6759bd": {
+   "disposition": "dropped",
+   "reason": "plan wording on two folder_changed messages; plan text only"
+  },
+  "F-b7433ee233e3": {
+   "disposition": "fixed",
+   "note": "answered in the plan or implementation revisions and confirmed by the later local and Codex rounds"
+  },
+  "F-fc8aae0c130e": {
+   "disposition": "follow-up",
+   "link": "RodrigoFAbreu/workflow#143",
+   "note": "T6 infers the unlink count (item 3)"
+  }
+ }
+}
