@@ -5789,6 +5789,8 @@ class RetentionRemove(unittest.TestCase):
                 self.assertEqual(len(counted), skip + 1)
                 self.link_refused(result, "unreadable", errno.EIO)
                 self.assertEqual(len(rr.renames), 2)  # out and back
+                self.assertTrue(result.error.message.endswith(
+                    f"; the folder is back in {rr.root / '.ai-review' / 'w00'}"), result.error.message)
                 self.assertFalse((rr.removing / "w00").exists())
                 self.untouched(rr, before, folder_before, fds)
                 self.assertEqual(rr.rm(apply=True).code, 0)
@@ -5803,10 +5805,36 @@ class RetentionRemove(unittest.TestCase):
         self.assertEqual(len(counted), 1)
         self.link_refused(result, "unreadable", errno.EIO)
         self.assertEqual(rr.renames, [])
-        self.assertIn("remove w00 --apply", result.error.next_step)
+        # step 6's own text: the hash failed before the comparison, so the leftover stays put
+        self.assertTrue(result.error.message.endswith(
+            f"; the folder is in {rr.removing / 'w00'}, it may be incomplete and the missing entries exist only in "
+            "the archive"), result.error.message)
+        self.assertTrue(result.error.next_step.endswith("; repair the cause and run `remove w00 --apply` again"),
+                        result.error.next_step)
         self.assertEqual(rr.files(rr.removing / "w00"), leftover_before)
         self.assertEqual(_fd_count(), fds)
         self.assertEqual(rr.rm(apply=True).code, 0)
+
+    def test_w37_t5c_an_unreadable_symlink_at_the_recheck_puts_an_incomplete_leftover_back(self):
+        rr = self.env()
+        rr.prepared()
+        leftover = rr.park()
+        os.unlink(leftover / "sub/b.txt")
+        leftover_before, fds = rr.files(leftover), _fd_count()
+        # the leftover's scans: the selection, the re-selection under the lock, the re-check at step 5 (skip 2)
+        with _readlink_fails("_scan", "ln", errno.EIO, skip=2) as counted:
+            result = rr.rm(apply=True)
+        self.assertEqual(len(counted), 3)
+        self.link_refused(result, "unreadable", errno.EIO)
+        self.assertEqual(len(rr.renames), 1)  # back only: a leftover is not moved out by this run
+        self.assertTrue(result.error.message.endswith(
+            f"; the folder is back in {rr.root / '.ai-review' / 'w00'}"), result.error.message)
+        self.assertIn("1 archived entries are missing because an earlier run already deleted them",
+                      result.error.next_step)
+        self.assertIn(str(rr.adir / "w00.tar.zst"), result.error.next_step)
+        self.assertFalse((rr.removing / "w00").exists())
+        self.assertEqual(rr.files(rr.root / ".ai-review" / "w00"), leftover_before)
+        self.assertEqual(_fd_count(), fds)
 
     def test_w37_t6_an_unreadable_symlink_while_deleting_stops_with_the_count(self):
         for err, code in ((errno.EACCES, "unreadable"), (errno.ENOENT, "folder_changed")):

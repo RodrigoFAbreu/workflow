@@ -843,8 +843,8 @@
       "category": "distribution",
       "rule": "^scripts/workflow_state_completion_obligations_test\\.py$",
       "rationale": "TestNeverPersistedPhaseVocabulary's PERSISTED frozenset and its AST-derivation helper widened for the two new persisted phases, one of them (AWAITING_LOCAL_IMPLEMENTATION_REVIEW) reachable only through bundle_generation_target_phase's call indirection (D-Implementation-Review-Stages, CP11). backlog-file (workflow-2.17.0): the backlog parser, schema, selection, edit, page, command-line, declaration and document tests, as the release notes state. review-followups-cleanup (workflow-2.18.1): backlog tests for a quoted \"?\" entry, a trailing comment on a key with no inline value, protected_conflicts on item-page paths and prefixes, and the two backlog document sentences. retention-report (workflow-2.20.0): the RetentionReport tests (sixteen added), which run the read-only report script against synthetic repositories and pin its output, its refusals and that it writes nothing; every pre-existing test is unmodified. retention-archive (workflow-2.21.0): the RetentionArchive tests (thirty-one added, which also pin the report's four new checks), which run the archive subcommand against synthetic repositories and pin its dry run, its refusals, its placement, index and durability steps and that it never touches the review folder; every pre-existing test is unmodified. retention-removal (workflow-2.22.0): the RetentionRemove tests (fifteen added), which run the remove subcommand against synthetic repositories and pin its dry run, its refusals, the contents verification, the delete, the rename back and the leftover; every pre-existing test is unmodified except that the report cases comparing a whole report gain the `removing` key. retention-prune (workflow-2.24.0): the RetentionPrune tests (ten added), which run the prune subcommand against synthetic repositories and pin its dry run, its refusals in order, the unlink and its durability, the untouched index and the untouched archives it was not asked to prune; every pre-existing test is unmodified. retention-lstat-errors (workflow-2.25.1): the stat-error tests (injected errors at each changed site, which show the refusal with nothing written or removed); every pre-existing test is unmodified. retention-polish (workflow-2.25.2): `RetentionRemove.stat_refused` asserts the \"check the permissions of\" prefix of the next step. retention-error-paths (workflow-2.25.5): the readlink and decoding tests (an injected error at each of the four places, a state file and a tracked path that are not UTF-8), which show the refusal with nothing written or removed; every pre-existing test is unmodified.",
-      "sha256": "9ac512bd2f85b8bf3f270cd69a795c145d8a9c5aa8cff8ec319b9f22de8cef4a",
-      "size": 383001,
+      "sha256": "ee1fc669e2a2cde0ae4f0f14bd55541c81427c94462467612762a5296d10ff9e",
+      "size": 384840,
       "executable": false
     },
     {
@@ -3887,7 +3887,7 @@
         "workflow_state_test.py": 1244,
         "workflow_gate_policy_test.py": 330,
         "workflow_fingerprint_generalization_test.py": 142,
-        "workflow_state_completion_obligations_test.py": 283,
+        "workflow_state_completion_obligations_test.py": 284,
         "workflow_integration_test.py": 377,
         "workflow_fingerprint_test.py": 283,
         "workflow_test_harness_test.py": 27
