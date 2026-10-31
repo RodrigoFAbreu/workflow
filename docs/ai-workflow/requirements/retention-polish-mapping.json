@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-polish",
+  "requirements": {
+    "R1": {
+      "description": "The archive command's Writes line in the operator reference says no tracked file and no state, the engines write the archive and its index line, and remove takes the untracked folder away; pinned in test_the_documents_list_it (m6)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "The integration suite pins the two allowed preview-result pairs and the catch-all stop of /archive-finished-item and that the codes are engine codes (m1 to m5); RetentionRemove.stat_refused asserts the 'check the permissions of' prefix (m7); no engine, command-file, message or state change",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "Release 2.25.2, a fix patch: workflow_version, the six changed records, WORKFLOW_RELEASE and its pinned assertions, the corrected 2.25.1 history row and the 2.25.2 row (m8), a 2.25.2 release-test class, every older docstring pointer moved, conformance.suites measured (integration 377); counts unchanged; protocol stays 1.5",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
