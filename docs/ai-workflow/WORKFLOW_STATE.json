@@ -28857,12 +28857,12 @@
       "registry_path": "docs/ai-workflow/registry/retention-error-paths-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-error-paths-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 1,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "69ebb46fae71dd73761624c393b1436be655f044",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "c7f863f76e1f2d1e4dd9c8fd1fcb0220eb87609b",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -29001,8 +29001,8 @@
           "external": 0
         }
       },
-      "state_revision": 20,
-      "last_transition": "2026-10-31T18:17:22Z",
+      "state_revision": 21,
+      "last_transition": "2026-10-31T18:41:49Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
