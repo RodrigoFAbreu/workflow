@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "check-time-by-value",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -28126,6 +28126,304 @@
         },
         "evaluated_at": "2026-10-31T12:06:06Z",
         "workflow_release": "2.25.2"
+      }
+    },
+    "check-time-by-value": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "check-time-by-value",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/CHECK_TIME_BY_VALUE_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/check-time-by-value-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/check-time-by-value-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 1,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "e70ccb13434a381106a36ae030f68c880c9b7c92",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "e7d1fc1242b1352dcd627ba53629abfef14fcc98e50d43c7f29f85e1f781abda",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "e7d1fc1242b1352dcd627ba53629abfef14fcc98e50d43c7f29f85e1f781abda",
+        "approved_review_content_id": "a208ea40f124024c2315aecad77c1a7ae60cf7c20d8ebb1dc35b584bcfb66a8a",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/CHECK_TIME_BY_VALUE_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "887910c8cd8d2719027d9ddfedb192b779b5a3fc"
+          },
+          {
+            "path": "docs/ai-workflow/registry/check-time-by-value-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1d6fb9eff2b2ff4db75ce2048159045d9db2d06a"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/check-time-by-value-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ba04d3f82dfda34572ca61e057e58274b9605d0f"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-31T13:23:47Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "a208ea40f124024c2315aecad77c1a7ae60cf7c20d8ebb1dc35b584bcfb66a8a",
+            "ledger": {
+              "local": {
+                "bundle_id": "e7d1fc1242b1352dcd627ba53629abfef14fcc98e50d43c7f29f85e1f781abda",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "2d43cc9f0cd1e3a163b9f72c09cf9031c7b1f39081912292551a4be7aff919e1",
+                "ledger_entry_sha256": "aeba7962cdca018016b1100498134e09612e26855136f1246675b8122ab24b3c",
+                "run_ref": "session:local .ai-review/check-time-by-value/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "e7d1fc1242b1352dcd627ba53629abfef14fcc98e50d43c7f29f85e1f781abda",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "adb2a022efa50a41a4f14acc7fa2dad03c7e68f58e2933760b34571b8e311733",
+                "ledger_entry_sha256": "5d08f508782c1688f12064bd9b32dad304d8de265c14b28ccd0f1ce58d06a830",
+                "run_ref": "codex:20261031T132117Z-2c784165",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-31T13:23:47Z",
+          "workflow_release": "2.25.3"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "a208ea40f124024c2315aecad77c1a7ae60cf7c20d8ebb1dc35b584bcfb66a8a",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "e7d1fc1242b1352dcd627ba53629abfef14fcc98e50d43c7f29f85e1f781abda",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-31T13:20:57Z",
+          "verdict_sha256": "2d43cc9f0cd1e3a163b9f72c09cf9031c7b1f39081912292551a4be7aff919e1",
+          "run_ref": "session:local .ai-review/check-time-by-value/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "e7d1fc1242b1352dcd627ba53629abfef14fcc98e50d43c7f29f85e1f781abda",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-10-31T13:22:57Z",
+          "verdict_sha256": "adb2a022efa50a41a4f14acc7fa2dad03c7e68f58e2933760b34571b8e311733",
+          "run_ref": "codex:20261031T132117Z-2c784165",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 3,
+          "external": 2
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 13,
+      "last_transition": "2026-10-31T13:23:47Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-31T13:18:35Z",
+        "consumed": {
+          "review_content_id": "a25171398dd81b08043eee2f1134fdbe71eb1eb43c41e75ba6fc5466d55c972e",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "a208ea40f124024c2315aecad77c1a7ae60cf7c20d8ebb1dc35b584bcfb66a8a",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "a208ea40f124024c2315aecad77c1a7ae60cf7c20d8ebb1dc35b584bcfb66a8a",
+          "bundle_id": "e7d1fc1242b1352dcd627ba53629abfef14fcc98e50d43c7f29f85e1f781abda",
+          "plan_revision": 1
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "36f64a909acfc17a640db8a8eea769cbdec66a85572b4180fed721aae86105f1",
+        "a25171398dd81b08043eee2f1134fdbe71eb1eb43c41e75ba6fc5466d55c972e"
+      ],
+      "optional_findings": {
+        "F-0bae6bda52ea": {
+          "digest": "0bae6bda52eab93b669627c825841b7f341b9d09eb98a7ea1b96cf2503275d4c",
+          "text": "**R1-O1:** Hard limits says \"The plan is about 170 lines\"; the plan is 227 lines (the review request says about\n  230). Align the figure.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "36f64a909acfc17a640db8a8eea769cbdec66a85572b4180fed721aae86105f1",
+              "verdict": "REVISE",
+              "at": "2026-10-31T13:10:30Z"
+            }
+          ]
+        },
+        "F-b4fdc47bcc06": {
+          "digest": "b4fdc47bcc06c96b64c1e2afbbab9f6c3b67505be6001e4284a9d56276838777",
+          "text": "**R1-O2:** The mutation table's column header says \"in a scratch copy of `workflow_forge.py`\", but m15 mutates\n  `payload/docs/ai-workflow/GATE_POLICY.md`. Say \"in a scratch copy of the named file\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "36f64a909acfc17a640db8a8eea769cbdec66a85572b4180fed721aae86105f1",
+              "verdict": "REVISE",
+              "at": "2026-10-31T13:10:30Z"
+            }
+          ]
+        },
+        "F-d5baa970bbea": {
+          "digest": "d5baa970bbead866d2724ebb06375937642aec11d3a8aa589923860cdef39f66",
+          "text": "**R1-O3:** Section 6's preamble says \"except the last two, which are marked as needing the full environment\", but\n  only flow 8 is marked \"(full environment)\"; flow 9 needs only `git` and `grep`. Say \"except flow 8\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "36f64a909acfc17a640db8a8eea769cbdec66a85572b4180fed721aae86105f1",
+              "verdict": "REVISE",
+              "at": "2026-10-31T13:10:30Z"
+            }
+          ]
+        },
+        "F-041344cbac5d": {
+          "digest": "041344cbac5db7812a7fcff2b6ea384b5ccdcfccb4ccb0feb71ba5a2b0a236dd",
+          "text": "**R1-O4:** Section 6's setup `S=$TMPDIR/fr` becomes `/fr` when `TMPDIR` is unset; use `${TMPDIR:-/tmp}/fr` or\n  `mktemp -d`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "36f64a909acfc17a640db8a8eea769cbdec66a85572b4180fed721aae86105f1",
+              "verdict": "REVISE",
+              "at": "2026-10-31T13:10:30Z"
+            }
+          ]
+        },
+        "F-3739faea0577": {
+          "digest": "3739faea05771651268b32a9707b0bedab06dc5c9773ebcedb37517a8ac5ebee",
+          "text": "**R1-O5:** The lower bound is the zero instant itself, so a year-1 value just after it (t13 pins\n  `0001-01-01T00:00:01Z` as usable) still reads as a real completion and can let a later green run supersede a\n  failure. That is the stated scope (the issue's \"by value\") and GitHub never emits it, but a one-line note in\n  section 4 that any non-zero year-1 value is deliberately accepted would make the boundary an explicit decision.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "36f64a909acfc17a640db8a8eea769cbdec66a85572b4180fed721aae86105f1",
+              "verdict": "REVISE",
+              "at": "2026-10-31T13:10:30Z"
+            }
+          ]
+        },
+        "F-96f439dc57f5": {
+          "digest": "96f439dc57f501b5b4e859f9b9d7d86700ed0837c4f0bd81df53de392efadf5b",
+          "text": "**R2-O1:** In section 7, the row for #137 item 3 cites \"flow 9\" as proof that row 30 describes the shipped rule.\n  Flow 9 only diffs `payload scripts .claude` and greps `_JSON_FIELDS`, so it never looks at `docs/ROADMAP.md`. Cite\n  \"D-Docs, the `docs/ROADMAP.md` diff\", or add `docs/ROADMAP.md` to flow 9's diff.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "a25171398dd81b08043eee2f1134fdbe71eb1eb43c41e75ba6fc5466d55c972e",
+              "verdict": "APPROVE",
+              "at": "2026-10-31T13:14:30Z"
+            }
+          ]
+        },
+        "F-fd936605961f": {
+          "digest": "fd936605961f8be6e6edffc0e16cebd6f8f2aaec81acd7ea319db3c418364327",
+          "text": "**R2-O2:** `_check_time` is one helper, so m12 (\"the zero test skipped for starts only\") and m13 (\"… for `completedAt`\n  only\") cannot be written without telling the call sites apart. A half-sentence would make the scratch mutation\n  unambiguous. Examples: \"via a scratch caller flag\", or \"by wrapping the `startedAt`/`completedAt` call in\n  `_standing_state`\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "a25171398dd81b08043eee2f1134fdbe71eb1eb43c41e75ba6fc5466d55c972e",
+              "verdict": "APPROVE",
+              "at": "2026-10-31T13:14:30Z"
+            }
+          ]
+        },
+        "F-44d24732bb30": {
+          "digest": "44d24732bb309a5606236e4347f0244e2878415134a5ddc7dbcebabe1186ead4",
+          "text": "**R2-O3:** Section 2's t10 bullet (line 45) runs well past the plan's line width; rewrap it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "a25171398dd81b08043eee2f1134fdbe71eb1eb43c41e75ba6fc5466d55c972e",
+              "verdict": "APPROVE",
+              "at": "2026-10-31T13:14:30Z"
+            }
+          ]
+        },
+        "F-f25ccf723294": {
+          "digest": "f25ccf723294b21b32b8ff8f13df9ffd299404ba073d6fda1afffc08cd921517",
+          "text": "**R3-O1:** The second case of t13 (`0001-01-01T00:00:01Z` as the earlier FAILURE's `startedAt`, expected `success`)\n  guards against over-rejection, but no mutation in the table proves it: m11 to m15 only weaken the rule. Consider a\n  failure-only mutation that widens the lower bound (for example, rejecting every year-1 instant), which fails only\n  t13's second case.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "a208ea40f124024c2315aecad77c1a7ae60cf7c20d8ebb1dc35b584bcfb66a8a",
+              "verdict": "APPROVE",
+              "at": "2026-10-31T13:20:57Z"
+            }
+          ]
+        }
       }
     }
   }

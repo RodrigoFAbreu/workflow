@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "check-time-by-value",
+  "plan_revision": 1,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The zero instant by value: the change, its tests, its sentence and the roadmap rows",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.25.4",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}
