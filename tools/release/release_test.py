@@ -3428,7 +3428,7 @@ class RetentionErrorPathsReleaseTest(unittest.TestCase):
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
         self.assertEqual(block["new_work_only"], [])
         self.assertEqual(block["gate_default_change"], "")
-        self.assertEqual(block["conformance"]["suites"]["workflow_state_completion_obligations_test.py"], 283)
+        self.assertEqual(block["conformance"]["suites"]["workflow_state_completion_obligations_test.py"], 284)
 
     def test_the_release_history_rows_name_the_release_and_the_way_back(self):
         self.assertIn("Last checked with: Workflow 2.25.5.", self.history)

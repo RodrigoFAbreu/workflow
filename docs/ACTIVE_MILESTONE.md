@@ -21,7 +21,7 @@ Base commit `69ebb46`; the previous milestone, W36 `check-time-by-value`, is acc
 - CP1: the readlink helper and its four call sites, the two decoding catches, tests T1 to T8, `docs/RETENTION.md` and
   `docs/exit-codes.md`.
 - CP2: `manifest.json` 2.25.5 (five changed records, the posture, `conformance.suites` measured: the completion
-  obligations suite 274 to 283), `WORKFLOW_RELEASE` 2.25.5 and its pinned assertions, the protocol document's example
+  obligations suite 274 to 284, after the self-review test), `WORKFLOW_RELEASE` 2.25.5 and its pinned assertions, the protocol document's example
   and `1.5` lists, the 2.25.5 history row, the pages' "Last checked with" lines, and a 2.25.5 class in
   `tools/release/release_test.py` (the 2.25.1 and 2.25.4 classes give up the current-release pins).
 
