@@ -338,8 +338,10 @@ lists every `*.tar.zst` file in the archive directory, with `item` set to
 The reasons are `invalid_id`, `invalid_entry`, `open_phase`, `family_open`,
 `no_anchor`, `no_pull_request`, `pr_not_merged:<state>` and
 `query_failed:<code>`. Exit status 0 means the report was printed; 2 means a
-refusal (`state_missing`, `state_invalid`, `repository_unknown`, `usage`). See
-[Exit codes](exit-codes.md).
+refusal (`state_missing`, `state_invalid`, `repository_unknown`, `usage`). A
+state file that is not valid UTF-8 is `state_invalid`, and a path that Git
+tracks under `.ai-review` and that is not valid UTF-8 is `repository_unknown`;
+both were a traceback before Workflow 2.25.5. See [Exit codes](exit-codes.md).
 
 `removing` (Workflow 2.22.0) lists the directories of
 `<archive-root>/<repo>/.removing/`, sorted: each is the leftover of a removal
@@ -442,6 +444,7 @@ files only, and the next run says which, by what is on disk:
 | `index.jsonl` a symlink, a directory, a FIFO or a shared file | `index_unsafe` | replace it by an ordinary file by hand |
 | a symlinked component of the archive path, or one without read permission | `archive_dir_unsafe`, `unreadable` | fix the named component, or choose another `--archive-root` |
 | an archive-directory entry (`<id>.tar.zst`, `.<id>.partial`) whose `lstat` fails for a reason other than "not found" (`EACCES`, `ELOOP`, `ENAMETOOLONG`, `EIO`, `ENOTDIR`; a traceback before Workflow 2.25.1), including the final check under the lock | `unreadable` | grant access to the named path and the directory that holds it; nothing was written, and a failure under the lock removes the temporary and the directories this run created |
+| a symlink in the review folder whose target cannot be read (`unreadable`, or `folder_changed` when the link vanished or was replaced while it was read; a traceback before Workflow 2.25.5, and `pack_failed` while the archive was being written) | `unreadable`, `folder_changed` | grant read access to the review folder, or run it again when nothing writes to it; nothing was written, and a failure after the pack removes the temporary and the directories this run created |
 | a `.removing` in the archive directory that is a symlink, is not a directory or cannot be read (new in Workflow 2.22.0, from the remove command) | `unreadable` | repair it by hand; the command does not archive from a partial view. If it is an interrupted removal's leftover, see [the remove command](#the-remove-command) first |
 
 `--json` prints one object, keys sorted, ending in a newline, with the same
@@ -540,7 +543,12 @@ is `unreadable` before the rename (nothing moved) and after it (the message says
 whether the folder is whole in `.removing/<id>` or a leftover that may be
 incomplete, and that `remove <id> --apply` resumes), and `restore_failed` while a
 refused verification is being undone (the message carries both causes and says
-where the folder is); it was a traceback before Workflow 2.25.1. **Do not delete `.removing/<id>` as
+where the folder is); it was a traceback before Workflow 2.25.1. A symlink in the
+review folder whose target cannot be read is `unreadable` (`folder_changed` when
+it vanished or was replaced) at the same places, before the rename and after it,
+and while the folder is deleted, where the refusal says how many entries were
+deleted and that the rest is in `.removing/<id>` (`remove <id> --apply` resumes);
+it was a traceback before Workflow 2.25.5. **Do not delete `.removing/<id>` as
 clutter:** it may hold entries that exist only there.
 
 `--json` prints one object, keys sorted, ending in a newline:
