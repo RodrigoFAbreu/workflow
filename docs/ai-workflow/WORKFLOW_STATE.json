@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "ci-latest-check-run",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -27413,6 +27413,289 @@
         },
         "evaluated_at": "2026-10-30T23:50:24Z",
         "workflow_release": "2.25.1"
+      }
+    },
+    "ci-latest-check-run": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "ci-latest-check-run",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/CI_LATEST_CHECK_RUN_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/ci-latest-check-run-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/ci-latest-check-run-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 2,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "198b82bfdaa921993354a36497674533afd47a31",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "06f3fb142745f9510fd8f2d5890a5af6418e037eb7dc3d389993e63934fcb7dc",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "06f3fb142745f9510fd8f2d5890a5af6418e037eb7dc3d389993e63934fcb7dc",
+        "approved_review_content_id": "e881ab594426ede7617ed150432047999d25fc7ab791a7cbd64d3dd400684f14",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/CI_LATEST_CHECK_RUN_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5d85820dd45bd6c26c1d14c6d99ca943b3fb8dac"
+          },
+          {
+            "path": "docs/ai-workflow/registry/ci-latest-check-run-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1505c109bd59adf58349b813d0bcedafcf768435"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/ci-latest-check-run-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "11cec8320944cc0f68e595d646964f17a108ff2d"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-10-31T09:44:34Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "e881ab594426ede7617ed150432047999d25fc7ab791a7cbd64d3dd400684f14",
+            "ledger": {
+              "local": {
+                "bundle_id": "06f3fb142745f9510fd8f2d5890a5af6418e037eb7dc3d389993e63934fcb7dc",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "0389aa551e09ca74cf1e039a049be411e2c378d7c61243c27b3cbd0c760788e2",
+                "ledger_entry_sha256": "76608c0467816cd0b16405e31920bbe3550c4cc3f16a17f32fdb79b23c0bc9e5",
+                "run_ref": "session:local .ai-review/ci-latest-check-run/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "06f3fb142745f9510fd8f2d5890a5af6418e037eb7dc3d389993e63934fcb7dc",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "5b38864a849501067bfe85bda23c5fab0bac3a4972327d53c569de5625456dc6",
+                "ledger_entry_sha256": "76e1a965a1343152846c881f6712d049afc2a3810fe0314c8dd3ce22eb4b17fe",
+                "run_ref": "codex:20261031T094153Z-9f39efc6",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-10-31T09:44:34Z",
+          "workflow_release": "2.25.2"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "e881ab594426ede7617ed150432047999d25fc7ab791a7cbd64d3dd400684f14",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "06f3fb142745f9510fd8f2d5890a5af6418e037eb7dc3d389993e63934fcb7dc",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-31T09:41:24Z",
+          "verdict_sha256": "0389aa551e09ca74cf1e039a049be411e2c378d7c61243c27b3cbd0c760788e2",
+          "run_ref": "session:local .ai-review/ci-latest-check-run/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "06f3fb142745f9510fd8f2d5890a5af6418e037eb7dc3d389993e63934fcb7dc",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-10-31T09:43:51Z",
+          "verdict_sha256": "5b38864a849501067bfe85bda23c5fab0bac3a4972327d53c569de5625456dc6",
+          "run_ref": "codex:20261031T094153Z-9f39efc6",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-10-31T09:44:34Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-10-31T09:38:32Z",
+        "consumed": {
+          "review_content_id": "2aea361d0de28c0c57061183f46b0eb195d9fee82c91d0662f104e3def0b2673",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "e881ab594426ede7617ed150432047999d25fc7ab791a7cbd64d3dd400684f14",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "e881ab594426ede7617ed150432047999d25fc7ab791a7cbd64d3dd400684f14",
+          "bundle_id": "06f3fb142745f9510fd8f2d5890a5af6418e037eb7dc3d389993e63934fcb7dc",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "2aea361d0de28c0c57061183f46b0eb195d9fee82c91d0662f104e3def0b2673"
+      ],
+      "optional_findings": {
+        "F-213eb203d9dd": {
+          "digest": "213eb203d9ddec510b48831ca18edf3114ce2a3474a5e3ab96042d16700ae4c8",
+          "text": "**LMPR-R1-002: no mutation pins which `startedAt` values count as unusable.** m4 changes only the fallback (the last in list order instead of the worst). No mutation makes a naive, zero-time or non-string `startedAt` usable, for example by parsing a naive time as UTC or accepting `0001-01-01T00:00:00Z`. Whether t5 catches such a mutation depends on its data: the unusable timestamp must be on the entry that would otherwise stand, so that accepting it changes the result. Add a mutation m9 (\"an unusable `startedAt` class is parsed as usable\"), or state t5's data so that each class decides the outcome.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "2aea361d0de28c0c57061183f46b0eb195d9fee82c91d0662f104e3def0b2673",
+              "verdict": "REVISE",
+              "at": "2026-10-31T09:36:40Z"
+            }
+          ]
+        },
+        "F-e5f140cffe77": {
+          "digest": "e5f140cffe77c0a2e284eddeb6e8a3bbf3989a61fcbea89de5d8ba768b7cff94",
+          "text": "**LMPR-R1-003: state what a queued re-run does.** A queued run has the zero `startedAt` (section 3), so a failure followed by a queued re-run is a group with an unusable entry and comes out `failure`, not `pending`. D-Latest's \"a latest unfinished run is `pending`\" holds only for a run that has started. That is fail-closed and not a regression, but while the re-run is queued, `checks_failed` can still reopen and `no_standing_pr_objection` still refuses. One sentence in D-Latest (and a t3 or t5 case) would make it explicit.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "2aea361d0de28c0c57061183f46b0eb195d9fee82c91d0662f104e3def0b2673",
+              "verdict": "REVISE",
+              "at": "2026-10-31T09:36:40Z"
+            }
+          ]
+        },
+        "F-f5f2ebd0b7eb": {
+          "digest": "f5f2ebd0b7eb0d4826a1fed395b7726295f10183c1b54ea17365c6fd9d98ebd5",
+          "text": "**LMPR-R1-004: Python floor for `Z` offsets.** D-Latest parses ISO 8601 with `Z`. `datetime.fromisoformat` accepts a `Z` suffix only from Python 3.11. CI uses 3.12, but if the installed Workflow supports an earlier interpreter, name the parse (for example replace a trailing `Z` with `+00:00` first) so that t5's \"unparseable\" case does not change with the interpreter.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "2aea361d0de28c0c57061183f46b0eb195d9fee82c91d0662f104e3def0b2673",
+              "verdict": "REVISE",
+              "at": "2026-10-31T09:36:40Z"
+            }
+          ]
+        },
+        "F-f38b8a7aa678": {
+          "digest": "f38b8a7aa678748d61fdfe3e8cfef53aad5fc923cd779af1782bba8143dc172c",
+          "text": "**LMPR-R2-001: t5's claim that every unusable `startedAt` class flips the result when it sits on the later SUCCESS is false for the zero time, so m9's zero-time variant survives t5.** If `0001-01-01T00:00:00Z` were accepted as usable on the later SUCCESS, that entry would become the *earliest* of the group. The FAILURE would then be the latest run and would stand, which is the same `failure` the worst-state rule gives. The queued case in t3 comes out the same way for the same reason (failure versus pending is still failure). To pin the zero time, put it on the *earlier* FAILURE and give that FAILURE a usable `completedAt` before the SUCCESS starts. Accepting the zero time then makes the FAILURE superseded (`success`), while the plan's rule gives `failure`. Alternatively, split m9 into its three variants and state which t5 case each one fails. The \"non-string coerced\" variant is close to an equivalent mutation, because `str()` of a JSON number, bool or null does not parse as ISO 8601. Name a coercion that does parse, or drop that variant. CP1's verification (\"m1 to m10 each fail as the table says\") passes with the naive variant alone, so this is a gap in test strength, not a defect ",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "e881ab594426ede7617ed150432047999d25fc7ab791a7cbd64d3dd400684f14",
+              "verdict": "APPROVE",
+              "at": "2026-10-31T09:41:24Z"
+            }
+          ]
+        },
+        "F-90a745bb296e": {
+          "digest": "90a745bb296ec153d19303bd1afaab24bfc058aa54ce79dd40b0d0129d81e666",
+          "text": "**LMPR-R2-002: `docs/ROADMAP.md` row 30 still describes Revision 1's rule.** It says \"the greatest timestamp wins, and a tie or an unusable timestamp ... keeps the worst state\", and it mentions neither the `completedAt` supersede condition, the overlap rule nor the named residual. The path is excluded from the review content, so this does not affect the binding, but the row is the roadmap's description of the milestone. Update it in the same words as D-Latest before acceptance.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "e881ab594426ede7617ed150432047999d25fc7ab791a7cbd64d3dd400684f14",
+              "verdict": "APPROVE",
+              "at": "2026-10-31T09:41:24Z"
+            }
+          ]
+        },
+        "F-4a1fc69d49d5": {
+          "digest": "4a1fc69d49d549dcec91e6765123e5eb6e5126c392df01c9f1a942e80f88df31",
+          "text": "**LMPR-R2-003: the residual names only the push/pull_request pair.** D-Latest's \"Superseded\" bullet also lists two jobs with the same `name:` in one workflow as a shared identity. Those jobs \"must not hide one another\" only while they overlap. A sequential pair (for example a later `if: always()` job with the same name that passes after an earlier one failed) also reads as a re-run. One clause in the residual bullet and in section 4 (\"or a later job of the same name\") would make the residual complete.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "e881ab594426ede7617ed150432047999d25fc7ab791a7cbd64d3dd400684f14",
+              "verdict": "APPROVE",
+              "at": "2026-10-31T09:41:24Z"
+            }
+          ]
+        },
+        "F-43bf73300bd0": {
+          "digest": "43bf73300bd0aa9f858e8d06f627cdb8ac2bf4b45b88184a12ba724b2a8b2f49",
+          "text": "**LMPR-R2-004: the test table lists t10 before t9.** This is cosmetic. Listing them in id order, or giving the overlap test the next id, avoids misreading \"t1 to t10\" in CP1.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "e881ab594426ede7617ed150432047999d25fc7ab791a7cbd64d3dd400684f14",
+              "verdict": "APPROVE",
+              "at": "2026-10-31T09:41:24Z"
+            }
+          ]
+        },
+        "F-f533d55f5039": {
+          "digest": "f533d55f5039e1ae18c21f2c7d70807dc0e551bb55b727b82bd37c5ab4a2928a",
+          "text": "**t5 does not catch m9’s zero-time variant.** At `docs/ai-workflow/CI_LATEST_CHECK_RUN_PLAN.md:134`, the zero timestamp sits on the SUCCESS entry. Accepting it as usable makes SUCCESS the earliest run, leaving the later FAILURE standing—the same result as the correct fallback. Put the zero timestamp on the earlier FAILURE, with a usable `completedAt` before the SUCCESS starts: accepting zero then incorrectly produces success, while the intended rule retains failure.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "e881ab594426ede7617ed150432047999d25fc7ab791a7cbd64d3dd400684f14",
+              "verdict": "APPROVE",
+              "at": "2026-10-31T09:43:51Z"
+            }
+          ]
+        }
       }
     }
   }
