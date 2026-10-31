@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "check-time-by-value",
+  "requirements": {
+    "R1": {
+      "description": "_check_time parses the time and rejects by value the zero instant (every spelling: Z, +00:00, .000Z, -00:00, another offset denoting it), anything before it and anything beyond the supported range, failing closed; the _ZERO_TIME literal goes; real times, 0001-01-01T00:00:01Z, single entries and ordered cases behave byte-identically; output shape, query and every other rule unchanged (t11 to t13, m11 to m14)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "The zero time in each spelling sits on the entry whose acceptance would flip the result (the FAILURE's startedAt, the FAILURE's completedAt, an out-of-range startedAt on the SUCCESS), with a failure-only mutation for each (t11 to t13, m11 to m14)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "GATE_POLICY.md item 5's residual also names two jobs with the same name: in one workflow (t14, m15); docs/ROADMAP.md gets row 31 (Current, Done at acceptance) and row 30's description corrected to the shipped completedAt-supersede and overlap rule",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Release 2.25.4, a fix patch: workflow_version, the six changed records, WORKFLOW_RELEASE and its pinned assertions, the 2.25.4 history row, a 2.25.4 release-test class, every older docstring pointer moved, conformance.suites measured (gate policy 330); counts unchanged; protocol stays 1.5",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
