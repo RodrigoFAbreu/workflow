@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-report-unreadable",
+  "plan_revision": 3,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The report text, the recorded path, tests and page",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.25.6",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}

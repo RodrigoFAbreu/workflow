@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "retention-report-unreadable",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -29655,6 +29655,262 @@
         },
         "evaluated_at": "2026-10-31T19:39:20Z",
         "workflow_release": "2.25.4"
+      }
+    },
+    "retention-report-unreadable": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "retention-report-unreadable",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/RETENTION_REPORT_UNREADABLE_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/retention-report-unreadable-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/retention-report-unreadable-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 3,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "e687d51ba050267181b143551b56e95b04fd8bdc",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "87565f00fbd4899a1312cc41e59e05afafae7baf0e6692f60bb59ef7b339b4c7",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "87565f00fbd4899a1312cc41e59e05afafae7baf0e6692f60bb59ef7b339b4c7",
+        "approved_review_content_id": "e00c179084f426dbd929bb4e1cca866a7e967a665b9f55ea175181014e576644",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/RETENTION_REPORT_UNREADABLE_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "577f25601ca50c11bbf35750c6e8282823f222e7"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-report-unreadable-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "da519a3c11de9ca5c90172c46761c1a2f2991553"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/retention-report-unreadable-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1bf2c9ff8e39faa3cb6dc2dced763091e4440eab"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-05T04:20:13Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "e00c179084f426dbd929bb4e1cca866a7e967a665b9f55ea175181014e576644",
+            "ledger": {
+              "local": {
+                "bundle_id": "87565f00fbd4899a1312cc41e59e05afafae7baf0e6692f60bb59ef7b339b4c7",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "43b36c93c60156ab843f7b033e143b23c84c93860fc37dee6edc7a32dff72c57",
+                "ledger_entry_sha256": "a78c965b30d7b24a582f904bd6f6510012c33d0dac37032e92a2817e870b17f2",
+                "run_ref": "session:local .ai-review/retention-report-unreadable/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "87565f00fbd4899a1312cc41e59e05afafae7baf0e6692f60bb59ef7b339b4c7",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "1228ed4603dede074ebb6fdbf84cbb069f62622a842043ca9c1a74142531da26",
+                "ledger_entry_sha256": "9d43a022756ec14cb2eb0b4020c58b730b7439163899daab7648908635c377cf",
+                "run_ref": "codex:20261105T041601Z-9dd43f0b",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-05T04:20:13Z",
+          "workflow_release": "2.25.5"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "e00c179084f426dbd929bb4e1cca866a7e967a665b9f55ea175181014e576644",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "87565f00fbd4899a1312cc41e59e05afafae7baf0e6692f60bb59ef7b339b4c7",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-11-05T04:15:37Z",
+          "verdict_sha256": "43b36c93c60156ab843f7b033e143b23c84c93860fc37dee6edc7a32dff72c57",
+          "run_ref": "session:local .ai-review/retention-report-unreadable/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "87565f00fbd4899a1312cc41e59e05afafae7baf0e6692f60bb59ef7b339b4c7",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-11-05T04:19:25Z",
+          "verdict_sha256": "1228ed4603dede074ebb6fdbf84cbb069f62622a842043ca9c1a74142531da26",
+          "run_ref": "codex:20261105T041601Z-9dd43f0b",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 3,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 12,
+      "last_transition": "2026-11-05T04:20:13Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-05T04:04:12Z",
+        "consumed": {
+          "review_content_id": "f26c3eb9330d6d3ee767541b9539b4bcb8572f20bbe1e0bba76958cef7ac4e58",
+          "plan_revision": 2,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "e00c179084f426dbd929bb4e1cca866a7e967a665b9f55ea175181014e576644",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "e00c179084f426dbd929bb4e1cca866a7e967a665b9f55ea175181014e576644",
+          "bundle_id": "87565f00fbd4899a1312cc41e59e05afafae7baf0e6692f60bb59ef7b339b4c7",
+          "plan_revision": 3
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "5ed7f13bba4df8cc59f9534e7448eea02d90c3d99f55bad844e118e607258d89",
+        "f26c3eb9330d6d3ee767541b9539b4bcb8572f20bbe1e0bba76958cef7ac4e58"
+      ],
+      "optional_findings": {
+        "F-489b97a697db": {
+          "digest": "489b97a697db420cf8e0849d340f5901163c52a84c8e059084aa27156a4059b8",
+          "text": "**LPR-R1-O1: flow 6's expected diff omits `docs/ai-workflow/WORKFLOW_STATE.json`.** `git diff e687d51 --stat -- payload docs` will list it, because the state file is modified on this branch, so the literal \"only\" fails. Add it to the parenthesis.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "5ed7f13bba4df8cc59f9534e7448eea02d90c3d99f55bad844e118e607258d89",
+              "verdict": "REVISE",
+              "at": "2026-11-05T02:04:24Z"
+            }
+          ]
+        },
+        "F-b6f241d04c94": {
+          "digest": "b6f241d04c940c14e95d76ad2fa1e289ed6f6884b0697477f0318f5c3bc6fddf",
+          "text": "**LPR-R2-O1: T6's `remove` case needs a verified archive first, which the plan does not say.** With only T4's `empty` + `zz` layout, real `remove w00` refuses `not_archived` (exit 2) before it reaches the `read_errors` loop at `workflow_retention.py:1618`. The fixture has to archive the clean folder first and inject the failure afterwards, so that part of T6 needs `zstd` and belongs under the `_HAVE_ZSTD` guard the archive tests use. Stating this saves the implementer a false start.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "f26c3eb9330d6d3ee767541b9539b4bcb8572f20bbe1e0bba76958cef7ac4e58",
+              "verdict": "REVISE",
+              "at": "2026-11-05T02:12:55Z"
+            }
+          ]
+        },
+        "F-69d8cfb40213": {
+          "digest": "69d8cfb40213803c18a9a002163fcb17a4f57ea3ed0a0131a3f556d299e7270a",
+          "text": "**LPR-R2-O2: D-Docs' \"two named exceptions\" is not the whole set.** A `.ai-review/w00` that is itself a symlink and a `w00.tar.zst` that is itself a symlink print `w00: no review folder; no archive` with a complete report and no `INCOMPLETE` entry (run on the candidate, and identical on base). The page already treats such entries as absent (`docs/RETENTION.md:666`), so nothing is wrong in behaviour. The new sentence could say that \"absence\" includes an entry that is not a real directory or regular file.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "f26c3eb9330d6d3ee767541b9539b4bcb8572f20bbe1e0bba76958cef7ac4e58",
+              "verdict": "REVISE",
+              "at": "2026-11-05T02:12:55Z"
+            }
+          ]
+        },
+        "F-30cbdc1be62c": {
+          "digest": "30cbdc1be62cec2c0426dec02ca06549e1c057d5893238acf2939229aa596be0",
+          "text": "**LPR-R3-O1: D-Tests says `review_folder` has \"exactly its six keys\"; it has five.** `_review_folder` returns `present`, `complete`, `files`, `bytes`, `tracked_files` (`workflow_retention.py:255`, `docs/RETENTION.md:313`, the exact-dict assertion at `workflow_state_completion_obligations_test.py:3952`). The six-key record is `archive`. Written literally, the assertion fails on correct code at its first run. Nothing can go wrong silently: adding a key to satisfy it would break the existing test, T5 and m10. The implementer should pin the five keys and note the correction.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "e00c179084f426dbd929bb4e1cca866a7e967a665b9f55ea175181014e576644",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T04:15:37Z"
+            }
+          ]
+        },
+        "F-17859d0fed72": {
+          "digest": "17859d0fed729b470cb07746f074799a9289bfa49ef6c1085cee2752ad1b7022",
+          "text": "**LPR-R3-O2: flow 6's expected diff holds only at CP1, but the functional review runs after CP2.** `git diff e687d51 --stat -- payload docs` in the working tree will then also list CP2's `payload/` and `docs/` files, so the \"only\" does not hold literally. The checklist should give the range ending at CP1's commit. Flow 8 already covers the state after CP2.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "e00c179084f426dbd929bb4e1cca866a7e967a665b9f55ea175181014e576644",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T04:15:37Z"
+            }
+          ]
+        },
+        "F-890d6b3545f8": {
+          "digest": "890d6b3545f857f5a33fba78c1e1a35d93ea52dd0de99a6877c46ca25936f73d",
+          "text": "**O1:** D-Tests at `docs/ai-workflow/RETENTION_REPORT_UNREADABLE_PLAN.md:133` says `review_folder` has six keys. The existing object has five: `present`, `complete`, `files`, `bytes`, and `tracked_files`. Correct the count; preserve those keys.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "e00c179084f426dbd929bb4e1cca866a7e967a665b9f55ea175181014e576644",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T04:19:25Z"
+            }
+          ]
+        }
       }
     }
   }
