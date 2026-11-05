@@ -1,0 +1,66 @@
+{
+  "dispositions": {
+    "F-0a88d4e37b5a": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#149",
+      "note": "Follow-up item 1."
+    },
+    "F-15a404f65c38": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#149",
+      "note": "Follow-up item 6."
+    },
+    "F-17859d0fed72": {
+      "disposition": "dropped",
+      "reason": "Plan or checklist wording of a finished item; the flows ran as written (the one over-claim in flow 8 is follow-up item 7)."
+    },
+    "F-255a38f3ea66": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#149",
+      "note": "Follow-up item 2."
+    },
+    "F-30cbdc1be62c": {
+      "disposition": "dropped",
+      "reason": "Plan or checklist wording of a finished item; the flows ran as written (the one over-claim in flow 8 is follow-up item 7)."
+    },
+    "F-489b97a697db": {
+      "disposition": "dropped",
+      "reason": "Plan or checklist wording of a finished item; the flows ran as written (the one over-claim in flow 8 is follow-up item 7)."
+    },
+    "F-494c96797ed0": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#149",
+      "note": "Follow-up item 2."
+    },
+    "F-5f85b4170640": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#149",
+      "note": "Follow-up item 3."
+    },
+    "F-69d8cfb40213": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#149",
+      "note": "Follow-up item 4."
+    },
+    "F-7db82931f506": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#149",
+      "note": "Follow-up item 4."
+    },
+    "F-890d6b3545f8": {
+      "disposition": "dropped",
+      "reason": "Plan or checklist wording of a finished item; the flows ran as written (the one over-claim in flow 8 is follow-up item 7)."
+    },
+    "F-b6f241d04c94": {
+      "disposition": "dropped",
+      "reason": "Plan or checklist wording of a finished item; the flows ran as written (the one over-claim in flow 8 is follow-up item 7)."
+    },
+    "F-e895f20d11ad": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#149",
+      "note": "Follow-up item 1."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "retention-report-unreadable"
+}

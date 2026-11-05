@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-report-unreadable",
+  "requirements": {
+    "R1": {
+      "description": "the text form prints `archive unreadable` for an unreadable archive and `review folder unreadable` for an unreadable review folder, marks a partly counted size as a lower bound (`at least <size> in <n> files (partly unreadable)`), and keeps `no archive` / `no review folder` for true absence (#113 item 1); tests T1 and T2, mutations m1 to m5",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the text form prints `review folder in .removing` for a folder left by an interrupted removal, with unreadable taking precedence (#119 item 8); test T3, mutations m6 and m7",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "in _review_folder the path recorded for a failed walk is the failed directory itself, not the last yielded directory, including a symlink to an unopenable directory, and a failure that matches nothing leaves later failures intact, pinned by the layout whose probe open succeeds and walk open fails (#116 item 1); tests T4 and T6 (the class also runs under Python 3.12 and 3.14), mutations m8, m9, m11 and m12",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "every other output stays byte-identical (JSON shape, refusal and exit codes, other lines); the outputs that change are exactly five: the three text fragments, the read_errors path string, and the message text of the unreadable refusal of archive and remove; proven by T5, T6 and mutation m10; docs/RETENTION.md names the new wording and makes no claim a real report contradicts; no page names an internal milestone id; the installation is untouched",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "Release 2.25.6, a fix patch: workflow_version, changed records, WORKFLOW_RELEASE and its pinned assertions, the history row, the RETENTION page's Last checked with line, a 2.25.6 release-test class, conformance.suites measured; counts unchanged; protocol stays 1.5",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
