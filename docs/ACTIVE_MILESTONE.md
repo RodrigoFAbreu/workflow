@@ -32,8 +32,11 @@ milestone, W37 `retention-error-paths`, is accepted (Workflow 2.25.5).
   pass; `workflow-manager verify .` reports the installation matches 2.25.5 (the installation is not touched). The nine
   suites run from the stock `stage-conformance` fixture; the result is recorded in the implementation bundle.
   `conformance.suites` was measured (obligations suite 290), not typed.
+- Self-review: the new tests now hold what D-Tests asks of every case (`_rr_snapshot` unchanged, the `--json` facts as
+  literals, the exact stderr) and T5 compares against golden literals; the engine is unchanged. The mutations m1 to m12,
+  plus m13 (the report writes a file) and m14 (an unaffected line reworded), each fail at least one test under both
+  interpreters. `manifest.json` takes the test file's new `sha256` and `size`; the suite count stays 290.
 
 ## Next action
 
-Run `/milestone-implement retention-report-unreadable` again: every checkpoint is complete, so the next invocation
-enters `SELF_REVIEWING_IMPLEMENTATION`.
+The implementation bundle goes to review (`AWAITING_LOCAL_IMPLEMENTATION_REVIEW`).

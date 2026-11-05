@@ -4570,91 +4570,103 @@ class _Inject:
 
 
 _RRU_KEYS = {"present", "complete", "files", "bytes", "tracked_files"}
+_RRU_REPORT_KEYS = ("archive_dir", "archives", "complete", "finished", "generated_at", "keep_recent", "kept_recent",
+                    "kind", "not_finished", "read_errors", "removing", "repository", "schema_version", "totals",
+                    "ttl_days")
+_RRU_ABSENT = {"present": False, "readable": True, "bytes": None, "modified": None, "age_days": None,
+               "prunable": False}
+_RRU_UNREADABLE = {**_RRU_ABSENT, "readable": False}
+_RRU_NO_FOLDER = {"present": False, "complete": True, "files": 0, "bytes": 0, "tracked_files": 0}
+_RRU_PARTIAL = {"present": True, "complete": False, "files": 1, "bytes": 5, "tracked_files": 0}
+_RRU_WARNING = ("warning: incomplete: {} path(s) could not be read (see read_errors); a missing size or archive "
+                "may be unreadable, not absent\n")
 
 
 class RetentionReportUnreadable(unittest.TestCase):
-    def rr(self, count=4, folder=True):
-        rr = _RR(_rr_many(count))
+    def rr(self, count=4, folder=True, items=None):
+        rr = _RR(items if items is not None else _rr_many(count))
         self.addCleanup(rr.__exit__, None, None, None)
         rr.__enter__()
         if folder:
             _write(rr.repo, ".ai-review/w00/a.txt", "12345")
         return rr
 
-    def line(self, rr, item="w00"):
-        code, out, err = rr.cli()
-        self.assertEqual(code, 0)
-        found = [ln for ln in out.splitlines() if ln.startswith(f"  {item}:")]
-        self.assertEqual(len(found), 1, out)
-        return found[0], out, err
-
-    def facts(self, rr, item="w00"):
-        report = rr.build()
-        return {r["work_item_id"]: r for r in report["finished"]}[item], report
-
-    def paths(self, rr):
-        return sorted(e["path"] for e in rr.build()["read_errors"])
+    def case(self, rr, want, item="w00", **inject):
+        """One case whole: the exact line, exit 0, the stderr warning only when the
+        view is partial, the `--json` shape, and nothing written or removed. The
+        snapshots walk, so they run with the injection lifted."""
+        before = _rr_snapshot(rr.root, rr.archive_root)
+        with _Inject(**inject) as injected:
+            code, out, err = rr.cli()
+            injected.count.clear()  # the Nth-open rule counts per report
+            json_code, printed, json_err = rr.cli("--json")
+        self.assertEqual(_rr_snapshot(rr.root, rr.archive_root), before)
+        self.assertEqual((code, json_code), (0, 0))
+        self.assertEqual([ln for ln in out.splitlines() if ln.startswith(f"  {item}:")], [f"  {item}: {want}"], out)
+        data = json.loads(printed)
+        self.assertEqual(set(data), set(_RRU_REPORT_KEYS))
+        record = {r["work_item_id"]: r for r in data["finished"]}[item]
+        self.assertEqual(set(record["review_folder"]), _RRU_KEYS)
+        self.assertEqual(set(record["archive"]), set(_RRU_ABSENT))
+        warning = _RRU_WARNING.format(len(data["read_errors"])) if data["read_errors"] else ""
+        self.assertEqual((err, json_err), (warning, warning))
+        self.assertEqual(data["complete"], not data["read_errors"])
+        self.assertEqual("\nINCOMPLETE: " in out, not data["complete"])
+        return record, data, out
 
     def test_t1_an_archive_that_cannot_be_looked_at_is_unreadable_not_absent(self):
         rr = self.rr()
-        base, _, _ = self.line(rr)
-        self.assertEqual(base, "  w00: 5 B in 1 files; no archive")
-        with _Inject(archive="w00.tar.zst"):
-            line, out, err = self.line(rr)
-            record, report = self.facts(rr)
-            self.assertEqual(line, "  w00: 5 B in 1 files; archive unreadable")
-            self.assertEqual(record["archive"], {**wr._ABSENT_ARCHIVE, "readable": False})
-            self.assertFalse(report["complete"])
-            self.assertTrue(err.startswith("warning: incomplete: "), err)
-            self.assertIn("INCOMPLETE", out)
-        self.assertEqual(self.line(rr)[0], base)
+        record, _, _ = self.case(rr, "5 B in 1 files; no archive")
+        self.assertEqual(record["archive"], _RRU_ABSENT)
+        record, data, _ = self.case(rr, "5 B in 1 files; archive unreadable", archive="w00.tar.zst")
+        self.assertEqual(record["archive"], _RRU_UNREADABLE)
+        self.assertFalse(data["complete"])
+        self.case(rr, "5 B in 1 files; no archive")
         rr.archive("w00.tar.zst", 40 * 86400, size=20)
-        self.assertEqual(self.line(rr)[0], "  w00: 5 B in 1 files; archive 20 B, 40 days old, prunable")
+        record, _, _ = self.case(rr, "5 B in 1 files; archive 20 B, 40 days old, prunable")
+        self.assertEqual((record["archive"]["present"], record["archive"]["readable"]), (True, True))
         # no folder: the archive fragment still says unreadable
         rr2 = self.rr(folder=False)
-        with _Inject(archive="w00.tar.zst"):
-            self.assertEqual(self.line(rr2)[0], "  w00: no review folder; archive unreadable")
-        self.assertEqual(self.line(rr2)[0], "  w00: no review folder; no archive")
+        record, _, _ = self.case(rr2, "no review folder; archive unreadable", archive="w00.tar.zst")
+        self.assertEqual(record["archive"], _RRU_UNREADABLE)
+        self.assertEqual(record["review_folder"], _RRU_NO_FOLDER)
+        self.case(rr2, "no review folder; no archive")
 
     def test_t2_a_folder_that_cannot_be_counted_is_unreadable_or_a_lower_bound(self):
         rr = self.rr()
-        self.assertEqual(self.line(rr)[0], "  w00: 5 B in 1 files; no archive")
-        with _Inject(folder="w00"):
-            line, _, _ = self.line(rr)
-            record, report = self.facts(rr)
-            self.assertEqual(line, "  w00: review folder unreadable; no archive")
-            self.assertEqual(set(record["review_folder"]), _RRU_KEYS)
-            self.assertEqual((record["review_folder"]["present"], record["review_folder"]["complete"]),
-                             (False, False))
+        self.case(rr, "5 B in 1 files; no archive")
+        record, _, _ = self.case(rr, "review folder unreadable; no archive", folder="w00")
+        self.assertEqual(record["review_folder"], {**_RRU_NO_FOLDER, "complete": False})
         _write(rr.repo, ".ai-review/w00/zz/b.txt", "123")
-        with _Inject(opens=[("zz", "dir", 1)]):
-            line, _, _ = self.line(rr)
-            record, _ = self.facts(rr)
-            self.assertEqual(line, "  w00: at least 5 B in 1 files (partly unreadable); no archive")
-            self.assertEqual(record["review_folder"], {"present": True, "complete": False, "files": 1, "bytes": 5,
-                                                       "tracked_files": 0})
-        self.assertEqual(self.line(rr)[0], "  w00: 8 B in 2 files; no archive")
-        rr2 = self.rr(folder=False)
-        self.assertEqual(self.line(rr2)[0], "  w00: no review folder; no archive")
+        record, _, _ = self.case(rr, "at least 5 B in 1 files (partly unreadable); no archive",
+                                 opens=[("zz", "dir", 1)])
+        self.assertEqual(record["review_folder"], _RRU_PARTIAL)
+        record, _, _ = self.case(rr, "8 B in 2 files; no archive")
+        self.assertEqual(record["review_folder"], {"present": True, "complete": True, "files": 2, "bytes": 8,
+                                                   "tracked_files": 0})
+        record, _, _ = self.case(self.rr(folder=False), "no review folder; no archive")
+        self.assertEqual(record["review_folder"], _RRU_NO_FOLDER)
 
     def test_t3_a_folder_left_in_removing_is_named_and_unreadable_wins(self):
         rr = self.rr(folder=False)
         removing = rr.archive_root / "widgets" / ".removing"
         (removing / "w00").mkdir(parents=True)
-        self.assertEqual(self.line(rr)[0], "  w00: review folder in .removing; no archive")
+        record, data, out = self.case(rr, "review folder in .removing; no archive")
+        self.assertEqual(record["review_folder"], _RRU_NO_FOLDER)
+        self.assertEqual(data["removing"], ["w00"])
+        self.assertIn("Interrupted removals (1): w00", out)
         rr.archive("w00.tar.zst", 40 * 86400, size=20)
-        self.assertEqual(self.line(rr)[0], "  w00: review folder in .removing; archive 20 B, 40 days old, prunable")
+        self.case(rr, "review folder in .removing; archive 20 B, 40 days old, prunable")
         (rr.archive_root / "widgets" / "w00.tar.zst").unlink()
         shutil.rmtree(removing / "w00")
-        self.assertEqual(self.line(rr)[0], "  w00: no review folder; no archive")
+        self.case(rr, "no review folder; no archive")
         (removing / "w01").mkdir()
-        self.assertEqual(self.line(rr)[0], "  w00: no review folder; no archive")
+        self.case(rr, "no review folder; no archive")
         (removing / "w00").mkdir()
         _write(rr.repo, ".ai-review/w00/a.txt", "12345")
-        self.assertEqual(self.line(rr)[0], "  w00: 5 B in 1 files; no archive")
+        self.case(rr, "5 B in 1 files; no archive")
         shutil.rmtree(rr.root / ".ai-review" / "w00")
-        with _Inject(folder="w00"):
-            self.assertEqual(self.line(rr)[0], "  w00: review folder unreadable; no archive")
+        self.case(rr, "review folder unreadable; no archive", folder="w00")
 
     def layout(self, rr, spec):
         """spec: relative path -> 'dir' | 'link' (to a directory outside the tree)."""
@@ -4690,21 +4702,17 @@ class RetentionReportUnreadable(unittest.TestCase):
                 self.layout(rr, spec)
                 base = rr.root / ".ai-review" / "w00"
                 want = sorted(str(base.joinpath(*p)) for p in expected)
-                with _Inject(opens=opens) as inject:
-                    # the Nth-open rule counts per report, so each read starts afresh
-                    self.assertEqual(self.paths(rr), want)
-                    inject.count.clear()
-                    record, _ = self.facts(rr)
-                    self.assertFalse(record["review_folder"]["complete"])
-                    inject.count.clear()
-                    text = rr.cli()[1]
-                    for path in want:
-                        self.assertIn(f"  {path}: ", text)
+                record, data, out = self.case(rr, "at least 5 B in 1 files (partly unreadable); no archive",
+                                              opens=opens)
+                self.assertEqual(sorted(e["path"] for e in data["read_errors"]), want)
+                self.assertEqual(record["review_folder"], _RRU_PARTIAL)
+                for path in want:
+                    self.assertIn(f"  {path}: ", out)
         rr = self.rr()
         self.layout(rr, {"a/b": "dir", "zz": "dir"})
-        report = rr.build()
-        self.assertEqual(report["read_errors"], [])
-        self.assertTrue(report["complete"])
+        record, data, _ = self.case(rr, "5 B in 1 files; no archive")
+        self.assertEqual(data["read_errors"], [])
+        self.assertEqual(record["review_folder"], {**_RRU_PARTIAL, "complete": True})
 
     @unittest.skipUnless(_HAVE_ZSTD, "remove needs a verified archive")
     def test_t6_the_refusals_name_the_corrected_path_and_write_nothing(self):
@@ -4724,6 +4732,7 @@ class RetentionReportUnreadable(unittest.TestCase):
         self.assertEqual(ra.snap(), before)
         archived = ra.call("w00", apply=True)
         self.assertEqual(archived.code, 0, getattr(archived.error, "message", None))
+        before = ra.snap()
         out, err = io.StringIO(), io.StringIO()
         with _Inject(opens=[("zz", "dir", 1)]), contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             code = wr.main(["remove", "w00", "--apply", "--repo-root", str(ra.root), "--archive-root",
@@ -4731,39 +4740,73 @@ class RetentionReportUnreadable(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("error: unreadable: ", err.getvalue())
         self.assertIn(f"{want} cannot be read", err.getvalue())
-        self.assertTrue((ra.root / ".ai-review" / "w00" / "zz").is_dir())
+        self.assertEqual(ra.snap(), before)
 
     def test_t5_nothing_else_moves(self):
-        rr = self.rr(6)
+        rr = self.rr(items={**_rr_many(6), "busy": _rr_item(phase="IMPLEMENTING")})
         _write(rr.repo, ".ai-review/w01/k.txt", "1")
+        _run(["git", "add", "-f", ".ai-review/w01/k.txt"], cwd=rr.root)
         rr.archive("w02.tar.zst", 3 * 86400, size=7)
-        golden = rr.cli()[1]
-        self.assertIn("  w00: 5 B in 1 files; no archive\n", golden)
-        self.assertIn("  w01: 1 B in 1 files; no archive\n", golden)
-        self.assertIn("  w02: no review folder; archive 7 B, 3 days old\n", golden)
-        for word in ("unreadable", ".removing", "INCOMPLETE", "at least"):
-            self.assertNotIn(word, golden)
+        (rr.archive_root / "widgets" / ".removing" / "w04").mkdir(parents=True)
+        store = rr.archive_root / "widgets"
+        head = ("Retention report for acme/widgets (2026-11-01T12:00:00Z)\n"
+                f"Archive directory: {store}\n"
+                "Time to live: 30 days; the 3 most recent merged items are kept\n"
+                "\n"
+                "Finished (3):\n"
+                "  w02: no review folder; archive 7 B, 3 days old\n"
+                "  w01: 1 B in 1 files; no archive\n"
+                "    1 tracked file(s) under .ai-review/w01/\n")
+        tail = ("\n"
+                "Interrupted removals (1): w04, finish them with `remove <id> --apply`\n"
+                "\n"
+                "Kept as recent (3): w05, w04, w03\n"
+                "\n"
+                "Not finished (1):\n"
+                "  open_phase: 1\n"
+                "\n"
+                "Archives (1), prunable (0):\n"
+                "  none prunable\n")
+        clean = head + "  w00: 5 B in 1 files; no archive\n" + tail
+        code, out, err = rr.cli()
+        self.assertEqual((code, err), (0, ""))
+        self.assertEqual(out, clean)
         report = rr.build()
         copy = json.loads(json.dumps(report))
-        wr.render_text(report)
+        self.assertEqual(wr.render_text(report), clean)
         self.assertEqual(report, copy)
-        for record in report["finished"] + report["kept_recent"]:
+        for record in report["finished"]:
             self.assertEqual(set(record["review_folder"]), _RRU_KEYS)
-        _write(rr.repo, ".ai-review/w00/zz/b.txt", "1")
-        with _Inject(archive="w00.tar.zst", opens=[("zz", "dir", 1)]):
-            code, out, err = rr.cli("--json")
-            data = json.loads(out)
-            by_id = {r["work_item_id"]: r for r in data["finished"]}
-            self.assertEqual(code, 0)
-            self.assertEqual(set(by_id["w00"]["review_folder"]), _RRU_KEYS)
-            self.assertEqual(by_id["w00"]["archive"], {**wr._ABSENT_ARCHIVE, "readable": False})
-            self.assertEqual(sorted(data), sorted(report))
-        # a hand-built record without the new keys renders as before
+            self.assertEqual(set(record["archive"]), set(_RRU_ABSENT))
+        # a hand-built record without the keys the new branches read renders as before
         bare = json.loads(json.dumps(report))
         for record in bare["finished"]:
             record["archive"].pop("readable", None)
             record["review_folder"].pop("complete", None)
-        self.assertEqual(wr.render_text(bare), golden)
+        bare.pop("removing")
+        self.assertEqual(wr.render_text(bare), clean.replace(
+            "\nInterrupted removals (1): w04, finish them with `remove <id> --apply`\n\n", "\n"))
+        # the same report with one archive and one sub-directory denied: only the w00 line and the
+        # INCOMPLETE section differ
+        _write(rr.repo, ".ai-review/w00/zz/b.txt", "1")
+        before = _rr_snapshot(rr.root, rr.archive_root)
+        with _Inject(archive="w00.tar.zst", opens=[("zz", "dir", 1)]):
+            code, out, err = rr.cli()
+            json_code, printed, _ = rr.cli("--json")
+        self.assertEqual(_rr_snapshot(rr.root, rr.archive_root), before)
+        self.assertEqual((code, json_code), (0, 0))
+        self.assertEqual(err, _RRU_WARNING.format(2))
+        folder = rr.root / ".ai-review" / "w00" / "zz"
+        self.assertEqual(out, head + "  w00: at least 5 B in 1 files (partly unreadable); archive unreadable\n" + tail
+                         + "\nINCOMPLETE: 2 path(s) could not be read; the sizes, archives and absences above are "
+                           "not reliable for them:\n"
+                         + f"  {store}/w00.tar.zst: PermissionError: denied\n"
+                         + f"  {folder}: PermissionError: denied\n")
+        data = json.loads(printed)
+        self.assertEqual(set(data), set(_RRU_REPORT_KEYS))
+        by_id = {r["work_item_id"]: r for r in data["finished"]}
+        self.assertEqual(by_id["w00"]["review_folder"], _RRU_PARTIAL)
+        self.assertEqual(by_id["w00"]["archive"], _RRU_UNREADABLE)
 
 
 @unittest.skipUnless(_HAVE_ZSTD, "the archive tests need the zstd program on PATH")
