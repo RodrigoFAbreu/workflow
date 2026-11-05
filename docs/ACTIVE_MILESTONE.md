@@ -2,37 +2,30 @@
 
 ## Milestone
 
-**Complete (accepted by policy).** W38: `retention-report-unreadable` (`process`, governing version `2.2`), branch
-`milestone/retention-report-unreadable`, roadmap row 33 (RodrigoFAbreu/workflow#113 item 1, #116 item 1 and #119
-item 8). Plan: `docs/ai-workflow/RETENTION_REPORT_UNREADABLE_PLAN.md` (revision 3, approved by gate policy). The goal,
-Workflow 2.25.6 (a `fix:` patch, released after the merge of the pull request): the retention report says
-`archive unreadable` / `review folder unreadable` where it cannot tell (a partly counted folder is a lower bound),
-`review folder in .removing` for a folder an interrupted removal left, and records the failed directory itself in
-`read_errors`. The JSON, every refusal code and exit code stay as they are. Base commit `e687d51`; the previous
-milestone, W37 `retention-error-paths`, is accepted (Workflow 2.25.5).
+**In progress (implementing).** W39: `unclassified-path-message` (`process`, governing version `2.2`), branch
+`milestone/unclassified-path-message`, roadmap row 34 (RodrigoFAbreu/workflow#146). Plan:
+`docs/ai-workflow/UNCLASSIFIED_PATH_MESSAGE_PLAN.md` (revision 5, approved by gate policy). The goal, Workflow 2.25.7
+(a `fix:` patch, released after the merge of the pull request): an unclassified path is refused with a message that
+names the path, the artifact-declaration file that must list it and the sanctioned route that adds it, qualified by
+stage and phase. The class, where it is raised, who catches it and every exit code stay as they are. Base commit
+`dd565f0`; the previous milestone, W38 `retention-report-unreadable`, is accepted (Workflow 2.25.6).
 
 ## Checkpoints
 
 | id | name | state |
 | --- | --- | --- |
-| CP1 | The report text, the recorded path, tests and page | **complete** (see the commit of this checkpoint) |
-| CP2 | Release 2.25.6 | **complete** (see the commit of this checkpoint) |
+| CP1 | The message, tests and page | **complete** (see the commit of this checkpoint) |
+| CP2 | Release 2.25.7 | not started |
 
 ## Verified state
 
-- Gates: plan approval and technical approval `CURRENT`, basis `POLICY_SATISFIED`. Technical approval at the review
-  content `eb1b13eb`, reviewed implementation head `d6e056a`.
-- The 13 recorded Optional findings are dispositioned in
-  `docs/ai-workflow/registry/retention-report-unreadable-dispositions.json` (8 follow-ups on
-  RodrigoFAbreu/workflow#149, 5 dropped with a reason).
-- Functional review: flows 1 to 4 by the Controller's automated tester (run `controller:20261105T060059Z-0cffef92`),
-  flows 5 to 8 by an independent headless executor (run `manager-orchestrator:runs-workflow/w38-functional-r1`), all
-  recorded passed at the approved content. Flow 8 failed on a strict reading of the checklist: its Expect over-claimed,
-  and the orchestrator recorded it passed with the reason in the record's summary (follow-up item 7 of #149).
-- Acceptance: pull request #150 at `30b61bf`, checks green, read by the Workflow's own `gh` query.
+- CP1: tests T1 to T9 written first and run red against the unedited tree, then green; failure-only mutations m1 to
+  m20 each fail the named tests on a scratch copy. `workflow_fingerprint_generalization_test` (148),
+  `workflow_fingerprint_test` (283) pass; `workflow_state_test` (1248) passes except two tests that read the live
+  state file from the `payload/` tree and fail identically on the base. `tools/docs/check_docs.py` is clean.
+- Not run at CP1: the D-Staging disposable-clone verification (nine suites from a staged fixture, `tools/release`
+  with the zlib-ng interpreter, `check-manager-block`). CP2's stock `stage-conformance` run is the real proof.
 
 ## Next action
 
-W38 `retention-report-unreadable` is accepted by policy (Workflow 2.25.6 is released after the merge of the pull
-request). No row of `docs/ROADMAP.md` is scheduled and incomplete: rows 12, 13 and 24 are waiting or paused and row 27
-is unscheduled. Confirm the next milestone with the owner before running `/milestone-plan`.
+CP2: Release 2.25.7 (`/milestone-implement unclassified-path-message` again).
