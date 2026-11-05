@@ -330,6 +330,21 @@ facts and the totals are then lower bounds, and an unreadable archive
 directory is not evidence that there is no archive. The exit status stays 0:
 the report was printed, and a caller reads `complete`.
 
+In the text form a finished item's line says what the report could not read:
+`archive unreadable` and `review folder unreadable` (a folder counted only in
+part reads `at least <size> in <n> files (partly unreadable)`), and
+`review folder in .removing` for a folder an interrupted removal left under
+`.removing`. `no archive` and `no review folder` mean absence. Two cases the
+text cannot yet tell apart still read as absence, and `INCOMPLETE` names the
+path there: an archive directory that is itself a link, and an `.ai-review`
+that cannot be opened. An entry that is not a real directory or regular file
+(a `.ai-review/<id>` or `<id>.tar.zst` that is a link) is absence too. An item
+folder that cannot be opened at all is not covered: the report fails there.
+The path in `read_errors` is the directory that could not be read, and the
+`unreadable` refusal of `archive` and `remove` names it; before Workflow
+2.25.6 the text said `no archive` or `no review folder` there, and the path
+was that of the previous directory.
+
 An archive is `prunable` when its age in whole days (from the file's
 modification time) is strictly greater than the time to live. `archives`
 lists every `*.tar.zst` file in the archive directory, with `item` set to
