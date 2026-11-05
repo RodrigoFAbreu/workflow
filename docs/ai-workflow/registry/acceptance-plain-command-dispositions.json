@@ -1,0 +1,103 @@
+{
+  "dispositions": {
+    "F-1df4ce9cb621": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request or checklist wording of a finished item (plan revisions 1 to 4 and the setup text of the checklist); the seven flows ran as written and all passed."
+    },
+    "F-249943e7d1fa": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request or checklist wording of a finished item (plan revisions 1 to 4 and the setup text of the checklist); the seven flows ran as written and all passed."
+    },
+    "F-2d12c9e68246": {
+      "disposition": "fixed",
+      "note": "The dispatch tests `is not None` (before the shared git rev-parse), so an empty id is not absent (workflow_state.py near line 20361)."
+    },
+    "F-300165275a09": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request or checklist wording of a finished item (plan revisions 1 to 4 and the setup text of the checklist); the seven flows ran as written and all passed."
+    },
+    "F-3965fdeed01c": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#155",
+      "note": "Follow-up item 5."
+    },
+    "F-484b70f4f28d": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#155",
+      "note": "Follow-up item 1."
+    },
+    "F-58655d19eb33": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request or checklist wording of a finished item (plan revisions 1 to 4 and the setup text of the checklist); the seven flows ran as written and all passed."
+    },
+    "F-5c183f168e14": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request or checklist wording of a finished item (plan revisions 1 to 4 and the setup text of the checklist); the seven flows ran as written and all passed."
+    },
+    "F-670c001a33da": {
+      "disposition": "fixed",
+      "note": "tools/release/release_test.py pins docs/exit-codes.md at 2.25.7 for the new class and the 2.25.7 class no longer asserts the moved page."
+    },
+    "F-7c1c1b747bfd": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#155",
+      "note": "Follow-up item 2."
+    },
+    "F-84f2b1e8638b": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#155",
+      "note": "Follow-up item 6."
+    },
+    "F-865e27da5ac3": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#155",
+      "note": "Follow-up item 4."
+    },
+    "F-94d244868433": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#155",
+      "note": "Follow-up item 5."
+    },
+    "F-a268f3d8dc23": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request or checklist wording of a finished item (plan revisions 1 to 4 and the setup text of the checklist); the seven flows ran as written and all passed."
+    },
+    "F-a7d831148f38": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request or checklist wording of a finished item (plan revisions 1 to 4 and the setup text of the checklist); the seven flows ran as written and all passed."
+    },
+    "F-b5f7dfabd275": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request or checklist wording of a finished item (plan revisions 1 to 4 and the setup text of the checklist); the seven flows ran as written and all passed."
+    },
+    "F-b68c4fcc381f": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request or checklist wording of a finished item (plan revisions 1 to 4 and the setup text of the checklist); the seven flows ran as written and all passed."
+    },
+    "F-b9ee5397c32d": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request or checklist wording of a finished item (plan revisions 1 to 4 and the setup text of the checklist); the seven flows ran as written and all passed."
+    },
+    "F-cd779900fb39": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#155",
+      "note": "Follow-up item 1."
+    },
+    "F-d3aeffe00c62": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request or checklist wording of a finished item (plan revisions 1 to 4 and the setup text of the checklist); the seven flows ran as written and all passed."
+    },
+    "F-d922926b1023": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#155",
+      "note": "Follow-up item 6."
+    },
+    "F-e108f7f73d88": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#155",
+      "note": "Follow-up item 3."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "acceptance-plain-command"
+}
