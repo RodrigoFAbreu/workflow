@@ -29666,7 +29666,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-report-unreadable-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-report-unreadable-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 3,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -29775,7 +29775,138 @@
           "workflow_release": "2.25.5"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "14f7cb1482069e03754a33cc911c938f65e90b32c8ffc4d663698283c9870812",
+        "approved_review_content_id": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+        "review_content_manifest": [
+          {
+            "path": "docs/RETENTION.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8fc8d78753430a7e7542cb7d24358460c520f63b"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-report-unreadable-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d62efb2e98b815b993f0acba555152746c25d6f8"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a8633cadae0d642dcb140c9d598badb4bd44e830"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "af9e13cb105063ddf895e113ffc039ad076da972"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e3bfaf96e1e277ba7d7007b98a1f848b90dcdc25"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1b6aa15a87fb6e3a2c4dbccd60fd733e1cf2988e"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d6a2d2e728bda439d799b59a7f7711edb9d4dde9"
+          },
+          {
+            "path": "payload/scripts/workflow_retention.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "dd57ecb9be06849a81e9240f25f1c243ccebda96"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6b45bfd2eb1c5f982c24c3095f5adf84fcebf71e"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "39b41ac3a28960efe23c7681be509fd62df7251d"
+          }
+        ],
+        "reviewed_content_commit": "d6e056a1ecce7896e7af6404f3aa37ba95392c9f",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-05T05:56:57Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+            "ledger": {
+              "local": {
+                "bundle_id": "14f7cb1482069e03754a33cc911c938f65e90b32c8ffc4d663698283c9870812",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "a5191280c3c865824496d2f45c525f013741049c479121a79568a2b6451d6b6d",
+                "ledger_entry_sha256": "41d5ce95070bd05ccec4b7c3c36e476625ddafd855126ec62f4bb3353c406837",
+                "run_ref": "session:local .ai-review/retention-report-unreadable/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "14f7cb1482069e03754a33cc911c938f65e90b32c8ffc4d663698283c9870812",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "16dea58b3f6330a5e8f35002e47b6bfc7b93a3d722a258e1bc67d9c9ffa50092",
+                "ledger_entry_sha256": "d79b6429c091a7f542c143be73f2ffabccc4189e5da88e608b57bc07f43ac3e5",
+                "run_ref": "codex:20261105T055216Z-79695f2c",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-05T05:56:57Z",
+          "workflow_release": "2.25.5"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "e00c179084f426dbd929bb4e1cca866a7e967a665b9f55ea175181014e576644",
@@ -29806,12 +29937,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 17,
-      "last_transition": "2026-11-05T05:34:38Z",
+      "state_revision": 20,
+      "last_transition": "2026-11-05T05:56:57Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -29919,6 +30050,125 @@
               "at": "2026-11-05T04:19:25Z"
             }
           ]
+        },
+        "F-e895f20d11ad": {
+          "digest": "e895f20d11adb5f07a002fbdfeb8e3a20fdb8f2383bb0f397e11231794561b5e",
+          "text": "**LIR-R1-O1:** `_review_folder`'s yield-time search at `payload/scripts/workflow_retention.py:272` runs from the bottom of `pending`, while the entry it wants is normally the top one, so a directory with many sub-directories costs quadratic time. Measured with 20000 empty sibling directories: 0.09 s on the base, 4.2 s and 5.2 s in two runs on the candidate, 0.17 s with the same loop searching from the top. `RetentionReportUnreadable` stays green with that change. The busiest directory under this repository's `.ai-review` has 38 sub-directories, so nothing is slow today. A later patch can reverse the loop, matching `walk_failed`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T05:51:49Z"
+            }
+          ]
+        },
+        "F-5f85b4170640": {
+          "digest": "5f85b4170640ed3e028da1e69f9faca976052902e4baad6cb064b985a6d16cbc",
+          "text": "**LIR-R1-O2:** D-Path's \"a failed `stat`\" arm of `_can_fail_walk` (`payload/scripts/workflow_retention.py:222`) has no test. Mutating it to `return False` leaves `RetentionReportUnreadable` green under 3.14 and 3.12. The behaviour is right on the real file: a `w00/d` of mode 0444 with `d/sub` records `w00/d/sub`, and the mutant records `w00`. The plan's m1 to m12 do not ask for this, so it is not a conformance gap. A T4 layout with a failing `stat` would close it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T05:51:49Z"
+            }
+          ]
+        },
+        "F-255a38f3ea66": {
+          "digest": "255a38f3ea6697345762f61b8c50156a077fd5fcc4aa38893f49eabb51123937",
+          "text": "**LIR-R1-O3:** Plan section 4 says a mismatch falls back to the review folder's own path, \"never to a wrong directory\". One narrow case does record a wrong directory. If `a/zz` is a symlink whose probe open succeeds and whose walk open then fails, for instance because the target's permissions changed between the two, and a real `w00/zz` is pending, `walk_failed` matches the same-named `w00/zz` and records it. Reproduced under 3.14 and 3.12 by failing the link's second open: `read_errors` names `w00/zz`, a readable directory. This needs a permission change in that window, the path stays under the item folder, and `_underneath` keeps the refusal, so no gate is weakened. Correct the sentence when the plan's text is next reused, or accept the limit.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T05:51:49Z"
+            }
+          ]
+        },
+        "F-7db82931f506": {
+          "digest": "7db82931f506755c81b9d233cfde81b1a0f534134034784be753b2325a2cd816",
+          "text": "**LIR-R1-O4:** `docs/RETENTION.md`'s \"Two cases the text cannot yet tell apart\" leaves out a third. When `<archive-dir>/.removing` cannot be read, an item folder sitting in it prints `no review folder`. Reproduced with the plan's harness and `.removing` at mode 000: `w00: no review folder; archive 20 B, 40 days old, prunable`, `removing: []`, `read_errors` naming `.removing`. `INCOMPLETE` names the path, as in the two listed cases, and the code follows D-Text's table. Only the page's list is short, and the release-history row's \"absence only\" has the same gap. Add it to the next page edit or to the comment planned for #113.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T05:51:49Z"
+            }
+          ]
+        },
+        "F-15a404f65c38": {
+          "digest": "15a404f65c38a37d12cf3cc08913ff30d86beb16b8093d73cd2eef9b4b9a6b6c",
+          "text": "**LIR-R1-O5:** `RetentionErrorPathsReleaseTest.test_the_release_history_rows_name_the_release_and_the_way_back` (`tools/release/release_test.py:3400`) keeps a current-page pin, `docs/exit-codes.md` at 2.25.5, in a class that otherwise holds what stays true of 2.25.5. The next release that rechecks that page must edit this past-release class. Moving the pin to the 2.25.6 class would keep it with the current release's pins, and the following release's class could then give it up.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T05:51:49Z"
+            }
+          ]
+        },
+        "F-0a88d4e37b5a": {
+          "digest": "0a88d4e37b5ad1c16858054367648539cfb0dba6949798d162c94ab0469bf65c",
+          "text": "**O1 — Quadratic directory search.** At `payload/scripts/workflow_retention.py:272`, scanning `pending` from its beginning makes wide directories take quadratic time. An in-memory walk with 16,000 siblings took 3.53 seconds; searching from the end took 0.067 seconds. Reverse this search as already done in `walk_failed`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T05:56:25Z"
+            }
+          ]
+        },
+        "F-494c96797ed0": {
+          "digest": "494c96797ed08609edeada6259192004cbfaf91f1eb0ab42c6433bbb09167899",
+          "text": "**O2 — Same-name collision after a symlink changes readability.** At `payload/scripts/workflow_retention.py:263`, if `a/zz` opens during the probe but fails during the walk, a pending readable sibling `w00/zz` is incorrectly recorded as the failed path. Reproduced under Python 3.12 and 3.14. This requires readability to change between operations; incompleteness and refusals remain intact. Document the limitation or address it in a follow-up.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T05:56:25Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "14f7cb1482069e03754a33cc911c938f65e90b32c8ffc4d663698283c9870812",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-05T05:51:49Z",
+          "verdict_sha256": "a5191280c3c865824496d2f45c525f013741049c479121a79568a2b6451d6b6d",
+          "run_ref": "session:local .ai-review/retention-report-unreadable/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "14f7cb1482069e03754a33cc911c938f65e90b32c8ffc4d663698283c9870812",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-05T05:56:25Z",
+          "verdict_sha256": "16dea58b3f6330a5e8f35002e47b6bfc7b93a3d722a258e1bc67d9c9ffa50092",
+          "run_ref": "codex:20261105T055216Z-79695f2c",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
