@@ -31334,7 +31334,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-plain-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-plain-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 4,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -31443,7 +31443,144 @@
           "workflow_release": "2.25.7"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "faf8390378f6f300222220c8f07c699bed676bcf9f134b93cb95e805a68b3d48",
+        "approved_review_content_id": "443e6cb2b0179b30435905f31f896f0c6feea347395683a1e616a84a2f9a4cbb",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/acceptance-plain-command-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "adc4d564faa247b265c2cd6d6c7d70e523b6d6b7"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ec3eeb3d3ce93948e99657df20acd5b4b40b5980"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7375adc79af2d31e538f87696c24e9167d1b8cc5"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cb8564836a071af0f0ecdc1d945fd75d739692f9"
+          },
+          {
+            "path": "payload/.claude/commands/satisfy-gate.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5be41313eef081eabda55dffb6717b7cf109f95a"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9969cfd5065af9c0547854979a56fc1c794950cb"
+          },
+          {
+            "path": "payload/scripts/workflow_gate_policy_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d66f444096dca4102cf52938cc89deeff25beccf"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "69ae14bb5928a3cfcdd7319121a15b567b64136c"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "22020960159eef620006336109b566349f9120c6"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8ab0aeceea1d6cdd1953cb0dceca39e7cb9614ee"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cc498ea311c73a865e8056e8a923bfc327e9723d"
+          }
+        ],
+        "reviewed_content_commit": "80bc5e17ddd2c13c13c587103a796beb01d9d531",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-05T21:47:46Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "443e6cb2b0179b30435905f31f896f0c6feea347395683a1e616a84a2f9a4cbb",
+            "ledger": {
+              "local": {
+                "bundle_id": "faf8390378f6f300222220c8f07c699bed676bcf9f134b93cb95e805a68b3d48",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "19c56a7a77e7c7fc6a4018684aa8b5902ecb80df5c3c16f3bb5f41a766355147",
+                "ledger_entry_sha256": "b6ecddb7b6a08a571229ee15c3df7a4161c30234736892205ba8a4a4fb114d27",
+                "run_ref": "session:local .ai-review/acceptance-plain-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "faf8390378f6f300222220c8f07c699bed676bcf9f134b93cb95e805a68b3d48",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "e0e1318ad6c21c7dab4eafac553b0a9a2f2a9f2d401bb225fe9ffa0fc17dacc0",
+                "ledger_entry_sha256": "f9653b5ba5a89cf6a1e71f387b5ca8674797e39648214952a2457bba076e0713",
+                "run_ref": "codex:20261105T214447Z-22bfb1f0",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-05T21:47:46Z",
+          "workflow_release": "2.25.7"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
@@ -31474,12 +31611,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 20,
-      "last_transition": "2026-11-05T21:14:52Z",
+      "state_revision": 23,
+      "last_transition": "2026-11-05T21:47:46Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -31728,6 +31865,111 @@
               "at": "2026-11-05T19:37:53Z"
             }
           ]
+        },
+        "F-cd779900fb39": {
+          "digest": "cd779900fb3919b308c4ec99dc0ad6a64a9d292e47e21717728e9534d5ed8027",
+          "text": "A state file holding the JSON value `null` is reported as `StateMissing`, with the message that the file \"does not exist\", although it exists. D-Flag makes valid JSON that is not an object `StateMalformed`. `_load_json` returns `None` for both a missing file and `null`, and `_acceptance_gate_cli` tests only `state is None`. Measured: `1`, `\"x\"` and `{\"work_items\": []}` give `StateMalformed`, `null` gives `StateMissing`. The fix is an existence check on the path, plus a `null` case in T7.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "443e6cb2b0179b30435905f31f896f0c6feea347395683a1e616a84a2f9a4cbb",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T21:44:28Z"
+            }
+          ]
+        },
+        "F-865e27da5ac3": {
+          "digest": "865e27da5ac3a88e0e0f88971a43a154b22879be9b67450d26f72e6a4d20f4c2",
+          "text": "A stored pull-request fact whose head is absent from the local repository ends the report with exit 1 (`AmbiguousBaseError`, \"base '<sha>' does not resolve to exactly one commit\"), while `satisfy_acceptance_gate` with a green query completes on the same state (measured). `evaluate_gate`'s `position_of` raises on the stored head before the stage's query would replace it. So `satisfy-gate.md`'s \"a stale stored fact never blocks the re-run\" does not hold here, and the text gives no instruction for exit 1. Reaching this takes a history rewrite after the fact was stored, then a pruned or fresh clone, so it is rare, and the failure is a visible JSON error, never a false `ready: true`. `evaluate_gate` must not change in this item, so a sentence in the command text, or row 36, is the natural place for it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "443e6cb2b0179b30435905f31f896f0c6feea347395683a1e616a84a2f9a4cbb",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T21:44:28Z"
+            }
+          ]
+        },
+        "F-3965fdeed01c": {
+          "digest": "3965fdeed01cba86ab0b83ae9393914ac04a02b0a66e6030b36ca9f7e903e389",
+          "text": "`RegistryCoverageError` has no test behind `registry_unresolvable`: `test_an_unresolvable_registry_is_a_blocker` reaches only `StalePlanApprovalRegistryReadError`. A mutation that removes `RegistryCoverageError` from the `except` survives all 16 tests (measured; removing the other class is killed). The code is right today: a deleted, unparsable, unsafe-path or foreign-id registry each reports `registry_unresolvable` (measured). One subtest with a deleted registry closes the gap. A surviving mutation of the same kind removes the `work_items[id] is not an object` branch, which D-Flag does not name and no test covers.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "443e6cb2b0179b30435905f31f896f0c6feea347395683a1e616a84a2f9a4cbb",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T21:44:28Z"
+            }
+          ]
+        },
+        "F-e108f7f73d88": {
+          "digest": "e108f7f73d8854b26781a496e87810b77cbe71575d0fba5941af40baa613db99",
+          "text": "A registry that parses but has a malformed shape (`\"checkpoints\": \"x\"`), or a non-string `registry_path`, gives exit 1 with a bare `TypeError` or `AttributeError` and no report, where the stage's gate refuses it as an unmet `checkpoints_complete` (`_acceptance_registry_requirement` catches every exception). This follows D-Flag's class-name fallback and is safe, because the worker stops. The message names no registry, though: catching `Exception` in the report's pre-flight, as the gate does, would make it `registry_unresolvable`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "443e6cb2b0179b30435905f31f896f0c6feea347395683a1e616a84a2f9a4cbb",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T21:44:28Z"
+            }
+          ]
+        },
+        "F-d922926b1023": {
+          "digest": "d922926b10230b7d7736ba21f35a15f01aa42217f326b1cfaacebbbaf53cf883",
+          "text": "At the right phase with an outstanding checkpoint, the `phase_not_reachable` detail reads \"the phase is AWAITING_FUNCTIONAL_REVIEW; the acceptance stage needs AWAITING_FUNCTIONAL_REVIEW and every checkpoint complete (outstanding: CP1)\", which reads as a contradiction (measured). It is the same point as the request's known limitation 1 on this sentence: worded by which half of the predicate failed, the detail would read correctly in both cases, and `AWAITING_USER_ACCEPTANCE` would not need naming.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "443e6cb2b0179b30435905f31f896f0c6feea347395683a1e616a84a2f9a4cbb",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T21:44:28Z"
+            }
+          ]
+        },
+        "F-484b70f4f28d": {
+          "digest": "484b70f4f28dd23480b44921379bdaf1a98570ce0c3296140566868668ebe2f0",
+          "text": "In `payload/scripts/workflow_state.py`, `_acceptance_gate_cli` reports an existing state file containing JSON `null` as `StateMissing`, claiming it does not exist. `_load_json` returns `None` for both cases. Distinguish file absence from malformed content so `null` produces `StateMalformed`. The current behavior safely exits 1; only the diagnostic is wrong.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "443e6cb2b0179b30435905f31f896f0c6feea347395683a1e616a84a2f9a4cbb",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T21:47:21Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "443e6cb2b0179b30435905f31f896f0c6feea347395683a1e616a84a2f9a4cbb",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "faf8390378f6f300222220c8f07c699bed676bcf9f134b93cb95e805a68b3d48",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-05T21:44:28Z",
+          "verdict_sha256": "19c56a7a77e7c7fc6a4018684aa8b5902ecb80df5c3c16f3bb5f41a766355147",
+          "run_ref": "session:local .ai-review/acceptance-plain-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "faf8390378f6f300222220c8f07c699bed676bcf9f134b93cb95e805a68b3d48",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-05T21:47:21Z",
+          "verdict_sha256": "e0e1318ad6c21c7dab4eafac553b0a9a2f2a9f2d401bb225fe9ffa0fc17dacc0",
+          "run_ref": "codex:20261105T214447Z-22bfb1f0",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
