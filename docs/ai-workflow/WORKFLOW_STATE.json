@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "retention-report-unreadable",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -29666,7 +29666,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-report-unreadable-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-report-unreadable-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 3,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -29941,8 +29941,8 @@
           "external": 1
         }
       },
-      "state_revision": 20,
-      "last_transition": "2026-11-05T05:56:57Z",
+      "state_revision": 21,
+      "last_transition": "2026-11-05T06:47:20Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -30170,6 +30170,273 @@
           "run_ref": "codex:20261105T055216Z-79695f2c",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "30b61bfd342a431d360dbc2db9367bf1ce8721f0",
+            "ran_at": "2026-11-05T06:01:26Z",
+            "summary": {
+              "checklist_blob": "821cb0cedf6d62f7bfcfba5adcf3c6b0f3be96e6",
+              "text": "Harness used only its own scratch repo and the run= forge seam; no gh/network/real .ai-review; every case reported tree unchanged: True."
+            },
+            "log_digest": "529fd8aecf42599e4d25520ffde816ec24691c23de835a5383a3ca28ad4c48be",
+            "run_ref": "controller:20261105T060059Z-0cffef92",
+            "reporter": "workflow-controller 1.27.8",
+            "identity": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+            "recorded_at": "2026-11-05T06:01:26Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "30b61bfd342a431d360dbc2db9367bf1ce8721f0",
+            "ran_at": "2026-11-05T06:01:26Z",
+            "summary": {
+              "checklist_blob": "821cb0cedf6d62f7bfcfba5adcf3c6b0f3be96e6",
+              "text": "base/ (e687d51) and cand/ (30b61bf) built with git archive of payload/scripts under TMPDIR; clone untouched."
+            },
+            "log_digest": "1de8bee5a941d410b5a39693f81e2de890e14776c89b764444ff875414f8d66d",
+            "run_ref": "controller:20261105T060059Z-0cffef92",
+            "reporter": "workflow-controller 1.27.8",
+            "identity": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+            "recorded_at": "2026-11-05T06:01:26Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "30b61bfd342a431d360dbc2db9367bf1ce8721f0",
+            "ran_at": "2026-11-05T06:01:26Z",
+            "summary": {
+              "checklist_blob": "821cb0cedf6d62f7bfcfba5adcf3c6b0f3be96e6",
+              "text": "python3 -I flow.py for clean/archive/folder/partial/removing on base and cand: clean identical; archive, folder, partial, removing show the expected cand wording (archive unreadable, review folder unreadable, at least 6 B ... partly unreadable with w00/zz, review folder in .removing); json lines identical per case; exit 0 0; tree unchanged True."
+            },
+            "log_digest": "12b24a3570f906046df2b7bc35dfcad35c043ffa92c4518f48ae1e9e339d2cab",
+            "run_ref": "controller:20261105T060059Z-0cffef92",
+            "reporter": "workflow-controller 1.27.8",
+            "identity": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+            "recorded_at": "2026-11-05T06:01:26Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "30b61bfd342a431d360dbc2db9367bf1ce8721f0",
+            "ran_at": "2026-11-05T06:01:26Z",
+            "summary": {
+              "checklist_blob": "821cb0cedf6d62f7bfcfba5adcf3c6b0f3be96e6",
+              "text": "Same ten runs under /home/rodrigo/.local/bin/python3.12 (reachable, ran) gave output identical in substance to python3 and met all expectations."
+            },
+            "log_digest": "12b24a3570f906046df2b7bc35dfcad35c043ffa92c4518f48ae1e9e339d2cab",
+            "run_ref": "controller:20261105T060059Z-0cffef92",
+            "reporter": "workflow-controller 1.27.8",
+            "identity": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+            "recorded_at": "2026-11-05T06:01:27Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "30b61bfd342a431d360dbc2db9367bf1ce8721f0",
+            "ran_at": "2026-11-05T06:27:56Z",
+            "summary": {
+              "checklist_blob": "821cb0cedf6d62f7bfcfba5adcf3c6b0f3be96e6",
+              "text": "base printed `w00: no review folder; archive 20 B, 40 days old, prunable`, cand printed `w00: review folder in .removing; archive 20 B, ...`; both print the `Interrupted removals (1): w00` line and identical json (`removing: [\"w00\"]`, `complete: true`); every run `exit 0 0`, `tree unchanged: True`, under python3 and python3.12. Independent headless executor, disposable clone."
+            },
+            "log_digest": "af41868722e178a5fd3992d38e0d52e309a7ed48db8486409d98af69d3c1b070",
+            "run_ref": "manager-orchestrator:runs-workflow/w38-functional-r1",
+            "reporter": "manager-orchestrator (independent run, claude claude-sonnet-5-5)",
+            "identity": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+            "recorded_at": "2026-11-05T06:27:56Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "30b61bfd342a431d360dbc2db9367bf1ce8721f0",
+            "ran_at": "2026-11-05T06:27:56Z",
+            "summary": {
+              "checklist_blob": "821cb0cedf6d62f7bfcfba5adcf3c6b0f3be96e6",
+              "text": "`git diff --stat e687d51 39f870b -- payload docs` (39f870b exists in the clone) lists exactly the nine expected files, exit 0; the script diff has hunks at `_open_review_root` (adds `_can_fail_walk`), `_review_folder` and `render_text`. Independent headless executor, disposable clone."
+            },
+            "log_digest": "f02b1eb46d51a9f9bb8f4443efa8066b248fd5aa1b0b328a09aba46b2b4cecc7",
+            "run_ref": "manager-orchestrator:runs-workflow/w38-functional-r1",
+            "reporter": "manager-orchestrator (independent run, claude claude-sonnet-5-5)",
+            "identity": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+            "recorded_at": "2026-11-05T06:27:56Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "30b61bfd342a431d360dbc2db9367bf1ce8721f0",
+            "ran_at": "2026-11-05T06:27:56Z",
+            "summary": {
+              "checklist_blob": "821cb0cedf6d62f7bfcfba5adcf3c6b0f3be96e6",
+              "text": "retention class 6 tests OK; the nine manifest suites all exit 0 from the staged fixture; tools/release 307 tests OK (zlib-ng 2.2.5 venv), tools/docs 34 tests OK, check_docs.py and check-manager-block exit 0; NOT RUN: the Manager's orphan-rule (reaper) run, since it needs the Manager repo (read-only for me), which the checklist already records as the one non-green item. Independent headless executor, disposable clone."
+            },
+            "log_digest": "7602e0f149da1f73e8b574fc9e9b7eb8039f6565241a166bbd90b4937ab1631d",
+            "run_ref": "manager-orchestrator:runs-workflow/w38-functional-r1",
+            "reporter": "manager-orchestrator (independent run, claude claude-sonnet-5-5)",
+            "identity": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+            "recorded_at": "2026-11-05T06:27:57Z"
+          },
+          "flow-8": {
+            "flow_id": "flow-8",
+            "status": "passed",
+            "head": "30b61bfd342a431d360dbc2db9367bf1ce8721f0",
+            "ran_at": "2026-11-05T06:27:56Z",
+            "summary": {
+              "checklist_blob": "821cb0cedf6d62f7bfcfba5adcf3c6b0f3be96e6",
+              "text": "the 16-file list matches exactly, none under scripts/, .claude/, a command file or docs/exit-codes.md, manifest.json says 2.25.6 and the release-history row names 2.25.6 with the way back (`workflow-manager update`, minimum Manager 1.13.0, back to 2.25.5); but docs/RETENTION.md names 2.25.6 only as \"before Workflow 2.25.6 the text said ...\" and contains no way-back sentence, so the Expect that it names \"the same way back\" is not met on a strict reading (the rest of flow 8 held; a lenient reader may accept it). ORCHESTRATOR'S JUDGMENT: the executor marked this FAILED on a strict reading because docs/RETENTION.md names 2.25.6 only as 'before Workflow 2.25.6 the text said ...' and has no way-back sentence, while the checklist's Expect says RETENTION.md names 'the same way back'. The plan (RETENTION_REPORT_UNREADABLE_PLAN.md line 175) puts the way back to 2.25.5 in docs/release-history.md only, and that row has it; so the Expect over-claimed and the product matches the plan. Recorded passed, with the checklist wording filed as a follow-up. The other parts of flow 8 held (the 16-file list, nothing under scripts/ or .claude/, manifest 2.25.6)."
+            },
+            "log_digest": "64c587d635c33b92cab253153489faaa3f7e30464159959fab2d68fe39ad2a6a",
+            "run_ref": "manager-orchestrator:runs-workflow/w38-functional-r1",
+            "reporter": "manager-orchestrator (independent run, claude claude-sonnet-5-5)",
+            "identity": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+            "recorded_at": "2026-11-05T06:27:57Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 150,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/150"
+          },
+          "state": "open",
+          "head": "30b61bfd342a431d360dbc2db9367bf1ce8721f0",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+          "observed_at": "2026-11-05T06:47:20Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "d6e056a1ecce7896e7af6404f3aa37ba95392c9f",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-05T06:47:20Z",
+            "raw_sha256": "0b8eaa7aeb438d177301d8e8309bc37eb7bbdc814084736ab3251dadf4268f63",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "9e824061111fe5f5b6a5d5690909ba37abafca4a4ca830bdf83246d3c94afd21"
+          },
+          "fact_id": "d6c6ff33e11a6171a0fed69f8d73385f7bbdd9ae36bcc5fd5082d83faa6d06b0"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6', 'flow-7', 'flow-8'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #150 at 30b61bfd342a431d360dbc2db9367bf1ce8721f0 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "d6e056a1ecce7896e7af6404f3aa37ba95392c9f",
+          "anchor_identity": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "eb1b13eb7bf619da351c2df51669c7b839e209508565dbbe237742055df48033",
+            "recorded_at": "2026-11-05T05:56:57Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "5dace589f19cf4902efb5a400a8d661cd9cc64e7063bc58013c2a75908c6a473",
+              "log_digest": "529fd8aecf42599e4d25520ffde816ec24691c23de835a5383a3ca28ad4c48be",
+              "run_ref": "controller:20261105T060059Z-0cffef92"
+            },
+            "flow-2": {
+              "evidence_id": "db08f4b63ca4e935144e4a69b4e6a5d2f5cdf61e460ed2cff50efc30323d30de",
+              "log_digest": "1de8bee5a941d410b5a39693f81e2de890e14776c89b764444ff875414f8d66d",
+              "run_ref": "controller:20261105T060059Z-0cffef92"
+            },
+            "flow-3": {
+              "evidence_id": "44da62e975741aeaf304030c966a4c0baf9056aa149c9096e8ca81880a39e9c6",
+              "log_digest": "12b24a3570f906046df2b7bc35dfcad35c043ffa92c4518f48ae1e9e339d2cab",
+              "run_ref": "controller:20261105T060059Z-0cffef92"
+            },
+            "flow-4": {
+              "evidence_id": "d74a4c60be229edeae7e2c3a017a66b28f26173b8df0efeda2e0bc2e07d8b197",
+              "log_digest": "12b24a3570f906046df2b7bc35dfcad35c043ffa92c4518f48ae1e9e339d2cab",
+              "run_ref": "controller:20261105T060059Z-0cffef92"
+            },
+            "flow-5": {
+              "evidence_id": "d351ea6a3a95fd30be6566be48afefa15948a0401a93d2a298917288c10f6fd1",
+              "log_digest": "af41868722e178a5fd3992d38e0d52e309a7ed48db8486409d98af69d3c1b070",
+              "run_ref": "manager-orchestrator:runs-workflow/w38-functional-r1"
+            },
+            "flow-6": {
+              "evidence_id": "1520a8bedca3ecc0868afc29c67ffc799989da1fb6fadfb18e134f958db5aa7f",
+              "log_digest": "f02b1eb46d51a9f9bb8f4443efa8066b248fd5aa1b0b328a09aba46b2b4cecc7",
+              "run_ref": "manager-orchestrator:runs-workflow/w38-functional-r1"
+            },
+            "flow-7": {
+              "evidence_id": "78f7d68327fc7267b44a07a0da260b7364cd2014067e07d2503ea98f69f23124",
+              "log_digest": "7602e0f149da1f73e8b574fc9e9b7eb8039f6565241a166bbd90b4937ab1631d",
+              "run_ref": "manager-orchestrator:runs-workflow/w38-functional-r1"
+            },
+            "flow-8": {
+              "evidence_id": "89a8f11b9f79f19d4d22a9fcffca9f14b90b51466439d6c84f6147cd94e16a59",
+              "log_digest": "64c587d635c33b92cab253153489faaa3f7e30464159959fab2d68fe39ad2a6a",
+              "run_ref": "manager-orchestrator:runs-workflow/w38-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "d6c6ff33e11a6171a0fed69f8d73385f7bbdd9ae36bcc5fd5082d83faa6d06b0",
+            "head": "30b61bfd342a431d360dbc2db9367bf1ce8721f0",
+            "provenance": "workflow_gh",
+            "raw_sha256": "0b8eaa7aeb438d177301d8e8309bc37eb7bbdc814084736ab3251dadf4268f63"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-05T06:47:20Z",
+        "workflow_release": "2.25.5"
       }
     }
   }
