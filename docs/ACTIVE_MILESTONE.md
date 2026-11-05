@@ -20,8 +20,8 @@ description as the specification. Gate semantics do not change. The completion a
   `_acceptance_gate_cli` in `payload/scripts/workflow_state.py`; `TestAcceptanceGateReport` in
   `payload/scripts/workflow_gate_policy_test.py`; the plain-commands block in `payload/.claude/commands/satisfy-gate.md`;
   the rows in `docs/exit-codes.md`.
-- CP2 (release 2.26.0): not started.
+- CP2 (release 2.26.0): complete. `manifest.json` 2.26.0 (changed records, posture, `conformance.suites`), `WORKFLOW_RELEASE`, the protocol document and test, `docs/release-history.md`, `docs/exit-codes.md`, `AcceptancePlainCommandReleaseTest`. Verified in a scratch commit: the nine suites from a stock `stage-conformance` fixture, `build`, `check-manager-block`, `tools/docs`, `check_docs.py`, `tools/release` (311 tests, zlib-ng interpreter).
 
 ## Next action
 
-`/milestone-implement acceptance-plain-command` again for CP2.
+`/milestone-implement acceptance-plain-command` again: all checkpoints are complete; it enters self-review and prepares the implementation review bundle.

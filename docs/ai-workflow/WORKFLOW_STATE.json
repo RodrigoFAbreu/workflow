@@ -31334,18 +31334,22 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-plain-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-plain-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 4,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "16e33d1e67b70812c3ea9f2b8f495b49312d9b16",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "cc6cb8d08dd467fe2eafde5c2b8bcff5b1a2409f"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "4b5010ace8c7c8c11708ce605148b751ccdf77ee"
         }
       },
       "current_bundle_id": "010a4fa9b194e3f176aec20f29552f6e1f45d132c20ba7ed11e030460155b3c8",
@@ -31474,8 +31478,8 @@
           "external": 0
         }
       },
-      "state_revision": 17,
-      "last_transition": "2026-11-05T20:13:56Z",
+      "state_revision": 19,
+      "last_transition": "2026-11-05T20:42:58Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",

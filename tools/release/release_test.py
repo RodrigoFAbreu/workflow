@@ -2858,7 +2858,7 @@ class InterleavingPinsReleaseTest(unittest.TestCase):
     """Release 2.19.1 (interleaving-pins): what stays true of it once a later release
     is current -- the record sentences and the release-history row. The current
     version, constant, counts and posture are pinned by the current release's class
-    (2.25.7)."""
+    (2.26.0)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py", "scripts/workflow_state_test.py")
@@ -2891,7 +2891,7 @@ class CommandWordingReleaseTest(unittest.TestCase):
     """Release 2.19.2 (command-wording): what stays true of it once a later release
     is current -- the record sentences and the release-history row. The current
     version, constant, counts, digests and posture are pinned by the current
-    release's class (2.25.7)."""
+    release's class (2.26.0)."""
 
     CHANGED = (".claude/commands/release-checkpoint-start.md", "docs/ai-workflow/COMMAND_FILES.md",
                "docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
@@ -2933,7 +2933,7 @@ class RetentionReportReleaseTest(unittest.TestCase):
     is current -- the counts, the added record, the record sentences and the
     release-history row. The current version, constant, digests, pages' "Last
     checked with" lines and posture are pinned by the current release's class
-    (2.25.7)."""
+    (2.26.0)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -2986,7 +2986,7 @@ class RetentionArchiveReleaseTest(unittest.TestCase):
     """Release 2.21.0 (retention-archive): what stays true of it once a later release
     is current -- the unchanged counts, the record sentences and the release-history
     row. The current version, constant, digests, pages' "Last checked with" lines
-    and posture are pinned by the current release's class (2.25.7)."""
+    and posture are pinned by the current release's class (2.26.0)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -3034,7 +3034,7 @@ class RetentionRemovalReleaseTest(unittest.TestCase):
     """Release 2.22.0 (retention-removal): what stays true of it once a later release
     is current -- the counts, the record sentences and the release-history row. The
     current version, constant, digests, pages' "Last checked with" lines and posture
-    are pinned by the current release's class (2.25.7)."""
+    are pinned by the current release's class (2.26.0)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -3084,7 +3084,7 @@ class RetentionCommandReleaseTest(unittest.TestCase):
     is current -- the added command record, the record sentences and the
     release-history row. The current version, constant, counts, digests, pages'
     "Last checked with" lines and posture are pinned by the current release's class
-    (2.25.7)."""
+    (2.26.0)."""
 
     CHANGED = ("docs/ai-workflow/COMMAND_FILES.md",
                "docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
@@ -3129,7 +3129,7 @@ class RetentionPruneReleaseTest(unittest.TestCase):
     """Release 2.24.0 (retention-prune): what stays true of it once a later release
     is current -- the record sentences and the release-history row. The current
     version, constant, counts, digests, pages' "Last checked with" lines and posture
-    are pinned by the current release's class (2.25.7)."""
+    are pinned by the current release's class (2.26.0)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -3166,7 +3166,7 @@ class PruneArchivesCommandReleaseTest(unittest.TestCase):
     """Release 2.25.0 (retention-prune-command): what stays true of it once a later release
     is current -- the added command record, the record sentences and the release-history
     row. The current version, constant, counts, digests, pages' "Last checked with" lines
-    and posture are pinned by the current release's class (2.25.7)."""
+    and posture are pinned by the current release's class (2.26.0)."""
 
     CHANGED = ("docs/ai-workflow/COMMAND_FILES.md",
                "docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
@@ -3211,7 +3211,7 @@ class RetentionLstatErrorsReleaseTest(unittest.TestCase):
     """Release 2.25.1 (retention-lstat-errors): its changed records carry its sentence and
     the release-history row says what it did. The version, the release constant, the counts,
     the digests, the downgrade posture and the pages' "Last checked with" lines are pinned by
-    the current release's class (2.25.7)."""
+    the current release's class (2.26.0)."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -3249,7 +3249,7 @@ class RetentionPolishReleaseTest(unittest.TestCase):
     """Release 2.25.2 (retention-polish): its changed records carry its sentence and the
     release-history rows say what it did. The version, the release constant, the counts,
     the digests, the downgrade posture and the "Last checked with" line are pinned by the
-    current release's class (2.25.7)."""
+    current release's class (2.26.0)."""
 
     CHANGED = ("docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md",
                "scripts/workflow_integration_test.py",
@@ -3293,7 +3293,7 @@ class CiLatestCheckRunReleaseTest(unittest.TestCase):
     """Release 2.25.3 (ci-latest-check-run): its changed records carry its sentence and the
     release-history rows say what it did. The version, the release constant, the counts,
     the digests, the downgrade posture and the "Last checked with" line are pinned by the
-    current release's class (2.25.7)."""
+    current release's class (2.26.0)."""
 
     CHANGED = ("scripts/workflow_forge.py", "scripts/workflow_gate_policy_test.py",
                "docs/ai-workflow/GATE_POLICY.md",
@@ -3332,7 +3332,7 @@ class CheckTimeByValueReleaseTest(unittest.TestCase):
     """Release 2.25.4 (check-time-by-value): its changed records carry its sentence and the
     release-history rows say what it did. The version, the release constant, the counts,
     the digests, the downgrade posture and the "Last checked with" line are pinned by the
-    current release's class (2.25.7)."""
+    current release's class (2.26.0)."""
 
     CHANGED = ("scripts/workflow_forge.py", "scripts/workflow_gate_policy_test.py",
                "docs/ai-workflow/GATE_POLICY.md",
@@ -3371,7 +3371,7 @@ class RetentionErrorPathsReleaseTest(unittest.TestCase):
     """Release 2.25.5 (retention-error-paths): its changed records carry its sentence and the
     release-history rows say what it did. The version, the release constant, the counts,
     the digests, the downgrade posture and the "Last checked with" line of the history are
-    pinned by the current release's class (2.25.7); `docs/exit-codes.md` stays at 2.25.5."""
+    pinned by the current release's class (2.26.0); `docs/exit-codes.md` is pinned by it too."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -3397,8 +3397,6 @@ class RetentionErrorPathsReleaseTest(unittest.TestCase):
         self.assertEqual(sorted(others), sorted(self.CHANGED))
 
     def test_the_release_history_rows_name_the_release_and_the_way_back(self):
-        self.assertIn("Last checked with: Workflow 2.25.5.",
-                      (REPO_ROOT / "docs" / "exit-codes.md").read_text())
         for needle in ("#119", "item 1", "#113", "item 2", "os.readlink", "unreadable",
                        "folder_changed", "pack_failed", "state_invalid", "repository_unknown",
                        "Orchestration Protocol 1.5", "2.25.4", "restores the traceback",
@@ -3412,7 +3410,7 @@ class RetentionReportUnreadableReleaseTest(unittest.TestCase):
     """Release 2.25.6 (retention-report-unreadable): its changed records carry its sentence and
     the release-history rows say what it did. The version, the release constant, the counts,
     the digests, the downgrade posture and the "Last checked with" line of the history are
-    pinned by the current release's class (2.25.7); `docs/RETENTION.md` stays at 2.25.6."""
+    pinned by the current release's class (2.26.0); `docs/RETENTION.md` stays at 2.25.6."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py",
@@ -3452,9 +3450,10 @@ class RetentionReportUnreadableReleaseTest(unittest.TestCase):
 
 
 class UnclassifiedPathMessageReleaseTest(unittest.TestCase):
-    """Release 2.25.7 (unclassified-path-message): the version, the release constant, the
-    counts, the digests, the downgrade posture, the pages' "Last checked with" lines and the
-    release-history rows."""
+    """Release 2.25.7 (unclassified-path-message): its changed records carry its sentence and
+    the release-history rows say what it did. The version, the release constant, the counts,
+    the digests, the downgrade posture and the "Last checked with" line of the history are
+    pinned by the current release's class (2.26.0); `docs/common-problems.md` stays at 2.25.7."""
 
     CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
                "scripts/workflow_protocol_test.py", "scripts/workflow_fingerprint.py",
@@ -3470,8 +3469,46 @@ class UnclassifiedPathMessageReleaseTest(unittest.TestCase):
         return next(line for line in self.history.splitlines()
                     if line.startswith(f"| {version} |"))
 
-    def test_the_release_names_2_25_7_and_adds_no_record(self):
-        self.assertEqual(self.manifest["workflow_version"], "2.25.7")
+    def test_every_record_changed_by_the_release_carries_its_sentence(self):
+        for target in self.CHANGED:
+            with self.subTest(target):
+                record = next(r for r in self.manifest["artifacts"] if r["target_path"] == target)
+                self.assertIn(self.SENTENCE, record["rationale"])
+        others = [r["target_path"] for r in self.manifest["artifacts"]
+                  if self.SENTENCE in r["rationale"]]
+        self.assertEqual(sorted(others), sorted(self.CHANGED))
+
+    def test_the_release_history_rows_name_the_release_and_the_way_back(self):
+        self.assertIn("Last checked with: Workflow 2.25.7.",
+                      (REPO_ROOT / "docs" / "common-problems.md").read_text())
+        for needle in ("#146", "UnclassifiedPathError", "/request-plan-amendment", "/milestone-plan",
+                       "protected", "excluded", "Orchestration Protocol 1.5", "2.25.6",
+                       "restores the bare message", "nothing needs undoing", "v2.25.7"):
+            self.assertIn(needle, self.row())
+        self.assertNotIn("closes #", self.row())
+        self.assertLess(self.history.index("| 2.25.7 |"), self.history.index("| 2.25.6 |"))
+
+
+class AcceptancePlainCommandReleaseTest(unittest.TestCase):
+    """Release 2.26.0 (acceptance-plain-command): the version, the release constant, the
+    counts, the digests, the downgrade posture, the pages' "Last checked with" lines and the
+    release-history rows."""
+
+    CHANGED = ("docs/ai-workflow/ORCHESTRATION_PROTOCOL.md", "scripts/workflow_protocol.py",
+               "scripts/workflow_protocol_test.py", "scripts/workflow_gate_policy_test.py",
+               "scripts/workflow_state.py", ".claude/commands/satisfy-gate.md")
+    SENTENCE = "acceptance-plain-command (workflow-2.26.0)"
+
+    def setUp(self):
+        self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
+        self.history = (REPO_ROOT / "docs" / "release-history.md").read_text()
+
+    def row(self, version: str = "2.26.0") -> str:
+        return next(line for line in self.history.splitlines()
+                    if line.startswith(f"| {version} |"))
+
+    def test_the_release_names_2_26_0_and_adds_no_record(self):
+        self.assertEqual(self.manifest["workflow_version"], "2.26.0")
         by_category = {}
         for entry in self.manifest["artifacts"]:
             by_category[entry["category"]] = by_category.get(entry["category"], 0) + 1
@@ -3484,7 +3521,7 @@ class UnclassifiedPathMessageReleaseTest(unittest.TestCase):
 
     def test_the_release_constant_is_the_manifest_version(self):
         text = (REPO_ROOT / "payload/scripts/workflow_protocol.py").read_text()
-        self.assertIn('WORKFLOW_RELEASE = "2.25.7"', text)
+        self.assertIn('WORKFLOW_RELEASE = "2.26.0"', text)
 
     def test_every_record_changed_by_the_release_carries_its_sentence(self):
         for section in ("artifacts", "templates"):
@@ -3500,14 +3537,14 @@ class UnclassifiedPathMessageReleaseTest(unittest.TestCase):
                   if self.SENTENCE in r["rationale"]]
         self.assertEqual(sorted(others), sorted(self.CHANGED))
 
-    def test_the_manager_block_states_the_patch_and_the_way_back_in_the_posture(self):
+    def test_the_manager_block_states_the_minor_and_the_way_back_in_the_posture(self):
         block = self.manifest["manager"]
         self.assertEqual(block["min_manager_version"], "1.13.0")
         posture = block["downgrade_boundary"]["posture"]
-        for needle in ("2.25.7", "2.25.6", "name the way forward",
-                       "UnclassifiedPathError", "Orchestration Protocol stays 1.5",
-                       "workflow-manager update back to 2.25.6", "WORKFLOW_RELEASE",
-                       "restores the bare message", "nothing needs undoing",
+        for needle in ("2.26.0", "2.25.7", "--acceptance-gate", "read-only",
+                       "Orchestration Protocol stays 1.5", "not a protocol operation",
+                       "workflow-manager update back to 2.25.7", "WORKFLOW_RELEASE",
+                       "removes the flag", "nothing needs undoing",
                        "/release-checkpoint-start", "2.14.0"):
             self.assertIn(needle, posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
@@ -3515,18 +3552,18 @@ class UnclassifiedPathMessageReleaseTest(unittest.TestCase):
         self.assertEqual(block["gate_default_change"], "")
         suites = block["conformance"]["suites"]
         self.assertEqual((suites["workflow_state_test.py"],
-                          suites["workflow_fingerprint_generalization_test.py"]), (1249, 148))
+                          suites["workflow_gate_policy_test.py"]), (1249, 346))
 
     def test_the_release_history_rows_name_the_release_and_the_way_back(self):
-        self.assertIn("Last checked with: Workflow 2.25.7.", self.history)
-        self.assertIn("Last checked with: Workflow 2.25.7.",
-                      (REPO_ROOT / "docs" / "common-problems.md").read_text())
-        for needle in ("#146", "UnclassifiedPathError", "/request-plan-amendment", "/milestone-plan",
-                       "protected", "excluded", "Orchestration Protocol 1.5", "2.25.6",
-                       "restores the bare message", "nothing needs undoing", "v2.25.7"):
+        self.assertIn("Last checked with: Workflow 2.26.0.", self.history)
+        self.assertIn("Last checked with: Workflow 2.26.0.",
+                      (REPO_ROOT / "docs" / "exit-codes.md").read_text())
+        for needle in ("#148", "--acceptance-gate", "read-only", "/satisfy-gate acceptance",
+                       "blockers", "ready", "not_checked", "Orchestration Protocol 1.5",
+                       "2.25.7", "removes the flag", "nothing needs undoing", "v2.26.0"):
             self.assertIn(needle, self.row())
         self.assertNotIn("closes #", self.row())
-        self.assertLess(self.history.index("| 2.25.7 |"), self.history.index("| 2.25.6 |"))
+        self.assertLess(self.history.index("| 2.26.0 |"), self.history.index("| 2.25.7 |"))
 
 
 
