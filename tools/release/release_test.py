@@ -3515,13 +3515,13 @@ class UnclassifiedPathMessageReleaseTest(unittest.TestCase):
         self.assertEqual(block["gate_default_change"], "")
         suites = block["conformance"]["suites"]
         self.assertEqual((suites["workflow_state_test.py"],
-                          suites["workflow_fingerprint_generalization_test.py"]), (1248, 148))
+                          suites["workflow_fingerprint_generalization_test.py"]), (1249, 148))
 
     def test_the_release_history_rows_name_the_release_and_the_way_back(self):
         self.assertIn("Last checked with: Workflow 2.25.7.", self.history)
         self.assertIn("Last checked with: Workflow 2.25.7.",
                       (REPO_ROOT / "docs" / "common-problems.md").read_text())
-        for needle in ("UnclassifiedPathError", "/request-plan-amendment", "/milestone-plan",
+        for needle in ("#146", "UnclassifiedPathError", "/request-plan-amendment", "/milestone-plan",
                        "protected", "excluded", "Orchestration Protocol 1.5", "2.25.6",
                        "restores the bare message", "nothing needs undoing", "v2.25.7"):
             self.assertIn(needle, self.row())

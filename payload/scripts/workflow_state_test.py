@@ -23210,13 +23210,38 @@ class TestUnclassifiedPathMessageCallers(unittest.TestCase):
         self.assertNotRegex(text, r"/satisfy-gate(?! when the plan gate is automatic)")
         # the order of the command file: request, plan, review, approval
         self.assertLess(text.index("/request-plan-amendment"), text.index("/milestone-plan demo-item, plan review"))
+        command_file = Path(__file__).resolve().parent.parent / ".claude" / "commands" / "request-plan-amendment.md"
+        words = " ".join(command_file.read_text(encoding="utf-8").split())
+        resume = words.index("the very next `/milestone-plan [work-item-id]` invocation resumes it")
+        self.assertLess(resume, words.index("review protocol and `/approve-review plan` gate run", resume))
         # at any other phase both guards refuse a two-stage item
         for phase in ("AWAITING_FUNCTIONAL_REVIEW", "AWAITING_LOCAL_IMPLEMENTATION_REVIEW", "MILESTONE_COMPLETE"):
             with self.subTest(other_phase=phase):
                 item = {"governing_workflow_version": "2.2", "phase": phase}
                 with self.assertRaises(ws.PlanReviewPhaseNotPlanStageError):
                     ws.assert_plan_review_entry_phase(item, "demo-item", command="/milestone-plan")
-                self.assertNotIn(phase, ws._AMENDMENT_REQUEST_ALLOWED_PHASES)
+                with ScratchRepo() as repo:
+                    state, _ = TestRequestPlanAmendment._state_with_approved_plan(
+                        repo, work_item_id="demo-item", phase=phase)
+                    state["work_items"]["demo-item"]["governing_workflow_version"] = "2.2"
+                    with self.assertRaises(ws.WrongPhaseForAmendmentRequestError):
+                        _request_plan_amendment_holding_lifecycle_lock(
+                            state, "demo-item", "reason", repo_root=repo.root, now="2026-01-01T00:00:00Z")
+
+    def test_t5_the_coverage_refusal_text_is_byte_identical(self):
+        """Its two catches replace the classifiers' text with their own, so the new
+        message must not reach this refusal. The whole text, written out."""
+        case = TestAssertPlanArtifactDeclarationCoverage("test_the_stage_wording_the_checkpoint_and_the_next_step")
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        case._write(plan=case._plan("**Files:** `plan_only.py`", "**Files:** `impl_only.py`", "**Files:** `neither.py`"))
+        case._declare(plan_protected=["plan_only.py"], impl_protected=["impl_only.py"])
+        self.assertEqual(
+            case._refusal(),
+            "wi plan revision 2: CP1: plan_only.py (unclassified at the implementation stage); "
+            "CP2: impl_only.py (unclassified at the plan stage); CP3: neither.py (unclassified at both stages) -- "
+            + ws.PLAN_DECLARATION_NEXT_STEP,
+        )
 
     def test_t7_technical_gate_status_names_the_item(self):
         with self.assertRaises(fingerprint.UnclassifiedPathError) as ctx:

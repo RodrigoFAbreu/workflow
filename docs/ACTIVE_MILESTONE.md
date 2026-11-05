@@ -31,7 +31,11 @@ stage and phase. The class, where it is raised, who catches it and every exit co
   `workflow_fingerprint_generalization_test` 148); `docs/release-history.md` row; `docs/common-problems.md` pin;
   `tools/release/release_test.py` 2.25.7 class. Verified from a scratch clone holding the CP2 commit: `check-manager-block`
   ok, `tools/docs` and `check_docs.py` clean, `release.py build` succeeds, `tools/release` (309, zlib-ng interpreter) OK.
+- Self-review: the plan's flows 1 to 7 and mutations m1 to m20 re-run on scratch copies. Three gaps against D-Tests and one
+  against the row's neighbours fixed in one commit: T5 now pins the whole coverage refusal (it also passes on the base
+  engine), T6 calls the real amendment guard and reads the command file's order, the 2.25.7 history row names #146.
+  `workflow_state_test` is 1249; `manifest.json` re-records the test file. m21 to m23 cover the new assertions.
 
 ## Next action
 
-Self-review of the full diff, the full verification and the implementation-review bundle (`/milestone-implement unclassified-path-message` again).
+The full verification and the implementation-review bundle, then the local implementation review (`/review-implementation unclassified-path-message`).
