@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "unclassified-path-message",
+  "requirements": {
+    "R1": {
+      "description": "the refusal names each undeclared path, the artifact-declaration file that must list it (resolved from the work item when known, said so when not) and the stage- and phase-qualified sanctioned route (by phase: edit and /milestone-plan at PLANNING, REVISING_PLAN, AMENDING_PLAN and the ready plan-review phases, open amendment included; at IMPLEMENTING/SELF_REVIEWING_IMPLEMENTATION the user's /request-plan-amendment then /milestone-plan, plan review and /approve-review plan or /satisfy-gate; neither command only elsewhere; a post-fix round after the technical approval), with the declaration advice true at each stage, at the two raise sites and the six callers that know the item (#146 a, b, c); tests T1 to T3, T6 to T9, mutations m1 to m6, m8 to m10, m12 to m14, m16 to m18, m20",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the catch in _classify_generation_record_interval re-wraps with the new text appended in its interval form (a deliverable needs a new implementation round); the coverage refusal, the class, its code, every exit code and every other output stay byte-identical; tests T4, T5, mutations m7, m11, m15, m19",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "the page docs/common-problems.md and the roadmap row 34 describe the message",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "the release is a fix: patch, Workflow 2.25.7 (manifest, protocol constant, release-history row, release tests)",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "dispositions": {
+    "F-01c9db79cc72": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#152",
+      "note": "Follow-up item 1."
+    },
+    "F-03fae8644d88": {
+      "disposition": "fixed",
+      "note": "Row 34 of docs/ROADMAP.md was brought into line with the revised route."
+    },
+    "F-1409b9b04b7b": {
+      "disposition": "dropped",
+      "reason": "Plan or checklist wording of a finished item; the flows ran as written (flow 8's 'none skipped' was not met literally: the skips are the suites' own version-gated guards, noted in the evidence record)."
+    },
+    "F-15d9e1b641c5": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#152",
+      "note": "Follow-up item 1 (filed as an issue)."
+    },
+    "F-175b48c65608": {
+      "disposition": "dropped",
+      "reason": "Plan or checklist wording of a finished item; the flows ran as written (flow 8's 'none skipped' was not met literally: the skips are the suites' own version-gated guards, noted in the evidence record)."
+    },
+    "F-5a2a62cf7c7c": {
+      "disposition": "fixed",
+      "note": "The plan-stage route names /satisfy-gate for an automatic plan gate."
+    },
+    "F-5ae06e44f06d": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#152",
+      "note": "Follow-up item 6."
+    },
+    "F-696ccba5b5d1": {
+      "disposition": "dropped",
+      "reason": "Plan or checklist wording of a finished item; the flows ran as written (flow 8's 'none skipped' was not met literally: the skips are the suites' own version-gated guards, noted in the evidence record)."
+    },
+    "F-7a528dc6abbe": {
+      "disposition": "dropped",
+      "reason": "Plan or checklist wording of a finished item; the flows ran as written (flow 8's 'none skipped' was not met literally: the skips are the suites' own version-gated guards, noted in the evidence record)."
+    },
+    "F-91bd7c51bbc2": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#152",
+      "note": "Follow-up item 5."
+    },
+    "F-99d717fd8eff": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#152",
+      "note": "Follow-up item 3."
+    },
+    "F-9f8882558b18": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#152",
+      "note": "Follow-up item 4."
+    },
+    "F-a30eb8ea4743": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#152",
+      "note": "Follow-up item 2."
+    },
+    "F-b610e94c7024": {
+      "disposition": "fixed",
+      "note": "The two stages have separate routes in the message (plan stage and implementation stage)."
+    },
+    "F-c4b50bb69744": {
+      "disposition": "dropped",
+      "reason": "Plan or checklist wording of a finished item; the flows ran as written (flow 8's 'none skipped' was not met literally: the skips are the suites' own version-gated guards, noted in the evidence record)."
+    },
+    "F-c8489274edd3": {
+      "disposition": "dropped",
+      "reason": "Plan or checklist wording of a finished item; the flows ran as written (flow 8's 'none skipped' was not met literally: the skips are the suites' own version-gated guards, noted in the evidence record)."
+    },
+    "F-e2d5c637cc22": {
+      "disposition": "fixed",
+      "note": "The existing docs/common-problems.md entry (UnclassifiedPathError when generating a bundle) was rewritten in place with the route."
+    },
+    "F-fb6e581938e9": {
+      "disposition": "fixed",
+      "note": "The GATE_POLICY.json advice (exclude the docs/ai-workflow/ prefix) was kept at the end of the entry."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "unclassified-path-message"
+}

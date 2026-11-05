@@ -30438,6 +30438,892 @@
         "evaluated_at": "2026-11-05T06:47:20Z",
         "workflow_release": "2.25.5"
       }
+    },
+    "unclassified-path-message": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "unclassified-path-message",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/UNCLASSIFIED_PATH_MESSAGE_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/unclassified-path-message-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/unclassified-path-message-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 5,
+      "implementation_revision": 1,
+      "functional_review_round": null,
+      "base_commit": "dd565f0f5d223228984771c546378f3d9885a391",
+      "reviewed_implementation_head": "80c90cc742c78adfaa6311cf0b5676bb34cebeac",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP2",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "cfb1c6eadc3b4922d7b94db99b771abef6918d8c"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "56ef5772a6467dcfd73c6885ac33a63def8a7409"
+        }
+      },
+      "current_bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+        "approved_review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/UNCLASSIFIED_PATH_MESSAGE_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c3e9b016a7c4002b09198f5dd63e28e132b1612c"
+          },
+          {
+            "path": "docs/ai-workflow/registry/unclassified-path-message-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8f4423afbac9154812ef14e9ed55713a86d37bb4"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/unclassified-path-message-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d8cc9686a9ddc1bb7a216083c5bd8ef126a06aac"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-05T13:24:55Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+            "ledger": {
+              "local": {
+                "bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "7f479d77adddde58c2f04434842b177db0fe86c26d8b7651d72f658c038d0dd5",
+                "ledger_entry_sha256": "fdd12c5efeffc90a07ce85feba7466f3cc6ed574f855b315e7e59a2b69672fa5",
+                "run_ref": "session:local .ai-review/unclassified-path-message/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "2672165bf886a08dd3d2908e07be03fb920879a28d18ddf166c4101194f46a6e",
+                "ledger_entry_sha256": "03f0d2c52b3d405affc128954fea4034ae35ea32626e79ee7871b3db4d9bb3de",
+                "run_ref": "codex:20261105T132037Z-df83bc04",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-05T13:24:55Z",
+          "workflow_release": "2.25.6"
+        }
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "08d839f2c34a9ae7dfd57ef3dd10d0e4558c089a9a375c261a9bedd36d21d20d",
+        "approved_review_content_id": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/unclassified-path-message-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4bc6d9def5b05e2927b5d3a76121ffe291d48c9f"
+          },
+          {
+            "path": "docs/common-problems.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e481d5e2b0e00e09c86cabd63534e81eac1b8e9d"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8f7baf1443f4ae3111a313accf0eaf401b8beced"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "76eb2966e5efe18b7ad42b04830f3c43421ad1a9"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d28bce1c1d62dc3d1ae40cf7d7c3705bccef96b0"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint.py",
+            "exists": true,
+            "mode": "100755",
+            "blob": "f618f2ba5dc218804d57a368c63ae78e90e4bcf9"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint_generalization_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "27485ae793651f5b488916918fa06bd36309dd8d"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d3ea756372e4292b4a9d62c13935750cb1c7d3be"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9e1cdb1e9ef97ad9a0f862caac329f187905d1de"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "215a7fa695751191abfc15333b58572599b5a8ac"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "08d5f0e9308317839edf56a5badaeac03b339c94"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "33c6b44b60dad0799b1b41577aa5c5848036a5ee"
+          }
+        ],
+        "reviewed_content_commit": "80c90cc742c78adfaa6311cf0b5676bb34cebeac",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-05T15:08:14Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+            "ledger": {
+              "local": {
+                "bundle_id": "08d839f2c34a9ae7dfd57ef3dd10d0e4558c089a9a375c261a9bedd36d21d20d",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "acdb2e21430ad5f21a68d219e892e883afc5caf37a8792f4361af66cd439b615",
+                "ledger_entry_sha256": "5b13d3855ce2e6b2871091ec70f5c1607f73fae985c541e9df270a6666eb0a3d",
+                "run_ref": "session:local .ai-review/unclassified-path-message/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "08d839f2c34a9ae7dfd57ef3dd10d0e4558c089a9a375c261a9bedd36d21d20d",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "161305153a5fba710514f4a0a9d14dce130c8a57bd78f4c36aca187c9863ee70",
+                "ledger_entry_sha256": "a3491fec0dac09136d65579bd14e78e3747f0d6b8b0c7ecf84ca435d1487b455",
+                "run_ref": "codex:20261105T150446Z-8ce6b529",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-05T15:08:14Z",
+          "workflow_release": "2.25.6"
+        }
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-11-05T13:20:17Z",
+          "verdict_sha256": "7f479d77adddde58c2f04434842b177db0fe86c26d8b7651d72f658c038d0dd5",
+          "run_ref": "session:local .ai-review/unclassified-path-message/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-11-05T13:24:08Z",
+          "verdict_sha256": "2672165bf886a08dd3d2908e07be03fb920879a28d18ddf166c4101194f46a6e",
+          "run_ref": "codex:20261105T132037Z-df83bc04",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 5,
+          "external": 1
+        },
+        "implementation": {
+          "local": 1,
+          "external": 1
+        }
+      },
+      "state_revision": 27,
+      "last_transition": "2026-11-05T16:25:02Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-05T13:05:00Z",
+        "consumed": {
+          "review_content_id": "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+          "plan_revision": 4,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+          "plan_revision": 5
+        },
+        "bound": {
+          "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+          "bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+          "plan_revision": 5
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "5c66802cce5825090604ada839ff24ffb5baadf78343673d0278f2aff6121307",
+        "5e6f5b84346ce4fba78aaf5f28b3800094dec5aabaf997e1ad71b18e6559cde0",
+        "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+        "a67597c42df694a71eac56c77355d8095fa9f73d79288a00b27f9fc1e93d3671"
+      ],
+      "optional_findings": {
+        "F-7a528dc6abbe": {
+          "digest": "7a528dc6abbeeffaf6d7d84b90dd3c9748faa303dd0571e39695aaa8a79ce70a",
+          "text": "**LPR-R1-O01:** section 1's \"the only byte-different outputs are...\" is too absolute. A broad catch already echoes the text: `PlanApprovalClosureProofError` includes `{type(exc).__name__}: {exc}` (`workflow_state.py:2950` to 2958), so its message changes too. This is harmless, but the claim should say \"and any message that quotes one\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "a67597c42df694a71eac56c77355d8095fa9f73d79288a00b27f9fc1e93d3671",
+              "verdict": "REVISE",
+              "at": "2026-11-05T11:44:16Z"
+            }
+          ]
+        },
+        "F-e2d5c637cc22": {
+          "digest": "e2d5c637cc229837a73fba035609442f9d9eba50995acceb4a04777f8fb53e0a",
+          "text": "**LPR-R1-O02:** D-Docs adds a new entry \"A path is refused as unclassified\", but `docs/common-problems.md:27` already has \"UnclassifiedPathError when generating a bundle\", with a shorter fix and no route; section 2 mentions only the plan-time entry at line 203. Consider rewriting the existing entry instead of leaving two near-duplicates for one exception.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "a67597c42df694a71eac56c77355d8095fa9f73d79288a00b27f9fc1e93d3671",
+              "verdict": "REVISE",
+              "at": "2026-11-05T11:44:16Z"
+            }
+          ]
+        },
+        "F-5ae06e44f06d": {
+          "digest": "5ae06e44f06df28ac57314fa4130c5f3a080d39aa5c5928ffb8df558f9824c8f",
+          "text": "**LPR-R1-O03:** the \"directory prefix\" wording of the route is not true of every list: `classify_path` has no protected prefixes at the plan stage (`workflow_fingerprint.py:1446`), so a protected plan-stage entry must be an exact path. The existing page's wording has the same gap.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "a67597c42df694a71eac56c77355d8095fa9f73d79288a00b27f9fc1e93d3671",
+              "verdict": "REVISE",
+              "at": "2026-11-05T11:44:16Z"
+            }
+          ]
+        },
+        "F-03fae8644d88": {
+          "digest": "03fae8644d88960f902e3b92a87434d00c742dbe2369b98254ca2992f1d729e6",
+          "text": "**LPR-R2-O01:** row 34 of `docs/ROADMAP.md` still says what round 1 retired: \"at the four entry points\" and \"`/request-plan-amendment` once the plan is approved\". The plan calls the same row current, and CP1 only re-confirms it is `Current`. Bring it into line with the revised route.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "5c66802cce5825090604ada839ff24ffb5baadf78343673d0278f2aff6121307",
+              "verdict": "REVISE",
+              "at": "2026-11-05T11:52:09Z"
+            }
+          ]
+        },
+        "F-b610e94c7024": {
+          "digest": "b610e94c7024ec65489b4354cf18241dc50843bc347d18bf1e490ce53b9d9ee5",
+          "text": "**LPR-R2-O02:** the two raise sites know which stage refused (`classify_path` is the plan stage, `classify_path_implementation_stage` the implementation stage), yet the route tells every reader \"plan_stage and/or implementation_stage\". The two stages' routes differ in cost: a `plan_stage` edit needs a new plan revision and an `implementation_stage` edit needs none. A `stage` argument to the builder would name the list that refused and shorten a long message, without adding a mechanism. Section 4 could record this as a choice if it is declined.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "5c66802cce5825090604ada839ff24ffb5baadf78343673d0278f2aff6121307",
+              "verdict": "REVISE",
+              "at": "2026-11-05T11:52:09Z"
+            }
+          ]
+        },
+        "F-5a2a62cf7c7c": {
+          "digest": "5a2a62cf7c7c3cfc4a8a7152686f9c93688249bf59571d64fca9ccf13ae6cc4f",
+          "text": "**LPR-R3-O01:** under the automatic plan gate (the default, and this repository's own), the approval is normally recorded by `/satisfy-gate`, while the route names only `/approve-review plan`. That is not false: `approve-review.md` \"stays the human path for every gate in either mode\", and `REVIEW_PROTOCOL.md` names the same command. An agent reader may still take the sentence as an instruction to run a user-only command. \"and the plan gate\" would be accurate without adding a mechanism.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "5e6f5b84346ce4fba78aaf5f28b3800094dec5aabaf997e1ad71b18e6559cde0",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:24:58Z"
+            }
+          ]
+        },
+        "F-91bd7c51bbc2": {
+          "digest": "91bd7c51bbc2aa518802940758124c81a0a2ae8f9c41f62d1660633a227693e2",
+          "text": "**LPR-R3-O02:** the unknown-item plan-stage message is about 950 characters on one line as prototyped. The revision's phase split will lengthen it. Consider keeping only the phase split in the message and leaving the explanatory parenthesis to `docs/common-problems.md`, if the owner's message-size preference allows.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "5e6f5b84346ce4fba78aaf5f28b3800094dec5aabaf997e1ad71b18e6559cde0",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:24:58Z"
+            }
+          ]
+        },
+        "F-1409b9b04b7b": {
+          "digest": "1409b9b04b7ba6a2fe8e9cd106e3f1bdc09b3783997a40a56830c03349a706a6",
+          "text": "**LPR-R4-O01:** revision 4 added `/satisfy-gate` to the plan-stage route (LPR-R3-O01), but not everything moved with it. Section 3's \"Every command named exists\" list omits `satisfy-gate.md` (the file exists). D-Docs, section 7 (c), row 34 and mapping R1 still name only `/approve-review plan`, and T6's row asserts only that order. T1 and T3 will pin the exact text, so nothing can drift in code. Flow 2 also repeats a fragment: \"`/milestone-plan demo-item`, `/milestone-plan demo-item` at the non-ready and ready ...\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:35:58Z"
+            }
+          ]
+        },
+        "F-01c9db79cc72": {
+          "digest": "01c9db79cc723321861e106dd850d9187a335ad00018fccac6b179cd9c5d419d",
+          "text": "**LPR-R4-O02:** every route ends \"See REVIEW_PROTOCOL.md, 'Repairing an artifact declaration after an approval'\", and step 2 of that section still reads \"`/apply-plan-review` (or `/milestone-plan` again)\". Section 2 of the plan correctly shows `/apply-plan-review` is not the route from an approved plan, and T6 keeps it out of the message, so a reader who follows the pointer finds the command the message deliberately left out. The section also never names `/request-plan-amendment`. Correcting it is not required for this message, but file it as a follow-up or take the one sentence here, since \"any command file\" being out of scope does not cover this document.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:35:58Z"
+            }
+          ]
+        },
+        "F-9f8882558b18": {
+          "digest": "9f8882558b182f6918b77ac368a10fdd1a61f83868c62a662cf29773fb48e0bc",
+          "text": "**LPR-R4-O03:** \"at any other phase neither command is admitted\" holds only for two-stage items. `assert_plan_review_entry_phase` returns early for governing version `\"1\"`: on the base I ran it with `{\"governing_workflow_version\": \"1\"}` at `AWAITING_EXTERNAL_PLAN_REVIEW` and at `MILESTONE_COMPLETE`, and both were admitted, while `\"2.2\"` at `MILESTONE_COMPLETE` is refused. This repository has no live `\"1\"` item, and the failure is safe (the reader asks the user), so section 2 could simply record the limit, and T6's \"refused by both guards\" sample should use a `\"2.2\"` item.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:35:58Z"
+            }
+          ]
+        },
+        "F-fb6e581938e9": {
+          "digest": "fb6e581938e99936e5e1636d98c716da0db8343b8831e05f0b29d5d9d803f00f",
+          "text": "**LPR-R4-O04:** D-Docs rewrites the entry at `docs/common-problems.md` line 27 in place, but does not say whether its last sentence stays (\"For a new `GATE_POLICY.json` on an older declaration, exclude the `docs/ai-workflow/` prefix\"). That advice is specific and the message does not carry it, so keep it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:35:58Z"
+            }
+          ]
+        },
+        "F-15d9e1b641c5": {
+          "digest": "15d9e1b641c5bf24095f880d62c75b8a97591b6d1af0fa2a12aab3584bd2c170",
+          "text": "**LPR-R5-O01:** section 11 says the stale clause of `REVIEW_PROTOCOL.md` (step 2, \"`/apply-plan-review` (or `/milestone-plan` again)\") \"is filed as a follow-up\", but nothing records it outside this plan: `docs/ROADMAP.md`'s diff adds only row 34, and a search of the repository's issues for the section's title returns nothing. Declining the edit is reasoned, and I accept it. Every route still points a reader at that section, so open an issue or an \"Open defects\" row at acceptance, and make the sentence true.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T13:20:17Z"
+            }
+          ]
+        },
+        "F-c8489274edd3": {
+          "digest": "c8489274edd3f99d1e3884f046ce990e706eb4950284cc97502b3c29076c04c3",
+          "text": "**LPR-R5-O02:** CP1 says \"T1 to T9 written and run red against the unedited tree\", but T5 as its row describes it is a characterization test: a classified path, the ambient exclusion, the coverage refusal's text and the class's base all hold on `dd565f0`, and a plain `ValueError` passes through there too. Only an assertion that names `naming_work_item` itself could be red. T5's proof is m11, not a red run, so the implementer should report T5 as green on base rather than force it red. T9's classifier half is green on base in the same way; its text half is red.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T13:20:17Z"
+            }
+          ]
+        },
+        "F-696ccba5b5d1": {
+          "digest": "696ccba5b5d19d924ee1b97708c5213cdf57ad5684c46a442fb48481b7b1bf75",
+          "text": "**LPR-R5-O03:** flow 7 expects the known text \"naming `demo-item`\", while the setup a reader will reach for, `_cp4_external_item`, seeds the id `wi` (`_CP4_WI`). My prototype built on it printed `work item wi`. `seed_bundle_item(repo, \"demo-item\", ...)` takes the id, so `gate_case` can meet the flow, but it has to seed that id on its own.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T13:20:17Z"
+            }
+          ]
+        },
+        "F-c4b50bb69744": {
+          "digest": "c4b50bb6974488576df04d78cda5f3c2276fb780b848326707033dcfa8ac52b6",
+          "text": "LIR-R1-O01: flow 7 of the plan cannot be met as worded. It expects the text to name `demo-item`, but `gate_case` reuses the suite's fixtures, so the candidate names `wi` and `milestone-8` (reproduced). The known-item form is present and the placeholder is absent, which is the point of the flow, and the summary discloses this. The functional checklist should state the actual ids so the functional review does not read it as a failure.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T15:04:29Z"
+            }
+          ]
+        },
+        "F-a30eb8ea4743": {
+          "digest": "a30eb8ea4743b00cc6f2ed066b80985a7e0eddee56263c735d0cfd32ce4e47dc",
+          "text": "LIR-R1-O02: `unclassified_path_message` (`payload/scripts/workflow_fingerprint.py:262`) writes the declaration path by its own f-string instead of sharing `artifacts_path_for_work_item` (line 999). The two agree today, and no test ties them together, so a change to one would leave the message naming the wrong file with the literal-text tests still green. A one-line assertion comparing them would close this in a later release.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T15:04:29Z"
+            }
+          ]
+        },
+        "F-99d717fd8eff": {
+          "digest": "99d717fd8eff5c791e57d3290666314407d1eb7caf33b4d39ae80b96c2e7a5df",
+          "text": "LIR-R1-O03: `promote_legacy_work_item` takes an explicit `artifacts_path`, but the message always names the templated registry path. T8's own fixture shows the gap: its classification comes from `artifacts.json` while the text names `docs/ai-workflow/registry/milestone-8-artifacts.json`. `/prepare-functional-review` directs the caller to the item's own file, so this only misleads if that file lives elsewhere; no behaviour is affected.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T15:04:29Z"
+            }
+          ]
+        },
+        "F-175b48c65608": {
+          "digest": "175b48c65608f48d85e69fb66c9284118431eae30546b650d62a3a3a430367f5",
+          "text": "LIR-R1-O04: flow 8 of the plan says \"no skip\", which cannot hold literally: this review's run also shows 20, 19 and 1 skips in three suites. `workflow_acceptance_matrix_test.py` is unchanged and `workflow_protocol_test.py` changes only two version pins, so the change does not introduce them, and the protocol suite's sampled skips are gated on historical-release availability. This review did not enumerate each skip by reason; the new test classes run and none is skipped. The functional review should read flow 8 with this in mind.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T15:04:29Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "08d839f2c34a9ae7dfd57ef3dd10d0e4558c089a9a375c261a9bedd36d21d20d",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-05T15:04:29Z",
+          "verdict_sha256": "acdb2e21430ad5f21a68d219e892e883afc5caf37a8792f4361af66cd439b615",
+          "run_ref": "session:local .ai-review/unclassified-path-message/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "08d839f2c34a9ae7dfd57ef3dd10d0e4558c089a9a375c261a9bedd36d21d20d",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-05T15:07:51Z",
+          "verdict_sha256": "161305153a5fba710514f4a0a9d14dce130c8a57bd78f4c36aca187c9863ee70",
+          "run_ref": "codex:20261105T150446Z-8ce6b529",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "2248b402b123921729c458a7193cbe0f4293855c",
+            "ran_at": "2026-11-05T15:52:23Z",
+            "summary": {
+              "checklist_blob": "4c9e4cc4b667526d1a79cd4d3cf229de5dbc7cb9",
+              "text": "Base prints bare other/mystery.txt twice; cand raises the same class with plan-stage then implementation-stage unknown-item text (<work_item_id> placeholder, 'the work item is not known')."
+            },
+            "log_digest": "43a9438ac4811810278fd74533de8dfead4a31cfa06db047034390ceaee7f0fe",
+            "run_ref": "controller:20261105T152733Z-12cec8ac",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+            "recorded_at": "2026-11-05T15:52:23Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "2248b402b123921729c458a7193cbe0f4293855c",
+            "ran_at": "2026-11-05T15:52:23Z",
+            "summary": {
+              "checklist_blob": "4c9e4cc4b667526d1a79cd4d3cf229de5dbc7cb9",
+              "text": "Cand plan-stage known-item text twice naming demo-item-artifacts.json; /milestone-plan demo-item at the non-admitting phases; /request-plan-amendment demo-item then /milestone-plan, plan review, /approve-review plan or /satisfy-gate only at IMPLEMENTING and SELF_REVIEWING_IMPLEMENTATION; no /apply-plan-review. Base: bare path twice."
+            },
+            "log_digest": "0f00268e2495f71a2f400a14244a64a4fdb3994f4670a7376336264cced5a9c4",
+            "run_ref": "controller:20261105T152733Z-12cec8ac",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+            "recorded_at": "2026-11-05T15:52:23Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "2248b402b123921729c458a7193cbe0f4293855c",
+            "ran_at": "2026-11-05T15:52:23Z",
+            "summary": {
+              "checklist_blob": "4c9e4cc4b667526d1a79cd4d3cf229de5dbc7cb9",
+              "text": "Cand implementation-stage known-item text twice with implementation_stage and 'protected for a deliverable, excluded for repository territory'; no /request-plan-amendment. Base: bare path."
+            },
+            "log_digest": "9be2f9c94fc343eb2a4049db824566f62a3a5c05e0515671f75f35e2a2ec082e",
+            "run_ref": "controller:20261105T152733Z-12cec8ac",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+            "recorded_at": "2026-11-05T15:52:23Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "2248b402b123921729c458a7193cbe0f4293855c",
+            "ran_at": "2026-11-05T15:52:23Z",
+            "summary": {
+              "checklist_blob": "4c9e4cc4b667526d1a79cd4d3cf229de5dbc7cb9",
+              "text": "Base: only the 'touches ... classified unclassified, not excluded' sentence. Cand: same sentence, then the implementation-stage sentence naming demo-item and the 'A provenance interval may contain only excluded paths' form; class ProtectedPathInProvenanceIntervalError."
+            },
+            "log_digest": "3c20b6a3a77e29938fff561a1428b650391e81758fc1a4bede4ab8cdc6ba0338",
+            "run_ref": "controller:20261105T152733Z-12cec8ac",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+            "recorded_at": "2026-11-05T15:52:23Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "2248b402b123921729c458a7193cbe0f4293855c",
+            "ran_at": "2026-11-05T15:52:24Z",
+            "summary": {
+              "checklist_blob": "4c9e4cc4b667526d1a79cd4d3cf229de5dbc7cb9",
+              "text": "Base and cand identical: 'protected protected', 'excluded', 'Exception workflow_fingerprint'."
+            },
+            "log_digest": "b3928bd54cc3fcfad4145d2ef929e68f9e0204d2addf749dbc94172404f2d61d",
+            "run_ref": "controller:20261105T152733Z-12cec8ac",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+            "recorded_at": "2026-11-05T15:52:24Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "2248b402b123921729c458a7193cbe0f4293855c",
+            "ran_at": "2026-11-05T15:52:24Z",
+            "summary": {
+              "checklist_blob": "4c9e4cc4b667526d1a79cd4d3cf229de5dbc7cb9",
+              "text": "git diff --stat dd565f0..head -- payload docs lists the two scripts, their tests, common-problems, ROADMAP, plan, registry/mapping/declaration, state, ACTIVE_MILESTONE; no command file, no docs/gates.md. It also lists release-history.md, ORCHESTRATION_PROTOCOL.md, workflow_protocol.py and its test (CP2 files, covered by flow 9), a superset of the checklist's wording because the diff runs to the branch head."
+            },
+            "log_digest": "c1eca6dd883e411755b7af0ebc2450f8b0205e452e243ef8a94b6684a0fe8935",
+            "run_ref": "controller:20261105T152733Z-12cec8ac",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+            "recorded_at": "2026-11-05T15:52:24Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "2248b402b123921729c458a7193cbe0f4293855c",
+            "ran_at": "2026-11-05T15:52:24Z",
+            "summary": {
+              "checklist_blob": "4c9e4cc4b667526d1a79cd4d3cf229de5dbc7cb9",
+              "text": "Cand: implementation-stage known-item text twice, naming wi (technical_approval_gate_status) and milestone-8 (promote_legacy_work_item), not the placeholder. Base: bare path twice."
+            },
+            "log_digest": "d26a59cb22fcc0a7e8e9026d15e27d679d248a43eba1ba3947dd9392e51ce00a",
+            "run_ref": "controller:20261105T152733Z-12cec8ac",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+            "recorded_at": "2026-11-05T15:52:24Z"
+          },
+          "flow-8": {
+            "flow_id": "flow-8",
+            "status": "passed",
+            "head": "2248b402b123921729c458a7193cbe0f4293855c",
+            "ran_at": "2026-11-05T16:04:57Z",
+            "summary": {
+              "checklist_blob": "4c9e4cc4b667526d1a79cd4d3cf229de5dbc7cb9",
+              "text": "Nine payload suites from a stage-conformance fixture all exit 0 (matrix 453 skipped=20, protocol 344 skipped=19, state 1249 skipped=1, gate_policy 330, generalization 148, completion_obligations 290, integration 377, fingerprint 283, test_harness 27); tools/docs 34 OK, check_docs.py exit 0, check-manager-block --manager-releases ok (exit 0), tools/release 309 OK with zlib-ng interpreter, 0 skips; the 40 skips are the version-gated tag-absent guards (V270/V280, no v2.7.0 tag in the fixture) and the state suite's 'workflow_manager is not importable' guard, though the matrix's 20 skips I did not trace individually, and the suites ran under python3 3.14 not 3.12. NOTE: the checklist's 'none skipped' was not met literally (the skips are the suites' own version-gated guards; the matrix suite's 20 skips were not traced one by one). Supersedes the Controller's environment record of the same id (its sandbox has no zlib-ng interpreter and denies sockets). Independent headless executor, disposable clone."
+            },
+            "log_digest": "9dbdb86416685388f3a83eb3b495c34cc15b71cc8b692bb8905a5a5f30408322",
+            "run_ref": "manager-orchestrator:runs-workflow/w39-functional-r1",
+            "reporter": "manager-orchestrator (independent run, claude claude-sonnet-5-5)",
+            "identity": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+            "recorded_at": "2026-11-05T16:04:57Z"
+          },
+          "flow-9": {
+            "flow_id": "flow-9",
+            "status": "passed",
+            "head": "2248b402b123921729c458a7193cbe0f4293855c",
+            "ran_at": "2026-11-05T15:52:24Z",
+            "summary": {
+              "checklist_blob": "4c9e4cc4b667526d1a79cd4d3cf229de5dbc7cb9",
+              "text": "git show --stat ad8b23d lists exactly the nine CP2 files."
+            },
+            "log_digest": "57db88986b1010ab35cf013fb3c9219f15522c86d48815851ccedbad5673d150",
+            "run_ref": "controller:20261105T152733Z-12cec8ac",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+            "recorded_at": "2026-11-05T15:52:24Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 153,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/153"
+          },
+          "state": "open",
+          "head": "2248b402b123921729c458a7193cbe0f4293855c",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+          "observed_at": "2026-11-05T16:25:02Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "80c90cc742c78adfaa6311cf0b5676bb34cebeac",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-05T16:25:02Z",
+            "raw_sha256": "d396b4266e4524f96bdded5270e52a8bd8b9a48a07c81c0370dc251e4be754ad",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "9e824061111fe5f5b6a5d5690909ba37abafca4a4ca830bdf83246d3c94afd21"
+          },
+          "fact_id": "d13f5424a88d9c66f4c767ced8027429921337cc20e6779e865410a821d103ed"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6', 'flow-7', 'flow-8', 'flow-9'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #153 at 2248b402b123921729c458a7193cbe0f4293855c is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "80c90cc742c78adfaa6311cf0b5676bb34cebeac",
+          "anchor_identity": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "a1a5e214d82d9accc9f871c2cd2687136bcd96d57f0c39cf6efd049a8b5b6ba4",
+            "recorded_at": "2026-11-05T15:08:14Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "78411736a0b4fc3826580011473b9ed0d91768266ff0afae03ef09775d04bc92",
+              "log_digest": "43a9438ac4811810278fd74533de8dfead4a31cfa06db047034390ceaee7f0fe",
+              "run_ref": "controller:20261105T152733Z-12cec8ac"
+            },
+            "flow-2": {
+              "evidence_id": "c1524984c7ce44c796aee3b949d551cf02b91b182b6d31539cc827fc852f9b1f",
+              "log_digest": "0f00268e2495f71a2f400a14244a64a4fdb3994f4670a7376336264cced5a9c4",
+              "run_ref": "controller:20261105T152733Z-12cec8ac"
+            },
+            "flow-3": {
+              "evidence_id": "f124f5308531ab5cb179c8bfbb533a4fc45790fd74a773b54c0397d48923f3bd",
+              "log_digest": "9be2f9c94fc343eb2a4049db824566f62a3a5c05e0515671f75f35e2a2ec082e",
+              "run_ref": "controller:20261105T152733Z-12cec8ac"
+            },
+            "flow-4": {
+              "evidence_id": "00c94260a2c50a179ac59af90f209e6594d29e0b998c04b235273e1da4b98fbb",
+              "log_digest": "3c20b6a3a77e29938fff561a1428b650391e81758fc1a4bede4ab8cdc6ba0338",
+              "run_ref": "controller:20261105T152733Z-12cec8ac"
+            },
+            "flow-5": {
+              "evidence_id": "da792855c07303fe0395ad377be42f32826ca35c5c800ca575594515cd1b73d1",
+              "log_digest": "b3928bd54cc3fcfad4145d2ef929e68f9e0204d2addf749dbc94172404f2d61d",
+              "run_ref": "controller:20261105T152733Z-12cec8ac"
+            },
+            "flow-6": {
+              "evidence_id": "f1cc42d99f68e48d5c02aa3e0d64efa3e110d1b95bff85e52c20626e1751c678",
+              "log_digest": "c1eca6dd883e411755b7af0ebc2450f8b0205e452e243ef8a94b6684a0fe8935",
+              "run_ref": "controller:20261105T152733Z-12cec8ac"
+            },
+            "flow-7": {
+              "evidence_id": "6c11b44fb1eebd59c68fabfa1408471102a9963c0033af309ceca1722bba46b3",
+              "log_digest": "d26a59cb22fcc0a7e8e9026d15e27d679d248a43eba1ba3947dd9392e51ce00a",
+              "run_ref": "controller:20261105T152733Z-12cec8ac"
+            },
+            "flow-8": {
+              "evidence_id": "c4d3be036feda6017ef4da97d0146ff0ed07fec898357d2cd8b0ca8491c7d4ac",
+              "log_digest": "9dbdb86416685388f3a83eb3b495c34cc15b71cc8b692bb8905a5a5f30408322",
+              "run_ref": "manager-orchestrator:runs-workflow/w39-functional-r1"
+            },
+            "flow-9": {
+              "evidence_id": "f1abef77ce1e2bc2c0d8d593526a418c5a4c60b66b1ddc4edf7639c62c6b4c48",
+              "log_digest": "57db88986b1010ab35cf013fb3c9219f15522c86d48815851ccedbad5673d150",
+              "run_ref": "controller:20261105T152733Z-12cec8ac"
+            }
+          },
+          "pr": {
+            "fact_id": "d13f5424a88d9c66f4c767ced8027429921337cc20e6779e865410a821d103ed",
+            "head": "2248b402b123921729c458a7193cbe0f4293855c",
+            "provenance": "workflow_gh",
+            "raw_sha256": "d396b4266e4524f96bdded5270e52a8bd8b9a48a07c81c0370dc251e4be754ad"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-05T16:25:02Z",
+        "workflow_release": "2.25.6"
+      }
     }
   }
 }

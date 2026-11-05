@@ -1,6 +1,6 @@
 # Common problems
 
-> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.17.0.
+> For: anyone who hit an error or a blocked work item and wants the quick fix. Last checked with: Workflow 2.25.7.
 
 Each problem has a one-line fix. The exact rules are in the shipped documents
 under `payload/docs/ai-workflow/`. What a script's exit status means is in
@@ -26,11 +26,34 @@ Commit `docs/ai-workflow/GATE_POLICY.json` first, then run the command again.
 
 ### UnclassifiedPathError when generating a bundle
 
-Every work item has a declaration: the files that count as reviewed content
-(protected) and the files that are left out of it (excluded). A changed file is
-in neither list. Add the path (or its folder) to one of them before the bundle
-is generated. For a new `GATE_POLICY.json` on an older declaration,
-exclude the `docs/ai-workflow/` prefix.
+Every work item has a declaration, `docs/ai-workflow/registry/<id>-artifacts.json`:
+the files that count as reviewed content (protected) and the files that are left
+out of it (excluded). A changed file is in neither list. The refusal names the
+path, the declaration file and the stage that refused, and says how to add it;
+read it as written.
+
+- At the plan stage, add the path to `plan_stage` as excluded: an exact path in
+  `excluded_paths` or a folder in `excluded_prefixes`. It is protected only if
+  it is one of the plan's own documents; a deliverable is excluded at the plan
+  stage and protected at the implementation stage. While the item is planning,
+  revising, amending or waiting for plan review or plan approval, edit the file
+  and run `/milestone-plan <id>` again. While it is implementing or
+  self-reviewing, the plan is approved and the edit needs a new plan revision:
+  the user runs `/request-plan-amendment <id>`, then `/milestone-plan <id>`,
+  plan review and the plan approval (`/approve-review plan`, or `/satisfy-gate`
+  when the plan gate is automatic). At any other phase neither command is
+  admitted: tell the user.
+- At the implementation stage, add the path to `implementation_stage`, as a path
+  or a folder: protected for a deliverable, excluded for repository territory.
+  The edit needs no plan amendment. Before the technical approval, run the
+  command that refused again; after it, the edit goes through a post-fix round.
+- In a provenance interval only excluded paths are allowed: exclude the path
+  only if it is repository territory; for a deliverable the content needs a new
+  implementation round.
+
+Where the work item is not known where the path was classified, the message
+says so and writes `<work_item_id>` for its id. For a new `GATE_POLICY.json` on
+an older declaration, exclude the `docs/ai-workflow/` prefix.
 
 ### An approve is refused because the reviewer models match
 
