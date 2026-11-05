@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "unclassified-path-message",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -30437,6 +30437,376 @@
         },
         "evaluated_at": "2026-11-05T06:47:20Z",
         "workflow_release": "2.25.5"
+      }
+    },
+    "unclassified-path-message": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "unclassified-path-message",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/UNCLASSIFIED_PATH_MESSAGE_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/unclassified-path-message-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/unclassified-path-message-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 5,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "dd565f0f5d223228984771c546378f3d9885a391",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+        "approved_review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/UNCLASSIFIED_PATH_MESSAGE_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c3e9b016a7c4002b09198f5dd63e28e132b1612c"
+          },
+          {
+            "path": "docs/ai-workflow/registry/unclassified-path-message-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8f4423afbac9154812ef14e9ed55713a86d37bb4"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/unclassified-path-message-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d8cc9686a9ddc1bb7a216083c5bd8ef126a06aac"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-05T13:24:55Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+            "ledger": {
+              "local": {
+                "bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "7f479d77adddde58c2f04434842b177db0fe86c26d8b7651d72f658c038d0dd5",
+                "ledger_entry_sha256": "fdd12c5efeffc90a07ce85feba7466f3cc6ed574f855b315e7e59a2b69672fa5",
+                "run_ref": "session:local .ai-review/unclassified-path-message/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "2672165bf886a08dd3d2908e07be03fb920879a28d18ddf166c4101194f46a6e",
+                "ledger_entry_sha256": "03f0d2c52b3d405affc128954fea4034ae35ea32626e79ee7871b3db4d9bb3de",
+                "run_ref": "codex:20261105T132037Z-df83bc04",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-05T13:24:55Z",
+          "workflow_release": "2.25.6"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-11-05T13:20:17Z",
+          "verdict_sha256": "7f479d77adddde58c2f04434842b177db0fe86c26d8b7651d72f658c038d0dd5",
+          "run_ref": "session:local .ai-review/unclassified-path-message/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-11-05T13:24:08Z",
+          "verdict_sha256": "2672165bf886a08dd3d2908e07be03fb920879a28d18ddf166c4101194f46a6e",
+          "run_ref": "codex:20261105T132037Z-df83bc04",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 5,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 18,
+      "last_transition": "2026-11-05T13:24:55Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-05T13:05:00Z",
+        "consumed": {
+          "review_content_id": "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+          "plan_revision": 4,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+          "plan_revision": 5
+        },
+        "bound": {
+          "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+          "bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
+          "plan_revision": 5
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "5c66802cce5825090604ada839ff24ffb5baadf78343673d0278f2aff6121307",
+        "5e6f5b84346ce4fba78aaf5f28b3800094dec5aabaf997e1ad71b18e6559cde0",
+        "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+        "a67597c42df694a71eac56c77355d8095fa9f73d79288a00b27f9fc1e93d3671"
+      ],
+      "optional_findings": {
+        "F-7a528dc6abbe": {
+          "digest": "7a528dc6abbeeffaf6d7d84b90dd3c9748faa303dd0571e39695aaa8a79ce70a",
+          "text": "**LPR-R1-O01:** section 1's \"the only byte-different outputs are...\" is too absolute. A broad catch already echoes the text: `PlanApprovalClosureProofError` includes `{type(exc).__name__}: {exc}` (`workflow_state.py:2950` to 2958), so its message changes too. This is harmless, but the claim should say \"and any message that quotes one\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "a67597c42df694a71eac56c77355d8095fa9f73d79288a00b27f9fc1e93d3671",
+              "verdict": "REVISE",
+              "at": "2026-11-05T11:44:16Z"
+            }
+          ]
+        },
+        "F-e2d5c637cc22": {
+          "digest": "e2d5c637cc229837a73fba035609442f9d9eba50995acceb4a04777f8fb53e0a",
+          "text": "**LPR-R1-O02:** D-Docs adds a new entry \"A path is refused as unclassified\", but `docs/common-problems.md:27` already has \"UnclassifiedPathError when generating a bundle\", with a shorter fix and no route; section 2 mentions only the plan-time entry at line 203. Consider rewriting the existing entry instead of leaving two near-duplicates for one exception.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "a67597c42df694a71eac56c77355d8095fa9f73d79288a00b27f9fc1e93d3671",
+              "verdict": "REVISE",
+              "at": "2026-11-05T11:44:16Z"
+            }
+          ]
+        },
+        "F-5ae06e44f06d": {
+          "digest": "5ae06e44f06df28ac57314fa4130c5f3a080d39aa5c5928ffb8df558f9824c8f",
+          "text": "**LPR-R1-O03:** the \"directory prefix\" wording of the route is not true of every list: `classify_path` has no protected prefixes at the plan stage (`workflow_fingerprint.py:1446`), so a protected plan-stage entry must be an exact path. The existing page's wording has the same gap.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "a67597c42df694a71eac56c77355d8095fa9f73d79288a00b27f9fc1e93d3671",
+              "verdict": "REVISE",
+              "at": "2026-11-05T11:44:16Z"
+            }
+          ]
+        },
+        "F-03fae8644d88": {
+          "digest": "03fae8644d88960f902e3b92a87434d00c742dbe2369b98254ca2992f1d729e6",
+          "text": "**LPR-R2-O01:** row 34 of `docs/ROADMAP.md` still says what round 1 retired: \"at the four entry points\" and \"`/request-plan-amendment` once the plan is approved\". The plan calls the same row current, and CP1 only re-confirms it is `Current`. Bring it into line with the revised route.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "5c66802cce5825090604ada839ff24ffb5baadf78343673d0278f2aff6121307",
+              "verdict": "REVISE",
+              "at": "2026-11-05T11:52:09Z"
+            }
+          ]
+        },
+        "F-b610e94c7024": {
+          "digest": "b610e94c7024ec65489b4354cf18241dc50843bc347d18bf1e490ce53b9d9ee5",
+          "text": "**LPR-R2-O02:** the two raise sites know which stage refused (`classify_path` is the plan stage, `classify_path_implementation_stage` the implementation stage), yet the route tells every reader \"plan_stage and/or implementation_stage\". The two stages' routes differ in cost: a `plan_stage` edit needs a new plan revision and an `implementation_stage` edit needs none. A `stage` argument to the builder would name the list that refused and shorten a long message, without adding a mechanism. Section 4 could record this as a choice if it is declined.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "5c66802cce5825090604ada839ff24ffb5baadf78343673d0278f2aff6121307",
+              "verdict": "REVISE",
+              "at": "2026-11-05T11:52:09Z"
+            }
+          ]
+        },
+        "F-5a2a62cf7c7c": {
+          "digest": "5a2a62cf7c7c3cfc4a8a7152686f9c93688249bf59571d64fca9ccf13ae6cc4f",
+          "text": "**LPR-R3-O01:** under the automatic plan gate (the default, and this repository's own), the approval is normally recorded by `/satisfy-gate`, while the route names only `/approve-review plan`. That is not false: `approve-review.md` \"stays the human path for every gate in either mode\", and `REVIEW_PROTOCOL.md` names the same command. An agent reader may still take the sentence as an instruction to run a user-only command. \"and the plan gate\" would be accurate without adding a mechanism.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "5e6f5b84346ce4fba78aaf5f28b3800094dec5aabaf997e1ad71b18e6559cde0",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:24:58Z"
+            }
+          ]
+        },
+        "F-91bd7c51bbc2": {
+          "digest": "91bd7c51bbc2aa518802940758124c81a0a2ae8f9c41f62d1660633a227693e2",
+          "text": "**LPR-R3-O02:** the unknown-item plan-stage message is about 950 characters on one line as prototyped. The revision's phase split will lengthen it. Consider keeping only the phase split in the message and leaving the explanatory parenthesis to `docs/common-problems.md`, if the owner's message-size preference allows.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "5e6f5b84346ce4fba78aaf5f28b3800094dec5aabaf997e1ad71b18e6559cde0",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:24:58Z"
+            }
+          ]
+        },
+        "F-1409b9b04b7b": {
+          "digest": "1409b9b04b7ba6a2fe8e9cd106e3f1bdc09b3783997a40a56830c03349a706a6",
+          "text": "**LPR-R4-O01:** revision 4 added `/satisfy-gate` to the plan-stage route (LPR-R3-O01), but not everything moved with it. Section 3's \"Every command named exists\" list omits `satisfy-gate.md` (the file exists). D-Docs, section 7 (c), row 34 and mapping R1 still name only `/approve-review plan`, and T6's row asserts only that order. T1 and T3 will pin the exact text, so nothing can drift in code. Flow 2 also repeats a fragment: \"`/milestone-plan demo-item`, `/milestone-plan demo-item` at the non-ready and ready ...\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:35:58Z"
+            }
+          ]
+        },
+        "F-01c9db79cc72": {
+          "digest": "01c9db79cc723321861e106dd850d9187a335ad00018fccac6b179cd9c5d419d",
+          "text": "**LPR-R4-O02:** every route ends \"See REVIEW_PROTOCOL.md, 'Repairing an artifact declaration after an approval'\", and step 2 of that section still reads \"`/apply-plan-review` (or `/milestone-plan` again)\". Section 2 of the plan correctly shows `/apply-plan-review` is not the route from an approved plan, and T6 keeps it out of the message, so a reader who follows the pointer finds the command the message deliberately left out. The section also never names `/request-plan-amendment`. Correcting it is not required for this message, but file it as a follow-up or take the one sentence here, since \"any command file\" being out of scope does not cover this document.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:35:58Z"
+            }
+          ]
+        },
+        "F-9f8882558b18": {
+          "digest": "9f8882558b182f6918b77ac368a10fdd1a61f83868c62a662cf29773fb48e0bc",
+          "text": "**LPR-R4-O03:** \"at any other phase neither command is admitted\" holds only for two-stage items. `assert_plan_review_entry_phase` returns early for governing version `\"1\"`: on the base I ran it with `{\"governing_workflow_version\": \"1\"}` at `AWAITING_EXTERNAL_PLAN_REVIEW` and at `MILESTONE_COMPLETE`, and both were admitted, while `\"2.2\"` at `MILESTONE_COMPLETE` is refused. This repository has no live `\"1\"` item, and the failure is safe (the reader asks the user), so section 2 could simply record the limit, and T6's \"refused by both guards\" sample should use a `\"2.2\"` item.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:35:58Z"
+            }
+          ]
+        },
+        "F-fb6e581938e9": {
+          "digest": "fb6e581938e99936e5e1636d98c716da0db8343b8831e05f0b29d5d9d803f00f",
+          "text": "**LPR-R4-O04:** D-Docs rewrites the entry at `docs/common-problems.md` line 27 in place, but does not say whether its last sentence stays (\"For a new `GATE_POLICY.json` on an older declaration, exclude the `docs/ai-workflow/` prefix\"). That advice is specific and the message does not carry it, so keep it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "85473d388e23bd62da34fe589f31f996e857418c886a3453166660cb38dd4174",
+              "verdict": "REVISE",
+              "at": "2026-11-05T12:35:58Z"
+            }
+          ]
+        },
+        "F-15d9e1b641c5": {
+          "digest": "15d9e1b641c5bf24095f880d62c75b8a97591b6d1af0fa2a12aab3584bd2c170",
+          "text": "**LPR-R5-O01:** section 11 says the stale clause of `REVIEW_PROTOCOL.md` (step 2, \"`/apply-plan-review` (or `/milestone-plan` again)\") \"is filed as a follow-up\", but nothing records it outside this plan: `docs/ROADMAP.md`'s diff adds only row 34, and a search of the repository's issues for the section's title returns nothing. Declining the edit is reasoned, and I accept it. Every route still points a reader at that section, so open an issue or an \"Open defects\" row at acceptance, and make the sentence true.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T13:20:17Z"
+            }
+          ]
+        },
+        "F-c8489274edd3": {
+          "digest": "c8489274edd3f99d1e3884f046ce990e706eb4950284cc97502b3c29076c04c3",
+          "text": "**LPR-R5-O02:** CP1 says \"T1 to T9 written and run red against the unedited tree\", but T5 as its row describes it is a characterization test: a classified path, the ambient exclusion, the coverage refusal's text and the class's base all hold on `dd565f0`, and a plain `ValueError` passes through there too. Only an assertion that names `naming_work_item` itself could be red. T5's proof is m11, not a red run, so the implementer should report T5 as green on base rather than force it red. T9's classifier half is green on base in the same way; its text half is red.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T13:20:17Z"
+            }
+          ]
+        },
+        "F-696ccba5b5d1": {
+          "digest": "696ccba5b5d19d924ee1b97708c5213cdf57ad5684c46a442fb48481b7b1bf75",
+          "text": "**LPR-R5-O03:** flow 7 expects the known text \"naming `demo-item`\", while the setup a reader will reach for, `_cp4_external_item`, seeds the id `wi` (`_CP4_WI`). My prototype built on it printed `work item wi`. `seed_bundle_item(repo, \"demo-item\", ...)` takes the id, so `gate_case` can meet the flow, but it has to seed that id on its own.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "d7eed1689aa676beb01a6c3a7c8d51faf1dddb9bbdc759066ea9761b297456c5",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T13:20:17Z"
+            }
+          ]
+        }
       }
     }
   }
