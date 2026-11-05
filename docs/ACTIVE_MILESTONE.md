@@ -2,26 +2,28 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; the release follows the merge). W39: `unclassified-path-message` (`process`, governing
-version `2.2`), branch `milestone/unclassified-path-message`, roadmap row 34 (RodrigoFAbreu/workflow#146). The plan is
-`docs/ai-workflow/UNCLASSIFIED_PATH_MESSAGE_PLAN.md` (revision 5, approved by gate policy); an archive copy is in
-`docs/milestones/completed/`. The previous milestone, W38 `retention-report-unreadable` (Workflow 2.25.6), is complete.
+**Complete** (accepted by policy; the release follows the merge). W40: `acceptance-plain-command` (`process`, governing
+version `2.2`), branch `milestone/acceptance-plain-command`, roadmap row 35 (RodrigoFAbreu/workflow#148). The plan is
+`docs/ai-workflow/ACCEPTANCE_PLAIN_COMMAND_PLAN.md` (revision 4, approved by gate policy); an archive copy is in
+`docs/milestones/completed/`. The previous milestone, W39 `unclassified-path-message` (Workflow 2.25.7), is complete.
 
 ## Goal
 
-Workflow 2.25.7 (a `fix:` patch, released after the merge of pull request #153): an unclassified path is refused with a
-message that names the path, the artifact-declaration file that must list it and the sanctioned route that adds it,
-qualified by stage and phase. The class, where it is raised, who catches it and every exit code stay as they are.
+Workflow 2.26.0 (a `feat:` minor, released after the merge of pull request #156): `python3 scripts/workflow_state.py
+--acceptance-gate <id>` prints, read-only and without a lock, a write or a GitHub call, the acceptance gate's evaluation,
+the missing dispositions by key with the skeleton, the blockers and one `ready` answer; `/satisfy-gate acceptance` names
+it first and keeps the Python description as the specification. Gate semantics do not change. The completion as one plain
+command is row 36.
 
 ## Outcome
 
-- CP1 (the message, tests and page) and CP2 (release 2.25.7) are complete; the technical approval was recorded by policy.
-- Functional flows 1 to 9 are recorded passed (flow 8 by an independent run; the skips are the suites' own version-gated
-  guards). The 18 recorded Optional findings are dispositioned (7 follow-ups in RodrigoFAbreu/workflow#152, 5 fixed,
-  6 dropped); see `docs/milestones/completed/unclassified-path-message-findings.md`.
+- CP1 (the report flag, its tests, the command text and the page) and CP2 (release 2.26.0) are complete; the technical
+  approval was recorded by policy.
+- Functional flows 1 to 7 (F1 to F7) are recorded passed. The 22 recorded Optional findings are dispositioned (9 follow-ups
+  in RodrigoFAbreu/workflow#155, 2 fixed, 11 dropped); see
+  `docs/milestones/completed/acceptance-plain-command-findings.md`.
 
 ## Next action
 
-No milestone is scheduled. Every remaining roadmap row is waiting on the Controller or is later and unscheduled
-(rows 12, 13, 24, 26c, 27). The release of 2.25.7 follows the merge of pull request #153. Pick the next item, then
-`/milestone-plan`.
+The next roadmap item is row 36, the acceptance completion as one plain command. Pick it, then `/milestone-plan`. The
+release of 2.26.0 follows the merge of pull request #156.

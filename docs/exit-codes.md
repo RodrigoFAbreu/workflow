@@ -1,6 +1,6 @@
 # Exit codes
 
-> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.25.5.
+> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.26.0.
 
 This is the one table of exit statuses for the scripts a person or an
 orchestrator runs. Slash commands (such as `/milestone-plan`) have no exit
@@ -19,6 +19,9 @@ code in `payload/scripts/` and the shipped documents.
 | `python3 scripts/workflow_state.py --plan-review-publication-status <id>` | 0 | the publication status was printed as JSON | read it |
 | | 1 | the plan-review binding is inconsistent: a JSON `error` and `message` are printed. Any other unexpected error also exits 1 with a traceback | follow the message; see the plan-review documents |
 | | 2 | the arguments did not parse | give `--plan-review-publication-status <work-item-id>` |
+| `python3 scripts/workflow_state.py --acceptance-gate <id>` | 0 | the acceptance gate's read-only report was printed as JSON, ready or not | read `ready`, `blockers` and `dispositions`; `ready: true` means nothing the report can see refuses `/satisfy-gate acceptance`, which still queries GitHub and decides; the command writes nothing |
+| | 1 | a JSON `error` and `message` are printed: `UnknownWorkItem`, `StateMissing`, `CorruptJsonError`, `StateMalformed`, or the class name of any other exception (for example outside a Git repository) | follow the message |
+| | 2 | the arguments did not parse (also two of the three `workflow_state.py` options together) | give `--acceptance-gate <work-item-id>` alone |
 | `python3 scripts/workflow_fingerprint.py` | 0 | the identifiers or the feedback path were printed, or the manifest or plan document was written | nothing |
 | | 1 | `--finalize-bundle` found a problem (it prints `status:` and the reason), a required argument is missing (an `error:` line), or an unexpected error (a traceback) | read the output and fix the cause |
 | | 2 | the arguments did not parse | check the options with `--help` |
