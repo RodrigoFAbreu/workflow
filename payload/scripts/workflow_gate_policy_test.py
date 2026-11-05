@@ -5113,6 +5113,12 @@ class TestAcceptanceGateReport(unittest.TestCase):
     SCRIPT = Path(ws.__file__).resolve()
     PR_IDS = ("pr_fact_current", "no_standing_pr_objection", "ci_green", "pr_approved")
     BLOCKING_IDS = ("checkpoints_complete", "technical_approval_current", "functional_flows_passed")
+    #: T11's stale stored facts (review B2): the case and the requirements it leaves unmet.
+    STALE = {"stale": ["ci_green"],
+             "stalenone": ["pr_fact_current", "no_standing_pr_objection", "ci_green"],
+             "stale_changes": ["no_standing_pr_objection"],
+             "stale_failed": ["no_standing_pr_objection", "ci_green"],
+             "stale_head": ["pr_fact_current"]}
 
     def setUp(self):
         self.scratch = Path(tempfile.mkdtemp())
@@ -5124,8 +5130,7 @@ class TestAcceptanceGateReport(unittest.TestCase):
         gh = self.trap_dir / "gh"
         gh.write_text(f'#!/bin/sh\necho "gh called: $*" >> "{self.trap_log}"\nexit 1\n')
         gh.chmod(0o755)
-        self.records = h_records = TestFindingDispositions(methodName="record")
-        del h_records
+        self.records = TestFindingDispositions(methodName="record")
 
     # -- helpers -------------------------------------------------------------
 
@@ -5140,9 +5145,16 @@ class TestAcceptanceGateReport(unittest.TestCase):
         if case == "stalenone":
             ev.flow()
             ev.query([])
+        if case == "stale_changes":
+            ev.ready(decision="CHANGES_REQUESTED", reviews=changes_requested(ev.anchor))
+        if case == "stale_failed":
+            ev.ready(checks="failure")
         if case == "stale_head":
-            ev.ready()
-            ev.excluded_commit()
+            old = ev.anchor
+            ev.protected_commit("approved local fix")
+            ev.approve()
+            ev.flow()
+            ev.query([pr_record(old)])
         if case == "after_query":
             ev.flow()
         if case in ("missing", "partial", "invalid"):
@@ -5189,10 +5201,10 @@ class TestAcceptanceGateReport(unittest.TestCase):
         return json.loads(ran.stdout)
 
     def error(self, ev, *args, cwd=None):
-        before = None if cwd else (self.tree(ev.root), self.refs(ev.root))
-        ran = self.cli(cwd or ev.root, *args)
-        if before:
-            self.assertEqual(before, (self.tree(ev.root), self.refs(ev.root)))
+        root = cwd or ev.root
+        before = (self.tree(root), self.refs(root))
+        ran = self.cli(root, *args)
+        self.assertEqual(before, (self.tree(root), self.refs(root)))
         self.assertEqual(ran.returncode, 1, ran.stdout + ran.stderr)
         self.assertNotIn("Traceback", ran.stderr)
         self.assertEqual(self.trap_log.read_text(), "")
@@ -5228,6 +5240,9 @@ class TestAcceptanceGateReport(unittest.TestCase):
             self.assertTrue(out["query_pending"])
             self.assertEqual([b["code"] for b in out["blockers"]], ["requirement_unmet"])
             self.assertTrue(out["blockers"][0]["detail"].startswith("functional_flows_passed: "))
+            self.assertEqual([b["detail"] for b in out["blockers"]],
+                             [f"{r['id']}: {r['detail']}" for r in out["gate"]["requirements"]
+                              if r["id"] in self.BLOCKING_IDS and not r["met"]])
             unmet = [r["id"] for r in out["gate"]["requirements"] if not r["met"]]
             self.assertEqual([u["id"] for u in out["stored_pr_fact"]["unmet"]],
                              [u for u in unmet if u in self.PR_IDS])
@@ -5330,6 +5345,19 @@ class TestAcceptanceGateReport(unittest.TestCase):
                 self.assertEqual(self.codes(out), ["phase_not_reachable"])
                 self.assertIn(phase, out["blockers"][0]["detail"])
                 self.assertFalse(out["ready"])
+        with self.subTest("outstanding checkpoint"), AcceptanceRepo() as ev:
+            self.fixture(ev, "ready")
+            registry = ev.root / ev.item()["registry_path"]
+            body = json.loads(registry.read_text())
+            body["checkpoints"] = [{"id": "CP1", "name": "x", "depends_on": [], "complexity": 1, "session_target": "1"}]
+            registry.write_text(json.dumps(body))
+            ev.approve_plan()  # the plan approval binds the edited registry, so it resolves
+            g.clear_caches()
+            out = self.report(ev)
+            self.assertEqual(self.codes(out), ["phase_not_reachable", "requirement_unmet"])
+            self.assertIn("(outstanding: CP1)", out["blockers"][0]["detail"])
+            self.assertTrue(out["blockers"][1]["detail"].startswith("checkpoints_complete: "))
+            self.assertFalse(out["ready"])
 
     def test_an_unresolvable_registry_is_a_blocker(self):
         with AcceptanceRepo() as ev:
@@ -5416,14 +5444,14 @@ class TestAcceptanceGateReport(unittest.TestCase):
     # -- T11: parity with the stage -------------------------------------------------
 
     def test_ready_is_true_exactly_when_the_stage_would_complete(self):
-        for case in ("ready", "after_query", "stale", "stalenone", "stale_head", "missing", "invalid", "human", "fresh"):
+        for case in ("ready", "after_query", *self.STALE, "missing", "invalid", "human", "fresh"):
             with self.subTest(case), AcceptanceRepo() as ev:
                 self.fixture(ev, case)
                 out = self.report(ev)
                 refusal, unchanged = self.parity(ev)
                 self.assertEqual(out["ready"], refusal is None, (case, refusal, out["blockers"]))
-                if case in ("stale", "stalenone"):
-                    self.assertTrue(out["stored_pr_fact"]["unmet"], case)
+                if case in self.STALE:
+                    self.assertIsNone(refusal, case)
                 if case in ("missing", "invalid"):
                     self.assertIsInstance(refusal, (ws.UndispositionedFindingsError, ws.InvalidFindingDispositionsError))
                     self.assertTrue(unchanged)
@@ -5432,11 +5460,12 @@ class TestAcceptanceGateReport(unittest.TestCase):
                     self.assertFalse(unchanged)
 
     def test_stale_stored_facts_do_not_block_when_the_query_is_green(self):
-        for case in ("stale", "stalenone"):
+        for case, unmet in self.STALE.items():
             with self.subTest(case), AcceptanceRepo() as ev:
                 self.fixture(ev, case)
                 out = self.report(ev)
                 self.assertEqual((out["blockers"], out["ready"]), ([], True))
+                self.assertEqual([u["id"] for u in out["stored_pr_fact"]["unmet"]], unmet)
 
     def test_the_stage_completes_the_item_when_ready(self):
         with AcceptanceRepo() as ev:

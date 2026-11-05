@@ -21,7 +21,8 @@ description as the specification. Gate semantics do not change. The completion a
   `payload/scripts/workflow_gate_policy_test.py`; the plain-commands block in `payload/.claude/commands/satisfy-gate.md`;
   the rows in `docs/exit-codes.md`.
 - CP2 (release 2.26.0): complete. `manifest.json` 2.26.0 (changed records, posture, `conformance.suites`), `WORKFLOW_RELEASE`, the protocol document and test, `docs/release-history.md`, `docs/exit-codes.md`, `AcceptancePlainCommandReleaseTest`. Verified in a scratch commit: the nine suites from a stock `stage-conformance` fixture, `build`, `check-manager-block`, `tools/docs`, `check_docs.py`, `tools/release` (311 tests, zlib-ng interpreter).
+- Self-review: T11's stale-fact cases now cover all the plan names (`CHANGES_REQUESTED` and failed checks were missing, and the older-head case did not produce an older head); the outside-Git failure path now measures the tree; the outstanding-checkpoint detail has a test. Test-only: the suite count stays 346 and only the test file's manifest record moves. Mutations m1 to m19 were run (29 variants, all killed by their named test) and are recorded in the bundle's `TEST_RESULTS.md`.
 
 ## Next action
 
-`/milestone-implement acceptance-plain-command` again: all checkpoints are complete; it enters self-review and prepares the implementation review bundle.
+The implementation review of the bundle in `.ai-review/acceptance-plain-command/`: local first, then manual external (`/milestone-implement` stops at this hard gate).

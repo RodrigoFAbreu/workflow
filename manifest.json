@@ -783,8 +783,8 @@
       "category": "conformance",
       "rule": "^scripts/workflow_gate_policy_test\\.py$",
       "rationale": "The gate policy suite: policy model and adoption, automatic plan, technical and acceptance satisfaction, functional evidence and forge facts, reopening, and the all-human equivalence. Run by workflow-conformance.yml. W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. review-followups-cleanup (workflow-2.18.1): a test pins the acceptance refusal's bounded finding label and the unchanged listing. ci-latest-check-run (workflow-2.25.3): TestLatestCheckRun pins the latest-run derivation (ten tests). check-time-by-value (workflow-2.25.4): TestLatestCheckRun gains four tests (the zero instant by value, the range and the residual sentence), fourteen in all. acceptance-plain-command (workflow-2.26.0): TestAcceptanceGateReport pins the report (shape, blockers, dispositions, read-only, exit codes, command text and parity with the stage).",
-      "sha256": "51e4b8fd4b3042e9dc98df95baf37832be72be7f7c7c714bd8e6d029d7cf9e69",
-      "size": 307575,
+      "sha256": "cd9797852444b3de9f8d12764819dbddfefa267afff941e61bfc73ea14925e97",
+      "size": 309359,
       "executable": false
     },
     {
