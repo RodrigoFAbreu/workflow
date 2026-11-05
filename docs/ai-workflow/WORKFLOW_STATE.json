@@ -30448,18 +30448,22 @@
       "registry_path": "docs/ai-workflow/registry/unclassified-path-message-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/unclassified-path-message-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 5,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "dd565f0f5d223228984771c546378f3d9885a391",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "cfb1c6eadc3b4922d7b94db99b771abef6918d8c"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "56ef5772a6467dcfd73c6885ac33a63def8a7409"
         }
       },
       "current_bundle_id": "a744037b09602cf3507c200396c57d7b483e6e6f5b2b28d8a56ecb5392d41746",
@@ -30588,8 +30592,8 @@
           "external": 0
         }
       },
-      "state_revision": 20,
-      "last_transition": "2026-11-05T13:37:59Z",
+      "state_revision": 22,
+      "last_transition": "2026-11-05T14:08:23Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
