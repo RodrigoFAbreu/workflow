@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "acceptance-plain-command",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -31323,6 +31323,403 @@
         },
         "evaluated_at": "2026-11-05T16:25:02Z",
         "workflow_release": "2.25.6"
+      }
+    },
+    "acceptance-plain-command": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "acceptance-plain-command",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/ACCEPTANCE_PLAIN_COMMAND_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/acceptance-plain-command-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/acceptance-plain-command-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 4,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "16e33d1e67b70812c3ea9f2b8f495b49312d9b16",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "010a4fa9b194e3f176aec20f29552f6e1f45d132c20ba7ed11e030460155b3c8",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "010a4fa9b194e3f176aec20f29552f6e1f45d132c20ba7ed11e030460155b3c8",
+        "approved_review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/ACCEPTANCE_PLAIN_COMMAND_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7d7eb9c0a8bfbf35ec649ee83d7d0bc2dec73715"
+          },
+          {
+            "path": "docs/ai-workflow/registry/acceptance-plain-command-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "332af60575fe0d3c3cdb12eeea472f802e4e3c95"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/acceptance-plain-command-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b801c10810ec201d8f6354dc56e433540f212c92"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-05T19:38:38Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
+            "ledger": {
+              "local": {
+                "bundle_id": "010a4fa9b194e3f176aec20f29552f6e1f45d132c20ba7ed11e030460155b3c8",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "6ca0437494e865d6bff5efb1151b714e40269a403e95c5e69c8e1773d935c47c",
+                "ledger_entry_sha256": "7a34ccdf549f6b21d8bb1812c6caabc0176299c07e3b6edf1e359c03e1859ffc",
+                "run_ref": "session:local .ai-review/acceptance-plain-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "010a4fa9b194e3f176aec20f29552f6e1f45d132c20ba7ed11e030460155b3c8",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "418c992391c2edf469a649f777ca95c97c9cb95a30669c7d33ba76c1df384e3c",
+                "ledger_entry_sha256": "511446f1e5b5b519900e141909f211fa0e125ec273aa90663a23195d9619b450",
+                "run_ref": "codex:20261105T193510Z-6b654438",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-05T19:38:38Z",
+          "workflow_release": "2.25.7"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "010a4fa9b194e3f176aec20f29552f6e1f45d132c20ba7ed11e030460155b3c8",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-11-05T19:34:53Z",
+          "verdict_sha256": "6ca0437494e865d6bff5efb1151b714e40269a403e95c5e69c8e1773d935c47c",
+          "run_ref": "session:local .ai-review/acceptance-plain-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "010a4fa9b194e3f176aec20f29552f6e1f45d132c20ba7ed11e030460155b3c8",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-11-05T19:37:53Z",
+          "verdict_sha256": "418c992391c2edf469a649f777ca95c97c9cb95a30669c7d33ba76c1df384e3c",
+          "run_ref": "codex:20261105T193510Z-6b654438",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 4,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 15,
+      "last_transition": "2026-11-05T19:38:38Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-05T19:23:54Z",
+        "consumed": {
+          "review_content_id": "6b0b2c3248e9703deab4422e5cdc5f396e78aecfba9d971a94237a82725e8e6d",
+          "plan_revision": 3,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
+          "plan_revision": 4
+        },
+        "bound": {
+          "review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
+          "bundle_id": "010a4fa9b194e3f176aec20f29552f6e1f45d132c20ba7ed11e030460155b3c8",
+          "plan_revision": 4
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "1ed5620ad1cc28757c7edd7f621b34d69314f1180a40a0235e2449412dfc897f",
+        "6b0b2c3248e9703deab4422e5cdc5f396e78aecfba9d971a94237a82725e8e6d",
+        "f5859b2e41b72c0e1a61138cc70fa6fb76a39820832401bab2f8968ae2cec7e7"
+      ],
+      "optional_findings": {
+        "F-7c1c1b747bfd": {
+          "digest": "7c1c1b747bfd1df3bf2ea5458d204da550257b25df8fb8c15f18423e8bf4a6e1",
+          "text": "Malformed state is outside D-Flag's error list: a state file holding `{}` or `[]` is valid JSON, and the existing CLI's path gives `KeyError` or `TypeError` tracebacks (measured with `--finding-dispositions`); running outside a Git repository also raises from `_run`. D-Flag promises one JSON object for errors, so either add these to T7 as coded errors or state in `docs/exit-codes.md` that they are the \"unexpected error, traceback\" row.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f5859b2e41b72c0e1a61138cc70fa6fb76a39820832401bab2f8968ae2cec7e7",
+              "verdict": "REVISE",
+              "at": "2026-11-05T18:44:38Z"
+            }
+          ]
+        },
+        "F-84f2b1e8638b": {
+          "digest": "84f2b1e8638b215729621015611563c2fcb41a599abefb81ae74220a49320462",
+          "text": "D-Safety's \"writes nothing\" is measured on a scratch repository whose script lives elsewhere, so it does not cover the `scripts/__pycache__` a plain run in an installed repository writes. It is ignored by Git and harmless, but the claim could say so, or the documented form could use `python3 -B`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f5859b2e41b72c0e1a61138cc70fa6fb76a39820832401bab2f8968ae2cec7e7",
+              "verdict": "REVISE",
+              "at": "2026-11-05T18:44:38Z"
+            }
+          ]
+        },
+        "F-b5f7dfabd275": {
+          "digest": "b5f7dfabd275c2451936bda6ed6bfbe3b89f15a452f769132f4d3bde100bee9b",
+          "text": "Section 0a row 1's Writes column says the stored PR fact is \"the only write\" on a gate refusal, but `reopen_for_stored_fact`'s result is what the mutator returns, so a refusal can also persist a reopening (the phase and `reopenings`). The same row's call list already says \"may reopen\"; the Writes cell should agree.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "f5859b2e41b72c0e1a61138cc70fa6fb76a39820832401bab2f8968ae2cec7e7",
+              "verdict": "REVISE",
+              "at": "2026-11-05T18:44:38Z"
+            }
+          ]
+        },
+        "F-249943e7d1fa": {
+          "digest": "249943e7d1fa91f960aa48a5ba809699fb235373f433f653df5d99ce5b7f2a31",
+          "text": "Section 3 says a stale stored fact \"is reported as `query_pending`, not decided\". D-Flag computes `query_pending` from `gate.pending_query`, which is false for a stored fact, and flow 7a expects false (measured). Reword section 3 to point at `stored_pr_fact`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "1ed5620ad1cc28757c7edd7f621b34d69314f1180a40a0235e2449412dfc897f",
+              "verdict": "REVISE",
+              "at": "2026-11-05T19:08:53Z"
+            }
+          ]
+        },
+        "F-300165275a09": {
+          "digest": "300165275a0946d08b018d63df6cff5fc5078ad54bf1f261839d7aea9554d81f",
+          "text": "D-Tests says each mutation fails \"only its named test\", which cannot hold for m3, m6 and m7: T11's parity covers the `missing`, `human` and `invalid` states, so those mutations also fail T11. CP1's own wording, \"each fail the named test\", is the achievable one; use it in both places or name T11 in those mutations.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "1ed5620ad1cc28757c7edd7f621b34d69314f1180a40a0235e2449412dfc897f",
+              "verdict": "REVISE",
+              "at": "2026-11-05T19:08:53Z"
+            }
+          ]
+        },
+        "F-58655d19eb33": {
+          "digest": "58655d19eb33e5e88213b61e3074d92fe059745c42a6d6b42be6acf8c1fdbfc4",
+          "text": "Section 5's setup never defines `W40_BIN` or `TRAP_LOG`, and never creates the log. `flow.py` reads the log unconditionally, so a clean run with no `gh` call ends in `FileNotFoundError` (measured). Add the exports and a `: > \"$TRAP_LOG\"` to the setup.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "1ed5620ad1cc28757c7edd7f621b34d69314f1180a40a0235e2449412dfc897f",
+              "verdict": "REVISE",
+              "at": "2026-11-05T19:08:53Z"
+            }
+          ]
+        },
+        "F-1df4ce9cb621": {
+          "digest": "1df4ce9cb621c23215f03eb6cfc3a85d851b838a89ea60174ecf73bf1dc76e9a",
+          "text": "D-Flag does not say what `dispositions.missing` holds when `invalid` is set. The library raises before any key is known, so state that it is `[]` and assert that in T6.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "1ed5620ad1cc28757c7edd7f621b34d69314f1180a40a0235e2449412dfc897f",
+              "verdict": "REVISE",
+              "at": "2026-11-05T19:08:53Z"
+            }
+          ]
+        },
+        "F-d3aeffe00c62": {
+          "digest": "d3aeffe00c62f7a1c920c3919e81eeff6ceb66536e64854611ae5ebd73f8676f",
+          "text": "Section 0a's rows run 1a, 1b, 1, 2, 3, but `/accept-milestone` step 2a runs the dispositions pre-flight **before** the backlog and `requires_pr_approved` pre-flights (its own text says so, and `test_accept_milestone_runs_the_disposition_preflight_before_the_pr_preflight` pins it). The review request asks whether the table is in order: row 3 could cite that step 2a position as well as `satisfy-gate.md` step 3's.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "6b0b2c3248e9703deab4422e5cdc5f396e78aecfba9d971a94237a82725e8e6d",
+              "verdict": "REVISE",
+              "at": "2026-11-05T19:22:40Z"
+            }
+          ]
+        },
+        "F-2d12c9e68246": {
+          "digest": "2d12c9e682468eef7bb288ea70d435f22652059a76ad4506986355dec8169a38",
+          "text": "`--acceptance-gate \"\"` is not specified. The existing dispatch idiom, `if args.finding_dispositions:`, would treat an empty id as absent and fall through to the publication-status path with `None`. D-Flag could say the dispatch tests `is not None`, so an empty id is `UnknownWorkItem`, with a case in T7. This was read in the code, not measured.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "6b0b2c3248e9703deab4422e5cdc5f396e78aecfba9d971a94237a82725e8e6d",
+              "verdict": "REVISE",
+              "at": "2026-11-05T19:22:40Z"
+            }
+          ]
+        },
+        "F-a268f3d8dc23": {
+          "digest": "a268f3d8dc2358ce9b41a94f938c613c2f00405b6f05de41296278766471ef76",
+          "text": "`REVIEW_REQUEST.md` item 4 still says \"the failure-only mutations m1 to m17\"; the plan and CP1 say m1 to m19. It is outside the plan content, so refresh it when the bundle is regenerated.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "6b0b2c3248e9703deab4422e5cdc5f396e78aecfba9d971a94237a82725e8e6d",
+              "verdict": "REVISE",
+              "at": "2026-11-05T19:22:40Z"
+            }
+          ]
+        },
+        "F-b68c4fcc381f": {
+          "digest": "b68c4fcc381fadd684fc04a9f45998d76fcd135a8509403b2c01987577f9a9b9",
+          "text": "Flow 13 runs `git diff 16e33d1 --stat -- payload docs` \"in the working tree (CP1)\", but the functional review happens after CP2, when that command lists `workflow_protocol.py`, its test and `ORCHESTRATION_PROTOCOL.md`, so \"no `workflow_protocol.py`\" is false on a correct candidate. Two completed plans use the same wording, so this is a known idiom and not a new defect, but naming the CP1 commit (`git diff 16e33d1 <CP1 commit> --stat -- payload docs`) removes the ambiguity. The expected list could also allow `docs/ACTIVE_MILESTONE.md`, where the functional checklist is written.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T19:34:53Z"
+            }
+          ]
+        },
+        "F-670c001a33da": {
+          "digest": "670c001a33da64547d352aafc5926486641dcff97def6e7b4516851c2ae3e48e",
+          "text": "D-Release says only the 2.25.7 class gives up its pins, but `RetentionErrorPathsReleaseTest` (`tools/release/release_test.py` line 3401) pins `docs/exit-codes.md` at \"Last checked with: Workflow 2.25.5\", which CP2 moves, so that assertion must go too. D-Release also names only `sha256` and `size` for the changed records, while each release class pins its sentence in their `rationale` (#153's manifest diff changes all three). Both are in CP2's files and a test run will show them, so this is wording only.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T19:34:53Z"
+            }
+          ]
+        },
+        "F-a7d831148f38": {
+          "digest": "a7d831148f388b2df306152cb2982d49a25fc9cb27f6e0bf5275d7cef0bffcd6",
+          "text": "D-Command calls a `ready: false` report \"the same stop as step 2's\", but step 2 stops after the query has stored the pull-request fact and possibly reopened the item, and the report stops before either. `reopen_for_stored_fact` then runs only on a later attempt, once no blocker remains. This was read for a deadlock and none exists, because no query can clear a blocker, but the command text could say the fact is not stored and a reopening is deferred, since section 1 says the stage's behaviour is the same.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T19:34:53Z"
+            }
+          ]
+        },
+        "F-94d244868433": {
+          "digest": "94d244868433ad7c347150966e8d9809bf28cc014f7cb3c41d202eb39c901bcf",
+          "text": "`blockers` and `stored_pr_fact` each select by a fixed list of requirement ids, so a requirement added to `evaluate_gate` later would be unmet and in neither list, with `ready` still true. A test that every id `evaluate_gate` can emit for acceptance belongs to exactly one list would catch this; today's ids are all covered (read in `workflow_gate_policy.py`).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T19:34:53Z"
+            }
+          ]
+        },
+        "F-b9ee5397c32d": {
+          "digest": "b9ee5397c32da961e396539be19c4920b1ea3289d5f9a65b35c935e9a8af491f",
+          "text": "Flows 11 and 12 ask for a stage call and a verbatim command run that `flow.py` does not provide, so the tester writes that code (about 15 lines for flow 11, using `t.pr_record` and `t.FAKE_GH`). Round 3's criterion was that every named case runs without an edit. T11 and T12 pin the same behaviour, so a `parity` case in `flow.py` would be a convenience.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T19:34:53Z"
+            }
+          ]
+        },
+        "F-5c183f168e14": {
+          "digest": "5c183f168e141e4935716455cfde91c8477e215fd4b128de5718318a83f829e7",
+          "text": "Section 0a, row 1b should include the requirements list returned by `assert_human_acceptance_pr_approved` when enabled and successful. The source returns `None` only when disabled. This does not affect the report design, which explicitly excludes that pre-flight.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "290dc31b7bc4b5f8e82e9aacb6c5d5e7b77c62284714b3f4de124ca65170ac39",
+              "verdict": "APPROVE",
+              "at": "2026-11-05T19:37:53Z"
+            }
+          ]
+        }
       }
     }
   }

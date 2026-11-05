@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_item_id": "acceptance-plain-command",
+  "requirements": {
+    "R1": {
+      "description": "a plain read-only command, workflow_state.py --acceptance-gate <id>, prints the acceptance gate's evaluation (each requirement met or not, with its detail), the missing dispositions by key with the skeleton, the blockers and one ready answer, with the exit codes and error objects of D-Flag; tests T1 to T9 and T12 (the documented plain command, run verbatim), mutations m1 to m12, m17, m18 (StateMalformed) and m19 (the class-name fallback and the dispatch before the shared git rev-parse); only the three non-pull-request requirements and the phase pre-flight are blockers, stored pull-request requirements are information (#148)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the report writes nothing and calls no forge: no lock, no transaction, no git write, no gh, on every success and failure path, proved by a tree, refs and trap-gh measurement; tests T1, T7, mutation m1 (#148)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "the gate semantics do not change: the report prints evaluate_gate verbatim and its ready agrees with satisfy_acceptance_gate on the same states; no line of the stage's functions changes; tests T2, T9, T11 (including stale stored facts), mutations m2, m14, m15, m16",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "the command file names the plain command first and keeps the Python description as the specification, every pinned phrase and state_writer true; the page docs/exit-codes.md documents the flag; tests T10, T12, mutations m13, m17",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "the sizing rule: only the read-only evaluation is planned, the completion and the optional next-action line are row 36 (Next) and row 35 is Current in docs/ROADMAP.md; the investigation of section 0 comes before the design",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R6": {
+      "description": "release 2.26.0, a feat: minor for a new command surface, protocol still 1.5, no Controller change, no file added or removed, manifest, history, release tests and protocol document agree",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
