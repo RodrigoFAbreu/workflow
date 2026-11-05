@@ -16,7 +16,7 @@ milestone, W37 `retention-error-paths`, is accepted (Workflow 2.25.5).
 | id | name | state |
 | --- | --- | --- |
 | CP1 | The report text, the recorded path, tests and page | **complete** (see the commit of this checkpoint) |
-| CP2 | Release 2.25.6 | pending |
+| CP2 | Release 2.25.6 | **complete** (see the commit of this checkpoint) |
 
 ## Verified state
 
@@ -26,6 +26,14 @@ milestone, W37 `retention-error-paths`, is accepted (Workflow 2.25.5).
   `check-manager-block` pass; `tools/release` has one failure owned by CP2, the 2.25.5 release class's pin of the
   obligations suite count (284; it is now 290 with the six new tests). CP2 moves that pin.
 
+- CP2 (release 2.25.6), verified in a disposable clone of the working tree committed there: `RetentionReportUnreadable`
+  green under `python3` (3.14) and `/home/rodrigo/.local/bin/python3.12`; `tools/release` (307 tests, zlib-ng
+  interpreter), `tools/docs` (34), `check_docs.py`, `check-manager-block --manager-releases` and `release.py build`
+  pass; `workflow-manager verify .` reports the installation matches 2.25.5 (the installation is not touched). The nine
+  suites run from the stock `stage-conformance` fixture; the result is recorded in the implementation bundle.
+  `conformance.suites` was measured (obligations suite 290), not typed.
+
 ## Next action
 
-Run `/milestone-implement retention-report-unreadable` again for CP2 (the release 2.25.6).
+Run `/milestone-implement retention-report-unreadable` again: every checkpoint is complete, so the next invocation
+enters `SELF_REVIEWING_IMPLEMENTATION`.

@@ -29666,18 +29666,22 @@
       "registry_path": "docs/ai-workflow/registry/retention-report-unreadable-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-report-unreadable-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 3,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "e687d51ba050267181b143551b56e95b04fd8bdc",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "4769165830af50b650b2337408aeb2d236c46b79"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "39f870bcf620914fb2af4493a658f13119587a01"
         }
       },
       "current_bundle_id": "87565f00fbd4899a1312cc41e59e05afafae7baf0e6692f60bb59ef7b339b4c7",
@@ -29806,8 +29810,8 @@
           "external": 0
         }
       },
-      "state_revision": 14,
-      "last_transition": "2026-11-05T04:43:18Z",
+      "state_revision": 16,
+      "last_transition": "2026-11-05T05:05:16Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
