@@ -1,6 +1,6 @@
 # Exit codes
 
-> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.26.0.
+> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.27.0.
 
 This is the one table of exit statuses for the scripts a person or an
 orchestrator runs. Slash commands (such as `/milestone-plan`) have no exit
@@ -21,7 +21,10 @@ code in `payload/scripts/` and the shipped documents.
 | | 2 | the arguments did not parse | give `--plan-review-publication-status <work-item-id>` |
 | `python3 scripts/workflow_state.py --acceptance-gate <id>` | 0 | the acceptance gate's read-only report was printed as JSON, ready or not | read `ready`, `blockers` and `dispositions`; `ready: true` means nothing the report can see refuses `/satisfy-gate acceptance`, which still queries GitHub and decides; the command writes nothing |
 | | 1 | a JSON `error` and `message` are printed: `UnknownWorkItem`, `StateMissing`, `CorruptJsonError`, `StateMalformed`, or the class name of any other exception (for example outside a Git repository) | follow the message |
-| | 2 | the arguments did not parse (also two of the three `workflow_state.py` options together) | give `--acceptance-gate <work-item-id>` alone |
+| | 2 | the arguments did not parse (also two of the four `workflow_state.py` options together) | give `--acceptance-gate <work-item-id>` alone |
+| `python3 scripts/workflow_state.py --satisfy-acceptance <id>` | 0 | the acceptance gate was satisfied by policy: `{record, trailer}` was printed and the item is `MILESTONE_COMPLETE` | use `trailer` in the completion commit; the command did not commit or edit a document |
+| | 1 | a JSON `error`, `message` and `state_changed` (plus `code` where the exception has one) are printed: a phase or registry refusal before anything is queried (`AcceptancePreflightError`), a forge refusal, `GateNotSatisfiableError`, a disposition or completion refusal, or an error before the call | `state_changed: false`: stop, nothing was stored; `true` with `GateNotSatisfiableError`: only the pull-request fact (and a possible reopening) was stored; any other `true`: another writer changed the state, stop and re-read; never complete by hand |
+| | 2 | the arguments did not parse | give `--satisfy-acceptance <work-item-id>` alone |
 | `python3 scripts/workflow_fingerprint.py` | 0 | the identifiers or the feedback path were printed, or the manifest or plan document was written | nothing |
 | | 1 | `--finalize-bundle` found a problem (it prints `status:` and the reason), a required argument is missing (an `error:` line), or an unexpected error (a traceback) | read the output and fix the cause |
 | | 2 | the arguments did not parse | check the options with `--help` |

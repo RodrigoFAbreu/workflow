@@ -1,0 +1,77 @@
+{
+  "dispositions": {
+    "F-040dc0417533": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#158",
+      "note": "Follow-up item 2."
+    },
+    "F-1f502050f14e": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request, narrative-file or checklist wording of a finished item; the checklist flows F1 to F13 ran as written and all matched."
+    },
+    "F-2230a9eebf4b": {
+      "disposition": "fixed",
+      "note": "GH_FREE_PATH_TOOLS was removed from workflow_gate_policy_test.py."
+    },
+    "F-27a2b34164ac": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#158",
+      "note": "Follow-up item 1."
+    },
+    "F-3fc17f1bee04": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#158",
+      "note": "Follow-up item 3."
+    },
+    "F-57374de62f25": {
+      "disposition": "fixed",
+      "note": "The 2.27.0 posture in manifest.json keeps the older downgrade guidance (/release-checkpoint-start and 2.14.0 present)."
+    },
+    "F-5d2dff40a28f": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request, narrative-file or checklist wording of a finished item; the checklist flows F1 to F13 ran as written and all matched."
+    },
+    "F-5e59efb290e1": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request, narrative-file or checklist wording of a finished item; the checklist flows F1 to F13 ran as written and all matched."
+    },
+    "F-6f29f7e7b761": {
+      "disposition": "fixed",
+      "note": "The tests now compare the raw stdout with the documented serialisation (sort_keys=True, indent=2 plus a newline)."
+    },
+    "F-718f9efc320d": {
+      "disposition": "fixed",
+      "note": "Same change: S1/S3 compare raw stdout against the documented serialisation."
+    },
+    "F-758f0eff617b": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request, narrative-file or checklist wording of a finished item; the checklist flows F1 to F13 ran as written and all matched."
+    },
+    "F-815e3235e76d": {
+      "disposition": "fixed",
+      "note": "docs/exit-codes.md now says the pull-request fact and a possible reopening are stored."
+    },
+    "F-95bc37131741": {
+      "disposition": "fixed",
+      "note": "docs/exit-codes.md states the rule for state_changed true with another class (a concurrent writer)."
+    },
+    "F-9c396f3926c1": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request, narrative-file or checklist wording of a finished item; the checklist flows F1 to F13 ran as written and all matched."
+    },
+    "F-a03c76ffe2d9": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request, narrative-file or checklist wording of a finished item; the checklist flows F1 to F13 ran as written and all matched."
+    },
+    "F-a9b188ceaa2c": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request, narrative-file or checklist wording of a finished item; the checklist flows F1 to F13 ran as written and all matched."
+    },
+    "F-d4a863eeba03": {
+      "disposition": "dropped",
+      "reason": "Plan, review-request, narrative-file or checklist wording of a finished item; the checklist flows F1 to F13 ran as written and all matched."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "acceptance-completion-command"
+}

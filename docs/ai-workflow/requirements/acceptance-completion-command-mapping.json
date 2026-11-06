@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_item_id": "acceptance-completion-command",
+  "requirements": {
+    "R1": {
+      "description": "a plain command, workflow_state.py --satisfy-acceptance <id>, runs satisfy_acceptance_gate in one process under the same state_transaction (the query, the trust record and the commit order unchanged) and prints exactly {record, trailer}; the findings record and the floor commit are not part of it (separate mechanisms, the next roadmap row); tests S1, S3, S4, mutations m3, m5, m7, m8",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "gate semantics do not change: the same record and trailer, identical refusals (an unmet requirement or a missing disposition or a forge failure writes nothing but what the stage writes today), no write outside the state file; S1 parity on a copy with byte-equal trees, S2 no-write proofs, mutations m4, m5, m13",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "the command makes the stage's own step 2a phase and registry check, which the library lacks (measured: it completes from IMPLEMENTING), with the one function the read-only report uses, before any query or write; error object with state_changed; tests S2, S8, mutations m1, m2, m6, m15",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "the interface: a fourth member of the exclusive group dispatched before the shared git rev-parse, an empty id is UnknownWorkItem, never a traceback, existing flags byte-identical, exit codes 0, 1 and 2; tests S5, S6, mutations m9 to m12",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "satisfy-gate.md names the plain completion first and keeps the Python description as the specification, docs/exit-codes.md lists the flag, docs/ROADMAP.md carries row 36 Current and row 37 Next; step 0's backlog pre-flight is stated to run first and not to be run by the flag; test S7, mutations m14, m16",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R6": {
+      "description": "Workflow 2.27.0, a feat: minor, protocol stays 1.5 and no Controller change: WORKFLOW_RELEASE, manifest records, the protocol-document sentence, release history, the release tests; the Manager block's posture names --satisfy-acceptance as a state writer through state_transaction and the way back to 2.26.0, and the 2.27.0 release class pins it and the rationale sentence",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
