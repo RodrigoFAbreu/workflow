@@ -32993,7 +32993,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-findings-floor-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-findings-floor-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 2,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -33102,7 +33102,156 @@
           "workflow_release": "2.27.0"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "6bdae302c6036c5a3345ad42ff3c42d0e002d1ce12f9136d7e0f5ee583a25764",
+        "approved_review_content_id": "8510f9e209be0dc596f3cf5bf9d8375f444aa5f8e1632f194a6250038c60508e",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/acceptance-findings-floor-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "aa81b61ac854430ee6b71609871be4619b78993e"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a9124cf1268c5cc994f9bf3545b86e6fc0a976c7"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "18ee48b283f99f79012c46faff0bdb3effc382da"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "fd1499678c634b83ce851fc429910823d9f469de"
+          },
+          {
+            "path": "payload/.claude/commands/accept-milestone.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "879c9059db6874c4450b72f580a654bda0220216"
+          },
+          {
+            "path": "payload/.claude/commands/satisfy-gate.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3a924230112dbd2673e59044f04e786d1110bbee"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cbe9279f43569d2a03a04510d2c108f6ac273900"
+          },
+          {
+            "path": "payload/scripts/workflow_gate_policy_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c9ed09968ae29126e4088aa92ae30c14356df5bd"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1ee947460ca50da8455def7df497834610832bf3"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ecee8c1d57b226d56ce005135a0dc7bd4efcc2dd"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4ebde8ec882908abe178ae5dd13defdc0f93c060"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3a9c6c6823ae9b0c9cb0e03b58374f52ffb76246"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5eef8d79f7c2420ca6572fa97de5451f86e02f47"
+          }
+        ],
+        "reviewed_content_commit": "4f3c4d172c7c2231acbf6c7c420be2a84529fad1",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-06T11:49:05Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "8510f9e209be0dc596f3cf5bf9d8375f444aa5f8e1632f194a6250038c60508e",
+            "ledger": {
+              "local": {
+                "bundle_id": "6bdae302c6036c5a3345ad42ff3c42d0e002d1ce12f9136d7e0f5ee583a25764",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "adc09fdcce297e9b26bced916ea749232ea72c54fc273c40397a0f8138bb4a7e",
+                "ledger_entry_sha256": "e497afe249c9364d0849b1bab8b55b210a0272322ea8d7dedb00430070412ba6",
+                "run_ref": "session:local .ai-review/acceptance-findings-floor/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "6bdae302c6036c5a3345ad42ff3c42d0e002d1ce12f9136d7e0f5ee583a25764",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "bc1648eb098e9d56aaf8a3c019537d8ee8a1d2671ef04c6b74212c76cf80bc2e",
+                "ledger_entry_sha256": "eb6dc53f70ddb063dbffaa75dd4f8f816fa9dc506d9537543023562f11ff9358",
+                "run_ref": "codex:20261106T114451Z-fc9102dd",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-06T11:49:05Z",
+          "workflow_release": "2.27.0"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "b10e82a4542263d1fc419166e8811d2229d93d20e5d11637256883497100cc94",
@@ -33133,12 +33282,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 1,
-          "external": 0
+          "local": 2,
+          "external": 1
         }
       },
-      "state_revision": 16,
-      "last_transition": "2026-11-06T11:34:28Z",
+      "state_revision": 19,
+      "last_transition": "2026-11-06T11:49:05Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -33287,6 +33436,69 @@
               "at": "2026-11-06T11:04:38Z"
             }
           ]
+        },
+        "F-0c27be55ecbf": {
+          "digest": "0c27be55ecbf3cf3bbb22772894bfcc00df504aa4d98128201d38ecbbc02c1f9",
+          "text": "**O1. The release-history row understates what a successful run prints.** The 2.28.0 row of `docs/release-history.md` says the flag \"exits 0 with the record path (or nothing, for an item with no finding)\". The flag prints `{paths}`, which also names the dispositions file when it exists (flow 1 prints both), and the worker has to stage both. The command texts and `docs/exit-codes.md` state this correctly, so a worker following them is not misled. Replacing \"the record path\" with \"the paths to stage\" would make the row exact.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "8510f9e209be0dc596f3cf5bf9d8375f444aa5f8e1632f194a6250038c60508e",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T11:44:33Z"
+            }
+          ]
+        },
+        "F-a223816ada7b": {
+          "digest": "a223816ada7bde96ed4f525f354bdcda706a816b6184dea542b93eccbcbe74af",
+          "text": "**O1. Describe digest equality as unchanged content.** `payload/.claude/commands/accept-milestone.md:267` and the corresponding `satisfy-gate.md` paragraph say both flags being false means “nothing was written.” An in-memory probe confirmed that rewriting identical bytes and then raising reports both false. Prefer “no content change was detected”; the existing stop-and-fix guidance remains appropriate.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "8510f9e209be0dc596f3cf5bf9d8375f444aa5f8e1632f194a6250038c60508e",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T11:48:31Z"
+            }
+          ]
+        },
+        "F-d9d2f46645b8": {
+          "digest": "d9d2f46645b8365d5573dc1d099e25b028e94512e33fdb938c6f841f97ae3433",
+          "text": "**O2. Clarify successful output in the release history.** `docs/release-history.md:13` says “the record path (or nothing).” Success always prints JSON: `{\"paths\": []}` for an empty ledger, otherwise the record path plus the dispositions-file path when present. Describe these as the paths to stage.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "8510f9e209be0dc596f3cf5bf9d8375f444aa5f8e1632f194a6250038c60508e",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T11:48:31Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "8510f9e209be0dc596f3cf5bf9d8375f444aa5f8e1632f194a6250038c60508e",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "6bdae302c6036c5a3345ad42ff3c42d0e002d1ce12f9136d7e0f5ee583a25764",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-06T11:44:33Z",
+          "verdict_sha256": "adc09fdcce297e9b26bced916ea749232ea72c54fc273c40397a0f8138bb4a7e",
+          "run_ref": "session:local .ai-review/acceptance-findings-floor/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "6bdae302c6036c5a3345ad42ff3c42d0e002d1ce12f9136d7e0f5ee583a25764",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-06T11:48:31Z",
+          "verdict_sha256": "bc1648eb098e9d56aaf8a3c019537d8ee8a1d2671ef04c6b74212c76cf80bc2e",
+          "run_ref": "codex:20261106T114451Z-fc9102dd",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
