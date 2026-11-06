@@ -6041,12 +6041,12 @@ class TestWriteFindingsRecordCommand(unittest.TestCase):
         ev.set_state(phase="MILESTONE_COMPLETE")
         return keys
 
-    def library(self, ev):
+    def library(self, ev, work_item_id=WI):
         copy_root = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, copy_root, True)
         target = copy_root / "copy"
         shutil.copytree(ev.root, target, symlinks=True)
-        paths = ws.write_finding_dispositions_record(target, ev.state(), WI)
+        paths = ws.write_finding_dispositions_record(target, ev.state(), work_item_id)
         return [Path(p).as_posix() for p in paths], target
 
     def assert_refused(self, ev, name, code=None, *, record_changed=False, **call):
@@ -6079,9 +6079,15 @@ class TestWriteFindingsRecordCommand(unittest.TestCase):
             self.complete(ev)
 
         def child(ev):
-            self.complete(ev, "O1: add a test", dispose={0: {"disposition": "fixed"}})
-            ev.add_remediation_child()
-            ev.set_state(phase="MILESTONE_COMPLETE")
+            """A completed parent with its own finding, and a completed remediation child with a different one."""
+            child_id = ev.add_remediation_child()
+            self.complete(ev, "O1: parent finding", dispose={0: {"disposition": "fixed"}})
+            (key,) = self.helpers.record(ev, child_id, "O1: child finding")
+            self.helpers.write_dispositions(ev, {key: {"disposition": "fixed"}}, item_id=child_id)
+            state = ev.state()
+            state["work_items"][child_id]["phase"] = "MILESTONE_COMPLETE"
+            h.write_state(ev.repo, state)
+            return child_id
 
         def removed(ev):
             self.complete(ev, "O1: add a test", dispose={0: {"disposition": "fixed"}})
@@ -6090,16 +6096,21 @@ class TestWriteFindingsRecordCommand(unittest.TestCase):
 
         for name, setup in {"one": one, "two": two, "empty": empty, "child": child, "removed": removed}.items():
             with self.subTest(name), AcceptanceRepo() as ev:
-                setup(ev)
-                expected, copy_root = self.library(ev)
+                target = setup(ev) or WI
+                record = Path(f"docs/milestones/completed/{target}-findings.md")
+                expected, copy_root = self.library(ev, target)
                 before = self.files(ev.root)
-                exit_code, raw = self.call(ev.root)
+                exit_code, raw = self.call(ev.root, target)
                 self.assertEqual(exit_code, 0)
                 self.assertEqual(raw, json.dumps({"paths": expected}, sort_keys=True, indent=2) + "\n")
                 after = self.files(ev.root)
                 self.assertEqual(after, self.files(copy_root))
                 changed = {k for k in after if before.get(k) != after[k]}
-                self.assertLessEqual(changed, {"docs/milestones", "docs/milestones/completed", str(self.RECORD)})
+                self.assertLessEqual(changed, {"docs/milestones", "docs/milestones/completed", str(record)})
+                if target != WI:
+                    self.assertEqual(expected, [record.as_posix(), ws.finding_dispositions_path(target).as_posix()])
+                    self.assertIn("child finding", (ev.root / record).read_text())
+                    self.assertFalse((ev.root / self.RECORD).exists())
 
     # -- R2: re-run --------------------------------------------------------------
 
@@ -6142,8 +6153,10 @@ class TestWriteFindingsRecordCommand(unittest.TestCase):
         with AcceptanceRepo() as ev:
             self.complete(ev, "O1: add a test")
             (ev.root / ws.finding_dispositions_path(WI)).write_text("{nope")
+            (ev.root / self.RECORD).parent.mkdir(parents=True)
+            (ev.root / self.RECORD).write_text("stale\n")
             self.assert_refused(ev, "InvalidFindingDispositionsError")
-            self.assertFalse((ev.root / self.RECORD).exists())
+            self.assertEqual((ev.root / self.RECORD).read_text(), "stale\n")
 
     def test_r3_a_record_path_that_cannot_be_created_is_refused(self):
         with AcceptanceRepo() as ev:
@@ -6160,6 +6173,8 @@ class TestWriteFindingsRecordCommand(unittest.TestCase):
     def test_r3_every_error_before_the_call_is_the_read_only_flags_object(self):
         with AcceptanceRepo() as ev:
             self.complete(ev, "O1: add a test")
+            (ev.root / self.RECORD).parent.mkdir(parents=True)
+            (ev.root / self.RECORD).write_text("stale\n")
             state_path = ev.root / ws.DEFAULT_STATE_PATH
             good = state_path.read_text()
             self.assert_refused(ev, "UnknownWorkItem", work_item_id="nope")
