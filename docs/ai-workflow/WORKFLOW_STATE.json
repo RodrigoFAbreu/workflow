@@ -32229,7 +32229,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-completion-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-completion-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 3,
       "implementation_revision": 3,
       "functional_review_round": null,
@@ -32338,7 +32338,144 @@
           "workflow_release": "2.26.0"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "019df8d9f37393c10b770fb53eaecf01373aa4417c3daedea7164b4b9545a1dd",
+        "approved_review_content_id": "25bc891b4668007eea228d9aa98ae239dcfe009c93dcb63bd0ade9890e1ce09a",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/acceptance-completion-command-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b086fcb9005ffd437b03aee748feb179d0ee6635"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bf7388088f3dbf77ee230f0e525cbc14e5c2a0d7"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "eee38132b28310a6fd5f1f44e0a7760b82d6d3b9"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d3cbe3c3f2c4118730cf3aea867e9941c935ab0c"
+          },
+          {
+            "path": "payload/.claude/commands/satisfy-gate.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3d3854b7da0458a19a982cadb165c10b11e188d5"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "66512388be4e0f49fc80168dfe31fbbb5801b26e"
+          },
+          {
+            "path": "payload/scripts/workflow_gate_policy_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3e641016d9e7fc05b9c53948aa41fead731df2d1"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4bf981e8af62e65b93a29d5f95df9e5e90618ef6"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "562f81fe88a6e18d45d658815472bb2df459f623"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1581aab287e78a6b15e88edf65b1855ef1e763aa"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0d160176876e855390d46e0c2b49cc1aa96c8a1b"
+          }
+        ],
+        "reviewed_content_commit": "65776dd3c0b40cdc1cbf49eea32fcb71ba4df4bd",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-06T06:05:07Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "25bc891b4668007eea228d9aa98ae239dcfe009c93dcb63bd0ade9890e1ce09a",
+            "ledger": {
+              "local": {
+                "bundle_id": "019df8d9f37393c10b770fb53eaecf01373aa4417c3daedea7164b4b9545a1dd",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "95acc64b3909546b7cbd2603bdebc37122f61881aa54da6c3ae05678d2c27943",
+                "ledger_entry_sha256": "2adfd076c5ae2ebaf4a14c4f81669312b486170dc8ce0d47b55443632fb1de13",
+                "run_ref": "session:local .ai-review/acceptance-completion-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "019df8d9f37393c10b770fb53eaecf01373aa4417c3daedea7164b4b9545a1dd",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "cdd665a019741fc6b0a8b50a683ec890801de8e8ab804f057dcac0dda6667fa9",
+                "ledger_entry_sha256": "89ec24fbda2fd24000878436123259c4bfb5020dc913024c5802b2f4c2e637d3",
+                "run_ref": "codex:20261106T060023Z-11fd8a6c",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-06T06:05:07Z",
+          "workflow_release": "2.26.0"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
@@ -32369,12 +32506,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 2,
-          "external": 0
+          "local": 3,
+          "external": 1
         }
       },
-      "state_revision": 21,
-      "last_transition": "2026-11-06T05:45:53Z",
+      "state_revision": 24,
+      "last_transition": "2026-11-06T06:05:07Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -32594,6 +32731,69 @@
               "at": "2026-11-06T05:42:11Z"
             }
           ]
+        },
+        "F-718f9efc320d": {
+          "digest": "718f9efc320d11df897ed508c055b688e2607cc8db9bb6a0c8e4d5ef906db04a",
+          "text": "**O1. The output's formatting is specified but no test holds it.** D-Output specifies `sort_keys=True, indent=2` for the success object, and D-Tests says each test states exact output, but S1 and S3 compare parsed JSON. Measured on a scratch fixture: replacing the success `json.dumps(result, sort_keys=True, indent=2)` with `json.dumps(result)`, or dropping `sort_keys` from the error object, leaves `TestSatisfyAcceptanceCommand` passing. A consumer that parses JSON is unaffected. One byte comparison of stdout in S3 for each object would close it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "25bc891b4668007eea228d9aa98ae239dcfe009c93dcb63bd0ade9890e1ce09a",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T06:00:02Z"
+            }
+          ]
+        },
+        "F-a9b188ceaa2c": {
+          "digest": "a9b188ceaa2c7c789a5ea1caa61b34eb26848991b02d7c66f382597c59c935c6",
+          "text": "**O2. Three narrative files lag this revision.** `TEST_RESULTS.md` is titled \"implementation revision 2\", and its opening still says HEAD is 46549ac. `REVIEW_REQUEST.md` says the tests were \"all at 6a9e39d\", although later sections of `TEST_RESULTS.md` report later runs. `docs/ACTIVE_MILESTONE.md`'s \"Next action\" still says the implementation bundle is the next step. The results themselves are correct (see Verification performed); only the labels are stale.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "25bc891b4668007eea228d9aa98ae239dcfe009c93dcb63bd0ade9890e1ce09a",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T06:00:02Z"
+            }
+          ]
+        },
+        "F-6f29f7e7b761": {
+          "digest": "6f29f7e7b761f0b9a00e740eae3cd5572ad636e15ea55dc1a9d00dabd46ffc75",
+          "text": "**O1 — Output formatting lacks regression coverage.** `payload/scripts/workflow_gate_policy_test.py:5683` parses stdout before S1/S3 compare it, so those tests cannot detect changes to the specified key ordering or indentation. Preserve raw stdout and compare it with the documented serialization for success and refusal. Current output is correct; this is optional coverage.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "25bc891b4668007eea228d9aa98ae239dcfe009c93dcb63bd0ade9890e1ce09a",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T06:04:43Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "25bc891b4668007eea228d9aa98ae239dcfe009c93dcb63bd0ade9890e1ce09a",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "019df8d9f37393c10b770fb53eaecf01373aa4417c3daedea7164b4b9545a1dd",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-11-06T06:00:02Z",
+          "verdict_sha256": "95acc64b3909546b7cbd2603bdebc37122f61881aa54da6c3ae05678d2c27943",
+          "run_ref": "session:local .ai-review/acceptance-completion-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "019df8d9f37393c10b770fb53eaecf01373aa4417c3daedea7164b4b9545a1dd",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-11-06T06:04:43Z",
+          "verdict_sha256": "cdd665a019741fc6b0a8b50a683ec890801de8e8ab804f057dcac0dda6667fa9",
+          "run_ref": "codex:20261106T060023Z-11fd8a6c",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
