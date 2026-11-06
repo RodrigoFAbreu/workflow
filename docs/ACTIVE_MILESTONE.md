@@ -2,10 +2,10 @@
 
 ## Milestone
 
-**Awaiting functional review.** W43: `acceptance-floor-commit` (`process`, governing version `2.2`), branch
+**Complete (accepted by policy).** W43: `acceptance-floor-commit` (`process`, governing version `2.2`), branch
 `milestone/acceptance-floor-commit`, roadmap row 38 (RodrigoFAbreu/workflow#148, the last Python call). The plan is
 `docs/ai-workflow/ACCEPTANCE_FLOOR_COMMIT_PLAN.md` (revision 5, approved by gate policy). The previous milestone, W42
-`acceptance-findings-floor` (Workflow 2.28.0), is complete.
+`acceptance-findings-floor` (Workflow 2.28.0), is complete. The release follows the merge.
 
 ## Goal
 
@@ -164,3 +164,8 @@ copies that the base's Python call runs on.
 - F16 needs the full environment. It is not run in the sandbox.
 - The `recorded_at` value differs between the two runs of F1, since the flag stamps the real clock. This is expected.
 - The flag does not itself record acceptance. Acceptance is `/accept-milestone` only.
+
+## Next action
+
+W43 is accepted by policy. Roadmap row 38 is Done; no further incomplete item follows it in `docs/ROADMAP.md`'s table, and the
+release (Workflow 2.29.0) follows the merge of PR #164.

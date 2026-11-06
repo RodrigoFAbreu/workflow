@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "acceptance-floor-commit",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -33818,7 +33818,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-floor-commit-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-floor-commit-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 5,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -34099,8 +34099,8 @@
           "external": 1
         }
       },
-      "state_revision": 28,
-      "last_transition": "2026-11-06T22:07:41Z",
+      "state_revision": 29,
+      "last_transition": "2026-11-06T22:30:50Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -34484,6 +34484,393 @@
           "run_ref": "codex:20261106T220452Z-86a0da71",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Base exit 2 (argparse \"one of the arguments\"); candidate exit 0 with {\"commit\",\"recovered\":false}; subject/trailer identical to the Python call on r2; state files differ only in recorded_at; diff-tree is the state file alone; status shows only the untracked policy file."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Both no-op runs exit 0 with {\"commit\": null,\"recovered\": false} and empty snapshot diffs, no .ai-review, base prints None on plain, and a recorded_at-only edit leaves HEAD unmoved."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "early/afr give work_item_not_complete and uncommitted gives completion_not_committed (exit 1, commit null, state_changed false), snapshots identical, no .ai-review, and the base commits on each copy."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Exit 1 DirtyIndexBeforeStagingError naming x.md, commit null, state_changed false, snapshots identical."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "After the stop \" M\" and no commit, py CAND on r2 prints None and leaves it dirty, candidate recovers (recovered true, clean file, same subject/trailer), and the second run is null/false."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Staged-stop recovers with a commit of the state file alone; with a foreign edit it exits 1 DirtyIndexBeforeStagingError (commit null); after restore --staged the floor commits with recovered true and the foreign edit stays uncommitted."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Floor commit exists after the validate stop; candidate exits 0 with null/false and HEAD unmoved."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-8": {
+            "flow_id": "flow-8",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "DirtyIndexBeforeStagingError with commit null, state_changed false and identical snapshots; after unstaging x.md the next run commits with recovered true."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-9": {
+            "flow_id": "flow-9",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "refuse exits 1 MalformedGatePolicyFloorCommitError with commit equal to HEAD, state_changed true, exactly one commit added; the following cli prints commit null."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-10": {
+            "flow_id": "flow-10",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Classes UnknownWorkItem x2, StateMissing, CorruptJsonError, StateMalformed x2 and CalledProcessError (no traceback) outside Git, all exit 1 with trees unchanged; the base on nostate creates and commits a state file."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-11": {
+            "flow_id": "flow-11",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "The five old flags give identical stdout and exit from base and candidate (publication-status exit 1 only), and both combined invocations exit 2 with \"not allowed with argument\"."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-12": {
+            "flow_id": "flow-12",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Cases a,b,d,e give floor_record_invalid, c,f,i give floor_provenance_failed (e is FloorRecoveryRefusedError not DirtyIndex), l and m exit 0 null/false with x.md still staged, snapshots identical, no KeyError, and base on a copy of (a) prints None."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-13": {
+            "flow_id": "flow-13",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "The flag is in \"Plain commands first\" (line 238, after the findings-record at 218) and acceptance step 5 (349), commit_gate_policy_floor stays at 148/241/264, the documented line (no python3 -I) runs and refuses with work_item_not_complete, and both grep checks give 0/empty."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-14": {
+            "flow_id": "flow-14",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "The fake gh log is empty (0 bytes) and the commit_gate_policy_floor source digests are equal (0a7e6ff1...)."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 164,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/164"
+          },
+          "state": "open",
+          "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+          "observed_at": "2026-11-06T22:30:50Z",
+          "ingest_seq": 2,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "aa46d07dbb603f4b1a76fb4ee6b5e402ea7447dc",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-06T22:30:50Z",
+            "raw_sha256": "2d4791ed71350e21e902e2124ee6ba5a3205c1f6df9396dce6a9d58d70e50324",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "9e824061111fe5f5b6a5d5690909ba37abafca4a4ca830bdf83246d3c94afd21"
+          },
+          "fact_id": "252a48ca241dc77e771a6e9ef7f52ac04cb366ecf9f537e190a770ece0c89be7"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 2
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-10', 'flow-11', 'flow-12', 'flow-13', 'flow-14', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6', 'flow-7', 'flow-8', 'flow-9'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #164 at 6d7738f87479db7fd8596d2dac3e8330ee5a22fd is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "aa46d07dbb603f4b1a76fb4ee6b5e402ea7447dc",
+          "anchor_identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:07:41Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "6050882cea804acaadd854ae923a2f6d653758705ce8f2130c51c4ee20a82c06",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-10": {
+              "evidence_id": "a7ad8a4c8a85e8b6e5c8c5f2fc01490a437fcfdd163652bd4b57528ebba63228",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-11": {
+              "evidence_id": "50f278b53d9e0feaabe5b49cc8be02416bba165d09947e9a4fb342617d92bdd4",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-12": {
+              "evidence_id": "01208c89e2b55e353afb02f073bc26a662843f80ee3856a1249e1297b718c651",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-13": {
+              "evidence_id": "33cf0fee6099320b9418aae819ee27df4c313a1f41a3f777aba04b47107c9283",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-14": {
+              "evidence_id": "5a020cad52382713daa750d1c12e09d72015e1af9f715654b6ccfe9dff09b5e9",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-2": {
+              "evidence_id": "d0b1ad0c1da2f58907522c1011d47a52a3ce4d9dfee57ef56a515c643d02c9c0",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-3": {
+              "evidence_id": "2ab568da3cb30f3bf5e23855bb9f39afdd964f3e87313f034fd20bc929b702c3",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-4": {
+              "evidence_id": "a31f1316965d09bb7a286e37474d461f45c70dd4e696fd2b75902b93ade654ba",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-5": {
+              "evidence_id": "787561743ab4f9c0bc7188d6ee9ed9bb1fa7be70afd386d9c426b4253625896e",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-6": {
+              "evidence_id": "865ad27b024e9a7711609291e9e570bf7a5994054128166fe4d8bcd8468b3851",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-7": {
+              "evidence_id": "c74fd37bab12ae6e29d121a9958a01d2df2dacdc295f8c3a865782beaef3c4d4",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-8": {
+              "evidence_id": "8f6b202c410dab90c18c0f871845b05cc0c994601d8490710a45ebc884cf597f",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-9": {
+              "evidence_id": "6f7794647ef5d53fc00777eb3edc45110754d153647221035833f177274768a8",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "252a48ca241dc77e771a6e9ef7f52ac04cb366ecf9f537e190a770ece0c89be7",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "provenance": "workflow_gh",
+            "raw_sha256": "2d4791ed71350e21e902e2124ee6ba5a3205c1f6df9396dce6a9d58d70e50324"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-06T22:30:50Z",
+        "workflow_release": "2.28.0"
       }
     }
   }

@@ -1,0 +1,92 @@
+{
+  "dispositions": {
+    "F-00c89d9dafdb": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#165",
+      "note": "Follow-up item 2."
+    },
+    "F-0b99c8109be0": {
+      "disposition": "fixed"
+    },
+    "F-1ce6324012c1": {
+      "disposition": "fixed"
+    },
+    "F-23174fc520d4": {
+      "disposition": "dropped",
+      "reason": "The review offers to accept this as is: state and re-run are correct when a pre-commit hook refuses; only the message lacks hook output."
+    },
+    "F-2b27841d9e36": {
+      "disposition": "fixed"
+    },
+    "F-320147c1dd92": {
+      "disposition": "dropped",
+      "reason": "Optional note on how to build the malformed floor commit in flow 11a; the flow's own provenance check reveals a wrong recipe. Plan not edited after approval."
+    },
+    "F-356eecbfb45d": {
+      "disposition": "dropped",
+      "reason": "Optional clarification of F9's/flow 11a's staged-path wording; each case already specifies its own behaviour and the tests pin it. Plan not edited after approval."
+    },
+    "F-68aa9083db90": {
+      "disposition": "fixed"
+    },
+    "F-6e0ce61626f2": {
+      "disposition": "dropped",
+      "reason": "Same staged-path wording as F-356eecbfb45d; the review itself notes each case states the right behaviour and no implementation can be misjudged."
+    },
+    "F-76b1616d3ca8": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#165",
+      "note": "Follow-up item 1."
+    },
+    "F-7cb201d104b2": {
+      "disposition": "fixed"
+    },
+    "F-80d41078a861": {
+      "disposition": "fixed"
+    },
+    "F-84d622b7a993": {
+      "disposition": "dropped",
+      "reason": "Optional wording slip in the approved plan (header says revision 4, flow 11a says eight repositories but names nine). The plan is not edited after approval and nothing implemented depends on the stale count."
+    },
+    "F-917846f9b978": {
+      "disposition": "dropped",
+      "reason": "Same stale revision label and repository count as F-84d622b7a993; documentation only, plan not edited after approval."
+    },
+    "F-9d817260638a": {
+      "disposition": "dropped",
+      "reason": "m25 lists a short set of answers for precondition 1; the mutation still fails its named case. Documentation only, plan not edited after approval."
+    },
+    "F-9d8e2671b455": {
+      "disposition": "fixed"
+    },
+    "F-a5570209c8d4": {
+      "disposition": "dropped",
+      "reason": "The review measured that the behaviour holds with the plan's setup and m20 still fails the test; the test builds a simpler setup. Not changed in this milestone."
+    },
+    "F-b9eac119d138": {
+      "disposition": "fixed"
+    },
+    "F-c5ff68bd39c1": {
+      "disposition": "fixed"
+    },
+    "F-cb4b70067796": {
+      "disposition": "fixed"
+    },
+    "F-d62ea875f487": {
+      "disposition": "fixed"
+    },
+    "F-e56b1fc1e4fa": {
+      "disposition": "dropped",
+      "reason": "Stale evidence text in the round-1 bundle files; the review reproduced the counts and digests, so no result is wrong. Bundle content is not edited."
+    },
+    "F-f70e14c42864": {
+      "disposition": "fixed"
+    },
+    "F-fe3f9e44039f": {
+      "disposition": "dropped",
+      "reason": "Test-pin gap only; the review confirms the code compares the whole item and answers completion_not_committed. Not added in this milestone."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "acceptance-floor-commit"
+}
