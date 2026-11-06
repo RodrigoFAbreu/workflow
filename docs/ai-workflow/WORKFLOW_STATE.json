@@ -32229,7 +32229,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-completion-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-completion-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 3,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -32369,12 +32369,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 17,
-      "last_transition": "2026-11-06T04:01:50Z",
+      "state_revision": 18,
+      "last_transition": "2026-11-06T04:25:56Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -32536,6 +32536,48 @@
               "review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
               "verdict": "APPROVE",
               "at": "2026-11-06T01:29:35Z"
+            }
+          ]
+        },
+        "F-95bc37131741": {
+          "digest": "95bc37131741ce0b8cfb55a4dce631c26698552a17f9436b64c6c310da7b2ff2",
+          "text": "**O1. `state_changed: true` with a class other than `GateNotSatisfiableError` has no stated rule.** `satisfy-gate.md` and `docs/exit-codes.md` give a rule for `false` and for `true` with that one class. D-Output accepts that a concurrent writer can set `true`, so a forge or disposition refusal can report it. One clause would close the gap, for example: any other `true` means another writer changed the state, so stop and re-read.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "9fa9ac81b2a0f851728d113db1bfb93011485793334810a9481f8dac84b7c8c2",
+              "verdict": "REVISE",
+              "at": "2026-11-06T04:25:56Z"
+            }
+          ]
+        },
+        "F-815e3235e76d": {
+          "digest": "815e3235e76dd2a82afd16ed5c04a53d841e6ed6d8cfaa273b4e4fe409aae148",
+          "text": "**O2. `docs/exit-codes.md` omits the possible reopening.** Its row says \"only the pull-request fact was stored\", while `satisfy-gate.md` and D-Output add \"and a possible reopening\". The `red` state stores a reopening as well.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "9fa9ac81b2a0f851728d113db1bfb93011485793334810a9481f8dac84b7c8c2",
+              "verdict": "REVISE",
+              "at": "2026-11-06T04:25:56Z"
+            }
+          ]
+        },
+        "F-2230a9eebf4b": {
+          "digest": "2230a9eebf4b70705d7113f60d0c3701a995b42d89cb56e4682d34b4a340aadc",
+          "text": "**O3. Dead attribute.** `GH_FREE_PATH_TOOLS` at `payload/scripts/workflow_gate_policy_test.py:5638` is never read.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "9fa9ac81b2a0f851728d113db1bfb93011485793334810a9481f8dac84b7c8c2",
+              "verdict": "REVISE",
+              "at": "2026-11-06T04:25:56Z"
             }
           ]
         }
