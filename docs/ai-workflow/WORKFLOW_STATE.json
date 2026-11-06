@@ -32993,12 +32993,12 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-findings-floor-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-findings-floor-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "APPLYING_REVIEW_FEEDBACK",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 2,
-      "implementation_revision": 1,
+      "implementation_revision": 2,
       "functional_review_round": null,
       "base_commit": "bf1b456d229fa739eb666937b8c65e5a83f2b865",
-      "reviewed_implementation_head": "14a7d050bfa081e3541c920f46b95d1d1feba0fb",
+      "reviewed_implementation_head": "4f3c4d172c7c2231acbf6c7c420be2a84529fad1",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -33137,8 +33137,8 @@
           "external": 0
         }
       },
-      "state_revision": 15,
-      "last_transition": "2026-11-06T11:04:38Z",
+      "state_revision": 16,
+      "last_transition": "2026-11-06T11:34:28Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
