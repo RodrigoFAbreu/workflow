@@ -32229,7 +32229,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-completion-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-completion-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 3,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -32369,12 +32369,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 1,
+          "local": 2,
           "external": 0
         }
       },
-      "state_revision": 19,
-      "last_transition": "2026-11-06T04:48:16Z",
+      "state_revision": 20,
+      "last_transition": "2026-11-06T05:42:11Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -32578,6 +32578,20 @@
               "review_content_id": "9fa9ac81b2a0f851728d113db1bfb93011485793334810a9481f8dac84b7c8c2",
               "verdict": "REVISE",
               "at": "2026-11-06T04:25:56Z"
+            }
+          ]
+        },
+        "F-a03c76ffe2d9": {
+          "digest": "a03c76ffe2d9d0e98b6a2c0426778bae3ef4229c2c397ce49027f3bd0bd97fe9",
+          "text": "**O1. `docs/ACTIVE_MILESTONE.md` gives two counts that do not agree.** Its CP1 line says \"S1 to S8, 12 tests\" and \"suite 346 to 359 tests\", but the class now holds 13 tests (measured), and 346 + 12 is 358. It can move with B1's fix.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "04c6d41a86405f851eb97583f61d8b6af676f1cc695e707c7be19a2b5e7cf2c1",
+              "verdict": "REVISE",
+              "at": "2026-11-06T05:42:11Z"
             }
           ]
         }
