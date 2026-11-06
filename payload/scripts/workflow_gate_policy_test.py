@@ -6593,7 +6593,6 @@ class TestCommitFloorCommand(unittest.TestCase):
     # -- F5: recovery -------------------------------------------------------------------
 
     def assert_recovered(self, repo):
-        twin = self.copy(repo)
         code, body, _ = self.call(repo.root)
         self.assertEqual((code, body), (0, {"commit": repo.head(), "recovered": True}))
         self.assertRegex(self.message(repo).splitlines()[0], self.GATE_SUBJECT)
@@ -6601,7 +6600,6 @@ class TestCommitFloorCommand(unittest.TestCase):
         self.assertEqual(repo.git("status", "--porcelain", "--", STATE_REL), "")
         ws.validate_gate_policy_floor_commit(repo.root, repo.head())
         self.assertEqual(self.call(repo.root)[1], {"commit": None, "recovered": False})
-        return twin
 
     def test_f5_a_stop_after_the_state_write_is_completed_by_a_re_run(self):
         repo = self.mk()
@@ -6924,6 +6922,7 @@ class TestCommitFloorCommand(unittest.TestCase):
                        "do not run it again", "never commit the file by hand",
                        "`state_changed: true` with `commit: null` means this call wrote the floor into the file before it stopped",
                        "steps 4 and 5 below stay the worker's own edits, `git commit` and, for the floor, the plain command below",
+                       '(see "Plain commands first"), not the Python call',
                        "The acceptance stage has no inline Python call",
                        "the plan-stage and implementation-stage floors keep the Python description (`commit_gate_policy_floor`)"):
             self.assertIn(needle, flat)
