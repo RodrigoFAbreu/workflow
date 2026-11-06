@@ -17,12 +17,17 @@ protocol stays 1.5.
 ## Checkpoints
 
 - CP1 (the findings-record flag, its tests, the command texts and the pages): complete, verified state below.
-- CP2 (release 2.28.0): not started.
+- CP2 (release 2.28.0): complete, verified state below.
 
 CP1 verified state: `TestWriteFindingsRecordCommand` (14 tests) passes; mutations m1 to m16 each fail the named test on a
 scratch copy; the golden hash of `accept-milestone.md` moved (intentional); `workflow_integration_test.py` passes. The
 staged-fixture run of the nine suites, `tools/docs` and `check_docs.py` is reported with the commit.
 
+CP2 verified state (scratch clone with the changes committed): the nine suites pass from a `stage-conformance` fixture
+(`workflow_gate_policy_test.py` 373); `check-manager-block --manager-releases` valid; `tools/docs` 34 tests and `check_docs.py`
+clean; `tools/release` 313 tests pass (zlib-ng interpreter); `release.py build --commit HEAD` succeeds; `workflow-manager
+verify .` clean (installation 2.27.0).
+
 ## Next action
 
-`/milestone-implement acceptance-findings-floor` again for CP2 (the release).
+`/milestone-implement acceptance-findings-floor` again: self-review, full verification and the implementation bundle.
