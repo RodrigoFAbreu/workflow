@@ -110,7 +110,10 @@ Automated, optional, offline: `python3 -B payload/scripts/workflow_gate_policy_t
 9. **The command texts name the flag.** `grep -n "write-findings-record" payload/.claude/commands/accept-milestone.md
    payload/.claude/commands/satisfy-gate.md`. Expected: `accept-milestone.md` names the flag in step 5a before
    `write_finding_dispositions_record`; `satisfy-gate.md` names it in the "Plain commands first" block. Neither line has
-   `python3 -I`. Both texts say the floor (`commit_gate_policy_floor`) is still one Python call.
+   `python3 -I`. `satisfy-gate.md` (only: `accept-milestone.md` has no floor step) says the floor
+   (`commit_gate_policy_floor`) is still one Python call.
+   *Functional-review round 1 (flow-9): the tester's "both texts" miss was a checklist wording error, classified expected
+   behavior; no source change. Re-test: `grep -n commit_gate_policy_floor payload/.claude/commands/satisfy-gate.md`.*
 
 10. **The public docs.** `docs/exit-codes.md` has three rows for the flag (exit 0, 1, 2), and `docs/release-history.md` has
     the 2.28.0 row. Read both; they should agree with flows 2 to 7.
