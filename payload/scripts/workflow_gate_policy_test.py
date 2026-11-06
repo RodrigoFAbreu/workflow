@@ -5867,6 +5867,12 @@ class TestSatisfyAcceptanceCommand(unittest.TestCase):
             ran = self.r.cli(ev.root, "--satisfy-acceptance", "")
             self.assertEqual((ran.returncode, json.loads(ran.stdout)["error"]), (1, "UnknownWorkItem"))
             self.assertEqual(before, self.tree_without_lock(ev.root))
+            # Dispatched before the shared `git rev-parse`: outside Git the class-name fallback, never a traceback.
+            ran = self.r.cli(Path(tempfile.mkdtemp(dir=self.r.scratch)), "--satisfy-acceptance", WI)
+            out = json.loads(ran.stdout)
+            self.assertEqual((ran.returncode, out["error"], out["state_changed"], ran.stderr),
+                             (1, "CalledProcessError", False, ""))
+            self.assertEqual(sorted(out), ["error", "message", "state_changed"])
             state = ev.state()
             report = ws.finding_dispositions_report(ev.root, state, WI)
             expected = json.dumps({"findings": report, "skeleton": ws.finding_dispositions_skeleton(report, WI)},

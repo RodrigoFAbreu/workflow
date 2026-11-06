@@ -20435,7 +20435,7 @@ def _plan_review_publication_status_cli(argv: list[str] | None = None) -> int:
     `plan_review_publication_status` for one work item as a single JSON
     object -- the contract Controller consumes instead of re-deriving the
     table. Rows 4d and 6 print `{"error": <name>, "message": ...}` and exit
-    1. Writes nothing. `--finding-dispositions` (workflow-2.14.0) is the second,
+    1. That option writes nothing. `--finding-dispositions` (workflow-2.14.0) is the second,
     equally read-only option, and `--acceptance-gate` (workflow-2.26.0) the third.
     `--satisfy-acceptance` (workflow-2.27.0) is the fourth and the first that writes:
     through `state_transaction`, as `satisfy_acceptance_gate` does."""
