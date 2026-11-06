@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "acceptance-completion-command",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -32218,6 +32218,318 @@
         },
         "evaluated_at": "2026-11-05T22:13:23Z",
         "workflow_release": "2.25.7"
+      }
+    },
+    "acceptance-completion-command": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "acceptance-completion-command",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/ACCEPTANCE_COMPLETION_COMMAND_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/acceptance-completion-command-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/acceptance-completion-command-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 3,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "b2db092742459901ea50734d9bccf0d58dcc73fc",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "487051fc23267781b3b3f5eb70dd0a1debcdfc9a0cb52ddbd387d5bfdca3df32",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "487051fc23267781b3b3f5eb70dd0a1debcdfc9a0cb52ddbd387d5bfdca3df32",
+        "approved_review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/ACCEPTANCE_COMPLETION_COMMAND_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b9436d1dd711ff0909878edd197fe4865648e178"
+          },
+          {
+            "path": "docs/ai-workflow/registry/acceptance-completion-command-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "703e69ed7120be43e0fc4fd1c1b3981b32d0f256"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/acceptance-completion-command-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6d6624d0a2ab9dfcd206301fba5e220c59dd19b3"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-06T01:30:23Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
+            "ledger": {
+              "local": {
+                "bundle_id": "487051fc23267781b3b3f5eb70dd0a1debcdfc9a0cb52ddbd387d5bfdca3df32",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "93ca96ea39095f51e3a3de212b4d831274aaf8a20b984cb9ca752a0c84de66c0",
+                "ledger_entry_sha256": "bce1b2a0f1f7168b541813ffd7dae24f256526767db8d57a240460919c7d6dd6",
+                "run_ref": "session:local .ai-review/acceptance-completion-command/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "487051fc23267781b3b3f5eb70dd0a1debcdfc9a0cb52ddbd387d5bfdca3df32",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "db0bcceff96c06d04bfd405a77110b9ce0aaff1178a0034e64161cd3b74479c4",
+                "ledger_entry_sha256": "4067df4d010095bc83f9026cf620b579119a4d1a3fc4ead4453752d9d46876ba",
+                "run_ref": "codex:20261106T012752Z-f819a733",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-06T01:30:23Z",
+          "workflow_release": "2.26.0"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "487051fc23267781b3b3f5eb70dd0a1debcdfc9a0cb52ddbd387d5bfdca3df32",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-11-06T01:27:32Z",
+          "verdict_sha256": "93ca96ea39095f51e3a3de212b4d831274aaf8a20b984cb9ca752a0c84de66c0",
+          "run_ref": "session:local .ai-review/acceptance-completion-command/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "487051fc23267781b3b3f5eb70dd0a1debcdfc9a0cb52ddbd387d5bfdca3df32",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-11-06T01:29:35Z",
+          "verdict_sha256": "db0bcceff96c06d04bfd405a77110b9ce0aaff1178a0034e64161cd3b74479c4",
+          "run_ref": "codex:20261106T012752Z-f819a733",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 3,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 12,
+      "last_transition": "2026-11-06T01:30:23Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-06T01:05:26Z",
+        "consumed": {
+          "review_content_id": "5f9c0ffbcb2d2e7bdf64bde6dc582b2f56d94e7e5c20e1537d83ffdd49421043",
+          "plan_revision": 2,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
+          "bundle_id": "487051fc23267781b3b3f5eb70dd0a1debcdfc9a0cb52ddbd387d5bfdca3df32",
+          "plan_revision": 3
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "4a92f33c1bac0449cd55f9a735e8e84eaa6f6940705b18ba880a281751c37d09",
+        "5f9c0ffbcb2d2e7bdf64bde6dc582b2f56d94e7e5c20e1537d83ffdd49421043"
+      ],
+      "optional_findings": {
+        "F-040dc0417533": {
+          "digest": "040dc0417533099c53ee86ac4a98519db405d7df8a1de103245c49da3873f3fa",
+          "text": "**O1. Name the state lock in the no-write claims.** D-Transaction (\"writes no file other than the state file\"), S2, S4, S6 and flows 1, 6 and 7 compare the whole tree outside `.git`, but `state_lock` creates `.ai-review/runtime/WORKFLOW_STATE.lock` on first use. Measured: on a bare `AcceptanceRepo` a `forge_unavailable` refusal takes the lock from absent to present, and the probe of `noflow` listed `.ai-review/runtime` and the lock as changed. The listed cases pass only because their fixture's `flow()` has already run a transaction. State that precondition, or exclude the lock explicitly, so a fixture change does not produce a confusing failure.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "4a92f33c1bac0449cd55f9a735e8e84eaa6f6940705b18ba880a281751c37d09",
+              "verdict": "REVISE",
+              "at": "2026-11-06T00:45:08Z"
+            }
+          ]
+        },
+        "F-27a2b34164ac": {
+          "digest": "27a2b34164acaaae9fc811323a700485ccae7a18399725d1e1067ca1680cd52d",
+          "text": "**O2. Record that the phase guard runs outside the lock.** D-Preflight says \"the phase has no other guard, so this is the guard\", yet it reads before `state_transaction` takes the lock, so a writer landing in that window can move the phase and the library then completes the item from there. This is no worse than today's text path and the window is small, so it needs no design change here. It deserves a sentence in D-Preflight and a follow-up for the library gap itself: `complete_work_item` completes from `IMPLEMENTING`, and from `MILESTONE_COMPLETE` too (measured: `policy:bae758b4f4ce`, a re-completion).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "4a92f33c1bac0449cd55f9a735e8e84eaa6f6940705b18ba880a281751c37d09",
+              "verdict": "REVISE",
+              "at": "2026-11-06T00:45:08Z"
+            }
+          ]
+        },
+        "F-9c396f3926c1": {
+          "digest": "9c396f3926c1af78e7a53cd7f2b9aed2677b106197b9bb73659e8909807d486d",
+          "text": "**O3. Drop CP1's exception for a test that does not exist.** CP1 says every existing test passes unmodified \"except the one command-text assertion the replaced sentence moves\", but a search of `payload/`, `tools/`, `fixtures/` and `templates/` finds \"until its own plain\" and \"still the Python call\" only in `satisfy-gate.md`. No assertion pins that sentence, and the existing text tests still hold under the new wording. Removing the exception tightens the rule (B1's fix may need a precise replacement).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "4a92f33c1bac0449cd55f9a735e8e84eaa6f6940705b18ba880a281751c37d09",
+              "verdict": "REVISE",
+              "at": "2026-11-06T00:45:08Z"
+            }
+          ]
+        },
+        "F-d4a863eeba03": {
+          "digest": "d4a863eeba039d29209297ff51bda58aeba332b5832b32cdc3e165ef8cf642d5",
+          "text": "**O4. Flow 12's expected list omits `docs/ACTIVE_MILESTONE.md`.** `/milestone-implement` updates that file when a checkpoint completes (`.claude/commands/milestone-implement.md:61`), and W40's merged diff includes it, so `git diff b2db092 --stat -- payload docs` at CP1 can show a file the flow does not list. Add it so the tester does not read it as a scope breach.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "4a92f33c1bac0449cd55f9a735e8e84eaa6f6940705b18ba880a281751c37d09",
+              "verdict": "REVISE",
+              "at": "2026-11-06T00:45:08Z"
+            }
+          ]
+        },
+        "F-57374de62f25": {
+          "digest": "57374de62f256ccf75ba9a11f454a6a22d97111ba231a440e24f88f7e5e77e38",
+          "text": "**O1. Keep the older downgrade guidance in the 2.27.0 posture, and pin it.** D-Release rewrites the posture and says only \"the earlier guidance still applies\". Its needle list drops `/release-checkpoint-start` and `2.14.0`, both pinned by the 2.26.0 class (`tools/release/release_test.py:3548`). The 2.26.0 posture spells that guidance out: finish an interrupted checkpoint-start release before moving back below 2.19.0, and follow the 2.18.4 row before moving back below 2.14.0 or 2.15.0. As the Manager-facing text is rewritten, and `docs/RELEASING.md` says no tool checks this judgment, those instructions could shrink to a vague clause with no test noticing. Add the two needles and say the sentences carry over unchanged.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "5f9c0ffbcb2d2e7bdf64bde6dc582b2f56d94e7e5c20e1537d83ffdd49421043",
+              "verdict": "REVISE",
+              "at": "2026-11-06T01:04:10Z"
+            }
+          ]
+        },
+        "F-5d2dff40a28f": {
+          "digest": "5d2dff40a28feacc70a03fb7707c54bfdb79d34a1b8e64500ccaa493d6b0d093",
+          "text": "**O1. Correct the plan's revision line.** Line 10 still says \"Plan revision: 2 (round 1 of the local review applied, section 7)\", while the title, the registry and the state all say revision 3 and section 8 records round 2. No gate reads the line (the anchor and sweep checks pass), but an implementer or external reviewer reads it first. Change it to revision 3 and name round 2 and section 8.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T01:27:32Z"
+            }
+          ]
+        },
+        "F-758f0eff617b": {
+          "digest": "758f0eff617b00621bd2be22ee0705531180e45faeeb769b78ecc8b8ad900d48",
+          "text": "**O2. Make flow 13's \"no skip\" true, and section 5's opening sentence with it.** Flow 13 expects \"all pass, no skip\" for the nine suites, but `workflow_protocol_test.py` reports `skipped=19` and `workflow_acceptance_matrix_test.py` reports `skipped=20` on a correct tree (measured on a simulated CP1). The matrix's skips I read are deliberate (\"row ... is type-independent; run once, on the process item\"); I did not read the reasons for the protocol suite's. A tester reading the expectation literally reports a failure, which is what round 2's I1 was about, though here the tester can see the intent. Say \"no skip beyond the suites' own\" and name the two counts, or limit \"no skip\" to `tools/release`, where `docs/RELEASING.md` says the reproduction tests fail rather than skip. Also, line 311 says every flow runs with no zlib-ng, while flow 13 needs it: exempt flows 13 and 14 in that sentence.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T01:27:32Z"
+            }
+          ]
+        },
+        "F-5e59efb290e1": {
+          "digest": "5e59efb290e1297998e3ffe35d1d8d807ff2082c5740fbe159f99316f4277a0b",
+          "text": "**O3. Give flow 12 a command that can run at functional review.** Flow 12 runs `git diff b2db092 --stat -- payload docs` \"in the working tree at CP1\" and expects no `workflow_protocol.py`, but functional review comes after CP2, when that diff lists it. Use `git diff b2db092 <the CP1 commit> --stat -- payload docs`. The expected \"no manifest\" also proves nothing, because `manifest.json` is outside `-- payload docs`: add it to the pathspec.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T01:27:32Z"
+            }
+          ]
+        },
+        "F-3fc17f1bee04": {
+          "digest": "3fc17f1bee044644a5e92a5a426dc6b060d492f1370184e09d2ccbcd35fea06f",
+          "text": "**O4. Decide on the posture's closing sentence.** The 2.25.6, 2.25.7 and 2.26.0 postures I checked end with \"The release tooling and the maintainer documents are not part of the installed release.\" D-Release says the 2.26.0 wording does not carry over except the downgrade guidance, so this sentence is dropped, apparently without intent. Keep it, or say it is dropped on purpose. No tool checks it (`docs/RELEASING.md`, \"Not checked\").",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T01:27:32Z"
+            }
+          ]
+        },
+        "F-1f502050f14e": {
+          "digest": "1f502050f14e9482e7de9c843de63392020c424b658f59dfdc39435c0018ec44",
+          "text": "The plan’s opening metadata still says “Plan revision: 2” and refers only to round 1. Update it to revision 3 to match the title, registry and bundle.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "81d63ab02257fbc1d004cf3bf4af5905cd289452844cbbf28f29f37531a5a3d1",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T01:29:35Z"
+            }
+          ]
+        }
       }
     }
   }
