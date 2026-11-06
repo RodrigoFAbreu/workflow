@@ -33808,6 +33808,1070 @@
         "evaluated_at": "2026-11-06T12:17:51Z",
         "workflow_release": "2.27.0"
       }
+    },
+    "acceptance-floor-commit": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "acceptance-floor-commit",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/ACCEPTANCE_FLOOR_COMMIT_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/acceptance-floor-commit-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/acceptance-floor-commit-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 5,
+      "implementation_revision": 2,
+      "functional_review_round": null,
+      "base_commit": "d6e6cb07f1c97837dd98a43cb2f3c198dade47dc",
+      "reviewed_implementation_head": "aa46d07dbb603f4b1a76fb4ee6b5e402ea7447dc",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP2",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "7a73d9c8900d4282b2c23dd9ec9417881f4fd0bd"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "d14ea5b04c233e85ae41027603e73dcb356989f6"
+        }
+      },
+      "current_bundle_id": "394c6786bb9e91388aa4a8a64e0f36f2b70ccae7e80fa39e636676333b673f13",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "394c6786bb9e91388aa4a8a64e0f36f2b70ccae7e80fa39e636676333b673f13",
+        "approved_review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/ACCEPTANCE_FLOOR_COMMIT_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1018a1d13fd597ba2ec4b29c98bb0a8a63d6acbe"
+          },
+          {
+            "path": "docs/ai-workflow/registry/acceptance-floor-commit-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0d1a51b43c597c482b36f0d0efc4c5cd0ea1a7b4"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/acceptance-floor-commit-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cf3d47215e86b79d9e1c7c829058e4bb39c2821c"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-06T17:13:31Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
+            "ledger": {
+              "local": {
+                "bundle_id": "394c6786bb9e91388aa4a8a64e0f36f2b70ccae7e80fa39e636676333b673f13",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "4968c02a011be11f327c594c98708921f7c2cb457075c792cc069b0e892a7a3b",
+                "ledger_entry_sha256": "f852132cb5033966c55ef0df0940b0824f5007646055ece0a8a13fbfdcf19031",
+                "run_ref": "session:local .ai-review/acceptance-floor-commit/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "394c6786bb9e91388aa4a8a64e0f36f2b70ccae7e80fa39e636676333b673f13",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "b58016e9fd0709d02f11726cde01e0c800b101a0f4f7cdd7ad5a71654e068782",
+                "ledger_entry_sha256": "94232d45048e8df47ece009ed33e28c04f57ab68349f32f2bab03fc72c9844e6",
+                "run_ref": "codex:20261106T171004Z-37fdb175",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-06T17:13:31Z",
+          "workflow_release": "2.28.0"
+        }
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "341350db1485a0a4c886041b93fd3ec8e1d28078b6591582bf85216945f04dc3",
+        "approved_review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/acceptance-floor-commit-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "68a7311b4eaff96259312da8beb33f678224b1de"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c23ae9df2acdd517af248f2e55e1516a4127bf8e"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "018e4d3f4ce0288599cef17077352d0f5b2d2339"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0a5c80ecf6a88d19bf6a17d95a3c4b6eaa2c5ac6"
+          },
+          {
+            "path": "payload/.claude/commands/satisfy-gate.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3384798e0d8666b747122d70c69b2b8bc9c377fc"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "38d6ccccc2e2805fedd1c688533b07048cbfe86e"
+          },
+          {
+            "path": "payload/scripts/workflow_gate_policy_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "73f285d4f756ce2f83d1d2c98b4217f7d4c65bda"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4a649751f010a0f7df91f4f497b491b0864f7f8c"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "dc9116f463d114cf9f55cafc1822ccc1002eb6e7"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4a4c5646def188903b4f5353c5d7e28eef991120"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0f00af50cd1aa4d8e5ba0620627e37f18cbcf84b"
+          }
+        ],
+        "reviewed_content_commit": "aa46d07dbb603f4b1a76fb4ee6b5e402ea7447dc",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-06T22:07:41Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "ledger": {
+              "local": {
+                "bundle_id": "341350db1485a0a4c886041b93fd3ec8e1d28078b6591582bf85216945f04dc3",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "03e6ee4356d328e85002b09cb0374daaabdb8305d40337f0736dbaa4b1713069",
+                "ledger_entry_sha256": "39196cf94d9db54d8392545512921800679d2a1d8d85fec9990d01663d467e0b",
+                "run_ref": "session:local .ai-review/acceptance-floor-commit/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "341350db1485a0a4c886041b93fd3ec8e1d28078b6591582bf85216945f04dc3",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "1ba5cdc2ee1fc0e10d191a49f268adec5bc36b0344f42bd96c6e4437762fbfbf",
+                "ledger_entry_sha256": "1dc6e68747f5445ef282703ceb5f0b802d599db5788d90d1c8cd519b223ceca4",
+                "run_ref": "codex:20261106T220452Z-86a0da71",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-06T22:07:41Z",
+          "workflow_release": "2.28.0"
+        }
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "394c6786bb9e91388aa4a8a64e0f36f2b70ccae7e80fa39e636676333b673f13",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-11-06T17:09:40Z",
+          "verdict_sha256": "4968c02a011be11f327c594c98708921f7c2cb457075c792cc069b0e892a7a3b",
+          "run_ref": "session:local .ai-review/acceptance-floor-commit/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "394c6786bb9e91388aa4a8a64e0f36f2b70ccae7e80fa39e636676333b673f13",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-11-06T17:12:54Z",
+          "verdict_sha256": "b58016e9fd0709d02f11726cde01e0c800b101a0f4f7cdd7ad5a71654e068782",
+          "run_ref": "codex:20261106T171004Z-37fdb175",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 5,
+          "external": 1
+        },
+        "implementation": {
+          "local": 2,
+          "external": 1
+        }
+      },
+      "state_revision": 29,
+      "last_transition": "2026-11-06T22:30:50Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-06T16:50:39Z",
+        "consumed": {
+          "review_content_id": "af3846f30df7d1c2016792f5fa34943a5d70bc73763ba53d4a80aa2aaf159be0",
+          "plan_revision": 4,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
+          "plan_revision": 5
+        },
+        "bound": {
+          "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
+          "bundle_id": "394c6786bb9e91388aa4a8a64e0f36f2b70ccae7e80fa39e636676333b673f13",
+          "plan_revision": 5
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "163d060e7dfeaed2ca7032a75be00bec66e233da76a747fe57adc22b2301c92d",
+        "7006c5352b9a4e1c0b7deeebb9f098a8873f06bf485a81dd9490472e8c8822df",
+        "76ee4d8d473bfd7077825725b8f95c0022a731953752b62d10341e21b837793e",
+        "af3846f30df7d1c2016792f5fa34943a5d70bc73763ba53d4a80aa2aaf159be0"
+      ],
+      "optional_findings": {
+        "F-d62ea875f487": {
+          "digest": "d62ea875f487ca240a905b724d027fc48f6b97ced0c3f6a523d6328c603d8388",
+          "text": "**LOCAL-R1-004: A stop after staging with a foreign item's residue in the state file is not covered.** F5 and flow 6 use a file whose only difference from `HEAD` is the floor. With a foreign item's uncommitted edit also present, the recovery refuses with `DirtyIndexBeforeStagingError` (\"already staged ... resolve or unstage it first\"), because `stage_scoped_state` refuses an already-staged path. Measured: `git restore --staged` then a re-run recovers, so D-Output's rule does cover it. The sibling helper `commit_pending_applying_review_feedback_entry` accepts its own interrupted staging instead (EPR-001). Either do the same or pin the refusal with a test and name the step in the rule.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "7006c5352b9a4e1c0b7deeebb9f098a8873f06bf485a81dd9490472e8c8822df",
+              "verdict": "REVISE",
+              "at": "2026-11-06T15:44:48Z"
+            }
+          ]
+        },
+        "F-68aa9083db90": {
+          "digest": "68aa9083db90bf61d85c13f919d7e0785affa38fab1ffe3de95b5d8d8f19dfc9",
+          "text": "**LOCAL-R1-005: A touched `recorded_at` produces a second floor commit.** Measured: with a committed floor and only `recorded_at` edited in the working file, the flag makes a new floor commit with the same digest and answers `recovered: true`; the validator passes and provenance stays ok. It is harmless, but it is a commit for no new setting, and the fix for LOCAL-R1-001 is the natural place to compare `policy` against `HEAD`'s and answer `commit: null`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "7006c5352b9a4e1c0b7deeebb9f098a8873f06bf485a81dd9490472e8c8822df",
+              "verdict": "REVISE",
+              "at": "2026-11-06T15:44:48Z"
+            }
+          ]
+        },
+        "F-f70e14c42864": {
+          "digest": "f70e14c42864fa1b7db3cc9ce6f0a25133160a260d5f5dbc6feb28c938f04d66",
+          "text": "**LOCAL-R1-006: Flow 11's comparison of `--plan-review-publication-status` shows very little.** On `mk`'s item (no `governing_workflow_version`) the flag prints nothing on stdout and exits 1 with a traceback on stderr, so the flow compares empty with empty. Giving `mk`'s item `governing_workflow_version: \"2.2\"` would make it compare a real answer, or the flow can state that it only compares the exit code here.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "7006c5352b9a4e1c0b7deeebb9f098a8873f06bf485a81dd9490472e8c8822df",
+              "verdict": "REVISE",
+              "at": "2026-11-06T15:44:48Z"
+            }
+          ]
+        },
+        "F-cb4b70067796": {
+          "digest": "cb4b70067796844e54065caf664a223c0604858955ff6ba25fb2cfac62ec91c9",
+          "text": "**LOCAL-R2-004: With a failed provenance and nothing waiting, the flag refuses where D-Recovery says `commit: null`.** Precondition 2 runs before precondition 6, so a repository whose working floor equals `HEAD`'s and whose provenance has failed answers exit 1, `floor_provenance_failed`. Measured; the base's Python call answers `None` on the same repository. It writes nothing and the failure is real, so this is defensible, but D-Recovery's \"A completed floor (nothing pending) answers `commit: null`\" and flow 9's \"a `cli` afterwards prints `{\"commit\": null, ...}\"` hold only for a healthy chain (flow 9's refusal is synthetic). A real validator refusal followed by a re-run gets this refusal, which is one more reason for D-Output's \"do not run it again\". Either qualify the sentence and pin the case in F9, or say why it is left as it is.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "76ee4d8d473bfd7077825725b8f95c0022a731953752b62d10341e21b837793e",
+              "verdict": "REVISE",
+              "at": "2026-11-06T16:05:10Z"
+            }
+          ]
+        },
+        "F-7cb201d104b2": {
+          "digest": "7cb201d104b2806f2b293709340d82a4bcec8bec85dfaa10a1e108ddc8c16064",
+          "text": "**LOCAL-R2-005: F2's opening identity proof cannot apply to its looser-edit case.** Measured: with a committed floor and a looser working floor, the function rewrites the file back to the committed floor, creates `.ai-review/runtime`, and the flag answers `commit: null` with `HEAD` unmoved. That matches \"leaves nothing pending and nothing committed\", but F2 opens with \"tree, refs and index identical, no `.ai-review`\". State that the looser case rewrites the state file and creates the lock, so the test does not assert the opening sentence there.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "76ee4d8d473bfd7077825725b8f95c0022a731953752b62d10341e21b837793e",
+              "verdict": "REVISE",
+              "at": "2026-11-06T16:05:10Z"
+            }
+          ]
+        },
+        "F-0b99c8109be0": {
+          "digest": "0b99c8109be03e64511aaedb12407594cf12e5ffeacff04f4b47ede01ea7f567",
+          "text": "**LOCAL-R3-002: The sibling commits a hand-written floor equal to the base.** Measured: with no floor in `HEAD`, nothing stricter observed, and a valid working floor holding the default policy, the function answers `None` and the flag answers exit 0, `recovered: true`, with a new floor commit that the validator accepts. Every precondition passes because precondition 6 treats an absent committed floor as different. Nothing is damaged and only a hand edit reaches it in the measured path, but D-Recovery's \"new\" and D-Output's \"`null` means no stricter setting is waiting\" do not quite describe it, and `LOCAL-R1-005`'s reason (no commit for no new setting) applies. Comparing with `_effective_floor_of` in precondition 6 would close it; so would one sentence saying it is left as it is.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "163d060e7dfeaed2ca7032a75be00bec66e233da76a747fe57adc22b2301c92d",
+              "verdict": "REVISE",
+              "at": "2026-11-06T16:41:12Z"
+            }
+          ]
+        },
+        "F-80d41078a861": {
+          "digest": "80d41078a861b28d9d48a5439b38c90912125b1c5707a7cb289ca26fe025173a",
+          "text": "**LOCAL-R3-003: F2's \"a second run after F1 is the same\" cannot assert the opening \"no `.ai-review`\".** Measured: F1's run creates `.ai-review/runtime/WORKFLOW_STATE.lock`, so the sentence holds for that second run only as \"unchanged from before the call\", as flow 2's snapshots do. State it that way (the same kind of correction as `LOCAL-R2-005`).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "163d060e7dfeaed2ca7032a75be00bec66e233da76a747fe57adc22b2301c92d",
+              "verdict": "REVISE",
+              "at": "2026-11-06T16:41:12Z"
+            }
+          ]
+        },
+        "F-2b27841d9e36": {
+          "digest": "2b27841d9e36e8dd8165720ba2fbedb217eea3abf23d5bafe73a3cffeb9258e8",
+          "text": "**LOCAL-R3-004: Flow 11a's repository names do not line up.** It says each repository is \"named `a` to `f`\" and then runs `snap`, `cli $CAND r` and `mk r plain` for (b). Running it needs the reader to substitute the name. Using `$c` or naming the case's repository in each command removes the step. It reaches its expected states once substituted.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "163d060e7dfeaed2ca7032a75be00bec66e233da76a747fe57adc22b2301c92d",
+              "verdict": "REVISE",
+              "at": "2026-11-06T16:41:12Z"
+            }
+          ]
+        },
+        "F-c5ff68bd39c1": {
+          "digest": "c5ff68bd39c1b512c833b8b31bdb7ecb60b79008b6f829e7eb28544927f6c05a",
+          "text": "**LOCAL-R4-003: m25 misstates what two of its mutants answer.** m25 says each move answers `DirtyIndexBeforeStagingError` \"instead of the precondition's own answer\". Measured with each precondition moved to just after the index check: 4 on (j), 5 on (k) and 6 on (m) do answer that. Precondition 2 moved, on (i), answers `floor_not_virtual`, because preconditions 3 and 4 run first and the working floor is the default. Precondition 3 moved, on (e), answers exit 0 `commit: null`, because precondition 6 sees the same policy as `HEAD`'s. Both mutants still fail their named cases, so CP1's requirement is met, but whoever records the mutation results will read a mismatch. Say that the answer differs from the precondition's own rather than naming one class.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "af3846f30df7d1c2016792f5fa34943a5d70bc73763ba53d4a80aa2aaf159be0",
+              "verdict": "REVISE",
+              "at": "2026-11-06T16:48:39Z"
+            }
+          ]
+        },
+        "F-b9eac119d138": {
+          "digest": "b9eac119d13855ab186caa364f8b1ecc56f487ed0afc45a3b7a4820ab696c470",
+          "text": "**LOCAL-R4-004: Two labels in the F9 and flow 11a text are stale.** F9 says \"In (g) and (k) the working floor differs from `HEAD`'s\", while m25 and section 9 name (g) and (h). (k) never reaches the staging, since `x.md` stops it at the index check, so (h) is the one that needs the statement (measured: moved after the staging, preconditions 4 on (g) and 5 on (h) both leave a staged state file). Flow 11a still says \"in each of six repositories ... (named `a` to `f`)\" and now lists ten cases.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "af3846f30df7d1c2016792f5fa34943a5d70bc73763ba53d4a80aa2aaf159be0",
+              "verdict": "REVISE",
+              "at": "2026-11-06T16:48:39Z"
+            }
+          ]
+        },
+        "F-6e0ce61626f2": {
+          "digest": "6e0ce61626f20d01b37156f7a216b4ad7b488de8d580ff05f2ab4db0de3155f4",
+          "text": "**LOCAL-R5-001: Flow 11a's Expect column and F9's opening say nothing is staged except in (e), but (i) stages `x.md` too.** Flow 11a reads \"nothing staged except `x.md` in (e)\"; F9 opens with \"no staged path (except (e))\". Measured on (i): `floor_provenance_failed`, snapshot identical, `x.md` still staged. The same row's \"snapshots identical\" and (i)'s own setup settle the right reading, and F9 states it for (i) explicitly, so no implementation is misjudged by anyone who reads the whole row. Read it as: `x.md` stays staged wherever the case stages it, (e), (i), (l), (m).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T17:09:40Z"
+            }
+          ]
+        },
+        "F-320147c1dd92": {
+          "digest": "320147c1dd926bdea9e3e6879d64b6423d3cf5feb8664f870c7e1298ad456039",
+          "text": "**LOCAL-R5-002: Flow 11a (c), (f), (i) and F9 (c), (f), (i) do not say how to make the \"malformed floor commit\", and the obvious ways do not fail provenance.** Measured: an empty commit carrying the trailer, a floor commit that also changes another top-level key, and a floor change with no trailer all leave `verify_gate_policy_provenance` ok, so (c) and (f) answer exit 0 `commit: null` and (i) answers `DirtyIndexBeforeStagingError`. A commit whose floor record has a damaged `digest` fails provenance, and with it (c), (f) and (i) give the plan's answers. The flow's \"so provenance fails\" can be checked, so a runner will notice; naming the recipe (a committed record with a damaged `digest`) would save the detour.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T17:09:40Z"
+            }
+          ]
+        },
+        "F-917846f9b978": {
+          "digest": "917846f9b978479068e1f3dfca294120ccbf581d813f3b4f4d31e8916e082087",
+          "text": "**LOCAL-R5-003: Two counts and labels are stale.** The header's line 11 still says \"Plan revision: 4 (rounds 1 to 3 ...)\" under a Revision 5 title and beside section 10; the registry states 5. Flow 11a says \"eight repositories\" and names nine (`a` to `f`, `i`, `l`, `m`).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T17:09:40Z"
+            }
+          ]
+        },
+        "F-9d817260638a": {
+          "digest": "9d817260638ad04a9aedd7bdbc56fcd8c23f509f7af5dc6d4d82853850b1dbc6",
+          "text": "**LOCAL-R5-004: m25 does not name precondition 1's answer.** Measured, moved after the index check on (l): exit 1 `floor_record_invalid` instead of exit 0, so it fails its named case; the mutation stands and only the list of answers is short.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T17:09:40Z"
+            }
+          ]
+        },
+        "F-84d622b7a993": {
+          "digest": "84d622b7a9938f197fdc7c870fd9da31e6282ed7316c5a765d18f9e6341635a4",
+          "text": "In `ACCEPTANCE_FLOOR_COMMIT_PLAN.md`, line 11 still identifies revision 4; the title and registry identify revision 5. Flow 11a says “eight repositories” but names nine.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T17:12:54Z"
+            }
+          ]
+        },
+        "F-356eecbfb45d": {
+          "digest": "356eecbfb45d8ee9fbfe751ab29c16198461a149ee03585c5e51e0ffe69f8060",
+          "text": "F9’s opening and flow 11a’s Expect column restrict the staged-path exception to case (e), although other cases explicitly stage `x.md`. Say that `x.md` remains staged wherever the case stages it; the individual cases already specify the correct behavior.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T17:12:54Z"
+            }
+          ]
+        },
+        "F-1ce6324012c1": {
+          "digest": "1ce6324012c182a3c0eafe0e271e0f672577c0f81b238488cbcf6695c058ba14",
+          "text": "**LOCAL-IMPL-R1-002:** R6 does not pin step 5 of the acceptance stage. D-Command says \"Step 5 of the acceptance stage names the flag\", but deleting that sentence from `satisfy-gate.md` passes the class (measured), and what remains sends a worker back to the Python description. Only the manual grep of flow 13 would catch it. A needle for `(see \"Plain commands first\"), not the Python call` is enough.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ea16e8e62d103e340d8ec8bebae4d47a4b496bf487019f8146b34f1707cefd4",
+              "verdict": "REVISE",
+              "at": "2026-11-06T21:12:39Z"
+            }
+          ]
+        },
+        "F-9d8e2671b455": {
+          "digest": "9d8e2671b455a89535d8fdf94cdd3bfaaff76787e61b4c89006aae8b7929a30e",
+          "text": "**LOCAL-IMPL-R1-003:** `assert_recovered` copies the repository into `twin`, returns it and every caller ignores it. F5 says the recovered commit has \"parity with F1\", but only `test_f8_the_sibling_and_the_function_make_the_same_commit` compares bytes, and only for a stop after the state write. Compare a stop after staging too, or remove the dead copy.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ea16e8e62d103e340d8ec8bebae4d47a4b496bf487019f8146b34f1707cefd4",
+              "verdict": "REVISE",
+              "at": "2026-11-06T21:12:39Z"
+            }
+          ]
+        },
+        "F-76b1616d3ca8": {
+          "digest": "76b1616d3ca8570defcdec13335dadd0961914182ac66d5fc27547fb8a8bdfd2",
+          "text": "**LOCAL-IMPL-R1-004:** \"restore a damaged record from `HEAD`\" in `satisfy-gate.md` gives a headless worker no safe command. F3 explicitly supports a foreign item's uncommitted edits in the state file, and `git restore` on the file would discard them. With no floor in `HEAD` (F9 case b) there is also no record to restore. Say that only the `gate_policy_floor` key is restored, or removed when `HEAD` has none.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ea16e8e62d103e340d8ec8bebae4d47a4b496bf487019f8146b34f1707cefd4",
+              "verdict": "REVISE",
+              "at": "2026-11-06T21:12:39Z"
+            }
+          ]
+        },
+        "F-23174fc520d4": {
+          "digest": "23174fc520d49c3375139fef198871315b2e0496fa6341307b09a2db1884b715",
+          "text": "**LOCAL-IMPL-R1-005:** when a pre-commit hook refuses the commit, the message is only `CalledProcessError`'s command line, with no hook output (measured), while the text says to \"fix the cause the message names\". The state and the re-run are correct (`state_changed` true, then false, then `recovered: true` once the hook is gone). Mention a refused `git commit` in the text, or accept this as is.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ea16e8e62d103e340d8ec8bebae4d47a4b496bf487019f8146b34f1707cefd4",
+              "verdict": "REVISE",
+              "at": "2026-11-06T21:12:39Z"
+            }
+          ]
+        },
+        "F-fe3f9e44039f": {
+          "digest": "fe3f9e44039f54169f0aae0290714e859e9ce784fe86a552d990d9c242895c2d",
+          "text": "**LOCAL-IMPL-R2-001: nothing pins that the order test compares the whole item.** D-Order refuses when `HEAD`'s copy of the item \"differs from the working copy\", but F3's only `completion_not_committed` case differs in `phase`. Measured on a scratch copy: replacing `head_item != item` with a comparison of `phase` alone passes all 31 tests of `TestCommitFloorCommand`. The code is right: a probe with the same phase and one other uncommitted item field answers `completion_not_committed`. A case like that in F3 would pin it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T22:04:23Z"
+            }
+          ]
+        },
+        "F-e56b1fc1e4fa": {
+          "digest": "e56b1fc1e4fa4451e00d92c9347d3b40c4d9c3d39ccaa95f6dc1f04979b115a2",
+          "text": "**LOCAL-IMPL-R2-002: the bundle's evidence text describes the previous round.** `REVIEW_REQUEST.md` still says `Head: 2f33039`, \"implementation revision 1\" and \"all at 63c1ec3\", while `MANIFEST.md` states `reviewed_implementation_head` aa46d07, revision 2 and `generation_head` 5690223. `TEST_RESULTS.md` opens with \"implementation revision 1\" and \"All of this ran ... against commit 63c1ec3\", yet its table says `workflow_gate_policy_test.py` ran 404 tests, and `manifest.json` at 63c1ec3 pins 403. Its follow-up section does state the post-fix run correctly, and this review reproduced those counts and digests, so no result is wrong; the external reviewer has to work out which head each line means.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T22:04:23Z"
+            }
+          ]
+        },
+        "F-a5570209c8d4": {
+          "digest": "a5570209c8d4d8be3f35d606ea1c2458f546d05c20299ed05dc03e6b783f5cbc",
+          "text": "**LOCAL-IMPL-R2-003: F9 (c) and (i) do not build the plan's setup.** The plan has the working floor \"looser than a floor committed earlier\", but `test_f9_a_failed_provenance_is_refused_whether_or_not_a_floor_waits` has no earlier valid floor. Measured with the setup as written (a real floor, then a commit with a damaged `digest`, then the default policy in the working file): exit 1, `floor_provenance_failed`, so the behaviour holds and m20 still fails the test.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T22:04:23Z"
+            }
+          ]
+        },
+        "F-00c89d9dafdb": {
+          "digest": "00c89d9dafdb57a38bfbed087a74d00f4abb2405bdb626b3dd68d04bdf539161",
+          "text": "[satisfy-gate.md:252](payload/.claude/commands/satisfy-gate.md#L252) attributes `state_changed: true` exclusively to this call writing the floor. The implementation compares whole-file digests, which also detects another writer’s changes. An in-memory probe produced `state_changed: true`, `commit: null` on a phase refusal without calling the floor function. Qualify this wording and the corresponding exit-code guidance to acknowledge concurrent writers.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T22:07:16Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "341350db1485a0a4c886041b93fd3ec8e1d28078b6591582bf85216945f04dc3",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-06T22:04:23Z",
+          "verdict_sha256": "03e6ee4356d328e85002b09cb0374daaabdb8305d40337f0736dbaa4b1713069",
+          "run_ref": "session:local .ai-review/acceptance-floor-commit/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "341350db1485a0a4c886041b93fd3ec8e1d28078b6591582bf85216945f04dc3",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-06T22:07:16Z",
+          "verdict_sha256": "1ba5cdc2ee1fc0e10d191a49f268adec5bc36b0344f42bd96c6e4437762fbfbf",
+          "run_ref": "codex:20261106T220452Z-86a0da71",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Base exit 2 (argparse \"one of the arguments\"); candidate exit 0 with {\"commit\",\"recovered\":false}; subject/trailer identical to the Python call on r2; state files differ only in recorded_at; diff-tree is the state file alone; status shows only the untracked policy file."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Both no-op runs exit 0 with {\"commit\": null,\"recovered\": false} and empty snapshot diffs, no .ai-review, base prints None on plain, and a recorded_at-only edit leaves HEAD unmoved."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "early/afr give work_item_not_complete and uncommitted gives completion_not_committed (exit 1, commit null, state_changed false), snapshots identical, no .ai-review, and the base commits on each copy."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Exit 1 DirtyIndexBeforeStagingError naming x.md, commit null, state_changed false, snapshots identical."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "After the stop \" M\" and no commit, py CAND on r2 prints None and leaves it dirty, candidate recovers (recovered true, clean file, same subject/trailer), and the second run is null/false."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Staged-stop recovers with a commit of the state file alone; with a foreign edit it exits 1 DirtyIndexBeforeStagingError (commit null); after restore --staged the floor commits with recovered true and the foreign edit stays uncommitted."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Floor commit exists after the validate stop; candidate exits 0 with null/false and HEAD unmoved."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:33Z"
+          },
+          "flow-8": {
+            "flow_id": "flow-8",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "DirtyIndexBeforeStagingError with commit null, state_changed false and identical snapshots; after unstaging x.md the next run commits with recovered true."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-9": {
+            "flow_id": "flow-9",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "refuse exits 1 MalformedGatePolicyFloorCommitError with commit equal to HEAD, state_changed true, exactly one commit added; the following cli prints commit null."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-10": {
+            "flow_id": "flow-10",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Classes UnknownWorkItem x2, StateMissing, CorruptJsonError, StateMalformed x2 and CalledProcessError (no traceback) outside Git, all exit 1 with trees unchanged; the base on nostate creates and commits a state file."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-11": {
+            "flow_id": "flow-11",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "The five old flags give identical stdout and exit from base and candidate (publication-status exit 1 only), and both combined invocations exit 2 with \"not allowed with argument\"."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-12": {
+            "flow_id": "flow-12",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "Cases a,b,d,e give floor_record_invalid, c,f,i give floor_provenance_failed (e is FloorRecoveryRefusedError not DirtyIndex), l and m exit 0 null/false with x.md still staged, snapshots identical, no KeyError, and base on a copy of (a) prints None."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-13": {
+            "flow_id": "flow-13",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "The flag is in \"Plain commands first\" (line 238, after the findings-record at 218) and acceptance step 5 (349), commit_gate_policy_floor stays at 148/241/264, the documented line (no python3 -I) runs and refuses with work_item_not_complete, and both grep checks give 0/empty."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          },
+          "flow-14": {
+            "flow_id": "flow-14",
+            "status": "passed",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "ran_at": "2026-11-06T22:17:33Z",
+            "summary": {
+              "checklist_blob": "81bd33413e245710085536cb75cd77e428b98a19",
+              "text": "The fake gh log is empty (0 bytes) and the commit_gate_policy_floor source digests are equal (0a7e6ff1...)."
+            },
+            "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+            "run_ref": "claude-functional:w43-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:17:34Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 164,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/164"
+          },
+          "state": "open",
+          "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+          "observed_at": "2026-11-06T22:30:50Z",
+          "ingest_seq": 2,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "aa46d07dbb603f4b1a76fb4ee6b5e402ea7447dc",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-06T22:30:50Z",
+            "raw_sha256": "2d4791ed71350e21e902e2124ee6ba5a3205c1f6df9396dce6a9d58d70e50324",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "9e824061111fe5f5b6a5d5690909ba37abafca4a4ca830bdf83246d3c94afd21"
+          },
+          "fact_id": "252a48ca241dc77e771a6e9ef7f52ac04cb366ecf9f537e190a770ece0c89be7"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 2
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-10', 'flow-11', 'flow-12', 'flow-13', 'flow-14', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6', 'flow-7', 'flow-8', 'flow-9'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #164 at 6d7738f87479db7fd8596d2dac3e8330ee5a22fd is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "aa46d07dbb603f4b1a76fb4ee6b5e402ea7447dc",
+          "anchor_identity": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "recorded_at": "2026-11-06T22:07:41Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "6050882cea804acaadd854ae923a2f6d653758705ce8f2130c51c4ee20a82c06",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-10": {
+              "evidence_id": "a7ad8a4c8a85e8b6e5c8c5f2fc01490a437fcfdd163652bd4b57528ebba63228",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-11": {
+              "evidence_id": "50f278b53d9e0feaabe5b49cc8be02416bba165d09947e9a4fb342617d92bdd4",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-12": {
+              "evidence_id": "01208c89e2b55e353afb02f073bc26a662843f80ee3856a1249e1297b718c651",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-13": {
+              "evidence_id": "33cf0fee6099320b9418aae819ee27df4c313a1f41a3f777aba04b47107c9283",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-14": {
+              "evidence_id": "5a020cad52382713daa750d1c12e09d72015e1af9f715654b6ccfe9dff09b5e9",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-2": {
+              "evidence_id": "d0b1ad0c1da2f58907522c1011d47a52a3ce4d9dfee57ef56a515c643d02c9c0",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-3": {
+              "evidence_id": "2ab568da3cb30f3bf5e23855bb9f39afdd964f3e87313f034fd20bc929b702c3",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-4": {
+              "evidence_id": "a31f1316965d09bb7a286e37474d461f45c70dd4e696fd2b75902b93ade654ba",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-5": {
+              "evidence_id": "787561743ab4f9c0bc7188d6ee9ed9bb1fa7be70afd386d9c426b4253625896e",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-6": {
+              "evidence_id": "865ad27b024e9a7711609291e9e570bf7a5994054128166fe4d8bcd8468b3851",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-7": {
+              "evidence_id": "c74fd37bab12ae6e29d121a9958a01d2df2dacdc295f8c3a865782beaef3c4d4",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-8": {
+              "evidence_id": "8f6b202c410dab90c18c0f871845b05cc0c994601d8490710a45ebc884cf597f",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            },
+            "flow-9": {
+              "evidence_id": "6f7794647ef5d53fc00777eb3edc45110754d153647221035833f177274768a8",
+              "log_digest": "d909fabec96586f334be384cc43e331bebaab374e307f0cca7a109fe506f9452",
+              "run_ref": "claude-functional:w43-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "252a48ca241dc77e771a6e9ef7f52ac04cb366ecf9f537e190a770ece0c89be7",
+            "head": "6d7738f87479db7fd8596d2dac3e8330ee5a22fd",
+            "provenance": "workflow_gh",
+            "raw_sha256": "2d4791ed71350e21e902e2124ee6ba5a3205c1f6df9396dce6a9d58d70e50324"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-06T22:30:50Z",
+        "workflow_release": "2.28.0"
+      }
     }
   }
 }

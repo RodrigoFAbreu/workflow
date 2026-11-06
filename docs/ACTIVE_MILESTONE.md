@@ -2,135 +2,170 @@
 
 ## Milestone
 
-**Complete (accepted by policy).** W42: `acceptance-findings-floor` (`process`, governing version `2.2`), branch
-`milestone/acceptance-findings-floor`, roadmap row 37 (RodrigoFAbreu/workflow#148, the rest). The plan is
-`docs/ai-workflow/ACCEPTANCE_FINDINGS_FLOOR_PLAN.md` (revision 2, approved by gate policy). The previous milestone, W41
-`acceptance-completion-command` (Workflow 2.27.0), is complete. The release follows the merge.
+**Complete (accepted by policy).** W43: `acceptance-floor-commit` (`process`, governing version `2.2`), branch
+`milestone/acceptance-floor-commit`, roadmap row 38 (RodrigoFAbreu/workflow#148, the last Python call). The plan is
+`docs/ai-workflow/ACCEPTANCE_FLOOR_COMMIT_PLAN.md` (revision 5, approved by gate policy). The previous milestone, W42
+`acceptance-findings-floor` (Workflow 2.28.0), is complete. The release follows the merge.
 
 ## Goal
 
-Workflow 2.28.0 (a `feat:` minor): `python3 scripts/workflow_state.py --write-findings-record <id>` calls
-`write_finding_dispositions_record` on the stored state and prints `{paths}`; it refuses an item that is not
-`MILESTONE_COMPLETE`, takes no lock, writes only the record file and commits nothing. The floor commit is row 38; the
-protocol stays 1.5.
+Workflow 2.29.0 (a `feat:` minor): `python3 scripts/workflow_state.py --commit-gate-policy-floor <id>` calls
+`commit_gate_policy_floor` (unchanged, byte for byte) and, when that answers `None`, a new sibling
+`commit_pending_gate_policy_floor` that commits a floor already waiting in the state file after six preconditions;
+prints `{commit, recovered}`. It refuses unless the item is `MILESTONE_COMPLETE` and `HEAD` holds its completed copy. The
+acceptance stage then has no inline Python call; the protocol stays 1.5.
 
 ## Checkpoints
 
-- CP1 (the findings-record flag, its tests, the command texts and the pages): complete, verified state below.
-- CP2 (release 2.28.0): complete, verified state below.
+- CP1 (the floor flag, its recovery, tests, the command text and the pages): implemented, verified state below.
+- CP2 (release 2.29.0): implemented, verified state below.
 
-CP1 verified state: `TestWriteFindingsRecordCommand` (14 tests) passes; mutations m1 to m16 each fail the named test on a
-scratch copy; the golden hash of `accept-milestone.md` moved (intentional); `workflow_integration_test.py` passes. The
-staged-fixture run of the nine suites, `tools/docs` and `check_docs.py` is reported with the commit.
+CP1 verified state: `TestCommitFloorCommand` (29 tests at that commit) passes on the working tree, alongside the 2.26.0 to 2.28.0 command
+classes; the source of `commit_gate_policy_floor` hashes to the base's value (pinned by F8). The staged-fixture run of the nine
+suites, `tools/docs`, `check_docs.py`, `check-manager-block` and `tools/release` ran under D-Staging (the one expected failure is the
+2.28.0 release class's suite-count pin, released in CP2). The CP1 commit carries no report of them, and no record of the failure-only
+mutations survives from CP1: they were run in self-review, below.
 
-CP2 verified state (scratch clone with the changes committed): the nine suites pass from a `stage-conformance` fixture
-(`workflow_gate_policy_test.py` 373); `check-manager-block --manager-releases` valid; `tools/docs` 34 tests and `check_docs.py`
-clean; `tools/release` 313 tests pass (zlib-ng interpreter); `release.py build --commit HEAD` succeeds; `workflow-manager
-verify .` clean (installation 2.27.0).
+CP2 verified state: `manifest.json` is 2.29.0 (six records, posture, suite count 402 for `workflow_gate_policy_test.py`), `WORKFLOW_RELEASE`
+is 2.29.0, the protocol document, release history and exit-codes page follow, and `tools/release/release_test.py` has the 2.29.0 class
+with the 2.28.0 class demoted. In a disposable clone: all nine suites pass from a stock `stage-conformance` fixture, `release.py build`
+succeeds (zlib-ng interpreter), `check-manager-block` (with `--manager-releases`) is ok, `tools/docs` tests and `check_docs.py` are clean,
+`tools/release` tests pass (317). `workflow-manager verify .` is clean against the installed 2.28.0.
 
-Self-review: the 2.28.0 release class reused the 2.27.0 class's name, so the 2.27.0 tests silently stopped running; it is now
-`AcceptanceFindingsFloorReleaseTest`, and `tools/release` runs two more tests. The eight record sentences now read
-`acceptance-findings-floor (workflow-2.28.0)`, as D-Release says, and the posture's closing sentence is pinned. R4 spies the
-real `workflow_forge.resolve_gh`; R5 and R6 assert what D-Tests asks (the empty id, `--satisfy-acceptance`, both `true` branches,
-the state-file line, the floor sentence). Six failure-only mutations of those assertions each fail on a scratch copy.
+Self-review (`/milestone-implement`, full diff), three gaps fixed, no engine change. (1) The command text lacked D-Output's sentence on
+`state_changed: true` with `commit: null`, which means something else than on the flags before it: `satisfy-gate.md` and `docs/exit-codes.md`
+now say it, and R6 pins it. (2) Mutants m14 (dispatch after the shared `git rev-parse`, and the empty id) survived: the class called the CLI
+function directly, past the parser. F7's parser test now covers both. (3) F7 did not pin the five existing flags' output, so m16 survived;
+`test_f7_the_existing_flags_print_what_they_printed` is new. The suite count for `workflow_gate_policy_test.py` is 404. The series m1 to m26 now
+runs, each mutant failing a named test; the results are in the implementation bundle's `TEST_RESULTS.md`.
 
 ## Functional review checklist
 
-Scope: the findings-record flag, `workflow_state.py --write-findings-record <id>` (Workflow 2.28.0). Test the release source
-(`payload/`) in a scratch clone. Every flow below runs offline: no network, no real `gh`, `claude`, `codex` or `ssh`, and no
-write inside the product clone. The one state seed (flow 7) is made in the scratch clone only.
+Gate: `AWAITING_FUNCTIONAL_REVIEW`, implementation revision 2 (reviewed head `aa46d07`), plan revision 5. The candidate is the
+`payload/scripts` tree of the commit under test; the base is `d6e6cb07f1c97837dd98a43cb2f3c198dade47dc`. The checklist's
+evidence commit (its SHA and blob) is reported by `/prepare-functional-review` and read back by `/review-functional`.
+
+Every flow runs offline, against a scratch repository and the fake `gh`. Nothing runs in the product clone, its `.ai-review/`
+or the forge. Flows 15 and 16 need the full environment and are not sandbox flows.
 
 ### Setup
 
-```bash
-R=/home/rodrigo/Workspace/workflow            # the product clone: read only
-S="$(mktemp -d)/fixture"
-git clone -q --no-local "$R" "$S"             # committed HEAD; the product tree must be clean
-cd "$S"
-```
-
-Run every flow as `python3 -B payload/scripts/workflow_state.py ...`. The installed copy `scripts/workflow_state.py` is
-Workflow 2.27.0 and has no flag until `workflow-manager update` (flow 1).
-
-Automated, optional, offline: `python3 -B payload/scripts/workflow_gate_policy_test.py TestWriteFindingsRecordCommand`
-(expect `Ran 14 tests` and `OK`).
+1. Run the setup block of `docs/ai-workflow/ACCEPTANCE_FLOOR_COMMIT_PLAN.md` section 5 (the code block from `Setup, once` to
+   its closing fence). It defines `$BASE`, `$CAND`, the fake `gh`, `$GH_LOG` and the helpers `mk`, `cpy`, `snap`, `py`, `cli`,
+   `refuse`, `crash`. Use them verbatim.
+2. Sandbox adaptation: `TMPDIR` and `W43_BIN` are the writable scratch directories the sandbox grants, not the plan's
+   `$HOME/.claude/...` paths. Keep `W43_BIN` outside `/tmp`, `/var/tmp`, `/dev/shm` and `$TMPDIR`. If the sandbox's own `gh`
+   refusal stand-in is used in place of the fake, flow F14 reads that stand-in's log instead of `$GH_LOG`.
+3. Before starting: `git -C <clone> status --porcelain` is empty and `HEAD` is the commit under test.
+4. Run Python as `python3 -I`, with no zlib-ng and no Python 3.12 needed for flows F1 to F14.
 
 ### Test data
 
-- Flows 1 to 6 use the state as committed: `acceptance-findings-floor` is at `AWAITING_FUNCTIONAL_REVIEW`.
-- Flows 7 and 8 need a completed item. Seed it in the scratch clone only:
+Nothing is seeded in the product clone. Scratch repositories come from `mk <dir> <case>`: `ready` (the item `wi` at
+`MILESTONE_COMPLETE`, committed, with a stricter gate policy in the working tree), `plain` (no policy file), `early`
+(`IMPLEMENTING`), `afr` (`AWAITING_FUNCTIONAL_REVIEW`), `uncommitted` (`HEAD` at `IMPLEMENTING`, the working file at
+`MILESTONE_COMPLETE`), `nostate`, `corrupt`. Each flow starts from a fresh `mk` unless it says otherwise. `cpy` makes the
+copies that the base's Python call runs on.
 
-  ```bash
-  python3 -B -c "import json; p='docs/ai-workflow/WORKFLOW_STATE.json'; s=json.load(open(p)); s['work_items']['acceptance-findings-floor']['phase']='MILESTONE_COMPLETE'; json.dump(s, open(p,'w'), indent=2)"
-  ```
+### Flows and expected results
 
-### Flows
-
-1. **The flag is in the release source, not in the installation.**
-   `python3 -B payload/scripts/workflow_state.py --help` lists `--write-findings-record WORK_ITEM_ID` as the fifth option.
-   `python3 -B scripts/workflow_state.py --write-findings-record acceptance-findings-floor; echo "exit=$?"` prints an argparse
-   error ("one of the arguments ... is required") and `exit=2`.
-
-2. **Refusal: the item is not complete.**
-   `python3 -B payload/scripts/workflow_state.py --write-findings-record acceptance-findings-floor; echo "exit=$?"`
-   Expected: `exit=1` and one JSON line with `"error": "FindingsRecordPreflightError"`, `"code": "work_item_not_complete"`,
-   a message naming phase `AWAITING_FUNCTIONAL_REVIEW`, `"record_changed": false`, `"state_changed": false`. No file at
-   `docs/milestones/completed/acceptance-findings-floor-findings.md`; `git status --short` shows nothing new.
-
-3. **Refusal: unknown id.** `--write-findings-record no-such-item` gives `exit=1`, `"error": "UnknownWorkItem"`, both
-   changed fields `false`, nothing written.
-
-4. **Refusal: empty id.** `--write-findings-record ""` gives `exit=1`, `"error": "UnknownWorkItem"`, `"message": ""`, both
-   changed fields `false`.
-
-5. **Refusal: two flags.** `--write-findings-record acceptance-findings-floor --acceptance-gate acceptance-findings-floor`
-   gives `exit=2` and "argument --acceptance-gate: not allowed with argument --write-findings-record". No file written.
-
-6. **Refusal: no state file.** In an empty directory made with `git init`, run
-   `python3 -B "$S/payload/scripts/workflow_state.py" --write-findings-record acceptance-findings-floor`. Expected: `exit=1`,
-   `"error": "StateMissing"`, both changed fields `false`.
-
-7. **Happy path (after the seed).** `python3 -B payload/scripts/workflow_state.py --write-findings-record acceptance-findings-floor; echo "exit=$?"`
-   Expected: `exit=0` and exactly this stdout:
-
-   ```
-   {
-     "paths": [
-       "docs/milestones/completed/acceptance-findings-floor-findings.md"
-     ]
-   }
-   ```
-
-   The record has one row per optional finding in this item's ledger, and each disposition reads `none`. `git status --short`
-   shows the record as untracked and the seeded state as modified. Nothing is committed: `git rev-parse HEAD` is unchanged.
-
-8. **Re-run is byte-identical.** Run flow 7 again. Expected: the same stdout, and `sha256sum` of the record file is the same
-   before and after the second run.
-
-9. **The command texts name the flag.** `grep -n "write-findings-record" payload/.claude/commands/accept-milestone.md
-   payload/.claude/commands/satisfy-gate.md`. Expected: `accept-milestone.md` names the flag in step 5a before
-   `write_finding_dispositions_record`; `satisfy-gate.md` names it in the "Plain commands first" block. Neither line has
-   `python3 -I`. `satisfy-gate.md` (only: `accept-milestone.md` has no floor step) says the floor
-   (`commit_gate_policy_floor`) is still one Python call.
-   *Functional-review round 1 (flow-9): the tester's "both texts" miss was a checklist wording error, classified expected
-   behavior; no source change. Re-test: `grep -n commit_gate_policy_floor payload/.claude/commands/satisfy-gate.md`.*
-
-10. **The public docs.** `docs/exit-codes.md` has three rows for the flag (exit 0, 1, 2), and `docs/release-history.md` has
-    the 2.28.0 row. Read both; they should agree with flows 2 to 7.
+- **F1, the floor is committed.** `mk r ready`; `cpy r r2`; `cli $BASE r`; `py $BASE r2`; `cli $CAND r`.
+  Expect: base exit 2 (argparse's "one of the arguments" refusal). `py` on `r2` prints a sha. Candidate exit 0, stdout exactly
+  `{"commit": "<sha>", "recovered": false}`. The subject and final paragraph of `git -C r show -s --format=%B HEAD` and of `r2`
+  are identical: `chore: record gate policy floor <12>` and `Workflow-Gate-Policy-Floor: <digest>`. The two state files differ
+  only in the `recorded_at` line. `git -C r diff-tree --name-only -r HEAD` lists the state file alone; `git -C r status --porcelain`
+  shows only the untracked policy file.
+- **F2, nothing to commit is a no-op.** On F1's `r`: `snap r > before`; `cli $CAND r`; `snap r > after`. Then `mk r plain`;
+  `snap r > b2`; `cli $CAND r`; `snap r > a2`. Expect: both runs exit 0 with `{"commit": null, "recovered": false}`; `diff`
+  of before/after and of b2/a2 is empty; no `.ai-review` in the second. `py $BASE` on a copy of `plain` prints `None`. Then
+  `mk r ready`; `cli $CAND r`; edit only the `recorded_at` line of the working state file (`grep -c recorded_at` prints 1); `cli $CAND r`.
+  Expect: exit 0, `{"commit": null, "recovered": false}`, `HEAD` unmoved.
+- **F3, refusals before anything is written.** `mk r early`, `mk q afr`, `mk s uncommitted`. For each, `cpy` to a copy and run
+  `py $BASE` there (the base commits: it has no phase or order check). Then `snap`, `cli $CAND <repo>`, `snap`.
+  Expect: candidate exit 1 for each, one JSON object with `"error": "FloorCommitPreflightError"`, `commit` null,
+  `state_changed` false. `early` and `afr` give code `work_item_not_complete`; `uncommitted` gives `completion_not_committed`.
+  Snapshots identical; no `.ai-review`.
+- **F4, dirty index refused.** `mk r ready`; `echo x > r/x.md; git -C r add x.md`; `snap r`; `cli $CAND r`; `snap r`.
+  Expect: exit 1, `DirtyIndexBeforeStagingError` naming `x.md`, `commit` null, `state_changed` false, snapshots identical.
+- **F5, recovery after a stop before the state commit.** `mk r ready`; `crash r state`; `git -C r status --porcelain`; `cpy r r2`;
+  `py $CAND r2`; `cli $CAND r`; `cli $CAND r`. Expect: after the stop, ` M` on the state file and no new commit. `py $CAND r2`
+  prints `None` and leaves the file dirty (the measured blindness). Candidate: exit 0, `{"commit": "<sha>", "recovered": true}`,
+  state file clean, subject and trailer as F1. The second `cli` prints `{"commit": null, "recovered": false}`.
+- **F6, stop after staging.** `mk r ready`; `crash r stage`; `git -C r status --porcelain` (expect `M ` staged, no commit);
+  `cli $CAND r` (expect `recovered: true` and a commit of the state file alone). Then `mk r ready`; `crash r stage`; add a foreign
+  work item to the working state file, serialized with `workflow_state._serialize_state` (the floor stays staged, the foreign
+  edit does not); `cli $CAND r`. Expect exit 1, `DirtyIndexBeforeStagingError`, `commit` null. Then
+  `git -C r restore --staged docs/ai-workflow/WORKFLOW_STATE.json` and `cli $CAND r`: expect the floor committed with
+  `recovered: true`, and the foreign edit left uncommitted.
+- **F7, a stop after the floor commit.** `mk r ready`; `crash r validate`; `git -C r log --oneline -2`; `cli $CAND r`.
+  Expect: the floor commit exists after the stop; the candidate exits 0 with `{"commit": null, "recovered": false}` and `HEAD` unmoved.
+- **F8, unrelated staged file during recovery.** `mk r ready`; `crash r state`; `echo x > r/x.md; git -C r add x.md`; `snap r`;
+  `cli $CAND r`; `snap r`. Expect: exit 1, `DirtyIndexBeforeStagingError`, `commit` null, `state_changed` false (the floor was
+  already in the file), floor not committed, snapshots identical. Then `git -C r rm -q --cached x.md; command rm -f r/x.md`
+  and `cli $CAND r` commits the floor with `recovered: true`.
+- **F9, validator refusal after the commit landed.** `mk r ready`; `refuse r`; `git -C r log --oneline -2`; `cli $CAND r`.
+  Expect: `refuse` exits 1 with one JSON object: `"error": "MalformedGatePolicyFloorCommitError"`, `"commit"` equal to
+  `git -C r rev-parse HEAD`, `"state_changed": true`; exactly one commit added. The following `cli` prints
+  `{"commit": null, ...}`.
+- **F10, bad arguments and bad state.** `cli $CAND r unknown`; `cli $CAND r ""`; `mk n nostate`, then `py $BASE` on a copy and
+  `cli $CAND n`; `mk c corrupt`, then `cli $CAND c`; write `[]`, then `{}`, into the state file of a `ready` repository and run
+  `cli $CAND` on each; run `cli $CAND` from a directory outside any repository. Expect: exit 1 each, one JSON object, with the
+  classes `UnknownWorkItem`, `UnknownWorkItem`, `StateMissing`, `CorruptJsonError`, `StateMalformed`, `StateMalformed`, and a
+  class name (no traceback) outside Git; `commit` null, `state_changed` false, trees unchanged. The base on `nostate` creates a
+  state file and commits it.
+- **F11, the five old flags are unchanged.** `mk r ready`. For each of `--finding-dispositions wi`,
+  `--plan-review-publication-status wi`, `--acceptance-gate wi`, `--satisfy-acceptance wi` and `--write-findings-record wi`, run
+  base and candidate and compare stdout and exit. (For `--plan-review-publication-status`, which prints nothing and exits 1 with a
+  traceback on this item, compare the exit only.) Then run `--commit-gate-policy-floor wi --acceptance-gate wi` and
+  `--commit-gate-policy-floor wi --write-findings-record wi` with the candidate. Expect: the five old flags match exactly; both
+  combined invocations exit 2 with "not allowed with argument".
+- **F12, the sibling proves before it stages.** Build each case in its own `mk` repository, named as given, then run
+  `snap <repo>`, `cli $CAND <repo>`, `snap <repo>`, `git -C <repo> diff --cached --name-only`.
+  - (a) `r`: floor committed; the working floor's `digest` set to 64 zeros.
+  - (b) `b`: `mk b plain`; no floor in `HEAD`; the working file holds a floor record with a malformed `policy`.
+  - (c) `c`: a malformed floor commit (provenance fails); then the working floor set to the default policy.
+  - (d) `d`: floor committed; the working floor's `digest` key deleted.
+  - (e) `e`: as (a), plus `echo x > x.md; git add x.md`.
+  - (f) `f`: malformed floor commit; the working floor equal to `HEAD`'s.
+  - (i) `i`: as (c), plus `x.md` staged.
+  - (l) `l`: `mk l plain`; no floor in `HEAD`, no policy file, `x.md` staged.
+  - (m) `m`: committed floor with only `recorded_at` edited; `x.md` staged.
+  Expect: exit 1 for (a) to (f) and (i); exit 0 with `{"commit": null, "recovered": false}` for (l) and (m), with `x.md` still
+  staged. `FloorRecoveryRefusedError` with `floor_record_invalid` for (a), (b), (d), (e), and `floor_provenance_failed` for (c),
+  (f), (i). In (e) the answer is `FloorRecoveryRefusedError`, not `DirtyIndexBeforeStagingError`. Every case: `commit` null,
+  `state_changed` false, snapshots identical, no `KeyError`. Contrast: the base's Python call on a copy of (a) answers `None`,
+  where the old design would have committed.
+- **F13, the command text.** `grep -n -e '--commit-gate-policy-floor' -e 'commit_gate_policy_floor' payload/.claude/commands/satisfy-gate.md`.
+  Then in `mk r early`, `cpy "$CAND" r/scripts`, run the documented line verbatim from `r` with the id substituted.
+  Expect: the flag appears in "Plain commands first" and in the acceptance stage's step 5, after the findings-record paragraph.
+  `commit_gate_policy_floor` stays named for the plan and implementation stages. The documented line has no `python3 -I`, runs
+  without `ModuleNotFoundError`, and refuses with `work_item_not_complete`. `grep -c 'one Python call'` on that file prints 0 for
+  the acceptance stage's text, and `grep -n 'for the floor, one Python call\|is the one Python call that remains'` finds nothing.
+- **F14, the function is untouched and nothing reached the forge.** `cat "$GH_LOG"`; then
+  `python3 -I -c` printing `hashlib.sha256(inspect.getsource(ws.commit_gate_policy_floor).encode()).hexdigest()` with `$BASE`
+  and with `$CAND`. Expect: the log is empty; the two digests are equal.
+- **F15, CP1's scope (offline).** `git diff d6e6cb07f1c97837dd98a43cb2f3c198dade47dc d14ea5b --stat -- payload docs manifest.json`.
+  Expect 11 files: `workflow_state.py`, `workflow_gate_policy_test.py`, `satisfy-gate.md`, `docs/exit-codes.md`, `docs/ROADMAP.md`,
+  `docs/ACTIVE_MILESTONE.md`, the plan, the registry, the mapping, the artifacts declaration and the state. No `workflow_protocol.py`, no manifest.
+- **F16, full environment only (not a sandbox flow).** The nine payload suites from a staged fixture, `tools/docs` and its checker,
+  `check-manager-block` with `--manager-releases`, and the `tools/release` tests with the zlib-ng interpreter. Expect: all pass;
+  the protocol and matrix suites report their deliberate skips, and `tools/release` fails rather than skips. Then
+  `git diff d6e6cb07f1c97837dd98a43cb2f3c198dade47dc --stat` at CP2 (`67943b3`) matches the list in the plan's section 5:
+  `manifest.json`, `workflow_protocol.py` and its test, `ORCHESTRATION_PROTOCOL.md`, `docs/release-history.md`,
+  `docs/exit-codes.md`, `tools/release/release_test.py`. The protocol stays `1.5`. If this cannot run, record it as not run.
 
 ### Known limitations and out of scope
 
-- The floor commit (`commit_gate_policy_floor`, `/satisfy-gate acceptance` step 5) is still a Python call. It is roadmap row 38.
-- `complete_work_item` still completes from `IMPLEMENTING` (wf#158 item 1). Not part of this milestone.
-- The flag does not check dispositions. A finding with no disposition still blocks acceptance through the gate, as before.
-- `/accept-milestone` and `/satisfy-gate acceptance` end to end need the real forge (`gh`). They cannot run in the sandbox
-  and are not part of this offline checklist.
-- The installed `scripts/` stays at Workflow 2.27.0 until `workflow-manager update`; flow 1 expects this.
-- Open optional finding `F-0c27be55ecbf` (recorded by the implementation review): the 2.28.0 row of `docs/release-history.md`
-  says the flag exits 0 "with the record path". The flag prints every path to stage, which can include the dispositions
-  file. Disposition `none`; not changed in this round.
+- The forge path is never exercised. `gh` is a stand-in that only proves no forge call was made; no pull request, no real
+  GitHub, no real `claude`, `codex` or `ssh`.
+- F7 is the documented residual: after a stop that follows the floor commit, the validator is not run again.
+- Optional findings `LOCAL-IMPL-R1-004` and `-005` (command wording in `satisfy-gate.md`) are not applied; they change a
+  shipped record and need their own wording review. The functional review may raise them.
+- F16 needs the full environment. It is not run in the sandbox.
+- The `recorded_at` value differs between the two runs of F1, since the flag stamps the real clock. This is expected.
+- The flag does not itself record acceptance. Acceptance is `/accept-milestone` only.
 
 ## Next action
 
-W42 is accepted by policy. The next incomplete item in `docs/ROADMAP.md` is row 38 (the floor commit as one plain command,
-the item after W42), ready for `PLANNING`: `/milestone-plan`.
+W43 is accepted by policy. Roadmap row 38 is Done; no further incomplete item follows it in `docs/ROADMAP.md`'s table, and the
+release (Workflow 2.29.0) follows the merge of PR #164.

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_item_id": "acceptance-floor-commit",
+  "requirements": {
+    "R1": {
+      "description": "a plain command, workflow_state.py --commit-gate-policy-floor <id>, calls commit_gate_policy_floor unchanged and prints exactly {commit, recovered}; same commit, subject, trailer and state as the Python call; tests F1, F2, F8, mutations m8, m17, m19",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the flag refuses before anything is written when the item is not MILESTONE_COMPLETE or the completion commit is not in HEAD, and for a directory without a state file, a corrupt or malformed state, an unknown id, a foreign staged path; JSON error, exit 1, commit null, no-write proof for each; tests F3, F4, mutations m1 to m4, m6, m10, m12 to m14",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "a floor written to the state file but not committed (a stop after the state write, a stop after staging) is committed by a re-run of the flag with recovered true, through commit_pending_gate_policy_floor, only after it proves provenance ok, a valid record, the recomputed virtual floor, no looser than HEAD's floor and a floor new to HEAD (refusals with stable codes, nothing written or staged; no second commit for a touched recorded_at); a stop after the commit is a no-op; tests F5, F9, F2, mutations m5, m7, m11, m20 to m25",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "a refusal after the commit landed reports the commit and the error (commit set, state_changed true), and the fields are measured: commit is HEAD only when it moved, state_changed compares digests; the flag is the sixth member of the exclusive group and every existing flag is unchanged; tests F6, F7, mutations m9, m15, m16",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "satisfy-gate.md names the flag first with the rule of three answers, the order and the closing sentence, the plan and implementation stages keep the Python description, docs/exit-codes.md and the roadmap row are updated; test R6 (neither stale 'one Python call' sentence survives), mutations m18, m26",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R6": {
+      "description": "Workflow 2.29.0 is released as a feat minor: manifest, WORKFLOW_RELEASE, the six changed records, release history, the Manager block posture, protocol still 1.5",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
