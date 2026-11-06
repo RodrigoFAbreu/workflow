@@ -203,10 +203,11 @@ record and the order unchanged) in one process, and prints exactly `{"record",
 `forge_unavailable`, `forge_undecidable`, `phase_not_reachable`, ...). With
 `state_changed: false` stop and write nothing. With `state_changed: true` and
 `GateNotSatisfiableError`, only the pull-request fact the query read (and a possible
-reopening, named in the message) was stored, as step 2 says. A refusal is never
+reopening, named in the message) was stored, as step 2 says. Any other
+`state_changed: true` means another writer changed the state: stop and re-read it. A refusal is never
 worked around by hand-writing the completion. The command does not commit, does
 not edit documents, does not write the findings record and does not record the
-floor: steps 3 to 5 below stay the worker's own edits, `git commit` and the two
+floor: steps 4 and 5 below stay the worker's own edits, `git commit` and the two
 Python calls (the findings record and the floor) until their own plain commands
 exist. Run it as written, not under `python3 -I`. The Python descriptions in this
 section stay the specification.
