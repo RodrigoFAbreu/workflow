@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "acceptance-findings-floor",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -32982,6 +32982,275 @@
         },
         "evaluated_at": "2026-11-06T06:37:01Z",
         "workflow_release": "2.26.0"
+      }
+    },
+    "acceptance-findings-floor": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "acceptance-findings-floor",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/ACCEPTANCE_FINDINGS_FLOOR_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/acceptance-findings-floor-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/acceptance-findings-floor-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 2,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "bf1b456d229fa739eb666937b8c65e5a83f2b865",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "ad672fe7d0df783ad2d234d9a9e318cfc8908f1fd10797e8ed1f3dbffff5d654",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "ad672fe7d0df783ad2d234d9a9e318cfc8908f1fd10797e8ed1f3dbffff5d654",
+        "approved_review_content_id": "b10e82a4542263d1fc419166e8811d2229d93d20e5d11637256883497100cc94",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/ACCEPTANCE_FINDINGS_FLOOR_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e3311750ee8df3062f8d61757c073fc670b1e001"
+          },
+          {
+            "path": "docs/ai-workflow/registry/acceptance-findings-floor-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9fa836e4238dd357ddfa28d41fd7a1d65be19651"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/acceptance-findings-floor-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "665c423d7aa6eb149e01f3220a57c0af209b5274"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-06T09:16:28Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "b10e82a4542263d1fc419166e8811d2229d93d20e5d11637256883497100cc94",
+            "ledger": {
+              "local": {
+                "bundle_id": "ad672fe7d0df783ad2d234d9a9e318cfc8908f1fd10797e8ed1f3dbffff5d654",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "b8b073dd181f2e9473ee9f690d33e2e3aea392399c7164268c85fb787cbbcd2a",
+                "ledger_entry_sha256": "3880707e39db87190beb20653371b63936420350ab6797b46f066774cf69bf04",
+                "run_ref": "session:local .ai-review/acceptance-findings-floor/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "ad672fe7d0df783ad2d234d9a9e318cfc8908f1fd10797e8ed1f3dbffff5d654",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "1130b74e4bd28a8d7462984f6237128dbfd65e01b1d4c84fba12f804a347fb93",
+                "ledger_entry_sha256": "d56193bf42440704f6f401e6277647df3c4d0129336b06be273ccbafbf59ac78",
+                "run_ref": "codex:20261106T091205Z-dd62d53e",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-06T09:16:28Z",
+          "workflow_release": "2.27.0"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "b10e82a4542263d1fc419166e8811d2229d93d20e5d11637256883497100cc94",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "ad672fe7d0df783ad2d234d9a9e318cfc8908f1fd10797e8ed1f3dbffff5d654",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-06T09:11:41Z",
+          "verdict_sha256": "b8b073dd181f2e9473ee9f690d33e2e3aea392399c7164268c85fb787cbbcd2a",
+          "run_ref": "session:local .ai-review/acceptance-findings-floor/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "ad672fe7d0df783ad2d234d9a9e318cfc8908f1fd10797e8ed1f3dbffff5d654",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-06T09:15:33Z",
+          "verdict_sha256": "1130b74e4bd28a8d7462984f6237128dbfd65e01b1d4c84fba12f804a347fb93",
+          "run_ref": "codex:20261106T091205Z-dd62d53e",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-11-06T09:16:28Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-06T08:58:16Z",
+        "consumed": {
+          "review_content_id": "fe35de4f02bafa366f8e73a696a2331508adc5f39762c7f5abaff16f41540ea3",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "b10e82a4542263d1fc419166e8811d2229d93d20e5d11637256883497100cc94",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "b10e82a4542263d1fc419166e8811d2229d93d20e5d11637256883497100cc94",
+          "bundle_id": "ad672fe7d0df783ad2d234d9a9e318cfc8908f1fd10797e8ed1f3dbffff5d654",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "fe35de4f02bafa366f8e73a696a2331508adc5f39762c7f5abaff16f41540ea3"
+      ],
+      "optional_findings": {
+        "F-3a66888a6f8b": {
+          "digest": "3a66888a6f8b0c407fa8f1c45be3f15b269240a9e4e31ea4737e5874c1f2f505",
+          "text": "**O1. Stale line reference in D-Release.** It names suite-count pins at `tools/release/release_test.py:3593` and `:3888`. Line 3593 is the pin; line 3888 is in `test_a_block_without_suites_is_refused_once_measured` and pins no count, and no other `(1249, 359)` pin exists. Drop `:3888`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "fe35de4f02bafa366f8e73a696a2331508adc5f39762c7f5abaff16f41540ea3",
+              "verdict": "REVISE",
+              "at": "2026-11-06T08:56:23Z"
+            }
+          ]
+        },
+        "F-b292d13026fc": {
+          "digest": "b292d13026fc5d28affe74867f52954e025e741f1874b9a08f8d07f8ef38dfac",
+          "text": "**O2. The D-Command wording can trip an existing assertion.** D-Command's \"only the floor stays the Python call until its own\" is close to a phrase `workflow_gate_policy_test.py` forbids: `test_s7_the_command_text_names_the_flag_after_the_report_and_states_the_boundaries` has `assertNotIn(\"until its own plain\", text)` on whitespace-normalised text, and pins \"steps 4 and 5 below stay the worker's own edits\". CP1 promises existing tests pass unmodified, so name this pin and avoid \"until its own plain command\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "fe35de4f02bafa366f8e73a696a2331508adc5f39762c7f5abaff16f41540ea3",
+              "verdict": "REVISE",
+              "at": "2026-11-06T08:56:23Z"
+            }
+          ]
+        },
+        "F-00265eb7725e": {
+          "digest": "00265eb7725e0d189a7ccb1ca393b0deb8acaf88ca629fc8688148ed3453860c",
+          "text": "**O3. Section 5 setup gaps.** `$BASE` and `$CAND` are never defined, and they must be absolute because `cli` changes directory (`git archive` puts the scripts under `base/payload/scripts`). Flow 1's \"shows only the new record file\" also shows the two new directory lines, because `snap` lists directories. Flow 11's \"verbatim\" line needs `scripts/` inside the `mk` repository, which `mk` does not create. Flow 12 lists \"dispositions\" at the CP1 commit, though nothing in CP1 writes that file.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "fe35de4f02bafa366f8e73a696a2331508adc5f39762c7f5abaff16f41540ea3",
+              "verdict": "REVISE",
+              "at": "2026-11-06T08:56:23Z"
+            }
+          ]
+        },
+        "F-ce6baec19b2a": {
+          "digest": "ce6baec19b2a2677cc361f2654aaf1682b060005b226a1d4e68b0343b36a90e0",
+          "text": "**O4. State the on-disk precondition in step 5a's new text.** `accept-milestone.md` step 2a says to persist the completed state \"as part of the completion commit in step 6\", while the flag reads the stored state. A worker who holds the state in memory until step 6 gets a clean `work_item_not_complete` refusal, with no harm done. D-Command's \"after the step that completed it\" could say outright that the state must already be written to the file.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "fe35de4f02bafa366f8e73a696a2331508adc5f39762c7f5abaff16f41540ea3",
+              "verdict": "REVISE",
+              "at": "2026-11-06T08:56:23Z"
+            }
+          ]
+        },
+        "F-1bf76b3bb6a3": {
+          "digest": "1bf76b3bb6a372afe0f71a92f69f0e9e14c14865cc162c0d2c94a6f4401e3989",
+          "text": "**O1. Mapping R4 does not name the test that proves its dispatch claim.** `acceptance-findings-floor-mapping.json` R4 claims \"dispatched before the shared git rev-parse\" and lists \"tests R5, mutations m11 to m14\". Since round 1's I2, D-Tests has m11 fail R3 (the run outside Git), and R5 cannot see the dispatch position. Add R3 to R4's tests.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "b10e82a4542263d1fc419166e8811d2229d93d20e5d11637256883497100cc94",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T09:11:41Z"
+            }
+          ]
+        },
+        "F-ced5c3d7f880": {
+          "digest": "ced5c3d7f8807df230781756a0db19d137ecc56975889d48c1791d5a120f38d6",
+          "text": "**O2. D-Docs gives the exit-1 row less than D-Output requires.** It describes the row as \"the JSON error with `record_changed`\", but the object also carries `state_changed` and the worker rule has branches for both fields. The `--satisfy-acceptance` row in `docs/exit-codes.md` states its `state_changed` branches under \"What to do\". The new row should do the same, or a reader of the page will not learn what `state_changed: true` means.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "b10e82a4542263d1fc419166e8811d2229d93d20e5d11637256883497100cc94",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T09:11:41Z"
+            }
+          ]
+        },
+        "F-bf72292f712c": {
+          "digest": "bf72292f712c0cc4c77bd0aff781528bc479a0f69735756361136911da2d3016",
+          "text": "Section 5’s flows need distinct scratch paths or explicit fixture recreation. Flow 2 deletes and replaces `r`, but flow 3 requires flow 1’s `r`; running them sequentially leaves no findings record or dispositions file for flow 3. Recreate the `done` fixture before flow 3 or preserve flow 1’s repository separately.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "b10e82a4542263d1fc419166e8811d2229d93d20e5d11637256883497100cc94",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T09:15:33Z"
+            }
+          ]
+        }
       }
     }
   }

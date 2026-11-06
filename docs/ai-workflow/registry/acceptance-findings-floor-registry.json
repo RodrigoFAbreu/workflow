@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "acceptance-findings-floor",
+  "plan_revision": 2,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The findings-record flag, its tests, the command texts and the pages",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.28.0",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}

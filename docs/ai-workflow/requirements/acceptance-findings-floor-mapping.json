@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_item_id": "acceptance-findings-floor",
+  "requirements": {
+    "R1": {
+      "description": "a plain command, workflow_state.py --write-findings-record <id>, calls write_finding_dispositions_record on the stored state and prints exactly {paths}; same file, text and paths as the Python call; tests R1, R2, R8, mutations m4, m10",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the command is re-runnable and idempotent, and a refusal before the write writes nothing while a failure after the record was rewritten reports record_changed true and is cured by a re-run: phase refusal, invalid dispositions file, unwritable record path, every error before the call; JSON error with record_changed and state_changed, exit 1; tests R3, R7, mutations m1 to m3, m5 to m7, m15",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "the command takes no lock, enters no state_transaction, writes no state, stages and commits nothing and calls no forge; tests R4, mutations m8, m9",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "the interface: a fifth member of the exclusive group dispatched before the shared git rev-parse, an empty id is UnknownWorkItem, existing flags byte-identical, exit codes 0, 1, 2; tests R5, mutations m11 to m14",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "accept-milestone.md step 5a and satisfy-gate.md name the plain command and keep the Python call as the specification and every pinned phrase, only the floor stays Python; docs/exit-codes.md lists the flag; docs/ROADMAP.md carries row 37 Current and row 38 Next (the floor commit, its own recovery design); test R6, mutation m16",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R6": {
+      "description": "Workflow 2.28.0 is released as a feat minor: manifest, release constant, posture with the downgrade guidance kept, release-history row, the 2.28.0 release class; protocol stays 1.5, no Controller change",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
