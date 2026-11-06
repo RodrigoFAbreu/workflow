@@ -32993,7 +32993,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-findings-floor-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-findings-floor-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -33133,12 +33133,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 14,
-      "last_transition": "2026-11-06T10:44:43Z",
+      "state_revision": 15,
+      "last_transition": "2026-11-06T11:04:38Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -33257,6 +33257,34 @@
               "review_content_id": "b10e82a4542263d1fc419166e8811d2229d93d20e5d11637256883497100cc94",
               "verdict": "APPROVE",
               "at": "2026-11-06T09:15:33Z"
+            }
+          ]
+        },
+        "F-3261f3570c50": {
+          "digest": "3261f3570c50532643c5aacab1f1a86e9cc3e8145356b850f33691706df53f4c",
+          "text": "**O1. The posture says \"code\" is unchanged, but this release adds one.** `manifest.json`'s `manager.downgrade_boundary.posture` keeps 2.27.0's \"every other option's output, every other command file, code, state key, phase, ... are unchanged\", while 2.28.0 adds the code `work_item_not_complete`. The `docs/release-history.md` row leaves \"code\" out of the same list, so the two disagree. The new code is reachable only through the new flag, so nothing else changes. Dropping the word before the release is immutable would make the posture exact.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "abcaebea4cfde1b54a55ff74a86671503ffabcb541054341395ccfac65a71d82",
+              "verdict": "REVISE",
+              "at": "2026-11-06T11:04:38Z"
+            }
+          ]
+        },
+        "F-9932da1b6b36": {
+          "digest": "9932da1b6b36027e5eb796d46ec53b708ed25fd9f0ee65ad7891aa12137e9abd",
+          "text": "**O2. R3 checks the \"pre-existing stale record untouched\" clause only for the phase refusals.** D-Tests R3 applies that clause to every refusal. The invalid-dispositions test and the errors before the call run with no record present. A write before validation would still be caught, because the tree comparison would show a new file, but a refusal that deleted or restored an existing record would not be tested there. Seeding a stale record in those cases costs one line each.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "abcaebea4cfde1b54a55ff74a86671503ffabcb541054341395ccfac65a71d82",
+              "verdict": "REVISE",
+              "at": "2026-11-06T11:04:38Z"
             }
           ]
         }
