@@ -6187,7 +6187,7 @@ class TestWriteFindingsRecordCommand(unittest.TestCase):
             before = self.files(ev.root)
             git_before = self.git_view(ev.root)
             with mock.patch.object(ws, "state_transaction") as tx, mock.patch.object(ws, "state_lock") as lock, \
-                    mock.patch.object(ws, "resolve_gh", create=True) as gh, \
+                    mock.patch.object(forge, "resolve_gh") as gh, \
                     mock.patch("subprocess.run", wraps=subprocess.run) as run:
                 code, _ = self.call(ev.root)
             self.assertEqual(code, 0)
@@ -6196,6 +6196,7 @@ class TestWriteFindingsRecordCommand(unittest.TestCase):
             for call in run.call_args_list:
                 argv = call.args[0] if call.args else call.kwargs.get("args", [])
                 self.assertFalse(list(argv[:2]) in (["git", "commit"], ["git", "add"]), argv)
+                self.assertNotEqual(list(argv[:1]), ["gh"], argv)
             after = self.files(ev.root)
             self.assertEqual({k for k in after if before.get(k) != after[k]} - {"docs/milestones", "docs/milestones/completed"},
                              {str(self.RECORD)})
@@ -6214,6 +6215,12 @@ class TestWriteFindingsRecordCommand(unittest.TestCase):
                     ws._plan_review_publication_status_cli(["--write-findings-record", WI, other, WI])
                 self.assertEqual(caught.exception.code, 2)
                 self.assertIn("not allowed with argument", err.getvalue())
+        with AcceptanceRepo() as ev:
+            self.complete(ev, "O1: add a test")
+            before = self.files(ev.root)
+            code, raw = self.call(ev.root, "")
+            self.assertEqual((code, json.loads(raw)["error"]), (1, "UnknownWorkItem"))
+            self.assertEqual(before, self.files(ev.root))
 
     def test_r5_the_existing_flags_print_what_they_printed(self):
         import contextlib as cl
@@ -6232,6 +6239,11 @@ class TestWriteFindingsRecordCommand(unittest.TestCase):
             status = ws.plan_review_publication_status(ev.root, state, WI)
             self.assertEqual((code, raw), (0, json.dumps({k: v for k, v in status.items() if not k.startswith("_")},
                                                          sort_keys=True) + "\n"))
+            blocker = ws._acceptance_reachability_blocker(ev.root, WI, state["work_items"][WI])
+            self.assertEqual(blocker["code"], "work_item_terminal")
+            self.assertEqual(self.call(ev.root, WI, "--satisfy-acceptance", WI),
+                             (1, json.dumps({"code": blocker["code"], "error": "AcceptancePreflightError",
+                                             "message": blocker["detail"], "state_changed": False}, sort_keys=True) + "\n"))
 
     # -- R6: the command text -------------------------------------------------------
 
@@ -6242,11 +6254,19 @@ class TestWriteFindingsRecordCommand(unittest.TestCase):
         flag = "python3 scripts/workflow_state.py --write-findings-record"
         self.assertIn(flag, accept)
         self.assertLess(accept.index("--write-findings-record"), accept.index("write_finding_dispositions_record"))
+        flat_accept, flat_satisfy = " ".join(accept.split()), " ".join(satisfy.split())
         for needle in ("5a. **Write the findings record**", "skip steps 3, 5 and 7, but run step 5a",
-                       "record_changed", "state_changed", "does not commit", "work_item_not_complete"):
-            self.assertIn(needle, " ".join(accept.split()))
-        self.assertIn("--write-findings-record", satisfy)
-        self.assertIn("commit_gate_policy_floor", satisfy)
+                       "does not commit", "work_item_not_complete", "The Python description is the specification",
+                       "written to `docs/ai-workflow/WORKFLOW_STATE.json`"):
+            self.assertIn(needle, flat_accept)
+        for needle in ("`record_changed: true` means the record moved", "do not stage or commit it",
+                       "fix the cause and run it again", "`state_changed: true` means another writer changed the state",
+                       "stop and re-read it", "work_item_not_complete"):
+            self.assertIn(needle, flat_accept)
+            self.assertIn(needle, flat_satisfy)
+        self.assertIn(flag, satisfy)
+        self.assertIn("write_finding_dispositions_record", satisfy)
+        self.assertIn("`commit_gate_policy_floor`) is the one Python call that remains", flat_satisfy)
         self.assertIn("steps 4 and 5 below stay the worker's own edits", satisfy)
         self.assertNotIn("until its own plain", satisfy)
         for text in (accept, satisfy):

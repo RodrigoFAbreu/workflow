@@ -3563,8 +3563,8 @@ class AcceptanceCompletionCommandReleaseTest(unittest.TestCase):
         self.assertLess(self.history.index("| 2.27.0 |"), self.history.index("| 2.26.0 |"))
 
 
-class AcceptanceCompletionCommandReleaseTest(unittest.TestCase):
-    """Release 2.28.0 (findings-record-command): the version, the release constant, the
+class AcceptanceFindingsFloorReleaseTest(unittest.TestCase):
+    """Release 2.28.0 (acceptance-findings-floor): the version, the release constant, the
     counts, the digests, the downgrade posture, the pages' "Last checked with" lines and the
     release-history rows."""
 
@@ -3572,7 +3572,7 @@ class AcceptanceCompletionCommandReleaseTest(unittest.TestCase):
                "scripts/workflow_protocol_test.py", "scripts/workflow_gate_policy_test.py",
                "scripts/workflow_state.py", "scripts/workflow_integration_test.py",
                ".claude/commands/satisfy-gate.md", ".claude/commands/accept-milestone.md")
-    SENTENCE = "findings-record-command (workflow-2.28.0)"
+    SENTENCE = "acceptance-findings-floor (workflow-2.28.0)"
 
     def setUp(self):
         self.manifest = json.loads((REPO_ROOT / "manifest.json").read_text())
@@ -3620,7 +3620,8 @@ class AcceptanceCompletionCommandReleaseTest(unittest.TestCase):
                        "workflow-manager update back to 2.27.0", "WORKFLOW_RELEASE",
                        "removes the flag", "nothing needs undoing",
                        "/release-checkpoint-start", "2.14.0",
-                       "The guidance of 2.27.0 and earlier still applies unchanged"):
+                       "The guidance of 2.27.0 and earlier still applies unchanged",
+                       "The release tooling and the maintainer documents are not part of the installed release."):
             self.assertIn(needle, posture)
         self.assertEqual(block["downgrade_boundary"]["signals"], [])
         self.assertEqual(block["new_work_only"], [])

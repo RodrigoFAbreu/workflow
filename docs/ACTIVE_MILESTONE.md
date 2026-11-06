@@ -28,6 +28,12 @@ CP2 verified state (scratch clone with the changes committed): the nine suites p
 clean; `tools/release` 313 tests pass (zlib-ng interpreter); `release.py build --commit HEAD` succeeds; `workflow-manager
 verify .` clean (installation 2.27.0).
 
+Self-review: the 2.28.0 release class reused the 2.27.0 class's name, so the 2.27.0 tests silently stopped running; it is now
+`AcceptanceFindingsFloorReleaseTest`, and `tools/release` runs two more tests. The eight record sentences now read
+`acceptance-findings-floor (workflow-2.28.0)`, as D-Release says, and the posture's closing sentence is pinned. R4 spies the
+real `workflow_forge.resolve_gh`; R5 and R6 assert what D-Tests asks (the empty id, `--satisfy-acceptance`, both `true` branches,
+the state-file line, the floor sentence). Six failure-only mutations of those assertions each fail on a scratch copy.
+
 ## Next action
 
-`/milestone-implement acceptance-findings-floor` again: self-review, full verification and the implementation bundle.
+The local implementation review of the bundle `/milestone-implement acceptance-findings-floor` generates.
