@@ -277,8 +277,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/satisfy-gate\\.md$",
       "rationale": "Satisfies a plan, implementation (technical) or acceptance gate from current policy evidence instead of a human approval, recording an audit record. W2 (workflow-2.8.0, gate-policy-and-reopening). finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. backlog-file (workflow-2.17.0): the backlog branch of an automatic acceptance, as the release notes state. acceptance-plain-command (workflow-2.26.0): names the plain read-only --acceptance-gate report before the Python description, which stays the specification. acceptance-completion-command (workflow-2.27.0): names the plain --satisfy-acceptance completion after the report, states that step 0's preflight-accept runs first and the flag does not run it, and keeps the Python descriptions as the specification.",
-      "sha256": "0640b3d73f95ed0ffadcb72c23df65f33245812b6b7d2d5a1969c85175a1e0c1",
-      "size": 22048,
+      "sha256": "655aba217e6026746c8e89078bfb38652dbf730f2e5d8ca1485f34c53af3c0b2",
+      "size": 22142,
       "executable": false
     },
     {
@@ -783,8 +783,8 @@
       "category": "conformance",
       "rule": "^scripts/workflow_gate_policy_test\\.py$",
       "rationale": "The gate policy suite: policy model and adoption, automatic plan, technical and acceptance satisfaction, functional evidence and forge facts, reopening, and the all-human equivalence. Run by workflow-conformance.yml. W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. review-followups-cleanup (workflow-2.18.1): a test pins the acceptance refusal's bounded finding label and the unchanged listing. ci-latest-check-run (workflow-2.25.3): TestLatestCheckRun pins the latest-run derivation (ten tests). check-time-by-value (workflow-2.25.4): TestLatestCheckRun gains four tests (the zero instant by value, the range and the residual sentence), fourteen in all. acceptance-plain-command (workflow-2.26.0): TestAcceptanceGateReport pins the report (shape, blockers, dispositions, read-only, exit codes, command text and parity with the stage). acceptance-completion-command (workflow-2.27.0): TestSatisfyAcceptanceCommand pins the completion flag (parity with the Python path, no write on refusal, the answer, one state_transaction, the interface, the real resolve_gh, the command text and the shared pre-flight).",
-      "sha256": "be27e7b00816ed469384851fad1a380237a4ea9a97e7e11315c613449b5172c2",
-      "size": 329241,
+      "sha256": "d0652deef985c2af83616100080d70d4de6daa7d80ce3217b1676fc1389452c5",
+      "size": 330513,
       "executable": false
     },
     {
@@ -3885,7 +3885,7 @@
         "workflow_acceptance_matrix_test.py": 453,
         "workflow_protocol_test.py": 344,
         "workflow_state_test.py": 1249,
-        "workflow_gate_policy_test.py": 358,
+        "workflow_gate_policy_test.py": 359,
         "workflow_fingerprint_generalization_test.py": 148,
         "workflow_state_completion_obligations_test.py": 290,
         "workflow_integration_test.py": 377,

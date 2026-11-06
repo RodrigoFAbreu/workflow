@@ -5635,8 +5635,6 @@ class TestLatestCheckRun(unittest.TestCase):
 class TestSatisfyAcceptanceCommand(unittest.TestCase):
     """workflow-2.27.0: `workflow_state.py --satisfy-acceptance <id>`, the completion as one plain command."""
 
-    GH_FREE_PATH_TOOLS = ("git",)
-
     def setUp(self):
         self.r = TestAcceptanceGateReport(methodName="test_a_ready_item_reports_every_requirement_met")
         self.r.setUp()
@@ -5802,6 +5800,29 @@ class TestSatisfyAcceptanceCommand(unittest.TestCase):
             code, out, queries = self.call(ev, cwd=outside)
             self.assertEqual((code, out["error"], out["state_changed"], queries), (1, "CalledProcessError", False, []))
 
+    def test_s2_the_default_timestamp_is_the_documented_utc_format(self):
+        """The command's own clock (no injected `now`) stores `%Y-%m-%dT%H:%M:%SZ` in the record."""
+        import contextlib as cl
+        import io
+        import os
+
+        with AcceptanceRepo() as ev:
+            self.r.fixture(ev, "ready")
+            body = json.dumps([pr_record(ev.anchor)])
+            out = io.StringIO()
+            old = os.getcwd()
+            os.chdir(ev.root)
+            try:
+                with cl.redirect_stdout(out):
+                    code = ws._satisfy_acceptance_cli(WI, run=lambda a, t: body, resolve=lambda r: dict(FAKE_GH))
+            finally:
+                os.chdir(old)
+            self.assertEqual(code, 0)
+            stamp = json.loads(out.getvalue())["record"]["evaluated_at"]
+            self.assertRegex(stamp, r"\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\Z")
+            self.assertEqual(ev.item()["acceptance_satisfaction"]["evaluated_at"], stamp)
+            self.assertRegex(ws._utc_now_stamp(), r"\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\Z")
+
     # -- S3: the answer ---------------------------------------------------------
 
     def test_s3_success_prints_exactly_record_and_trailer(self):
@@ -5930,6 +5951,9 @@ class TestSatisfyAcceptanceCommand(unittest.TestCase):
                        "does not commit", "never worked around by hand", "state_writer: true"):
             self.assertIn(pinned, text)
         self.assertNotIn("until its own plain", text)
+        self.assertIn("steps 4 and 5 below stay the worker's own edits", text)
+        self.assertNotIn("steps 3 to 5 below", text)
+        self.assertIn("Any other `state_changed: true` means another writer changed the state", text)
         for line in raw.splitlines():
             if "--satisfy-acceptance" in line:
                 self.assertNotIn("python3 -I", line)
