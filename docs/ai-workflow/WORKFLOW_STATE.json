@@ -33818,7 +33818,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-floor-commit-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-floor-commit-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 5,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -33927,7 +33927,144 @@
           "workflow_release": "2.28.0"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "341350db1485a0a4c886041b93fd3ec8e1d28078b6591582bf85216945f04dc3",
+        "approved_review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/acceptance-floor-commit-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "68a7311b4eaff96259312da8beb33f678224b1de"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c23ae9df2acdd517af248f2e55e1516a4127bf8e"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "018e4d3f4ce0288599cef17077352d0f5b2d2339"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0a5c80ecf6a88d19bf6a17d95a3c4b6eaa2c5ac6"
+          },
+          {
+            "path": "payload/.claude/commands/satisfy-gate.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3384798e0d8666b747122d70c69b2b8bc9c377fc"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "38d6ccccc2e2805fedd1c688533b07048cbfe86e"
+          },
+          {
+            "path": "payload/scripts/workflow_gate_policy_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "73f285d4f756ce2f83d1d2c98b4217f7d4c65bda"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4a649751f010a0f7df91f4f497b491b0864f7f8c"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "dc9116f463d114cf9f55cafc1822ccc1002eb6e7"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4a4c5646def188903b4f5353c5d7e28eef991120"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0f00af50cd1aa4d8e5ba0620627e37f18cbcf84b"
+          }
+        ],
+        "reviewed_content_commit": "aa46d07dbb603f4b1a76fb4ee6b5e402ea7447dc",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-06T22:07:41Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+            "ledger": {
+              "local": {
+                "bundle_id": "341350db1485a0a4c886041b93fd3ec8e1d28078b6591582bf85216945f04dc3",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "03e6ee4356d328e85002b09cb0374daaabdb8305d40337f0736dbaa4b1713069",
+                "ledger_entry_sha256": "39196cf94d9db54d8392545512921800679d2a1d8d85fec9990d01663d467e0b",
+                "run_ref": "session:local .ai-review/acceptance-floor-commit/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "341350db1485a0a4c886041b93fd3ec8e1d28078b6591582bf85216945f04dc3",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "1ba5cdc2ee1fc0e10d191a49f268adec5bc36b0344f42bd96c6e4437762fbfbf",
+                "ledger_entry_sha256": "1dc6e68747f5445ef282703ceb5f0b802d599db5788d90d1c8cd519b223ceca4",
+                "run_ref": "codex:20261106T220452Z-86a0da71",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-06T22:07:41Z",
+          "workflow_release": "2.28.0"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
@@ -33958,12 +34095,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 1,
-          "external": 0
+          "local": 2,
+          "external": 1
         }
       },
-      "state_revision": 25,
-      "last_transition": "2026-11-06T21:37:31Z",
+      "state_revision": 28,
+      "last_transition": "2026-11-06T22:07:41Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -34269,6 +34406,83 @@
               "at": "2026-11-06T21:12:39Z"
             }
           ]
+        },
+        "F-fe3f9e44039f": {
+          "digest": "fe3f9e44039f54169f0aae0290714e859e9ce784fe86a552d990d9c242895c2d",
+          "text": "**LOCAL-IMPL-R2-001: nothing pins that the order test compares the whole item.** D-Order refuses when `HEAD`'s copy of the item \"differs from the working copy\", but F3's only `completion_not_committed` case differs in `phase`. Measured on a scratch copy: replacing `head_item != item` with a comparison of `phase` alone passes all 31 tests of `TestCommitFloorCommand`. The code is right: a probe with the same phase and one other uncommitted item field answers `completion_not_committed`. A case like that in F3 would pin it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T22:04:23Z"
+            }
+          ]
+        },
+        "F-e56b1fc1e4fa": {
+          "digest": "e56b1fc1e4fa4451e00d92c9347d3b40c4d9c3d39ccaa95f6dc1f04979b115a2",
+          "text": "**LOCAL-IMPL-R2-002: the bundle's evidence text describes the previous round.** `REVIEW_REQUEST.md` still says `Head: 2f33039`, \"implementation revision 1\" and \"all at 63c1ec3\", while `MANIFEST.md` states `reviewed_implementation_head` aa46d07, revision 2 and `generation_head` 5690223. `TEST_RESULTS.md` opens with \"implementation revision 1\" and \"All of this ran ... against commit 63c1ec3\", yet its table says `workflow_gate_policy_test.py` ran 404 tests, and `manifest.json` at 63c1ec3 pins 403. Its follow-up section does state the post-fix run correctly, and this review reproduced those counts and digests, so no result is wrong; the external reviewer has to work out which head each line means.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T22:04:23Z"
+            }
+          ]
+        },
+        "F-a5570209c8d4": {
+          "digest": "a5570209c8d4d8be3f35d606ea1c2458f546d05c20299ed05dc03e6b783f5cbc",
+          "text": "**LOCAL-IMPL-R2-003: F9 (c) and (i) do not build the plan's setup.** The plan has the working floor \"looser than a floor committed earlier\", but `test_f9_a_failed_provenance_is_refused_whether_or_not_a_floor_waits` has no earlier valid floor. Measured with the setup as written (a real floor, then a commit with a damaged `digest`, then the default policy in the working file): exit 1, `floor_provenance_failed`, so the behaviour holds and m20 still fails the test.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T22:04:23Z"
+            }
+          ]
+        },
+        "F-00c89d9dafdb": {
+          "digest": "00c89d9dafdb57a38bfbed087a74d00f4abb2405bdb626b3dd68d04bdf539161",
+          "text": "[satisfy-gate.md:252](payload/.claude/commands/satisfy-gate.md#L252) attributes `state_changed: true` exclusively to this call writing the floor. The implementation compares whole-file digests, which also detects another writer’s changes. An in-memory probe produced `state_changed: true`, `commit: null` on a phase refusal without calling the floor function. Qualify this wording and the corresponding exit-code guidance to acknowledge concurrent writers.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+              "verdict": "APPROVE",
+              "at": "2026-11-06T22:07:16Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "ea54653d71bedf553acefab8565f40b448969c593b11981d4f08fa454aba7907",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "341350db1485a0a4c886041b93fd3ec8e1d28078b6591582bf85216945f04dc3",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-06T22:04:23Z",
+          "verdict_sha256": "03e6ee4356d328e85002b09cb0374daaabdb8305d40337f0736dbaa4b1713069",
+          "run_ref": "session:local .ai-review/acceptance-floor-commit/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "341350db1485a0a4c886041b93fd3ec8e1d28078b6591582bf85216945f04dc3",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-06T22:07:16Z",
+          "verdict_sha256": "1ba5cdc2ee1fc0e10d191a49f268adec5bc36b0344f42bd96c6e4437762fbfbf",
+          "run_ref": "codex:20261106T220452Z-86a0da71",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
