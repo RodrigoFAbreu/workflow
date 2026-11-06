@@ -248,7 +248,9 @@ is `MILESTONE_COMPLETE` (`work_item_not_complete`) and `HEAD` holds its complete
 "commit", "state_changed"}` (plus `"code"`). With `commit: null` nothing was committed:
 fix the cause the message names (for example unstage a foreign path) and run it
 again; a floor already waiting in the state file is committed by that re-run
-(`recovered: true`), so never commit the file by hand; after a
+(`recovered: true`), so never commit the file by hand. `state_changed: true` with
+`commit: null` means this call wrote the floor into the file before it stopped (not, as
+for the flags above, that another writer changed the state). After a
 `DirtyIndexBeforeStagingError` that follows an interrupted staging, run
 `git restore --staged docs/ai-workflow/WORKFLOW_STATE.json` and the same command again.
 The refusals of a waiting floor (`FloorRecoveryRefusedError`, code

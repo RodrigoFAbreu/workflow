@@ -6826,6 +6826,39 @@ class TestCommitFloorCommand(unittest.TestCase):
         finally:
             os.chdir(old)
         self.assertEqual((code, json.loads(out.getvalue())["code"]), (1, "work_item_not_complete"))
+        helper = TestWriteFindingsRecordCommand(methodName="test_r5_the_existing_flags_print_what_they_printed")
+        code, raw = helper.call(repo.root, "wi", "--commit-gate-policy-floor", "")  # an empty id is not "absent"
+        self.assertEqual((code, json.loads(raw)["error"]), (1, "UnknownWorkItem"))
+        outside = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, outside, True)
+        code, raw = helper.call(outside, "wi", "--commit-gate-policy-floor", "wi")  # dispatched before the shared `git rev-parse`
+        body = json.loads(raw)
+        self.assertEqual((code, body["commit"], body["state_changed"]), (1, None, False))
+        self.assertIn("error", body)
+
+    def test_f7_the_existing_flags_print_what_they_printed(self):
+        import io
+
+        helper = TestWriteFindingsRecordCommand(methodName="test_r5_the_existing_flags_print_what_they_printed")
+        with AcceptanceRepo() as ev:
+            helper.complete(ev, "O1: add a test")
+            state = ev.state()
+            buffer = io.StringIO()
+            with contextlib.redirect_stdout(buffer):
+                direct_code = ws._finding_dispositions_cli(ev.root, WI)
+            self.assertEqual(helper.call(ev.root, WI, "--finding-dispositions", WI), (direct_code, buffer.getvalue()))
+            self.assertEqual(helper.call(ev.root, WI, "--acceptance-gate", WI),
+                             (0, json.dumps(ws.acceptance_gate_report(ev.root, state, WI), sort_keys=True, indent=2) + "\n"))
+            status = ws.plan_review_publication_status(ev.root, state, WI)
+            self.assertEqual(helper.call(ev.root, WI, "--plan-review-publication-status", WI),
+                             (0, json.dumps({k: v for k, v in status.items() if not k.startswith("_")}, sort_keys=True) + "\n"))
+            blocker = ws._acceptance_reachability_blocker(ev.root, WI, state["work_items"][WI])
+            self.assertEqual(helper.call(ev.root, WI, "--satisfy-acceptance", WI),
+                             (1, json.dumps({"code": blocker["code"], "error": "AcceptancePreflightError",
+                                             "message": blocker["detail"], "state_changed": False}, sort_keys=True) + "\n"))
+            record = TestWriteFindingsRecordCommand.RECORD.as_posix()
+            self.assertEqual(helper.call(ev.root, WI, "--write-findings-record", WI),
+                             (0, json.dumps({"paths": [record]}, sort_keys=True, indent=2) + "\n"))
 
     # -- F8: the function is untouched -------------------------------------------------------
 
@@ -6869,6 +6902,7 @@ class TestCommitFloorCommand(unittest.TestCase):
                        "floor_provenance_failed", "floor_record_invalid", "floor_not_virtual", "floor_looser_than_head",
                        "recovered", "git restore --staged docs/ai-workflow/WORKFLOW_STATE.json",
                        "do not run it again", "never commit the file by hand",
+                       "`state_changed: true` with `commit: null` means this call wrote the floor into the file before it stopped",
                        "steps 4 and 5 below stay the worker's own edits, `git commit` and, for the floor, the plain command below",
                        "The acceptance stage has no inline Python call",
                        "the plan-stage and implementation-stage floors keep the Python description (`commit_gate_policy_floor`)"):

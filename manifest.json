@@ -277,8 +277,8 @@
       "category": "distribution",
       "rule": "^\\.claude/commands/satisfy-gate\\.md$",
       "rationale": "Satisfies a plan, implementation (technical) or acceptance gate from current policy evidence instead of a human approval, recording an audit record. W2 (workflow-2.8.0, gate-policy-and-reopening). finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. backlog-file (workflow-2.17.0): the backlog branch of an automatic acceptance, as the release notes state. acceptance-plain-command (workflow-2.26.0): names the plain read-only --acceptance-gate report before the Python description, which stays the specification. acceptance-completion-command (workflow-2.27.0): names the plain --satisfy-acceptance completion after the report, states that step 0's preflight-accept runs first and the flag does not run it, and keeps the Python descriptions as the specification. acceptance-findings-floor (workflow-2.28.0): names the plain --write-findings-record command for the record write. acceptance-floor-commit (workflow-2.29.0): names the plain --commit-gate-policy-floor command for the floor commit.",
-      "sha256": "110b5db5cd06f5c482e0cb60fddc988e4fa6fd87bfdfb4e8700c216d6b9bc608",
-      "size": 25435,
+      "sha256": "c27cf183bef6b63ec08a477b651ed91ad022666fbe0f085a77ea8fbb9dcd4595",
+      "size": 25611,
       "executable": false
     },
     {
@@ -783,8 +783,8 @@
       "category": "conformance",
       "rule": "^scripts/workflow_gate_policy_test\\.py$",
       "rationale": "The gate policy suite: policy model and adoption, automatic plan, technical and acceptance satisfaction, functional evidence and forge facts, reopening, and the all-human equivalence. Run by workflow-conformance.yml. W2 (workflow-2.8.0, gate-policy-and-reopening). W3 (workflow-2.9.0, legacy-retire-and-default-version). review-convergence (workflow-2.12.0): verdict shape, changes since the last reviewed bundle, the review_round field and plan-size guidance, as the release notes state. finding-dispositions (workflow-2.14.0): the Optional-finding dispositions, the adoption merge-commit cause and the artifact-declaration coverage check, as the release notes state. review-followups-cleanup (workflow-2.18.1): a test pins the acceptance refusal's bounded finding label and the unchanged listing. ci-latest-check-run (workflow-2.25.3): TestLatestCheckRun pins the latest-run derivation (ten tests). check-time-by-value (workflow-2.25.4): TestLatestCheckRun gains four tests (the zero instant by value, the range and the residual sentence), fourteen in all. acceptance-plain-command (workflow-2.26.0): TestAcceptanceGateReport pins the report (shape, blockers, dispositions, read-only, exit codes, command text and parity with the stage). acceptance-completion-command (workflow-2.27.0): TestSatisfyAcceptanceCommand pins the completion flag (parity with the Python path, no write on refusal, the answer, one state_transaction, the interface, the real resolve_gh, the command text and the shared pre-flight). acceptance-findings-floor (workflow-2.28.0): TestWriteFindingsRecordCommand pins the findings-record flag (preflight, parity with the Python call, no state write, record_changed and state_changed, the interface and the command texts). acceptance-floor-commit (workflow-2.29.0): the flag's tests (preflight, order, recovery and its six preconditions, output, no foreign staging, the interface and the command text).",
-      "sha256": "0d88930a118754c0e3b7f99a9ddbbb9b57e0dd9224b2abb4ba7e89579eb73890",
-      "size": 376727,
+      "sha256": "8e626965e69d814425f78b43d1d16216e96efcc2c5a0a5506cb994a68c84ca7f",
+      "size": 379323,
       "executable": false
     },
     {
@@ -3885,7 +3885,7 @@
         "workflow_acceptance_matrix_test.py": 453,
         "workflow_protocol_test.py": 344,
         "workflow_state_test.py": 1249,
-        "workflow_gate_policy_test.py": 402,
+        "workflow_gate_policy_test.py": 403,
         "workflow_fingerprint_generalization_test.py": 148,
         "workflow_state_completion_obligations_test.py": 290,
         "workflow_integration_test.py": 377,

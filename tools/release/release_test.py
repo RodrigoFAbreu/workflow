@@ -3665,7 +3665,7 @@ class AcceptanceFloorCommitReleaseTest(unittest.TestCase):
         self.assertEqual(block["gate_default_change"], "")
         suites = block["conformance"]["suites"]
         self.assertEqual((suites["workflow_state_test.py"],
-                          suites["workflow_gate_policy_test.py"]), (1249, 402))
+                          suites["workflow_gate_policy_test.py"]), (1249, 403))
 
     def test_the_release_history_rows_name_the_release_and_the_way_back(self):
         self.assertIn("Last checked with: Workflow 2.29.0.", self.history)
