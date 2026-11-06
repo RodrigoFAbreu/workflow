@@ -2,10 +2,10 @@
 
 ## Milestone
 
-**Awaiting functional review.** W42: `acceptance-findings-floor` (`process`, governing version `2.2`), branch
+**Complete (accepted by policy).** W42: `acceptance-findings-floor` (`process`, governing version `2.2`), branch
 `milestone/acceptance-findings-floor`, roadmap row 37 (RodrigoFAbreu/workflow#148, the rest). The plan is
 `docs/ai-workflow/ACCEPTANCE_FINDINGS_FLOOR_PLAN.md` (revision 2, approved by gate policy). The previous milestone, W41
-`acceptance-completion-command` (Workflow 2.27.0), is complete.
+`acceptance-completion-command` (Workflow 2.27.0), is complete. The release follows the merge.
 
 ## Goal
 
@@ -132,6 +132,5 @@ Automated, optional, offline: `python3 -B payload/scripts/workflow_gate_policy_t
 
 ## Next action
 
-Manual functional testing against the checklist above. Report findings to
-`.ai-review/acceptance-findings-floor/feedback/FUNCTIONAL_REVIEW.md`, then run `/apply-functional-review` for each one.
-When testing is clean, `/accept-milestone` is the only acceptance command.
+W42 is accepted by policy. The next incomplete item in `docs/ROADMAP.md` is row 38 (the floor commit as one plain command,
+the item after W42), ready for `PLANNING`: `/milestone-plan`.
