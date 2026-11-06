@@ -17,7 +17,7 @@ Gate semantics do not change; the protocol stays 1.5. The findings record and th
 
 - **CP1 (the completion flag, its tests, the command text and the pages): complete.** `_acceptance_reachability_blocker`
   is shared by the report and the command; `AcceptancePreflightError`, `_satisfy_acceptance_cli` and the fourth flag in
-  the exclusive group are in `payload/scripts/workflow_state.py`; `TestSatisfyAcceptanceCommand` (S1 to S8, 12 tests)
+  the exclusive group are in `payload/scripts/workflow_state.py`; `TestSatisfyAcceptanceCommand` (S1 to S8, 13 tests)
   is in `payload/scripts/workflow_gate_policy_test.py` (suite 346 to 359 tests, all passing); `satisfy-gate.md` and
   `docs/exit-codes.md` name the flag. Verified in the disposable clone of D-Staging.
 - **CP2 (release 2.27.0): complete.** `WORKFLOW_RELEASE` 2.27.0 (protocol stays 1.5), `manifest.json` (version, six records' `sha256`/`size`/`rationale`, posture, `workflow_gate_policy_test.py` 359), `ORCHESTRATION_PROTOCOL.md`, `docs/release-history.md`, `docs/exit-codes.md`, and a 2.27.0 class in `tools/release/release_test.py`. Verified in a scratch clone: stock `stage-conformance` and the nine suites pass, `build` succeeds, `check-manager-block`, `tools/docs`, `check_docs.py` and `tools/release` (313 tests) pass; `workflow-manager verify .` clean.
