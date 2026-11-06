@@ -6801,6 +6801,26 @@ class TestCommitFloorCommand(unittest.TestCase):
                          ("MalformedGatePolicyFloorCommitError", "synthetic", repo.head(), True))
         self.assertEqual(repo.git("rev-list", "--count", f"{head}..HEAD"), "1")
 
+    def test_f6_a_validator_refusal_on_a_recovery_commit_reports_the_commit_and_the_error(self):
+        """LOCAL-IMPL-R1-001: the sibling's own validator call is what refuses a bad recovery commit."""
+        repo = self.mk()
+        self.waiting_floor(repo)
+        head = repo.head()
+        state_before = (repo.root / STATE_REL).read_bytes()
+
+        def bad(*a, **k):
+            raise ws.MalformedGatePolicyFloorCommitError("synthetic recovery")
+
+        with mock.patch.object(ws, "validate_gate_policy_floor_commit", bad):
+            code, body, _ = self.call(repo.root)
+        self.assertEqual(code, 1)
+        self.assertEqual((body["error"], body["message"], body["commit"], body["state_changed"]),
+                         ("MalformedGatePolicyFloorCommitError", "synthetic recovery", repo.head(), False))
+        self.assertNotEqual(repo.head(), head)
+        self.assertNotIn("recovered", body)
+        self.assertEqual(repo.git("rev-list", "--count", f"{head}..HEAD"), "1")
+        self.assertEqual((repo.root / STATE_REL).read_bytes(), state_before)
+
     # -- F7: interface ----------------------------------------------------------------------
 
     def test_f7_the_flag_is_exclusive_with_the_other_five(self):

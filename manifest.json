@@ -3885,7 +3885,7 @@
         "workflow_acceptance_matrix_test.py": 453,
         "workflow_protocol_test.py": 344,
         "workflow_state_test.py": 1249,
-        "workflow_gate_policy_test.py": 403,
+        "workflow_gate_policy_test.py": 404,
         "workflow_fingerprint_generalization_test.py": 148,
         "workflow_state_completion_obligations_test.py": 290,
         "workflow_integration_test.py": 377,

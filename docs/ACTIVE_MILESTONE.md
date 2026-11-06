@@ -36,7 +36,7 @@ Self-review (`/milestone-implement`, full diff), three gaps fixed, no engine cha
 `state_changed: true` with `commit: null`, which means something else than on the flags before it: `satisfy-gate.md` and `docs/exit-codes.md`
 now say it, and R6 pins it. (2) Mutants m14 (dispatch after the shared `git rev-parse`, and the empty id) survived: the class called the CLI
 function directly, past the parser. F7's parser test now covers both. (3) F7 did not pin the five existing flags' output, so m16 survived;
-`test_f7_the_existing_flags_print_what_they_printed` is new. The suite count for `workflow_gate_policy_test.py` is 403. The series m1 to m26 now
+`test_f7_the_existing_flags_print_what_they_printed` is new. The suite count for `workflow_gate_policy_test.py` is 404. The series m1 to m26 now
 runs, each mutant failing a named test; the results are in the implementation bundle's `TEST_RESULTS.md`.
 
 ## Functional review checklist
