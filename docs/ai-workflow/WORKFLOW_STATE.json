@@ -33818,7 +33818,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-floor-commit-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-floor-commit-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 5,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -33958,12 +33958,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 23,
-      "last_transition": "2026-11-06T20:58:10Z",
+      "state_revision": 24,
+      "last_transition": "2026-11-06T21:12:39Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -34211,6 +34211,62 @@
               "review_content_id": "7cb1c8913e99c2137688dbd35571e2905ea8661e13e294a64b6395b850a279d6",
               "verdict": "APPROVE",
               "at": "2026-11-06T17:12:54Z"
+            }
+          ]
+        },
+        "F-1ce6324012c1": {
+          "digest": "1ce6324012c182a3c0eafe0e271e0f672577c0f81b238488cbcf6695c058ba14",
+          "text": "**LOCAL-IMPL-R1-002:** R6 does not pin step 5 of the acceptance stage. D-Command says \"Step 5 of the acceptance stage names the flag\", but deleting that sentence from `satisfy-gate.md` passes the class (measured), and what remains sends a worker back to the Python description. Only the manual grep of flow 13 would catch it. A needle for `(see \"Plain commands first\"), not the Python call` is enough.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ea16e8e62d103e340d8ec8bebae4d47a4b496bf487019f8146b34f1707cefd4",
+              "verdict": "REVISE",
+              "at": "2026-11-06T21:12:39Z"
+            }
+          ]
+        },
+        "F-9d8e2671b455": {
+          "digest": "9d8e2671b455a89535d8fdf94cdd3bfaaff76787e61b4c89006aae8b7929a30e",
+          "text": "**LOCAL-IMPL-R1-003:** `assert_recovered` copies the repository into `twin`, returns it and every caller ignores it. F5 says the recovered commit has \"parity with F1\", but only `test_f8_the_sibling_and_the_function_make_the_same_commit` compares bytes, and only for a stop after the state write. Compare a stop after staging too, or remove the dead copy.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ea16e8e62d103e340d8ec8bebae4d47a4b496bf487019f8146b34f1707cefd4",
+              "verdict": "REVISE",
+              "at": "2026-11-06T21:12:39Z"
+            }
+          ]
+        },
+        "F-76b1616d3ca8": {
+          "digest": "76b1616d3ca8570defcdec13335dadd0961914182ac66d5fc27547fb8a8bdfd2",
+          "text": "**LOCAL-IMPL-R1-004:** \"restore a damaged record from `HEAD`\" in `satisfy-gate.md` gives a headless worker no safe command. F3 explicitly supports a foreign item's uncommitted edits in the state file, and `git restore` on the file would discard them. With no floor in `HEAD` (F9 case b) there is also no record to restore. Say that only the `gate_policy_floor` key is restored, or removed when `HEAD` has none.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ea16e8e62d103e340d8ec8bebae4d47a4b496bf487019f8146b34f1707cefd4",
+              "verdict": "REVISE",
+              "at": "2026-11-06T21:12:39Z"
+            }
+          ]
+        },
+        "F-23174fc520d4": {
+          "digest": "23174fc520d49c3375139fef198871315b2e0496fa6341307b09a2db1884b715",
+          "text": "**LOCAL-IMPL-R1-005:** when a pre-commit hook refuses the commit, the message is only `CalledProcessError`'s command line, with no hook output (measured), while the text says to \"fix the cause the message names\". The state and the re-run are correct (`state_changed` true, then false, then `recovered: true` once the hook is gone). Mention a refused `git commit` in the text, or accept this as is.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ea16e8e62d103e340d8ec8bebae4d47a4b496bf487019f8146b34f1707cefd4",
+              "verdict": "REVISE",
+              "at": "2026-11-06T21:12:39Z"
             }
           ]
         }
