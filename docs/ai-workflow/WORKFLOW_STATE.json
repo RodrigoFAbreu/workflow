@@ -32229,12 +32229,12 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-completion-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-completion-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 3,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "b2db092742459901ea50734d9bccf0d58dcc73fc",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "6a9e39d0354ca8156fc3c74d594f3c45af008a38",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -32373,8 +32373,8 @@
           "external": 0
         }
       },
-      "state_revision": 16,
-      "last_transition": "2026-11-06T03:05:47Z",
+      "state_revision": 17,
+      "last_transition": "2026-11-06T04:01:50Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
