@@ -32229,18 +32229,22 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-completion-command-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-completion-command-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 3,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "b2db092742459901ea50734d9bccf0d58dcc73fc",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "33031fbeb444aa89749724b9d1cab23f5ae54b4f"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "d2dc56c2fe760106130575d7c78e543b9d21ea5b"
         }
       },
       "current_bundle_id": "487051fc23267781b3b3f5eb70dd0a1debcdfc9a0cb52ddbd387d5bfdca3df32",
@@ -32369,8 +32373,8 @@
           "external": 0
         }
       },
-      "state_revision": 14,
-      "last_transition": "2026-11-06T02:14:00Z",
+      "state_revision": 16,
+      "last_transition": "2026-11-06T03:05:47Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
