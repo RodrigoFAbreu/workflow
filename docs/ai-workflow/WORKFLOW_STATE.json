@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "acceptance-phase-guard",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -34882,7 +34882,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-phase-guard-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-phase-guard-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -35175,8 +35175,8 @@
           "external": 1
         }
       },
-      "state_revision": 27,
-      "last_transition": "2026-11-07T23:32:43Z",
+      "state_revision": 28,
+      "last_transition": "2026-11-07T23:58:52Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -35498,6 +35498,333 @@
           "run_ref": "codex:20261107T233024Z-12520ad1",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "ran_at": "2026-11-07T23:36:35Z",
+            "summary": {
+              "checklist_blob": "f31d0222c682168393ea9156d09a5ef1390981c5",
+              "text": "Base: all 20 complete. Cand: only AWAITING_FUNCTIONAL_REVIEW and AWAITING_USER_ACCEPTANCE complete; MILESTONE_COMPLETE -> work_item_terminal; other 17 -> phase_not_reachable."
+            },
+            "log_digest": "d1fb1650aa0a80de2fb0d48b59ead3df3e776304f30ece5ac65cd73e54cf9ae9",
+            "run_ref": "controller:20261107T233521Z-698ce9cc",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:36:36Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "ran_at": "2026-11-07T23:36:36Z",
+            "summary": {
+              "checklist_blob": "f31d0222c682168393ea9156d09a5ef1390981c5",
+              "text": "Base completes and rewrites the file. Cand refuses phase_not_reachable; bytes equal writer's; phase on disk IMPLEMENTING."
+            },
+            "log_digest": "573b11437c43acc91426edd59dab8b56a3f70a77b8c8464d7130693a02d3dab5",
+            "run_ref": "controller:20261107T233521Z-698ce9cc",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:36:36Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "ran_at": "2026-11-07T23:36:36Z",
+            "summary": {
+              "checklist_blob": "f31d0222c682168393ea9156d09a5ef1390981c5",
+              "text": "Base completes. Cand refuses work_item_terminal; bytes equal writer's."
+            },
+            "log_digest": "57b1fc757abb978c80222ea6f6fb3432c33f229da48dfa38e421a31ec83072c1",
+            "run_ref": "controller:20261107T233521Z-698ce9cc",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:36:36Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "ran_at": "2026-11-07T23:36:36Z",
+            "summary": {
+              "checklist_blob": "f31d0222c682168393ea9156d09a5ef1390981c5",
+              "text": "Base: forge_undecidable (both phases). Cand: AcceptancePreflightError phase_not_reachable / work_item_terminal, state_changed true, queries 0, only new file .ai-review/runtime/WORKFLOW_STATE.lock."
+            },
+            "log_digest": "ccdc0f7aa6a63a1dc9f8989a1db34fd9cff8e3d88bae004cf9aefbb83b3ff51f",
+            "run_ref": "controller:20261107T233521Z-698ce9cc",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:36:36Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "ran_at": "2026-11-07T23:36:36Z",
+            "summary": {
+              "checklist_blob": "f31d0222c682168393ea9156d09a5ef1390981c5",
+              "text": "Both phases, base and cand: one JSON line phase_not_reachable, state_changed false, exit 1, bytes unchanged, 0 gh calls; cand shows '!! .ai-review/', base does not. (The flag was run as 'python3 -B workflow_state.py', without -I, as the plan's cli() does; with -I the script dir is not on sys.path and the import fails.)"
+            },
+            "log_digest": "5e0e085938cc83b3258d35427a8cd712f9dde60976150708a80d8299b1480e3c",
+            "run_ref": "controller:20261107T233521Z-698ce9cc",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:36:36Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "ran_at": "2026-11-07T23:36:36Z",
+            "summary": {
+              "checklist_blob": "f31d0222c682168393ea9156d09a5ef1390981c5",
+              "text": "Both: work_item_terminal, 'wi is already MILESTONE_COMPLETE', state_changed false, exit 1, bytes unchanged, 0 gh calls."
+            },
+            "log_digest": "12115c64a1000f4493e4a15ad1042ecc88b8b08697f52a354cc3cff21d2a5a5b",
+            "run_ref": "controller:20261107T233521Z-698ce9cc",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:36:36Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "ran_at": "2026-11-07T23:36:37Z",
+            "summary": {
+              "checklist_blob": "f31d0222c682168393ea9156d09a5ef1390981c5",
+              "text": "Both identical: forge_undecidable, 'wi: no anchor commit ...', state_changed false, exit 1, bytes unchanged, 0 gh calls."
+            },
+            "log_digest": "a808edbc0d07a107d77b4c78bbc815002c699296ad1d8a8f817888cecf7f5581",
+            "run_ref": "controller:20261107T233521Z-698ce9cc",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:36:37Z"
+          },
+          "flow-8": {
+            "flow_id": "flow-8",
+            "status": "passed",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "ran_at": "2026-11-07T23:36:37Z",
+            "summary": {
+              "checklist_blob": "f31d0222c682168393ea9156d09a5ef1390981c5",
+              "text": "Outside a repo (base and cand): one JSON object with error CalledProcessError, exit 1, directory empty. No id: argparse usage error, exit 2."
+            },
+            "log_digest": "399e257414936b2595b80d3ed952498c773e021e8d4134d13ab4f651b78dfc7b",
+            "run_ref": "controller:20261107T233521Z-698ce9cc",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:36:37Z"
+          },
+          "flow-9": {
+            "flow_id": "flow-9",
+            "status": "passed",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "ran_at": "2026-11-07T23:36:37Z",
+            "summary": {
+              "checklist_blob": "f31d0222c682168393ea9156d09a5ef1390981c5",
+              "text": "Removed the MILESTONE_COMPLETE and reachability raises in a copy of cand: phases gives 20 'completes' and txn IMPLEMENTING completes with the file rewritten, like base."
+            },
+            "log_digest": "1ae1bc0ba5546d3cd40e82a67cba946aef71b9b0f04716e9c0ce7c078a036b40",
+            "run_ref": "controller:20261107T233521Z-698ce9cc",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:36:37Z"
+          },
+          "flow-10": {
+            "flow_id": "flow-10",
+            "status": "passed",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "ran_at": "2026-11-07T23:36:37Z",
+            "summary": {
+              "checklist_blob": "f31d0222c682168393ea9156d09a5ef1390981c5",
+              "text": "Cand: 'the library does not' 0, CompletionPhaseNotReachableError 1 in accept-milestone.md; base: 0 for the latter. Base satisfy-gate.md has 1 'the library does not' only after whitespace normalisation (the phrase wraps across lines 195-196), so a plain line grep gives 0."
+            },
+            "log_digest": "0493eff4fe88c401e5baf097fa8c3586f279ca1aa3c184f25209bc2ad0dc6032",
+            "run_ref": "controller:20261107T233521Z-698ce9cc",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:36:37Z"
+          },
+          "flow-11": {
+            "flow_id": "flow-11",
+            "status": "passed",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "ran_at": "2026-11-07T23:36:37Z",
+            "summary": {
+              "checklist_blob": "f31d0222c682168393ea9156d09a5ef1390981c5",
+              "text": "sha256 5adcfcb0...d980 equals the accept-milestone.md line in workflow_integration_test.py (line 1122); numstat is '1 1'."
+            },
+            "log_digest": "8b8759a218dd5afb4f041f7944cd38523e4b242f3a097c3910131c4847e9a9b6",
+            "run_ref": "controller:20261107T233521Z-698ce9cc",
+            "reporter": "workflow-controller 1.27.10",
+            "identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:36:37Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 167,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/167"
+          },
+          "state": "open",
+          "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+          "observed_at": "2026-11-07T23:58:52Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "8965a3487632d3a525003b0b7134700328423618",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-07T23:58:52Z",
+            "raw_sha256": "abccd5b9edbcd56aff9106e39ff6ec24e23031dd35d970510d79b682554c86dd",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "a6b35a153e40cc347601522acdb583da3dccfc06401505a63eacaeab6909ed80"
+          },
+          "fact_id": "940bda3aad08797461a20b713c3c91b0083f6ecba2110b6ee66892a64cf2eb8a"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-10', 'flow-11', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6', 'flow-7', 'flow-8', 'flow-9'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #167 at 7e62d10c1b7482f3306130c254119d657fd2b344 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "8965a3487632d3a525003b0b7134700328423618",
+          "anchor_identity": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "recorded_at": "2026-11-07T23:32:43Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "acd6fa9b9ee3b6ea94e86b8e3ed274dd4972693ad34ca81932afc5faa16313b8",
+              "log_digest": "d1fb1650aa0a80de2fb0d48b59ead3df3e776304f30ece5ac65cd73e54cf9ae9",
+              "run_ref": "controller:20261107T233521Z-698ce9cc"
+            },
+            "flow-10": {
+              "evidence_id": "00ed9ca51ddeb04bc5847e99e68fc294cb1009279449cf08f1dec79243a319b1",
+              "log_digest": "0493eff4fe88c401e5baf097fa8c3586f279ca1aa3c184f25209bc2ad0dc6032",
+              "run_ref": "controller:20261107T233521Z-698ce9cc"
+            },
+            "flow-11": {
+              "evidence_id": "adcab5cefe42d232cb6441358c4f310b8d35e7570cb2f08574b999df347de0d6",
+              "log_digest": "8b8759a218dd5afb4f041f7944cd38523e4b242f3a097c3910131c4847e9a9b6",
+              "run_ref": "controller:20261107T233521Z-698ce9cc"
+            },
+            "flow-2": {
+              "evidence_id": "6f16b39cb8ca466d974b270c194affca08af3878c3f3d533dcf68573238db418",
+              "log_digest": "573b11437c43acc91426edd59dab8b56a3f70a77b8c8464d7130693a02d3dab5",
+              "run_ref": "controller:20261107T233521Z-698ce9cc"
+            },
+            "flow-3": {
+              "evidence_id": "677cc17ed9a1452ed9767de2f43c5d85d218e857b00091828d3306036b499d98",
+              "log_digest": "57b1fc757abb978c80222ea6f6fb3432c33f229da48dfa38e421a31ec83072c1",
+              "run_ref": "controller:20261107T233521Z-698ce9cc"
+            },
+            "flow-4": {
+              "evidence_id": "9f6dc403dae3df541f3edf02567a964a9015a7533e5241cb0df37f9b0f197470",
+              "log_digest": "ccdc0f7aa6a63a1dc9f8989a1db34fd9cff8e3d88bae004cf9aefbb83b3ff51f",
+              "run_ref": "controller:20261107T233521Z-698ce9cc"
+            },
+            "flow-5": {
+              "evidence_id": "4eefe992f9dceb6263ac9580d67681d08a89deccd46e3c06ced2544bc62271e4",
+              "log_digest": "5e0e085938cc83b3258d35427a8cd712f9dde60976150708a80d8299b1480e3c",
+              "run_ref": "controller:20261107T233521Z-698ce9cc"
+            },
+            "flow-6": {
+              "evidence_id": "c1fea758d4c5c5badc82af327c456e5afbe025aed2f96a01cdfdaf28116bdf59",
+              "log_digest": "12115c64a1000f4493e4a15ad1042ecc88b8b08697f52a354cc3cff21d2a5a5b",
+              "run_ref": "controller:20261107T233521Z-698ce9cc"
+            },
+            "flow-7": {
+              "evidence_id": "2efbe7e085121b1f33e9854d20b0b88ce2e0964a8e0d3f84910d9d755a2f4b2d",
+              "log_digest": "a808edbc0d07a107d77b4c78bbc815002c699296ad1d8a8f817888cecf7f5581",
+              "run_ref": "controller:20261107T233521Z-698ce9cc"
+            },
+            "flow-8": {
+              "evidence_id": "01acffa9253e624a2da53804657b819820007b187c7346bd5319d0994425db61",
+              "log_digest": "399e257414936b2595b80d3ed952498c773e021e8d4134d13ab4f651b78dfc7b",
+              "run_ref": "controller:20261107T233521Z-698ce9cc"
+            },
+            "flow-9": {
+              "evidence_id": "c35ed14a98231dd48795994590ebc0d5b95f63e2a819001c92036bd2fcdb5668",
+              "log_digest": "1ae1bc0ba5546d3cd40e82a67cba946aef71b9b0f04716e9c0ce7c078a036b40",
+              "run_ref": "controller:20261107T233521Z-698ce9cc"
+            }
+          },
+          "pr": {
+            "fact_id": "940bda3aad08797461a20b713c3c91b0083f6ecba2110b6ee66892a64cf2eb8a",
+            "head": "7e62d10c1b7482f3306130c254119d657fd2b344",
+            "provenance": "workflow_gh",
+            "raw_sha256": "abccd5b9edbcd56aff9106e39ff6ec24e23031dd35d970510d79b682554c86dd"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-07T23:58:52Z",
+        "workflow_release": "2.29.0"
       }
     }
   }

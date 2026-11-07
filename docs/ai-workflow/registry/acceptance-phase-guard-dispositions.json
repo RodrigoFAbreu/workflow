@@ -1,0 +1,65 @@
+{
+  "dispositions": {
+    "F-1a3e3818b058": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#168",
+      "note": "Follow-up item 3."
+    },
+    "F-1d86c4095dd4": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#168",
+      "note": "Follow-up item 3 (same P3 point)."
+    },
+    "F-2334256f0517": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#168",
+      "note": "Follow-up item 1a."
+    },
+    "F-5f583ee628d9": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#168",
+      "note": "Follow-up item 1b."
+    },
+    "F-6ab3ad9627ef": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#168",
+      "note": "Follow-up item 1b (duplicate)."
+    },
+    "F-a4b54b9c781d": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#168",
+      "note": "Follow-up item 2."
+    },
+    "F-a5c11e26813e": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#168",
+      "note": "Follow-up item 3 (plan test count)."
+    },
+    "F-ae60de96684d": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#168",
+      "note": "Follow-up item 2 (duplicate)."
+    },
+    "F-b70927422e61": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#168",
+      "note": "Follow-up item 3 (duplicate)."
+    },
+    "F-c1fab383441c": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#168",
+      "note": "Follow-up item 1c."
+    },
+    "F-dc426100a90e": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#168",
+      "note": "Follow-up item 1b (duplicate)."
+    },
+    "F-ed19b42de3d0": {
+      "disposition": "dropped",
+      "reason": "Narrative-only gap in docs/ACTIVE_MILESTONE.md (a work-item document outside the shipped content): the CP1 list omits the integration-suite hash line, which line 84 of the same file names; it disappears when the document is archived."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "acceptance-phase-guard"
+}
