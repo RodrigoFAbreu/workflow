@@ -7,7 +7,13 @@
 - **Branch:** `milestone/acceptance-phase-guard`
 - **Base commit:** `bee00609379aa6ab29a7f9076987bb5bfb7dd5de` (main after #166: release source and own installation are 2.29.0; automatic gates,
   default `2.2`, no backlog file, so the prose roadmap applies)
-- **Plan revision:** 2 (round 1 of the manual external review: I1 and the optional P2 case accepted, see D-Tests). Every checkpoint section carries its `<!-- CPn -->`/`<!-- /CPn -->` pair. Items 2 and 3 of #158 (wording) are out of scope.
+- **Plan revision:** 2 (amendment of the approved revision; reason in the revision history below). Every checkpoint section carries its `<!-- CPn -->`/`<!-- /CPn -->` pair. Items 2 and 3 of #158 (wording) are out of scope.
+
+### Revision history
+
+- **Revision 1 -> 2 (round 1 of the manual external review):** I1 and the optional P2 case accepted (D-Tests).
+- **Amendment (revision 2, from `IMPLEMENTING`):** CP1 edits `payload/.claude/commands/accept-milestone.md`, whose SHA-256 is pinned in `_GOLDEN_COMMAND_FILE_SHA256` (`TestGoldenCommandFileHashes`) in
+  `payload/scripts/workflow_integration_test.py`; the plan listed four payload files and missed it (the item 500f68b updated the same line). Added: that file in CP1/CP2, the manifest record, and the scope statements and flows (new flow 14). The design and CP1's content do not change.
 
 ## 0. Phase 1: the investigation (before any design)
 
@@ -33,7 +39,7 @@ All nine suites ran on the base with a probe that logs the phase at each call, t
 | `IMPLEMENTING` | 3, all `workflow_state_test.py`, all expecting a refusal | no: they expect `IncompleteOwnCheckpointsError` with `Finish it with /milestone-implement` (`test_message_is_phase_and_version_aware`), or any refusal (an item resumed to `IMPLEMENTING`) |
 | `MILESTONE_COMPLETE` | 0 | no. The findings record and the floor commit (`--write-findings-record`, `--commit-gate-policy-floor`) run after the completion and **never call it** (the AST of the base has one caller, 0a). `--satisfy-acceptance` already refuses it (`work_item_terminal`) |
 
-Result of the prototype: the other eight suites pass unmodified (the matrix suite included, 453 tests); `workflow_gate_policy_test.py` fails 15 tests, all explained: 14 complete from the fixture's phase and
+Result of the prototype: the other eight suites pass with `workflow_integration_test.py` changed only in the golden hash of `accept-milestone.md` (the matrix suite included, 453 tests; without that line `TestGoldenCommandFileHashes` fails on the edited command); `workflow_gate_policy_test.py` fails 15 tests, all explained: 14 complete from the fixture's phase and
 `test_s8_the_report_and_the_command_call_one_function` pins the source of the CLI. The fixture's phase set to `AWAITING_FUNCTIONAL_REVIEW` (one line) fixes 12; two more assert the old phase after a refusal; with `test_s8` that is three test edits. **No shipped command text, protocol operation or document flow depends on completing from another phase**:
 `accept-milestone.md` step 2a and `satisfy-gate.md` both refuse before the call.
 
@@ -109,15 +115,15 @@ step 2a: one stop, `CompletionPhaseNotReachableError`, no write. `docs/exit-code
 
 ### D-Release
 
-2.29.1, the procedure of `docs/milestones/completed/ACCEPTANCE_FLOOR_COMMIT_PLAN.md` (D-Release) with these differences: `manifest.json` `workflow_version` and the changed records (`workflow_state.py`, `workflow_gate_policy_test.py`, `satisfy-gate.md`, `accept-milestone.md`, `workflow_protocol.py`, its test,
-`ORCHESTRATION_PROTOCOL.md`) take `sha256` and `size`; `conformance.suites` moves for `workflow_gate_policy_test.py` only; `WORKFLOW_RELEASE` becomes 2.29.1 with its pinned assertions; `tools/release/release_test.py` gets a 2.29.1 class and the 2.29.0 class gives up the current-release pins;
+2.29.1, the procedure of `docs/milestones/completed/ACCEPTANCE_FLOOR_COMMIT_PLAN.md` (D-Release) with these differences: `manifest.json` `workflow_version` and the changed records (`workflow_state.py`, `workflow_gate_policy_test.py`, `workflow_integration_test.py` (digest only: the hash line keeps the file's size, and its test count 15 and `conformance.suites` entry do not move), `satisfy-gate.md`, `accept-milestone.md`, `workflow_protocol.py`, its test,
+`ORCHESTRATION_PROTOCOL.md`) take `sha256` and `size`; `conformance.suites` moves for `workflow_gate_policy_test.py` only (the integration suite's count is unchanged); `WORKFLOW_RELEASE` becomes 2.29.1 with its pinned assertions; `tools/release/release_test.py` gets a 2.29.1 class and the 2.29.0 class gives up the current-release pins;
 `docs/release-history.md` row (a patch: the way back to 2.29.0 restores completion from any phase and the check before the lock; no state to undo); the protocol document's release list and one sentence that the protocol stays 1.5 and no operation changed. The Manager block's posture is rewritten with the downgrade guidance carried
 over sentence for sentence, the closing sentence "The release tooling and the maintainer documents are not part of the installed release." kept (§3), and each record's `rationale` carries `acceptance-phase-guard (workflow-2.29.1)`.
 
 ### D-Staging
 
 CP1 changes shipped files whose manifest records move at CP2, so it verifies in a disposable clone under `/home/rodrigo/.claude/projects/-home-rodrigo-Workspace-workflow-manager/orchestrator-files/runs-workflow/w44-tmp` (procedure of `docs/milestones/completed/RETENTION_ARCHIVE_PLAN.md`, D-Staging, and the
-count handling of the lstat-errors plan): recompute `sha256` and `size` of the changed records, measure `conformance.suites` (only the gate-policy count moves), commit in the clone, then run the "Verification commands" of `docs/RELEASING.md`; the `tools/release` tests use
+count handling of the lstat-errors plan): recompute `sha256` and `size` of the changed records (`workflow_integration_test.py` included), measure `conformance.suites` (only the gate-policy count moves), commit in the clone, then run the "Verification commands" of `docs/RELEASING.md`; the `tools/release` tests use
 `/home/rodrigo/.claude/projects/-home-rodrigo-Workspace-workflow-manager/orchestrator-files/runs-workflow/w0-ext-impl-r1/venv/bin/python`. **The one expected failure at CP1:** the 2.29.0 class pins the gate-policy count; it is named at implementation and released in CP2. The new tests run again under the
 Manager's orphan rule (reaper).
 
@@ -137,12 +143,12 @@ prefer it first, which changes `IncompleteOwnCheckpointsError` for an item still
 <!-- CP1 -->
 ### CP1 — The phase guard in the library and inside the lock, tests, command text and pages
 
-**Files:** `payload/scripts/workflow_state.py`, `payload/scripts/workflow_gate_policy_test.py`, `payload/.claude/commands/satisfy-gate.md`, `payload/.claude/commands/accept-milestone.md`, `docs/exit-codes.md`, `docs/ROADMAP.md`.
+**Files:** `payload/scripts/workflow_state.py`, `payload/scripts/workflow_gate_policy_test.py`, `payload/scripts/workflow_integration_test.py`, `payload/.claude/commands/satisfy-gate.md`, `payload/.claude/commands/accept-milestone.md`, `docs/exit-codes.md`, `docs/ROADMAP.md`.
 
 - **Tests first** (D-Tests): P1 to P6 written and run red against the unedited tree; mutations m1 to m9 each fail the named test on a scratch copy and the results are recorded.
-- **The change** (D-Library, D-Lock, D-Refusal, D-Order): `CompletionPhaseNotReachableError`, the guard in `complete_work_item`, the first statement of the mutator, the removal of the CLI's outside call; nothing else in the library. The three named existing tests are the only edits to existing tests.
+- **The change** (D-Library, D-Lock, D-Refusal, D-Order): `CompletionPhaseNotReachableError`, the guard in `complete_work_item`, the first statement of the mutator, the removal of the CLI's outside call; nothing else in the library. The three named existing tests are the only edits to existing tests in `workflow_gate_policy_test.py`; `workflow_integration_test.py` gets one changed line: the `accept-milestone.md` value of `_GOLDEN_COMMAND_FILE_SHA256` (the new SHA-256 of the shipped file); no comment line is added, so the diff of that file is exactly one line.
 - **The command text and the pages** (D-Command and D-Docs). `check_docs.py` stays clean.
-- **No other mechanism:** `git diff bee0060 --stat -- payload` lists `workflow_state.py`, `workflow_gate_policy_test.py`, `satisfy-gate.md` and `accept-milestone.md` only; the eight other suites pass unmodified; `docs/ROADMAP.md` carries row 39.
+- **No other mechanism:** `git diff bee0060 --stat -- payload` lists `workflow_state.py`, `workflow_gate_policy_test.py`, `workflow_integration_test.py`, `satisfy-gate.md` and `accept-milestone.md` only, and `git diff bee0060 -- payload/scripts/workflow_integration_test.py` is exactly one changed line (one `-`, one `+`: the golden hash, no comment or other line); the other eight suites pass, none edited except that one line; `docs/ROADMAP.md` carries row 39.
 
 **Verification:** the new tests as the suite runs them, from the stock staged fixture (P1 to P6 read shipped files only); the `docs/exit-codes.md` wording checked from the repository: `grep -c 'inside the state lock' docs/exit-codes.md` is at least 1 in the clone (asserted for good by P7 at CP2); D-Staging in a disposable clone: the nine suites from the staged fixture, `tools/docs`, `check_docs.py`, `check-manager-block` (with `--manager-releases`), `tools/release` (zlib-ng interpreter, no patch, no skip, with the one expected failure of D-Staging); the new tests again under the Manager's orphan rule (reaper).
 <!-- /CP1 -->
@@ -150,12 +156,12 @@ prefer it first, which changes `IncompleteOwnCheckpointsError` for an item still
 <!-- CP2 -->
 ### CP2 — Release 2.29.1
 
-**Files:** `manifest.json`, `payload/scripts/workflow_protocol.py`, `payload/scripts/workflow_protocol_test.py`, `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`, `docs/release-history.md`, `docs/exit-codes.md`, `tools/release/release_test.py`.
+**Files:** `manifest.json`, `payload/scripts/workflow_integration_test.py` (its manifest record only: CP1 made the edit), `payload/scripts/workflow_protocol.py`, `payload/scripts/workflow_protocol_test.py`, `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`, `docs/release-history.md`, `docs/exit-codes.md`, `tools/release/release_test.py`.
 
 - `WORKFLOW_RELEASE` becomes 2.29.1 with its pinned assertions and the protocol-document edits (protocol stays `1.5`; D-Release).
-- `manifest.json` 2.29.1: `workflow_version`, the changed records, `conformance.suites`; the Manager block's posture and each record's `rationale` sentence.
+- `manifest.json` 2.29.1: `workflow_version`, the changed records (`workflow_integration_test.py` takes a new `sha256`; its `size` and suite count are unchanged), `conformance.suites`; the Manager block's posture and each record's `rationale` sentence.
 - `docs/release-history.md`: the 2.29.1 row and its "Last checked with" line; that of `docs/exit-codes.md` moves too.
-- `tools/release/release_test.py`: a 2.29.1 class pinning the posture, the `rationale` sentence, `CHANGED`, the suite counts and (P7, D-Tests) the `docs/exit-codes.md` refusal-row wording; the 2.29.0 class gives up the current-release pins.
+- `tools/release/release_test.py`: a 2.29.1 class pinning the posture, the `rationale` sentence, `CHANGED` (it lists `scripts/workflow_integration_test.py`), the suite counts and (P7, D-Tests) the `docs/exit-codes.md` refusal-row wording; the 2.29.0 class gives up the current-release pins.
 
 **Verification:** the new tests again; the nine suites pass in a stock `release.py stage-conformance --commit HEAD` fixture; `release.py build --commit HEAD` succeeds; `check-manager-block` (with `--manager-releases`) and `tools/docs` are clean; `workflow-manager verify .` is clean; the tools tests pass in the zlib-ng environment.
 <!-- /CP2 -->
@@ -232,4 +238,5 @@ cli() { # cli <scripts> <phase>: the real flag as a subprocess in a fresh item, 
 | 10 | `for s in "$BASE" "$CAND"; do tr '\n' ' ' < "$s/../.claude/commands/satisfy-gate.md" \| grep -o "the library does not" \| wc -l; grep -c CompletionPhaseNotReachableError "$s/../.claude/commands/accept-milestone.md"; done` | base: `1` then `0`. Candidate: `0` then a count of at least `1` (step 2a) |
 | 11 | **Full environment (the repository and `python3`; the nine suites).** `python3 tools/release/release.py stage-conformance --commit HEAD --out "$TMPDIR/fixture"`, then the loop of `docs/RELEASING.md` over `manifest.json`'s suites, from inside the fixture (from a scratch clone with adjusted records at CP1, D-Staging) | all nine suites pass; `TestCompletionPhaseGuard` is among the gate-policy tests |
 | 12 | **Full environment (zlib-ng).** `python -m unittest discover -s tools/release -p '*_test.py'` with the zlib-ng venv; `python3 -m unittest discover -s tools/docs -p '*_test.py'`; `python3 tools/docs/check_docs.py`; `check-manager-block --commit HEAD --manager-releases tools/release/manager-releases.json` | all pass (at CP1 the one expected failure of D-Staging) |
-| 13 | **Scope (full environment).** `git diff bee0060 --stat` at CP1, then at CP2 | CP1: the six files of CP1 plus the plan, registry, mapping, artifacts and state files; nothing under `.claude/`, `scripts/`, `docs/ai-workflow/` managed documents or `.workflow-manager/`; `workflow_protocol.py`, `manifest.json` and `tools/` untouched until CP2 |
+| 13 | **Scope (full environment).** `git diff bee0060 --stat` at CP1, then at CP2 | CP1: the seven files of CP1 (`payload/scripts/workflow_integration_test.py` among them, one line) plus the plan, registry, mapping, artifacts and state files; nothing under `.claude/`, `scripts/`, `docs/ai-workflow/` managed documents or `.workflow-manager/`; `workflow_protocol.py`, `manifest.json` and `tools/` untouched until CP2 |
+| 14 | **Golden hash (offline).** `sha256sum payload/.claude/commands/accept-milestone.md`; `grep -n '"accept-milestone.md":' payload/scripts/workflow_integration_test.py`; `git diff bee0060 --numstat -- payload/scripts/workflow_integration_test.py`; `git diff bee0060 -U0 -- payload/scripts/workflow_integration_test.py \| grep -c '^[-+][^-+]'`; then `python3 -m unittest workflow_integration_test.TestGoldenCommandFileHashes` from the staged fixture | the grep shows exactly the digest the `sha256sum` printed; numstat `1 1` and the count `2` (one line replaced, nothing else in the file); the test passes. Mutation: put the old digest `3e67bc6b...` back on a scratch copy: the test fails naming `accept-milestone.md` |
