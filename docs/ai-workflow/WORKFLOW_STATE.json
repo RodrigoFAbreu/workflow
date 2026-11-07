@@ -34882,7 +34882,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-phase-guard-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-phase-guard-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "AMENDING_PLAN",
       "plan_revision": 2,
       "implementation_revision": null,
       "functional_review_round": null,
@@ -34893,7 +34893,7 @@
       "checkpoints": {},
       "current_bundle_id": "77bb2bdc2acf692a28096dc351a4ea30c6efc941fe487fd32b3d5e907633e52d",
       "plan_approval": {
-        "status": "CURRENT",
+        "status": "SUPERSEDED",
         "basis": "POLICY_SATISFIED",
         "reviewed_bundle_id": "77bb2bdc2acf692a28096dc351a4ea30c6efc941fe487fd32b3d5e907633e52d",
         "approved_review_content_id": "9d3a13eac21c13084e6ea638541c1e0484238203a3206df59c44505275fcd683",
@@ -35017,26 +35017,19 @@
           "external": 0
         }
       },
-      "state_revision": 10,
-      "last_transition": "2026-11-07T19:30:37Z",
+      "state_revision": 13,
+      "last_transition": "2026-11-07T20:36:04Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
-        "status": "BOUND",
-        "at": "2026-11-07T19:25:47Z",
+        "status": "CONSUMED",
+        "at": "2026-11-07T20:36:04Z",
         "consumed": {
-          "review_content_id": "fc672e322475556aaadd4b1f4238ff35885edc5a2b2a0c83a55d9bc911dd299d",
-          "plan_revision": 1,
+          "review_content_id": "9d3a13eac21c13084e6ea638541c1e0484238203a3206df59c44505275fcd683",
+          "plan_revision": 2,
           "legacy": false
         },
-        "published": {
-          "review_content_id": "9d3a13eac21c13084e6ea638541c1e0484238203a3206df59c44505275fcd683",
-          "plan_revision": 2
-        },
-        "bound": {
-          "review_content_id": "9d3a13eac21c13084e6ea638541c1e0484238203a3206df59c44505275fcd683",
-          "bundle_id": "77bb2bdc2acf692a28096dc351a4ea30c6efc941fe487fd32b3d5e907633e52d",
-          "plan_revision": 2
-        }
+        "published": null,
+        "bound": null
       },
       "optional_findings": {
         "F-5f583ee628d9": {
@@ -35111,8 +35104,112 @@
         }
       },
       "consumed_plan_review_content_ids": [
+        "9d3a13eac21c13084e6ea638541c1e0484238203a3206df59c44505275fcd683",
         "fc672e322475556aaadd4b1f4238ff35885edc5a2b2a0c83a55d9bc911dd299d"
-      ]
+      ],
+      "amendment_history": [
+        {
+          "amendment_id": "0",
+          "requested_at": "2026-11-07T20:36:04Z",
+          "requested_from_phase": "IMPLEMENTING",
+          "reason": "CP1 edits accept-milestone.md, whose recorded hash is pinned by TestGoldenCommandFileHashes in payload/scripts/workflow_integration_test.py (the previous item updated the same line). Add that one-line hash update to CP1 and CP2’s file lists and manifest records, and update the “four files only” statements and checklist flows.",
+          "superseded_plan_revision": 2,
+          "superseded_plan_approval": {
+            "status": "CURRENT",
+            "basis": "POLICY_SATISFIED",
+            "reviewed_bundle_id": "77bb2bdc2acf692a28096dc351a4ea30c6efc941fe487fd32b3d5e907633e52d",
+            "approved_review_content_id": "9d3a13eac21c13084e6ea638541c1e0484238203a3206df59c44505275fcd683",
+            "review_content_manifest": [
+              {
+                "path": "docs/ai-workflow/ACCEPTANCE_PHASE_GUARD_PLAN.md",
+                "exists": true,
+                "mode": "100644",
+                "blob": "7e6728b6a90bdb451deefa0664a349a0b53338ce"
+              },
+              {
+                "path": "docs/ai-workflow/registry/acceptance-phase-guard-registry.json",
+                "exists": true,
+                "mode": "100644",
+                "blob": "fefde6327ec26addff7ada7f62a93444cbafd91a"
+              },
+              {
+                "path": "docs/ai-workflow/requirements/acceptance-phase-guard-mapping.json",
+                "exists": true,
+                "mode": "100644",
+                "blob": "46374c2a6ce60a4110635fe195ad6fa6b48d7eb0"
+              }
+            ],
+            "reviewed_content_commit": null,
+            "legacy_evidence": null,
+            "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+            "waived_guarantees": [],
+            "recorded_at": "2026-11-07T19:30:37Z",
+            "policy_evidence": {
+              "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+              "policy_source": "default",
+              "file_digest": null,
+              "adopted_digest": null,
+              "adopted_at": null,
+              "requirements": [
+                {
+                  "id": "gate_reachable",
+                  "met": true,
+                  "detail": "the approval gate is reachable"
+                },
+                {
+                  "id": "verdict_approve_bound",
+                  "met": true,
+                  "detail": "the latest verdict is APPROVE and names the current bundle"
+                },
+                {
+                  "id": "distinct_reviewer_models",
+                  "met": true,
+                  "detail": "families 'anthropic' and 'openai' differ"
+                },
+                {
+                  "id": "review_evidence_audited",
+                  "met": true,
+                  "detail": "both stages carry the audit keys"
+                }
+              ],
+              "inputs": {
+                "review_content_id": "9d3a13eac21c13084e6ea638541c1e0484238203a3206df59c44505275fcd683",
+                "ledger": {
+                  "local": {
+                    "bundle_id": "77bb2bdc2acf692a28096dc351a4ea30c6efc941fe487fd32b3d5e907633e52d",
+                    "verdict": "APPROVE",
+                    "round": 2,
+                    "verdict_sha256": "3e4de4224125ad19d9d0f420d8bb9a5385f638779714d98c9ad68b0e178d47ce",
+                    "ledger_entry_sha256": "8f7a500fbeb2694cbaddad17f5cb5a454ac9b304470c23836b92a426ef3831cb",
+                    "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/acceptance-phase-guard/feedback/REVIEW_FEEDBACK.md",
+                    "reviewer_model": "anthropic/claude-opus-5-5"
+                  },
+                  "manual": {
+                    "bundle_id": "77bb2bdc2acf692a28096dc351a4ea30c6efc941fe487fd32b3d5e907633e52d",
+                    "verdict": "APPROVE",
+                    "round": 2,
+                    "verdict_sha256": "91dd16912878c112135ff6669b7c6ff6f4b0c8a59a1fd8bb248b2a28f464063f",
+                    "ledger_entry_sha256": "db9d5d038789d1f1b211004995e7cbc72f64c12c053b22b6e2553e2f49fa1535",
+                    "run_ref": "codex:20261107T192811Z-fdd167cc",
+                    "reviewer_model": "openai/gpt-6.1-sol"
+                  }
+                },
+                "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+              },
+              "floor_digest": null,
+              "trust": {
+                "review_verdicts": "orchestrator"
+              },
+              "evaluated_at": "2026-11-07T19:30:37Z",
+              "workflow_release": "2.29.0"
+            }
+          },
+          "checkpoints_snapshot": {},
+          "pre_amendment_approval_commit": "ec70fc5c859aba09e3f2c78c3926d103284128c6",
+          "resolved_at_plan_revision": null
+        }
+      ],
+      "amendment_base_commit": "ec70fc5c859aba09e3f2c78c3926d103284128c6"
     }
   }
 }
