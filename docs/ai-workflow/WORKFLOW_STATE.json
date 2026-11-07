@@ -34882,18 +34882,22 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-phase-guard-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-phase-guard-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 2,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "bee00609379aa6ab29a7f9076987bb5bfb7dd5de",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "698037a3342c253e4e20aab15c1b6d3ae5e95ecd"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "bf912cd6ada581c42d0041473c4dd46f6bbf5aac"
         }
       },
       "current_bundle_id": "fdbd2f0ee884435eeaae16e257d9677a0757193db90852539b600db2502d789d",
@@ -35022,8 +35026,8 @@
           "external": 0
         }
       },
-      "state_revision": 21,
-      "last_transition": "2026-11-07T21:06:41Z",
+      "state_revision": 23,
+      "last_transition": "2026-11-07T21:10:36Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",

@@ -17,13 +17,18 @@ complete from a phase it must refuse. The protocol stays 1.5; the Controller doe
 ## Checkpoints
 
 - CP1 (the phase guard in the library and inside the lock, tests, command text and pages): implemented; verified state below.
-- CP2 (release 2.29.1): not started.
+- CP2 (release 2.29.1): implemented; verified state below.
 
 CP1 changes: `payload/scripts/workflow_state.py` (the error class, the guard, the mutator's first statement, the CLI's outside call
 removed), `payload/scripts/workflow_gate_policy_test.py` (`TestCompletionPhaseGuard`, P1 to P6; the three named existing-test edits:
 the `AcceptanceRepo` fixture's phase, the two old-phase assertions, `test_s8`), `payload/.claude/commands/satisfy-gate.md`,
 `payload/.claude/commands/accept-milestone.md`, `docs/exit-codes.md`, `docs/ROADMAP.md` (row 39).
 
+CP2 changes: `manifest.json` (2.29.1: `workflow_version`, the eight changed records' `sha256`/`size` and `rationale` sentence, the
+gate-policy suite count 404 to 412, the posture), `payload/scripts/workflow_protocol.py` (`WORKFLOW_RELEASE`), its test,
+`payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`, `docs/release-history.md` (the 2.29.1 row), `docs/exit-codes.md` ("Last checked
+with"), `tools/release/release_test.py` (`AcceptancePhaseGuardReleaseTest`; the 2.29.0 class gives up the current-release pins).
+
 ## Next action
 
-Self-review of the full diff, then the implementation-review bundle (`/milestone-implement`, steps 2 to 5).
+Self-review of the full diff, then the implementation-review bundle (`/milestone-implement`, steps 2 to 5), once every checkpoint is complete.
