@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "acceptance-phase-guard",
+  "requirements": {
+    "R1": {
+      "description": "complete_work_item refuses outside the acceptance phases (work_item_terminal, phase_not_reachable), after the registry check, writing nothing",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the acceptance stage's phase and registry check is the mutator's first statement, inside the state lock; the flag's refusals keep their JSON",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "deterministic race, no-write, order and failure-only mutation tests; the command texts and pages state the guard",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Workflow 2.29.1 is released with the manifest records, the posture, the release history and the release tests",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
