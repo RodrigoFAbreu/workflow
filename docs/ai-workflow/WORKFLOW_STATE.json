@@ -34882,7 +34882,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-phase-guard-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-phase-guard-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -34991,7 +34991,156 @@
           "workflow_release": "2.29.0"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "8d7ca71cf7c890e6b5ac0d2cf4520af03e955c4c2187591f3dfa589d64522f4c",
+        "approved_review_content_id": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/acceptance-phase-guard-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "458ba30e3d7f5f5c7dffe8d79122a0061b486b62"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8581e71fb57a01db943f773b078c970ddd13be48"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0928d207262fbcf7f0087042f243bb92e85fba5f"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "00ec2c5fa10c4fe0b480702256d617b5ada44f17"
+          },
+          {
+            "path": "payload/.claude/commands/accept-milestone.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ab85f45e8ca4d7125ab93fb30b93e7a9fdeba88e"
+          },
+          {
+            "path": "payload/.claude/commands/satisfy-gate.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "619ad6af3568838ee380ce95189cb8c735eb2c78"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8641bdaafd5401f88603a15414a3d4c7794fc862"
+          },
+          {
+            "path": "payload/scripts/workflow_gate_policy_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "43eeed5222bdfc9581f717598b02284a7e341477"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "55748c6d193bda0a516581c83b5e8e29ed4c920d"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1f44ac65a3edda28f5659179e96b3ba524498716"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "eedfb50af98078d5fe1eaf08b1d80a62134461c0"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6c97b99005aa4ebf5680b158c55eb8896682bc9b"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "739c61b59eba284cce92a0940fcfdd8cf63cddf9"
+          }
+        ],
+        "reviewed_content_commit": "8965a3487632d3a525003b0b7134700328423618",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-07T23:32:43Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+            "ledger": {
+              "local": {
+                "bundle_id": "8d7ca71cf7c890e6b5ac0d2cf4520af03e955c4c2187591f3dfa589d64522f4c",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "e2c6770f8ca68c6b83524c056df1f735bfe9975ec235f02f5a030c8d29fc98b0",
+                "ledger_entry_sha256": "2b2e830fc9d6ee081f0719a0e4f23e5bad63749d5c31afd3563b7198c9ab0898",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/acceptance-phase-guard/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "8d7ca71cf7c890e6b5ac0d2cf4520af03e955c4c2187591f3dfa589d64522f4c",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "6d766cdc843a9808f7ea7b01a3772e981a1adc495843597c4fcb1c837fff24d1",
+                "ledger_entry_sha256": "2c872369f528035e64eed99c15163546ac48f36b2f45169996581e762f143804",
+                "run_ref": "codex:20261107T233024Z-12520ad1",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-07T23:32:43Z",
+          "workflow_release": "2.29.0"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "992b598735af1ef0f3f93544b87cdd9b1f717f988111088651ca98d74e6108d7",
@@ -35022,12 +35171,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 24,
-      "last_transition": "2026-11-07T23:05:44Z",
+      "state_revision": 27,
+      "last_transition": "2026-11-07T23:32:43Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -35159,6 +35308,62 @@
               "at": "2026-11-07T20:43:06Z"
             }
           ]
+        },
+        "F-2334256f0517": {
+          "digest": "2334256f051732cc9687cd41cb6cb0b5c1effba755ad59da73a0c41a5706336a",
+          "text": "`payload/docs/ai-workflow/audit/WORKFLOW_DEFECT_LEDGER.md` still says, at its `O13` row (line 66) and the `O13` paragraph (line 1617), that \"`complete_work_item` has no phase guard\". After 2.29.1 that is no longer true. A later release could add a note saying 2.29.1 closed `O13`, so the shipped audit ledger stops describing the old behavior as current.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+              "verdict": "APPROVE",
+              "at": "2026-11-07T23:30:08Z"
+            }
+          ]
+        },
+        "F-dc426100a90e": {
+          "digest": "dc426100a90e0151cff40ae55af1ba283e5c09bd67a43f756bbe767dcccbce81",
+          "text": "`payload/.claude/commands/satisfy-gate.md` (around line 316) lists the human-path refusals that `complete_work_item` keeps (\"an incomplete child, an outstanding checkpoint, an unsatisfied completion obligation\") but not the new `CompletionPhaseNotReachableError`. The paragraph after the `--satisfy-acceptance` block already names it, so nothing contradicts, but the list is now incomplete.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+              "verdict": "APPROVE",
+              "at": "2026-11-07T23:30:08Z"
+            }
+          ]
+        },
+        "F-1d86c4095dd4": {
+          "digest": "1d86c4095dd4563ee198e68676aa1d82115cd8e9d2f8645bcfdaaef909ba838d",
+          "text": "P3 (`test_p3_a_writer_landing_before_the_lock_cannot_make_the_library_complete`) never keeps a snapshot from before the writer. It sets the phase, then runs `state_transaction`. That proves the transaction judges the re-read phase, which is the property that matters, but it is a \"completes from a stored non-acceptance phase\" test more than a race test. P4 (the flag with the `now` seam) is the real race test, and it does land the writer in the gap the base left open.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+              "verdict": "APPROVE",
+              "at": "2026-11-07T23:30:08Z"
+            }
+          ]
+        },
+        "F-1a3e3818b058": {
+          "digest": "1a3e3818b0587e8497df662399102881f478624341568155cdcd18511c363f10",
+          "text": "`payload/scripts/workflow_gate_policy_test.py:6095`: P3 verifies refusal after updating the stored phase, but retains no stale snapshot to exercise competing reads. Clarify its name or strengthen that setup. P4 independently exercises the CLI’s former race window.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+              "verdict": "APPROVE",
+              "at": "2026-11-07T23:32:18Z"
+            }
+          ]
         }
       },
       "consumed_plan_review_content_ids": [
@@ -35272,7 +35477,28 @@
           "resolved_review_content_id": "992b598735af1ef0f3f93544b87cdd9b1f717f988111088651ca98d74e6108d7"
         }
       ],
-      "amendment_base_commit": "ec70fc5c859aba09e3f2c78c3926d103284128c6"
+      "amendment_base_commit": "ec70fc5c859aba09e3f2c78c3926d103284128c6",
+      "implementation_review_stages": {
+        "review_content_id": "e98844af6540860d94a73ad2984f16b11f859f4ad89b39f0764acd35728ef161",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "8d7ca71cf7c890e6b5ac0d2cf4520af03e955c4c2187591f3dfa589d64522f4c",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-07T23:30:08Z",
+          "verdict_sha256": "e2c6770f8ca68c6b83524c056df1f735bfe9975ec235f02f5a030c8d29fc98b0",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/acceptance-phase-guard/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "8d7ca71cf7c890e6b5ac0d2cf4520af03e955c4c2187591f3dfa589d64522f4c",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-07T23:32:18Z",
+          "verdict_sha256": "6d766cdc843a9808f7ea7b01a3772e981a1adc495843597c4fcb1c837fff24d1",
+          "run_ref": "codex:20261107T233024Z-12520ad1",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      }
     }
   }
 }
