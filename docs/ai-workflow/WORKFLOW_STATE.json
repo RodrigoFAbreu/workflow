@@ -35836,12 +35836,12 @@
       "registry_path": "docs/ai-workflow/registry/plain-command-malformed-state-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/plain-command-malformed-state-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 1,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "a8d5b1140d7117d21d12c5027fbf9d0d9b56ec5d",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "1afb1569fe9fe8b91c44f71dc8e508308f406da6",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -35980,8 +35980,8 @@
           "external": 0
         }
       },
-      "state_revision": 14,
-      "last_transition": "2026-11-12T11:45:56Z",
+      "state_revision": 15,
+      "last_transition": "2026-11-12T12:08:13Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
