@@ -3845,8 +3845,11 @@ class WordingPassPlainCommandsReleaseTest(unittest.TestCase):
                        "the content of both files is unchanged",
                        "the state file's content is unchanged",
                        "the paths to stage, the record and the dispositions file when it exists, "
-                       "`[]` for an item with no finding"):
+                       "`[]` for an item with no finding",
+                       "the findings record was written (nothing is written for an item with no finding) "
+                       "and `{paths}` was printed:"):
             self.assertIn(needle, exit_codes)
+        self.assertNotIn("the findings record was written and", exit_codes)
         self.assertNotIn("nothing was stored", exit_codes)
         for command in ("accept-milestone.md", "satisfy-gate.md"):
             with self.subTest(command):
