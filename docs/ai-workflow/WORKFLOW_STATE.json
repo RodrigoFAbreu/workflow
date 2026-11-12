@@ -35836,7 +35836,7 @@
       "registry_path": "docs/ai-workflow/registry/plain-command-malformed-state-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/plain-command-malformed-state-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -35976,12 +35976,12 @@
           "external": 2
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 15,
-      "last_transition": "2026-11-12T12:08:13Z",
+      "state_revision": 16,
+      "last_transition": "2026-11-12T12:38:16Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -36069,6 +36069,48 @@
               "review_content_id": "33dc3207a4aba64f6e08ee8cbb2df49d9dbfd99562e0a8bf11c9095bd76e0ba5",
               "verdict": "APPROVE",
               "at": "2026-11-12T09:41:26Z"
+            }
+          ]
+        },
+        "F-d90c66742251": {
+          "digest": "d90c66742251d409e36802a245f332efdbbf746b163efc2393f8a52bc1158c51",
+          "text": "**LIR-R1-002:** D-Tests' M1 says \"each of the five flags through its `_cli` function with the seams\". The test drives the real script as a subprocess, with a fake `gh` that logs calls and a tree digest. That gives equivalent (stronger end-to-end) coverage of \"no query, no write\", but the plan text and the test differ. Note it in the summary or align the wording.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "5afc5b3dad1b1e4ec041219401ca2104bf5cff699310cc376964afa7ee7e2fcd",
+              "verdict": "REVISE",
+              "at": "2026-11-12T12:38:16Z"
+            }
+          ]
+        },
+        "F-d4fd364352b5": {
+          "digest": "d4fd364352b520c85f0a6f37bcf42b21a8a0cf590c0ebcab8c1a6afad8023818",
+          "text": "**LIR-R1-003:** CP2's commit title is `feat: release Workflow 2.29.2 ...` for a `fix:` patch. Branch commit titles are squashed away, but the pull-request title must be `fix:` to agree with the manifest's patch bump.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "5afc5b3dad1b1e4ec041219401ca2104bf5cff699310cc376964afa7ee7e2fcd",
+              "verdict": "REVISE",
+              "at": "2026-11-12T12:38:16Z"
+            }
+          ]
+        },
+        "F-6a4cc352e5a6": {
+          "digest": "6a4cc352e5a651bdc85cd2e436f325ca9808a14a38ec9b39a463511f55732430",
+          "text": "**LIR-R1-004:** Already disclosed and not re-done here: the red-first run of M1 to M6, the CP1 D-Staging run, and the reaper (orphan-rule) re-run of the new tests have no durable record. The mutation table and the base-captured M5 literals are the evidence.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "5afc5b3dad1b1e4ec041219401ca2104bf5cff699310cc376964afa7ee7e2fcd",
+              "verdict": "REVISE",
+              "at": "2026-11-12T12:38:16Z"
             }
           ]
         }
