@@ -9,8 +9,8 @@ under `payload/docs/ai-workflow/`. What a script's exit status means is in
 ### An approval became stale after a change
 
 The approval is tied to the reviewed content, and the content changed. Go back
-through review: for a plan, `/apply-plan-review` (or `/milestone-plan` again)
-and both review stages; for code, `/apply-implementation-review` and its
+through review: for a plan approved and then changed, `/request-plan-amendment`
+and then `/milestone-plan`, both review stages and the plan approval; for code, `/apply-implementation-review` and its
 reviews. Do not edit the approval by hand.
 
 ### A gate is blocked for missing evidence

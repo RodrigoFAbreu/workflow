@@ -2,35 +2,27 @@
 
 ## Milestone
 
-**Complete (accepted by policy).** W45: `plain-command-malformed-state` (`process`, governing version `2.2`), branch `milestone/plain-command-malformed-state`,
-roadmap row 40 (RodrigoFAbreu/workflow#155, items 1 to 3). The plan is `docs/ai-workflow/PLAIN_COMMAND_MALFORMED_STATE_PLAN.md`
-(revision 1, approved by gate policy). The milestone was accepted by policy from evidence; release 2.29.2 follows the merge of the pull request (#171). The previous milestone, W44 `acceptance-phase-guard` (Workflow 2.29.1), is complete.
+**In progress.** W47: `wording-pass-plain-commands` (`process`, governing version `2.2`), branch `milestone/wording-pass-plain-commands`,
+roadmap row 41 (RodrigoFAbreu/workflow#168, #165, #161 and #152 item 1). The plan is
+`docs/ai-workflow/WORDING_PASS_PLAIN_COMMANDS_PLAN.md` (revision 2, approved by gate policy).
 
 ## Goal
 
-Workflow 2.29.2 (a `fix:` patch): the plain acceptance commands refuse a malformed state or registry with one JSON object instead of a
-traceback. The shared state context (`_plain_command_state`) tells an absent state file (`StateMissing`) from one holding JSON `null`
-(`StateMalformed`); `--finding-dispositions` uses it and answers every state refusal as one JSON object; the acceptance gate's
-reachability blocker turns a malformed registry into `registry_unresolvable`. The protocol stays 1.5; the Controller does not change.
+Workflow 2.29.3 (a `fix:` patch): one pass over the stale wording of the plain acceptance commands. Every statement the four issues call
+stale and the investigation found still false or misleading is corrected by the smallest true wording; the only changed output is the
+detail of a library refusal (`complete_work_item`'s `phase_not_reachable`), which no plain flag prints. The protocol stays 1.5; the
+Controller does not change.
 
 ## Checkpoints
 
-- CP1 (the shared state context, the dispositions flag and the blocker's catch, tests, command text and pages): complete.
-- CP2 (release 2.29.2): complete.
+- CP1 (the wording corrections, the library detail, the pins, the tests and row 41): complete (verified in a scratch fixture, see the commit).
+- CP2 (release 2.29.3): not started.
 
-CP1 changes: `payload/scripts/workflow_state.py`, `payload/scripts/workflow_gate_policy_test.py` (ten new tests), `payload/.claude/commands/satisfy-gate.md`,
-`docs/exit-codes.md`, `docs/ROADMAP.md` (row 40).
-
-CP2 changes: `manifest.json` (2.29.2: `workflow_version`, the six changed records' `sha256`/`size` and `rationale` sentence, the
-gate-policy suite count 412 to 422, the posture), `payload/scripts/workflow_protocol.py` (`WORKFLOW_RELEASE`), its test,
-`payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`, `docs/release-history.md` (the 2.29.2 row), `docs/exit-codes.md` ("Last checked
-with"), `tools/release/release_test.py` (`PlainCommandMalformedStateReleaseTest`; the 2.29.1 class gives up the current-release pins).
-
-CP2 verification (scratch clone with the CP2 tree committed, D-Staging): `release.py stage-conformance` and the nine suites, `tools/release`
-tests (323, zlib-ng interpreter), `tools/docs` tests and `check_docs.py`, `release.py build`, `check-manager-block` with `--manager-releases`;
-`workflow-manager verify .` in this repository.
+CP1 changes: `payload/scripts/workflow_state.py` (one string), `payload/scripts/workflow_gate_policy_test.py` (P7, P8; R6's needles),
+`payload/scripts/workflow_integration_test.py` (two golden hashes), `payload/.claude/commands/satisfy-gate.md`, `accept-milestone.md`,
+`apply-pr-review.md`, `payload/docs/ai-workflow/REVIEW_PROTOCOL.md`, `audit/WORKFLOW_DEFECT_LEDGER.md`, `docs/exit-codes.md`,
+`docs/common-problems.md`, `docs/ROADMAP.md` (row 41).
 
 ## Next action
 
-No incomplete milestone remains in `docs/ROADMAP.md` (row 40 was the last). Merge pull request #171, then the `Release` workflow publishes
-2.29.2. Plan the next milestone with `/milestone-plan` once the roadmap names one.
+Run `/milestone-implement wording-pass-plain-commands` again for CP2 (release 2.29.3).
