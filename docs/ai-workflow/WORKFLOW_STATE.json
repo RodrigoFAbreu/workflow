@@ -36789,12 +36789,12 @@
       "registry_path": "docs/ai-workflow/registry/wording-pass-plain-commands-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/wording-pass-plain-commands-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "APPLYING_REVIEW_FEEDBACK",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 2,
-      "implementation_revision": 1,
+      "implementation_revision": 2,
       "functional_review_round": null,
       "base_commit": "da8c68e6b55765a95d37a974a5f396821329859e",
-      "reviewed_implementation_head": "0ad84e05e65575a8885a1e3f555be4db3cfdfc52",
+      "reviewed_implementation_head": "863f81391a452e4b62bcc969fa738c13b827f1ab",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -36933,8 +36933,8 @@
           "external": 0
         }
       },
-      "state_revision": 24,
-      "last_transition": "2026-11-12T19:06:32Z",
+      "state_revision": 25,
+      "last_transition": "2026-11-12T19:11:19Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
