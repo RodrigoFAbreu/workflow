@@ -2,34 +2,34 @@
 
 ## Milestone
 
-**Complete (accepted by policy).** W44: `acceptance-phase-guard` (`process`, governing version `2.2`), branch `milestone/acceptance-phase-guard`,
-roadmap row 39 (RodrigoFAbreu/workflow#158, item 1). The plan is `docs/ai-workflow/ACCEPTANCE_PHASE_GUARD_PLAN.md` (revision 2,
-approved by gate policy). The previous milestone, W43 `acceptance-floor-commit` (Workflow 2.29.0), is complete.
+**In progress.** W45: `plain-command-malformed-state` (`process`, governing version `2.2`), branch `milestone/plain-command-malformed-state`,
+roadmap row 40 (RodrigoFAbreu/workflow#155, items 1 to 3). The plan is `docs/ai-workflow/PLAIN_COMMAND_MALFORMED_STATE_PLAN.md`
+(revision 1, approved by gate policy). The previous milestone, W44 `acceptance-phase-guard` (Workflow 2.29.1), is complete.
 
 ## Goal
 
-Workflow 2.29.1 (a `fix:` patch): `complete_work_item` refuses unless the item is at `AWAITING_FUNCTIONAL_REVIEW` or
-`AWAITING_USER_ACCEPTANCE` (`CompletionPhaseNotReachableError`, codes `work_item_terminal` / `phase_not_reachable`, checked after the
-child and own-registry checks and before the obligations), and the acceptance stage's phase and registry check moves from before the
-lock to the first statement of `satisfy_acceptance_gate`'s mutator, so a writer landing before the lock can no longer make the stage
-complete from a phase it must refuse. The protocol stays 1.5; the Controller does not change.
+Workflow 2.29.2 (a `fix:` patch): the plain acceptance commands refuse a malformed state or registry with one JSON object instead of a
+traceback. The shared state context (`_plain_command_state`) tells an absent state file (`StateMissing`) from one holding JSON `null`
+(`StateMalformed`); `--finding-dispositions` uses it and answers every state refusal as one JSON object; the acceptance gate's
+reachability blocker turns a malformed registry into `registry_unresolvable`. The protocol stays 1.5; the Controller does not change.
 
 ## Checkpoints
 
-- CP1 (the phase guard in the library and inside the lock, tests, command text and pages): complete.
-- CP2 (release 2.29.1): complete.
+- CP1 (the shared state context, the dispositions flag and the blocker's catch, tests, command text and pages): complete.
+- CP2 (release 2.29.2): implemented; verified state below.
 
-CP1 changes: `payload/scripts/workflow_state.py` (the error class, the guard, the mutator's first statement, the CLI's outside call
-removed), `payload/scripts/workflow_gate_policy_test.py` (`TestCompletionPhaseGuard`, P1 to P6; the three named existing-test edits:
-the `AcceptanceRepo` fixture's phase, the two old-phase assertions, `test_s8`), `payload/.claude/commands/satisfy-gate.md`,
-`payload/.claude/commands/accept-milestone.md`, `docs/exit-codes.md`, `docs/ROADMAP.md` (row 39).
+CP1 changes: `payload/scripts/workflow_state.py`, `payload/scripts/workflow_gate_policy_test.py` (ten new tests), `payload/.claude/commands/satisfy-gate.md`,
+`docs/exit-codes.md`, `docs/ROADMAP.md` (row 40).
 
-CP2 changes: `manifest.json` (2.29.1: `workflow_version`, the eight changed records' `sha256`/`size` and `rationale` sentence, the
-gate-policy suite count 404 to 412, the posture), `payload/scripts/workflow_protocol.py` (`WORKFLOW_RELEASE`), its test,
-`payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`, `docs/release-history.md` (the 2.29.1 row), `docs/exit-codes.md` ("Last checked
-with"), `tools/release/release_test.py` (`AcceptancePhaseGuardReleaseTest`; the 2.29.0 class gives up the current-release pins).
+CP2 changes: `manifest.json` (2.29.2: `workflow_version`, the six changed records' `sha256`/`size` and `rationale` sentence, the
+gate-policy suite count 412 to 422, the posture), `payload/scripts/workflow_protocol.py` (`WORKFLOW_RELEASE`), its test,
+`payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`, `docs/release-history.md` (the 2.29.2 row), `docs/exit-codes.md` ("Last checked
+with"), `tools/release/release_test.py` (`PlainCommandMalformedStateReleaseTest`; the 2.29.1 class gives up the current-release pins).
+
+CP2 verification (scratch clone with the CP2 tree committed, D-Staging): `release.py stage-conformance` and the nine suites, `tools/release`
+tests (323, zlib-ng interpreter), `tools/docs` tests and `check_docs.py`, `release.py build`, `check-manager-block` with `--manager-releases`;
+`workflow-manager verify .` in this repository.
 
 ## Next action
 
-No active plan. The milestone is accepted by policy; its release (Workflow 2.29.1) follows the merge of the pull request. No further
-item is scheduled in `docs/ROADMAP.md`: choose the next one there before `/milestone-plan`.
+Self-review of the full diff, then the implementation-review bundle (`/milestone-implement`, steps 2 to 5), once every checkpoint is complete.
