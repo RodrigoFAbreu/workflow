@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "wording-pass-plain-commands",
+  "requirements": {
+    "R1": {
+      "description": "every statement of the investigation's table marked TRUE-FIX-NEEDED is corrected by the smallest true wording in the command texts, the pages and the ledger; semantics of every command unchanged",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the library's phase_not_reachable detail names both accepted phases and the plain flags' JSON bytes are unchanged, pinned by new tests with failure-only mutations",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "the tests and golden hashes that pinned the old wording are updated, each with a failure-only mutation; roadmap row 41 is added",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Workflow 2.29.3 is released with the manifest records, the posture, the release history and the release tests",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
