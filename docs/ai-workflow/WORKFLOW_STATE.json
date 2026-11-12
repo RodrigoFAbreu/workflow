@@ -36789,7 +36789,7 @@
       "registry_path": "docs/ai-workflow/registry/wording-pass-plain-commands-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/wording-pass-plain-commands-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 2,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -36898,7 +36898,180 @@
           "workflow_release": "2.29.2"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "6779143097e970b91b585f9819c9e6d13ef3a7598c64f746e9e529cbe09b2fb4",
+        "approved_review_content_id": "a3fa54690ba48aea6e046e761c26196a696ac34338f98c4c1f18e495eba08743",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/wording-pass-plain-commands-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "adbc1c5978cf75bcdd40abb27bca0481468d43a7"
+          },
+          {
+            "path": "docs/common-problems.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "16815c8b9e64b49a0e0d95f84d329e29608e899c"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "216b144a05db84b8c1bb19619b61b52fa3ae7633"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b1018711ebb13a91d9ccef501049f08effa6c24b"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d8048fd10acb6ff78f7116d9fbc0ef85195b95ca"
+          },
+          {
+            "path": "payload/.claude/commands/accept-milestone.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "95dc375cf647484459b5dbf3e0b88e5741f4b843"
+          },
+          {
+            "path": "payload/.claude/commands/apply-pr-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b7961c1bf11814e3cc2c53ba0f72218fe8620523"
+          },
+          {
+            "path": "payload/.claude/commands/satisfy-gate.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3c1aa64350736ded9beb6b1552b14f1ab3c0ba8b"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b0ef85dea5aed815526b138c2d52cfd1d6d4b696"
+          },
+          {
+            "path": "payload/docs/ai-workflow/REVIEW_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "06451fd92e99d29bf266fd8e8b650a98c4ca53e0"
+          },
+          {
+            "path": "payload/docs/ai-workflow/audit/WORKFLOW_DEFECT_LEDGER.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "55c4a9bda6d66f7d94313e330395391e623fc5ca"
+          },
+          {
+            "path": "payload/scripts/workflow_gate_policy_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "58bdbcdff913b32a45a6c29225948943b476df69"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c778806ddd6eaf28205b1bccae7e51b496db3202"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "54cd62b1b936415cf234768b7ed0afbe33042c9b"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "727bf4ce58ba6d50e444b27eb047079ad5685a65"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "28c429d9bbf3eaeeb5068d0e6d72a393ac13666f"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8fe810af86fa5be21ff507d52fdafc53ec8a8bac"
+          }
+        ],
+        "reviewed_content_commit": "863f81391a452e4b62bcc969fa738c13b827f1ab",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-12T19:38:54Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "a3fa54690ba48aea6e046e761c26196a696ac34338f98c4c1f18e495eba08743",
+            "ledger": {
+              "local": {
+                "bundle_id": "6779143097e970b91b585f9819c9e6d13ef3a7598c64f746e9e529cbe09b2fb4",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "921c214c583c657f4a11aada0719daa9252ad3a9015517193a1ecfd176d367b3",
+                "ledger_entry_sha256": "9bc93b4f897b1f1193219a438f5efe90c110d29fedb834f1a789e26728cb342c",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/wording-pass-plain-commands/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "6779143097e970b91b585f9819c9e6d13ef3a7598c64f746e9e529cbe09b2fb4",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "884d3ca787b10add7abb4056310ec658df31c00b74f87e9e31616c83f5d01d1e",
+                "ledger_entry_sha256": "ed2fbee4824529b199989852bdf38909263c971c66bdad75b54ed446e5666680",
+                "run_ref": "codex:20261112T193553Z-c0a19aa2",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-12T19:38:54Z",
+          "workflow_release": "2.29.2"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "e874981386eeb64803a3a6dbb8db8f6e8b22a4434a4d30560993bc09bc789733",
@@ -36929,12 +37102,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 1,
-          "external": 0
+          "local": 2,
+          "external": 1
         }
       },
-      "state_revision": 25,
-      "last_transition": "2026-11-12T19:11:19Z",
+      "state_revision": 28,
+      "last_transition": "2026-11-12T19:38:54Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -37100,6 +37273,27 @@
               "at": "2026-11-12T19:06:32Z"
             }
           ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "a3fa54690ba48aea6e046e761c26196a696ac34338f98c4c1f18e495eba08743",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "6779143097e970b91b585f9819c9e6d13ef3a7598c64f746e9e529cbe09b2fb4",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-12T19:35:18Z",
+          "verdict_sha256": "921c214c583c657f4a11aada0719daa9252ad3a9015517193a1ecfd176d367b3",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/wording-pass-plain-commands/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "6779143097e970b91b585f9819c9e6d13ef3a7598c64f746e9e529cbe09b2fb4",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-12T19:38:32Z",
+          "verdict_sha256": "884d3ca787b10add7abb4056310ec658df31c00b74f87e9e31616c83f5d01d1e",
+          "run_ref": "codex:20261112T193553Z-c0a19aa2",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
