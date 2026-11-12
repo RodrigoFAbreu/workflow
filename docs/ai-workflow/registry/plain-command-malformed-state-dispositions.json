@@ -1,0 +1,53 @@
+{
+  "dispositions": {
+    "F-1a63bcccd60b": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#170",
+      "note": "Follow-up item 1."
+    },
+    "F-1cc237247594": {
+      "disposition": "fixed"
+    },
+    "F-350037a3c34b": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#170",
+      "note": "Follow-up item 2."
+    },
+    "F-588d52188160": {
+      "disposition": "fixed"
+    },
+    "F-67cdf7b8ff29": {
+      "disposition": "fixed"
+    },
+    "F-6a4cc352e5a6": {
+      "disposition": "dropped",
+      "reason": "Disclosed and superseded: the red-first check was run by a reviewer (LIR-R2-003) and the reaper re-run is carried by F-1a63bcccd60b (follow-up item 1); TEST_RESULTS.md records the rest as Not run."
+    },
+    "F-8478fbcfcb55": {
+      "disposition": "dropped",
+      "reason": "Duplicate of F-350037a3c34b (stale TEST_RESULTS.md heading and runs), folded into follow-up item 2."
+    },
+    "F-8f1da78fbe49": {
+      "disposition": "dropped",
+      "reason": "Round-2 carry-over of F-972eae48b5f1: plan lines 116-117 are loosely worded but CP1 ran m4 and m8 as concrete scratch-copy edits (TEST_RESULTS.md lines 45-46, 54, 58), each failing M4; the plan is approved, so an accepted deviation."
+    },
+    "F-972eae48b5f1": {
+      "disposition": "dropped",
+      "reason": "Same reason as F-8f1da78fbe49: m4 and m8 were run as concrete edits and recorded in TEST_RESULTS.md."
+    },
+    "F-d4fd364352b5": {
+      "disposition": "dropped",
+      "reason": "The feat: title is only a branch commit that the squash drops; the pull-request title is fix: (noted in IMPLEMENTATION_SUMMARY.md lines 67-68). An action at PR time, not a gap."
+    },
+    "F-d90c66742251": {
+      "disposition": "dropped",
+      "reason": "Accepted deviation recorded in IMPLEMENTATION_SUMMARY.md lines 64-66: the test drives the real script as a subprocess, which is stronger coverage than the plan's _cli wording."
+    },
+    "F-e7b8410ec581": {
+      "disposition": "dropped",
+      "reason": "Duplicate of F-d4fd364352b5 (the fix: pull-request title)."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "plain-command-malformed-state"
+}
