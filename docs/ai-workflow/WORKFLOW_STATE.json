@@ -36789,7 +36789,7 @@
       "registry_path": "docs/ai-workflow/registry/wording-pass-plain-commands-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/wording-pass-plain-commands-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -36929,12 +36929,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 23,
-      "last_transition": "2026-11-12T18:46:55Z",
+      "state_revision": 24,
+      "last_transition": "2026-11-12T19:06:32Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -37084,6 +37084,20 @@
               "review_content_id": "e874981386eeb64803a3a6dbb8db8f6e8b22a4434a4d30560993bc09bc789733",
               "verdict": "APPROVE",
               "at": "2026-11-12T17:50:17Z"
+            }
+          ]
+        },
+        "F-e31fa27423f3": {
+          "digest": "e31fa27423f350a1ddc3fd3b1bde22a59c45be2e0f8652a6e5f59e0e1f9d3eda",
+          "text": "**LIR-O1: some edited lines no longer match their file's wrap width.** The rewritten text was not re-wrapped: `payload/.claude/commands/satisfy-gate.md:271` (143 columns) and `:237` (103), `payload/.claude/commands/apply-pr-review.md:166` (98), `docs/common-problems.md:13` (118) and the ledger paragraph at `payload/docs/ai-workflow/audit/WORKFLOW_DEFECT_LEDGER.md:1619` (99), where the surrounding prose wraps near 85. No test checks these files' width (`TestUserOnlyCommandLineWidth` covers other files), so this is cosmetic. Re-wrapping moves the golden hashes of `accept-milestone.md`/`apply-pr-review.md` and the manifest records only for files actually re-wrapped. Either do it in the same fix round or leave it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "ee837310f0b9c60816d914554d7cac8b831d37d264fbc95c69272182588bd828",
+              "verdict": "REVISE",
+              "at": "2026-11-12T19:06:32Z"
             }
           ]
         }
