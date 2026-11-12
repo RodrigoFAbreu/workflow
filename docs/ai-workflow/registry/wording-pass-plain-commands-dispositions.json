@@ -1,0 +1,41 @@
+{
+  "dispositions": {
+    "F-34aa818fa721": {
+      "disposition": "fixed"
+    },
+    "F-5922df2482c0": {
+      "disposition": "fixed"
+    },
+    "F-8a9e243fb9b2": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#173",
+      "note": "Follow-up item 1."
+    },
+    "F-8d04c4828e7a": {
+      "disposition": "fixed"
+    },
+    "F-93eafe7d2432": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#173",
+      "note": "Follow-up item 2."
+    },
+    "F-9ad70640fbf8": {
+      "disposition": "fixed"
+    },
+    "F-a1cc54edd6a7": {
+      "disposition": "fixed"
+    },
+    "F-e31fa27423f3": {
+      "disposition": "dropped",
+      "reason": "Cosmetic wrap width: no test checks line width, and re-wrapping would move golden hashes; listed as optional item 3 of the follow-up issue."
+    },
+    "F-eada45dafc92": {
+      "disposition": "fixed"
+    },
+    "F-f5fdce3c938b": {
+      "disposition": "fixed"
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "wording-pass-plain-commands"
+}
