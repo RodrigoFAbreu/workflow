@@ -269,9 +269,10 @@ says.
    refuses an item that is not `MILESTONE_COMPLETE`. It takes no lock, does not
    commit and writes no file but the record. A refusal exits 1 with one object
    `{"error", "message", "record_changed", "state_changed"}` (plus `"code"`): with
-   the content of both files is unchanged, stop and fix the cause; `record_changed: true`
-   means the record moved and the write then failed, so do not stage or commit it,
-   fix the cause and run it again (a successful run rewrites the whole file);
+   both `false` the content of both files is unchanged, stop and fix the cause;
+   `record_changed: true` means the record moved and the write then failed, so
+   do not stage or commit it, fix the cause and run it again (a successful run
+   rewrites the whole file);
    `state_changed: true` means another writer changed the state: stop and re-read it.
    Run it as written, not under `python3 -I`. The Python description is the
    specification: call

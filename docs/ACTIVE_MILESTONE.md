@@ -29,7 +29,11 @@ CP2 changes: `manifest.json` (version 2.29.3, the eleven changed records, gate-p
 `docs/exit-codes.md` and `docs/common-problems.md` ("Last checked with" lines), `tools/release/release_test.py` (the 2.29.3 class;
 the 2.29.2 and 2.25.7 classes give up the current-release pins).
 
+Self-review (phase `SELF_REVIEWING_IMPLEMENTATION`): CP1's E8 edit of `accept-milestone.md` step 5a dropped "both `false`", leaving
+"with the content of both files is unchanged"; restored ("with both `false` the content of both files is unchanged", as in
+`satisfy-gate.md`), its golden hash and the two manifest records follow, and the 2.29.3 release test pins the sentence in both commands.
+Row 41 names `docs/common-problems.md` among the corrected pages.
+
 ## Next action
 
-All checkpoints are complete. Run `/milestone-implement wording-pass-plain-commands` again: it enters
-`SELF_REVIEWING_IMPLEMENTATION` (a no-op if the phase is already there), runs the full verification and prepares the implementation review bundle.
+The implementation review bundle (`/milestone-implement wording-pass-plain-commands` step 4), then the two-stage implementation review.

@@ -3848,6 +3848,10 @@ class WordingPassPlainCommandsReleaseTest(unittest.TestCase):
                        "`[]` for an item with no finding"):
             self.assertIn(needle, exit_codes)
         self.assertNotIn("nothing was stored", exit_codes)
+        for command in ("accept-milestone.md", "satisfy-gate.md"):
+            with self.subTest(command):
+                text = " ".join((REPO_ROOT / "payload/.claude/commands" / command).read_text().split())
+                self.assertIn("with both `false` the content of both files is unchanged", text)
         self.assertIn("for a plan approved and then changed, `/request-plan-amendment`", problems)
         self.assertIn("and then `/milestone-plan`, both review stages and the plan approval", problems)
 

@@ -1120,7 +1120,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # step 5a names `python3 scripts/workflow_state.py --write-findings-record <id>` first and
     # keeps the Python call as the specification -- intentional content change.
     # workflow-2.29.3 (wording-pass-plain-commands, CP1): wording only -- intentional content change.
-    "accept-milestone.md": "a59e6458aeb8b5c497486aba1455b8eb7064352845ee23c8b001af9689e997d7",
+    "accept-milestone.md": "3a1112a618b7659bb13250f2963becdce0fe52614f053a8b3295d90cf6cbfe88",
     # prepare-functional-review.md further updated, baseline-portability
     # correctness fix (OPUS-R129-001): step 3a's checklist-evidence
     # provenance commit instruction now states the same "trailers must be
