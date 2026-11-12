@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "plain-command-malformed-state",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -35826,6 +35826,247 @@
         "evaluated_at": "2026-11-07T23:58:52Z",
         "workflow_release": "2.29.0"
       }
+    },
+    "plain-command-malformed-state": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "plain-command-malformed-state",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/PLAIN_COMMAND_MALFORMED_STATE_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/plain-command-malformed-state-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/plain-command-malformed-state-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 1,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "a8d5b1140d7117d21d12c5027fbf9d0d9b56ec5d",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "a7a0f2bbb6132c5c11e744c9cba3e5f971733414bdbd9b576bcb2d97c92db0e9",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "a7a0f2bbb6132c5c11e744c9cba3e5f971733414bdbd9b576bcb2d97c92db0e9",
+        "approved_review_content_id": "33dc3207a4aba64f6e08ee8cbb2df49d9dbfd99562e0a8bf11c9095bd76e0ba5",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/PLAIN_COMMAND_MALFORMED_STATE_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7926c7d77fa6cdbbb012c505c77520003128569e"
+          },
+          {
+            "path": "docs/ai-workflow/registry/plain-command-malformed-state-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b81904475d21f9bb91d950473ee76968430821ad"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/plain-command-malformed-state-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bb554e871c2a21156efdcbdd0d812d9a20bb542d"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-12T09:44:50Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "33dc3207a4aba64f6e08ee8cbb2df49d9dbfd99562e0a8bf11c9095bd76e0ba5",
+            "ledger": {
+              "local": {
+                "bundle_id": "a7a0f2bbb6132c5c11e744c9cba3e5f971733414bdbd9b576bcb2d97c92db0e9",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "afa33f44d5611dc9c038a2ee893ffe90d747ebe83756de7b618794935e9cfad5",
+                "ledger_entry_sha256": "6410f9daeba09c44ab9b95ebbaa0ee545cbf8623136be9a619888da6c916f747",
+                "run_ref": "session:local .ai-review/plain-command-malformed-state/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "a7a0f2bbb6132c5c11e744c9cba3e5f971733414bdbd9b576bcb2d97c92db0e9",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "e90c42ddbc66a4d82b5a96c4452894927ef2dfc1808e16a84adbdf643c5ed996",
+                "ledger_entry_sha256": "fc2aae0d59117dab5ff2a220d34e4b37946c837188550aa882f5d2816851679c",
+                "run_ref": "codex:20261112T094222Z-9b3b5300",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-12T09:44:50Z",
+          "workflow_release": "2.29.1"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "33dc3207a4aba64f6e08ee8cbb2df49d9dbfd99562e0a8bf11c9095bd76e0ba5",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "a7a0f2bbb6132c5c11e744c9cba3e5f971733414bdbd9b576bcb2d97c92db0e9",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-12T09:41:26Z",
+          "verdict_sha256": "afa33f44d5611dc9c038a2ee893ffe90d747ebe83756de7b618794935e9cfad5",
+          "run_ref": "session:local .ai-review/plain-command-malformed-state/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "a7a0f2bbb6132c5c11e744c9cba3e5f971733414bdbd9b576bcb2d97c92db0e9",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-12T09:44:22Z",
+          "verdict_sha256": "e90c42ddbc66a4d82b5a96c4452894927ef2dfc1808e16a84adbdf643c5ed996",
+          "run_ref": "codex:20261112T094222Z-9b3b5300",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 2
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 10,
+      "last_transition": "2026-11-12T09:44:51Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-12T10:10:00Z",
+        "consumed": {
+          "review_content_id": "30b9c4998466861fe577521d48d9b6424df8f01408caabb8ee7eab4fb8c5255e",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "33dc3207a4aba64f6e08ee8cbb2df49d9dbfd99562e0a8bf11c9095bd76e0ba5",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "33dc3207a4aba64f6e08ee8cbb2df49d9dbfd99562e0a8bf11c9095bd76e0ba5",
+          "bundle_id": "a7a0f2bbb6132c5c11e744c9cba3e5f971733414bdbd9b576bcb2d97c92db0e9",
+          "plan_revision": 1
+        }
+      },
+      "optional_findings": {
+        "F-67cdf7b8ff29": {
+          "digest": "67cdf7b8ff29fd9768568d71fef3517dd8a1b1dbb580828098fe42ab3a5702c4",
+          "text": "D-Scope (plan line 105) says `validate_state` \"has no production caller\"; it has three, all in `payload/scripts/workflow_protocol.py` (`load_valid_state` at line 307, the `verify` check at line 516, the decision path at line 2548). The decision not to reuse it still stands on the plan's second reason (hand-built states would fail it), so only the sentence needs correcting, e.g. \"no caller among the plain commands\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "30b9c4998466861fe577521d48d9b6424df8f01408caabb8ee7eab4fb8c5255e",
+              "verdict": "APPROVE",
+              "at": "2026-11-12T09:35:35Z"
+            }
+          ]
+        },
+        "F-972eae48b5f1": {
+          "digest": "972eae48b5f161888319dc5f49cf2c375589b070c77941831adbcfbc5c8c9455",
+          "text": "D-Tests mutations m4 (\"the new `except Exception` moved after the phase check\") and m8 (\"the blocker's order swapped, phase before registry\") are not single-literal edits and are hard to tell apart: `milestone_complete_gate_reachable(phase=..., is_terminal=...)` uses the registry's `is_terminal`, so the phase check cannot run before the registry resolution without restructuring the function. At CP1, state each as a concrete edit (e.g. m8: test `phase != \"AWAITING_FUNCTIONAL_REVIEW\"` for `phase_not_reachable` before the `try`), or merge them into one mutation.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "30b9c4998466861fe577521d48d9b6424df8f01408caabb8ee7eab4fb8c5255e",
+              "verdict": "APPROVE",
+              "at": "2026-11-12T09:35:35Z"
+            }
+          ]
+        },
+        "F-588d52188160": {
+          "digest": "588d52188160660cbe30d99a1f1feb895c351ec27fec3f451f70754bf7b2fcb6",
+          "text": "At plan line 105, narrow “`validate_state` has no production caller” to “has no caller among these plain commands.” Production calls exist in `payload/scripts/workflow_protocol.py:307`, `:516` and `:2548`; this does not undermine the chosen shared helper.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "30b9c4998466861fe577521d48d9b6424df8f01408caabb8ee7eab4fb8c5255e",
+              "verdict": "REVISE",
+              "at": "2026-11-12T09:39:28Z"
+            }
+          ]
+        },
+        "F-1cc237247594": {
+          "digest": "1cc237247594cc66cf4c0c86a186e62e3b83e8365b06af9ef6590b779ed11547",
+          "text": "At plan lines 116–117, remove the requirement that each mutation fail “the named test and no other.” Coverage intentionally overlaps: removing the new registry catch can fail both M3 and M4. Require the designated test to detect the mutation without forbidding additional relevant failures.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "30b9c4998466861fe577521d48d9b6424df8f01408caabb8ee7eab4fb8c5255e",
+              "verdict": "REVISE",
+              "at": "2026-11-12T09:39:28Z"
+            }
+          ]
+        },
+        "F-8f1da78fbe49": {
+          "digest": "8f1da78fbe491c3197bcf5dbfd66bbd03cbb2a24635b1141136cd376b1f4d4b1",
+          "text": "Mutations m4 and m8 in D-Tests (plan lines 116–117) are still not single-literal edits, and they are hard to tell apart. This carries over from round 1, F-972eae48b5f1: the plan text did not change here. `milestone_complete_gate_reachable(phase=..., is_terminal=...)` uses the `is_terminal` that the registry resolution returns. So \"moved after the phase check\" (m4) and \"phase before registry\" (m8) both need the function restructured, for example by testing `phase != \"AWAITING_FUNCTIONAL_REVIEW\"` for `phase_not_reachable` before the `try`. Flow 9 covers only a, b and c. At CP1, state m4 and m8 each as a concrete edit, or merge them into one mutation.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "33dc3207a4aba64f6e08ee8cbb2df49d9dbfd99562e0a8bf11c9095bd76e0ba5",
+              "verdict": "APPROVE",
+              "at": "2026-11-12T09:41:26Z"
+            }
+          ]
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "30b9c4998466861fe577521d48d9b6424df8f01408caabb8ee7eab4fb8c5255e"
+      ]
     }
   }
 }

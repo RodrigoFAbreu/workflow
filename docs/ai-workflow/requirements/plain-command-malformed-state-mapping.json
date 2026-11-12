@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "plain-command-malformed-state",
+  "requirements": {
+    "R1": {
+      "description": "an absent state file is StateMissing and a file holding JSON null is StateMalformed; --finding-dispositions answers every malformed state, an empty id and a run outside Git with one JSON object, never a traceback, through the shared state context",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "a malformed registry shape or a non-string registry_path is the existing registry_unresolvable blocker in the report and in --satisfy-acceptance, state_changed accurate, nothing written beyond the lock file",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "golden before/after, no-write, order and failure-only mutation tests; the command text and pages state the behaviour; no existing test is edited",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "Workflow 2.29.2 is released with the manifest records, the posture, the release history and the release tests",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
