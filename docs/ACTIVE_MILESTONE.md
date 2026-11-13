@@ -165,7 +165,7 @@ esac
 
 </details>
 
-**Flow 15 (approval boundary).** Make a scratch clone first, then run the script on it. It edits only that clone:
+Approval boundary (flow 15): Make a scratch clone first, then run the script on it. It edits only that clone:
 
 ```bash
 git clone -q "$REPO" "$TMPDIR/f15-clone" && git -C "$TMPDIR/f15-clone" checkout -q milestone/docs-restamp
