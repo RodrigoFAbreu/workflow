@@ -1,6 +1,6 @@
 # Approval gates
 
-> For: anyone who decides who approves a work item's plan, code and acceptance. Last checked with: Workflow 2.17.0, Workflow Manager 1.5.0.
+> For: anyone who decides who approves a work item's plan, code and acceptance. Last checked with: Workflow 2.29.3, Workflow Manager 1.18.1.
 
 An approval gate is a point where a work item cannot move on until a decision
 is recorded. There are three: plan approval, implementation approval and
@@ -45,7 +45,7 @@ keep their gates.
 | --- | --- |
 | Plan approval | The latest review verdict is approve and matches the current plan bundle. The two review stages come from different model families (on by default). Both review stages carry their audit details. |
 | Implementation approval | The same checks, for the code. |
-| Milestone acceptance | All checkpoints are complete. The implementation approval is current. At least one functional flow passed on the current code, none failed, and every flow you list as required passed. An open pull request exists for the same code. The pull request has no changes requested and its checks are not failing. CI is green (on by default). Optionally, a person has approved the pull request. |
+| Milestone acceptance | All checkpoints are complete. The implementation approval is current. At least one functional flow passed on the current code, none failed, and every flow you list as required passed. An open pull request exists for the same code. The pull request has no changes requested and its checks are not failing: a check that ran again counts by its latest run; where the order of runs cannot be established its worst run counts. CI is green (on by default). Optionally, a person has approved the pull request. |
 
 Automatic acceptance needs the pull request to be open and pushed first. A
 repository that opens its pull request only after acceptance keeps acceptance

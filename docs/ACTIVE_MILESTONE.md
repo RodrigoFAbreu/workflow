@@ -2,26 +2,26 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; the release follows the merge). W47: `wording-pass-plain-commands` (`process`, governing
-version `2.2`), branch `milestone/wording-pass-plain-commands`, roadmap row 41 (RodrigoFAbreu/workflow#168, #165, #161 and
-#152 item 1). The plan is `docs/ai-workflow/WORDING_PASS_PLAIN_COMMANDS_PLAN.md` (revision 2, approved by gate policy); an
-archive copy is in `docs/milestones/completed/`.
+**Implementing, CP1 complete.** W49: `docs-restamp` (`process`, governing version `2.2`), branch `milestone/docs-restamp`,
+roadmap row 42 (RodrigoFAbreu/workflow#147, the stamps part). The plan is `docs/ai-workflow/DOCS_RESTAMP_PLAN.md`
+(revision 3, approved by gate policy).
 
 ## Goal
 
-Workflow 2.29.3 (a `fix:` patch, released after the merge of pull request #174): one pass over the stale wording of the plain
-acceptance commands. The only changed output is the detail of a library refusal (`complete_work_item`'s
-`phase_not_reachable`), which no plain flag prints. The protocol stays 1.5; the Controller does not change.
+Every user page with a `Last checked with` line says the release it was really re-checked against. Docs only: no
+`payload/`, `tools/` or behaviour change, so no release (a `docs:` pull request, impact none; the manifest keeps 2.29.3).
 
 ## Outcome
 
-- CP1 (the wording corrections, the library detail, the pins, the tests and row 41) and CP2 (release 2.29.3) are complete; the
-  technical approval was recorded by policy.
-- Functional flows 1 to 7 are recorded passed by the Controller's automated tester. The 10 recorded Optional findings are
-  dispositioned (7 fixed, 2 follow-ups in RodrigoFAbreu/workflow#173, 1 dropped); see
-  `docs/milestones/completed/wording-pass-plain-commands-findings.md`.
+- CP1 is complete: nine pages re-read and re-stamped to Workflow 2.29.3 (Workflow Manager 1.18.1 on `README.md`, overview,
+  install, gates and glossary; 1.18.1 is the latest release read with `gh release list`). Fixed: the README's wording of how
+  the Manager installs, one sentence in `docs/gates.md` on the latest run of each check, a row for the retention engine's
+  archive-directory lock in `docs/CONCURRENCY_INVARIANTS.md` (cells the code does not settle say `not verified`), and the
+  roadmap (open-defects rows for #50 and #55 dropped, row 24 and row 27a statuses, row 42 added as `Current`).
+- Checked in CP1: `tools/docs` tests and `check_docs.py` pass; the kept pages, `docs/RELEASING.md` and the release source
+  have no diff against the base commit; every `file:function` reference on the two maintainer pages resolves.
+- Next: self-review, the full verification of the plan, then the implementation review bundle.
 
 ## Next action
 
-No milestone is scheduled. Every remaining roadmap row is waiting on the Controller or is later and unscheduled (rows 12, 13,
-27). The release of 2.29.3 follows the merge of pull request #174. Pick the next item, then `/milestone-plan`.
+Run `/milestone-implement docs-restamp` again (step 2 onward).
