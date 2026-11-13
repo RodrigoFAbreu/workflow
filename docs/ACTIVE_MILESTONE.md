@@ -30,6 +30,9 @@ Every user page with a `Last checked with` line says the release it was really r
   base text (frozen release tests pin them); `docs/RETENTION.md` has no diff against the base commit and the concurrency
   page's diff is exactly the added row. Final state: seven moved stamps. Checked: `tools/docs` tests, `check_docs.py`,
   `check-manager-block`, and the whole `tools/release` suite (328 tests, Python 3.12 with the pinned zlib-ng wheel) pass.
+- Self-review after CP2: row 42 of the roadmap still described CP1 as first done (one checkpoint, and the retention and
+  concurrency pages among the stamps moved to 2.29.3). It now says two checkpoints, seven moved stamps, and that those two
+  pages were re-checked but keep 2.19.2 and 2.25.6 because frozen release tests pin them.
 - Next: the full verification of the plan and the implementation review bundle.
 
 ## Next action
