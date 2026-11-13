@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_item_id": "two-page-wording",
+  "requirements": {
+    "R1": {
+      "description": "the retention row's lock-order cell of docs/CONCURRENCY_INVARIANTS.md says once, and truly, that the engine takes no state lock and no checkpoint claim and imports nothing from workflow_state.py",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the acceptance row of docs/gates.md says once that the pull request's checks are judged by the latest run of each check, and keeps the clause that the worst run counts where the order cannot be established",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "no stamp moves, nothing under payload/, tools/, fixtures/, templates/ or manifest.json changes (docs-only, releases nothing), the archived plan is untouched, and docs/ROADMAP.md carries row 43 (Current, Done at acceptance)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "two-page-wording",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -38586,6 +38586,226 @@
         },
         "evaluated_at": "2026-11-13T16:14:49Z",
         "workflow_release": "2.29.3"
+      }
+    },
+    "two-page-wording": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "two-page-wording",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/TWO_PAGE_WORDING_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/two-page-wording-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/two-page-wording-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 1,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "8e1212b7aa388e168a01588eb9ba0cf8348ba969",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "38e76436b6d4693fc2215484fffab794e00a2b435db6ae11bb4149df1a555070",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "38e76436b6d4693fc2215484fffab794e00a2b435db6ae11bb4149df1a555070",
+        "approved_review_content_id": "dc4431a7d234c389fdf61ba95efcf953d718c5b4e0c2e77828e3cf9d1947624c",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/TWO_PAGE_WORDING_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cf39327a3bd4871305ab33f6c65926f94daedd87"
+          },
+          {
+            "path": "docs/ai-workflow/registry/two-page-wording-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "633c368afd599b16fd30ca6a3c48a34f31803b28"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/two-page-wording-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5e70a295911cf494d1a587549c713102f8dbb56f"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-13T18:51:23Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "dc4431a7d234c389fdf61ba95efcf953d718c5b4e0c2e77828e3cf9d1947624c",
+            "ledger": {
+              "local": {
+                "bundle_id": "38e76436b6d4693fc2215484fffab794e00a2b435db6ae11bb4149df1a555070",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "8592a4642674663c544c73304e5b677c6be5ad7a276dae52471f16f55b36b57a",
+                "ledger_entry_sha256": "6103893821740ca60863a8e28491e4284998981964f9cefde23850f21040a300",
+                "run_ref": "session:local .ai-review/two-page-wording/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "38e76436b6d4693fc2215484fffab794e00a2b435db6ae11bb4149df1a555070",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "30d46aa62b24031affe4e24ab25f5ab65a9dab916417e840748c4d1be12d3dc2",
+                "ledger_entry_sha256": "278ed9b843180f6e5d17968c60af30285ea8358a4b5f8ce0bcf873e76d997db5",
+                "run_ref": "codex:20261113T184756Z-b9be7f02",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-13T18:51:23Z",
+          "workflow_release": "2.29.3"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "dc4431a7d234c389fdf61ba95efcf953d718c5b4e0c2e77828e3cf9d1947624c",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "38e76436b6d4693fc2215484fffab794e00a2b435db6ae11bb4149df1a555070",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-13T18:47:03Z",
+          "verdict_sha256": "8592a4642674663c544c73304e5b677c6be5ad7a276dae52471f16f55b36b57a",
+          "run_ref": "session:local .ai-review/two-page-wording/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "38e76436b6d4693fc2215484fffab794e00a2b435db6ae11bb4149df1a555070",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-13T18:50:10Z",
+          "verdict_sha256": "30d46aa62b24031affe4e24ab25f5ab65a9dab916417e840748c4d1be12d3dc2",
+          "run_ref": "codex:20261113T184756Z-b9be7f02",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 1,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 6,
+      "last_transition": "2026-11-13T18:51:23Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-13T18:43:56Z",
+        "consumed": null,
+        "published": {
+          "review_content_id": "dc4431a7d234c389fdf61ba95efcf953d718c5b4e0c2e77828e3cf9d1947624c",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "dc4431a7d234c389fdf61ba95efcf953d718c5b4e0c2e77828e3cf9d1947624c",
+          "bundle_id": "38e76436b6d4693fc2215484fffab794e00a2b435db6ae11bb4149df1a555070",
+          "plan_revision": 1
+        }
+      },
+      "optional_findings": {
+        "F-29a5c2a7c8c9": {
+          "digest": "29a5c2a7c8c9d793b4231bfd492f9312372dcbc80a819867ae6cde996fbc3946",
+          "text": "**Evidence line numbers in section 0, point 1.** The plan cites the imports of `workflow_retention.py` as \"lines 65-85\" (they are lines 71-84, plus `import sys` at 64) and `STATE_PATH` as \"line 121\" (it is defined at line 92; line 121 is its first read). The facts are right; only the anchors are loose. CP1's \"Read first\" step re-reads this evidence, so a precise anchor would save the implementer a search.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "dc4431a7d234c389fdf61ba95efcf953d718c5b4e0c2e77828e3cf9d1947624c",
+              "verdict": "APPROVE",
+              "at": "2026-11-13T18:47:03Z"
+            }
+          ]
+        },
+        "F-bcac409c8bac": {
+          "digest": "bcac409c8bac9d8ffd39abe86bdc952003f2b5b53891119011e86e0c31613230",
+          "text": "**Flow 7's third expectation.** `awk -F'|' '{print $5}' | cut -c1-20` prints the status cell with its leading space (` Current ...`), so the output starts with a space, not with `Current`. A tester comparing literally could stumble; \"a status cell whose first word is `Current`\" (or piping through `sed 's/^ *//'`) removes the doubt.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "dc4431a7d234c389fdf61ba95efcf953d718c5b4e0c2e77828e3cf9d1947624c",
+              "verdict": "APPROVE",
+              "at": "2026-11-13T18:47:03Z"
+            }
+          ]
+        },
+        "F-b89573210091": {
+          "digest": "b89573210091ab5e262d5b3896c8a0d65cf866cde6507c846ef179f0ce0602de",
+          "text": "**Flow 13's expected path list at the moment it runs.** It lists the item's paths \"and no other path\". That holds at the functional review, before acceptance; if it is ever re-run after `/accept-milestone` writes `docs/milestones/completed/` copies, it would list more. Saying \"run before acceptance\" in the row would make the expectation unconditional.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "dc4431a7d234c389fdf61ba95efcf953d718c5b4e0c2e77828e3cf9d1947624c",
+              "verdict": "APPROVE",
+              "at": "2026-11-13T18:47:03Z"
+            }
+          ]
+        },
+        "F-c6bc73cb9ab6": {
+          "digest": "c6bc73cb9ab6f97fb7057ce18f8aaad119b9a12349c99a3208f269c2c17fd965",
+          "text": "The checklist invokes `flows.sh` using `sh`, but flow 7 uses Bash process substitution (`diff <(...) <(...)`). Use `bash` explicitly or replace that expression with portable syntax. The script parses here because `/bin/sh` points to Bash; shells such as Dash reject it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "dc4431a7d234c389fdf61ba95efcf953d718c5b4e0c2e77828e3cf9d1947624c",
+              "verdict": "APPROVE",
+              "at": "2026-11-13T18:50:10Z"
+            }
+          ]
+        }
       }
     }
   }
