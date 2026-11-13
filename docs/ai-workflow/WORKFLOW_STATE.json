@@ -38597,12 +38597,12 @@
       "registry_path": "docs/ai-workflow/registry/two-page-wording-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/two-page-wording-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 1,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "8e1212b7aa388e168a01588eb9ba0cf8348ba969",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "f16ca8c5804a73eb55681165820716bbba1e183e",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP1",
       "checkpoints": {
@@ -38737,8 +38737,8 @@
           "external": 0
         }
       },
-      "state_revision": 8,
-      "last_transition": "2026-11-13T18:52:59Z",
+      "state_revision": 9,
+      "last_transition": "2026-11-13T19:16:36Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
