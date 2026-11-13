@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "work_item_id": "two-page-wording",
+  "plan_revision": 1,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "Reword the retention row's lock-order cell and the acceptance row; add roadmap row 43",
+      "depends_on": [],
+      "complexity": 1,
+      "session_target": 1
+    }
+  ]
+}

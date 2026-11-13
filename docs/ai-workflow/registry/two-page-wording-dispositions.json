@@ -1,0 +1,30 @@
+{
+ "schema_version": 1,
+ "work_item_id": "two-page-wording",
+ "dispositions": {
+  "F-29a5c2a7c8c9": {
+   "disposition": "dropped",
+   "reason": "Loose line anchors in the approved plan's evidence section; the facts are right and the plan is a workflow artefact, not a shipped page."
+  },
+  "F-68bd5c709edf": {
+   "disposition": "fixed",
+   "note": "docs/ACTIVE_MILESTONE.md was refreshed to the functional-review state."
+  },
+  "F-9ab605d3cb0c": {
+   "disposition": "fixed",
+   "note": "docs/ACTIVE_MILESTONE.md Progress and Next action were refreshed."
+  },
+  "F-b89573210091": {
+   "disposition": "dropped",
+   "reason": "Wording of one flow of the item's own checklist, an active-milestone artefact that is archived with the item and not reused; flow 13 is only run before acceptance."
+  },
+  "F-bcac409c8bac": {
+   "disposition": "dropped",
+   "reason": "Cosmetic wording of one expectation in the item's own checklist, archived with the item and not reused."
+  },
+  "F-c6bc73cb9ab6": {
+   "disposition": "fixed",
+   "note": "Flow 7 no longer uses process substitution; the checklist says the script runs under plain sh."
+  }
+ }
+}
