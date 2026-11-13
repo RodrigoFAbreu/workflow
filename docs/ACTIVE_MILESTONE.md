@@ -15,6 +15,8 @@ change, so no release (a `docs:` pull request, impact none; the manifest keeps 2
 ## Progress
 
 - CP1 (reword the two cells, add roadmap row 43): implemented; verification and the implementation review follow.
+- Self-review: the retention cell lacked the closing period of the plan's D-Retention sentence, so flow 10's mutation
+  printed `0 1` where it expects `1 1`; the period is restored.
 
 ## Next action
 
