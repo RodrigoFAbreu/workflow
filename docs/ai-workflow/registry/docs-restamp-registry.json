@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "work_item_id": "docs-restamp",
+  "plan_revision": 3,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "Re-check the stamped pages, fix what is stale, move only the stamps of the pages re-checked, add row 42",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_item_id": "docs-restamp",
+  "requirements": {
+    "R1": {
+      "description": "each page the plan names as re-checked is read against the current payload and the other docs, what is stale is fixed with facts the code or the sibling repositories state, and its Last checked with line names Workflow 2.29.3 (and Workflow Manager 1.18.1 where the page named the Manager)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the pages the plan keeps unchecked keep their stamp byte for byte, proved by git diff --exit-code against the base, and nothing under payload/, tools/, fixtures/, templates/ or manifest.json changes (docs-only, releases nothing)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "docs/ROADMAP.md drops the two closed defect rows, corrects the two stale statuses, and carries row 42 (Current, Done at acceptance); the docs checker and the docs tests pass",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    }
+  }
+}
