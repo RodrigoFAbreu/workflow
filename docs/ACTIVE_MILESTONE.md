@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**Implementing, CP1 revalidated after the plan amendment, CP2 next.** W49: `docs-restamp` (`process`, governing version `2.2`), branch `milestone/docs-restamp`,
+**Implementing, CP2 complete (all checkpoints done), self-review and verification next.** W49: `docs-restamp` (`process`, governing version `2.2`), branch `milestone/docs-restamp`,
 roadmap row 42 (RodrigoFAbreu/workflow#147, the stamps part). The plan is `docs/ai-workflow/DOCS_RESTAMP_PLAN.md`
 (revision 4, the owner's amendment, approved by gate policy).
 
@@ -26,8 +26,12 @@ Every user page with a `Last checked with` line says the release it was really r
 - Revalidated after the amendment (revision 4): CP1's content is unchanged and still holds (`tools/docs` tests and
   `check_docs.py` pass; offline flows 2 to 7, 9 and 10 behave as expected for the pre-CP2 state). Two stamps (the retention
   and concurrency pages) are pinned by frozen release tests, so CP2 restores them to their base text; the concurrency row stays.
-- Next: CP2 (restore the two frozen stamps), then the full verification of the plan and the implementation review bundle.
+- CP2 is complete: the stamps of `docs/RETENTION.md` (2.25.6) and `docs/CONCURRENCY_INVARIANTS.md` (2.19.2) are back to their
+  base text (frozen release tests pin them); `docs/RETENTION.md` has no diff against the base commit and the concurrency
+  page's diff is exactly the added row. Final state: seven moved stamps. Checked: `tools/docs` tests, `check_docs.py`,
+  `check-manager-block`, and the whole `tools/release` suite (328 tests, Python 3.12 with the pinned zlib-ng wheel) pass.
+- Next: the full verification of the plan and the implementation review bundle.
 
 ## Next action
 
-Run `/milestone-implement docs-restamp` again (CP2).
+Run `/milestone-implement docs-restamp` again (self-review, full verification, review bundle).
