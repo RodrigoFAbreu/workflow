@@ -33,6 +33,9 @@ Every user page with a `Last checked with` line says the release it was really r
 - Self-review after CP2: row 42 of the roadmap still described CP1 as first done (one checkpoint, and the retention and
   concurrency pages among the stamps moved to 2.29.3). It now says two checkpoints, seven moved stamps, and that those two
   pages were re-checked but keep 2.19.2 and 2.25.6 because frozen release tests pin them.
+- Self-review, flow 5: the gates sentence followed D-Fix's wording but did not contain the phrase flow 5 checks for
+  (`latest run of each check`, `GATE_POLICY.md`'s own words), so flow 5 printed `0` where the plan expects `1`. The sentence
+  keeps D-Fix's wording and is now introduced with `GATE_POLICY.md`'s phrase.
 - Next: the full verification of the plan and the implementation review bundle.
 
 ## Next action
