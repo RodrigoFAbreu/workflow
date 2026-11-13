@@ -2,26 +2,26 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; the release follows the merge). W47: `wording-pass-plain-commands` (`process`, governing
-version `2.2`), branch `milestone/wording-pass-plain-commands`, roadmap row 41 (RodrigoFAbreu/workflow#168, #165, #161 and
-#152 item 1). The plan is `docs/ai-workflow/WORDING_PASS_PLAIN_COMMANDS_PLAN.md` (revision 2, approved by gate policy); an
-archive copy is in `docs/milestones/completed/`.
+**Complete** (accepted by policy; a `docs:` change, no release). W49: `docs-restamp` (`process`, governing version `2.2`),
+branch `milestone/docs-restamp`, roadmap row 42 (RodrigoFAbreu/workflow#147, the stamps part). The plan is
+`docs/ai-workflow/DOCS_RESTAMP_PLAN.md` (revision 4, approved by gate policy); an archive copy is in
+`docs/milestones/completed/`.
 
 ## Goal
 
-Workflow 2.29.3 (a `fix:` patch, released after the merge of pull request #174): one pass over the stale wording of the plain
-acceptance commands. The only changed output is the detail of a library refusal (`complete_work_item`'s
-`phase_not_reachable`), which no plain flag prints. The protocol stays 1.5; the Controller does not change.
+Every user page with a `Last checked with` line says the release it was really re-checked against. Docs only: no
+`payload/`, `tools/` or behaviour change, so no release (a `docs:` pull request, impact none; the manifest keeps 2.29.3).
 
 ## Outcome
 
-- CP1 (the wording corrections, the library detail, the pins, the tests and row 41) and CP2 (release 2.29.3) are complete; the
-  technical approval was recorded by policy.
-- Functional flows 1 to 7 are recorded passed by the Controller's automated tester. The 10 recorded Optional findings are
-  dispositioned (7 fixed, 2 follow-ups in RodrigoFAbreu/workflow#173, 1 dropped); see
-  `docs/milestones/completed/wording-pass-plain-commands-findings.md`.
+- CP1 and CP2 are complete: seven stamps moved to Workflow 2.29.3 (Workflow Manager 1.18.1 where the page named the Manager);
+  the retention and concurrency stamps stay at 2.25.6 and 2.19.2 because frozen release tests pin them. The stale wording was
+  fixed (README, gates page, a concurrency row, the roadmap).
+- The technical approval was recorded by policy. Functional flows 1 to 7 are recorded passed by the Controller's automated
+  tester (flows 8 to 11 are automated verification, covered by CI). The 13 recorded Optional findings are dispositioned
+  (5 fixed, 8 follow-ups in RodrigoFAbreu/workflow#178); see `docs/milestones/completed/docs-restamp-findings.md`.
 
 ## Next action
 
 No milestone is scheduled. Every remaining roadmap row is waiting on the Controller or is later and unscheduled (rows 12, 13,
-27). The release of 2.29.3 follows the merge of pull request #174. Pick the next item, then `/milestone-plan`.
+27). Pick the next item, then `/milestone-plan`.

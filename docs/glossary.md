@@ -1,6 +1,6 @@
 # Glossary
 
-> For: anyone reading Workflow documents. Last checked with: Workflow 2.17.0, Workflow Manager 1.4.0.
+> For: anyone reading Workflow documents. Last checked with: Workflow 2.29.3, Workflow Manager 1.18.1.
 
 The shared terms of the Workflow. The other Workflow repositories link here.
 

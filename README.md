@@ -1,6 +1,6 @@
 # Workflow
 
-> For: anyone who wants to know what the Workflow is and try it. Last checked with: Workflow 2.8.0, Workflow Manager 1.4.0.
+> For: anyone who wants to know what the Workflow is and try it. Last checked with: Workflow 2.29.3, Workflow Manager 1.18.1.
 
 This repository authors and publishes the releases of the Workflow: the
 commands, scripts and documents that guide an AI coding agent through planned,
@@ -10,7 +10,7 @@ installs it into your repositories.
 
 ## How the pieces fit
 
-[Workflow](https://github.com/RodrigoFAbreu/workflow#readme) is the development process and its commands, installed into a repository. [Workflow Manager](https://github.com/RodrigoFAbreu/workflow-manager#readme) installs, updates and verifies the Workflow from published, digest-pinned releases. [Workflow Controller](https://github.com/RodrigoFAbreu/workflow-controller#readme) runs the Workflow's lifecycle steps automatically and stops wherever a person is needed.
+[Workflow](https://github.com/RodrigoFAbreu/workflow#readme) is the development process and its commands, installed into a repository. [Workflow Manager](https://github.com/RodrigoFAbreu/workflow-manager#readme) installs, updates and verifies the Workflow from published releases, digest-pinned up to 2.12.0 and checked by their own checksums after that. [Workflow Controller](https://github.com/RodrigoFAbreu/workflow-controller#readme) runs the Workflow's lifecycle steps automatically and stops wherever a person is needed.
 
 ## What the Workflow does
 

@@ -1,0 +1,58 @@
+{
+ "schema_version": 1,
+ "work_item_id": "docs-restamp",
+ "dispositions": {
+  "F-06f51588a989": {
+   "disposition": "fixed",
+   "note": "The concurrency row and the plan name the functions."
+  },
+  "F-17935db3a995": {
+   "disposition": "fixed",
+   "note": "D-Roadmap-Boundary now names the flows that cover the roadmap row."
+  },
+  "F-7b8b83e2d93c": {
+   "disposition": "fixed",
+   "note": "D-Declaration states the eight pages and keeps docs/ROADMAP.md excluded."
+  },
+  "F-9d2d580d85f8": {
+   "disposition": "fixed",
+   "note": "Roadmap row 42 states two checkpoints, seven moved pages and the two frozen stamps."
+  },
+  "F-c36d2d36afae": {
+   "disposition": "fixed",
+   "note": "D-Declaration no longer says nine pages."
+  },
+  "F-2a3c8419b352": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/178"
+  },
+  "F-30695afb5fc7": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/178"
+  },
+  "F-5a11a5e507dd": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/178"
+  },
+  "F-b972624c859e": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/178"
+  },
+  "F-d2883ed76509": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/178"
+  },
+  "F-9beb5ddb6ec4": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/178"
+  },
+  "F-82ca805f8bb4": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/178"
+  },
+  "F-ccd150865d72": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/178"
+  }
+ }
+}

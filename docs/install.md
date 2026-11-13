@@ -1,6 +1,6 @@
 # Install and update the Workflow
 
-> For: anyone adding the Workflow to a repository. Last checked with: Workflow 2.17.0, Workflow Manager 1.5.0.
+> For: anyone adding the Workflow to a repository. Last checked with: Workflow 2.29.3, Workflow Manager 1.18.1.
 
 The Workflow is installed, updated and checked with the
 [Workflow Manager](https://github.com/RodrigoFAbreu/workflow-manager#readme).
