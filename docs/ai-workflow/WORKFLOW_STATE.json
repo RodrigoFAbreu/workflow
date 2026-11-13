@@ -38597,7 +38597,7 @@
       "registry_path": "docs/ai-workflow/registry/two-page-wording-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/two-page-wording-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -38702,7 +38702,96 @@
           "workflow_release": "2.29.3"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "1a4473c46774aacae7fc5464d3c82a983b345c4edb4504fb6e9f2dac5fb0df04",
+        "approved_review_content_id": "caad6037336867ad9282c2f91fb537c20238d450ab621fbcd9f896e110f9cb8e",
+        "review_content_manifest": [
+          {
+            "path": "docs/CONCURRENCY_INVARIANTS.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3992db9e1d7e731b04afe9e597c844256735c1fd"
+          },
+          {
+            "path": "docs/ai-workflow/registry/two-page-wording-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e3f27295da63f5613527d0f2431deb6b265adfdb"
+          },
+          {
+            "path": "docs/gates.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5d2aab0612b2c94660560765038d619457eee3ad"
+          }
+        ],
+        "reviewed_content_commit": "f16ca8c5804a73eb55681165820716bbba1e183e",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-13T19:45:16Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "caad6037336867ad9282c2f91fb537c20238d450ab621fbcd9f896e110f9cb8e",
+            "ledger": {
+              "local": {
+                "bundle_id": "1a4473c46774aacae7fc5464d3c82a983b345c4edb4504fb6e9f2dac5fb0df04",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "72bdc7af509950b441610946045c4a9207526aeb0256a8dd8ff0ce9d7decde5a",
+                "ledger_entry_sha256": "2f4d6cf7bdd37310f1540153c7d158ceb704a40728df123388a769d507a3c123",
+                "run_ref": "session:local .ai-review/two-page-wording/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "1a4473c46774aacae7fc5464d3c82a983b345c4edb4504fb6e9f2dac5fb0df04",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "f730b0e4cc33e209016d76e9fffd5ec3daad34709f31af52e3ceea9f72f907fa",
+                "ledger_entry_sha256": "f5ffce805b3e4a1f105247c75c339c0ae9083ae3768dfe0967091c61ea222683",
+                "run_ref": "codex:20261113T194119Z-836761d7",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-13T19:45:16Z",
+          "workflow_release": "2.29.3"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "dc4431a7d234c389fdf61ba95efcf953d718c5b4e0c2e77828e3cf9d1947624c",
@@ -38733,12 +38822,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 9,
-      "last_transition": "2026-11-13T19:16:36Z",
+      "state_revision": 12,
+      "last_transition": "2026-11-13T19:45:16Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -38810,6 +38899,55 @@
               "at": "2026-11-13T18:50:10Z"
             }
           ]
+        },
+        "F-68bd5c709edf": {
+          "digest": "68bd5c709edfc77c91d54cda0708e904bc3782fd5d1c41d6d74cabb716b289ad",
+          "text": "`docs/ACTIVE_MILESTONE.md`, \"Progress\" and \"Next action\": the page was committed at the checkpoint and still says \"Finish the self-review, run the verification of the plan's section 5, and prepare the implementation review bundle\", though all three were done before this bundle was generated (`f16ca8c`, `TEST_RESULTS.md`, `f8281f3`). It is the active-milestone narrative, not a shipped page, so it does not block. Bring it up to date at the next state step that touches the page, for example at acceptance.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "caad6037336867ad9282c2f91fb537c20238d450ab621fbcd9f896e110f9cb8e",
+              "verdict": "APPROVE",
+              "at": "2026-11-13T19:40:27Z"
+            }
+          ]
+        },
+        "F-9ab605d3cb0c": {
+          "digest": "9ab605d3cb0cbee6139c49d976625786c9efd3049faf8c7ee40552649e1ea911",
+          "text": "`docs/ACTIVE_MILESTONE.md:23` still lists self-review, verification and bundle preparation as future work, although the bundle records their completion. Refresh this narrative at the next milestone update.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "caad6037336867ad9282c2f91fb537c20238d450ab621fbcd9f896e110f9cb8e",
+              "verdict": "APPROVE",
+              "at": "2026-11-13T19:44:10Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "caad6037336867ad9282c2f91fb537c20238d450ab621fbcd9f896e110f9cb8e",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "1a4473c46774aacae7fc5464d3c82a983b345c4edb4504fb6e9f2dac5fb0df04",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-13T19:40:27Z",
+          "verdict_sha256": "72bdc7af509950b441610946045c4a9207526aeb0256a8dd8ff0ce9d7decde5a",
+          "run_ref": "session:local .ai-review/two-page-wording/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "1a4473c46774aacae7fc5464d3c82a983b345c4edb4504fb6e9f2dac5fb0df04",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-13T19:44:10Z",
+          "verdict_sha256": "f730b0e4cc33e209016d76e9fffd5ec3daad34709f31af52e3ceea9f72f907fa",
+          "run_ref": "codex:20261113T194119Z-836761d7",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
