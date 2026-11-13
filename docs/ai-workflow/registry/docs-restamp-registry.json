@@ -1,13 +1,22 @@
 {
   "schema_version": 1,
   "work_item_id": "docs-restamp",
-  "plan_revision": 3,
+  "plan_revision": 4,
   "checkpoints": [
     {
       "id": "CP1",
       "name": "Re-check the stamped pages, fix what is stale, move only the stamps of the pages re-checked, add row 42",
       "depends_on": [],
       "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Restore the two frozen stamps (retention page, concurrency page) to their base text",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 1,
       "session_target": 1
     }
   ]

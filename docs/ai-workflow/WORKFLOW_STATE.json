@@ -37553,8 +37553,8 @@
       "registry_path": "docs/ai-workflow/registry/docs-restamp-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/docs-restamp-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AMENDING_PLAN",
-      "plan_revision": 3,
+      "phase": "IMPLEMENTING",
+      "plan_revision": 4,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "144267cc2826e606e94aeaa47c741a0e7144b889",
@@ -37563,41 +37563,41 @@
       "last_completed_checkpoint_id": "CP1",
       "checkpoints": {
         "CP1": {
-          "status": "COMPLETE",
+          "status": "NEEDS_REVALIDATION",
           "start_commit": "ed79c3f8bdfe970696a07c6e70ce55edc512bac4"
         }
       },
-      "current_bundle_id": "83636d198eb9ef712dd28612051a5896dc142082562f04948a7a430126fc9d03",
+      "current_bundle_id": "671f12a0e010bcee7d1ebf978ddf3d87e2c16d62f647f26e61f1e50eb4105cab",
       "plan_approval": {
-        "status": "SUPERSEDED",
+        "status": "CURRENT",
         "basis": "POLICY_SATISFIED",
-        "reviewed_bundle_id": "83636d198eb9ef712dd28612051a5896dc142082562f04948a7a430126fc9d03",
-        "approved_review_content_id": "5b2c60a82a2e7f58361b1625f4c7bf20ca3c977dc10f0075f7a28b10d16eccd4",
+        "reviewed_bundle_id": "671f12a0e010bcee7d1ebf978ddf3d87e2c16d62f647f26e61f1e50eb4105cab",
+        "approved_review_content_id": "044b08f7dfa25e56da0167a373feff2a76c632f2ae09f1e743f7125ccae9686e",
         "review_content_manifest": [
           {
             "path": "docs/ai-workflow/DOCS_RESTAMP_PLAN.md",
             "exists": true,
             "mode": "100644",
-            "blob": "b014856b89bb5681d9d6be52e643e0bcf766d8e0"
+            "blob": "9703134416ba210bc5201c208e7cec4c50cc2c90"
           },
           {
             "path": "docs/ai-workflow/registry/docs-restamp-registry.json",
             "exists": true,
             "mode": "100644",
-            "blob": "8238d89f25a94dfb076eda376870ddf1a7392b9d"
+            "blob": "a15a26fd9bfa1639942a12dc0d8d8fb7b796653f"
           },
           {
             "path": "docs/ai-workflow/requirements/docs-restamp-mapping.json",
             "exists": true,
             "mode": "100644",
-            "blob": "e995943e6102bad97a1644f2e02277d26e8718ef"
+            "blob": "408bdf1e86e471636fa5939cd42288baffdbd084"
           }
         ],
         "reviewed_content_commit": null,
         "legacy_evidence": null,
         "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
         "waived_guarantees": [],
-        "recorded_at": "2026-11-13T11:48:01Z",
+        "recorded_at": "2026-11-13T13:44:10Z",
         "policy_evidence": {
           "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
           "policy_source": "default",
@@ -37627,24 +37627,24 @@
             }
           ],
           "inputs": {
-            "review_content_id": "5b2c60a82a2e7f58361b1625f4c7bf20ca3c977dc10f0075f7a28b10d16eccd4",
+            "review_content_id": "044b08f7dfa25e56da0167a373feff2a76c632f2ae09f1e743f7125ccae9686e",
             "ledger": {
               "local": {
-                "bundle_id": "83636d198eb9ef712dd28612051a5896dc142082562f04948a7a430126fc9d03",
+                "bundle_id": "671f12a0e010bcee7d1ebf978ddf3d87e2c16d62f647f26e61f1e50eb4105cab",
                 "verdict": "APPROVE",
-                "round": 3,
-                "verdict_sha256": "65f5a0abc4a17cc00d6646f630cdda9b740b47c9da018af9012cc3534dfb26d8",
-                "ledger_entry_sha256": "569235c871c5ba108241ecba7e6adf05a81270d60554e822c7e9b36d3b6c4d7d",
+                "round": 4,
+                "verdict_sha256": "293b563878fe7479e315fe8f5a9ab9490061c393171f7d9afb87510d610df0f0",
+                "ledger_entry_sha256": "ce22944cb6cc192435161b7da2ea0caa1a072e4bcc17a28a0154442a92c7586f",
                 "run_ref": "session:local .ai-review/docs-restamp/feedback/REVIEW_FEEDBACK.md",
                 "reviewer_model": "anthropic/claude-opus-5-5"
               },
               "manual": {
-                "bundle_id": "83636d198eb9ef712dd28612051a5896dc142082562f04948a7a430126fc9d03",
+                "bundle_id": "671f12a0e010bcee7d1ebf978ddf3d87e2c16d62f647f26e61f1e50eb4105cab",
                 "verdict": "APPROVE",
-                "round": 3,
-                "verdict_sha256": "ad0dac3d811b6762ca4a88c8a0ebd9e5b4567c3d88c109543fd45a9727bd62b2",
-                "ledger_entry_sha256": "8edda1a4dfa2b3e50389b7a5051f2e1f4b916a3a45272e863e9c073b2e1fd6d7",
-                "run_ref": "codex:20261113T114451Z-410ba65b",
+                "round": 4,
+                "verdict_sha256": "6f1be85d79fd1881161fad876cfa5b1196ce75a5aa432df998f38d1e5b5a7b9a",
+                "ledger_entry_sha256": "151a4d7cb5eda912fcc5948893c76802547a195afa7250b5882b538138945f55",
+                "run_ref": "codex:20261113T133955Z-92972658",
                 "reviewer_model": "openai/gpt-6.1-sol"
               }
             },
@@ -37654,30 +37654,30 @@
           "trust": {
             "review_verdicts": "orchestrator"
           },
-          "evaluated_at": "2026-11-13T11:48:01Z",
+          "evaluated_at": "2026-11-13T13:44:10Z",
           "workflow_release": "2.29.3"
         }
       },
       "technical_approval": null,
       "technical_review_block_pins": [],
       "plan_review_stages": {
-        "review_content_id": "5b2c60a82a2e7f58361b1625f4c7bf20ca3c977dc10f0075f7a28b10d16eccd4",
+        "review_content_id": "044b08f7dfa25e56da0167a373feff2a76c632f2ae09f1e743f7125ccae9686e",
         "LOCAL_MODEL_PLAN_REVIEW": {
-          "bundle_id": "83636d198eb9ef712dd28612051a5896dc142082562f04948a7a430126fc9d03",
+          "bundle_id": "671f12a0e010bcee7d1ebf978ddf3d87e2c16d62f647f26e61f1e50eb4105cab",
           "verdict": "APPROVE",
-          "round": 3,
-          "completed_at": "2026-11-13T11:43:43Z",
-          "verdict_sha256": "65f5a0abc4a17cc00d6646f630cdda9b740b47c9da018af9012cc3534dfb26d8",
+          "round": 4,
+          "completed_at": "2026-11-13T13:38:52Z",
+          "verdict_sha256": "293b563878fe7479e315fe8f5a9ab9490061c393171f7d9afb87510d610df0f0",
           "run_ref": "session:local .ai-review/docs-restamp/feedback/REVIEW_FEEDBACK.md",
           "reviewer_model": "anthropic/claude-opus-5-5"
         },
         "MANUAL_EXTERNAL_PLAN_REVIEW": {
-          "bundle_id": "83636d198eb9ef712dd28612051a5896dc142082562f04948a7a430126fc9d03",
+          "bundle_id": "671f12a0e010bcee7d1ebf978ddf3d87e2c16d62f647f26e61f1e50eb4105cab",
           "verdict": "APPROVE",
-          "round": 3,
-          "completed_at": "2026-11-13T11:46:48Z",
-          "verdict_sha256": "ad0dac3d811b6762ca4a88c8a0ebd9e5b4567c3d88c109543fd45a9727bd62b2",
-          "run_ref": "codex:20261113T114451Z-410ba65b",
+          "round": 4,
+          "completed_at": "2026-11-13T13:42:27Z",
+          "verdict_sha256": "6f1be85d79fd1881161fad876cfa5b1196ce75a5aa432df998f38d1e5b5a7b9a",
+          "run_ref": "codex:20261113T133955Z-92972658",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
       },
@@ -37685,27 +37685,34 @@
       "blocking_decisions": [],
       "review_round_counts": {
         "plan": {
-          "local": 3,
-          "external": 2
+          "local": 4,
+          "external": 3
         },
         "implementation": {
           "local": 0,
           "external": 0
         }
       },
-      "state_revision": 16,
-      "last_transition": "2026-11-13T13:31:15Z",
+      "state_revision": 22,
+      "last_transition": "2026-11-13T13:44:10Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
-        "status": "CONSUMED",
-        "at": "2026-11-13T13:31:15Z",
+        "status": "BOUND",
+        "at": "2026-11-13T13:33:57Z",
         "consumed": {
           "review_content_id": "5b2c60a82a2e7f58361b1625f4c7bf20ca3c977dc10f0075f7a28b10d16eccd4",
           "plan_revision": 3,
           "legacy": false
         },
-        "published": null,
-        "bound": null
+        "published": {
+          "review_content_id": "044b08f7dfa25e56da0167a373feff2a76c632f2ae09f1e743f7125ccae9686e",
+          "plan_revision": 4
+        },
+        "bound": {
+          "review_content_id": "044b08f7dfa25e56da0167a373feff2a76c632f2ae09f1e743f7125ccae9686e",
+          "bundle_id": "671f12a0e010bcee7d1ebf978ddf3d87e2c16d62f647f26e61f1e50eb4105cab",
+          "plan_revision": 4
+        }
       },
       "consumed_plan_review_content_ids": [
         "3786424e4538d4c9aaab215e44b67118db4a53071837167710783f4e36874361",
@@ -37794,6 +37801,76 @@
               "review_content_id": "5b2c60a82a2e7f58361b1625f4c7bf20ca3c977dc10f0075f7a28b10d16eccd4",
               "verdict": "APPROVE",
               "at": "2026-11-13T11:46:48Z"
+            }
+          ]
+        },
+        "F-30695afb5fc7": {
+          "digest": "30695afb5fc7200c1ff7390e0e534bb40b8374414b76ddbe03f86b0441acdfc8",
+          "text": "Flow 15 still rewrites row 42 to `Done (accepted by policy; the release follows the merge)`. This item publishes no release, and D-Roadmap and D-Roadmap-Boundary say `Done (accepted by policy)`. The previous manual review raised this too (its second optional finding). Use D-Roadmap's wording so the flow tests the edit `/accept-milestone` actually makes.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "044b08f7dfa25e56da0167a373feff2a76c632f2ae09f1e743f7125ccae9686e",
+              "verdict": "APPROVE",
+              "at": "2026-11-13T13:38:52Z"
+            }
+          ]
+        },
+        "F-9beb5ddb6ec4": {
+          "digest": "9beb5ddb6ec4ce84f1659371b1c8c4edeacc67fb3617eb8a0ace760bd056abca",
+          "text": "Flow 10's `kept diff exit 0` proves nothing. The scratch repository receives only `$PAGES`, never `$KEPT`, so `git diff --exit-code -- $KEPT` succeeds on paths that do not exist. The real proof for the kept pages is flow 3. Either copy the kept pages into the scratch repository (base, then candidate) or drop the claim from flow 10's Expect cell.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "044b08f7dfa25e56da0167a373feff2a76c632f2ae09f1e743f7125ccae9686e",
+              "verdict": "APPROVE",
+              "at": "2026-11-13T13:38:52Z"
+            }
+          ]
+        },
+        "F-2a3c8419b352": {
+          "digest": "2a3c8419b35298602920c250044e4b88213d7c7fa8e180cfa6b0e0379086c0c2",
+          "text": "CP2's Verification list names flows 3, 4, 10 and 11. It leaves out flows 1 and 2, whose expected outputs this amendment changed (seven moved stamps; the two frozen names). Add them so the checkpoint report covers every expectation the amendment rewrote.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "044b08f7dfa25e56da0167a373feff2a76c632f2ae09f1e743f7125ccae9686e",
+              "verdict": "APPROVE",
+              "at": "2026-11-13T13:38:52Z"
+            }
+          ]
+        },
+        "F-d2883ed76509": {
+          "digest": "d2883ed76509cbe4256a0769ca391e12b348cce5f38a10e223ca164ebf4c1285",
+          "text": "The previous completion-status wording finding remains in flow 15: use `Done (accepted by policy)` without the release clause.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "044b08f7dfa25e56da0167a373feff2a76c632f2ae09f1e743f7125ccae9686e",
+              "verdict": "APPROVE",
+              "at": "2026-11-13T13:42:27Z"
+            }
+          ]
+        },
+        "F-9d2d580d85f8": {
+          "digest": "9d2d580d85f84e3650dbfe4a098cd0bb984104a045b420a3931a0769c0e7bb20",
+          "text": "Roadmap row 42 still describes one checkpoint and nine moved stamps. Update its summary to reflect CP2 and the two frozen stamps.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "044b08f7dfa25e56da0167a373feff2a76c632f2ae09f1e743f7125ccae9686e",
+              "verdict": "APPROVE",
+              "at": "2026-11-13T13:42:27Z"
             }
           ]
         }
@@ -37902,7 +37979,12 @@
             }
           },
           "pre_amendment_approval_commit": "ed79c3f8bdfe970696a07c6e70ce55edc512bac4",
-          "resolved_at_plan_revision": null
+          "resolved_at_plan_revision": 4,
+          "reconciliation_outcome": {
+            "CP1": "needs_revalidation",
+            "CP2": "new"
+          },
+          "resolved_review_content_id": "044b08f7dfa25e56da0167a373feff2a76c632f2ae09f1e743f7125ccae9686e"
         }
       ],
       "amendment_base_commit": "7e0e03ed7e9ffd59c93b2e2791ce4dd6a0715cf6"

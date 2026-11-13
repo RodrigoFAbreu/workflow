@@ -3,15 +3,17 @@
   "work_item_id": "docs-restamp",
   "requirements": {
     "R1": {
-      "description": "each page the plan names as re-checked is read against the current payload and the other docs, what is stale is fixed with facts the code or the sibling repositories state, and its Last checked with line names Workflow 2.29.3 (and Workflow Manager 1.18.1 where the page named the Manager)",
+      "description": "each page the plan names as re-checked is read against the current payload and the other docs, what is stale is fixed with facts the code or the sibling repositories state, and its Last checked with line names Workflow 2.29.3 (and Workflow Manager 1.18.1 where the page named the Manager) (except the two pages whose stamp a frozen release test pins, which keep their original stamp: CP2)",
       "checkpoint_ids": [
-        "CP1"
+        "CP1",
+        "CP2"
       ]
     },
     "R2": {
-      "description": "the pages the plan keeps unchecked keep their stamp byte for byte, proved by git diff --exit-code against the base, and nothing under payload/, tools/, fixtures/, templates/ or manifest.json changes (docs-only, releases nothing)",
+      "description": "the pages the plan keeps unchecked, and the two frozen-stamp pages (docs/RETENTION.md byte for byte, docs/CONCURRENCY_INVARIANTS.md except its added row), keep their text, proved by git diff against the base, and nothing under payload/, tools/, fixtures/, templates/ or manifest.json changes (docs-only, releases nothing)",
       "checkpoint_ids": [
-        "CP1"
+        "CP1",
+        "CP2"
       ]
     },
     "R3": {
