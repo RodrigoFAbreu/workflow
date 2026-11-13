@@ -37563,8 +37563,8 @@
       "last_completed_checkpoint_id": "CP1",
       "checkpoints": {
         "CP1": {
-          "status": "NEEDS_REVALIDATION",
-          "start_commit": "ed79c3f8bdfe970696a07c6e70ce55edc512bac4"
+          "status": "COMPLETE",
+          "start_commit": "a9162b2e6a4416f4c1aaceeca22d54373879ad57"
         }
       },
       "current_bundle_id": "671f12a0e010bcee7d1ebf978ddf3d87e2c16d62f647f26e61f1e50eb4105cab",
@@ -37693,8 +37693,8 @@
           "external": 0
         }
       },
-      "state_revision": 22,
-      "last_transition": "2026-11-13T13:44:10Z",
+      "state_revision": 24,
+      "last_transition": "2026-11-13T13:45:54Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
