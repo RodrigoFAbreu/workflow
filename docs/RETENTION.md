@@ -346,10 +346,11 @@ Workflow 2.29.4 the report ended in a traceback there.
 The path in `read_errors` is the directory that could not be read, and the
 `unreadable` refusal of `archive` and `remove` names it; before Workflow
 2.25.6 the text said `no archive` or `no review folder` there, and the path
-was that of the previous directory. When a link and a real directory of the
-same name both lie in the folder and one open of that name fails, the walk
-cannot say which it was, and the report names the review folder itself
-rather than either (since Workflow 2.29.4). `prune`, which reads only the
+was that of the previous directory. When a link is walked before a real directory of the
+same name and one open of that name fails, the walk cannot say which it was,
+and the report names the review folder itself rather than either (since
+Workflow 2.29.4; a real directory walked first is named exactly, and the rule
+holds under one race at a time). `prune`, which reads only the
 archives, never reads an item folder: it runs on a mode 000 folder, where it
 ended in a traceback before Workflow 2.29.4.
 
