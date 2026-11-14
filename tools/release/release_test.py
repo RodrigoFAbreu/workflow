@@ -3917,7 +3917,7 @@ class RetentionEngineErrorPathsTwoReleaseTest(unittest.TestCase):
         suites = block["conformance"]["suites"]
         self.assertEqual((suites["workflow_state_test.py"], suites["workflow_gate_policy_test.py"],
                           suites["workflow_integration_test.py"],
-                          suites["workflow_state_completion_obligations_test.py"]), (1249, 424, 377, 307))
+                          suites["workflow_state_completion_obligations_test.py"]), (1249, 424, 377, 308))
 
     def test_the_pages_carry_their_last_checked_line(self):
         for name in ("release-history.md", "exit-codes.md", "RETENTION.md"):

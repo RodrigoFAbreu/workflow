@@ -7882,7 +7882,8 @@ class RetentionErrorPathsTwo(unittest.TestCase):
         self.addCleanup(lambda: contextlib.suppress(OSError) and os.path.exists(folder) and os.chmod(folder, 0o755))
         for label, run in (("archive dry", lambda: ra.call("w00")), ("archive", lambda: ra.call("w00", apply=True))):
             with self.subTest(label):
-                self.refused(run(), "unreadable")
+                # through the report's `read_errors` rule, never the backstop
+                self.refused(run(), "unreadable", text=(f"{folder} cannot be read (",))
         os.chmod(folder, 0o755)
         self.assertEqual(ra.snap(times=False), before)
         self.assertEqual(ra.call("w00", apply=True).code, 0)
@@ -7893,7 +7894,7 @@ class RetentionErrorPathsTwo(unittest.TestCase):
         self.addCleanup(lambda: os.path.exists(folder) and os.chmod(folder, 0o755))
         for label, run in (("remove dry", lambda: rr.rm("w00")), ("remove", lambda: rr.rm("w00", apply=True))):
             with self.subTest(label):
-                self.refused(run(), "unreadable")
+                self.refused(run(), "unreadable", text=(f"{folder} cannot be read (",))
         self.assertEqual(rr.renames, [])
         os.chmod(folder, 0o755)
         self.assertEqual(rr.snap(times=False), before)
@@ -8044,12 +8045,33 @@ class RetentionErrorPathsTwo(unittest.TestCase):
         zz = {"a/zz": "link", "zz": "dir"}
         # (a) the link's walk open fails once, the sibling is readable: a retry would open it
         self.collision(zz, [("zz", "link", 2)], [()])
-        # (b) the link and the sibling both fail
+        # (b) the link and the sibling both fail; (d) the sibling's later failure meets the kept, flagged entry
         self.collision(zz, [("zz", "link", 2), ("zz", "dir", 1)], [()])
         # (c) the link opens and the sibling fails (the amended layout of the T4 table)
         self.collision(zz, [("zz", "dir", 1)], [()])
         # nothing changed for a collision-free layout
         self.collision({"a/b/c": "dir", "zz": "dir"}, [("zz", "dir", 1)], [("zz",)])
+
+    @unittest.skipIf(os.geteuid() == 0, "mode 000 does not stop root")
+    def test_t6e_a_lower_failure_never_names_a_readable_top_level_sibling(self):
+        # (e) `x/a/zz` a link whose walk open fails once, `x/zz` a directory that
+        # cannot be opened, `zz` readable: the kept, flagged `x/zz` takes the
+        # second failure, so the top-level `zz` is never named.
+        rr = self.rr()
+        self.layout(rr, {"x/a/zz": "link", "x/zz": "dir", "zz": "dir"})
+        base = rr.root / ".ai-review" / "w00"
+        before = _rr_snapshot(rr.root, rr.archive_root)
+        os.chmod(base / "x" / "zz", 0)
+        self.addCleanup(os.chmod, base / "x" / "zz", 0o755)
+        with _Inject(opens=[("zz", "link", 2)]) as injected:
+            code, printed, _ = rr.cli("--json")
+        self.assertEqual(injected.count.get("zz"), 2)
+        os.chmod(base / "x" / "zz", 0o755)
+        self.assertEqual(_rr_snapshot(rr.root, rr.archive_root), before)
+        data = json.loads(printed)
+        self.assertEqual(code, 0)
+        self.assertFalse(data["complete"])
+        self.assertEqual([e["path"] for e in data["read_errors"]], [str(base)])
 
     # -- T7: the backstop ----------------------------------------------------
 
