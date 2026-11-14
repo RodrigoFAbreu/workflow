@@ -290,7 +290,8 @@ def _review_folder(ai_fd: int | None, repo_root: Path, item_id: str, tracked: di
                     if pending[index][1] != name:
                         continue
                     lower = next((low for low in range(index - 1, -1, -1)
-                                  if pending[low][1] == name and not pending[low][2]), None)
+                                  if pending[low][1] == name and not pending[low][2]),
+                                 None) if (link or silent) else None
                     if silent or (link and lower is not None):
                         # A link is only possibly the failed one while a
                         # same-name sibling lies below it (the probe of a link
