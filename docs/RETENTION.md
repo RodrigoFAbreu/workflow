@@ -339,7 +339,10 @@ text cannot yet tell apart still read as absence, and `INCOMPLETE` names the
 path there: an archive directory that is itself a link, and an `.ai-review`
 that cannot be opened. An entry that is not a real directory or regular file
 (a `.ai-review/<id>` or `<id>.tar.zst` that is a link) is absence too. An item
-folder that cannot be opened at all is not covered: the report fails there.
+folder that cannot be opened at all (mode 000) reads as partly unreadable
+(`at least 0 B in 0 files (partly unreadable)`, `complete` false, its path in
+`read_errors`), and one that vanished while it was read as no folder; before
+Workflow 2.29.4 the report ended in a traceback there.
 The path in `read_errors` is the directory that could not be read, and the
 `unreadable` refusal of `archive` and `remove` names it; before Workflow
 2.25.6 the text said `no archive` or `no review folder` there, and the path
@@ -460,6 +463,8 @@ files only, and the next run says which, by what is on disk:
 | a symlinked component of the archive path, or one without read permission | `archive_dir_unsafe`, `unreadable` | fix the named component, or choose another `--archive-root` |
 | an archive-directory entry (`<id>.tar.zst`, `.<id>.partial`) whose `lstat` fails for a reason other than "not found" (`EACCES`, `ELOOP`, `ENAMETOOLONG`, `EIO`, `ENOTDIR`; a traceback before Workflow 2.25.1), including the final check under the lock | `unreadable` | grant access to the named path and the directory that holds it; nothing was written, and a failure under the lock removes the temporary and the directories this run created |
 | a symlink in the review folder whose target cannot be read (`unreadable`, or `folder_changed` when the link vanished or was replaced while it was read; a traceback before Workflow 2.25.5, and `pack_failed` while the archive was being written) | `unreadable`, `folder_changed` | grant read access to the review folder, or run it again when nothing writes to it; nothing was written, and a failure after the pack removes the temporary and the directories this run created |
+| an item folder that cannot be opened (mode 000; a traceback before Workflow 2.29.4; `pack_failed` while the archive was being written), or one that vanished while it was read | `unreadable`, `folder_changed` | grant read access to the review folder, or run it again when nothing writes to it; nothing was written, and a failure after the pack removes the temporary and the directories this run created |
+| an I/O error that no check maps (a descriptor call failing on `EIO`, `EMFILE` and the like; a traceback before Workflow 2.29.4) | `unreadable` ("archive stopped on an unexpected I/O error") | repair the cause, then run it again; the review folder was not touched and `report` shows whether the archive was placed |
 | a `.removing` in the archive directory that is a symlink, is not a directory or cannot be read (new in Workflow 2.22.0, from the remove command) | `unreadable` | repair it by hand; the command does not archive from a partial view. If it is an interrupted removal's leftover, see [the remove command](#the-remove-command) first |
 
 `--json` prints one object, keys sorted, ending in a newline, with the same
@@ -563,7 +568,17 @@ review folder whose target cannot be read is `unreadable` (`folder_changed` when
 it vanished or was replaced) at the same places, before the rename and after it,
 and while the folder is deleted, where the refusal says how many entries were
 deleted and that the rest is in `.removing/<id>` (`remove <id> --apply` resumes);
-it was a traceback before Workflow 2.25.5. **Do not delete `.removing/<id>` as
+it was a traceback before Workflow 2.25.5. A review folder (or leftover) that cannot be
+opened is `unreadable` (`folder_changed` when it vanished) at the same places, and
+while the folder is deleted the first open failing is `remove_failed` ("<id> cannot be
+read", stopped after deleting 0 entries, the rest in `.removing/<id>`); it was a
+traceback before Workflow 2.29.4. If the archive directory, or the leftover, changed
+while the lock was taken (the lock recheck, step 1), the refusal is `folder_changed`
+("run it again"; it was `place_failed`). An I/O error that no check maps is
+`unreadable` ("remove stopped on an unexpected I/O error"), also after the rename, where
+the message says the folder may be in `.removing/<id>`, not yet compared with the
+archive, and that `remove <id> --apply` compares it before deleting anything; it was
+a traceback before Workflow 2.29.4. **Do not delete `.removing/<id>` as
 clutter:** it may hold entries that exist only there.
 
 `--json` prints one object, keys sorted, ending in a newline:
