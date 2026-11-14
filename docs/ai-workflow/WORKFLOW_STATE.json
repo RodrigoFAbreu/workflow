@@ -39347,7 +39347,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-engine-error-paths-2-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-engine-error-paths-2-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 3,
       "implementation_revision": 3,
       "functional_review_round": null,
@@ -39487,12 +39487,12 @@
           "external": 2
         },
         "implementation": {
-          "local": 2,
-          "external": 0
+          "local": 3,
+          "external": 1
         }
       },
-      "state_revision": 23,
-      "last_transition": "2026-11-14T19:02:30Z",
+      "state_revision": 25,
+      "last_transition": "2026-11-14T19:26:40Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -39820,12 +39820,67 @@
               "at": "2026-11-14T18:52:29Z"
             }
           ]
+        },
+        "F-8537409be071": {
+          "digest": "8537409be0715dea48983e7872ee7e39021166213abd69ad0826d88e36b9c0e3",
+          "text": "OPT-7: `REVIEW_REQUEST.md` still says \"implementation revision 2\" and \"This is review round 2\". `MANIFEST.md`,\n  `IMPLEMENTATION_SUMMARY.md` and the state say revision 3, and this is round 3. The text is outside the shipped release\n  and has no effect on binding. If the request text is written by hand, refresh it at the next generation.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "87f1d1ed79b51479745bb65ed6fd0b24c422eaddfea5afb78841a10166f0ba25",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T19:18:59Z"
+            }
+          ]
+        },
+        "F-eb47e48db275": {
+          "digest": "eb47e48db2753ac2e1c425d4eeb347b109dbf082d29f8c725bcfec71db24c681",
+          "text": "OPT-3 (carried, author declined): still applies, still optional.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "87f1d1ed79b51479745bb65ed6fd0b24c422eaddfea5afb78841a10166f0ba25",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T19:18:59Z"
+            }
+          ]
+        },
+        "F-e8bbe03f5c9b": {
+          "digest": "e8bbe03f5c9b23d6cdc950d1d2c56f86f53d6d181476efa6868e5ca2d6591f34",
+          "text": "**O1 — Unnecessary quadratic scanning.** `payload/scripts/workflow_retention.py:292` searches for a lower same-name entry even when the matched entry is a real directory. With N unreadable, distinctly named sibling directories, these searches perform approximately N²/2 comparisons. Computing `lower` only for link entries would avoid this regression.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 3,
+              "review_content_id": "87f1d1ed79b51479745bb65ed6fd0b24c422eaddfea5afb78841a10166f0ba25",
+              "verdict": "REVISE",
+              "at": "2026-11-14T19:26:40Z"
+            }
+          ]
         }
       },
       "consumed_plan_review_content_ids": [
         "53d7a6efc08cbbd83d47003056dd08123c7d15bac1e5de909cbfbaab35b98130",
         "77a6cf16c0106d3838a5d3d71b6b8bbc949ddca385d730e6e20c17e379d7f798"
-      ]
+      ],
+      "implementation_review_stages": {
+        "review_content_id": "87f1d1ed79b51479745bb65ed6fd0b24c422eaddfea5afb78841a10166f0ba25",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "aeaecfc9b22398b34c65d7ef4de651c48564e38452059454b361411905175ca5",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-11-14T19:18:59Z",
+          "verdict_sha256": "4e0e085a639f785a6e8b7e61eded91b43f5870aa317520b8c27cf3bed7147ed4",
+          "run_ref": "session:local .ai-review/retention-engine-error-paths-2/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": null
+      }
     }
   }
 }
