@@ -236,6 +236,13 @@ def _can_fail_walk(name: str, dirfd: int) -> bool | None:
     return None
 
 
+def _is_link(name: str, dirfd: int) -> bool:
+    try:
+        return stat.S_ISLNK(os.stat(name, dir_fd=dirfd, follow_symlinks=False).st_mode)
+    except OSError:
+        return False
+
+
 def _guard_walk(walk, handle):
     """`yield from walk`, where an `OSError` from the walk itself (the first
     open of `os.fwalk` happens outside its `onerror`) goes to `handle(exc)`:
@@ -265,7 +272,7 @@ def _review_folder(ai_fd: int | None, repo_root: Path, item_id: str, tracked: di
                 complete = False
     if present:
         # The walk reports a failed sub-directory by its base name only, so
-        # `pending` mirrors its pre-order, as [path, name, silent, ambiguous]
+        # `pending` mirrors its pre-order, as [path, name, silent, ambiguous, link]
         # entries, to find the parent of the one that failed. `silent` marks a
         # link whose probe opened: the walk drops such a link without a word,
         # so a failure for its name may be the link's or a same-name sibling's
@@ -279,18 +286,20 @@ def _review_folder(ai_fd: int | None, repo_root: Path, item_id: str, tracked: di
             where = folder
             if name is not None:
                 for index in range(len(pending) - 1, -1, -1):
-                    path, _, silent, ambiguous = pending[index]
+                    path, _, silent, ambiguous, link = pending[index]
                     if pending[index][1] != name:
                         continue
-                    if silent:
-                        # Only the silent entry is passed; the nearest real
-                        # sibling below it stays, flagged, so the stack keeps
-                        # mirroring the walk.
+                    lower = next((low for low in range(index - 1, -1, -1)
+                                  if pending[low][1] == name and not pending[low][2]), None)
+                    if silent or (link and lower is not None):
+                        # A link is only possibly the failed one while a
+                        # same-name sibling lies below it (the probe of a link
+                        # is no proof of what the walk's own open will do):
+                        # only the link is passed, the nearest real sibling
+                        # stays, flagged, so the stack keeps mirroring the walk.
                         del pending[index]
-                        for lower in range(index - 1, -1, -1):
-                            if pending[lower][1] == name and not pending[lower][2]:
-                                pending[lower][3] = True
-                                break
+                        if lower is not None:
+                            pending[lower][3] = True
                     else:
                         if not ambiguous:
                             where = repo_root / ".ai-review" / path
@@ -318,7 +327,8 @@ def _review_folder(ai_fd: int | None, repo_root: Path, item_id: str, tracked: di
             for sub in reversed(dirs):
                 can_fail = _can_fail_walk(sub, dirfd)
                 if can_fail is not False:
-                    pending.append([os.path.join(directory, sub), sub, can_fail is None, False])
+                    pending.append([os.path.join(directory, sub), sub, can_fail is None, False,
+                                    can_fail is None or _is_link(sub, dirfd)])
             for name in names:
                 try:
                     info = os.stat(name, dir_fd=dirfd, follow_symlinks=False)

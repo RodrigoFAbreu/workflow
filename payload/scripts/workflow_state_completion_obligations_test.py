@@ -4527,14 +4527,14 @@ class _Inject:
 
         def open_(path, flags, *a, **k):
             fd = k.get("dir_fd")
-            for name, kind, first in me.opens:
+            for name, kind, first, *rest in me.opens:
                 if path != name or fd is None:
                     continue
                 linked = stat.S_ISLNK(real["lstat"](path, dir_fd=fd).st_mode)
                 if (kind == "link") != linked:
                     continue
                 me.count[name] = me.count.get(name, 0) + 1
-                if me.count[name] >= first:
+                if first <= me.count[name] <= (rest[0] if rest else me.count[name]):
                     raise PermissionError(errno.EACCES, "denied", name)
             return real["open"](path, flags, *a, **k)
 
@@ -4688,7 +4688,7 @@ class RetentionReportUnreadable(unittest.TestCase):
             ("a/b/c + zz", {"a/b/c": "dir", "zz": "dir"}, [("zz", "dir", 1)], [("zz",)]),
             ("a/zz and zz", {"a/zz": "dir", "zz": "dir"}, [("zz", "dir", 1)], [("a", "zz"), ("zz",)]),
             ("link opens, zz fails", {"a/zz": "link", "zz": "dir"}, [("zz", "dir", 1)], [()]),
-            ("link fails, zz readable", {"a/zz": "link", "zz": "dir"}, [("zz", "link", 1)], [("a", "zz")]),
+            ("link fails, zz readable", {"a/zz": "link", "zz": "dir"}, [("zz", "link", 1)], [()]),
             ("link fails before zz", {"a/lnk": "link", "zz": "dir"}, [("lnk", "link", 1), ("zz", "dir", 1)],
              [("a", "lnk"), ("zz",)]),
             ("link fails, later subtree", {"a/lnk": "link", "m/deep": "dir"},
@@ -7879,7 +7879,7 @@ class RetentionErrorPathsTwo(unittest.TestCase):
         folder = ra.root / ".ai-review" / "w00"
         before = ra.snap(times=False)
         os.chmod(folder, 0)
-        self.addCleanup(lambda: contextlib.suppress(OSError) and os.path.exists(folder) and os.chmod(folder, 0o755))
+        self.addCleanup(lambda: os.path.exists(folder) and os.chmod(folder, 0o755))
         for label, run in (("archive dry", lambda: ra.call("w00")), ("archive", lambda: ra.call("w00", apply=True))):
             with self.subTest(label):
                 # through the report's `read_errors` rule, never the backstop
@@ -8049,6 +8049,9 @@ class RetentionErrorPathsTwo(unittest.TestCase):
         self.collision(zz, [("zz", "link", 2), ("zz", "dir", 1)], [()])
         # (c) the link opens and the sibling fails (the amended layout of the T4 table)
         self.collision(zz, [("zz", "dir", 1)], [()])
+        # (f) the reverse race: the link's probe fails, its walk open succeeds, the sibling
+        # fails; the link is no proof of the failure, so the review folder is named
+        self.collision(zz, [("zz", "link", 1, 1), ("zz", "dir", 1)], [()])
         # nothing changed for a collision-free layout
         self.collision({"a/b/c": "dir", "zz": "dir"}, [("zz", "dir", 1)], [("zz",)])
 
@@ -8156,7 +8159,7 @@ class RetentionErrorPathsTwo(unittest.TestCase):
                     code, _, err = rr.main_rm("w00", "--apply")
                 self.assertEqual(code, 2)
                 for word in ("archived", "holds every", "proven"):
-                    self.assertNotIn(word, err.split("next step:")[0])
+                    self.assertNotIn(word, err)
                 self.assertIn("not yet compared with the archive", err)
                 self.assertTrue((rr.removing / "w00").exists())
                 result = rr.rm(apply=True)
