@@ -20,8 +20,8 @@ collision of the report (D-Collision), an `OSError` no site maps (D-Stray) and t
   flags, the `_stray_io` decorator on `archive_item`, `remove_item` and `prune_archives`, and the report's guarded `close`.
   The new class `RetentionErrorPathsTwo` (17 tests) fails on the unedited script and passes on the change; the one amended
   tuple of `test_t4` is the "link opens, zz fails" layout. `docs/RETENTION.md` and `docs/exit-codes.md` say it.
-- CP2 (Release 2.29.4): not started.
+- CP2 (Release 2.29.4): complete. `manifest.json` 2.29.4 (five records, posture, `conformance.suites`: the obligations suite is 307), `WORKFLOW_RELEASE` 2.29.4 with its two pinned assertions and the protocol document's edits (protocol stays 1.5), the 2.29.4 row of `docs/release-history.md`, the stamps of `docs/release-history.md`, `docs/RETENTION.md` and `docs/exit-codes.md`, and a 2.29.4 class in `tools/release/release_test.py` (the 2.29.3 and 2.25.6 classes give up the pins that moved).
 
 ## Next action
 
-`/milestone-implement retention-engine-error-paths-2` again for CP2, the release.
+All checkpoints are complete. `/milestone-implement retention-engine-error-paths-2` again enters self-review, the full verification and the implementation review bundle.
