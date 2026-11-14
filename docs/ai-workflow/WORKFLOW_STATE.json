@@ -39347,7 +39347,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-engine-error-paths-2-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-engine-error-paths-2-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 3,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -39487,12 +39487,12 @@
           "external": 2
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 19,
-      "last_transition": "2026-11-14T13:49:05Z",
+      "state_revision": 20,
+      "last_transition": "2026-11-14T14:19:02Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -39720,6 +39720,48 @@
               "review_content_id": "32aa0d26ab052a77f4676801db6908d40680035315ad9cc906fc337938f1a0db",
               "verdict": "APPROVE",
               "at": "2026-11-14T12:25:20Z"
+            }
+          ]
+        },
+        "F-4aec3bc5d6d6": {
+          "digest": "4aec3bc5d6d6fffc27a4ca16b8ea0c0ea7ede99a4f74b48a4fd6238806477e6e",
+          "text": "OPT-1: `docs/release-history.md` 2.29.4 and the manifest posture say \"every output of a path that worked is\n  byte-identical\"; the \"link opens, zz fails\" layout worked before (it named the failed `zz`) and now names the review\n  folder (the deliberate D-Collision amendment). Consider saying \"except the one same-name layout named above\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "79777d187a84679435a5f86b90f56a8e5cc84df11283e8750a5ca4ea5149ad6e",
+              "verdict": "REVISE",
+              "at": "2026-11-14T14:19:02Z"
+            }
+          ]
+        },
+        "F-787ceb5e8b5d": {
+          "digest": "787ceb5e8b5d4e5821fc774d3535f1ad4e6197d02679f75a35a575cb00a0de1f",
+          "text": "OPT-2: `test_t2_...`'s first `addCleanup` lambda starts with `contextlib.suppress(OSError) and ...`. That builds an\n  object, which is always true, and suppresses nothing. Drop it or use a real try/except.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "79777d187a84679435a5f86b90f56a8e5cc84df11283e8750a5ca4ea5149ad6e",
+              "verdict": "REVISE",
+              "at": "2026-11-14T14:19:02Z"
+            }
+          ]
+        },
+        "F-7b2488eb2e86": {
+          "digest": "7b2488eb2e8684920dab78678d64c75b14cbe090119590131e51a0c898f3354a",
+          "text": "OPT-3: `_remove_tree`'s `ENOENT`/`ENOTDIR` branch goes through `_stopped`, whose text says \"the rest is in\n  `.removing/<id>`\", while the cause is that `.removing/<id>` vanished. This is as the plan specified, but the wording\n  is misleading for that case.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "79777d187a84679435a5f86b90f56a8e5cc84df11283e8750a5ca4ea5149ad6e",
+              "verdict": "REVISE",
+              "at": "2026-11-14T14:19:02Z"
             }
           ]
         }
