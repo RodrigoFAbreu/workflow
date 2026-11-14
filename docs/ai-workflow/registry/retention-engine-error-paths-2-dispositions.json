@@ -1,0 +1,93 @@
+{
+ "schema_version": 1,
+ "work_item_id": "retention-engine-error-paths-2",
+ "dispositions": {
+  "F-13c049c3e54a": {
+   "disposition": "dropped",
+   "reason": "Reference-only wording in T7 (c): the site (`_walk_chain`'s `os.open(os.sep)` under prune) is right and the test is red on the base; the plan was approved with the reference as written."
+  },
+  "F-146a3f6ba79c": {
+   "disposition": "dropped",
+   "reason": "The reviewer notes neither result is wrong (the review folder is never wrong) and the design stands; docs/RETENTION.md states the same-name rule and its one-race limit. The extra precision sentence was not added."
+  },
+  "F-15d68e512d57": {
+   "disposition": "fixed"
+  },
+  "F-1918a400ef66": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/181"
+  },
+  "F-19eea489fee2": {
+   "disposition": "fixed"
+  },
+  "F-267e906dc9ab": {
+   "disposition": "fixed"
+  },
+  "F-2d91b090055a": {
+   "disposition": "fixed"
+  },
+  "F-30eefcc6558c": {
+   "disposition": "fixed"
+  },
+  "F-476e09593c47": {
+   "disposition": "fixed"
+  },
+  "F-4aec3bc5d6d6": {
+   "disposition": "fixed"
+  },
+  "F-5dcd9832d991": {
+   "disposition": "fixed"
+  },
+  "F-7030d9932902": {
+   "disposition": "fixed"
+  },
+  "F-787ceb5e8b5d": {
+   "disposition": "fixed"
+  },
+  "F-79214deea00a": {
+   "disposition": "fixed"
+  },
+  "F-7b2488eb2e86": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/181"
+  },
+  "F-8537409be071": {
+   "disposition": "fixed"
+  },
+  "F-86fd7c0f1288": {
+   "disposition": "fixed"
+  },
+  "F-a0c6f9720046": {
+   "disposition": "dropped",
+   "reason": "`TEST_RESULTS.md` is a review-bundle record outside the shipped release with no effect on binding; the round-3 runs are in IMPLEMENTATION_SUMMARY.md and were re-run by the reviewer."
+  },
+  "F-a723fcc38558": {
+   "disposition": "dropped",
+   "reason": "`TEST_RESULTS.md` title and the round-1 verify wording sit in a review-bundle record outside the shipped release with no effect on binding; the failure data points are recorded."
+  },
+  "F-bb5bb4b823fd": {
+   "disposition": "dropped",
+   "reason": "Author declined OPT-3 (carried from round 1): wording of the `_stopped` text for a vanished `.removing/<id>` stays as the plan specified."
+  },
+  "F-bca0fc2c0ec7": {
+   "disposition": "fixed"
+  },
+  "F-d1d5342e22e5": {
+   "disposition": "fixed"
+  },
+  "F-d4fd889b4ff7": {
+   "disposition": "dropped",
+   "reason": "Moot: the final D-Collision design re-probes nothing and opens no parent, so there is no open to pin."
+  },
+  "F-e8bbe03f5c9b": {
+   "disposition": "fixed"
+  },
+  "F-eb47e48db275": {
+   "disposition": "dropped",
+   "reason": "Author declined OPT-3 (carried again): unchanged, as declined before."
+  },
+  "F-f5b842b641a7": {
+   "disposition": "fixed"
+  }
+ }
+}
