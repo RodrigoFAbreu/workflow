@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-engine-error-paths-2",
+  "requirements": {
+    "R1": {
+      "description": "an item folder that cannot be opened is a named outcome everywhere: the report records it as unreadable (an incomplete report, exit 0), the walkers behind _scan, the pack and _hash_folder refuse unreadable or folder_changed, and _remove_tree stops with remove_failed or folder_changed and its deleted count; the first open of os.fwalk was outside its onerror (#119 item 1 similar calls, #149 item 5); tests T1 to T4 (an ENOENT at the report's top open reads as no review folder), mutations m1 to m4",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the lock-time recheck of remove (_flow step 1) reports a swapped archive directory and a leftover that appeared or vanished as folder_changed, with its next step run it again, nothing moved or deleted (#119 item 3); test T5, mutations m5 and m6",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "_review_folder never names a directory the walk did not fail on after a same-name collision: pending entries carry a silent flag for a link whose probe opened, no retry or re-probe is read as proof a link was passed, and a failure that a silent link could explain is recorded on the review folder's own path (only the silent entry is popped; the nearest real same-name sibling is kept in place and flagged ambiguous, so the stack mirrors the walk), while every existing layout keeps its result but one amended tuple (#149 item 2); test T6, mutations m7 to m9 (T6 a to e)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "an OSError no site maps ends archive, remove and prune as unreadable (exit 2, the command's next step) through one backstop, and the report's own os.close is best effort (#119 item 1 similar calls, #143 item 4); the remove message states only verified facts (the folder may be in .removing, unverified against the archive); tests T7 (one per decorator), T8 and T9, mutations m10 to m12",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "every path that works today stays byte-identical (the 97 existing retention tests green, one tuple amended, a before and after driver over the working paths), no new refusal code, each fix proved by a test that fails without it, docs/RETENTION.md and docs/exit-codes.md name the new outcomes, roadmap row 44 is Current, no page names an internal milestone id, the installation is untouched",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R6": {
+      "description": "Release 2.29.4, a fix patch: workflow_version, changed records, WORKFLOW_RELEASE and its pinned assertions, the history row, the stamps of docs/RETENTION.md and docs/exit-codes.md, a 2.29.4 release-test class (the previous classes give up their current pins), conformance.suites measured; counts unchanged; protocol stays 1.5",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "retention-engine-error-paths-2",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -39337,6 +39337,388 @@
         "evaluated_at": "2026-11-13T20:57:15Z",
         "workflow_release": "2.29.3"
       }
+    },
+    "retention-engine-error-paths-2": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "retention-engine-error-paths-2",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/RETENTION_ENGINE_ERROR_PATHS_2_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/retention-engine-error-paths-2-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/retention-engine-error-paths-2-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 3,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "522e518241f9535c067d52b6e669acdb3467c8b4",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "7563033f1a3c85c59ecc85ea2b8fd7ea4c83b3253861e3f38a947c4fcbe2fc9d",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "7563033f1a3c85c59ecc85ea2b8fd7ea4c83b3253861e3f38a947c4fcbe2fc9d",
+        "approved_review_content_id": "32aa0d26ab052a77f4676801db6908d40680035315ad9cc906fc337938f1a0db",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/RETENTION_ENGINE_ERROR_PATHS_2_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2c902e403a450ff60df5d7079048e92f926e3342"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-engine-error-paths-2-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "790fa235680b519b874b9aeaa5d62f2f2f3743c7"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/retention-engine-error-paths-2-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ef36ccf5a9ce75877dafebda23f1a2373bdab705"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-14T12:26:41Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "32aa0d26ab052a77f4676801db6908d40680035315ad9cc906fc337938f1a0db",
+            "ledger": {
+              "local": {
+                "bundle_id": "7563033f1a3c85c59ecc85ea2b8fd7ea4c83b3253861e3f38a947c4fcbe2fc9d",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "3547448f7df156de33e15255047a6a8a0586230a17709ab2445d66d250dd0382",
+                "ledger_entry_sha256": "9b00b01ff2455ec1805c96003ebe47a46dff391a26fcaf43f8d2f4d9800ff59e",
+                "run_ref": "session:local .ai-review/retention-engine-error-paths-2/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "7563033f1a3c85c59ecc85ea2b8fd7ea4c83b3253861e3f38a947c4fcbe2fc9d",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "c39a3e17a6ebc59e0581abc5c301d2e294740e0ec6b46d6c4bc6cf67472ef4b6",
+                "ledger_entry_sha256": "b80af5a8a5593b6ef1cfb2e92f730fb2b24d67ac08630c4f833fa49d860ee171",
+                "run_ref": "codex:20261114T122102Z-1bdca902",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-14T12:26:41Z",
+          "workflow_release": "2.29.3"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "32aa0d26ab052a77f4676801db6908d40680035315ad9cc906fc337938f1a0db",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "7563033f1a3c85c59ecc85ea2b8fd7ea4c83b3253861e3f38a947c4fcbe2fc9d",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-11-14T12:19:58Z",
+          "verdict_sha256": "3547448f7df156de33e15255047a6a8a0586230a17709ab2445d66d250dd0382",
+          "run_ref": "session:local .ai-review/retention-engine-error-paths-2/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "7563033f1a3c85c59ecc85ea2b8fd7ea4c83b3253861e3f38a947c4fcbe2fc9d",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-11-14T12:25:20Z",
+          "verdict_sha256": "c39a3e17a6ebc59e0581abc5c301d2e294740e0ec6b46d6c4bc6cf67472ef4b6",
+          "run_ref": "codex:20261114T122102Z-1bdca902",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 3,
+          "external": 2
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 14,
+      "last_transition": "2026-11-14T12:26:42Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-14T12:16:02Z",
+        "consumed": {
+          "review_content_id": "53d7a6efc08cbbd83d47003056dd08123c7d15bac1e5de909cbfbaab35b98130",
+          "plan_revision": 2,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "32aa0d26ab052a77f4676801db6908d40680035315ad9cc906fc337938f1a0db",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "32aa0d26ab052a77f4676801db6908d40680035315ad9cc906fc337938f1a0db",
+          "bundle_id": "7563033f1a3c85c59ecc85ea2b8fd7ea4c83b3253861e3f38a947c4fcbe2fc9d",
+          "plan_revision": 3
+        }
+      },
+      "optional_findings": {
+        "F-19eea489fee2": {
+          "digest": "19eea489fee2862b605c1b8c04b751a1bb48989745b3d7216135a3cee99947bc",
+          "text": "**D-Walk, T1 (`ENOENT` at the report's top open).** `_review_folder`'s `handle` records every errno with `_unreadable(errors, folder, exc)`, and T1 pins `ENOENT` as one `read_errors` entry. `_unreadable`'s own contract is \"a read failure that is not plain absence\", and `_review_folder` already treats a `stat` that finds nothing (`_absent`) as `present: false` with no error. A folder that vanishes between the `stat` and the walk would then print \"at least 0 B in 0 files (partly unreadable)\" with an INCOMPLETE warning for a folder that is gone. Suggest: `ENOENT`/`ENOTDIR` set `present` false and record nothing, the same as the `stat` branch, which also mirrors D-Walk's own `folder_changed` split for `_walk_folder`. This only happens in a race, so it is a suggestion.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "77a6cf16c0106d3838a5d3d71b6b8bbc949ddca385d730e6e20c17e379d7f798",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T11:58:55Z"
+            }
+          ]
+        },
+        "F-f5b842b641a7": {
+          "digest": "f5b842b641a7ecd637f389f8362bbd17cc01c6e19dad38aaed39db8241cdb5da",
+          "text": "**D-Collision, the \"never names a wrong directory\" claim.** A silent link that fails in the walk only for a moment (it fails at the walk's open, then opens at the re-probe) is skipped as \"passed\", and the search goes on to a real same-name sibling below it, which is then named wrongly. That is the class of defect this item fixes, now narrowed to a transient race. Suggest: qualify the Goal and D-Collision wording (\"never, unless the link's failure was transient between the walk and the re-probe\"), or accept the residue explicitly in section 4.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "77a6cf16c0106d3838a5d3d71b6b8bbc949ddca385d730e6e20c17e379d7f798",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T11:58:55Z"
+            }
+          ]
+        },
+        "F-d4fd889b4ff7": {
+          "digest": "d4fd889b4ff76a1fd17200a507cdbb4d8dfe1e846a50aaf65984ce5ebbe2143c",
+          "text": "**D-Collision, how the re-probe opens the parent.** \"`_can_fail_walk` on its parent, opened for the purpose\" does not say how the parent is opened. Opening `<id>/a/...` as one path relative to `ai_fd` follows a symlink swapped into an intermediate component, which `_review_folder`'s D-Confine docstring rules out. Suggest pinning the open: component by component from `ai_fd` with `O_DIRECTORY | O_NOFOLLOW`, closed on every path, and leaving the existing walk otherwise unchanged.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "77a6cf16c0106d3838a5d3d71b6b8bbc949ddca385d730e6e20c17e379d7f798",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T11:58:55Z"
+            }
+          ]
+        },
+        "F-30eefcc6558c": {
+          "digest": "30eefcc6558c250312bea010e271094f6dfb8c8f7bdda7271cbf24d57eea9f0f",
+          "text": "**D-Walk, `_remove_tree`'s handle and the live count.** `_guard_walk` catches every `OSError` that leaves the walk, not only the first open. A failure in the middle of `_remove_tree`'s bottom-up walk (`scandir` or the walk's own `fstat` failing on `EIO` after some unlinks) also reaches `handle`. The handle should pass the live `deleted` count (through the existing `fail` closure, not a value taken when the walk starts), and its message \"<id> cannot be opened\" is then slightly wrong for a failure deeper in the tree. Suggest wording it \"<id> cannot be read (<strerror>)\", or stating that the count is live.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "77a6cf16c0106d3838a5d3d71b6b8bbc949ddca385d730e6e20c17e379d7f798",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T11:58:55Z"
+            }
+          ]
+        },
+        "F-15d68e512d57": {
+          "digest": "15d68e512d57d30be5f1c102df178c2e671649302b446f90e29d05240922d33b",
+          "text": "**D-Tests, T2's leftover case.** For a leftover (`L1`), `_select_removal` step 9's `read_errors` rule is skipped (`if not leftover`), and the report never walks `.removing/<id>`. So a `chmod 000` leftover is refused by `_scan` through D-Walk's `_walk_folder` handle (\"<id> cannot be read: ...\", with the leftover note), not \"through the report's `read_errors` rule\" as T2 says. Suggest correcting T2's wording so the test asserts the right message.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "77a6cf16c0106d3838a5d3d71b6b8bbc949ddca385d730e6e20c17e379d7f798",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T11:58:55Z"
+            }
+          ]
+        },
+        "F-79214deea00a": {
+          "digest": "79214deea00a1a000d8b2a5d377b737d7b896f239c42ade8ccb52c227d5edc24",
+          "text": "**D-Tests, `_fwalk_fails` caller matching.** For `_scan`, `_pack` and `_hash_folder`, the immediate caller of `os.fwalk` is the `_walk_folder` generator, not the named site. The injector has to match the frame that drives the generator (`_walk_folder`'s `f_back` while it runs). Suggest saying so in D-Tests so the injector is not written against the wrong frame.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "77a6cf16c0106d3838a5d3d71b6b8bbc949ddca385d730e6e20c17e379d7f798",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T11:58:55Z"
+            }
+          ]
+        },
+        "F-7030d9932902": {
+          "digest": "7030d9932902de9769bc77e400197a4483f8b39c16e94c26a667699fe4e3d378",
+          "text": "**Injector caller matching needs clarification.** D-Tests defines `_fwalk_fails` by the immediate caller of `os.fwalk`, but flows 4–5 name `_scan`, `_pack` and `_hash_folder`. Their immediate call site is `_walk_folder`. Specify how the injector finds the driving caller, and assert that each intended injection actually fired.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "77a6cf16c0106d3838a5d3d71b6b8bbc949ddca385d730e6e20c17e379d7f798",
+              "verdict": "REVISE",
+              "at": "2026-11-14T12:04:54Z"
+            }
+          ]
+        },
+        "F-2d91b090055a": {
+          "digest": "2d91b090055aa9e45662eefc738bdfb76cbdbf398be4fa1f514dd767cbb2378a",
+          "text": "**The existing subprocess cleanup limitation conflicts with D-Staging’s stated guarantee.** T7 targets `os.close` in `_archive_table`, but that close occurs before the `try/finally` containing `_reap`. A mocked close failure confirmed that `_reap` is never called. Consider local cleanup or explicitly qualify the guarantee that every started `zstd` is waited for.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "77a6cf16c0106d3838a5d3d71b6b8bbc949ddca385d730e6e20c17e379d7f798",
+              "verdict": "REVISE",
+              "at": "2026-11-14T12:04:54Z"
+            }
+          ]
+        },
+        "F-5dcd9832d991": {
+          "digest": "5dcd9832d991d9c5017a60431c2cc17ede099e70c0cafda1fe3a83743b6fdddb",
+          "text": "**T7 (b)'s after-rename clause has no site to apply to.** Every site T7 (b) lists (`_same_device`, `_flow` 1743, the\n  `os.fstat`/`os.close` of `_judge_removal_archive`) runs in the selection or in step 1, before the rename. So\n  \"after the rename the folder whole in `.removing/w00` and the next run finishes the removal\" cannot be observed there.\n  T9 covers the after-rename stray only with a changed folder, where the next run refuses. The after-rename stray on an\n  *unchanged* folder, with the resume that finishes the removal, is now only in functional flow 9. Suggest: add\n  `os.fstat` in `_hash_folder` after the rename with an unchanged folder to T7 (b), or drop the clause.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "53d7a6efc08cbbd83d47003056dd08123c7d15bac1e5de909cbfbaab35b98130",
+              "verdict": "REVISE",
+              "at": "2026-11-14T12:13:23Z"
+            }
+          ]
+        },
+        "F-d1d5342e22e5": {
+          "digest": "d1d5342e22e5c04b2916273f68c7ba5aea54bf021c134c20811b31cc0bd02932",
+          "text": "**T7 (a)/(c) site naming.** `os.open` of `/` in `_walk_chain` (842) is not \"a site only `archive` reaches\". It runs\n  through `_select_destination` (1047), which `prune` also calls (`_prune_select`, 1871), and `_open_index` is also reached\n  by `remove` (`_judge_removal_archive`, 1585). That does not matter for T7 (a), which drives `archive`. It does give T7 (c)\n  a concrete site: name `_walk_chain`'s `os.open(os.sep)` under `prune` instead of \"chosen from the sweep's list\", so the\n  prune backstop's red-on-base test is fixed in the plan.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "53d7a6efc08cbbd83d47003056dd08123c7d15bac1e5de909cbfbaab35b98130",
+              "verdict": "REVISE",
+              "at": "2026-11-14T12:13:23Z"
+            }
+          ]
+        },
+        "F-267e906dc9ab": {
+          "digest": "267e906dc9abaaf83df14384e10e6e61460468c41c3f09b4a841574daf96480b",
+          "text": "**D-Walk, `_review_folder`'s `ENOENT`/`ENOTDIR` branch.** `_guard_walk` handles any `OSError` leaving the walk, not\n  only the top open. If one came mid-walk after files were counted, setting `present` false would give a record with\n  `present: false` and non-zero `files`/`bytes`. Later steps are descriptor-relative, so this is practically unreachable.\n  Suggest: apply \"absent\" only while nothing has been yielded, and otherwise use the `_unreadable` branch.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "53d7a6efc08cbbd83d47003056dd08123c7d15bac1e5de909cbfbaab35b98130",
+              "verdict": "REVISE",
+              "at": "2026-11-14T12:13:23Z"
+            }
+          ]
+        },
+        "F-146a3f6ba79c": {
+          "digest": "146a3f6ba79cb1ecce97fa01bee1522f17f6873e22fe77419b9ec7e24fd1f2af",
+          "text": "**D-Collision's precision cost is wider than section 4 states.** Section 4 says the cost of naming the review folder is \"one existing layout's more specific path\". A silent link that the walk passes without error stays on `pending` until a yield of an entry below it pops it. So any later failure of a real directory with the same name, before such a yield, meets the silent entry first and names the review folder. This was reproduced on a scratch copy of `_review_folder` at `522e518` that implements revision 3's rule. With `x/a/zz` a link that opens, `x/zz` a directory that fails and `zz` readable, base names `w00/x/zz` (correct) and the candidate names `w00`. With `x/a/zz` and `x/zz` both links that open and `zz` failing, base names `w00/zz` and the candidate names `w00`. Neither result is wrong (the review folder is never wrong), and the ambiguity is inherent, so the design stands. Suggest: say it in section 4 and in `docs/RETENTION.md`'s report text: \"a failure that a link passed earlier with the same name could explain names the review folder\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "32aa0d26ab052a77f4676801db6908d40680035315ad9cc906fc337938f1a0db",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T12:19:58Z"
+            }
+          ]
+        },
+        "F-476e09593c47": {
+          "digest": "476e09593c4702229702c6baad1f654a2c76bc77649422233c90c90c8ae5ed1d",
+          "text": "**T6 (e) needs a per-call injector or a real `chmod`.** The existing `_Inject` fails `open` of a name and kind *from the n-th call on*. `x/zz` and `zz` are both directories named `zz`, so it cannot fail `x/zz` and leave `zz` readable. The test needs an injector that fails only the listed calls (the scratch check used one), or `chmod 000` on `x/zz` in the non-root variant. Functional flow 8 also has no three-level case. Adding it (`open zz dir` failing the first call only) would carry I1 of the previous round into the functional evidence.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "32aa0d26ab052a77f4676801db6908d40680035315ad9cc906fc337938f1a0db",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T12:19:58Z"
+            }
+          ]
+        },
+        "F-13c049c3e54a": {
+          "digest": "13c049c3e54a3283ee8c026b34c5b2622455a8d21d147cda49b2724c1e7264ec",
+          "text": "**T7 (c) line reference.** \"`_walk_chain` (842), reached through `_select_destination` (1871)\": 1871 is `_prune_select`'s call of `_select_destination`, and `_select_destination` calls `_walk_chain` at 1047. The site is right: prune reaches `os.open(os.sep)` there, nothing in `prune_archives` catches the `OSError`, so the case is red on the base. Only the reference is ambiguous.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "32aa0d26ab052a77f4676801db6908d40680035315ad9cc906fc337938f1a0db",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T12:19:58Z"
+            }
+          ]
+        },
+        "F-1918a400ef66": {
+          "digest": "1918a400ef6667a18ebd45a5c119b97f59b5aab3c27640de2ad3f98e25c4b8a2",
+          "text": "**Qualify T7(a)’s descriptor-cleanup expectation.** T7(a) now injects at `_open_index`’s `os.fstat` (`payload/scripts/workflow_retention.py:948`). That existing path leaves its opened descriptor unclosed when `fstat` raises, before ownership reaches the caller. An in-memory mock confirmed this. The proposed outer decorator cannot close it, so D-Tests’ blanket “no descriptor left open” assertion cannot hold there. Document this existing limit, as D-Staging does for subprocess cleanup, or include local cleanup.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "32aa0d26ab052a77f4676801db6908d40680035315ad9cc906fc337938f1a0db",
+              "verdict": "APPROVE",
+              "at": "2026-11-14T12:25:20Z"
+            }
+          ]
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "53d7a6efc08cbbd83d47003056dd08123c7d15bac1e5de909cbfbaab35b98130",
+        "77a6cf16c0106d3838a5d3d71b6b8bbc949ddca385d730e6e20c17e379d7f798"
+      ]
     }
   }
 }
