@@ -39347,7 +39347,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-engine-error-paths-2-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-engine-error-paths-2-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 3,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -39487,12 +39487,12 @@
           "external": 2
         },
         "implementation": {
-          "local": 1,
+          "local": 2,
           "external": 0
         }
       },
-      "state_revision": 21,
-      "last_transition": "2026-11-14T14:55:26Z",
+      "state_revision": 22,
+      "last_transition": "2026-11-14T18:52:29Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -39762,6 +39762,62 @@
               "review_content_id": "79777d187a84679435a5f86b90f56a8e5cc84df11283e8750a5ca4ea5149ad6e",
               "verdict": "REVISE",
               "at": "2026-11-14T14:19:02Z"
+            }
+          ]
+        },
+        "F-86fd7c0f1288": {
+          "digest": "86fd7c0f1288132b3e2cdb98b3ccf107ab5d514b2bdcf6b0937f5f351ca7496b",
+          "text": "OPT-4: `docs/RETENTION.md` says that \"when a link and a real directory of the same name both lie in the folder and\n  one open of that name fails ... the report names the review folder itself rather than either\". That holds only when\n  the link is walked before the real directory. When the real directory is walked first, its failure is named exactly.\n  I checked this with a scratch test on the candidate: layout `{a/zz: dir, b/zz: link}` with `a/zz` failing reads\n  `read_errors == [.../a/zz]`. Suggested wording: \"...when a link is walked before a real directory of the same name...\".\n  The same applies to the release-history row's parenthesis.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "957efcc0488ff4ebae5c0e9da18823174deffa3a3b91f7cc8d9e93dad144ec9d",
+              "verdict": "REVISE",
+              "at": "2026-11-14T18:52:29Z"
+            }
+          ]
+        },
+        "F-bca0fc2c0ec7": {
+          "digest": "bca0fc2c0ec7ccbc3b79113b8c20a70ddc1093deaeef69d2dbfd31f13b0464a4",
+          "text": "OPT-5 (a known limit, no change asked): `lower` skips silent entries, so two simultaneous opposite races can still name\n  a link the walk opened. In that case a non-silent link's walk open succeeds and a silent same-name link below it fails\n  its walk open. One race at a time is handled. If the docs keep \"never a directory that did not fail\", they could say\n  \"under one race at a time\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "957efcc0488ff4ebae5c0e9da18823174deffa3a3b91f7cc8d9e93dad144ec9d",
+              "verdict": "REVISE",
+              "at": "2026-11-14T18:52:29Z"
+            }
+          ]
+        },
+        "F-a723fcc38558": {
+          "digest": "a723fcc38558d5a8a4fffaae5fdc35c7ee256861b9a280bd15d302e262a6d79c",
+          "text": "OPT-6: `TEST_RESULTS.md` is titled \"implementation revision 1\" but now holds the round-2 runs. Its round-1 section\n  says `workflow-manager verify .` was \"not run to a verdict\". Here the command prints `installation matches workflow\n  2.29.3` and exits 0; the \"no pin\" line is only a warning. The acceptance-matrix failure (\"failures=5, errors=5\", not\n  reproduced on rerun, names not captured) is recorded honestly. My run (below) is a second data point.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "957efcc0488ff4ebae5c0e9da18823174deffa3a3b91f7cc8d9e93dad144ec9d",
+              "verdict": "REVISE",
+              "at": "2026-11-14T18:52:29Z"
+            }
+          ]
+        },
+        "F-bb5bb4b823fd": {
+          "digest": "bb5bb4b823fdab5e81d37823575ff31c423456a2a08f9961de8e9379974cc7b6",
+          "text": "OPT-3 (carried from round 1, author declined): still applies, still optional.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "957efcc0488ff4ebae5c0e9da18823174deffa3a3b91f7cc8d9e93dad144ec9d",
+              "verdict": "REVISE",
+              "at": "2026-11-14T18:52:29Z"
             }
           ]
         }
