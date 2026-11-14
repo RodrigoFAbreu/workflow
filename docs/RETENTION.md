@@ -350,9 +350,10 @@ was that of the previous directory. When a link is walked before a real director
 same name and one open of that name fails, the walk cannot say which it was,
 and the report names the review folder itself rather than either (since
 Workflow 2.29.4; a real directory walked first is named exactly, and the rule
-holds under one race at a time). `prune`, which reads only the
-archives, never reads an item folder: it runs on a mode 000 folder, where it
-ended in a traceback before Workflow 2.29.4.
+holds under one race at a time). `prune` builds the same report,
+so it does try to read the item folders, and it tolerates their read errors
+(it selects from the archives, never from an item folder): it runs on a mode
+000 folder, where it ended in a traceback before Workflow 2.29.4.
 
 An archive is `prunable` when its age in whole days (from the file's
 modification time) is strictly greater than the time to live. `archives`
