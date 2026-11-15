@@ -40337,7 +40337,7 @@
       "registry_path": "docs/ai-workflow/registry/acceptance-gate-robustness-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/acceptance-gate-robustness-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 5,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -40446,7 +40446,162 @@
           "workflow_release": "2.29.4"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "2cdc95fc269bb22016013636910ccdc443925f68f920d67d462df98197dfa657",
+        "approved_review_content_id": "0910b1135af32e49e4388ef1f40e65112a1ecc192bafedfb1e23cad6082d30da",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/acceptance-gate-robustness-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6b7a523f0720bbe187b23ce23847e00dc05860c9"
+          },
+          {
+            "path": "docs/common-problems.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1381da7371922de00eb4e586cd18f2732b16f13a"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "58088281802097c111f0584e2d66fa131fee5733"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1dc8224a61a47f6357b39587ebee1291198fa939"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "76143ede6c669bb6c2ea1c8836528392dbaf7acd"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a4f6fbdac0731576ec380eeaebea1ec64b862179"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint.py",
+            "exists": true,
+            "mode": "100755",
+            "blob": "edd8cdaa03317fc725fa9a4fc7bf4c29f4c1983e"
+          },
+          {
+            "path": "payload/scripts/workflow_fingerprint_generalization_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2cc6ebc1f0534aaf1c27130cf2996f53276f1b83"
+          },
+          {
+            "path": "payload/scripts/workflow_gate_policy_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6b9eb7f0aab8e4b754ae454d360262c970c42c9f"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0a0ab5eb96d772ea08026e2275d4341288b4194b"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cd5f8471397e7ee7981fba13ffb816e3d9eb90fc"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c69e0b2e00d8264a4104ffaa0b396435a7f28d06"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f028be5c3f88f30f0693ce899906fe0ccb477ec6"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1ed09bd8a41439e2af16f4d9c066704e2bf9aa83"
+          }
+        ],
+        "reviewed_content_commit": "991df275c68c9e4a3a7c82e560ed033e0d8e7615",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-15T02:56:17Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "0910b1135af32e49e4388ef1f40e65112a1ecc192bafedfb1e23cad6082d30da",
+            "ledger": {
+              "local": {
+                "bundle_id": "2cdc95fc269bb22016013636910ccdc443925f68f920d67d462df98197dfa657",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "e46340ccc13576eecf15b02ea2df972e925118fd2f736aff42f533228b7a9cd3",
+                "ledger_entry_sha256": "3b25f91b6a2b584fa6b0d1314b6edb5c9ae42495c83263e449306f4e8155b6da",
+                "run_ref": "session:local .ai-review/acceptance-gate-robustness/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "2cdc95fc269bb22016013636910ccdc443925f68f920d67d462df98197dfa657",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "0ed4f92395ce73bda21a196bb4d2d117c2629a6d1594ea96440a55f1358d774f",
+                "ledger_entry_sha256": "58dd6fd95267b690ce6d3a3bf090bebb80226b786173fbe0488b185f5ba03bad",
+                "run_ref": "codex:20261115T025140Z-347588da",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-15T02:56:17Z",
+          "workflow_release": "2.29.4"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "a917c2c650a822d60bddf285b71ed37009c963289144ea4876aa70bc1d589d3c",
@@ -40477,12 +40632,12 @@
           "external": 2
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 24,
-      "last_transition": "2026-11-15T02:36:07Z",
+      "state_revision": 27,
+      "last_transition": "2026-11-15T02:56:17Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -40676,6 +40831,69 @@
               "at": "2026-11-15T01:08:40Z"
             }
           ]
+        },
+        "F-c4cacdb7f666": {
+          "digest": "c4cacdb7f6669eca9925581283d62ab77610fe34fcfe0d61b69702f8f3a7a0d2",
+          "text": "**IMPL-R1-001 (test coverage).** T5's `--satisfy-acceptance` arm calls `ws._acceptance_reachability_blocker` directly.\n  It does not run the `--satisfy-acceptance` refusal the plan's D-Tests names. The production path at workflow_state.py\n  21705 does use that same function, so the risk is low. A later change that gave the refusal its own wording would\n  not be caught. Suggested fix: assert the refusal message through `_satisfy_acceptance_cli` or its subprocess helper.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "0910b1135af32e49e4388ef1f40e65112a1ecc192bafedfb1e23cad6082d30da",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T02:50:15Z"
+            }
+          ]
+        },
+        "F-ce72fedc1a36": {
+          "digest": "ce72fedc1a36612e4f599fb632535b6a0d6e61863c7bec66bba4cc7be238a10c",
+          "text": "**IMPL-R1-002 (test coverage).** T3's present-head arm asserts only `ready` and the absence of the new blocker. It\n  does not check the report \"byte for byte\". Byte identity on the working paths is shown only by the out-of-repo\n  `drive.py` flows 1 and 5, recorded in `TEST_RESULTS.md`. A normalised golden of the present-head report inside the\n  suite would make D-Golden self-enforcing.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "0910b1135af32e49e4388ef1f40e65112a1ecc192bafedfb1e23cad6082d30da",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T02:50:15Z"
+            }
+          ]
+        },
+        "F-3c697d262734": {
+          "digest": "3c697d2627341e475a7b5cdf1666f6873b807a069e0c12f44c42c28d2f4ae84f",
+          "text": "**IMPL-R1-003 (correctness, edge).** `_absent_stored_pr_head` treats any non-zero `git cat-file -e` exit as\n  \"absent\". That includes a git failure unrelated to the object, such as a broken repository or a missing `git`. In\n  that case the report says \"fetch it\" instead of propagating the original `AmbiguousBaseError`. This is unreachable in\n  practice, because the earlier `evaluate_gate` call already needed a working git. It could be tightened by checking\n  for exit status 1 or 128 with an empty-object diagnosis.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "0910b1135af32e49e4388ef1f40e65112a1ecc192bafedfb1e23cad6082d30da",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T02:50:15Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "0910b1135af32e49e4388ef1f40e65112a1ecc192bafedfb1e23cad6082d30da",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "2cdc95fc269bb22016013636910ccdc443925f68f920d67d462df98197dfa657",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-15T02:50:15Z",
+          "verdict_sha256": "e46340ccc13576eecf15b02ea2df972e925118fd2f736aff42f533228b7a9cd3",
+          "run_ref": "session:local .ai-review/acceptance-gate-robustness/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "2cdc95fc269bb22016013636910ccdc443925f68f920d67d462df98197dfa657",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-15T02:55:29Z",
+          "verdict_sha256": "0ed4f92395ce73bda21a196bb4d2d117c2629a6d1594ea96440a55f1358d774f",
+          "run_ref": "codex:20261115T025140Z-347588da",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
