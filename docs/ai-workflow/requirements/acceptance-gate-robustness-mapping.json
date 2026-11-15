@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_item_id": "acceptance-gate-robustness",
+  "requirements": {
+    "R1": {
+      "description": "acceptance_gate_report answers a stored pull-request fact whose head the repository lacks with a report, never an error object: ready false, one blocker stored_pr_fact_unresolvable naming the head and the next step (fetch it), the three blocking requirements still evaluated on a copy without the stored fact, the pull-request requirements and stored_pr_fact carrying the same detail; a second AmbiguousBaseError propagates as today; evaluate_gate and every library function unchanged (#155 point 4); tests T1 to T3, mutations m1 to m3 and m11",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "a test pins that every acceptance requirement id is in exactly one of the two report lists and that every id evaluate_gate emits is in their union (#155 point 5); test T4, mutations m4 and m5",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "the phase_not_reachable detail no longer contradicts itself at an accepted phase with a checkpoint outstanding; every other phase keeps its released bytes (#155 point 6); test T5, mutation m6",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "the unclassified-path message takes its declaration path from one template shared with artifacts_path_for_work_item, promote_legacy_work_item names the file it read, the last sentence is qualified for a two-stage item and the plan-stage text is five lines under 400 characters (#152 points 2 to 5); tests T6 to T9 and the updated phase-route test, mutations m7 to m10",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R5": {
+      "description": "every path that works today stays byte-identical (existing tests unmodified but the two named, a before and after driver), every test and page that pins an old byte is listed and updated, no state key, phase, protocol field or command file moves, the Controller reads none of it, docs/exit-codes.md and docs/common-problems.md say the new outcomes, roadmap row 45 is Current, no page names an internal milestone id, the installation is untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R6": {
+      "description": "Workflow 2.29.5 is released as a fix patch: manifest, WORKFLOW_RELEASE, the changed records, the release-history row with its way back, the stamps, a 2.29.5 release test class and the older classes' pins moved; the protocol stays 1.5",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    }
+  }
+}
