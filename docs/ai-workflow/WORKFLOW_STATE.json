@@ -41253,15 +41253,20 @@
       "registry_path": "docs/ai-workflow/registry/test-hardening-owner-points-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/test-hardening-owner-points-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 2,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "f9d63f4246041afc21ff35d85bc2e994fc6d66f8",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": null,
-      "checkpoints": {},
+      "last_completed_checkpoint_id": "CP1",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "968e1d49dbf5283698435ac889799d930c4ae2fa"
+        }
+      },
       "current_bundle_id": "1b78f5f39b99f6f6d95d0b1b57756df9ba68195f6f11f342cf329512f2bcc362",
       "plan_approval": {
         "status": "CURRENT",
@@ -41388,8 +41393,8 @@
           "external": 0
         }
       },
-      "state_revision": 10,
-      "last_transition": "2026-11-15T12:50:34Z",
+      "state_revision": 12,
+      "last_transition": "2026-11-15T12:55:44Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
