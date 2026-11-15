@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "test-hardening-owner-points",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -41253,7 +41253,7 @@
       "registry_path": "docs/ai-workflow/registry/test-hardening-owner-points-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/test-hardening-owner-points-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -41476,8 +41476,8 @@
           "external": 1
         }
       },
-      "state_revision": 16,
-      "last_transition": "2026-11-15T13:28:39Z",
+      "state_revision": 17,
+      "last_transition": "2026-11-15T14:15:24Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -41648,6 +41648,373 @@
           "run_ref": "codex:20261115T132452Z-a383bf77",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:33:55Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "All four sections occur once; the evidence file is absent from the base commit."
+            },
+            "log_digest": "86d551a4a4a33cdd29ea87e8694032c3130e1d426b7dac6c6f789fd47a16b736",
+            "run_ref": "controller:20261115T133250Z-6d03d8f7",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:33:55Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:33:55Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "Recorded status, test count, and both orphan kinds match, with no third kind."
+            },
+            "log_digest": "9d1e90bc74b209ca64d2255cdf9d8d9618379dcb48f5d848bbfbf30df9194db6",
+            "run_ref": "controller:20261115T133250Z-6d03d8f7",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:33:55Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:33:55Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "The evidence says already fixed, and all five base source checks match."
+            },
+            "log_digest": "616ed6c7d1ee76d57d643f89d7cc9fd7429c16566ccf2b526337d2619457b384",
+            "run_ref": "controller:20261115T133250Z-6d03d8f7",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:33:55Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:33:55Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "All seven release postures match and the base manifest has 83 artifacts with no excluded paths."
+            },
+            "log_digest": "eb9eb90792e647fffb47a740a9fe7d7760f1e93fa0b900d4d7f899bae8dd2a79",
+            "run_ref": "controller:20261115T133250Z-6d03d8f7",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:33:55Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:33:55Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "The posture sentence is removed once and the v2.27.0 tag exists."
+            },
+            "log_digest": "776f4d99d4a4cf65af3d8fb76a3e0a9977f60cc30df040b0361136ef150b3974",
+            "run_ref": "controller:20261115T133250Z-6d03d8f7",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:33:55Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:33:56Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "The roadmap row order and unchanged row 45 match; row 46 is Current."
+            },
+            "log_digest": "91a423c37a82e3326b5ddb08fc2373e70a84f42d0da6ddb0a886ce02b6451f83",
+            "run_ref": "controller:20261115T133250Z-6d03d8f7",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:33:56Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:33:56Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "Exactly the eight expected files differ and the release source and installation comparison exits 0."
+            },
+            "log_digest": "f669f6a8d3c5664327d0f8e26c80add56578f1122eb4808b86e28a9566122329",
+            "run_ref": "controller:20261115T133250Z-6d03d8f7",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:33:56Z"
+          },
+          "flow-8": {
+            "flow_id": "flow-8",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:33:56Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "Each of the three base mutation targets occurs once and its replacement is absent."
+            },
+            "log_digest": "844e117aee5634af84ef1e42c39fcebfcfff86703ab36cf77ea527fd1f97c826",
+            "run_ref": "controller:20261115T133250Z-6d03d8f7",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:33:56Z"
+          },
+          "flow-9": {
+            "flow_id": "flow-9",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:55:21Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "Missing-stamp check: the unmodified check exits 0, the scratch copy without the stamp names docs/gates.md with exit 1, and the clone's status lines are unchanged."
+            },
+            "log_digest": "331e8f5c4624a0e6c1439641a8527fb280e13ff6d28149be310e0b5509ce31a5",
+            "run_ref": "claude-functional:w53-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:55:21Z"
+          },
+          "flow-11": {
+            "flow_id": "flow-11",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:55:21Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "Reaper run of TestPlainCommandMalformedState: 10 tests OK, 79 orphans all exited (78 git and one git maintenance run), nothing else."
+            },
+            "log_digest": "3e52c25630b040acb3f987883570981c73230abb2bfb6f552403361f8c0cdb6a",
+            "run_ref": "claude-functional:w53-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:55:22Z"
+          },
+          "flow-12": {
+            "flow_id": "flow-12",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:55:21Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "All nine suites of the RELEASING.md loop exit 0 from the staged fixture with the expected counts."
+            },
+            "log_digest": "731deb83b7aa71d51b1c0feeeaf2d79549a3213b835fdafd934b1a15d222d20d",
+            "run_ref": "claude-functional:w53-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:55:22Z"
+          },
+          "flow-13": {
+            "flow_id": "flow-13",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:55:21Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "tools/release 337 tests, tools/docs 34 tests, check_docs and check-manager-block all pass with the pinned Python."
+            },
+            "log_digest": "fcd542ebbc7ca076acbbf3f8d083a9498e52ebfd11714e90c64363e731fb6c39",
+            "run_ref": "claude-functional:w53-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:55:22Z"
+          },
+          "flow-10": {
+            "flow_id": "flow-10",
+            "status": "passed",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "ran_at": "2026-11-15T13:56:00Z",
+            "summary": {
+              "checklist_blob": "ccfa53c26ea85a431bbc777cd9092d939c2c6c5d",
+              "text": "Unmutated the A12 and A15 tests pass (2 tests OK); m1 fails the A12 test (None != 40); m2 gives five A15 failures, the first the symlink to an outside file; m3 gives three, the first the hard link."
+            },
+            "log_digest": "c79032b323a1b064a985e0e3eb16fb6dc058641c5977fbd76fc4a175c8a70392",
+            "run_ref": "claude-functional:w53-functional-r2",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:56:00Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 189,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/189"
+          },
+          "state": "open",
+          "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+          "observed_at": "2026-11-15T14:15:24Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "af7134276e72b35c2788e950e82922a182c20878",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-15T14:15:24Z",
+            "raw_sha256": "3f0f840f51c301444c3fbde2af53fbf5e31cf362a06e52d9994b0e51f3fdcad7",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "ce3200ab0615ae60ee68dd4833719cd3a3856e8b22ae1a3641998b39be8d3dbf"
+          },
+          "fact_id": "1f648c830eaaffab14efbd930b14aa41376a19969035cab99189ca7730fbd346"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-10', 'flow-11', 'flow-12', 'flow-13', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6', 'flow-7', 'flow-8', 'flow-9'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #189 at 8c02495beee66b7cbee57384993ae8d1a33bd382 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "af7134276e72b35c2788e950e82922a182c20878",
+          "anchor_identity": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "recorded_at": "2026-11-15T13:28:39Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "6a29f17baec834819688f5a749c2d0730cc53e323eb14ae767b0585d5ad2ed9e",
+              "log_digest": "86d551a4a4a33cdd29ea87e8694032c3130e1d426b7dac6c6f789fd47a16b736",
+              "run_ref": "controller:20261115T133250Z-6d03d8f7"
+            },
+            "flow-10": {
+              "evidence_id": "fb65a06ecf5e1b362afa96c3f7626d08da5bea2dc4235719c29a6cfd08d1feb0",
+              "log_digest": "c79032b323a1b064a985e0e3eb16fb6dc058641c5977fbd76fc4a175c8a70392",
+              "run_ref": "claude-functional:w53-functional-r2"
+            },
+            "flow-11": {
+              "evidence_id": "f1d725b71d3b50814ced4e501a4cae2a0e39ea63a0b5d44d5c0b4c0fa5f0f898",
+              "log_digest": "3e52c25630b040acb3f987883570981c73230abb2bfb6f552403361f8c0cdb6a",
+              "run_ref": "claude-functional:w53-functional-r1"
+            },
+            "flow-12": {
+              "evidence_id": "1368177271d8fdef68bb09e74a04b882fcbb1588d38db05dd0ae0401c01ea510",
+              "log_digest": "731deb83b7aa71d51b1c0feeeaf2d79549a3213b835fdafd934b1a15d222d20d",
+              "run_ref": "claude-functional:w53-functional-r1"
+            },
+            "flow-13": {
+              "evidence_id": "e96b635973b76f41fd5ca1aebf71f8250ee0c75cec012308c7d81b0cc445ac68",
+              "log_digest": "fcd542ebbc7ca076acbbf3f8d083a9498e52ebfd11714e90c64363e731fb6c39",
+              "run_ref": "claude-functional:w53-functional-r1"
+            },
+            "flow-2": {
+              "evidence_id": "fef60e428cf94c32333d079a613799356e7fb7f704e4c36d89ab05309f303ce6",
+              "log_digest": "9d1e90bc74b209ca64d2255cdf9d8d9618379dcb48f5d848bbfbf30df9194db6",
+              "run_ref": "controller:20261115T133250Z-6d03d8f7"
+            },
+            "flow-3": {
+              "evidence_id": "86936356342a05da4ec27eb10878e298ec216e1508034bb464b12415dbff6b5e",
+              "log_digest": "616ed6c7d1ee76d57d643f89d7cc9fd7429c16566ccf2b526337d2619457b384",
+              "run_ref": "controller:20261115T133250Z-6d03d8f7"
+            },
+            "flow-4": {
+              "evidence_id": "af54ac45afb61192d270a3dbc9cb648deb9187dbe7efab111d6eb386917d469b",
+              "log_digest": "eb9eb90792e647fffb47a740a9fe7d7760f1e93fa0b900d4d7f899bae8dd2a79",
+              "run_ref": "controller:20261115T133250Z-6d03d8f7"
+            },
+            "flow-5": {
+              "evidence_id": "e5b0948b825143f2e4500646983497e79ed07c248f0a32c05e38b768747d4b8e",
+              "log_digest": "776f4d99d4a4cf65af3d8fb76a3e0a9977f60cc30df040b0361136ef150b3974",
+              "run_ref": "controller:20261115T133250Z-6d03d8f7"
+            },
+            "flow-6": {
+              "evidence_id": "d31d95c48083de4fb584fdacaaf7580f76fbbcbd1f4dac8956685a2a86558644",
+              "log_digest": "91a423c37a82e3326b5ddb08fc2373e70a84f42d0da6ddb0a886ce02b6451f83",
+              "run_ref": "controller:20261115T133250Z-6d03d8f7"
+            },
+            "flow-7": {
+              "evidence_id": "05861fc8fc5c8f165ed3e133bf739dcaa26daa8b9a216e33fb7dac2e7412e6e4",
+              "log_digest": "f669f6a8d3c5664327d0f8e26c80add56578f1122eb4808b86e28a9566122329",
+              "run_ref": "controller:20261115T133250Z-6d03d8f7"
+            },
+            "flow-8": {
+              "evidence_id": "ccd5db4193848c476be6279eee7811eb82aadbae77f5b61906a296330f9fc716",
+              "log_digest": "844e117aee5634af84ef1e42c39fcebfcfff86703ab36cf77ea527fd1f97c826",
+              "run_ref": "controller:20261115T133250Z-6d03d8f7"
+            },
+            "flow-9": {
+              "evidence_id": "bfc791c782370fd8d7d01a14729032339a613e01dfe22789cbb83a4b46f3c47e",
+              "log_digest": "331e8f5c4624a0e6c1439641a8527fb280e13ff6d28149be310e0b5509ce31a5",
+              "run_ref": "claude-functional:w53-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "1f648c830eaaffab14efbd930b14aa41376a19969035cab99189ca7730fbd346",
+            "head": "8c02495beee66b7cbee57384993ae8d1a33bd382",
+            "provenance": "workflow_gh",
+            "raw_sha256": "3f0f840f51c301444c3fbde2af53fbf5e31cf362a06e52d9994b0e51f3fdcad7"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-15T14:15:24Z",
+        "workflow_release": "2.29.5"
       }
     }
   }

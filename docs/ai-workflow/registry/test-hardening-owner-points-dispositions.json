@@ -1,0 +1,42 @@
+{
+ "schema_version": 1,
+ "work_item_id": "test-hardening-owner-points",
+ "dispositions": {
+  "F-5776ab8d88a3": {
+   "disposition": "fixed",
+   "note": "The acceptance edit of docs/ROADMAP.md row 46 and the rewritten docs/ACTIVE_MILESTONE.md say 'every release from v2.25.6', which the evidence file proves."
+  },
+  "F-5f1aadddaa8f": {
+   "disposition": "fixed",
+   "note": "v2.25.7 is in the evidence file's tag list and the plan's flow 4 loop."
+  },
+  "F-cce6749c6f53": {
+   "disposition": "fixed",
+   "note": "Flow 11 in the plan names the literal Manager path."
+  },
+  "F-db430401c6b4": {
+   "disposition": "fixed",
+   "note": "The Release paragraph names one CI file and the root .gitattributes."
+  },
+  "F-e35fa379977b": {
+   "disposition": "fixed",
+   "note": "The m3 row and flow 10 state the hard link fails first with 0 != 2."
+  },
+  "F-8bd35862bc3a": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/188"
+  },
+  "F-81ce6a169277": {
+   "disposition": "dropped",
+   "reason": "Plan text only: the plan's flow 4 loop omits four tags that the evidence file records; the checklist is the item's own and is not reused."
+  },
+  "F-8a597ef88528": {
+   "disposition": "dropped",
+   "reason": "Plan text only: the expected-output wording of flows 3 and 4 differs from what flows.sh prints in punctuation; the flows passed and the checklist is not reused."
+  },
+  "F-ea62a732496e": {
+   "disposition": "dropped",
+   "reason": "Plan text only and hypothetical: a fallback that is not taken."
+  }
+ }
+}
