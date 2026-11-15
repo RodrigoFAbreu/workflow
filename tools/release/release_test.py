@@ -337,7 +337,7 @@ class CheckPendingTest(ScratchTestCase):
         releases = self.published_base()
         self.repo.release_commit("2.7.0", "feat", payload="v2\n")
         self.repo.touch("tools/release/x.py", "x\n")
-        self.repo.touch(".github/workflows/release.yml", "x\n")
+        self.repo.touch(".github/workflows/publish.yml", "x\n")
         self.repo.commit("ci: fix")
         out = self.assert_ok("check-pending", "--releases", releases)
         self.assertIn("release source unchanged", out)
@@ -1396,12 +1396,39 @@ class ConformanceTemplate(unittest.TestCase):
         self.assertEqual(summary.count("| passed |"), 9)
 
 
-class WorkflowCI(unittest.TestCase):
-    """`Workflow CI`: the consolidated `checks` job, the parallel source suites and `aggregate`."""
+WORKFLOWS = REPO_ROOT / ".github" / "workflows"
+CI_YML = WORKFLOWS / "ci.yml"
+VALIDATE_YML = WORKFLOWS / "validate.yml"
+PUBLISH_YML = WORKFLOWS / "publish.yml"
+
+
+def _job_ids(text: str) -> list[str]:
+    """The job ids of a workflow, in order: the two-space keys under `jobs:`."""
+    jobs = text.split("\njobs:\n", 1)[1]
+    return [l.strip()[:-1] for l in jobs.splitlines() if l.startswith("  ")
+            and not l.startswith("   ") and not l.startswith("  #") and l.strip().endswith(":")]
+
+
+def _flatten_suite(suite):
+    for item in suite:
+        if isinstance(item, unittest.TestSuite):
+            yield from _flatten_suite(item)
+        else:
+            yield item
+
+
+def _write_permission_lines(text: str) -> list[int]:
+    """The line numbers that grant `contents: write` (comments do not count)."""
+    return [i for i, l in enumerate(text.splitlines()) if re.fullmatch(r"\s+contents: write", l)]
+
+
+class ValidateWorkflow(unittest.TestCase):
+    """`Validate` (validate.yml, which ci.yml calls): the consolidated `checks` job, the docs
+    tests through the shared workflow, the parallel source suites and `verdict`."""
 
     @classmethod
     def setUpClass(cls):
-        cls.text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+        cls.text = VALIDATE_YML.read_text()
         cls.lines = cls.text.splitlines()
 
     def job(self, name):
@@ -1411,24 +1438,52 @@ class WorkflowCI(unittest.TestCase):
                     and self.lines[i].strip().endswith(":")), len(self.lines))
         return "\n".join(self.lines[start:end])
 
-    def test_five_jobs(self):
-        jobs = self.text.split("\njobs:\n", 1)[1]
-        ids = [l for l in jobs.splitlines() if l.startswith("  ") and not l.startswith("   ")
-               and l.strip().endswith(":")]
-        self.assertEqual(ids, ["  changes:", "  checks:", "  release-source-conformance:",
-                               "  update-fixture:", "  aggregate:"])
+    def test_six_jobs(self):
+        self.assertEqual(_job_ids(self.text), ["changes", "checks", "docs-tests",
+                                               "release-source-conformance", "update-fixture",
+                                               "verdict"])
 
-    def test_triggers_permissions_and_concurrency_are_kept(self):
-        self.assertIn("name: Workflow CI\n", self.text)
-        self.assertIn("on:\n  pull_request:\n  push:\n    branches: [main]\n"
-                      "  workflow_dispatch:\n", self.text)
-        self.assertIn("permissions:\n  contents: read\n", self.text)
-        self.assertIn("  group: workflow-ci-${{ github.event_name }}-${{ github.event_name == "
-                      "'pull_request' && github.ref || github.sha }}\n"
-                      "  cancel-in-progress: ${{ github.event_name == 'pull_request' }}\n",
-                      self.text)
+    def test_reusable_and_dispatchable_with_no_concurrency_of_its_own(self):
+        self.assertIn("name: Validate\n", self.text)
+        self.assertIn("\non:\n  workflow_call:\n  workflow_dispatch:\n\npermissions:\n"
+                      "  contents: read\n", self.text)
+        for trigger in ("pull_request", "push", "schedule", "workflow_run"):
+            self.assertNotRegex(self.text, rf"(?m)^  {trigger}:", trigger)
+        # ci.yml's group covers a called run: the same group here would deadlock it.
+        self.assertNotRegex(self.text, r"(?m)^ *concurrency:")
+        self.assertEqual(_write_permission_lines(self.text), [])
+        self.assertNotRegex(self.text, r"(?m)^ +permissions:")
         self.assertIn("defaults:\n  run:\n    shell: bash\n", self.text)
-        self.assertEqual(self.text.count('python-version: "3.12"'), 4)
+        # changes, checks, docs-tests, release-source-conformance, update-fixture.
+        self.assertEqual(self.text.count('python-version: "3.12"'), 5)
+        self.assertNotIn("workflow-ci", self.text)
+        self.assertNotIn("Workflow CI", self.text)
+
+    def test_the_docs_tests_run_through_the_shared_python_tests_workflow(self):
+        job = self.job("docs-tests") + "\n"
+        self.assertEqual(job, (
+            "  docs-tests:\n"
+            "    uses: RodrigoFAbreu/action-workflows/.github/workflows/python-tests.yml@main\n"
+            "    with:\n"
+            '      python-version: "3.12"\n'
+            "      test-directory: tools/docs\n"
+            '      test-pattern: "*_test.py"\n\n'))
+        # Its inputs are `python -m unittest discover -s tools/docs -p '*_test.py'`, the shared
+        # workflow's plain discovery: they find exactly tools/docs/'s test modules, and the
+        # checks job no longer runs them itself (its checker stays a step there).
+        directory = re.search(r"\n      test-directory: (\S+)\n", job).group(1)
+        pattern = re.search(r'\n      test-pattern: "(\S+)"\n', job).group(1)
+        expected = sorted(p.stem for p in (REPO_ROOT / "tools/docs").glob("*_test.py"))
+        self.assertEqual(expected, ["check_docs_test"])
+        suite = unittest.TestLoader().discover(str(REPO_ROOT / directory), pattern=pattern,
+                                               top_level_dir=str(REPO_ROOT / directory))
+        modules = sorted({t.id().split(".")[0] for t in _flatten_suite(suite)})
+        self.assertEqual(modules, expected)
+        self.assertGreater(suite.countTestCases(), 0)
+        checks = self.job("checks")
+        self.assertNotIn("check_docs_test.py", checks)
+        self.assertIn("      - name: check_docs.py\n", checks)
+        self.assertIn("run: python3 tools/docs/check_docs.py\n", checks)
 
     def test_checks_job_keeps_every_command_as_a_named_step(self):
         checks = self.job("checks")
@@ -1441,12 +1496,12 @@ class WorkflowCI(unittest.TestCase):
                      "Verify the package with the Workflow Manager",
                      "Bootstrap and verify a scratch repository", "Save the release list",
                      "Pending release source is frozen", "Published release source is unchanged",
-                     "Published assets are unchanged", "check_docs_test.py", "check_docs.py",
+                     "Published assets are unchanged", "check_docs.py",
                      "release_test.py"):
             self.assertIn(f"      - name: {name}\n", checks, name)
         for command in ("release.py check-pending", "release.py check-immutable",
                         "release.py build --commit HEAD", "package verify",
-                        "tools/docs/check_docs_test.py", "tools/release/release_test.py"):
+                        "tools/docs/check_docs.py", "tools/release/release_test.py"):
             self.assertIn(command, checks)
         self.assertIn("name: package", checks)
         self.assertIn("if-no-files-found: error", checks)
@@ -1483,25 +1538,32 @@ class WorkflowCI(unittest.TestCase):
         self.assertIn("steps.manager.outcome", conditions["name: workflow-manager verify ."])
         self.assertNotIn("deflate", conditions["name: workflow-manager verify ."])
 
-    def aggregate(self, changes, changed, checks, conformance, update):
-        body = _step_script(self.job("aggregate"), "Require every job")
+    def verdict(self, changes, changed, checks, conformance, update, docs="success"):
+        body = _step_script(self.job("verdict"), "Require every job")
         env = dict(os.environ, CHANGES=changes, CHANGED=changed, CHECKS=checks,
-                   CONFORMANCE=conformance, UPDATE_FIXTURE=update)
+                   DOCS_TESTS=docs, CONFORMANCE=conformance, UPDATE_FIXTURE=update)
         return subprocess.run(["bash", "-eo", "pipefail", "-c", body], env=env,
                               capture_output=True, text=True)
 
-    def test_aggregate_needs_every_job_and_always_runs(self):
-        aggregate = self.job("aggregate") + "\n"
-        self.assertIn("    needs: [changes, checks, release-source-conformance, update-fixture]\n",
-                      aggregate)
-        self.assertIn("    if: always()\n", aggregate)
+    def test_verdict_needs_every_job_and_always_runs(self):
+        verdict = self.job("verdict") + "\n"
+        self.assertIn("    needs: [changes, checks, docs-tests, release-source-conformance, "
+                      "update-fixture]\n", verdict)
+        self.assertIn("    if: always()\n", verdict)
         for variable, job in (("CHANGES", "changes"), ("CHECKS", "checks"),
+                              ("DOCS_TESTS", "docs-tests"),
                               ("CONFORMANCE", "release-source-conformance"),
                               ("UPDATE_FIXTURE", "update-fixture")):
-            self.assertIn(f"{variable}: ${{{{ needs.{job}.result }}}}\n", aggregate)
-        self.assertIn("CHANGED: ${{ needs.changes.outputs.changed }}\n", aggregate)
+            self.assertIn(f"{variable}: ${{{{ needs.{job}.result }}}}\n", verdict)
+        self.assertIn("CHANGED: ${{ needs.changes.outputs.changed }}\n", verdict)
+        # Every other job of this workflow is in `verdict`'s needs: none escapes it.
+        needs = re.search(r"\n    needs: \[(.*)\]\n", verdict).group(1).split(", ")
+        self.assertEqual(sorted(needs), sorted(j for j in _job_ids(self.text) if j != "verdict"))
+        # The required check is ci.yml's `aggregate`, never a job of this called workflow
+        # (it would report as `validate / aggregate`).
+        self.assertNotIn("aggregate", _job_ids(self.text))
 
-    def test_aggregate_when_the_release_source_changed(self):
+    def test_verdict_when_the_release_source_changed(self):
         for checks, conformance, update, code in (
                 ("success", "success", "success", 0), ("failure", "success", "success", 1),
                 ("success", "failure", "success", 1), ("success", "success", "failure", 1),
@@ -1510,11 +1572,24 @@ class WorkflowCI(unittest.TestCase):
                 ("success", "skipped", "success", 1), ("success", "success", "skipped", 1),
                 ("success", "skipped", "skipped", 1)):
             with self.subTest(checks=checks, conformance=conformance, update=update):
-                proc = self.aggregate("success", "true", checks, conformance, update)
+                proc = self.verdict("success", "true", checks, conformance, update)
                 self.assertEqual(proc.returncode, code, proc.stdout + proc.stderr)
 
-    def test_aggregate_accepts_a_skip_only_when_changes_succeeded_and_said_unchanged(self):
-        proc = self.aggregate("success", "false", "success", "skipped", "skipped")
+    def test_verdict_requires_the_docs_tests_to_succeed_whatever_changed(self):
+        for changed in ("true", "false"):
+            candidate = "success" if changed == "true" else "skipped"
+            proc = self.verdict("success", changed, "success", candidate, candidate)
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            for docs in ("failure", "cancelled", "skipped", ""):
+                with self.subTest(changed=changed, docs=docs):
+                    proc = self.verdict("success", changed, "success", candidate, candidate,
+                                        docs=docs)
+                    self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+                    self.assertEqual(proc.stdout.splitlines()[0],
+                                     f"::error::the docs-tests job concluded {docs}")
+
+    def test_verdict_accepts_a_skip_only_when_changes_succeeded_and_said_unchanged(self):
+        proc = self.verdict("success", "false", "success", "skipped", "skipped")
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
         self.assertNotIn("::error", proc.stdout)
         for changes, changed in (("failure", "false"), ("cancelled", "false"),
@@ -1522,41 +1597,48 @@ class WorkflowCI(unittest.TestCase):
                                  ("success", ""), ("success", "False"), ("success", "no"),
                                  ("failure", ""), ("failure", "true")):
             with self.subTest(changes=changes, changed=changed):
-                proc = self.aggregate(changes, changed, "success", "skipped", "skipped")
+                proc = self.verdict(changes, changed, "success", "skipped", "skipped")
                 self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
                 for job in ("release-source-conformance", "update-fixture"):
                     self.assertIn(f"::error::the {job} job concluded skipped", proc.stdout)
 
-    def test_aggregate_truth_table(self):
+    def test_verdict_truth_table(self):
         """Every combination of the results and `changed`, against a model of the rule."""
         results = ("success", "failure", "cancelled", "skipped")
         for changes in results + ("",):
             for changed in ("true", "false", ""):
                 for checks in ("success", "failure", "skipped"):
-                    for conformance in results:
-                        for update in results:
-                            unchanged = changes == "success" and changed == "false"
-                            expected = [f"the {job} job concluded {result}" for job, result in (
-                                ("changes", changes), ("checks", checks))
-                                if result != "success"]
-                            expected += [f"the {job} job concluded {result}" for job, result in (
-                                ("release-source-conformance", conformance),
-                                ("update-fixture", update))
-                                if result != "success" and not (result == "skipped" and unchanged)]
-                            proc = self.aggregate(changes, changed, checks, conformance, update)
-                            context = (changes, changed, checks, conformance, update)
-                            self.assertEqual(proc.returncode, 1 if expected else 0,
-                                             f"{context}: {proc.stdout}{proc.stderr}")
-                            self.assertEqual(
-                                [l.removeprefix("::error::") for l in proc.stdout.splitlines()
-                                 if l.startswith("::error::")], expected, context)
+                    for docs in ("success", "failure", "skipped"):
+                        for conformance in results:
+                            for update in results:
+                                unchanged = changes == "success" and changed == "false"
+                                expected = [f"the {job} job concluded {result}"
+                                            for job, result in (
+                                                ("changes", changes), ("checks", checks),
+                                                ("docs-tests", docs))
+                                            if result != "success"]
+                                expected += [f"the {job} job concluded {result}"
+                                             for job, result in (
+                                                 ("release-source-conformance", conformance),
+                                                 ("update-fixture", update))
+                                             if result != "success"
+                                             and not (result == "skipped" and unchanged)]
+                                proc = self.verdict(changes, changed, checks, conformance,
+                                                    update, docs=docs)
+                                context = (changes, changed, checks, docs, conformance, update)
+                                self.assertEqual(proc.returncode, 1 if expected else 0,
+                                                 f"{context}: {proc.stdout}{proc.stderr}")
+                                self.assertEqual(
+                                    [l.removeprefix("::error::") for l in proc.stdout.splitlines()
+                                     if l.startswith("::error::")], expected, context)
 
-    def test_aggregate_names_each_rejected_job_and_its_result(self):
-        proc = self.aggregate("failure", "", "cancelled", "skipped", "failure")
+    def test_verdict_names_each_rejected_job_and_its_result(self):
+        proc = self.verdict("failure", "", "cancelled", "skipped", "failure", docs="failure")
         self.assertEqual(proc.returncode, 1)
         self.assertEqual(proc.stdout.splitlines(), [
             "::error::the changes job concluded failure",
             "::error::the checks job concluded cancelled",
+            "::error::the docs-tests job concluded failure",
             "::error::the release-source-conformance job concluded skipped",
             "::error::the update-fixture job concluded failure"])
 
@@ -1567,7 +1649,7 @@ class WorkflowCI(unittest.TestCase):
             job = self.job(name) + "\n"
             self.assertIn("\n    needs: changes\n", job, name)
             self.assertIn("\n    if: ${{ needs.changes.outputs.changed == 'true' }}\n", job, name)
-        for name in ("changes", "checks"):
+        for name in ("changes", "checks", "docs-tests"):
             self.assertNotRegex(self.job(name), r"(?m)^    (if|needs):", name)
 
     def test_the_changes_job_asks_the_subcommand_over_two_commits(self):
@@ -1613,14 +1695,19 @@ class WorkflowCI(unittest.TestCase):
     def test_the_candidate_suite_paths_are_the_release_source_plus_its_tooling_ci_and_archive_rules(self):
         self.assertEqual(release.CANDIDATE_PATHS, (
             "manifest.json", "payload", "fixtures", "templates",
-            "tools/release", ".github/workflows/workflow-ci.yml", ".gitattributes"))
+            "tools/release", ".github/workflows/ci.yml", ".github/workflows/validate.yml",
+            ".github/workflows/publish.yml", ".gitattributes"))
         self.assertEqual(release.CANDIDATE_PATHS,
                          (*package.RELEASE_SOURCE_PATHS, "tools/release",
-                          ".github/workflows/workflow-ci.yml", ".gitattributes"))
+                          ".github/workflows/ci.yml", ".github/workflows/validate.yml",
+                          ".github/workflows/publish.yml", ".gitattributes"))
+        # Each CI path is a workflow file that exists: a rename cannot silently drop one.
+        for path in release.CANDIDATE_CI_PATHS:
+            self.assertTrue((REPO_ROOT / path).exists(), path)
 
 
 class SourceConformanceRunner(unittest.TestCase):
-    """The source-conformance step of `Workflow CI`, run with stand-in suites.
+    """The source-conformance step of `Validate` (validate.yml), run with stand-in suites.
 
     It is the managed template's scheduling (D-Same-Text) over the staged
     fixture: the same shard tool text, the same constants, the same queue.
@@ -1635,7 +1722,7 @@ class SourceConformanceRunner(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+        text = VALIDATE_YML.read_text()
         lines = text.splitlines()
         marker = lines.index("      - name: Run the source conformance suites")
         start = lines.index("        run: |", marker) + 1
@@ -1757,7 +1844,7 @@ class SourceConformanceRunner(unittest.TestCase):
     def test_the_update_fixture_job_runs_the_same_step_over_the_updated_repository(self):
         """Same text, byte for byte: the two jobs can never drift apart. The update job puts
         the updated repository where this job stages the conformance fixture."""
-        text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+        text = VALIDATE_YML.read_text()
         mine = _step_script(_job_section(text, "update-fixture"),
                             "Run the frozen suites over the updated repository")
         self.assertEqual(mine, self.body)
@@ -1777,7 +1864,7 @@ class SourceConformanceRunner(unittest.TestCase):
                                       if l.startswith("suites=")))
 
     def test_the_job_keeps_its_stage_timeout_upload_and_the_aggregate(self):
-        lines = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text().splitlines()
+        lines = VALIDATE_YML.read_text().splitlines()
         job = "\n".join(lines[lines.index("  release-source-conformance:"):
                               lines.index("  update-fixture:")])
         self.assertIn("timeout-minutes: 60", job)
@@ -2264,21 +2351,35 @@ class IncompletePublishedReleaseTest(PublishedCase):
 
 
 
-# -- the Release workflow's gate ---------------------------------------------------
+# -- ci.yml and the Publish workflow's gate --------------------------------------------
 
 
-RELEASE_YML = REPO_ROOT / ".github" / "workflows" / "release.yml"
-
-#: A stand-in `gh`: `main`'s tip is `$GH_TIP`; a sha has a successful
-#: `Workflow CI` push run exactly when it is listed in `$GH_GREEN`.
+#: A stand-in `gh`: `main`'s tip is `$GH_TIP`; `$GH_RUNS` lists the `CI` push runs as
+#: `sha:id:conclusion` words, the conclusion being that run's `aggregate` job's. It prints
+#: what the step's `--jq` filter would, and logs every call to `$0.log`.
 FAKE_GH = r"""#!/usr/bin/env bash
+echo "$*" >> "$0.log"
 [ "$1" = api ] || exit 9
 case "$2" in
   */commits/main) echo "$GH_TIP" ;;
-  */actions/workflows/workflow-ci.yml/runs\?*event=push\&status=success)
+  */actions/workflows/ci.yml/runs\?head_sha=*\&event=push\&per_page=100)
     sha="${2#*head_sha=}"; sha="${sha%%&*}"
+    if [ "${GH_IDS+set}" ]; then printf '%s\n' "$GH_IDS"; exit 0; fi
+    for run in $GH_RUNS; do
+      IFS=: read -r s i c <<<"$run"
+      if [ "$s" = "$sha" ]; then echo "$i"; fi
+    done ;;
+  */actions/runs/*/jobs\?per_page=100)
+    id="${2#*/actions/runs/}"; id="${id%%/*}"
     if [ "${GH_COUNT+set}" ]; then printf '%s\n' "$GH_COUNT"; exit 0; fi
-    case " $GH_GREEN " in *" $sha "*) echo 1 ;; *) echo 0 ;; esac ;;
+    for run in $GH_RUNS; do
+      IFS=: read -r s i c <<<"$run"
+      if [ "$i" = "$id" ]; then
+        if [ "$c" = success ]; then echo 1; else echo 0; fi
+        exit 0
+      fi
+    done
+    exit 9 ;;
   *) exit 9 ;;
 esac
 """
@@ -2307,64 +2408,378 @@ def _step_script(text: str, name: str) -> str:
     return "\n".join(body) + "\n"
 
 
-class ReleaseGateTest(unittest.TestCase):
+def _step(text: str, name: str) -> str:
+    """The whole step called `name`: its lines up to the next step, comment or job."""
+    lines = text.splitlines()
+    start = lines.index(f"      - name: {name}")
+    end = next((i for i in range(start + 1, len(lines))
+                if lines[i].startswith(("      - ", "      #"))
+                or (lines[i].strip() and not lines[i].startswith("        "))), len(lines))
+    return "\n".join(lines[start:end]).rstrip("\n") + "\n"
+
+
+class CIWorkflowTest(unittest.TestCase):
+    """`CI` (ci.yml): validate once, own the required `aggregate`, publish only after it."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = CI_YML.read_text()
+
+    def job(self, name):
+        return _job_section(self.text, name).rstrip("\n") + "\n"
+
+    def test_triggers_permissions_and_concurrency(self):
+        self.assertIn("name: CI\n", self.text)
+        self.assertIn("\non:\n  pull_request:\n  push:\n    branches: [main]\n"
+                      "  workflow_dispatch:\n\n", self.text)
+        self.assertNotRegex(self.text, r"(?m)^  (schedule|workflow_run|workflow_call):")
+        self.assertIn("\npermissions:\n  contents: read\n", self.text)
+        # Pull requests cancel their stale run; push and dispatch runs are per commit, never
+        # cancelled. The only workflow-level group of the three: a called workflow with its
+        # caller's group deadlocks.
+        self.assertIn("\nconcurrency:\n"
+                      "  group: ci-${{ github.event_name }}-${{ github.event_name == "
+                      "'pull_request' && github.ref || github.sha }}\n"
+                      "  cancel-in-progress: ${{ github.event_name == 'pull_request' }}\n",
+                      self.text)
+        for called in (VALIDATE_YML, PUBLISH_YML):
+            self.assertNotRegex(called.read_text(), r"(?m)^concurrency:", called.name)
+        self.assertIn("defaults:\n  run:\n    shell: bash\n", self.text)
+        self.assertNotIn("workflow-ci", self.text)
+
+    def test_three_jobs(self):
+        self.assertEqual(_job_ids(self.text), ["validate", "aggregate", "publish"])
+
+    def test_validate_calls_the_validate_workflow(self):
+        self.assertEqual(self.job("validate"),
+                         "\n  validate:\n    uses: ./.github/workflows/validate.yml\n")
+
+    def test_aggregate_is_the_required_check_and_always_runs(self):
+        job = self.job("aggregate")
+        # No `name:`: the check is reported as the job id, `aggregate`, the ruleset's context.
+        self.assertNotRegex(job, r"(?m)^    name:")
+        self.assertIn("\n    needs: [validate]\n", job)
+        self.assertIn("\n    if: always()\n", job)
+        self.assertNotIn("uses:", job.split("    steps:")[0])
+        self.assertIn("VALIDATE: ${{ needs.validate.result }}\n", job)
+        self.assertEqual(_write_permission_lines(job), [])
+
+    def aggregate(self, result):
+        body = _step_script(self.job("aggregate"), "Require the validation")
+        return subprocess.run(["bash", "-eo", "pipefail", "-c", body],
+                              env=dict(os.environ, VALIDATE=result),
+                              capture_output=True, text=True)
+
+    def test_aggregate_passes_only_when_the_validation_succeeded(self):
+        proc = self.aggregate("success")
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertNotIn("::error", proc.stdout)
+        for result in ("failure", "cancelled", "skipped", "", "Success"):
+            with self.subTest(result=result):
+                proc = self.aggregate(result)
+                self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+                self.assertEqual(proc.stdout.splitlines(),
+                                 [f"::error::the validate workflow concluded {result}"])
+
+    def test_publish_runs_only_on_a_push_to_main_after_aggregate(self):
+        job = self.job("publish")
+        self.assertEqual(job, (
+            "\n  publish:\n"
+            "    needs: [aggregate]\n"
+            "    if: github.event_name == 'push' && github.ref == 'refs/heads/main'\n"
+            "    permissions:\n"
+            "      contents: write\n"
+            "      actions: read\n"
+            "    uses: ./.github/workflows/publish.yml\n"
+            "    with:\n"
+            "      validated: true\n"))
+        # The implicit success(): a failed, skipped or cancelled `aggregate` skips it.
+        for status in ("always()", "failure()", "cancelled()", "!cancelled()"):
+            self.assertNotIn(status, job)
+
+    def test_contents_write_only_in_the_publishing_jobs(self):
+        """Across every workflow: ci.yml's `publish` (a called workflow cannot exceed its
+        caller job) and publish.yml's `release`; nowhere else, never at workflow level."""
+        found = []
+        for path in sorted(WORKFLOWS.glob("*.yml")):
+            lines = path.read_text().splitlines()
+            for line in _write_permission_lines(path.read_text()):
+                job = next(m.group(1) for m in (re.fullmatch(r"  ([\w-]+):", l)
+                                                for l in reversed(lines[:line])) if m)
+                found.append((path.name, job))
+        self.assertEqual(found, [("ci.yml", "publish"), ("publish.yml", "release")])
+        # The repository-owned workflows default to read-only (workflow-conformance.yml is
+        # managed and stays as installed).
+        for path in (CI_YML, VALIDATE_YML, PUBLISH_YML, WORKFLOWS / "pr-title.yml"):
+            self.assertIn("\npermissions:\n  contents: read\n", path.read_text(), path.name)
+
+    def test_the_required_checks_keep_their_names(self):
+        ruleset = json.loads((REPO_ROOT / ".github/repository/ruleset-main.json").read_text())
+        rule = next(r for r in ruleset["rules"] if r["type"] == "required_status_checks")
+        contexts = [c["context"] for c in rule["parameters"]["required_status_checks"]]
+        self.assertEqual(contexts, ["aggregate", "Conventional Commit title",
+                                    "workflow-conformance"])
+        self.assertIn("aggregate", _job_ids(self.text))
+        title = (WORKFLOWS / "pr-title.yml").read_text()
+        self.assertIn("\n  title:\n    name: Conventional Commit title\n", title)
+        self.assertIn('run: python3 tools/release/release.py check-title "$TITLE" --agree\n',
+                      title)
+        self.assertIn("workflow-conformance",
+                      _job_ids((WORKFLOWS / "workflow-conformance.yml").read_text()))
+        self.assertNotRegex((WORKFLOWS / "workflow-conformance.yml").read_text(),
+                            r"(?m)^    name:")
+        # Only ci.yml has a job called `aggregate`.
+        for path in (VALIDATE_YML, PUBLISH_YML):
+            self.assertNotIn("aggregate", _job_ids(path.read_text()), path.name)
+
+    def test_one_line_run_commands_are_valid_plain_yaml_scalars(self):
+        """A plain scalar cannot hold `: ` or ` #` (YAML reads a mapping or a comment): a
+        command with either must be a `run: |` block. No YAML parser in the stdlib, so this
+        is the one-line form's guard."""
+        for path in (CI_YML, VALIDATE_YML, PUBLISH_YML):
+            for line in path.read_text().splitlines():
+                match = re.fullmatch(r" +run: (.*)", line)
+                if match and match.group(1) not in ("|", "|-", ">", ">-"):
+                    with self.subTest(path=path.name, line=line.strip()):
+                        self.assertNotIn(": ", match.group(1))
+                        self.assertNotIn(" #", match.group(1))
+                        self.assertNotRegex(match.group(1), r"^[&*!%@`{\[]")
+
+    def test_the_old_workflows_are_gone(self):
+        self.assertEqual(sorted(p.name for p in WORKFLOWS.glob("*.yml")),
+                         ["ci.yml", "pr-title.yml", "publish.yml", "validate.yml",
+                          "workflow-conformance.yml"])
+
+
+class PublishWorkflowTest(unittest.TestCase):
+    """`Publish` (publish.yml): reusable by ci.yml and dispatchable, with every release gate."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = PUBLISH_YML.read_text()
+
+    def test_triggers_and_inputs(self):
+        self.assertIn("name: Publish\n", self.text)
+        self.assertIn(
+            "\non:\n"
+            "  workflow_call:\n"
+            "    inputs:\n"
+            "      validated:\n"
+            '        description: "Set by ci.yml: this run\'s aggregate validated github.sha"\n'
+            "        type: boolean\n"
+            "        default: false\n"
+            "      dry-run:\n"
+            '        description: "Run every gate and build, but do not create the release"\n'
+            "        type: boolean\n"
+            "        default: false\n"
+            "  workflow_dispatch:\n"
+            "    inputs:\n"
+            "      dry-run:\n"
+            '        description: "Run every gate and build, but do not create the release"\n'
+            "        type: boolean\n"
+            "        default: false\n\n"
+            "permissions:\n  contents: read\n", self.text)
+        # It no longer follows another workflow's completion: ci.yml calls it.
+        self.assertNotRegex(self.text, r"(?m)^  workflow_run:")
+        self.assertNotIn("github.event.workflow_run", self.text)
+        self.assertNotIn("workflow-ci", self.text)
+        self.assertNotIn("Workflow CI", self.text)
+        self.assertEqual(_job_ids(self.text), ["gate", "release"])
+
+    def test_the_gate_runs_only_on_main_for_a_validated_push_or_a_dispatch(self):
+        gate = _job_section(self.text, "gate") + "\n"
+        self.assertIn(
+            "\n    if: >-\n"
+            "      github.ref == 'refs/heads/main'\n"
+            "      && ((github.event_name == 'push' && inputs.validated)\n"
+            "        || github.event_name == 'workflow_dispatch')\n", gate)
+        self.assertIn("    permissions:\n      contents: read\n      actions: read\n", gate)
+        self.assertIn("          RUN_SHA: ${{ github.sha }}\n", gate)
+        self.assertIn("          VALIDATED: ${{ inputs.validated }}\n", gate)
+
+    def test_the_release_job_keeps_its_serialization_and_permissions(self):
+        job = _job_section(self.text, "release") + "\n"
+        self.assertIn("\n    needs: gate\n    if: needs.gate.outputs.sha != ''\n", job)
+        self.assertIn("\n    concurrency:\n      group: workflow-release\n"
+                      "      cancel-in-progress: false\n", job)
+        self.assertIn("\n    permissions:\n      contents: write\n      actions: read\n", job)
+        self.assertIn("    timeout-minutes: 30\n", job)
+        self.assertNotRegex(self.text, r"(?m)^concurrency:")
+        for command in ("release.py next-release --trigger", "release.py build --commit",
+                        "workflow-manager package verify", "--release-dir",
+                        "release.py check-published", "gh release download",
+                        "--require-hashes -r tools/release/deflate-requirements.txt",
+                        'echo "$sha256  $wheel" | sha256sum -c'):
+            self.assertIn(command, job)
+        for never in ("--clobber", "gh release upload", "gh release delete", "git tag",
+                      "git push"):
+            self.assertNotIn(never, self.text)
+
+    def test_a_dry_run_skips_only_the_release_creation(self):
+        job = _job_section(self.text, "release") + "\n"
+        commands = [l for l in job.splitlines() if "gh release create" in l
+                    and not l.lstrip().startswith("#")]
+        self.assertEqual(len(commands), 1)
+        publish = _step(job, "Publish")
+        self.assertIn(commands[0], publish)
+        self.assertIn("gh release create", publish)
+        self.assertIn("        if: steps.decide.outputs.state == 'pending' && !inputs.dry-run\n",
+                      publish)
+        skip = _step(job, "Skip publishing (dry run)")
+        self.assertIn("        if: steps.decide.outputs.state == 'pending' && inputs.dry-run\n",
+                      skip)
+        self.assertIn("::notice::dry run: v$VERSION would be published at $TARGET; the release "
+                      "is not created", skip)
+        self.assertNotIn("gh ", skip)
+        # The read-back of a published version still runs in a dry run; a pending one has
+        # nothing to read back, since nothing was created.
+        read_back = _step(job, "Read the release back")
+        self.assertIn("        if: steps.decide.outputs.state == 'published' || !inputs.dry-run\n",
+                      read_back)
+        self.assertIn("release.py check-published", read_back)
+        # Every other step, and the gate, runs as it does without a dry run.
+        self.assertEqual(self.text.count("inputs.dry-run"), 3)
+        for name in ("Install the pinned deflate runtime", "Save the release list",
+                     "Decide what to release", "Build the package",
+                     "Install the pinned Workflow Manager",
+                     "Verify the package with the Workflow Manager"):
+            self.assertNotIn("dry-run", _step(job, name), name)
+
+    def test_the_dispatch_gate_reads_ci_yml_runs_and_its_aggregate_job(self):
+        script = _step_script(self.text, "Resolve the release commit")
+        self.assertIn('"repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$tip'
+                      '&event=push&per_page=100"', script)
+        self.assertIn('select(.name == "aggregate" and .conclusion == "success")', script)
+        # The job it names is ci.yml's required check.
+        self.assertIn("aggregate", _job_ids(CI_YML.read_text()))
+
+
+class PublishGateTest(unittest.TestCase):
     """The `gate` job decides which commit the `release` job checks out and
-    executes: only `main`'s tip, and only once its own push run is green."""
+    executes: only `main`'s tip, and only once it was validated: by this very run
+    when CI calls it, by a `CI` push run's `aggregate` when it is dispatched."""
 
     def setUp(self):
-        self.text = RELEASE_YML.read_text()
-        self.tmp = Path(tempfile.mkdtemp(prefix="release-gate-"))
+        self.text = PUBLISH_YML.read_text()
+        self.tmp = Path(tempfile.mkdtemp(prefix="publish-gate-"))
         self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
         bin_dir = self.tmp / "bin"
         bin_dir.mkdir()
-        (bin_dir / "gh").write_text(FAKE_GH)
-        (bin_dir / "gh").chmod(0o755)
+        self.gh = bin_dir / "gh"
+        self.gh.write_text(FAKE_GH)
+        self.gh.chmod(0o755)
         self.path = f"{bin_dir}{os.pathsep}{os.environ['PATH']}"
         self.script = _step_script(self.text, "Resolve the release commit")
 
-    def gate(self, event: str, tip: str, green: tuple[str, ...] = (),
-             run_sha: str = "", count: str | None = None) -> tuple[int, str, str]:
+    def gate(self, event: str, tip: str, runs: tuple[str, ...] = (), run_sha: str = "",
+             validated: str = "", ref: str = "refs/heads/main", count: str | None = None,
+             ids: str | None = None) -> tuple[int, str, str]:
         output = self.tmp / "output"
         output.write_text("")
+        log = Path(f"{self.gh}.log")
+        if log.exists():
+            log.unlink()
         env = {"PATH": self.path, "GITHUB_EVENT_NAME": event, "GITHUB_OUTPUT": str(output),
-               "GITHUB_REPOSITORY": "owner/workflow", "RUN_SHA": run_sha,
-               "GH_TIP": tip, "GH_GREEN": " ".join(green)}
+               "GITHUB_REPOSITORY": "owner/workflow", "GITHUB_REF": ref, "RUN_SHA": run_sha,
+               "VALIDATED": validated, "GH_TIP": tip, "GH_RUNS": " ".join(runs)}
         if count is not None:
             env["GH_COUNT"] = count
+        if ids is not None:
+            env["GH_IDS"] = ids
         proc = subprocess.run(
             ["bash", "-e", "-o", "pipefail", "-c", self.script], capture_output=True, text=True,
             env=env)
         return proc.returncode, output.read_text(), proc.stdout + proc.stderr
 
-    def test_trigger_at_the_tip_is_released(self):
-        self.assertEqual(self.gate("workflow_run", "T", run_sha="T")[:2], (0, "sha=T\n"))
+    def gh_calls(self) -> list[str]:
+        log = Path(f"{self.gh}.log")
+        return log.read_text().splitlines() if log.exists() else []
 
-    def test_newer_tip_without_a_green_push_run_defers(self):
-        # A green trigger `T`, then a tooling-only commit `M` whose push run is
-        # red or still running: nothing at `M` is executed.
-        code, output, log = self.gate("workflow_run", "M", green=("T",), run_sha="T")
-        self.assertEqual((code, output), (0, ""))
-        self.assertIn("main moved from T to M", log)
+    # ---- called by ci.yml after its aggregate
 
-    def test_newer_green_tip_is_released_not_the_trigger(self):
-        self.assertEqual(self.gate("workflow_run", "M", green=("T", "M"), run_sha="T")[:2],
+    def test_called_at_the_tip_is_released(self):
+        self.assertEqual(self.gate("push", "T", run_sha="T", validated="true")[:2],
+                         (0, "sha=T\n"))
+        # The same run validated it: no other run is consulted.
+        self.assertEqual(self.gh_calls(), ["api repos/owner/workflow/commits/main --jq .sha"])
+
+    def test_called_for_a_commit_main_moved_past_defers_to_the_tips_own_run(self):
+        # Even a tip already validated elsewhere is left to its own run, which publishes it.
+        for runs in ((), ("M:7:success",)):
+            with self.subTest(runs=runs):
+                code, output, log = self.gate("push", "M", runs=runs, run_sha="T",
+                                              validated="true")
+                self.assertEqual((code, output), (0, ""))
+                self.assertIn("::notice::main moved from T to M", log)
+                self.assertEqual(len(self.gh_calls()), 1)
+
+    def test_a_push_without_validated_publishes_nothing(self):
+        for validated in ("", "false", "True", "1"):
+            with self.subTest(validated=validated):
+                code, output, log = self.gate("push", "T", run_sha="T", validated=validated)
+                self.assertEqual((code, output), (1, ""))
+                self.assertIn("publishes only when CI calls it after its aggregate", log)
+
+    # ---- dispatched by hand: a CI push run's aggregate must have validated the tip
+
+    def test_dispatch_requires_a_validated_tip(self):
+        self.assertEqual(self.gate("workflow_dispatch", "M", runs=("M:7:success",))[:2],
                          (0, "sha=M\n"))
+        for runs in ((), ("T:6:success",), ("M:7:failure",), ("M:7:cancelled", "T:6:success")):
+            with self.subTest(runs=runs):
+                code, output, log = self.gate("workflow_dispatch", "M", runs=runs)
+                self.assertEqual((code, output), (1, ""))
+                self.assertIn("main's tip M has no CI push run whose aggregate succeeded", log)
 
-    def test_dispatch_requires_a_green_tip(self):
-        self.assertEqual(self.gate("workflow_dispatch", "M", green=("M",))[:2], (0, "sha=M\n"))
-        code, output, log = self.gate("workflow_dispatch", "M", green=("T",))
+    def test_dispatch_accepts_a_run_whose_aggregate_succeeded_among_others(self):
+        # A run whose own `publish` failed still validated the tip (its aggregate succeeded):
+        # the dispatch is the path that re-runs that publication.
+        code, output, _ = self.gate("workflow_dispatch", "M",
+                                    runs=("M:7:failure", "M:8:success", "M:9:cancelled"))
+        self.assertEqual((code, output), (0, "sha=M\n"))
+        self.assertIn("api repos/owner/workflow/actions/runs/8/jobs?per_page=100 --jq "
+                      "[.jobs[] | select(.name == \"aggregate\" and .conclusion == \"success\")] "
+                      "| length", self.gh_calls())
+
+    def test_dispatch_ignores_validated_and_the_trigger_sha(self):
+        # A dispatch is never validated by its own run, whatever it claims.
+        code, output, _ = self.gate("workflow_dispatch", "M", run_sha="M", validated="true")
         self.assertEqual((code, output), (1, ""))
-        self.assertIn("has no successful Workflow CI push run", log)
 
-    def test_malformed_run_count_fails_closed(self):
-        # `total_count` that is not a count (`null`, empty, garbage) is never
-        # read as green, on either trigger.
+    def test_malformed_api_answers_fail_closed(self):
+        # A run id or an aggregate count that is not a number (`null`, empty, garbage) is
+        # never read as validated.
         for count in ("null", "", "1x", "-1"):
-            for event, run_sha in (("workflow_dispatch", ""), ("workflow_run", "T")):
-                with self.subTest(count=count, event=event):
-                    code, output, log = self.gate(event, "M", run_sha=run_sha, count=count)
+            with self.subTest(count=count):
+                code, output, log = self.gate("workflow_dispatch", "M", runs=("M:7:success",),
+                                              count=count)
+                self.assertEqual((code, output), (1, ""))
+                self.assertIn("unexpected aggregate count", log)
+        for ids in ("null", "7x", "-7"):
+            with self.subTest(ids=ids):
+                code, output, log = self.gate("workflow_dispatch", "M", ids=ids)
+                self.assertEqual((code, output), (1, ""))
+                self.assertIn("unexpected CI run id", log)
+
+    # ---- both ways
+
+    def test_only_main_is_ever_released(self):
+        for event, validated in (("push", "true"), ("workflow_dispatch", "")):
+            for ref in ("refs/heads/feature", "refs/pull/1/merge", "refs/tags/v2.6.0", ""):
+                with self.subTest(event=event, ref=ref):
+                    code, output, log = self.gate(event, "T", runs=("T:7:success",),
+                                                  run_sha="T", validated=validated, ref=ref)
                     self.assertEqual((code, output), (1, ""))
-                    self.assertIn("unexpected Workflow CI run count", log)
+                    self.assertIn("only from refs/heads/main", log)
+                    self.assertEqual(self.gh_calls(), [])
+
+    def test_any_other_event_is_refused(self):
+        for event in ("workflow_run", "pull_request", "schedule", ""):
+            with self.subTest(event=event):
+                code, output, log = self.gate(event, "T", runs=("T:7:success",), run_sha="T",
+                                              validated="true")
+                self.assertEqual((code, output), (1, ""))
+                self.assertIn("unexpected event", log)
 
     def test_release_job_executes_only_the_gate_sha(self):
         gate = _job_section(self.text, "gate")
@@ -4656,8 +5071,8 @@ print(command, "ok")
     # ---- --keep: build the updated repository and stop; CI runs the suites and verify ----
 
     def scheduler_workflow(self, names) -> Path:
-        """A stand-in for `workflow-ci.yml` whose scheduler step runs `names`."""
-        path = self.tmp / "scheduler" / "workflow-ci.yml"
+        """A stand-in for `validate.yml` whose scheduler step runs `names`."""
+        path = self.tmp / "scheduler" / "validate.yml"
         path.parent.mkdir(exist_ok=True)
         path.write_text("".join(f'          suites="{" ".join(names)}"\n' for _ in range(2)))
         return path
@@ -4747,8 +5162,8 @@ print(command, "ok")
         with self.assertRaisesRegex(release.ReleaseError, "cannot read the scheduler workflow"):
             release.scheduler_suites(self.tmp / "missing.yml")
 
-    def test_the_default_scheduler_is_the_workflow_ci_workflow_and_names_the_nine_suites(self):
-        self.assertEqual(release.SCHEDULER_WORKFLOW, REPO_ROOT / ".github/workflows/workflow-ci.yml")
+    def test_the_default_scheduler_is_the_validate_workflow_and_names_the_nine_suites(self):
+        self.assertEqual(release.SCHEDULER_WORKFLOW, REPO_ROOT / ".github/workflows/validate.yml")
         self.assertEqual(len(release.scheduler_suites(release.SCHEDULER_WORKFLOW)), 9)
 
     def test_keep_still_reports_a_manager_failure(self):
@@ -4762,7 +5177,7 @@ print(command, "ok")
 
     def run_ci_step(self, releases, block):
         """`Update the previous release to HEAD`, then (when it built) the verify step."""
-        text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+        text = VALIDATE_YML.read_text()
         job = _job_section(text, "update-fixture")
         # The step passes no --scheduler-workflow: the candidate names the real nine suites.
         managed_release(self.repo.root, "2.13.0",
@@ -4833,7 +5248,7 @@ print(command, "ok")
 
 
 class CandidateSuitesDecisionTest(ScratchTestCase):
-    """`release.py release-source-changed`: `Workflow CI`'s `changes` job. Only a pull request
+    """`release.py release-source-changed`: `Validate`'s `changes` job. Only a pull request
     can skip the candidate-suite jobs; everything that cannot be decided runs them."""
 
     def setUp(self):
@@ -4852,7 +5267,8 @@ class CandidateSuitesDecisionTest(ScratchTestCase):
     def test_a_change_to_each_candidate_path_is_changed(self):
         for path in ("manifest.json", "payload/scripts/new.py", "payload/docs/guide.md",
                      "fixtures/new.md", "templates/new.txt", "tools/release/anything.py",
-                     "tools/release/nested/deeper.txt", ".github/workflows/workflow-ci.yml",
+                     "tools/release/nested/deeper.txt", ".github/workflows/ci.yml",
+                     ".github/workflows/validate.yml", ".github/workflows/publish.yml",
                      ".gitattributes"):
             with self.subTest(path=path):
                 self.change(path, f"changed {path}\n")
@@ -4879,6 +5295,7 @@ class CandidateSuitesDecisionTest(ScratchTestCase):
         for path in ("docs/ROADMAP.md", "README.md", "CLAUDE.md", ".claude/commands/x.md",
                      "scripts/workflow.py", "docs/ai-workflow/WORKFLOW_STATE.json",
                      ".workflow-manager/installed.json", ".github/workflows/workflow-conformance.yml",
+                     ".github/workflows/pr-title.yml", ".github/workflows/workflow-ci.yml",
                      ".github/workflows/release.yml", "tools/docs/check_docs.py",
                      "tools/releases/other.py", "payloads/a.txt", "manifest.json.bak"):
             with self.subTest(path=path):
@@ -4965,7 +5382,7 @@ class CandidateSuitesDecisionTest(ScratchTestCase):
         self.assertEqual((code, self.outputs(out)["changed"]), (release.EXIT_OK, "true"), err)
 
     def test_the_workflow_step_writes_the_answer_to_github_output(self):
-        text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+        text = VALIDATE_YML.read_text()
         command = re.search(r"\n        run: (python3 tools/release/release.py "
                             r"release-source-changed .*)\n", _job_section(text, "changes")).group(1)
         command = command.replace("python3 tools/release/release.py",
@@ -4983,11 +5400,11 @@ class CandidateSuitesDecisionTest(ScratchTestCase):
 
 
 class ManagerBlockCiTest(unittest.TestCase):
-    """The `Workflow CI` steps for the Manager block."""
+    """The `Validate` (validate.yml) steps for the Manager block."""
 
     @classmethod
     def setUpClass(cls):
-        cls.text = (REPO_ROOT / ".github/workflows/workflow-ci.yml").read_text()
+        cls.text = VALIDATE_YML.read_text()
 
     def test_the_two_steps_follow_the_tooling_step_in_the_checks_job(self):
         checks = _job_section(self.text, "checks")
