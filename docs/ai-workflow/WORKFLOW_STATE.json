@@ -42026,7 +42026,7 @@
       "registry_path": "docs/ai-workflow/registry/bundle-revision-sections-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/bundle-revision-sections-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 4,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -42166,12 +42166,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 20,
-      "last_transition": "2026-11-15T16:09:39Z",
+      "state_revision": 21,
+      "last_transition": "2026-11-15T16:35:33Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -42320,6 +42320,76 @@
               "review_content_id": "a7d3d1a0555ee2a1d33dd947b7010002687940f2e1d3190b51f61ddebd00ead6",
               "verdict": "APPROVE",
               "at": "2026-11-15T14:59:32Z"
+            }
+          ]
+        },
+        "F-9ec00ec4dc60": {
+          "digest": "9ec00ec4dc60456d3b83c6329a3087c7b150f2b2a9ba51e794cbdce6fb94a78b",
+          "text": "T1 skips the \"for this round\" check for `milestone-implement.md` (the `if filename != \"milestone-implement.md\"` guard), though D-Tests T1 requires it for each of the four commands. Deleting `read \"for this round\" as section \\`N\\` only, and ` from `milestone-implement.md` leaves T1 `OK` (reproduced). The command already contains the phrase, so the guard can simply be dropped.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "11c4debdb3e13041aa440723935adc27f773c851496da1334898aa4f3c25d1d9",
+              "verdict": "REVISE",
+              "at": "2026-11-15T16:35:33Z"
+            }
+          ]
+        },
+        "F-352d79743360": {
+          "digest": "352d797433605ef6666e06682aabc785cc4c8702df1e819c48e26c20b58a47e9",
+          "text": "Contrary to D-Tests, m2 fails only T4, not T3 and T4. Two identical label lines still pass `assert_stage_completeness`'s first-match check, and TEST_RESULTS.md reports this honestly. T4's last assertion (`label_lines=2` gives two matches) only tests the sample builder. Either drop it, or say in the plan's disposition that m2 is pinned by T4 alone.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "11c4debdb3e13041aa440723935adc27f773c851496da1334898aa4f3c25d1d9",
+              "verdict": "REVISE",
+              "at": "2026-11-15T16:35:33Z"
+            }
+          ]
+        },
+        "F-17e7d1a459de": {
+          "digest": "17e7d1a459de9bfc73a42f92f6e8de1cb83ef944162c54312dd15a1d912d98cb",
+          "text": "`docs/ROADMAP.md` row 47 still says \"The Controller reads only the two file names in a carried-file list\". The manual plan review's optional finding (F-700b3d86b034) asked to align it with plan section 0: the Controller also checks that the files are non-empty, and its recovery text names `TEST_RESULTS.md`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "11c4debdb3e13041aa440723935adc27f773c851496da1334898aa4f3c25d1d9",
+              "verdict": "REVISE",
+              "at": "2026-11-15T16:35:33Z"
+            }
+          ]
+        },
+        "F-6dc6f74ecf31": {
+          "digest": "6dc6f74ecf3114165a3db4a9e60b84daac1d885dc49ee3f0728e34307404f750",
+          "text": "`apply-pr-review.md`'s new sentence is shorter than the other two later-round commands. It omits the `same_content` rule, the \"check they run from 1 to `N-1`\" clause and the \"with no quarantine say so\" clause. It points to the protocol, so this is acceptable, but matching the wording of `apply-implementation-review.md` would make the four commands consistent.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "11c4debdb3e13041aa440723935adc27f773c851496da1334898aa4f3c25d1d9",
+              "verdict": "REVISE",
+              "at": "2026-11-15T16:35:33Z"
+            }
+          ]
+        },
+        "F-88c44cee7313": {
+          "digest": "88c44cee73134ba1d0c998d6b962bdc1ac98ba3db0fa0bf732ce54e070d0c56d",
+          "text": "`release.py check-title ... --agree` at `HEAD` (`8c1debf`) refuses (`2.29.6 -> 2.29.6 is none`), because it compares against HEAD's first parent. Run with `--head 3a638f2` it agrees (patch). This is expected on an unsquashed branch, but section N should state the `--head` it used.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "11c4debdb3e13041aa440723935adc27f773c851496da1334898aa4f3c25d1d9",
+              "verdict": "REVISE",
+              "at": "2026-11-15T16:35:33Z"
             }
           ]
         }
