@@ -21,4 +21,4 @@ under the Manager's reaper, the ordering of the A12 and A15 race hooks, and the 
 
 ## Next action
 
-Self-review the implementation, then the implementation review bundle (`/milestone-implement` step 2 onward).
+The implementation is self-reviewed and its review bundle generated: the local implementation review, then the external one.
