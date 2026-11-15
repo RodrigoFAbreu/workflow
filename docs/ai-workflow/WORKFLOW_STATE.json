@@ -42026,7 +42026,7 @@
       "registry_path": "docs/ai-workflow/registry/bundle-revision-sections-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/bundle-revision-sections-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 4,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -42166,12 +42166,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 1,
+          "local": 2,
           "external": 0
         }
       },
-      "state_revision": 22,
-      "last_transition": "2026-11-15T16:58:03Z",
+      "state_revision": 23,
+      "last_transition": "2026-11-15T17:43:17Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
