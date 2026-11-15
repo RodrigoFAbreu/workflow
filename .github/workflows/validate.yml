@@ -1,15 +1,20 @@
-# CI over this repository's release source (`manifest.json`, `payload/`,
-# `fixtures/`, `templates/`) and its own Workflow installation
-# (docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md, CP2):
+# The validation of this repository's release source (`manifest.json`,
+# `payload/`, `fixtures/`, `templates/`) and its own Workflow installation
+# (docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md, CP2). ci.yml calls it
+# (`workflow_call`) on every pull request, `main` push and dispatch, and its
+# required `aggregate` job passes only when this workflow succeeded; it also
+# runs by itself (`workflow_dispatch`, which answers yes in `changes`), and
+# then publishes nothing and reports no required check
+# (docs/RELEASING.md, "GitHub Actions layout"):
 #
 #   changes                     seconds long: whether the pull request touches
 #                               the release source (manifest.json, payload/,
 #                               fixtures/, templates/) or the CI that tests it
-#                               (tools/release/, this file), or the root
-#                               .gitattributes, which changes what `git archive`
-#                               stages from the release source. A push to main and
-#                               workflow_dispatch always answer yes; so does any
-#                               decision that cannot be computed.
+#                               (tools/release/, ci.yml, this file, publish.yml),
+#                               or the root .gitattributes, which changes what
+#                               `git archive` stages from the release source. A
+#                               push to main and workflow_dispatch always answer
+#                               yes; so does any decision that cannot be computed.
 #   checks                      one job, one checkout and one install of the
 #                               pinned tools, with every check its own named
 #                               step. A failed step does not stop an unrelated
@@ -23,9 +28,9 @@
 #     immutability              the release source is frozen while a version is
 #                               pending, and a published version's release
 #                               source and assets never change.
-#     docs                      the user documentation: tools/docs/'s tests,
-#                               then its checker (links, page headers, slash
-#                               commands) over README.md and docs/.
+#     docs                      the user documentation's checker (links, page
+#                               headers, slash commands) over README.md and
+#                               docs/; its tests are the `docs-tests` job.
 #     tooling                   tools/release/'s tests, including the
 #                               byte-for-byte reproduction of every published
 #                               release in the pinned deflate runtime.
@@ -37,6 +42,11 @@
 #                               evidence is compared with the live list (never
 #                               failing on unavailability); see docs/RELEASING.md,
 #                               "The Manager metadata block".
+#   docs-tests                  tools/docs/'s tests, `python -m unittest discover
+#                               -s tools/docs -p '*_test.py'` under Python 3.12,
+#                               through the shared python-tests.yml of
+#                               RodrigoFAbreu/action-workflows: plain unittest
+#                               discovery, which is all they need.
 #   release-source-conformance  only when `changes` says yes. The release
 #                               source's own frozen suites, in its conformance
 #                               fixture: the acceptance-matrix suite in 4 shards
@@ -50,11 +60,13 @@
 #                               same nine suites with the same scheduler (the
 #                               same step text) in the updated repository, then
 #                               the Manager's `verify` of it.
-#   aggregate                   fails unless `changes` and `checks` succeeded and
-#                               the two jobs above succeeded or were skipped
-#                               because `changes` succeeded and said no. It is
-#                               the required check, so adding a job here never
-#                               touches the ruleset.
+#   verdict                     fails unless `changes`, `checks` and `docs-tests`
+#                               succeeded and the two candidate-suite jobs above
+#                               succeeded or were skipped because `changes`
+#                               succeeded and said no. It fails this workflow,
+#                               and so ci.yml's required `aggregate`: adding a job
+#                               here means adding it to `verdict`, never to the
+#                               ruleset.
 #
 # The release source is always read from `git archive` of a commit, never
 # from the working tree, which also holds the installation. Every job that
@@ -62,22 +74,17 @@
 # (tools/release/deflate-requirements.txt); the Manager wheel is pinned by
 # version and sha256 in tools/release/manager-pin.json. A version change is
 # measured from `HEAD^1`: the base branch tip on a pull request's merge ref,
-# the previous `main` tip on a push. This workflow is not managed by
-# workflow-manager; workflow-conformance.yml is, and stays as installed.
-name: Workflow CI
+# the previous `main` tip on a push. In a called workflow `github.event_name`
+# is the caller's event, so `changes` decides as it always did. This workflow
+# sets no concurrency of its own: ci.yml's group covers it (a called workflow
+# whose group equals its caller's deadlocks), and a dispatch of this file runs
+# on its own, never cancelled. It is not managed by workflow-manager;
+# workflow-conformance.yml is, and stays as installed.
+name: Validate
 
 on:
-  pull_request:
-  push:
-    branches: [main]
+  workflow_call:
   workflow_dispatch:
-
-# A pull request keeps its per-ref group, and a new push cancels its stale
-# run. Every other run gets its own per-event, per-commit group and is never
-# cancelled, so no `main` commit loses the run the release job waits for.
-concurrency:
-  group: workflow-ci-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -91,7 +98,7 @@ defaults:
 jobs:
   # A pull request that touches neither the release source nor the CI that tests
   # it (docs, the roadmap, an installation) skips the two jobs that run the
-  # candidate's suites; `aggregate` accepts exactly that skip. Seconds long.
+  # candidate's suites; `verdict` accepts exactly that skip. Seconds long.
   changes:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -202,10 +209,7 @@ jobs:
           gh release download "v$version" --dir "$RUNNER_TEMP/published"
           python3 tools/release/release.py check-immutable --releases "$RUNNER_TEMP/releases.json" --published "$RUNNER_TEMP/published"
 
-      # docs
-      - name: check_docs_test.py
-        if: ${{ !cancelled() && steps.python.outcome == 'success' }}
-        run: python3 tools/docs/check_docs_test.py
+      # docs (its tests are the `docs-tests` job)
       - name: check_docs.py
         if: ${{ !cancelled() && steps.python.outcome == 'success' }}
         run: python3 tools/docs/check_docs.py
@@ -224,6 +228,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 tools/release/release.py compare-manager-releases --manager-releases tools/release/manager-releases.json
+
+  # tools/docs/'s tests: plain unittest discovery under Python 3.12, which is
+  # exactly what the shared workflow runs (a fresh checkout, no other setup).
+  docs-tests:
+    uses: RodrigoFAbreu/action-workflows/.github/workflows/python-tests.yml@main
+    with:
+      python-version: "3.12"
+      test-directory: tools/docs
+      test-pattern: "*_test.py"
 
   release-source-conformance:
     needs: changes
@@ -956,28 +969,30 @@ jobs:
           path: ${{ runner.temp }}/source-conformance-logs/
           if-no-files-found: ignore
 
-  aggregate:
-    needs: [changes, checks, release-source-conformance, update-fixture]
-    # Always, so a failed, skipped or cancelled job fails this required check
-    # rather than skipping it.
+  verdict:
+    needs: [changes, checks, docs-tests, release-source-conformance, update-fixture]
+    # Always, so a failed, skipped or cancelled job fails this workflow, and
+    # with it ci.yml's required `aggregate`, rather than skipping it.
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      # `changes` and `checks` must succeed. The two candidate-suite jobs must
-      # succeed too, or be skipped because `changes` itself succeeded and said
-      # the release source and its CI are unchanged: any other skip (a failed
-      # or cancelled `changes`, a failed dependency) fails this check.
+      # `changes`, `checks` and `docs-tests` must succeed. The two
+      # candidate-suite jobs must succeed too, or be skipped because `changes`
+      # itself succeeded and said the release source and its CI are
+      # unchanged: any other skip (a failed or cancelled `changes`, a failed
+      # dependency) fails this job.
       - name: Require every job
         env:
           CHANGES: ${{ needs.changes.result }}
           CHANGED: ${{ needs.changes.outputs.changed }}
           CHECKS: ${{ needs.checks.result }}
+          DOCS_TESTS: ${{ needs.docs-tests.result }}
           CONFORMANCE: ${{ needs.release-source-conformance.result }}
           UPDATE_FIXTURE: ${{ needs.update-fixture.result }}
         run: |
           status=0
-          for pair in "changes=$CHANGES" "checks=$CHECKS"; do
+          for pair in "changes=$CHANGES" "checks=$CHECKS" "docs-tests=$DOCS_TESTS"; do
             job="${pair%%=*}" result="${pair#*=}"
             if [ "$result" != success ]; then echo "::error::the $job job concluded $result"; status=1; fi
           done
