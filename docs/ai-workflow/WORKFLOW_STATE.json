@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "bundle-revision-sections",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -42015,6 +42015,305 @@
         },
         "evaluated_at": "2026-11-15T14:15:24Z",
         "workflow_release": "2.29.5"
+      }
+    },
+    "bundle-revision-sections": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "bundle-revision-sections",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/BUNDLE_REVISION_SECTIONS_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/bundle-revision-sections-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/bundle-revision-sections-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 4,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "7a52f49f100b843f5b77ceaa66018a7c3397f7b2",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "6bdbbc2f267a1c9724659e0a993eea861f63fc7e9b2cce189dac14a78ac1f2aa",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "6bdbbc2f267a1c9724659e0a993eea861f63fc7e9b2cce189dac14a78ac1f2aa",
+        "approved_review_content_id": "a7d3d1a0555ee2a1d33dd947b7010002687940f2e1d3190b51f61ddebd00ead6",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/BUNDLE_REVISION_SECTIONS_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9223bdfcef1aa4d157e66f78089a211c9d42000c"
+          },
+          {
+            "path": "docs/ai-workflow/registry/bundle-revision-sections-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d3b3a63c3dea6da5b46a00e8097a85c695951660"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/bundle-revision-sections-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d08977a688f22bdfb8b224491c9869d88a23a36a"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-15T15:00:53Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "a7d3d1a0555ee2a1d33dd947b7010002687940f2e1d3190b51f61ddebd00ead6",
+            "ledger": {
+              "local": {
+                "bundle_id": "6bdbbc2f267a1c9724659e0a993eea861f63fc7e9b2cce189dac14a78ac1f2aa",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "b84ead3417346924a08a7d59b444606cf25a905725cafdb339c5f4024b2970b6",
+                "ledger_entry_sha256": "65c5e637410b7bbf2bc438c28173d407d613f4e79a52f94c289fd4d4b43c160a",
+                "run_ref": "session:local .ai-review/bundle-revision-sections/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "6bdbbc2f267a1c9724659e0a993eea861f63fc7e9b2cce189dac14a78ac1f2aa",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "fee00681d0d83c3d96d60acba64209d1d518d66ddf41fa485953893b596f659a",
+                "ledger_entry_sha256": "75061c9f8ea953a21db0d3b66f016e43c4b515db33c3e40571af9c7d053fd1ff",
+                "run_ref": "codex:20261115T145618Z-2872f1ca",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-15T15:00:53Z",
+          "workflow_release": "2.29.5"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "a7d3d1a0555ee2a1d33dd947b7010002687940f2e1d3190b51f61ddebd00ead6",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "6bdbbc2f267a1c9724659e0a993eea861f63fc7e9b2cce189dac14a78ac1f2aa",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-11-15T14:55:19Z",
+          "verdict_sha256": "b84ead3417346924a08a7d59b444606cf25a905725cafdb339c5f4024b2970b6",
+          "run_ref": "session:local .ai-review/bundle-revision-sections/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "6bdbbc2f267a1c9724659e0a993eea861f63fc7e9b2cce189dac14a78ac1f2aa",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-11-15T14:59:32Z",
+          "verdict_sha256": "fee00681d0d83c3d96d60acba64209d1d518d66ddf41fa485953893b596f659a",
+          "run_ref": "codex:20261115T145618Z-2872f1ca",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 4,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 15,
+      "last_transition": "2026-11-15T15:00:53Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-15T15:12:00Z",
+        "consumed": {
+          "review_content_id": "2d3b923a08766509383dff3c0070163dc4b809d8b2a7f5f8c72b63f88dad2a42",
+          "plan_revision": 3,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "a7d3d1a0555ee2a1d33dd947b7010002687940f2e1d3190b51f61ddebd00ead6",
+          "plan_revision": 4
+        },
+        "bound": {
+          "review_content_id": "a7d3d1a0555ee2a1d33dd947b7010002687940f2e1d3190b51f61ddebd00ead6",
+          "bundle_id": "6bdbbc2f267a1c9724659e0a993eea861f63fc7e9b2cce189dac14a78ac1f2aa",
+          "plan_revision": 4
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "0d10716d5206ef8f069765e92c39af83276ae84547d7b909756d0c64ef5b119f",
+        "2d3b923a08766509383dff3c0070163dc4b809d8b2a7f5f8c72b63f88dad2a42",
+        "8402c7fcdb8dba3108267d7359cd8118f1a9be9835c1fa2ae9d63888e66b73ba"
+      ],
+      "optional_findings": {
+        "F-eb08a184d912": {
+          "digest": "eb08a184d9124c818b1521ce3723290d01894f2e211eb4c0853a8eb6b64f2d41",
+          "text": "D-Form's summary heading `## Round (\\d+) \\(implementation revision (\\d+)\\)` carries two numbers. Every round that opens an entry advances the revision by one, and a `same_content` round opens none, so the two numbers are always equal as specified. Either drop one, or say what a round number means when it differs from the revision. Otherwise T3 and T4 pin a redundancy that a later reader will take for two independent counters.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "8402c7fcdb8dba3108267d7359cd8118f1a9be9835c1fa2ae9d63888e66b73ba",
+              "verdict": "REVISE",
+              "at": "2026-11-15T14:40:44Z"
+            }
+          ]
+        },
+        "F-ef5535783d1b": {
+          "digest": "ef5535783d1b5a6da82fe228885c05f7e13d62f8c19847caf9b6f3ef9372bce8",
+          "text": "D-Golden says \"No script changes except the release constant\", but CP1 changes `payload/scripts/workflow_integration_test.py`. Say \"no script under test changes\" (generator, fingerprint, state). Also, T5's recorded `compute_bundle_id` literal hashes file modes (`100644`/`100755`), so the hand-built bundle should set its modes explicitly rather than inherit the umask.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "8402c7fcdb8dba3108267d7359cd8118f1a9be9835c1fa2ae9d63888e66b73ba",
+              "verdict": "REVISE",
+              "at": "2026-11-15T14:40:44Z"
+            }
+          ]
+        },
+        "F-f4aa0ba7f688": {
+          "digest": "f4aa0ba7f68833010569ae0795bb155addb00a63723f3f850d5f8269ae6b3d1f",
+          "text": "D-Pins names only the digest table as the integration test's pin on these four commands. The same file also holds structural regex tests over the steps being edited, for example the bounded-branch revert pattern on `apply-functional-review.md` (`workflow_integration_test.py` 2235 to 2247, which requires exactly one match from `**Then refresh` to `[work_item_id]`.`), and the step-extraction assertions at 1864, 1973, 1978 and 2150. The likely insertion point keeps them passing, but list them in D-Pins as read-and-confirmed so CP1's author knows they are in play.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "8402c7fcdb8dba3108267d7359cd8118f1a9be9835c1fa2ae9d63888e66b73ba",
+              "verdict": "REVISE",
+              "at": "2026-11-15T14:40:44Z"
+            }
+          ]
+        },
+        "F-3acd93da2805": {
+          "digest": "3acd93da280561391d6d26d1419fd576d80c852e552baf54a823b4d81ccc75cd",
+          "text": "D-Form rule (2) restores from \"the newest `current.rejected-*` quarantine\". The token is a `uuid4` hex (`workflow_fingerprint.py` 2800), so \"newest\" can only mean mtime, which is how Controller `_newest_quarantine_dir` (`evidence.py` 2219 to 2232) picks it. Suppose two withdrawals happen in a row, the second before the worker restores anything. The newest quarantine then holds the generator's empty stubs, and the older one holds the history. Say \"the newest quarantine (by modification time) whose files hold the sections\", or tell the worker to check that the restored sections run from 1 to N-1.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "0d10716d5206ef8f069765e92c39af83276ae84547d7b909756d0c64ef5b119f",
+              "verdict": "REVISE",
+              "at": "2026-11-15T14:47:00Z"
+            }
+          ]
+        },
+        "F-f4304846d074": {
+          "digest": "f4304846d0741cf90be637f8e86a870b757016666b289e5c64f39380778f44f9",
+          "text": "CP1's last bullet says \"`git diff 7a52f49 --stat -- payload` lists these five\", but CP1's **Files** paragraph names six `payload/` files: the four commands, `REVIEW_PROTOCOL.md` and `workflow_integration_test.py`. Change it to \"these six\" so the verification line can come true.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "2d3b923a08766509383dff3c0070163dc4b809d8b2a7f5f8c72b63f88dad2a42",
+              "verdict": "REVISE",
+              "at": "2026-11-15T14:51:36Z"
+            }
+          ]
+        },
+        "F-0a84d8c92f1c": {
+          "digest": "0a84d8c92f1cf0652744a3b98b493c0995ad1cd8dfd27f0ed57609b2b6a027c3",
+          "text": "`review-implementation.md` step 5 (130 to 135) tells the reviewer to \"rerun the tests `TEST_RESULTS.md` names yourself\". With N sections, a reviewer could rerun section 1's commands at the current HEAD and compare the output with section 1's historical result. The contract paragraph CP1 writes could add one clause saying that the reviewer reruns section N, and that earlier sections are history tied to their own `commit:` line. `review-implementation.md` itself can stay untouched, as section 0 decides.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "2d3b923a08766509383dff3c0070163dc4b809d8b2a7f5f8c72b63f88dad2a42",
+              "verdict": "REVISE",
+              "at": "2026-11-15T14:51:36Z"
+            }
+          ]
+        },
+        "F-e06b754d09fa": {
+          "digest": "e06b754d09facb2da1fdd92d57b8f4603deebbd0037ed91b1edafe6f8d055fbb",
+          "text": "T2's check that the old sentence is gone (\"the unscoped old sentence fails T2\") must handle the line wrap. In `payload/docs/ai-workflow/REVIEW_PROTOCOL.md` the sentence \"Never state a check passed unless it actually ran in this session.\" breaks across lines 502 and 503. A plain substring test on the raw text would never find the old sentence, so m3's \"restore the unscoped sentence\" mutation could pass unnoticed. T2 should collapse whitespace before it searches, and m3 should restore the sentence in its original wrapped form.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "a7d3d1a0555ee2a1d33dd947b7010002687940f2e1d3190b51f61ddebd00ead6",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T14:55:19Z"
+            }
+          ]
+        },
+        "F-f81de8f9f9df": {
+          "digest": "f81de8f9f9df3b1124afa2522a80eb64ba411c9086b998004b0448cf780375e7",
+          "text": "In the same `TEST_RESULTS.md` paragraph, the plan-stage clause (503 to 510) refuses a bundle that \"carries forward a previous implementation round's evidence unexamined\". It sits right next to the new implementation-stage carry-forward rule. When CP1 rewrites the paragraph, it could keep the two visibly apart, for example by putting the section-N form under its own \"At the `implementation`/`post-fix` stages\" lead-in. Then a reader cannot take the plan-stage refusal to apply to sections 1 to N-1.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "a7d3d1a0555ee2a1d33dd947b7010002687940f2e1d3190b51f61ddebd00ead6",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T14:55:19Z"
+            }
+          ]
+        },
+        "F-700b3d86b034": {
+          "digest": "700b3d86b034a39bfb7882d8464ffdc942bee4553a6786da10adb1168a32eb72",
+          "text": "`docs/ROADMAP.md:76` still says the Controller reads only a carried-file list. Align it with plan section 0: the Controller also checks that files are non-empty and supplies recovery wording. The conclusion that no Controller change is needed remains supported.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "a7d3d1a0555ee2a1d33dd947b7010002687940f2e1d3190b51f61ddebd00ead6",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T14:59:32Z"
+            }
+          ]
+        }
       }
     }
   }
