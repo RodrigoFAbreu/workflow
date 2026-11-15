@@ -543,7 +543,8 @@ This is **portability vs. local staleness, split by consumer**:
   withdrawals in a row leave the generator's empty stubs in the newest one and
   the history in an older one), never rewritten from memory; with no
   quarantine, the worker says so in the entry and states no earlier result it
-  cannot show. **At the `plan` stage**, must additionally open with a `stage: plan (revision N)`
+  cannot show. **At the `plan` stage**, state only checks that actually ran in this
+  session, and open with a `stage: plan (revision N)`
   line (`N` matching the plan document's current revision) and a
   `head: <sha>` line (matching this generation's own HEAD) — a bundle
   whose `TEST_RESULTS.md` is missing, empty, names a different round, a

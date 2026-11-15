@@ -9356,6 +9356,8 @@ class TestBundleRevisionSectionsContract(unittest.TestCase):
         self.assertIn("byte for byte", flat)
         self.assertIn("Section `N` states only checks that actually ran in this session, at its "
                       "stated commit", flat)
+        self.assertIn("**At the `plan` stage**, state only checks that actually ran in this session, "
+                      "and open with a `stage: plan (revision N)` line", flat)
         self.assertNotIn("Never state a check passed unless it actually ran in this session.", flat)
 
 
