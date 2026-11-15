@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "acceptance-gate-robustness",
+  "plan_revision": 5,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The report, the partition, the messages, tests and pages",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.29.5",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}

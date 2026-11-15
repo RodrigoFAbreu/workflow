@@ -1,6 +1,6 @@
 # Exit codes
 
-> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.29.4.
+> For: anyone who runs the Workflow's scripts by hand or from an orchestrator. Last checked with: Workflow 2.29.5.
 
 This is the one table of exit statuses for the scripts a person or an
 orchestrator runs. Slash commands (such as `/milestone-plan`) have no exit
@@ -22,7 +22,7 @@ code in `payload/scripts/` and the shipped documents.
 | `python3 scripts/workflow_state.py --finding-dispositions <id>` | 0 | every recorded Optional finding with its disposition, and a skeleton `dispositions` object, were printed as JSON | copy the skeleton into the dispositions file; the command writes nothing |
 | | 1 | `--finding-dispositions` prints a JSON `error` and `message`: `UnknownWorkItem`, `StateMissing`, `CorruptJsonError`, `StateMalformed` (including a state file holding `null`), `InvalidFindingDispositionsError`, or the class name of any other exception (for example outside a Git repository); never a traceback | follow the message |
 | | 2 | the arguments did not parse | give `--finding-dispositions <work-item-id>` alone |
-| `python3 scripts/workflow_state.py --acceptance-gate <id>` | 0 | the acceptance gate's read-only report was printed as JSON, ready or not | read `ready`, `blockers` (`registry_unresolvable` among them, also for a malformed registry shape, which exits 0) and `dispositions`; `ready: true` means nothing the report can see refuses `/satisfy-gate acceptance`, which still queries GitHub and decides; the command writes nothing |
+| `python3 scripts/workflow_state.py --acceptance-gate <id>` | 0 | the acceptance gate's read-only report was printed as JSON, ready or not | read `ready`, `blockers` (`registry_unresolvable` among them, also for a malformed registry shape, which exits 0; `stored_pr_fact_unresolvable` when the stored pull-request fact is for a head this repository lacks: run `git fetch` and the report again, which exits 0 and is never ready) and `dispositions`; `ready: true` means nothing the report can see refuses `/satisfy-gate acceptance`, which still queries GitHub and decides; the command writes nothing |
 | | 1 | a JSON `error` and `message` are printed: `UnknownWorkItem`, `StateMissing` (an absent state file), `CorruptJsonError`, `StateMalformed` (including a file holding `null`), or the class name of any other exception (for example outside a Git repository) | follow the message |
 | | 2 | the arguments did not parse (also two of the six `workflow_state.py` options together) | give `--acceptance-gate <work-item-id>` alone |
 | `python3 scripts/workflow_state.py --satisfy-acceptance <id>` | 0 | the acceptance gate was satisfied by policy: `{record, trailer}` was printed and the item is `MILESTONE_COMPLETE` | use `trailer` in the completion commit; the command did not commit or edit a document |
