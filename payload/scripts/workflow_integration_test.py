@@ -9341,15 +9341,16 @@ class TestBundleRevisionSectionsContract(unittest.TestCase):
                 self.assertIn("## Round", text)
                 self.assertRegex(text, r"carr(y|ied) (every |the )?earlier .{0,60}forward")
                 self.assertIn("current.rejected-*", text)
-                if filename != "milestone-implement.md":
-                    self.assertRegex(text, r"for this round.{0,80}section")
+                self.assertRegex(text, r"for this round.{0,80}section")
 
     def test_the_protocol_states_the_form_once_with_both_rules(self):  # T2
         text = _protocol_text()
         flat = _flat(text)
         self.assertEqual(text.count("^## Implementation revision (\\d+)$"), 1)
         self.assertEqual(text.count("^## Round (\\d+)$"), 1)
-        self.assertIn("carried forward unchanged", flat)
+        self.assertIn("Entries below `N` are carried forward unchanged.", flat)
+        self.assertIn("Sections below `N` are carried forward unchanged: never edited, never "
+                      "relabelled as a run of this round.", flat)
         self.assertIn("means section `N` and round entry `N` only", flat)
         self.assertIn("`current.rejected-*`", flat)
         self.assertIn("byte for byte", flat)
