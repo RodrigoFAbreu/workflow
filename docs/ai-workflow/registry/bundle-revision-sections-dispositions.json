@@ -1,0 +1,70 @@
+{
+ "schema_version": 1,
+ "work_item_id": "bundle-revision-sections",
+ "dispositions": {
+  "F-352d79743360": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/190"
+  },
+  "F-6dc6f74ecf31": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/190"
+  },
+  "F-ae6c8fd72183": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/190"
+  },
+  "F-c3876e68ff78": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/190"
+  },
+  "F-0a84d8c92f1c": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  },
+  "F-17e7d1a459de": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  },
+  "F-3acd93da2805": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  },
+  "F-700b3d86b034": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  },
+  "F-88c44cee7313": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  },
+  "F-9ec00ec4dc60": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  },
+  "F-e06b754d09fa": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  },
+  "F-eb08a184d912": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  },
+  "F-ef5535783d1b": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  },
+  "F-f4304846d074": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  },
+  "F-f4aa0ba7f688": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  },
+  "F-f81de8f9f9df": {
+   "disposition": "fixed",
+   "note": "Addressed in the contract text, the tests or the plan and confirmed by the later review rounds."
+  }
+ }
+}
