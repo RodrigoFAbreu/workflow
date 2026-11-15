@@ -42026,12 +42026,12 @@
       "registry_path": "docs/ai-workflow/registry/bundle-revision-sections-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/bundle-revision-sections-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 4,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "7a52f49f100b843f5b77ceaa66018a7c3397f7b2",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "3a638f257e695a2d1563436f8cdd81e78614aff4",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -42170,8 +42170,8 @@
           "external": 0
         }
       },
-      "state_revision": 19,
-      "last_transition": "2026-11-15T15:31:02Z",
+      "state_revision": 20,
+      "last_transition": "2026-11-15T16:09:39Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
