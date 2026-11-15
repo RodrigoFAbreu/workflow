@@ -1,0 +1,66 @@
+{
+ "schema_version": 1,
+ "work_item_id": "acceptance-gate-robustness",
+ "dispositions": {
+  "F-3c697d262734": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/185"
+  },
+  "F-a91fe750e5da": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/185"
+  },
+  "F-c4cacdb7f666": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/185"
+  },
+  "F-ce72fedc1a36": {
+   "disposition": "follow-up",
+   "link": "https://github.com/RodrigoFAbreu/workflow/issues/185"
+  },
+  "F-41e8bc86a6a5": {
+   "disposition": "dropped",
+   "reason": "Plan text only: a sentence in CP1 of the approved plan; D-Tests carries the corrected statement and the shipped tests follow it."
+  },
+  "F-0ee498654df2": {
+   "disposition": "fixed",
+   "note": "Addressed in the plan, the code or the tests and confirmed by the later review rounds."
+  },
+  "F-1659f7bbe004": {
+   "disposition": "fixed",
+   "note": "Addressed in the plan, the code or the tests and confirmed by the later review rounds."
+  },
+  "F-307f75825a76": {
+   "disposition": "fixed",
+   "note": "Addressed in the plan, the code or the tests and confirmed by the later review rounds."
+  },
+  "F-3edbae23db82": {
+   "disposition": "fixed",
+   "note": "Addressed in the plan, the code or the tests and confirmed by the later review rounds."
+  },
+  "F-77260a33266d": {
+   "disposition": "fixed",
+   "note": "Addressed in the plan, the code or the tests and confirmed by the later review rounds."
+  },
+  "F-80dfcde9361c": {
+   "disposition": "fixed",
+   "note": "Addressed in the plan, the code or the tests and confirmed by the later review rounds."
+  },
+  "F-8a4e2008b637": {
+   "disposition": "fixed",
+   "note": "Addressed in the plan, the code or the tests and confirmed by the later review rounds."
+  },
+  "F-dcc76ee4789b": {
+   "disposition": "fixed",
+   "note": "Addressed in the plan, the code or the tests and confirmed by the later review rounds."
+  },
+  "F-e2ae8d1a881c": {
+   "disposition": "fixed",
+   "note": "Addressed in the plan, the code or the tests and confirmed by the later review rounds."
+  },
+  "F-e83f2c376ba5": {
+   "disposition": "fixed",
+   "note": "Addressed in the plan, the code or the tests and confirmed by the later review rounds."
+  }
+ }
+}
