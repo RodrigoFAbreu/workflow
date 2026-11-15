@@ -1,0 +1,86 @@
+# The entry point of this repository's CI and releases (docs/RELEASING.md,
+# "GitHub Actions layout"). It holds no check of its own: it calls the two
+# reusable workflows next to it and owns the one required status check.
+#
+#   validate   calls validate.yml: every check of the release source and of
+#              this repository's installation (`changes`, `checks`,
+#              `docs-tests`, `release-source-conformance`, `update-fixture`),
+#              and its `verdict` job, which fails unless every one of them
+#              concluded as it must.
+#   aggregate  the required status check. A job called through `uses:`
+#              reports as `<caller job> / <called job>`, so the check named
+#              `aggregate` must be a job of this file, with no `name:`. It
+#              always runs and fails unless `validate` succeeded, so a
+#              failed, skipped or cancelled validation fails it rather than
+#              skipping it. Adding a job to validate.yml means adding it to
+#              `verdict`, never to the ruleset.
+#   publish    calls publish.yml, only on a push to `main` and only after
+#              `aggregate` succeeded in this same run: the revision is
+#              validated once, and the release job checks out exactly that
+#              revision. publish.yml also runs by itself (`workflow_dispatch`,
+#              with a `dry-run` input), the re-run path, under its own gate.
+#
+# Only this file sets the workflow-level concurrency (a called workflow whose
+# group equals its caller's deadlocks). A pull request keeps its per-ref group,
+# and a new push cancels its stale run. Every other run gets its own per-event,
+# per-commit group and is never cancelled, so no `main` commit loses the run
+# that publishes it. Publications are serialized by the release job's own
+# group (`workflow-release`), never cancelled.
+#
+# Permissions are read-only, except the `publish` job: a called workflow
+# cannot exceed its caller job's permissions, so that job grants what
+# publish.yml's release job needs (`contents: write` to publish and to see
+# drafts, `actions: read`). This workflow is not managed by workflow-manager;
+# workflow-conformance.yml is, and stays as installed.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  validate:
+    uses: ./.github/workflows/validate.yml
+
+  aggregate:
+    needs: [validate]
+    # Always, so a failed, skipped or cancelled validation fails this required
+    # check rather than skipping it.
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require the validation
+        env:
+          VALIDATE: ${{ needs.validate.result }}
+        run: |
+          if [ "$VALIDATE" != success ]; then
+            echo "::error::the validate workflow concluded $VALIDATE"
+            exit 1
+          fi
+          echo "the validate workflow succeeded"
+
+  # A push to `main` only, once `aggregate` succeeded in this run. A pull
+  # request, a dispatch of this workflow or a red run never publishes.
+  publish:
+    needs: [aggregate]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      actions: read
+    uses: ./.github/workflows/publish.yml
+    with:
+      validated: true

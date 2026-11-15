@@ -102,7 +102,7 @@ ACCEPTED_FORM = (
 
 TAG_RE = re.compile(r"^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\Z")
 
-RECOVERY = ("a failed publication: remove the residue and re-run Release "
+RECOVERY = ("a failed publication: remove the residue and re-run Publish "
             "(docs/RELEASING.md, \"Recovering from a failed publication\")")
 SUPERSESSION = ("a published release cannot be repaired: leave it as it is, never pin it in "
                 "workflow-manager, and supersede it with the next patch version "
@@ -254,9 +254,11 @@ def release_source_changes(repo: Path, old: str, new: str,
     return [line for line in proc.stdout.splitlines() if line]
 
 
-#: What `Workflow CI`'s candidate-suite jobs test besides the release source itself: the
-#: tooling that stages and updates it, and the workflow that runs them.
-CANDIDATE_CI_PATHS = ("tools/release", ".github/workflows/workflow-ci.yml")
+#: What `CI`'s candidate-suite jobs (validate.yml) test besides the release source itself:
+#: the tooling that stages, updates and publishes it, and the workflows that run them (ci.yml
+#: calls validate.yml, then publish.yml).
+CANDIDATE_CI_PATHS = ("tools/release", ".github/workflows/ci.yml",
+                      ".github/workflows/validate.yml", ".github/workflows/publish.yml")
 #: The root `.gitattributes` is not release source, but `git archive` (`package.stage`) reads
 #: its `export-ignore` and `export-subst` lines, so it changes what is staged from the
 #: release-source paths. Attributes inside those paths are already covered by them.
@@ -266,7 +268,7 @@ CANDIDATE_PATHS = (*package.RELEASE_SOURCE_PATHS, *CANDIDATE_CI_PATHS, *CANDIDAT
 
 
 def candidate_suites_needed(repo: Path, event: str, head: str = "HEAD") -> tuple[bool, str]:
-    """Whether `Workflow CI` must run the candidate-suite jobs, and why.
+    """Whether `CI` (validate.yml) must run the candidate-suite jobs, and why.
 
     Only a pull request can answer no: `head`'s first parent is the base tip on a pull
     request's merge ref. Every other event, and any decision that cannot be computed,
@@ -794,7 +796,7 @@ def _run_suite(repo: Path, suite: str, base: Path) -> tuple[str, int, str]:
 
 #: The workflow whose suites step (the managed template's scheduler) runs the frozen suites.
 SCHEDULER_WORKFLOW = (Path(__file__).resolve().parents[2] / ".github" / "workflows"
-                      / "workflow-ci.yml")
+                      / "validate.yml")
 
 
 def scheduler_suites(workflow: Path) -> list[str]:
@@ -983,7 +985,7 @@ def _parser() -> argparse.ArgumentParser:
                         "repository's suite list differs from the scheduler's")
     p.add_argument("--scheduler-workflow", type=Path, default=SCHEDULER_WORKFLOW,
                    help="the workflow whose suites step --keep compares with (default: this "
-                        "repository's workflow-ci.yml)")
+                        "repository's validate.yml)")
     p.set_defaults(func=cmd_update_fixture)
 
     p = sub.add_parser("release-source-changed")

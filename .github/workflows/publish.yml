@@ -1,15 +1,33 @@
 # Publishes a Workflow release when `main`'s manifest names a version that is
-# not yet published (docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md, CP3).
+# not yet published (docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md, CP3;
+# docs/RELEASING.md, "The release job" and "GitHub Actions layout").
 #
-# It runs after every successful `Workflow CI` push run on `main`, and on
-# `workflow_dispatch` as the re-run path. The `gate` job checks out nothing and
-# runs none of this repository's code: it resolves `main`'s tip and lets the
-# `release` job run only for a tip that has a successful `Workflow CI` push
-# run, checked out at that exact sha, so the release tooling it executes is
-# always tooling CI passed. A `workflow_run` whose commit is no longer the tip
-# defers to the tip's own run. `release.py next-release` then decides, on the
-# tip's first-parent history, the manifest version `V` and its introducing
-# commit `C_V`:
+# Two ways in, one set of gates, and only ever on `refs/heads/main`:
+#
+#   called      by ci.yml's `publish` job (`workflow_call` with `validated:
+#               true`) on a push to `main`, once that run's `aggregate`
+#               succeeded: the pushed commit (`github.sha`) was validated in
+#               the same run. `github.event_name` is the caller's, `push`. If
+#               `main` has meanwhile moved past that commit, the gate ends with
+#               a notice and no sha: the tip's own CI run, once validated,
+#               publishes it.
+#   dispatched  by hand on `main` (`workflow_dispatch`), the re-run path.
+#               Nothing in its own run validated anything, so the gate takes
+#               `main`'s tip only once a `CI` (ci.yml) push run for that exact
+#               commit has a successful `aggregate` job (the run itself may
+#               have failed in its own `publish`, which this path re-runs);
+#               otherwise it fails.
+#
+# `dry-run` (an input of both, default false) runs every gate, the build, the
+# Manager's verification and, for an already published version, the
+# read-back, but never `gh release create`, and so never reads back a release
+# it did not create.
+#
+# The `gate` job checks out nothing and runs none of this repository's code:
+# the `release` job runs only with the gate's sha, checked out at that exact
+# sha, so the release tooling it executes is always tooling CI passed.
+# `release.py next-release` then decides, on the tip's first-parent history,
+# the manifest version `V` and its introducing commit `C_V`:
 #
 #   state=published  `vV` already exists: build `C_V` and read `vV` back.
 #                    Intact, there is nothing to release; anything else fails
@@ -22,14 +40,31 @@
 # publication: `next-release` refuses on it, naming the recovery
 # (docs/RELEASING.md). This job never deletes, edits or re-uploads a release,
 # never creates or pushes a tag itself, and never changes the manifest.
-name: Release
+#
+# No workflow-level concurrency: a called workflow whose group equals its
+# caller's deadlocks, and the `release` job serializes every publication in
+# its own group, never cancelled. The caller's `publish` job grants
+# `contents: write` and `actions: read`; only the `release` job uses the
+# write permission.
+name: Publish
 
 on:
-  workflow_run:
-    workflows: [Workflow CI]
-    types: [completed]
-    branches: [main]
+  workflow_call:
+    inputs:
+      validated:
+        description: "Set by ci.yml: this run's aggregate validated github.sha"
+        type: boolean
+        default: false
+      dry-run:
+        description: "Run every gate and build, but do not create the release"
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Run every gate and build, but do not create the release"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -39,14 +74,14 @@ defaults:
     shell: bash
 
 jobs:
-  # A green `main` push run, or a dispatch on `main`. A pull request's run,
-  # a failed run or a dispatch on any other branch releases nothing.
+  # A push to `main` called by CI after its `aggregate`, or a dispatch on
+  # `main`. Anything else (a pull request, another branch, a call without
+  # `validated`) releases nothing.
   gate:
     if: >-
-      (github.event_name == 'workflow_run'
-        && github.event.workflow_run.event == 'push'
-        && github.event.workflow_run.conclusion == 'success')
-      || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+      github.ref == 'refs/heads/main'
+      && ((github.event_name == 'push' && inputs.validated)
+        || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -57,35 +92,58 @@ jobs:
     outputs:
       sha: ${{ steps.resolve.outputs.sha }}
     steps:
-      # The triggering run's success covers only its own commit. The tip,
-      # read afresh, is released only once its own push run has succeeded:
-      # the triggering run when they agree, otherwise one the API confirms. A
-      # `workflow_run` for a commit `main` has since moved past ends here
-      # with no `sha` (the tip's own run, once green, triggers `Release`); a
-      # dispatch on a tip without one fails.
+      # Called: the tip, read afresh, is released only when it is the commit
+      # this run validated; a commit `main` has since moved past ends here
+      # with no `sha` (the tip's own run publishes). Dispatched: the tip is
+      # released only once the API lists a `CI` push run for it whose
+      # `aggregate` succeeded; without one the dispatch fails.
       - name: Resolve the release commit
         id: resolve
         env:
-          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_SHA: ${{ github.sha }}
+          VALIDATED: ${{ inputs.validated }}
         run: |
+          if [ "$GITHUB_REF" != refs/heads/main ]; then
+            echo "::error::a release is published only from refs/heads/main, not $GITHUB_REF"
+            exit 1
+          fi
           tip="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
-          if [ "$GITHUB_EVENT_NAME" != workflow_run ] || [ "$tip" != "$RUN_SHA" ]; then
-            runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/workflow-ci.yml/runs?head_sha=$tip&event=push&status=success" --jq '.total_count')"
-            # Anything but a count (`null`, empty) is never read as green.
-            case "$runs" in
-              '' | *[!0-9]*)
-                echo "::error::unexpected Workflow CI run count '$runs' for main's tip $tip"
-                exit 1
-                ;;
-            esac
-            if [ "$runs" -lt 1 ]; then
-              if [ "$GITHUB_EVENT_NAME" = workflow_run ]; then
-                echo "::notice::main moved from $RUN_SHA to $tip, which has no successful Workflow CI push run yet; its own run decides the release"
-                exit 0
-              fi
-              echo "::error::main's tip $tip has no successful Workflow CI push run"
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            if [ "$VALIDATED" != true ]; then
+              echo "::error::a push run publishes only when CI calls it after its aggregate (validated='$VALIDATED')"
               exit 1
             fi
+            if [ "$tip" != "$RUN_SHA" ]; then
+              echo "::notice::main moved from $RUN_SHA to $tip; the tip's own CI run decides the release"
+              exit 0
+            fi
+          elif [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$tip&event=push&per_page=100" --jq '.workflow_runs[].id')"
+            validated=0
+            for run in $runs; do
+              # Anything but a run id, or a count (`null`, empty), is never read as green.
+              case "$run" in
+                *[!0-9]*)
+                  echo "::error::unexpected CI run id '$run' for main's tip $tip"
+                  exit 1
+                  ;;
+              esac
+              count="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run/jobs?per_page=100" --jq '[.jobs[] | select(.name == "aggregate" and .conclusion == "success")] | length')"
+              case "$count" in
+                '' | *[!0-9]*)
+                  echo "::error::unexpected aggregate count '$count' in CI run $run for main's tip $tip"
+                  exit 1
+                  ;;
+              esac
+              if [ "$count" -gt 0 ]; then validated=1; fi
+            done
+            if [ "$validated" -eq 0 ]; then
+              echo "::error::main's tip $tip has no CI push run whose aggregate succeeded"
+              exit 1
+            fi
+          else
+            echo "::error::unexpected event $GITHUB_EVENT_NAME"
+            exit 1
           fi
           echo "sha=$tip" >> "$GITHUB_OUTPUT"
 
@@ -163,9 +221,9 @@ jobs:
       # Not atomic: `gh release create` makes a draft, uploads and publishes.
       # A failure inside it can leave a draft and a tag, which the next run's
       # `next-release` refuses on (docs/RELEASING.md); it is never retried
-      # here.
+      # here. A dry run skips it, and only it.
       - name: Publish
-        if: steps.decide.outputs.state == 'pending'
+        if: steps.decide.outputs.state == 'pending' && !inputs.dry-run
         env:
           VERSION: ${{ steps.decide.outputs.version }}
           TARGET: ${{ steps.decide.outputs.target }}
@@ -175,10 +233,19 @@ jobs:
             "$RUNNER_TEMP/assets/workflow-$VERSION.tar.gz" \
             "$RUNNER_TEMP/assets/workflow-$VERSION.manifest.json" \
             "$RUNNER_TEMP/assets/SHA256SUMS"
+      - name: Skip publishing (dry run)
+        if: steps.decide.outputs.state == 'pending' && inputs.dry-run
+        env:
+          VERSION: ${{ steps.decide.outputs.version }}
+          TARGET: ${{ steps.decide.outputs.target }}
+        run: |
+          echo "::notice::dry run: v$VERSION would be published at $TARGET; the release is not created"
 
       # Both states: read `vV` back. After publishing, the release list and
-      # the tags are read afresh.
+      # the tags are read afresh. A dry run reads back only a version that is
+      # already published: it created nothing to read.
       - name: Read the release back
+        if: steps.decide.outputs.state == 'published' || !inputs.dry-run
         env:
           VERSION: ${{ steps.decide.outputs.version }}
           TARGET: ${{ steps.decide.outputs.target }}
