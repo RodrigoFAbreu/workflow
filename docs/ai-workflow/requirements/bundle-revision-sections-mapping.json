@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "work_item_id": "bundle-revision-sections",
+  "requirements": {
+    "R1": {
+      "description": "the commands that fill TEST_RESULTS.md and IMPLEMENTATION_SUMMARY.md (milestone-implement and the three apply commands) write a section per implementation revision and a round entry per review round in the documented form, earlier ones carried forward unchanged, with the \"this round means section N\" rule and the restore of earlier sections from the newest current.rejected-* quarantine after a withdrawal (#142); the generator, which only stubs the files, does not change; tests T1, T3, T4, mutations m1 and m2",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "REVIEW_PROTOCOL.md states the form once: the section heading and fields, the carry-forward rule, the same-content rule, the one label line, the round-entry heading, the \"this round means section N\" rule and the quarantine restore rule; no completeness check is added (D-NoCheck); tests T2 and T3, mutation m3",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "existing bundles behave the same where no revision section is needed: compute_bundle_id and assert_stage_completeness give the same digest and verdict on base and candidate, and review_content_id does not depend on the record; a before and after driver; tests T5 and T6",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "every test, document and manifest record that pins an old byte is listed and updated (the command digest table in CP1; the manifest records, release constant, release-history row and release test class in CP2); a fix: patch release 2.29.6 whose way back needs nothing undone; verification per docs/RELEASING.md, with D-Staging for CP1",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R5": {
+      "description": "the Controller parses none of the changed text (it checks the files are non-empty and names them in recovery text and, in 1.31.1, a carried-file list; its \"results of this round\" recovery wording is read as section N only), the protocol stays 1.5, roadmap row 47 is Current, no shipped page names an internal milestone id, and this repository's own installation, the CI workflow files and every gate and approval semantic are untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    }
+  }
+}
