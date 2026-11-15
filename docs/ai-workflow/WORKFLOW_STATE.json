@@ -41253,7 +41253,7 @@
       "registry_path": "docs/ai-workflow/registry/test-hardening-owner-points-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/test-hardening-owner-points-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -41358,7 +41358,90 @@
           "workflow_release": "2.29.5"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "dd73da7b12f087a45b5fb1ccf52299acbd1f559762451eba4a7aca94d69d4eb5",
+        "approved_review_content_id": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/TEST_HARDENING_OWNER_POINTS_EVIDENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e7bab6ff157d78c0ac94a23100f828d5920e0485"
+          },
+          {
+            "path": "docs/ai-workflow/registry/test-hardening-owner-points-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4bac8fa1cf04d0ebe090885cc720435f6a5a192b"
+          }
+        ],
+        "reviewed_content_commit": "af7134276e72b35c2788e950e82922a182c20878",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-15T13:28:39Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+            "ledger": {
+              "local": {
+                "bundle_id": "dd73da7b12f087a45b5fb1ccf52299acbd1f559762451eba4a7aca94d69d4eb5",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "e61e64cb803c2cf0b1b23ef9cee953382d4b92f1796cdaaf058e894a52e5bfe6",
+                "ledger_entry_sha256": "49b536c4ef4ed1ea224c20940b84958f24464b78d70700c13232604f7f84a859",
+                "run_ref": "session:local .ai-review/test-hardening-owner-points/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "dd73da7b12f087a45b5fb1ccf52299acbd1f559762451eba4a7aca94d69d4eb5",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "14f1ed5c8013534a867c875ffdcd747866f1b31d882de4cd881088355fd4812b",
+                "ledger_entry_sha256": "e6e1048ced067e29584392d3c777d51dfb93c7f29eb0226d1f2494cc11e2d773",
+                "run_ref": "codex:20261115T132452Z-a383bf77",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-15T13:28:39Z",
+          "workflow_release": "2.29.5"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "8990fa0583002390665cf6342ac18c879fc3293f039f4c089d5c6fd0de907688",
@@ -41389,12 +41472,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 13,
-      "last_transition": "2026-11-15T13:16:45Z",
+      "state_revision": 16,
+      "last_transition": "2026-11-15T13:28:39Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -41515,6 +41598,55 @@
               "at": "2026-11-15T12:49:17Z"
             }
           ]
+        },
+        "F-5776ab8d88a3": {
+          "digest": "5776ab8d88a37501b09f19d9bdc1864b7da0c4dc031853d3b163f9bd463eec5b",
+          "text": "`docs/ROADMAP.md` row 46 says the posture sentence is one that \"every release keeps\", and `docs/ACTIVE_MILESTONE.md` says \"every release carries it\". Both say more than the evidence does. The evidence file and the #158 comment name the 11 tags from v2.25.6 to v2.29.5, and those claims are exact. A tag-by-tag check shows the sentence is in every release from v2.18.4 on and in v2.18.2. It is missing from v2.18.3 and from every release up to v2.18.1, where it was absent (v2.13.0 to v2.18.1) or the posture key did not exist (v2.12.0 and earlier). At acceptance, when row 46 is set to `Done`, say \"every release from v2.25.6\" or \"every release since 2.18.4\". Neither file is protected, and this does not affect the verdict on #158 point 3.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T13:23:58Z"
+            }
+          ]
+        },
+        "F-8bd35862bc3a": {
+          "digest": "8bd35862bc3af582eb6dd3bffa427d735950bf9439b713d86e1deddde3e3b4e3",
+          "text": "Consider including the raw reaper JSON and mutation-run logs alongside the recorded summaries. These would improve independent auditing: this checkout lacks the historical base and tags, and GitHub authentication was unavailable for verifying posted comments. The source checks, bundled diff consistency checks, artifact checks and docs checker passed.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T13:27:38Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "dcd593a49f3b83d05f046e50d89cdb9514e8b8e4832027e4f63d3b42638c28b0",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "dd73da7b12f087a45b5fb1ccf52299acbd1f559762451eba4a7aca94d69d4eb5",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-15T13:23:58Z",
+          "verdict_sha256": "e61e64cb803c2cf0b1b23ef9cee953382d4b92f1796cdaaf058e894a52e5bfe6",
+          "run_ref": "session:local .ai-review/test-hardening-owner-points/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "dd73da7b12f087a45b5fb1ccf52299acbd1f559762451eba4a7aca94d69d4eb5",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-15T13:27:38Z",
+          "verdict_sha256": "14f1ed5c8013534a867c875ffdcd747866f1b31d882de4cd881088355fd4812b",
+          "run_ref": "codex:20261115T132452Z-a383bf77",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
