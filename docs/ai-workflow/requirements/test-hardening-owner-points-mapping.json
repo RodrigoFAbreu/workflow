@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "test-hardening-owner-points",
+  "requirements": {
+    "R1": {
+      "description": "a durable run of TestPlainCommandMalformedState under the Manager's reaper is recorded (command, result, orphan kinds) in the evidence file and as a comment on #170, with no test change because it leaves no orphan of its own",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the A12 and A15 race hooks of the retention-archive tests are classified ALREADY-FIXED with file:line evidence and three failure-only mutations that make the tests fail, recorded in the evidence file, and the point is dropped by a comment on #116",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "the posture sentence of 2.27.0 is decided KEEP from the manifests of every release that carries it and from the installed artifact list, recorded in the evidence file and as a comment on #158; no posture changes",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "nothing under payload/, tools/, fixtures/, templates/ or manifest.json changes (docs-only, no release) and docs/ROADMAP.md carries row 46 (Current, Done at acceptance)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    }
+  }
+}
