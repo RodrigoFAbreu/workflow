@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "acceptance-gate-robustness",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -40326,6 +40326,348 @@
         },
         "evaluated_at": "2026-11-14T22:52:10Z",
         "workflow_release": "2.29.3"
+      }
+    },
+    "acceptance-gate-robustness": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "acceptance-gate-robustness",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/ACCEPTANCE_GATE_ROBUSTNESS_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/acceptance-gate-robustness-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/acceptance-gate-robustness-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 5,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "9d37c60434b50528f041c43717d3252060d6c830",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "9b7aa056d20d3b22f07d68c9a4688df3a1f88d3d23f7b6f2e0106099cf611010",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "9b7aa056d20d3b22f07d68c9a4688df3a1f88d3d23f7b6f2e0106099cf611010",
+        "approved_review_content_id": "a917c2c650a822d60bddf285b71ed37009c963289144ea4876aa70bc1d589d3c",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/ACCEPTANCE_GATE_ROBUSTNESS_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ab7bdf2f44c8336158622090d706143d4b0fe43e"
+          },
+          {
+            "path": "docs/ai-workflow/registry/acceptance-gate-robustness-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2d1c22ce0add48fdb7fc80dbd783d33a63db2854"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/acceptance-gate-robustness-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f36f2483336a6002200e185f84858ec389622c10"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-15T01:09:44Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "a917c2c650a822d60bddf285b71ed37009c963289144ea4876aa70bc1d589d3c",
+            "ledger": {
+              "local": {
+                "bundle_id": "9b7aa056d20d3b22f07d68c9a4688df3a1f88d3d23f7b6f2e0106099cf611010",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "337c11c211fa1dd365980b4d2f741e057af7a3454c3ec613bfc8199c2af886a4",
+                "ledger_entry_sha256": "a55b7374f5991044e6b1618d96343e66029334b287d28cf8d848ce0df4b51a98",
+                "run_ref": "session:local .ai-review/acceptance-gate-robustness/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "9b7aa056d20d3b22f07d68c9a4688df3a1f88d3d23f7b6f2e0106099cf611010",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "e803791074ffb227bb97bd85a1e3637b7e28a17ccf40cd5c610f8d88331e4022",
+                "ledger_entry_sha256": "301a8ced639d26a1a0f0605bba8132f94d7484d9c3ee276ec2dd27cddf6d20bc",
+                "run_ref": "codex:20261115T010549Z-4d11644e",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-15T01:09:44Z",
+          "workflow_release": "2.29.4"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "a917c2c650a822d60bddf285b71ed37009c963289144ea4876aa70bc1d589d3c",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "9b7aa056d20d3b22f07d68c9a4688df3a1f88d3d23f7b6f2e0106099cf611010",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-11-15T01:04:57Z",
+          "verdict_sha256": "337c11c211fa1dd365980b4d2f741e057af7a3454c3ec613bfc8199c2af886a4",
+          "run_ref": "session:local .ai-review/acceptance-gate-robustness/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "9b7aa056d20d3b22f07d68c9a4688df3a1f88d3d23f7b6f2e0106099cf611010",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-11-15T01:08:40Z",
+          "verdict_sha256": "e803791074ffb227bb97bd85a1e3637b7e28a17ccf40cd5c610f8d88331e4022",
+          "run_ref": "codex:20261115T010549Z-4d11644e",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 5,
+          "external": 2
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 19,
+      "last_transition": "2026-11-15T01:09:44Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-15T01:02:40Z",
+        "consumed": {
+          "review_content_id": "3a6525e65f40b712ceb79805d6baace12c9136eb879f12372fb488b962a0c0da",
+          "plan_revision": 4,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "a917c2c650a822d60bddf285b71ed37009c963289144ea4876aa70bc1d589d3c",
+          "plan_revision": 5
+        },
+        "bound": {
+          "review_content_id": "a917c2c650a822d60bddf285b71ed37009c963289144ea4876aa70bc1d589d3c",
+          "bundle_id": "9b7aa056d20d3b22f07d68c9a4688df3a1f88d3d23f7b6f2e0106099cf611010",
+          "plan_revision": 5
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "0d7da0745bb3ea8a87c528be9b2ea8884a37245ebea11b7a892ee8ea7b962f0f",
+        "1ffec2a91cc868f4912b4e1811747f251c979775881ecc0659a843e6ffa53ab5",
+        "35f506414e2837a70f363154a8565f02dcf22da82efb4f75e4d4d07e33872f31",
+        "3a6525e65f40b712ceb79805d6baace12c9136eb879f12372fb488b962a0c0da"
+      ],
+      "optional_findings": {
+        "F-0ee498654df2": {
+          "digest": "0ee498654df2d719b4813a10597410feebc2c11794fcc19255ec6a78fa96b281",
+          "text": "LPR-AGR-R1-002 (D-Tests, mutation m3): \"m3 the copy not hidden (T1)\" names T1 only, but with the copy not hidden the second `evaluate_gate` raises the same `AmbiguousBaseError`, which propagates; T2 (the same state at `IMPLEMENTING`) then fails too. Under the plan's own rule \"each must fail the named test and only it\" m3 should name T1 and T2.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "1ffec2a91cc868f4912b4e1811747f251c979775881ecc0659a843e6ffa53ab5",
+              "verdict": "REVISE",
+              "at": "2026-11-15T00:45:45Z"
+            }
+          ]
+        },
+        "F-8a4e2008b637": {
+          "digest": "8a4e2008b637bf141a9f4e3e84d8a41878454af6b491c096bacd60eebdcffea5",
+          "text": "LPR-AGR-R1-003 (D-Phase, flow 7): the line lengths \"173, 266, 226, 364 and 78\" do not match the code: on main the head line is 141 characters for path `x` and item `demo-item` (the configuration that gives the stated 1079 total), 157 for the test file's `_UPM_PATH` `other/mystery.txt`. Flow 7 expects \"1079 characters\" but `msg.py plan <id>` does not say which path it passes; pin it (e.g. `x`) in the `msg.py` description so the expected length is reproducible, and correct 173 to 141.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "1ffec2a91cc868f4912b4e1811747f251c979775881ecc0659a843e6ffa53ab5",
+              "verdict": "REVISE",
+              "at": "2026-11-15T00:45:45Z"
+            }
+          ]
+        },
+        "F-307f75825a76": {
+          "digest": "307f75825a761593a3c104d20196551104f37c9d26e097e3fdbbd1da7d8c067e",
+          "text": "LPR-AGR-R1-004 (D-Report): \"the four pull-request requirements of `gate.requirements`\" holds only when `require_ci` and `requires_pr_approved` are both set; `_acceptance_pr` (`workflow_gate_policy.py` 1901 to 1912) emits two to four. Say \"every pull-request requirement the policy emits\" so T1 and the implementation are not written against a fixed count.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "1ffec2a91cc868f4912b4e1811747f251c979775881ecc0659a843e6ffa53ab5",
+              "verdict": "REVISE",
+              "at": "2026-11-15T00:45:45Z"
+            }
+          ]
+        },
+        "F-77260a33266d": {
+          "digest": "77260a33266d97fc5383ae537251bd1a23dbea8d065dca5fc4fa6c5db6e3526a",
+          "text": "LPR-AGR-R1-005 (D-Report, wording of the new detail): the detail asserts \"head <sha>, which this repository does not have\" on the strength of an `AmbiguousBaseError` from the first evaluation only. With a current technical approval (the only case in which `_acceptance_pr` receives an anchor) the base and anchor resolve, so the inference holds today; consider confirming it with `git cat-file -e <sha>^{commit}` (or catching only when that fails, else propagating) so a future `AmbiguousBaseError` from another commit inside `identity_at` is never reported as an absent head.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "1ffec2a91cc868f4912b4e1811747f251c979775881ecc0659a843e6ffa53ab5",
+              "verdict": "REVISE",
+              "at": "2026-11-15T00:45:45Z"
+            }
+          ]
+        },
+        "F-1659f7bbe004": {
+          "digest": "1659f7bbe004b27b3fe2f621fd653c6f81c2ee19d9c8e1b0afdf1f45a04c79fa",
+          "text": "LPR-AGR-R1-006 (section 0, evidence): `resolve_base` raises at `workflow_fingerprint.py` 741 and 747, not 743 and 748. Cosmetic.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "1ffec2a91cc868f4912b4e1811747f251c979775881ecc0659a843e6ffa53ab5",
+              "verdict": "REVISE",
+              "at": "2026-11-15T00:45:45Z"
+            }
+          ]
+        },
+        "F-e2ae8d1a881c": {
+          "digest": "e2ae8d1a881c75a1479ff8a8d221fa1b1b8a57736ad830351a9abfd614c72fc7",
+          "text": "LPR-AGR-R2-001 (D-Report / D-Tests, the new `git cat-file -e` confirmation): revision 2 adds a branch that decides between a report and an error (an `AmbiguousBaseError` whose stored head does exist propagates), but no test exercises it and no mutation targets it: removing the check leaves T1 to T9 green. Consider adding to T3 a case with `evaluate_gate` mocked to raise `AmbiguousBaseError` while the stored head is present (expect the error object, exit 1), and a mutation m11 \"the confirmation removed\" naming it, so the plan's own rule (each fix has a test that fails without it) covers this branch too.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "35f506414e2837a70f363154a8565f02dcf22da82efb4f75e4d4d07e33872f31",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T00:49:52Z"
+            }
+          ]
+        },
+        "F-a91fe750e5da": {
+          "digest": "a91fe750e5da33bd09d08c48169976d8a92e74f0d303b2402df1c8cefabec606",
+          "text": "LPR-AGR-R2-002 (D-Partition, T4's fixture list): the named automatic-mode fixtures (`ready`, `stale`, `stalenone`, `early`, `terminal`, `after_query`) are a subset of the class's cases; `stale_changes`, `stale_failed`, `stale_head`, `missing`, `partial`, `invalid` exist too (`workflow_gate_policy_test.py` 5120 to 5165). Iterating every non-human case (for example `(\"ready\", \"after_query\", \"early\", \"terminal\", *self.STALE)`) costs nothing and widens the emitted-id check. Not a defect: every emitted id comes from the same two emitters.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "35f506414e2837a70f363154a8565f02dcf22da82efb4f75e4d4d07e33872f31",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T00:49:52Z"
+            }
+          ]
+        },
+        "F-e83f2c376ba5": {
+          "digest": "e83f2c376ba507b1a58b25776dd20efc34c54b02270493b35ddf2346da4931c9",
+          "text": "D-Tests’ blanket requirement that every new test fail on the baseline does not fit T3’s unchanged-library assertions or T4’s partition invariant, which already holds. Allow these preservation tests to pass on the baseline; use the specified mutations to demonstrate T4’s sensitivity.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "35f506414e2837a70f363154a8565f02dcf22da82efb4f75e4d4d07e33872f31",
+              "verdict": "REVISE",
+              "at": "2026-11-15T00:53:23Z"
+            }
+          ]
+        },
+        "F-3edbae23db82": {
+          "digest": "3edbae23db82de3f558adc724f458ee2f100f109efe03314f9937d2ae0f329be",
+          "text": "LPR-AGR-R3-002 (D-Release / CP2, where the suite-count pin goes): the pin at `tools/release/release_test.py` 3917 to 3920 belongs to `RetentionEngineErrorPathsTwoReleaseTest`, which is the 2.29.4 class (its posture pin at 3903 to 3915 names 2.29.4). Earlier releases moved this pin into each new current-release class: it is the only such pin in the file. \"a 2.29.5 class and its pin of the four suite counts\" can be read either way. Consider saying the pin moves to the 2.29.5 class with the measured counts and the 2.29.4 class gives it up together with its other current-release pins. Either reading passes, so this is not a defect.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "0d7da0745bb3ea8a87c528be9b2ea8884a37245ebea11b7a892ee8ea7b962f0f",
+              "verdict": "REVISE",
+              "at": "2026-11-15T00:57:22Z"
+            }
+          ]
+        },
+        "F-80dfcde9361c": {
+          "digest": "80dfcde9361c23e89cccca48d09897afc87875324c19f979be9068f2579170c7",
+          "text": "LPR-AGR-R3-003 (D-Release / D-Staging, naming): the counts live at `manifest.json` `manager.conformance.suites`, not at a top-level `conformance.suites` (the release test reads `block[\"conformance\"][\"suites\"]` with `block = manifest[\"manager\"]`). `release.py manager-block --write` writes the right place, so this is wording only.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "0d7da0745bb3ea8a87c528be9b2ea8884a37245ebea11b7a892ee8ea7b962f0f",
+              "verdict": "REVISE",
+              "at": "2026-11-15T00:57:22Z"
+            }
+          ]
+        },
+        "F-dcc76ee4789b": {
+          "digest": "dcc76ee4789b15d3747bad0c87a739cbaf1130623725bf241322cbb1ff5f44e9",
+          "text": "LPR-AGR-R5-001 (D-Tests, T3's confirmation case, line 118): the parenthetical \"delegates to the real evaluation for any later call\" does not match `side_effect=[AmbiguousBaseError(...), <the real evaluate_gate result>]`. A list `side_effect` returns one precomputed value on the second call and raises `StopIteration` on a third. Under m11 there are exactly two calls, so the case works either way. When implementing, either precompute the real result before patching (the list form), or use a callable `side_effect` that raises once and then calls the saved original. Do not mix the two.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "a917c2c650a822d60bddf285b71ed37009c963289144ea4876aa70bc1d589d3c",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T01:04:57Z"
+            }
+          ]
+        },
+        "F-41e8bc86a6a5": {
+          "digest": "41e8bc86a6a5b0b81d3a7f563e86c752593d1725b3c01fcd1f1a0cdb999280aa",
+          "text": "CP1’s “T1 to T9 … run red against the unedited tree” (`ACCEPTANCE_GATE_ROBUSTNESS_PLAN.md:181`) still conflicts with D-Tests’ corrected preservation exception for T3 and T4. Align CP1 with that exception.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "a917c2c650a822d60bddf285b71ed37009c963289144ea4876aa70bc1d589d3c",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T01:08:40Z"
+            }
+          ]
+        }
       }
     }
   }
