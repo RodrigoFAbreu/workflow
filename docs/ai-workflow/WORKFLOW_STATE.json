@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "test-hardening-owner-points",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -41242,6 +41242,275 @@
         },
         "evaluated_at": "2026-11-15T04:09:06Z",
         "workflow_release": "2.29.4"
+      }
+    },
+    "test-hardening-owner-points": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "test-hardening-owner-points",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/TEST_HARDENING_OWNER_POINTS_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/test-hardening-owner-points-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/test-hardening-owner-points-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 2,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "f9d63f4246041afc21ff35d85bc2e994fc6d66f8",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "1b78f5f39b99f6f6d95d0b1b57756df9ba68195f6f11f342cf329512f2bcc362",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "1b78f5f39b99f6f6d95d0b1b57756df9ba68195f6f11f342cf329512f2bcc362",
+        "approved_review_content_id": "8990fa0583002390665cf6342ac18c879fc3293f039f4c089d5c6fd0de907688",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/TEST_HARDENING_OWNER_POINTS_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "53d0131622c78a8d6a33a46bfe3fb1487721618e"
+          },
+          {
+            "path": "docs/ai-workflow/registry/test-hardening-owner-points-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a450fb4f9b5c7ce608ebd10be6895d3bbcd7b17e"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/test-hardening-owner-points-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3c5547311ade6d293ef15a81235c7178306848c8"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-15T12:50:34Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "8990fa0583002390665cf6342ac18c879fc3293f039f4c089d5c6fd0de907688",
+            "ledger": {
+              "local": {
+                "bundle_id": "1b78f5f39b99f6f6d95d0b1b57756df9ba68195f6f11f342cf329512f2bcc362",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "26217976f893beba5690cbb8dd47033fb84fa3e147b37d3df7f0a8b887b26cc8",
+                "ledger_entry_sha256": "f80231c5fa993fccfecdc00b7253579afc42538cb909b8f7ed007153f9e3a6e4",
+                "run_ref": "session:local .ai-review/test-hardening-owner-points/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "1b78f5f39b99f6f6d95d0b1b57756df9ba68195f6f11f342cf329512f2bcc362",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "100f2610f0c0721f6d2a6eddb1c8c25e7fe873b333e4b7ac872fdab0fa8a0d5c",
+                "ledger_entry_sha256": "bfda48e1a97609649cedb0078d5869e716f69a70b1e9d6c3f13ae0132f33413a",
+                "run_ref": "codex:20261115T124640Z-25e74833",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-15T12:50:34Z",
+          "workflow_release": "2.29.5"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "8990fa0583002390665cf6342ac18c879fc3293f039f4c089d5c6fd0de907688",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "1b78f5f39b99f6f6d95d0b1b57756df9ba68195f6f11f342cf329512f2bcc362",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-15T12:45:14Z",
+          "verdict_sha256": "26217976f893beba5690cbb8dd47033fb84fa3e147b37d3df7f0a8b887b26cc8",
+          "run_ref": "session:local .ai-review/test-hardening-owner-points/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "1b78f5f39b99f6f6d95d0b1b57756df9ba68195f6f11f342cf329512f2bcc362",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-15T12:49:17Z",
+          "verdict_sha256": "100f2610f0c0721f6d2a6eddb1c8c25e7fe873b333e4b7ac872fdab0fa8a0d5c",
+          "run_ref": "codex:20261115T124640Z-25e74833",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 10,
+      "last_transition": "2026-11-15T12:50:34Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-15T12:42:39Z",
+        "consumed": {
+          "review_content_id": "d538245fa3f0487086e55f81ac3d340549435ddbbe417b01bad0152843273d24",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "8990fa0583002390665cf6342ac18c879fc3293f039f4c089d5c6fd0de907688",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "8990fa0583002390665cf6342ac18c879fc3293f039f4c089d5c6fd0de907688",
+          "bundle_id": "1b78f5f39b99f6f6d95d0b1b57756df9ba68195f6f11f342cf329512f2bcc362",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "d538245fa3f0487086e55f81ac3d340549435ddbbe417b01bad0152843273d24"
+      ],
+      "optional_findings": {
+        "F-5f1aadddaa8f": {
+          "digest": "5f1aadddaa8f18a05e6d4ba44e140d3a1b2700821033c1c14e85e3db500d7c46",
+          "text": "LPR-R1-003: Section 0 and flow 4 list v2.25.6, v2.26.0, v2.27.0 and v2.28.0 to v2.29.5, but leave out v2.25.7, which #158 point 3 itself names. Its posture does end with the sentence. Add it to the section 0 list and to flow 4's loop so that the evidence covers every release the issue names.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "d538245fa3f0487086e55f81ac3d340549435ddbbe417b01bad0152843273d24",
+              "verdict": "REVISE",
+              "at": "2026-11-15T12:40:33Z"
+            }
+          ]
+        },
+        "F-db430401c6b4": {
+          "digest": "db430401c6b42f270b18dd5645f711ae0d56001c01fef66573729580120e01dc",
+          "text": "LPR-R1-004: The Release paragraph says `docs/RELEASING.md` lines 118 to 126 name \"two CI files\". The cited row names one CI file (`.github/workflows/workflow-ci.yml`) and the root `.gitattributes`. Correct the wording.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "d538245fa3f0487086e55f81ac3d340549435ddbbe417b01bad0152843273d24",
+              "verdict": "REVISE",
+              "at": "2026-11-15T12:40:33Z"
+            }
+          ]
+        },
+        "F-cce6749c6f53": {
+          "digest": "cce6749c6f53c1cc1410457019513fbd2f18a468b15bae3501d0d05f993fa52a",
+          "text": "LPR-R1-005: Flow 11 uses a `<manager>` placeholder while flow 13 gives a literal path. Name the Manager checkout (`/home/rodrigo/Workspace/workflow-manager`) so that the full-environment flow can be run exactly as written.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "d538245fa3f0487086e55f81ac3d340549435ddbbe417b01bad0152843273d24",
+              "verdict": "REVISE",
+              "at": "2026-11-15T12:40:33Z"
+            }
+          ]
+        },
+        "F-e35fa379977b": {
+          "digest": "e35fa379977b9547c473d87f3603e2143f909fdf709ecbeb31bcddd762e8034f",
+          "text": "LPR-R2-001: The m3 wording in section 0 and in flow 10 (\"the hard link (first failure), the directory and the FIFO with `[] is not true`\") can be read as saying the hard link also fails with `[] is not true`. The actual run shows the hard link failing with `0 != 2` and only the directory and the FIFO failing with `[] is not true`, the same pattern as m2. State the hard link's `0 != 2` explicitly, so that the evidence file, which must use the same wording, records the exact message.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "8990fa0583002390665cf6342ac18c879fc3293f039f4c089d5c6fd0de907688",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T12:45:14Z"
+            }
+          ]
+        },
+        "F-8a597ef88528": {
+          "digest": "8a597ef88528067c224288d8b0113ca38e0cd94661578a4ba6d9406e852c200a",
+          "text": "LPR-R2-002: Some expected outputs in the flow table do not match how flows.sh prints them. Flow 3 prints `1` on five separate lines, not `1 1` and `1 1 1`. Flow 4 prints `v2.25.6 1` with no colon, not `…: 1`. Describe the output as printed, so that a functional reviewer comparing literally does not see a false mismatch.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "8990fa0583002390665cf6342ac18c879fc3293f039f4c089d5c6fd0de907688",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T12:45:14Z"
+            }
+          ]
+        },
+        "F-81ce6a169277": {
+          "digest": "81ce6a169277dfc9013764bd101db6438cdb6e35123d7dceff51033c4787fef5",
+          "text": "Flow 4 omits v2.29.1 through v2.29.4. Include them so the executable checklist reproduces section 0’s claimed coverage of every release in the stated range.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "8990fa0583002390665cf6342ac18c879fc3293f039f4c089d5c6fd0de907688",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T12:49:17Z"
+            }
+          ]
+        },
+        "F-ea62a732496e": {
+          "digest": "ea62a732496e7f63b87aa4bc56d98f10ca64b7a13594fe745c621fb49a556acd",
+          "text": "The Release paragraph and D-Stop describe a hypothetical payload fix as a `test:` patch release. `docs/RELEASING.md` assigns `test:` impact none and requires title/version agreement. If that fallback becomes necessary, use a title whose impact matches the version bump.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "8990fa0583002390665cf6342ac18c879fc3293f039f4c089d5c6fd0de907688",
+              "verdict": "APPROVE",
+              "at": "2026-11-15T12:49:17Z"
+            }
+          ]
+        }
       }
     }
   }
