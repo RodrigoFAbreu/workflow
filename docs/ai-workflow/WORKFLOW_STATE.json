@@ -43363,6 +43363,182 @@
           "run_ref": "codex:20261116T183321Z-c40bbe7b",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "9d9f572b50069f1033531f3d862b0efd7d7694a8",
+            "ran_at": "2026-11-16T19:04:03Z",
+            "summary": {
+              "checklist_blob": "211d361a1473bff88a81b77e1aff2684cc747e76",
+              "text": "Clone is clean at the tested HEAD; f7a59df is an ancestor and payload is unchanged since it."
+            },
+            "log_digest": "220657c557fd302031b8f7f19e9feb0c427abe4d8954b8b63ddaa46b8310e361",
+            "run_ref": "controller:20261116T190317Z-8af1912a",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T19:04:03Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "9d9f572b50069f1033531f3d862b0efd7d7694a8",
+            "ran_at": "2026-11-16T19:04:03Z",
+            "summary": {
+              "checklist_blob": "211d361a1473bff88a81b77e1aff2684cc747e76",
+              "text": "Created and exported a scratch directory with mktemp; all Python invocations used -B."
+            },
+            "log_digest": "24a3a279c38a094c3b1952e9e2657c54faa1333809dcc97d47b3530a70b2f5b6",
+            "run_ref": "controller:20261116T190317Z-8af1912a",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T19:04:03Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "9d9f572b50069f1033531f3d862b0efd7d7694a8",
+            "ran_at": "2026-11-16T19:04:03Z",
+            "summary": {
+              "checklist_blob": "211d361a1473bff88a81b77e1aff2684cc747e76",
+              "text": "Python 3.14.10 and zstd 1.5.7 are available; staging succeeded and all six retention pins passed without skips."
+            },
+            "log_digest": "b27a5ec38420c7f640bfd12c306a46764f98c2e728677780b9b8ab5b765eba87",
+            "run_ref": "controller:20261116T190317Z-8af1912a",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T19:04:03Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "9d9f572b50069f1033531f3d862b0efd7d7694a8",
+            "ran_at": "2026-11-16T19:28:36Z",
+            "summary": {
+              "checklist_blob": "211d361a1473bff88a81b77e1aff2684cc747e76",
+              "text": "F1: Four files, 195 insertions and 7 deletions as expected, and the retention-script diff check printed 0."
+            },
+            "log_digest": "9d3e40d7065fec2e66f6b4a88d7a6895de1ece8a5c5d17a1ab12e25631f5225e",
+            "run_ref": "claude-functional:w55-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T19:28:39Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "9d9f572b50069f1033531f3d862b0efd7d7694a8",
+            "ran_at": "2026-11-16T19:28:36Z",
+            "summary": {
+              "checklist_blob": "211d361a1473bff88a81b77e1aff2684cc747e76",
+              "text": "F2: The count of removed lines in the obligations test file is 0."
+            },
+            "log_digest": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+            "run_ref": "claude-functional:w55-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T19:28:39Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "9d9f572b50069f1033531f3d862b0efd7d7694a8",
+            "ran_at": "2026-11-16T19:28:36Z",
+            "summary": {
+              "checklist_blob": "211d361a1473bff88a81b77e1aff2684cc747e76",
+              "text": "F3: stage-conformance exited 0 and RetentionTestPins ran 6 tests, OK, with no skip."
+            },
+            "log_digest": "3fff380542c5ea0dcfe0e8ac58949b7dfeff31ff12331c95c46f4caa39f09b88",
+            "run_ref": "claude-functional:w55-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T19:28:39Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "9d9f572b50069f1033531f3d862b0efd7d7694a8",
+            "ran_at": "2026-11-16T19:28:36Z",
+            "summary": {
+              "checklist_blob": "211d361a1473bff88a81b77e1aff2684cc747e76",
+              "text": "F4: m1 to m6 each returned rc 1 with exactly the one expected test_pN failing, and no anchor count line appeared."
+            },
+            "log_digest": "712dfafe0b9decabdf78031546518725cb6e97fd2a24ff580f948262b59046c7",
+            "run_ref": "claude-functional:w55-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T19:28:40Z"
+          },
+          "flow-8": {
+            "flow_id": "flow-8",
+            "status": "passed",
+            "head": "9d9f572b50069f1033531f3d862b0efd7d7694a8",
+            "ran_at": "2026-11-16T19:28:36Z",
+            "summary": {
+              "checklist_blob": "211d361a1473bff88a81b77e1aff2684cc747e76",
+              "text": "F5: The manifest versions are 2.29.6 and 2.29.7, and check-title printed impact=patch and \"version 2.29.6 -> 2.29.7 (patch) agrees with the title\"."
+            },
+            "log_digest": "b76406f1ff3b2cb814f1d02d21be2b3319a12b80ee6d974283f3ad03b1fbbd6a",
+            "run_ref": "claude-functional:w55-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T19:28:40Z"
+          },
+          "flow-9": {
+            "flow_id": "flow-9",
+            "status": "passed",
+            "head": "9d9f572b50069f1033531f3d862b0efd7d7694a8",
+            "ran_at": "2026-11-16T19:28:36Z",
+            "summary": {
+              "checklist_blob": "211d361a1473bff88a81b77e1aff2684cc747e76",
+              "text": "F6: check-manager-block printed \"ok: 2.29.7 carries a valid manager block that matches the measurement\" and check_docs.py exited 0."
+            },
+            "log_digest": "8c6ab42854a1efd9d975a48db80bd4767ad419472b6a1a3fabaade77b114414a",
+            "run_ref": "claude-functional:w55-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T19:28:40Z"
+          },
+          "flow-10": {
+            "flow_id": "flow-10",
+            "status": "passed",
+            "head": "9d9f572b50069f1033531f3d862b0efd7d7694a8",
+            "ran_at": "2026-11-16T19:28:36Z",
+            "summary": {
+              "checklist_blob": "211d361a1473bff88a81b77e1aff2684cc747e76",
+              "text": "F7: All nine suites exited 0 with OK (skips only in the acceptance-matrix and protocol suites)."
+            },
+            "log_digest": "ce275824f745d2a1bfdbf06256b93da79cfb89ec2a8da225b5182f2f588ea2db",
+            "run_ref": "claude-functional:w55-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T19:28:40Z"
+          },
+          "flow-11": {
+            "flow_id": "flow-11",
+            "status": "passed",
+            "head": "9d9f572b50069f1033531f3d862b0efd7d7694a8",
+            "ran_at": "2026-11-16T19:28:36Z",
+            "summary": {
+              "checklist_blob": "211d361a1473bff88a81b77e1aff2684cc747e76",
+              "text": "F8: The diff over .claude, scripts, .workflow-manager, .github and CLAUDE.md printed nothing."
+            },
+            "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "run_ref": "claude-functional:w55-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T19:28:40Z"
+          }
+        },
+        "pr": null,
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 0
+        }
       }
     }
   }

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-test-pins",
+  "dispositions": {
+    "F-745948de4d8e": {
+      "disposition": "fixed",
+      "note": "test_p2 passes resolve=rr.resolve and omits only run (payload test ~8253)."
+    },
+    "F-7721e76e7ff6": {
+      "disposition": "fixed",
+      "note": "Same: resolve is passed, only run is omitted."
+    },
+    "F-bea6320d8fdb": {
+      "disposition": "dropped",
+      "reason": "Plan section 1 sentence is scoped to CP1 in the plan's own CP bullets and the mapping; plan wording only, no code or release effect."
+    },
+    "F-8ad108f05062": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/194"
+    },
+    "F-accb125965b6": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/194"
+    },
+    "F-b5534e68115b": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/194"
+    },
+    "F-c281df93af35": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/194"
+    },
+    "F-d6a8420be6cf": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/194"
+    }
+  }
+}
