@@ -2,7 +2,7 @@
 
 ## Milestone
 
-**In progress** (CP1 complete, self-review next). W56: `retention-docs-notes` (`process`, governing version `2.2`), branch
+**In progress** (CP1 complete, self-review done, implementation review next). W56: `retention-docs-notes` (`process`, governing version `2.2`), branch
 `milestone/retention-docs-notes`, roadmap row 49. The plan is `docs/ai-workflow/RETENTION_DOCS_NOTES_PLAN.md` (revision 2, approved by
 gate policy).
 
@@ -16,9 +16,10 @@ unrecoverable (RodrigoFAbreu/workflow#143 points 1 and 2, #188).
 ## Outcome
 
 - CP1 (the three notes and roadmap row 49) is complete. Nothing under `payload/`, `tools/`, `fixtures/`, `templates/` or `manifest.json` changed.
-- `tools/docs` tests, `check_docs.py`, the `tools/release` tests, `check-manager-block`, `check-title` (`impact=none`) and
-  `workflow-manager verify .` pass.
+- Self-review (`ac05114`): the evidence file now names both scratch files the two JSON reports were copied from.
+- At `ac05114`: the `tools/docs` tests, `check_docs.py`, the `tools/release` tests, `check-manager-block`, `check-title`
+  (`impact=none`), `workflow-manager verify .` and the nine payload suites pass.
 
 ## Next action
 
-Self-review, the full verification, then the implementation review bundle (`/milestone-implement retention-docs-notes` again).
+The local implementation review of the bundle in `.ai-review/retention-docs-notes/current/`.
