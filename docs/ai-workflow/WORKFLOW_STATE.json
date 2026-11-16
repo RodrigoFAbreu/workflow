@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "retention-docs-notes",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -43690,6 +43690,205 @@
         },
         "evaluated_at": "2026-11-16T19:50:28Z",
         "workflow_release": "2.29.6"
+      }
+    },
+    "retention-docs-notes": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "retention-docs-notes",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/RETENTION_DOCS_NOTES_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/retention-docs-notes-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/retention-docs-notes-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 2,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "9aacb8737677d6e62173133c40465819af326600",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "39bba26c01abcb41abf5b7eb04db09f4b762e649e6cf25bc9fdafcdf54811e59",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "39bba26c01abcb41abf5b7eb04db09f4b762e649e6cf25bc9fdafcdf54811e59",
+        "approved_review_content_id": "a1907b8d8fde4f5623d7b35d697a49959b53580a7d650765ad5979521ca3989e",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/RETENTION_DOCS_NOTES_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f3d196b3966955221877ed3e6afde8e6c383e8b6"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-docs-notes-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "85653ea01d9e1f5df81fe25ce7a5a477a8d5645d"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/retention-docs-notes-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ac8ed53796eeb617a29a7c67bd70192503aa9e31"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-16T22:58:42Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "a1907b8d8fde4f5623d7b35d697a49959b53580a7d650765ad5979521ca3989e",
+            "ledger": {
+              "local": {
+                "bundle_id": "39bba26c01abcb41abf5b7eb04db09f4b762e649e6cf25bc9fdafcdf54811e59",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "f870f7133dc0ca970ff5c2d7f5fa0e49036a1e3ad7ed1995f13aa41b35967df6",
+                "ledger_entry_sha256": "b31d83a84a3bc794001d2fb378aab1b3ca63e3e4a3ef8fee5a8f1935c5da172b",
+                "run_ref": "session:local .ai-review/retention-docs-notes/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "39bba26c01abcb41abf5b7eb04db09f4b762e649e6cf25bc9fdafcdf54811e59",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "1d428009c3f720ed7f640ac1e3a02ca5a088b4cc2ac04a5e274ca0d6f87e4ddc",
+                "ledger_entry_sha256": "9cf5fc4d35fa46c45b126e7309fd030c8c475f1eaec4de81c83bc9ea452005f8",
+                "run_ref": "codex:20261116T225454Z-0db90dfa",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-16T22:58:42Z",
+          "workflow_release": "2.29.7"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "a1907b8d8fde4f5623d7b35d697a49959b53580a7d650765ad5979521ca3989e",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "39bba26c01abcb41abf5b7eb04db09f4b762e649e6cf25bc9fdafcdf54811e59",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-16T22:53:42Z",
+          "verdict_sha256": "f870f7133dc0ca970ff5c2d7f5fa0e49036a1e3ad7ed1995f13aa41b35967df6",
+          "run_ref": "session:local .ai-review/retention-docs-notes/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "39bba26c01abcb41abf5b7eb04db09f4b762e649e6cf25bc9fdafcdf54811e59",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-16T22:57:16Z",
+          "verdict_sha256": "1d428009c3f720ed7f640ac1e3a02ca5a088b4cc2ac04a5e274ca0d6f87e4ddc",
+          "run_ref": "codex:20261116T225454Z-0db90dfa",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-11-16T22:58:42Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-16T22:50:59Z",
+        "consumed": {
+          "review_content_id": "df2a3583c38d08a3cd37522f3c3eec0715885a2e6aaacde379d1d946bbc16296",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "a1907b8d8fde4f5623d7b35d697a49959b53580a7d650765ad5979521ca3989e",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "a1907b8d8fde4f5623d7b35d697a49959b53580a7d650765ad5979521ca3989e",
+          "bundle_id": "39bba26c01abcb41abf5b7eb04db09f4b762e649e6cf25bc9fdafcdf54811e59",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "df2a3583c38d08a3cd37522f3c3eec0715885a2e6aaacde379d1d946bbc16296"
+      ],
+      "optional_findings": {
+        "F-920523558cef": {
+          "digest": "920523558cef4f6bde0e30bd630d85611934d6f4e28e7979df442db233cdb631",
+          "text": "**RDN-L1-003: the engine line numbers in Section 0 are off by about two lines.** At `9aacb87`, the refusal handler starts at `workflow_retention.py:1915` (not 1914), the leftover-not-compared branch is `:1918` to `:1922` (not 1916-1920), `_restore` is called at `:1924`, and the \"the folder is back in\" message is at `:1930` (outside the cited 1914-1928). The substance is right; correct the citations.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "df2a3583c38d08a3cd37522f3c3eec0715885a2e6aaacde379d1d946bbc16296",
+              "verdict": "REVISE",
+              "at": "2026-11-16T22:48:57Z"
+            }
+          ]
+        },
+        "F-d912f5b5b8b7": {
+          "digest": "d912f5b5b8b7bd9498941e5719ebb30699a3e6ef4271fd7c9eba57f610bb46ac",
+          "text": "**RDN-L2-001: the refusal handler's cited end line is two lines short.** Section 0 cites the handler as `workflow_retention.py:1915` to `:1931`, but at `9aacb87` it ends with the `raise` at `:1933` (`:1931`-`:1932` add the incomplete note). Every point the plan relies on (`:1918`-`:1922`, `:1924`, `:1930`) lies inside the cited range, so this is cosmetic.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "a1907b8d8fde4f5623d7b35d697a49959b53580a7d650765ad5979521ca3989e",
+              "verdict": "APPROVE",
+              "at": "2026-11-16T22:53:42Z"
+            }
+          ]
+        }
       }
     }
   }
