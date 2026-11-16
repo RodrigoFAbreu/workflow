@@ -43701,7 +43701,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-docs-notes-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-docs-notes-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -43806,7 +43806,114 @@
           "workflow_release": "2.29.7"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "c65be2a321b724719a458d9bd3d676e1be71eb1c64d71818abafcf84d64cb8e9",
+        "approved_review_content_id": "330569fcde8049f80a88cc693092ffc0654a0622583c30adfddfe424925c3733",
+        "review_content_manifest": [
+          {
+            "path": "docs/RETENTION.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b1095ff3fb8ad06065c9bb0c7a4acfeefacc84a4"
+          },
+          {
+            "path": "docs/ai-workflow/TEST_HARDENING_OWNER_POINTS_EVIDENCE.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7b3ffade56d420566d65b3aa4b9e6f31d1591adf"
+          },
+          {
+            "path": "docs/ai-workflow/TEST_HARDENING_OWNER_POINTS_REAPER_INVESTIGATION.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "971f2b28fe42a6cf991d0f649980e7c3f618017c"
+          },
+          {
+            "path": "docs/ai-workflow/TEST_HARDENING_OWNER_POINTS_REAPER_REPORT.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6782bde98752b3246585d6d9812f737d30887c21"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-docs-notes-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "95d8d546351fc010ddbb504c1ee60cfd9f32f8ab"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1ab7a07f61deeeed9150885e62aa1a9ed7129d2c"
+          }
+        ],
+        "reviewed_content_commit": "f0d063f141f4642e67941b36951ce572e8f4dea5",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-16T23:56:47Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "330569fcde8049f80a88cc693092ffc0654a0622583c30adfddfe424925c3733",
+            "ledger": {
+              "local": {
+                "bundle_id": "c65be2a321b724719a458d9bd3d676e1be71eb1c64d71818abafcf84d64cb8e9",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "47b403ce1a2fd0095dc1984c5f52ec141c14ba739547cbc9c8b74af766098c63",
+                "ledger_entry_sha256": "dab98524e33b1e798ac49543194a51f27078ac54aacf865792e943f5922ee5f0",
+                "run_ref": "session:local .ai-review/retention-docs-notes/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "c65be2a321b724719a458d9bd3d676e1be71eb1c64d71818abafcf84d64cb8e9",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "29eb7e51a065f19880fade0d2eccda233fc051fdbb75147c5f9bb2f854edc2c9",
+                "ledger_entry_sha256": "4124a55a3a19ee6fb53d4499c5ceda8b758ef58c57db41d4837813aaeb9eee1a",
+                "run_ref": "codex:20261116T235343Z-d136e82b",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-16T23:56:47Z",
+          "workflow_release": "2.29.7"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "a1907b8d8fde4f5623d7b35d697a49959b53580a7d650765ad5979521ca3989e",
@@ -43837,12 +43944,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 12,
-      "last_transition": "2026-11-16T23:46:46Z",
+      "state_revision": 15,
+      "last_transition": "2026-11-16T23:56:47Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -43893,6 +44000,41 @@
               "at": "2026-11-16T22:53:42Z"
             }
           ]
+        },
+        "F-3cbf5b633e3d": {
+          "digest": "3cbf5b633e3d847062715ea136ee3c665ad725b914bea68eec23c9649fb56688",
+          "text": "**RDN-IL1-001** (`docs/RETENTION.md:578`): the extended sentence leaves the line \"stays in `.removing/<id>`), and\n  while the folder is deleted, where the refusal says how many entries were\" at about 107 characters inside a\n  paragraph wrapped at about 80. Re-wrapping the paragraph would match its neighbours; the checker accepts it as is,\n  and the request names it as a known limitation.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "330569fcde8049f80a88cc693092ffc0654a0622583c30adfddfe424925c3733",
+              "verdict": "APPROVE",
+              "at": "2026-11-16T23:52:39Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "330569fcde8049f80a88cc693092ffc0654a0622583c30adfddfe424925c3733",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "c65be2a321b724719a458d9bd3d676e1be71eb1c64d71818abafcf84d64cb8e9",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-16T23:52:39Z",
+          "verdict_sha256": "47b403ce1a2fd0095dc1984c5f52ec141c14ba739547cbc9c8b74af766098c63",
+          "run_ref": "session:local .ai-review/retention-docs-notes/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "c65be2a321b724719a458d9bd3d676e1be71eb1c64d71818abafcf84d64cb8e9",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-16T23:55:49Z",
+          "verdict_sha256": "29eb7e51a065f19880fade0d2eccda233fc051fdbb75147c5f9bb2f854edc2c9",
+          "run_ref": "codex:20261116T235343Z-d136e82b",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
