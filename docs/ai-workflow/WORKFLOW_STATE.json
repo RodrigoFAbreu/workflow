@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "retention-test-pins",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -42949,7 +42949,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-test-pins-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-test-pins-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -43212,8 +43212,8 @@
           "external": 1
         }
       },
-      "state_revision": 14,
-      "last_transition": "2026-11-16T18:36:42Z",
+      "state_revision": 15,
+      "last_transition": "2026-11-16T19:50:28Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -43532,13 +43532,164 @@
             "recorded_at": "2026-11-16T19:28:40Z"
           }
         },
-        "pr": null,
+        "pr": {
+          "pr": {
+            "number": 195,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/195"
+          },
+          "state": "open",
+          "head": "da15ccd347228add8f6d7d2ed562a9260450f016",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+          "observed_at": "2026-11-16T19:50:28Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "f7a59df9da8e8d8927ba05e076c9303cecabb46e",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-16T19:50:28Z",
+            "raw_sha256": "3ea9b7e91419414411fd7ac11b459c03b43e352d066a25bbbab3bb1270e42e8c",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "ce3200ab0615ae60ee68dd4833719cd3a3856e8b22ae1a3641998b39be8d3dbf"
+          },
+          "fact_id": "1a7529467882acb41cc817b6fca8472f35f2af8588f9f01a670891a2f867787b"
+        },
         "pr_reported": null,
         "pr_keys": {
           "reopened_for": [],
           "applied": [],
-          "ingest_seq": 0
+          "ingest_seq": 1
         }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-10', 'flow-11', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6', 'flow-7', 'flow-8', 'flow-9'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #195 at da15ccd347228add8f6d7d2ed562a9260450f016 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "f7a59df9da8e8d8927ba05e076c9303cecabb46e",
+          "anchor_identity": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "recorded_at": "2026-11-16T18:36:42Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "c16e22524770dabea78a6911561615a1904bd5f7bae7541afdfc4f5c3cab323f",
+              "log_digest": "220657c557fd302031b8f7f19e9feb0c427abe4d8954b8b63ddaa46b8310e361",
+              "run_ref": "controller:20261116T190317Z-8af1912a"
+            },
+            "flow-10": {
+              "evidence_id": "8ab3cf38dd93123e8b0afde9c5a15d148809fd9eae131c4efd97c4ef99823b79",
+              "log_digest": "ce275824f745d2a1bfdbf06256b93da79cfb89ec2a8da225b5182f2f588ea2db",
+              "run_ref": "claude-functional:w55-functional-r1"
+            },
+            "flow-11": {
+              "evidence_id": "91e55c89a35b45bccf46cb5125de2ad0ea59383868e46852903082f323471e8b",
+              "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "run_ref": "claude-functional:w55-functional-r1"
+            },
+            "flow-2": {
+              "evidence_id": "5d821b1bd10a86a7286a04c319e32ad38ace838d784e074b3a9ae4b78b6e34f4",
+              "log_digest": "24a3a279c38a094c3b1952e9e2657c54faa1333809dcc97d47b3530a70b2f5b6",
+              "run_ref": "controller:20261116T190317Z-8af1912a"
+            },
+            "flow-3": {
+              "evidence_id": "c5e3676566adc6aa6447a471dca0de1cc64f8c9da4287390f9fff7f39a47a6d1",
+              "log_digest": "b27a5ec38420c7f640bfd12c306a46764f98c2e728677780b9b8ab5b765eba87",
+              "run_ref": "controller:20261116T190317Z-8af1912a"
+            },
+            "flow-4": {
+              "evidence_id": "fed7ee0fc54a17ac2960bce52a1b14317607774b5a59c2b3970a19072dec27c4",
+              "log_digest": "9d3e40d7065fec2e66f6b4a88d7a6895de1ece8a5c5d17a1ab12e25631f5225e",
+              "run_ref": "claude-functional:w55-functional-r1"
+            },
+            "flow-5": {
+              "evidence_id": "05cb080dc517cd3006e3e57ccd8a035636f21461474d8bb8b2c85f8eabdb4775",
+              "log_digest": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+              "run_ref": "claude-functional:w55-functional-r1"
+            },
+            "flow-6": {
+              "evidence_id": "c8c297aa9eebf37012ebec148b5c20407713251662015abc0085833dcf49bff0",
+              "log_digest": "3fff380542c5ea0dcfe0e8ac58949b7dfeff31ff12331c95c46f4caa39f09b88",
+              "run_ref": "claude-functional:w55-functional-r1"
+            },
+            "flow-7": {
+              "evidence_id": "38201be5add98c4878677b263b1e0c03824f524f92befbb067c00d6efa725a0e",
+              "log_digest": "712dfafe0b9decabdf78031546518725cb6e97fd2a24ff580f948262b59046c7",
+              "run_ref": "claude-functional:w55-functional-r1"
+            },
+            "flow-8": {
+              "evidence_id": "4ad09a44d5d32154052a6ad1dcdb1e831d32396e7ba7b4e6ec95b9d7c1ce6e41",
+              "log_digest": "b76406f1ff3b2cb814f1d02d21be2b3319a12b80ee6d974283f3ad03b1fbbd6a",
+              "run_ref": "claude-functional:w55-functional-r1"
+            },
+            "flow-9": {
+              "evidence_id": "804b7666cde4dac4bfab55a8016533e0977e03de15998a18d78150b4b6f2cc12",
+              "log_digest": "8c6ab42854a1efd9d975a48db80bd4767ad419472b6a1a3fabaade77b114414a",
+              "run_ref": "claude-functional:w55-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "1a7529467882acb41cc817b6fca8472f35f2af8588f9f01a670891a2f867787b",
+            "head": "da15ccd347228add8f6d7d2ed562a9260450f016",
+            "provenance": "workflow_gh",
+            "raw_sha256": "3ea9b7e91419414411fd7ac11b459c03b43e352d066a25bbbab3bb1270e42e8c"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-16T19:50:28Z",
+        "workflow_release": "2.29.6"
       }
     }
   }
