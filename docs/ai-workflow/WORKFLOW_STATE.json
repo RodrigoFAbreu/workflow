@@ -42949,7 +42949,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-test-pins-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-test-pins-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -43058,7 +43058,126 @@
           "workflow_release": "2.29.6"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "c9a3dd07bcc56329c78a776c3193f4ddc8033a8ea38ed0561ed8b8fa8e54d1d4",
+        "approved_review_content_id": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/retention-test-pins-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "26c6331b71d4c43aa2b3f29f5705abd428b7f4a6"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8216ec24337bf09e229fa6d0378aa3dad76b9b2c"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a33daa2c82bb7b6df84f3fd51922d34bc24c80bd"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3368a5e8f9c1df90339d0b0213bb0fd04e989fba"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "db91faba7f75df58f16dc00df4518c7a270a253e"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "198784deb68d12a48e2a9a3b746a79da2f84c5ac"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a73ec5cc5ab52ef54bd9af4e29581f9b06096343"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "17103b0b8e5ed172afb0ab3462a5f285e3d49690"
+          }
+        ],
+        "reviewed_content_commit": "f7a59df9da8e8d8927ba05e076c9303cecabb46e",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-16T18:36:42Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+            "ledger": {
+              "local": {
+                "bundle_id": "c9a3dd07bcc56329c78a776c3193f4ddc8033a8ea38ed0561ed8b8fa8e54d1d4",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "5e1fb60eff00188fdd6eb4ab187e4496ed94cf696581bc69b4257dd931fae283",
+                "ledger_entry_sha256": "33b5fd811487a403fec6096eb0ebac1125560c92516e9f833d319e4c9278f3ae",
+                "run_ref": "session:local .ai-review/retention-test-pins/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "c9a3dd07bcc56329c78a776c3193f4ddc8033a8ea38ed0561ed8b8fa8e54d1d4",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "fea1c0837a4a2bb6dac0b7fcdd3cdb23613cbf6edfb657d3f265817cd14c9bdf",
+                "ledger_entry_sha256": "ec3219f1a2031d5103585d15bb6997a9889c1634251c57e8230a7a42d7e9ed50",
+                "run_ref": "codex:20261116T183321Z-c40bbe7b",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-16T18:36:42Z",
+          "workflow_release": "2.29.6"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "407e3cd32db5dd909915cb173fedd30fc7eb0d81ad5a57ab18064f213f051fb2",
@@ -43089,12 +43208,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 11,
-      "last_transition": "2026-11-16T18:15:15Z",
+      "state_revision": 14,
+      "last_transition": "2026-11-16T18:36:42Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -43152,6 +43271,97 @@
               "at": "2026-11-16T17:04:05Z"
             }
           ]
+        },
+        "F-b5534e68115b": {
+          "digest": "b5534e68115b1be6128889db467c189b830aea616eb3c9ac8a0f82a95bfa3da0",
+          "text": "`tools/release/release_test.py:4428`: the new `RetentionTestPinsReleaseTest` method is still named `test_the_release_names_2_29_6_and_adds_no_record` while it asserts `workflow_version == \"2.29.7\"` (carried over from the 2.29.6 class, as the self-review says). Rename it to `..._2_29_7_...`; `tools/` is not shipped, so no release byte changes.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+              "verdict": "APPROVE",
+              "at": "2026-11-16T18:32:15Z"
+            }
+          ]
+        },
+        "F-accb125965b6": {
+          "digest": "accb125965b6637db57f8404d829eeadd5c84d3fca33f09c73b3b74f7c5827a0",
+          "text": "`payload/scripts/workflow_state_completion_obligations_test.py`, `test_p4`: the stand-in line `f'{sys.executable} {script} | \"$real\" \"$@\"'` interpolates two paths unquoted into a shell script. This is a shipped conformance test; an installed repository whose `TMPDIR` or interpreter path contains a space would fail it spuriously (it fails loudly, never passes falsely). The pre-existing `stand_in` helper has the same shape, so a later pass could quote both (`shlex.quote`) in one place.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+              "verdict": "APPROVE",
+              "at": "2026-11-16T18:32:15Z"
+            }
+          ]
+        },
+        "F-d6a8420be6cf": {
+          "digest": "d6a8420be6cff56b7878f621f16b39c80a68ea89589536c0526cfe78237c8d1f",
+          "text": "`test_p5`: it compares kinds and hashes only, which is right, but it never asserts that the restored `a.txt` carries the moved mtime (+5 s). Asserting that `after[\"a.txt\"][2] != folder_before[\"a.txt\"][2]` would prove the folder put back is the very one the engine perturbed and verified, not an untouched copy.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+              "verdict": "APPROVE",
+              "at": "2026-11-16T18:32:15Z"
+            }
+          ]
+        },
+        "F-c281df93af35": {
+          "digest": "c281df93af3599e960690ce99d2b0986024629d5b43923a25cdee8ff78ad62b5",
+          "text": "`tools/release/release_test.py:4428`: rename `test_the_release_names_2_29_6_and_adds_no_record` to name 2.29.7, matching its assertion.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+              "verdict": "APPROVE",
+              "at": "2026-11-16T18:35:30Z"
+            }
+          ]
+        },
+        "F-8ad108f05062": {
+          "digest": "8ad108f050628e3a1edb11f255283ec662a004fa27ace395c9a555c61b732234",
+          "text": "`payload/scripts/workflow_state_completion_obligations_test.py:8314`: quote `sys.executable` and `script` with `shlex.quote` when constructing the shell pipeline. Interpreter or temporary-directory paths containing spaces otherwise cause a spurious conformance failure.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+              "verdict": "APPROVE",
+              "at": "2026-11-16T18:35:30Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "056514c762e0533f581dd51c1ab06ff561d1ae2a2e74c806438035b396f69490",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "c9a3dd07bcc56329c78a776c3193f4ddc8033a8ea38ed0561ed8b8fa8e54d1d4",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-16T18:32:15Z",
+          "verdict_sha256": "5e1fb60eff00188fdd6eb4ab187e4496ed94cf696581bc69b4257dd931fae283",
+          "run_ref": "session:local .ai-review/retention-test-pins/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "c9a3dd07bcc56329c78a776c3193f4ddc8033a8ea38ed0561ed8b8fa8e54d1d4",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-16T18:35:30Z",
+          "verdict_sha256": "fea1c0837a4a2bb6dac0b7fcdd3cdb23613cbf6edfb657d3f265817cd14c9bdf",
+          "run_ref": "codex:20261116T183321Z-c40bbe7b",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
