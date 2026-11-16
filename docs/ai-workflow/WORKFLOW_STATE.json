@@ -42949,12 +42949,12 @@
       "registry_path": "docs/ai-workflow/registry/retention-test-pins-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-test-pins-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 1,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "5fe44bbef43e7b5d47950a79d0c805542e9bb0d2",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "f7a59df9da8e8d8927ba05e076c9303cecabb46e",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -43093,8 +43093,8 @@
           "external": 0
         }
       },
-      "state_revision": 10,
-      "last_transition": "2026-11-16T17:31:26Z",
+      "state_revision": 11,
+      "last_transition": "2026-11-16T18:15:15Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
