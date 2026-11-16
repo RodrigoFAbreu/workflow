@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-test-pins",
+  "requirements": {
+    "R1": {
+      "description": "six tests in one class, RetentionTestPins, in payload/scripts/workflow_state_completion_obligations_test.py pin what #113 point 5, #116 point 2 and #119 point 4 found untested: the future-mtime clamp, build_report without run, a failed os.read after a successful open in the archive pack, same-size altered bytes refused as verify_failed, the removal's stat-only re-check after the hash, and the selection repeated under the lock; each has a no-write proof and a failure-only mutation (m1 to m4, m5b, m6) that fails that test only, measured against the existing classes too",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "no behaviour changes: workflow_retention.py and every other payload file except the test file are byte-identical to the base in CP1, no existing test changes, and a pin that finds a real defect stops the item and records a finding (D-Stop)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "the change is a release: a shipped test file moves the manifest, so Workflow 2.29.7 is a fix: patch whose title cannot be test: (check-title --agree needs patch impact for a patch change); manifest, release constant, release-history row, release test class and the suite count 308 to 314; verification per docs/RELEASING.md, with D-Staging for CP1",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R4": {
+      "description": "this repository's own installation, the CI workflow files and every gate and approval semantic are untouched, roadmap row 48 is Current from the plan, and no shipped page names an internal milestone id",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    }
+  }
+}
