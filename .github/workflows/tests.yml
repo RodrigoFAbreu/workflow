@@ -1,20 +1,22 @@
-# The validation of this repository's release source (`manifest.json`,
+# The tests and checks of this repository's release source (`manifest.json`,
 # `payload/`, `fixtures/`, `templates/`) and its own Workflow installation
 # (docs/ai-workflow/WORKFLOW_REPOSITORY_SETUP_PLAN.md, CP2). ci.yml calls it
-# (`workflow_call`) on every pull request, `main` push and dispatch, and its
-# required `aggregate` job passes only when this workflow succeeded; it also
-# runs by itself (`workflow_dispatch`, which answers yes in `changes`), and
-# then publishes nothing and reports no required check
-# (docs/RELEASING.md, "GitHub Actions layout"):
+# (`workflow_call`, its `tests` job) on every pull request, `main` push and
+# dispatch, and its required `aggregate` job passes only when this workflow
+# succeeded; it also runs by itself (`workflow_dispatch`, which answers yes in
+# `changes`), and then publishes nothing and reports no required check
+# (docs/RELEASING.md, "GitHub Actions layout"). Tests and checks only: it never
+# publishes (build-and-publish.yml does):
 #
 #   changes                     seconds long: whether the pull request touches
 #                               the release source (manifest.json, payload/,
 #                               fixtures/, templates/) or the CI that tests it
-#                               (tools/release/, ci.yml, this file, publish.yml),
-#                               or the root .gitattributes, which changes what
-#                               `git archive` stages from the release source. A
-#                               push to main and workflow_dispatch always answer
-#                               yes; so does any decision that cannot be computed.
+#                               (tools/release/, ci.yml, this file,
+#                               build-and-publish.yml), or the root
+#                               .gitattributes, which changes what `git archive`
+#                               stages from the release source. A push to main
+#                               and workflow_dispatch always answer yes; so does
+#                               any decision that cannot be computed.
 #   checks                      one job, one checkout and one install of the
 #                               pinned tools, with every check its own named
 #                               step. A failed step does not stop an unrelated
@@ -80,7 +82,7 @@
 # whose group equals its caller's deadlocks), and a dispatch of this file runs
 # on its own, never cancelled. It is not managed by workflow-manager;
 # workflow-conformance.yml is, and stays as installed.
-name: Validate
+name: Tests
 
 on:
   workflow_call:
