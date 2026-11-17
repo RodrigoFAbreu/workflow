@@ -17,8 +17,8 @@ Test-only: five tightenings and one new test in three payload test files; no scr
   Mutations m1 to m5 run in scratch copies of `payload/`: each fails exactly the test its plan row names (m1: the two `stale_changes` and
   `stale_failed` subtests of T4; m2: T5; m3: T3; m5: the new T7; m4: the demonstration, four other tests that patch `os.unlink` plus the new
   observed-call assertions of T6). m6 (the label line emitted twice) fails only the surviving `len == 1` assertion of p6.
-- CP2 (release 2.29.9): not started.
+- CP2 (release 2.29.9): implemented. `manifest.json` 2.29.9 (six records with the sentence, `sha256`, `size`; the obligations suite count 316 to 317 measured by `release.py manager-block --write`; posture), `WORKFLOW_RELEASE` 2.29.9 with the protocol test and `ORCHESTRATION_PROTOCOL.md` lines, the `docs/release-history.md` row and stamp, and `tools/release/release_test.py` (a 2.29.9 class; the 2.29.8 class gives up the pins a newer release owns).
 
 ## Next action
 
-`/milestone-implement gate-policy-test-pins` for CP2.
+`/milestone-implement gate-policy-test-pins` again: every checkpoint is complete, so it enters self-review, the full verification and the implementation bundle.
