@@ -2,25 +2,26 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; a `fix:` change, Workflow patch release 2.29.7 follows the merge). W55: `retention-test-pins`
-(`process`, governing version `2.2`), branch `milestone/retention-test-pins`, roadmap row 48. The plan is
-`docs/ai-workflow/RETENTION_TEST_PINS_PLAN.md` (revision 1, approved by gate policy); an archive copy is in
+**Complete** (accepted by policy; a `docs:` change, no release). W56: `retention-docs-notes` (`process`, governing version `2.2`), branch
+`milestone/retention-docs-notes`, roadmap row 49 (RodrigoFAbreu/workflow#143 points 1 and 2, #188). The plan is
+`docs/ai-workflow/RETENTION_DOCS_NOTES_PLAN.md` (revision 2, approved by gate policy); an archive copy is in
 `docs/milestones/completed/`.
 
 ## Goal
 
-Six tests in one class, `RetentionTestPins`, in `payload/scripts/workflow_state_completion_obligations_test.py`, pin retention lines
-no existing test pinned (the future-mtime clamp, the default forge runner, a failed read, same-size altered bytes and the removal's
-two re-checks). No line of `workflow_retention.py` changes and no behaviour changes.
+Three documentation points, no release: the 2.25.5 row of `docs/release-history.md` says a downgrade also restores the `UnicodeDecodeError`
+tracebacks; `docs/RETENTION.md` says a refusal after the rename puts the folder back into `.ai-review/`; the two raw reaper reports of
+`TEST_HARDENING_OWNER_POINTS_EVIDENCE.md` are kept next to it, with the unsaved A12/A15 mutation logs said to be unrecoverable.
 
 ## Outcome
 
-- CP1 (the six pins) and CP2 (release 2.29.7: manifest, protocol constant, history row, release tests) are both complete.
-- The technical approval was recorded by policy. Functional flows 1 to 11 are recorded passed (flows 1 to 3 by the Controller's
-  automated tester, flows 4 to 11 by an independent headless executor). The 8 recorded Optional findings are dispositioned (2 fixed,
-  1 dropped, 5 follow-ups in RodrigoFAbreu/workflow#194); see `docs/milestones/completed/retention-test-pins-findings.md`.
+- CP1 (the three notes and roadmap row 49) is complete. Nothing under `payload/`, `tools/`, `fixtures/`, `templates/` or `manifest.json` changed.
+- The technical approval was recorded by policy. Functional flows F1 to F4 are recorded passed by the Controller's automated tester.
+- The 3 recorded Optional findings are dispositioned (1 fixed, 2 dropped as cosmetic); see
+  `docs/milestones/completed/retention-docs-notes-findings.md`.
 
 ## Next action
 
-No milestone is ready for planning: rows 12 and 13 wait on the Controller and row 27 is deferred and unscheduled. Merge pull request
-#195; Workflow 2.29.7 is then published by the `Publish` workflow. After that, `/milestone-plan` when the owner names the next item.
+The next incomplete milestone in `docs/ROADMAP.md` is row 27 ("Deferred: review-data simplification, longer-term evolution"), which is
+deferred and trigger-driven (see "Later (open items)"). No item is ready for `PLANNING` until its trigger fires. `/milestone-plan` when
+one is chosen.

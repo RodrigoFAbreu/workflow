@@ -572,8 +572,10 @@ incomplete, and that `remove <id> --apply` resumes), and `restore_failed` while 
 refused verification is being undone (the message carries both causes and says
 where the folder is); it was a traceback before Workflow 2.25.1. A symlink in the
 review folder whose target cannot be read is `unreadable` (`folder_changed` when
-it vanished or was replaced) at the same places, before the rename and after it,
-and while the folder is deleted, where the refusal says how many entries were
+it vanished or was replaced) at the same places, before the rename and after it
+(after the rename the folder is renamed back into `.ai-review/` and the message says
+"the folder is back in" its place; a leftover whose verification could not complete
+stays in `.removing/<id>`), and while the folder is deleted, where the refusal says how many entries were
 deleted and that the rest is in `.removing/<id>` (`remove <id> --apply` resumes);
 it was a traceback before Workflow 2.25.5. A review folder (or leftover) that cannot be
 opened is `unreadable` (`folder_changed` when it vanished) at the same places, and
