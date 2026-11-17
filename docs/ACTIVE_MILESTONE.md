@@ -29,9 +29,12 @@ The flows run offline. They write only under a scratch directory and never insid
 - Repository root, branch `milestone/command-wording-pins`, clean working tree. The base commit is
   `c2068ca7ec4c04c262b706375d0e07c616b15538`.
 - Tools: `git`, the system `python3`, and `zstd` on `PATH`. Without `zstd` the two engine tests skip, which is not a pass.
-- `S=$(mktemp -d)`. Run Python with `-B` so that no `__pycache__` is written into the repository.
-- No forge call, no network, no `claude`, `codex` or `ssh` is needed. Flows 8 and 9 need the pinned zlib-ng interpreter and the
-  `workflow-manager` repository, so they are for the user's full environment and not the sandbox.
+- `S=$(mktemp -d)`. Every Python command below runs with `-B` (or `PYTHONDONTWRITEBYTECODE=1` for `unittest`), so that no `__pycache__`
+  is written into the repository.
+- No forge call, no network, no `claude`, `codex` or `ssh` is needed. F1 to F7 run in the functional sandbox. F8 and F9 need the pinned
+  zlib-ng interpreter and the `workflow-manager` repository, so they are user-only and not sandbox flows.
+- The fixture that `stage-conformance` writes under `$S` is a fresh `git init` repository, not a clone of the product. Writes to it are
+  writes outside the product clone.
 
 ### Test data
 
@@ -41,7 +44,8 @@ Nothing is seeded. Build the staged fixture from `HEAD` once, from the repositor
 python3 tools/release/release.py stage-conformance --commit HEAD --out "$S/fixture"
 ```
 
-Expect exit 0. Flows 3 to 7 run from `"$S/fixture/scripts"` (or `"$S/fixture"` for the `.claude/commands` edits).
+Expect exit 0. F5 and F6 run from `"$S/fixture/scripts"` (F6's `.claude/commands` edits are made in `"$S/fixture"`). F1 to F4 and F7
+run from the repository root and only read.
 
 ### Flows
 
@@ -78,8 +82,8 @@ python3 -B workflow_state_completion_obligations_test.py RetentionCrossDeviceWor
 
 Expect `Ran 2 tests` and `OK` for each, with no skips.
 
-**F6. Each pin fails on the old wording.** Work in the fixture copy only. For each row, make the one edit, run the named class, expect the named
-failure, then re-stage the fixture before the next row.
+**F6. Each pin fails on the old wording.** Work in `"$S/fixture"` only, never in the product clone. For each row, make the one edit, run the
+named class, expect the named failure, then re-stage the fixture before the next row.
 
 | Row | Edit in `"$S/fixture"` | Run | Expect |
 | --- | --- | --- | --- |
@@ -93,18 +97,20 @@ failure, then re-stage the fixture before the next row.
 
 The unmutated baseline is `OK` for both class sets. Golden-hash failures under m1 to m5 are expected by design.
 
-**F7. Read-only release checks.** From the repository root, with the system `python3`:
+**F7. Read-only release checks.** From the repository root, with the system `python3`, bytecode off:
 
 ```bash
-python3 tools/docs/check_docs.py
-python3 tools/release/release.py check-manager-block --commit HEAD --manager-releases tools/release/manager-releases.json
-python3 tools/release/release.py check-title "fix: make the bundle-record wording of the apply commands and the cross_device next step say what the code does" --agree --head 1e63824
+python3 -B tools/docs/check_docs.py
+python3 -B tools/release/release.py check-manager-block --commit HEAD --manager-releases tools/release/manager-releases.json
+python3 -B tools/release/release.py check-title "fix: make the bundle-record wording of the apply commands and the cross_device next step say what the code does" --agree --head 1e63824
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/docs -p '*_test.py'
 ```
 
 `--agree` compares `HEAD^1 -> HEAD`; the branch tip is a docs-only commit with no version change, so the title is checked against `1e63824`, the commit that bumps 2.29.7 -> 2.29.8 (functional-review finding F7: a checklist correction, no code change).
 
-Expect exit 0, `ok: 2.29.8 carries a valid manager block that matches the measurement`, and `impact=patch`. Also run
-`python3 -m unittest discover -s tools/docs -p '*_test.py'` from the repository root: 34 tests, `OK`.
+Expect exit 0 for each of the first three commands. The first prints nothing on success. The second prints
+`ok: 2.29.8 carries a valid manager block that matches the measurement`. The third prints `impact=patch` and `version 2.29.7 -> 2.29.8 (patch) agrees with the title`.
+The `unittest` run: 34 tests, `OK`.
 
 **F8. Orphan check (user-only).** In `"$S/fixture/scripts"`, using the `workflow-manager` clone:
 `python3 -I -S /home/rodrigo/Workspace/workflow-manager/tests/parallel/reaper.py --report "$S/R.json" --chunk-id wording -- python3 -B workflow_state_completion_obligations_test.py RetentionCrossDeviceWording`
