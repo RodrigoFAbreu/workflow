@@ -16,13 +16,19 @@
 #                      fails it rather than skipping it. Adding a job to
 #                      tests.yml means adding it to `verdict`, never to the
 #                      ruleset.
-#   build-and-publish  calls build-and-publish.yml (`Build and publish`), only
-#                      on a push to `main` and only after `aggregate` succeeded
-#                      in this same run: the revision is validated once, and
-#                      the release job checks out exactly that revision.
-#                      build-and-publish.yml also runs by itself
-#                      (`workflow_dispatch`, with a `dry-run` input), the re-run
-#                      path, under its own gate.
+#   build-and-publish  calls build-and-publish.yml (`Build and publish`) with
+#                      `validated: true`, only on `main`, on a push or a
+#                      dispatch of this workflow, and only after `aggregate`
+#                      succeeded in this same run: the revision is validated
+#                      once, and the release job checks out exactly that
+#                      revision. A dispatch of `CI` on `main` is therefore the
+#                      re-run path from the entry point: it tests the tip again
+#                      and then publishes it; its `dry-run` input (default
+#                      false) is passed through, so it can verify the whole
+#                      publish path without creating a release. A pull request
+#                      never publishes. build-and-publish.yml also runs by
+#                      itself (`workflow_dispatch`, with a `dry-run` input),
+#                      under its own gate: it needs a green `CI` push run.
 #
 # Only this file sets the workflow-level concurrency (a called workflow whose
 # group equals its caller's deadlocks). A pull request keeps its per-ref group,
@@ -43,6 +49,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "On main, run every publishing gate and the build, but do not create the release"
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
@@ -77,14 +88,17 @@ jobs:
           fi
           echo "the tests workflow succeeded"
 
-  # A push to `main` only, once `aggregate` succeeded in this run. A pull
-  # request, a dispatch of this workflow or a red run never publishes.
+  # On `main` only, a push or a dispatch of this workflow, once `aggregate`
+  # succeeded in this run (the implicit success()). A pull request, another
+  # branch or a red run never publishes. `dry-run` is false unless a dispatch
+  # sets it.
   build-and-publish:
     needs: [aggregate]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     permissions:
       contents: write
       actions: read
     uses: ./.github/workflows/build-and-publish.yml
     with:
       validated: true
+      dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
