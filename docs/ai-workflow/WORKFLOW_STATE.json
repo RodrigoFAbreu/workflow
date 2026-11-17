@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "gate-policy-test-pins",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -44909,6 +44909,248 @@
         },
         "evaluated_at": "2026-11-17T04:29:00Z",
         "workflow_release": "2.29.7"
+      }
+    },
+    "gate-policy-test-pins": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "gate-policy-test-pins",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/GATE_POLICY_TEST_PINS_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/gate-policy-test-pins-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/gate-policy-test-pins-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 3,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "774b441b01c59436543a9b86bce656f977cc2df6",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "eaf81c184c0edaaca485afbbc0fd24aba3346d61623a3f8629e6c5b089ad177f",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "eaf81c184c0edaaca485afbbc0fd24aba3346d61623a3f8629e6c5b089ad177f",
+        "approved_review_content_id": "5714e3753a8f3df574711fcb3b334900510e68db8b0970e43d172528ddff4086",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/GATE_POLICY_TEST_PINS_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bfe0001d6c62c8c1875c19c52ac5b5dac925d50e"
+          },
+          {
+            "path": "docs/ai-workflow/registry/gate-policy-test-pins-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bf08beca9c4ce8cdcfc69b2d77aa20f7a95ed7f2"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/gate-policy-test-pins-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5ac75ccf0ee1f7bf1d758e953270bf5839c2000b"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-17T08:45:20Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "5714e3753a8f3df574711fcb3b334900510e68db8b0970e43d172528ddff4086",
+            "ledger": {
+              "local": {
+                "bundle_id": "eaf81c184c0edaaca485afbbc0fd24aba3346d61623a3f8629e6c5b089ad177f",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "65453953d549b478531e0485b9ee1eabbcf99578e8d7f027d430292fd4a99703",
+                "ledger_entry_sha256": "87407690b8e9e45e7af4977888dec451c46cf1636fb9e0f74b9c1b5da96feaee",
+                "run_ref": "session:local .ai-review/gate-policy-test-pins/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "eaf81c184c0edaaca485afbbc0fd24aba3346d61623a3f8629e6c5b089ad177f",
+                "verdict": "APPROVE",
+                "round": 3,
+                "verdict_sha256": "698eccebee2f05fe04d4add3ea132e4cf3b0841f0b0ec773a934cffeb7497049",
+                "ledger_entry_sha256": "387ea444e3793b1b336fddb51362b58e888377020265cde8532544731620378c",
+                "run_ref": "codex:20261117T084108Z-112640fa",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-17T08:45:20Z",
+          "workflow_release": "2.29.8"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "5714e3753a8f3df574711fcb3b334900510e68db8b0970e43d172528ddff4086",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "eaf81c184c0edaaca485afbbc0fd24aba3346d61623a3f8629e6c5b089ad177f",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-11-17T08:39:56Z",
+          "verdict_sha256": "65453953d549b478531e0485b9ee1eabbcf99578e8d7f027d430292fd4a99703",
+          "run_ref": "session:local .ai-review/gate-policy-test-pins/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "eaf81c184c0edaaca485afbbc0fd24aba3346d61623a3f8629e6c5b089ad177f",
+          "verdict": "APPROVE",
+          "round": 3,
+          "completed_at": "2026-11-17T08:43:57Z",
+          "verdict_sha256": "698eccebee2f05fe04d4add3ea132e4cf3b0841f0b0ec773a934cffeb7497049",
+          "run_ref": "codex:20261117T084108Z-112640fa",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 3,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 12,
+      "last_transition": "2026-11-17T08:45:20Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-17T08:25:36Z",
+        "consumed": {
+          "review_content_id": "c4e3917c6effaf67567fbaadca94a5c57f58a02a23b87971cbc70a4630f4ea81",
+          "plan_revision": 2,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "5714e3753a8f3df574711fcb3b334900510e68db8b0970e43d172528ddff4086",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "5714e3753a8f3df574711fcb3b334900510e68db8b0970e43d172528ddff4086",
+          "bundle_id": "eaf81c184c0edaaca485afbbc0fd24aba3346d61623a3f8629e6c5b089ad177f",
+          "plan_revision": 3
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "3ab8fe57105eb42df75b880f3bbea18314558a936de20049ecb6fdf262a14878",
+        "c4e3917c6effaf67567fbaadca94a5c57f58a02a23b87971cbc70a4630f4ea81"
+      ],
+      "optional_findings": {
+        "F-7f6db4ae9570": {
+          "digest": "7f6db4ae9570fc6ce5531c4e15171cdc61f22df749c93089831bd4d73fc78b16",
+          "text": "**GPTP-L1-005 (D-Pins p5, review question 4): the injection is described wrongly, but the test works.** With the walk's topdown `os.fwalk(..., follow_symlinks=False)`, `_fwalk` itself calls `os.stat(\"zz\", dir_fd=...)` for a listed sub-directory (`entry is None` on the topdown path). `_Inject(folder=\"zz\")` fails that call as well as the probes in `_can_fail_walk` and `_is_link`. Measured callers of the failed `stat`: `_can_fail_walk`, `_fwalk`, `_is_link`. So it does not fail \"exactly the `stat` of the sub-directory probe and not the walk's own calls\". The walk's own `stat` failure is what produces the read error, and the walk never reaches the `open`, so `opens=[(\"zz\", \"dir\", 1)]` never fires. The outcome is as the plan says. Unmutated, there is one read error at `<repo>/.ai-review/w00/a/zz`. Under m5 it falls back to `<repo>/.ai-review/w00`. Correct the D-Pins text, and drop the `opens` argument or say it is inert. `self.case` also compares the whole item line, which in this fixture is `at least 5 B in 1 files (partly unreadable); no archive`, so `want` must include the archive suffix.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "3ab8fe57105eb42df75b880f3bbea18314558a936de20049ecb6fdf262a14878",
+              "verdict": "REVISE",
+              "at": "2026-11-17T08:00:48Z"
+            }
+          ]
+        },
+        "F-bba1e6b21196": {
+          "digest": "bba1e6b21196348838a56c31eae2db474f132a6331296f2335bb1f1649f5f42f",
+          "text": "**GPTP-L1-006 (D-Pins p3/m3): a line reference is off.** The unresolvable branch's `note` is S 20386 (the `else:` is S 20383); S 20384 is the `stored_pr_fact = {` line. Nothing else changes.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "3ab8fe57105eb42df75b880f3bbea18314558a936de20049ecb6fdf262a14878",
+              "verdict": "REVISE",
+              "at": "2026-11-17T08:00:48Z"
+            }
+          ]
+        },
+        "F-e5cd2eee087e": {
+          "digest": "e5cd2eee087ea2b9c74ecee54b935bb5907b17c6b92fc23b27916e17c013a75c",
+          "text": "**GPTP-L2-002 (section 0 #149 3, D-Pins p5/m5): the R line numbers are off.** `_can_fail_walk` starts at R 217, but R 222 is inside its docstring. The failed-`stat` arm (`except OSError: return True`) is R 226 to 227. The function has a second `except OSError: return True` (R 234 to 235, the failed `open` of a symlink), so m5 should name R 227, \"the arm after the `os.stat`\". m5 as described (\"the failed-`stat` arm\") was applied to R 227 and behaves as the plan says.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "c4e3917c6effaf67567fbaadca94a5c57f58a02a23b87971cbc70a4630f4ea81",
+              "verdict": "REVISE",
+              "at": "2026-11-17T08:23:23Z"
+            }
+          ]
+        },
+        "F-33b274e999cc": {
+          "digest": "33b274e999cc7088f1ea0384520e39ebbf8eda88fc749c65889b78c3b8c3c06c",
+          "text": "**GPTP-L3-001 (section 0 #185 4): \"seven golden repos\" undercounts the pinned cases by one.** `TestPlainCommandMalformedState.CASES` (G 7507) has eight cases, and `unknown` is the eighth. The row lists only the seven whose report carries the S 20381 `note`. Those seven are exactly the subtests that the old m3 failed, so nothing measured is wrong. The sentence would be exact as \"eight golden repos, seven of which (…) carry the S 20381 `note`\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "5714e3753a8f3df574711fcb3b334900510e68db8b0970e43d172528ddff4086",
+              "verdict": "APPROVE",
+              "at": "2026-11-17T08:39:56Z"
+            }
+          ]
+        },
+        "F-1dfe8745e58b": {
+          "digest": "1dfe8745e58b86ab597d7b52aada547df52f93728bab9d146a02354b5c86f4ee",
+          "text": "`docs/ai-workflow/requirements/gate-policy-test-pins-mapping.json:18`: R3 still promises failure-only mutations that fail only their own tests for every pin. Align this wording with D-Pins’ documented p4/p6 exceptions, including m4’s four existing failures.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "5714e3753a8f3df574711fcb3b334900510e68db8b0970e43d172528ddff4086",
+              "verdict": "APPROVE",
+              "at": "2026-11-17T08:43:57Z"
+            }
+          ]
+        }
       }
     }
   }

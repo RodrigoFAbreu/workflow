@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "work_item_id": "gate-policy-test-pins",
+  "requirements": {
+    "R1": {
+      "description": "test-only, one mechanism: T4 of the acceptance report iterates every non-human fixture case, T5's satisfy arm runs the refusal through _satisfy_acceptance_cli, T3 gains a normalised golden of the present-head report (#185 points 2 to 4); no script changes",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the removal test T6 asserts the observed unlink and rmdir calls directly (#143 point 3); the failed-stat arm of _can_fail_walk gets its test, one new test in RetentionReportUnreadable (#149 point 3); the vacuous label_lines=2 assertion of the bundle-sections test is dropped (#190 point 4); #185 point 1 is a code change and is not taken",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "every new or tightened test has a failure-only mutation (m1 to m5) measured in the staged fixture, failing its own test only, and the new and edited tests also run under the reaper; a pin that finds a real defect stops the item and records a finding instead of fixing code",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "the change is a release: Workflow 2.29.9, a fix: patch (manifest, release constant, release-history row, release-test class, suite counts), verified per docs/RELEASING.md with the scratch-clone staging for CP1; this repository's own installation and every gate semantic are untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    }
+  }
+}
