@@ -44622,6 +44622,152 @@
           "run_ref": "codex:20261117T030918Z-d7e2e9df",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "cd2d22aa397b1a91e35cb2203cdfc7bf9826fd6e",
+            "ran_at": "2026-11-17T04:06:25Z",
+            "summary": {
+              "checklist_blob": "bcd7ddcb7b95024afd75366db1df8ff4b3bfdef4",
+              "text": "The diff lists the three command files, workflow_retention.py, the two suites, workflow_protocol.py, its test and ORCHESTRATION_PROTOCOL.md (9 files)."
+            },
+            "log_digest": "bff41e1e05d670bb8ffacadfd7e7a39beb592b9610ab3ce05e46118f030121f2",
+            "run_ref": "claude-functional:w57-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+            "recorded_at": "2026-11-17T04:06:25Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "cd2d22aa397b1a91e35cb2203cdfc7bf9826fd6e",
+            "ran_at": "2026-11-17T04:06:25Z",
+            "summary": {
+              "checklist_blob": "bcd7ddcb7b95024afd75366db1df8ff4b3bfdef4",
+              "text": "The diff of the installation paths against c2068ca printed nothing (exit 0)."
+            },
+            "log_digest": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
+            "run_ref": "claude-functional:w57-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+            "recorded_at": "2026-11-17T04:06:25Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "cd2d22aa397b1a91e35cb2203cdfc7bf9826fd6e",
+            "ran_at": "2026-11-17T04:06:25Z",
+            "summary": {
+              "checklist_blob": "bcd7ddcb7b95024afd75366db1df8ff4b3bfdef4",
+              "text": "Two hunks, only string literals in the two cross_device refusals (selection step and rename EXDEV); the new next-step text matches."
+            },
+            "log_digest": "08a2578a204a25cd9d457979caf48e8a058ebf272b6772d9b736955c9eca23fa",
+            "run_ref": "claude-functional:w57-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+            "recorded_at": "2026-11-17T04:06:25Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "cd2d22aa397b1a91e35cb2203cdfc7bf9826fd6e",
+            "ran_at": "2026-11-17T04:06:25Z",
+            "summary": {
+              "checklist_blob": "bcd7ddcb7b95024afd75366db1df8ff4b3bfdef4",
+              "text": "The command-wording diffs match the checklist, and the same_content count in apply-pr-review.md is 0."
+            },
+            "log_digest": "bc81c4f2c97a40f1e5b49b5199d7e3e4e9018f6989aed864917a6616290c0b8d",
+            "run_ref": "claude-functional:w57-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+            "recorded_at": "2026-11-17T04:06:25Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "cd2d22aa397b1a91e35cb2203cdfc7bf9826fd6e",
+            "ran_at": "2026-11-17T04:06:25Z",
+            "summary": {
+              "checklist_blob": "bcd7ddcb7b95024afd75366db1df8ff4b3bfdef4",
+              "text": "Both classes ran 2 tests, OK, no skips."
+            },
+            "log_digest": "9d47b1566fd1c675eefb46b3a2c5d675b5cafc41fe0a946c282acb66c5c8a81a",
+            "run_ref": "claude-functional:w57-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+            "recorded_at": "2026-11-17T04:06:25Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "cd2d22aa397b1a91e35cb2203cdfc7bf9826fd6e",
+            "ran_at": "2026-11-17T04:06:25Z",
+            "summary": {
+              "checklist_blob": "bcd7ddcb7b95024afd75366db1df8ff4b3bfdef4",
+              "text": "m1-m7 each fail exactly their own pin (golden-hash test TestGoldenCommandFileHashes fails for exactly the mutated file for m1-m5); m6/m7 leave the existing retention classes green. The checklist's Run column omits TestGoldenCommandFileHashes for m1-m5 (checklist text only, no product defect)."
+            },
+            "log_digest": "74ca05f2f96118b7cc30b6cb5f1ebf81e03492a09de2e2f931166e59aab03055",
+            "run_ref": "claude-functional:w57-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+            "recorded_at": "2026-11-17T04:06:25Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "cd2d22aa397b1a91e35cb2203cdfc7bf9826fd6e",
+            "ran_at": "2026-11-17T04:06:25Z",
+            "summary": {
+              "checklist_blob": "bcd7ddcb7b95024afd75366db1df8ff4b3bfdef4",
+              "text": "check_docs, check-manager-block and check-title all exit 0 with the expected output, and the docs unittest ran 34 tests, OK."
+            },
+            "log_digest": "3d0a0c38ba3ec002280434e7e4e60d68c6599137e75836222cba9427d78f34c6",
+            "run_ref": "claude-functional:w57-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+            "recorded_at": "2026-11-17T04:06:26Z"
+          },
+          "flow-8": {
+            "flow_id": "flow-8",
+            "status": "passed",
+            "head": "cd2d22aa397b1a91e35cb2203cdfc7bf9826fd6e",
+            "ran_at": "2026-11-17T04:06:25Z",
+            "summary": {
+              "checklist_blob": "bcd7ddcb7b95024afd75366db1df8ff4b3bfdef4",
+              "text": "The reaper reported chunk_status 0, with only two [git] orphans, both exited."
+            },
+            "log_digest": "6f6c715fd059a98bec3294d958ee29a097a939c6642b0784f6f27c1e9f282c0a",
+            "run_ref": "claude-functional:w57-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+            "recorded_at": "2026-11-17T04:06:26Z"
+          },
+          "flow-9": {
+            "flow_id": "flow-9",
+            "status": "passed",
+            "head": "cd2d22aa397b1a91e35cb2203cdfc7bf9826fd6e",
+            "ran_at": "2026-11-17T04:06:25Z",
+            "summary": {
+              "checklist_blob": "bcd7ddcb7b95024afd75366db1df8ff4b3bfdef4",
+              "text": "All nine suites rc=0, tools/release 368 tests OK, release.py build exit 0, workflow-manager verify reports \"installation matches workflow 2.29.7\"."
+            },
+            "log_digest": "e71a6d3a20e437f5bbcac661a5316936ad6ed3d08b35f0fa876e00e22a1e5c6f",
+            "run_ref": "claude-functional:w57-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+            "recorded_at": "2026-11-17T04:06:26Z"
+          }
+        },
+        "pr": null,
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 0
+        }
       }
     }
   }
