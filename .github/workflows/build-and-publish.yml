@@ -4,24 +4,34 @@
 #
 # Two ways in, one set of gates, and only ever on `refs/heads/main`:
 #
-#   called      by ci.yml's `publish` job (`workflow_call` with `validated:
-#               true`) on a push to `main`, once that run's `aggregate`
-#               succeeded: the pushed commit (`github.sha`) was validated in
-#               the same run. `github.event_name` is the caller's, `push`. If
+#   called      by ci.yml's `build-and-publish` job (`workflow_call` with
+#               `validated: true`) on a push to `main` or a dispatch of `CI`
+#               on `main`, once that run's `aggregate` succeeded: the run's
+#               commit (`github.sha`) was validated in the same run.
+#               `github.event_name` is the caller's, `push` or
+#               `workflow_dispatch`, and on a dispatch `github.event.workflow`
+#               names the dispatched file, `.github/workflows/ci.yml`. If
 #               `main` has meanwhile moved past that commit, the gate ends with
 #               a notice and no sha: the tip's own CI run, once validated,
 #               publishes it.
-#   dispatched  by hand on `main` (`workflow_dispatch`), the re-run path.
-#               Nothing in its own run validated anything, so the gate takes
-#               `main`'s tip only once a `CI` (ci.yml) push run for that exact
-#               commit has a successful `aggregate` job (the run itself may
-#               have failed in its own `publish`, which this path re-runs);
-#               otherwise it fails.
+#   dispatched  by hand on `main` (`workflow_dispatch` of this file), the
+#               re-run path. Nothing in its own run validated anything, so
+#               `validated` stays false (a direct dispatch that sets it is
+#               refused) and the gate takes `main`'s tip only once a `CI`
+#               (ci.yml) push run for that exact commit has a successful
+#               `aggregate` job (the run itself may have failed in its own
+#               `build-and-publish`, which this path re-runs); otherwise it
+#               fails.
 #
-# `dry-run` (an input of both, default false) runs every gate, the build, the
-# Manager's verification and, for an already published version, the
-# read-back, but never `gh release create`, and so never reads back a release
-# it did not create.
+# So "this run validated the target" is `github.event_name !=
+# 'workflow_dispatch' || inputs.validated`, where a push also needs
+# `validated` (only ci.yml calls this file on a push) and a validated dispatch
+# must be a dispatch of ci.yml.
+#
+# `dry-run` (an input of every way in, default false; ci.yml passes its own
+# dispatch input) runs every gate, the build, the Manager's verification and,
+# for an already published version, the read-back, but never `gh release
+# create`, and so never reads back a release it did not create.
 #
 # The `gate` job checks out nothing and runs none of this repository's code:
 # the `release` job runs only with the gate's sha, checked out at that exact
@@ -43,10 +53,11 @@
 #
 # No workflow-level concurrency: a called workflow whose group equals its
 # caller's deadlocks, and the `release` job serializes every publication in
-# its own group, never cancelled. The caller's `publish` job grants
+# its own group, never cancelled. The caller's `build-and-publish` job grants
 # `contents: write` and `actions: read`; only the `release` job uses the
-# write permission.
-name: Publish
+# write permission. Building and publishing only: the tests that validate the
+# revision are tests.yml's, orchestrated by ci.yml.
+name: Build and publish
 
 on:
   workflow_call:
@@ -61,6 +72,10 @@ on:
         default: false
   workflow_dispatch:
     inputs:
+      validated:
+        description: "Set only by ci.yml after its aggregate; a direct dispatch that sets it is refused"
+        type: boolean
+        default: false
       dry-run:
         description: "Run every gate and build, but do not create the release"
         type: boolean
@@ -74,9 +89,10 @@ defaults:
     shell: bash
 
 jobs:
-  # A push to `main` called by CI after its `aggregate`, or a dispatch on
-  # `main`. Anything else (a pull request, another branch, a call without
-  # `validated`) releases nothing.
+  # A push to `main` or a `CI` dispatch on `main`, called by CI after its
+  # `aggregate`, or a direct dispatch on `main`. Anything else (a pull request,
+  # the nightly schedule, another branch, a push call without `validated`)
+  # releases nothing.
   gate:
     if: >-
       github.ref == 'refs/heads/main'
@@ -92,23 +108,32 @@ jobs:
     outputs:
       sha: ${{ steps.resolve.outputs.sha }}
     steps:
-      # Called: the tip, read afresh, is released only when it is the commit
-      # this run validated; a commit `main` has since moved past ends here
-      # with no `sha` (the tip's own run publishes). Dispatched: the tip is
-      # released only once the API lists a `CI` push run for it whose
-      # `aggregate` succeeded; without one the dispatch fails.
+      # Called (a push, or a dispatch of ci.yml, with `validated`): the tip,
+      # read afresh, is released only when it is the commit this run
+      # validated; a commit `main` has since moved past ends here with no
+      # `sha` (the tip's own run publishes). Dispatched directly (no
+      # `validated`): the tip is released only once the API lists a `CI` push
+      # run for it whose `aggregate` succeeded; without one the dispatch
+      # fails. A direct dispatch that claims `validated` fails at once.
       - name: Resolve the release commit
         id: resolve
         env:
           RUN_SHA: ${{ github.sha }}
           VALIDATED: ${{ inputs.validated }}
+          DISPATCHED_WORKFLOW: ${{ github.event.workflow }}
         run: |
           if [ "$GITHUB_REF" != refs/heads/main ]; then
             echo "::error::a release is published only from refs/heads/main, not $GITHUB_REF"
             exit 1
           fi
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] && [ "$VALIDATED" = true ] \
+            && [ "$DISPATCHED_WORKFLOW" != .github/workflows/ci.yml ]; then
+            echo "::error::validated is set only by ci.yml after its aggregate, never by a dispatch of '$DISPATCHED_WORKFLOW'"
+            exit 1
+          fi
           tip="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
-          if [ "$GITHUB_EVENT_NAME" = push ]; then
+          if [ "$GITHUB_EVENT_NAME" = push ] \
+            || { [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] && [ "$VALIDATED" = true ]; }; then
             if [ "$VALIDATED" != true ]; then
               echo "::error::a push run publishes only when CI calls it after its aggregate (validated='$VALIDATED')"
               exit 1
