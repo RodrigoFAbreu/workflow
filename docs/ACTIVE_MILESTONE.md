@@ -18,7 +18,7 @@ change; nothing the code does changes. Not taken: #190 point 3 (owner decision) 
 - The plan and the technical approval are `CURRENT`, both recorded by gate policy.
 - Automated verification: `.ai-review/command-wording-pins/current/TEST_RESULTS.md` (implementation revision 1, commit `1e63824`) records
   the nine suites, the `tools/release` and `tools/docs` tests, `check-manager-block`, `build`, `check-title` and the seven mutations, all as expected.
-  Only `docs/ai-workflow/WORKFLOW_STATE.json` has changed since that commit.
+  Since that commit only `docs/ACTIVE_MILESTONE.md` and `docs/ai-workflow/WORKFLOW_STATE.json` have changed: no code, payload or installation file.
 
 ## Functional review checklist
 
