@@ -44036,6 +44036,107 @@
           "run_ref": "codex:20261116T235343Z-d136e82b",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "ee2c370e7666b0d481a0bdb83398c35603cc7043",
+            "ran_at": "2026-11-17T00:03:08Z",
+            "summary": {
+              "checklist_blob": "05f35b416ce89415dc1cfbba7dbc3d59e76087e3",
+              "text": "The downgrade note matches the historical source: UnicodeDecodeError counts are 0 and 2, and 2.25.4 uses text=True for tracked-path decoding."
+            },
+            "log_digest": "c5691d0db6fabc2a3924956a10e46ce3d9cf9e8c941148bc8d4aabaea73b0701",
+            "run_ref": "controller:20261117T000138Z-81f99df0",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "330569fcde8049f80a88cc693092ffc0654a0622583c30adfddfe424925c3733",
+            "recorded_at": "2026-11-17T00:03:08Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "ee2c370e7666b0d481a0bdb83398c35603cc7043",
+            "ran_at": "2026-11-17T00:03:08Z",
+            "summary": {
+              "checklist_blob": "05f35b416ce89415dc1cfbba7dbc3d59e76087e3",
+              "text": "The documented restore and leftover behavior matches the source; all five tests pass in the fixture staged from the tested head."
+            },
+            "log_digest": "89a6da04d1b49830a9f348491ee79b5a7889016a516d52f64614eac9aaf71d1f",
+            "run_ref": "controller:20261117T000138Z-81f99df0",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "330569fcde8049f80a88cc693092ffc0654a0622583c30adfddfe424925c3733",
+            "recorded_at": "2026-11-17T00:03:08Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "ee2c370e7666b0d481a0bdb83398c35603cc7043",
+            "ran_at": "2026-11-17T00:03:08Z",
+            "summary": {
+              "checklist_blob": "05f35b416ce89415dc1cfbba7dbc3d59e76087e3",
+              "text": "Both JSON reports match the specified digests, sizes, statuses, orphan counts and command counts, and the evidence describes their provenance and missing mutation logs."
+            },
+            "log_digest": "2480da6c212aa9545f20b265b1aaa22727e41ad788b44a4bd75f2515bfc29ab7",
+            "run_ref": "controller:20261117T000138Z-81f99df0",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "330569fcde8049f80a88cc693092ffc0654a0622583c30adfddfe424925c3733",
+            "recorded_at": "2026-11-17T00:03:08Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "ee2c370e7666b0d481a0bdb83398c35603cc7043",
+            "ran_at": "2026-11-17T00:03:08Z",
+            "summary": {
+              "checklist_blob": "05f35b416ce89415dc1cfbba7dbc3d59e76087e3",
+              "text": "No shipped paths changed from the base or since ac05114; only the 2.25.5 release-history row changed. The docs checker and all 34 docs tests pass."
+            },
+            "log_digest": "9efd7e13cf940a854b49f464b37faf16c680e57327225623feedc3366ce5b783",
+            "run_ref": "controller:20261117T000138Z-81f99df0",
+            "reporter": "workflow-controller 1.31.1",
+            "identity": "330569fcde8049f80a88cc693092ffc0654a0622583c30adfddfe424925c3733",
+            "recorded_at": "2026-11-17T00:03:08Z"
+          }
+        },
+        "pr": {
+          "pr": null,
+          "state": "none",
+          "head": null,
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "pending",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": null,
+          "observed_at": "2026-11-17T00:04:15Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "f0d063f141f4642e67941b36951ce572e8f4dea5",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-17T00:04:15Z",
+            "raw_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "ce3200ab0615ae60ee68dd4833719cd3a3856e8b22ae1a3641998b39be8d3dbf"
+          },
+          "fact_id": "5d94ee95f305960ae142dd760d1a123b6b80b6399d1966e45c01ffe07dcc449b"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
       }
     }
   }
