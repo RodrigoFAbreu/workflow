@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "retention-docs-notes",
+  "active_work_item_id": null,
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -43701,7 +43701,7 @@
       "registry_path": "docs/ai-workflow/registry/retention-docs-notes-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-docs-notes-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -43948,8 +43948,8 @@
           "external": 1
         }
       },
-      "state_revision": 15,
-      "last_transition": "2026-11-16T23:56:47Z",
+      "state_revision": 16,
+      "last_transition": "2026-11-17T00:24:30Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -44101,20 +44101,23 @@
           }
         },
         "pr": {
-          "pr": null,
-          "state": "none",
-          "head": null,
+          "pr": {
+            "number": 197,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/197"
+          },
+          "state": "open",
+          "head": "81805496987d03801c495632881abf04293735e5",
           "review_decision": null,
           "reviewed_head": null,
           "checks": {
-            "state": "pending",
+            "state": "success",
             "failing": []
           },
           "review_id": null,
           "findings": null,
-          "identity_at_head": null,
-          "observed_at": "2026-11-17T00:04:15Z",
-          "ingest_seq": 1,
+          "identity_at_head": "330569fcde8049f80a88cc693092ffc0654a0622583c30adfddfe424925c3733",
+          "observed_at": "2026-11-17T00:24:30Z",
+          "ingest_seq": 2,
           "repository": "RodrigoFAbreu/workflow",
           "queried_commit": "f0d063f141f4642e67941b36951ce572e8f4dea5",
           "provenance": {
@@ -44123,20 +44126,103 @@
               "name": "workflow-gh",
               "version": "pr-list-v1"
             },
-            "fetched_at": "2026-11-17T00:04:15Z",
-            "raw_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "fetched_at": "2026-11-17T00:24:30Z",
+            "raw_sha256": "feaeac585aebc9893d35da4ab3eebb03f941c654cd69ba1849ab3b6254a1c9db",
             "run_ref": null,
             "gh_path": "/usr/bin/gh",
             "gh_sha256": "ce3200ab0615ae60ee68dd4833719cd3a3856e8b22ae1a3641998b39be8d3dbf"
           },
-          "fact_id": "5d94ee95f305960ae142dd760d1a123b6b80b6399d1966e45c01ffe07dcc449b"
+          "fact_id": "5549dcb29818cfb0c6576cc341298ae8f9824dbe61758e8caec76921732b1676"
         },
         "pr_reported": null,
         "pr_keys": {
           "reopened_for": [],
           "applied": [],
-          "ingest_seq": 1
+          "ingest_seq": 2
         }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-2', 'flow-3', 'flow-4'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #197 at 81805496987d03801c495632881abf04293735e5 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "f0d063f141f4642e67941b36951ce572e8f4dea5",
+          "anchor_identity": "330569fcde8049f80a88cc693092ffc0654a0622583c30adfddfe424925c3733",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "330569fcde8049f80a88cc693092ffc0654a0622583c30adfddfe424925c3733",
+            "recorded_at": "2026-11-16T23:56:47Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "77a644a671446e27257ab891c6e7552e1d26e2871fe6458757bb0e01464f845d",
+              "log_digest": "c5691d0db6fabc2a3924956a10e46ce3d9cf9e8c941148bc8d4aabaea73b0701",
+              "run_ref": "controller:20261117T000138Z-81f99df0"
+            },
+            "flow-2": {
+              "evidence_id": "0bd3290c02fe941dde6cae554963b387622ab7b3494fce53de4e2651bb6c79bb",
+              "log_digest": "89a6da04d1b49830a9f348491ee79b5a7889016a516d52f64614eac9aaf71d1f",
+              "run_ref": "controller:20261117T000138Z-81f99df0"
+            },
+            "flow-3": {
+              "evidence_id": "3aa8a02f6ae8e6f4e9cf55a148c080bc950a70783263a3f0d79ddf116a1e0f47",
+              "log_digest": "2480da6c212aa9545f20b265b1aaa22727e41ad788b44a4bd75f2515bfc29ab7",
+              "run_ref": "controller:20261117T000138Z-81f99df0"
+            },
+            "flow-4": {
+              "evidence_id": "875e0dc0091778c066182faead6b8d718ff158a6965218cc143f6a5ff4f79611",
+              "log_digest": "9efd7e13cf940a854b49f464b37faf16c680e57327225623feedc3366ce5b783",
+              "run_ref": "controller:20261117T000138Z-81f99df0"
+            }
+          },
+          "pr": {
+            "fact_id": "5549dcb29818cfb0c6576cc341298ae8f9824dbe61758e8caec76921732b1676",
+            "head": "81805496987d03801c495632881abf04293735e5",
+            "provenance": "workflow_gh",
+            "raw_sha256": "feaeac585aebc9893d35da4ab3eebb03f941c654cd69ba1849ab3b6254a1c9db"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-17T00:24:30Z",
+        "workflow_release": "2.29.7"
       }
     }
   }
