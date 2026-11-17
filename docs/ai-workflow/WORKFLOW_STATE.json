@@ -44234,7 +44234,7 @@
       "registry_path": "docs/ai-workflow/registry/command-wording-pins-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/command-wording-pins-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -44343,7 +44343,156 @@
           "workflow_release": "2.29.7"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "e704f2ad53a2cd0cc66bd3a9c38cf3598bacfd6c3f25abebf0b15b232883bcde",
+        "approved_review_content_id": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/command-wording-pins-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2120fac5a68600966921d66ce16617c7a2aa16bd"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "932502dd3ca995f970571a8dfbd04186148eecdd"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "72fcbd92f618ea769a921d0f12df758356d4f16f"
+          },
+          {
+            "path": "payload/.claude/commands/apply-functional-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "df497de307e84a20dd739c65e100123cb23155a2"
+          },
+          {
+            "path": "payload/.claude/commands/apply-implementation-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d385bcdb9d2a5c363f1d5c948fb8e747ff2efb9d"
+          },
+          {
+            "path": "payload/.claude/commands/apply-pr-review.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e0d11e4ddb93719d85cc8abd7df340357c61f3ca"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "39eb9052fd8e84f05e4e7eaf07dd3bb2b9f62654"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6e6030bdc1dcf022cee751a9ed00b3844b9e2cb0"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1ff4618f1e8343694ce886e2aeb5025f999d93a0"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c195235408a97bf8741a16c2ce30fa67eac7a732"
+          },
+          {
+            "path": "payload/scripts/workflow_retention.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0102a96ba96841e475e93c30c83636bca8adb6d4"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5887472968625ee323897b29f4df52facaebcb54"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "151c1ad8f4dc6edc6bce4004d35f0d470bcb10ee"
+          }
+        ],
+        "reviewed_content_commit": "1e638249744a3a801b8b0f52256353a7941dba29",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-17T03:13:15Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+            "ledger": {
+              "local": {
+                "bundle_id": "e704f2ad53a2cd0cc66bd3a9c38cf3598bacfd6c3f25abebf0b15b232883bcde",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "1fb6a3774bfc15ada57005b8e3806c382e04e5173d2f8a870c917ff23663dcd7",
+                "ledger_entry_sha256": "9ac0602267846d70d25010e1bd5d60df3295ce963bb53e38dc7c12301d85af56",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/command-wording-pins/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "e704f2ad53a2cd0cc66bd3a9c38cf3598bacfd6c3f25abebf0b15b232883bcde",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "e0c256a72e6fdcc04c4df8af06aef2862bd6a7c2bd74c87cdc7d6b0c39dbb74a",
+                "ledger_entry_sha256": "62ae89cf5fdc6f59d13bbc7e570e030e3d89ba6080d5d2ea3e203ebd5139d86c",
+                "run_ref": "codex:20261117T030918Z-d7e2e9df",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-17T03:13:15Z",
+          "workflow_release": "2.29.7"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "2e8b570fc61cff8ccd271270555465ec348cd47c33efd69be9fc0efcd3277791",
@@ -44374,12 +44523,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 11,
-      "last_transition": "2026-11-17T02:42:42Z",
+      "state_revision": 14,
+      "last_transition": "2026-11-17T03:13:15Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -44437,6 +44586,41 @@
               "at": "2026-11-17T01:53:19Z"
             }
           ]
+        },
+        "F-19de1ce97c12": {
+          "digest": "19de1ce97c12d8700e97f2490690634213a2b33aa4f6c7fcbe188c6983c3295e",
+          "text": "`TEST_RESULTS.md` records `check-title ... --agree` with the default `--head HEAD`. `cmd_check_title` compares a commit with its first parent, so at today's HEAD `af29947` (the state-only generation record, parent already 2.29.8) it refuses with \"2.29.8 -> 2.29.8 is none\". It agrees at `--head 1e63824` (re-run: \"version 2.29.7 -> 2.29.8 (patch) agrees with the title\"), which was HEAD when the bundle ran it, and CI checks the squash commit, so the release is unaffected. A later revision's record could name `--head <code commit>` so the command reproduces from the bundle.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+              "verdict": "APPROVE",
+              "at": "2026-11-17T03:08:03Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "8f4f4ad8246e6ba8cd291ab6669627283299542ea1e0ffbf680ac2ee27466f27",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "e704f2ad53a2cd0cc66bd3a9c38cf3598bacfd6c3f25abebf0b15b232883bcde",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-17T03:08:03Z",
+          "verdict_sha256": "1fb6a3774bfc15ada57005b8e3806c382e04e5173d2f8a870c917ff23663dcd7",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/command-wording-pins/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "e704f2ad53a2cd0cc66bd3a9c38cf3598bacfd6c3f25abebf0b15b232883bcde",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-17T03:12:07Z",
+          "verdict_sha256": "e0c256a72e6fdcc04c4df8af06aef2862bd6a7c2bd74c87cdc7d6b0c39dbb74a",
+          "run_ref": "codex:20261117T030918Z-d7e2e9df",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
