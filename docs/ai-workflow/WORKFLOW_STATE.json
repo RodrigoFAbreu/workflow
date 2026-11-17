@@ -44920,12 +44920,12 @@
       "registry_path": "docs/ai-workflow/registry/gate-policy-test-pins-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/gate-policy-test-pins-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 3,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "774b441b01c59436543a9b86bce656f977cc2df6",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "f08ab6e8fc1906831087e679027d8c5ca4ce40b9",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -45064,8 +45064,8 @@
           "external": 0
         }
       },
-      "state_revision": 16,
-      "last_transition": "2026-11-17T09:25:06Z",
+      "state_revision": 17,
+      "last_transition": "2026-11-17T09:48:07Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
