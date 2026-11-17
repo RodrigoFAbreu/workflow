@@ -337,7 +337,7 @@ class CheckPendingTest(ScratchTestCase):
         releases = self.published_base()
         self.repo.release_commit("2.7.0", "feat", payload="v2\n")
         self.repo.touch("tools/release/x.py", "x\n")
-        self.repo.touch(".github/workflows/publish.yml", "x\n")
+        self.repo.touch(".github/workflows/build-and-publish.yml", "x\n")
         self.repo.commit("ci: fix")
         out = self.assert_ok("check-pending", "--releases", releases)
         self.assertIn("release source unchanged", out)
@@ -1398,8 +1398,8 @@ class ConformanceTemplate(unittest.TestCase):
 
 WORKFLOWS = REPO_ROOT / ".github" / "workflows"
 CI_YML = WORKFLOWS / "ci.yml"
-VALIDATE_YML = WORKFLOWS / "validate.yml"
-PUBLISH_YML = WORKFLOWS / "publish.yml"
+TESTS_YML = WORKFLOWS / "tests.yml"
+BUILD_AND_PUBLISH_YML = WORKFLOWS / "build-and-publish.yml"
 
 
 def _job_ids(text: str) -> list[str]:
@@ -1422,13 +1422,13 @@ def _write_permission_lines(text: str) -> list[int]:
     return [i for i, l in enumerate(text.splitlines()) if re.fullmatch(r"\s+contents: write", l)]
 
 
-class ValidateWorkflow(unittest.TestCase):
-    """`Validate` (validate.yml, which ci.yml calls): the consolidated `checks` job, the docs
+class TestsWorkflow(unittest.TestCase):
+    """`Tests` (tests.yml, which ci.yml calls): the consolidated `checks` job, the docs
     tests through the shared workflow, the parallel source suites and `verdict`."""
 
     @classmethod
     def setUpClass(cls):
-        cls.text = VALIDATE_YML.read_text()
+        cls.text = TESTS_YML.read_text()
         cls.lines = cls.text.splitlines()
 
     def job(self, name):
@@ -1444,7 +1444,7 @@ class ValidateWorkflow(unittest.TestCase):
                                                "verdict"])
 
     def test_reusable_and_dispatchable_with_no_concurrency_of_its_own(self):
-        self.assertIn("name: Validate\n", self.text)
+        self.assertIn("name: Tests\n", self.text)
         self.assertIn("\non:\n  workflow_call:\n  workflow_dispatch:\n\npermissions:\n"
                       "  contents: read\n", self.text)
         for trigger in ("pull_request", "push", "schedule", "workflow_run"):
@@ -1560,7 +1560,7 @@ class ValidateWorkflow(unittest.TestCase):
         needs = re.search(r"\n    needs: \[(.*)\]\n", verdict).group(1).split(", ")
         self.assertEqual(sorted(needs), sorted(j for j in _job_ids(self.text) if j != "verdict"))
         # The required check is ci.yml's `aggregate`, never a job of this called workflow
-        # (it would report as `validate / aggregate`).
+        # (it would report as `tests / aggregate`).
         self.assertNotIn("aggregate", _job_ids(self.text))
 
     def test_verdict_when_the_release_source_changed(self):
@@ -1695,19 +1695,19 @@ class ValidateWorkflow(unittest.TestCase):
     def test_the_candidate_suite_paths_are_the_release_source_plus_its_tooling_ci_and_archive_rules(self):
         self.assertEqual(release.CANDIDATE_PATHS, (
             "manifest.json", "payload", "fixtures", "templates",
-            "tools/release", ".github/workflows/ci.yml", ".github/workflows/validate.yml",
-            ".github/workflows/publish.yml", ".gitattributes"))
+            "tools/release", ".github/workflows/ci.yml", ".github/workflows/tests.yml",
+            ".github/workflows/build-and-publish.yml", ".gitattributes"))
         self.assertEqual(release.CANDIDATE_PATHS,
                          (*package.RELEASE_SOURCE_PATHS, "tools/release",
-                          ".github/workflows/ci.yml", ".github/workflows/validate.yml",
-                          ".github/workflows/publish.yml", ".gitattributes"))
+                          ".github/workflows/ci.yml", ".github/workflows/tests.yml",
+                          ".github/workflows/build-and-publish.yml", ".gitattributes"))
         # Each CI path is a workflow file that exists: a rename cannot silently drop one.
         for path in release.CANDIDATE_CI_PATHS:
             self.assertTrue((REPO_ROOT / path).exists(), path)
 
 
 class SourceConformanceRunner(unittest.TestCase):
-    """The source-conformance step of `Validate` (validate.yml), run with stand-in suites.
+    """The source-conformance step of `Tests` (tests.yml), run with stand-in suites.
 
     It is the managed template's scheduling (D-Same-Text) over the staged
     fixture: the same shard tool text, the same constants, the same queue.
@@ -1722,7 +1722,7 @@ class SourceConformanceRunner(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        text = VALIDATE_YML.read_text()
+        text = TESTS_YML.read_text()
         lines = text.splitlines()
         marker = lines.index("      - name: Run the source conformance suites")
         start = lines.index("        run: |", marker) + 1
@@ -1844,7 +1844,7 @@ class SourceConformanceRunner(unittest.TestCase):
     def test_the_update_fixture_job_runs_the_same_step_over_the_updated_repository(self):
         """Same text, byte for byte: the two jobs can never drift apart. The update job puts
         the updated repository where this job stages the conformance fixture."""
-        text = VALIDATE_YML.read_text()
+        text = TESTS_YML.read_text()
         mine = _step_script(_job_section(text, "update-fixture"),
                             "Run the frozen suites over the updated repository")
         self.assertEqual(mine, self.body)
@@ -1864,7 +1864,7 @@ class SourceConformanceRunner(unittest.TestCase):
                                       if l.startswith("suites=")))
 
     def test_the_job_keeps_its_stage_timeout_upload_and_the_aggregate(self):
-        lines = VALIDATE_YML.read_text().splitlines()
+        lines = TESTS_YML.read_text().splitlines()
         job = "\n".join(lines[lines.index("  release-source-conformance:"):
                               lines.index("  update-fixture:")])
         self.assertIn("timeout-minutes: 60", job)
@@ -2351,7 +2351,7 @@ class IncompletePublishedReleaseTest(PublishedCase):
 
 
 
-# -- ci.yml and the Publish workflow's gate --------------------------------------------
+# -- ci.yml and the Build and publish workflow's gate ----------------------------------
 
 
 #: A stand-in `gh`: `main`'s tip is `$GH_TIP`; `$GH_RUNS` lists the `CI` push runs as
@@ -2419,7 +2419,7 @@ def _step(text: str, name: str) -> str:
 
 
 class CIWorkflowTest(unittest.TestCase):
-    """`CI` (ci.yml): validate once, own the required `aggregate`, publish only after it."""
+    """`CI` (ci.yml): test once, own the required `aggregate`, publish only after it."""
 
     @classmethod
     def setUpClass(cls):
@@ -2442,35 +2442,35 @@ class CIWorkflowTest(unittest.TestCase):
                       "'pull_request' && github.ref || github.sha }}\n"
                       "  cancel-in-progress: ${{ github.event_name == 'pull_request' }}\n",
                       self.text)
-        for called in (VALIDATE_YML, PUBLISH_YML):
+        for called in (TESTS_YML, BUILD_AND_PUBLISH_YML):
             self.assertNotRegex(called.read_text(), r"(?m)^concurrency:", called.name)
         self.assertIn("defaults:\n  run:\n    shell: bash\n", self.text)
         self.assertNotIn("workflow-ci", self.text)
 
     def test_three_jobs(self):
-        self.assertEqual(_job_ids(self.text), ["validate", "aggregate", "publish"])
+        self.assertEqual(_job_ids(self.text), ["tests", "aggregate", "build-and-publish"])
 
-    def test_validate_calls_the_validate_workflow(self):
-        self.assertEqual(self.job("validate"),
-                         "\n  validate:\n    uses: ./.github/workflows/validate.yml\n")
+    def test_tests_calls_the_tests_workflow(self):
+        self.assertEqual(self.job("tests"),
+                         "\n  tests:\n    uses: ./.github/workflows/tests.yml\n")
 
     def test_aggregate_is_the_required_check_and_always_runs(self):
         job = self.job("aggregate")
         # No `name:`: the check is reported as the job id, `aggregate`, the ruleset's context.
         self.assertNotRegex(job, r"(?m)^    name:")
-        self.assertIn("\n    needs: [validate]\n", job)
+        self.assertIn("\n    needs: [tests]\n", job)
         self.assertIn("\n    if: always()\n", job)
         self.assertNotIn("uses:", job.split("    steps:")[0])
-        self.assertIn("VALIDATE: ${{ needs.validate.result }}\n", job)
+        self.assertIn("TESTS: ${{ needs.tests.result }}\n", job)
         self.assertEqual(_write_permission_lines(job), [])
 
     def aggregate(self, result):
-        body = _step_script(self.job("aggregate"), "Require the validation")
+        body = _step_script(self.job("aggregate"), "Require the tests")
         return subprocess.run(["bash", "-eo", "pipefail", "-c", body],
-                              env=dict(os.environ, VALIDATE=result),
+                              env=dict(os.environ, TESTS=result),
                               capture_output=True, text=True)
 
-    def test_aggregate_passes_only_when_the_validation_succeeded(self):
+    def test_aggregate_passes_only_when_the_tests_succeeded(self):
         proc = self.aggregate("success")
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
         self.assertNotIn("::error", proc.stdout)
@@ -2479,18 +2479,18 @@ class CIWorkflowTest(unittest.TestCase):
                 proc = self.aggregate(result)
                 self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
                 self.assertEqual(proc.stdout.splitlines(),
-                                 [f"::error::the validate workflow concluded {result}"])
+                                 [f"::error::the tests workflow concluded {result}"])
 
     def test_publish_runs_only_on_a_push_to_main_after_aggregate(self):
-        job = self.job("publish")
+        job = self.job("build-and-publish")
         self.assertEqual(job, (
-            "\n  publish:\n"
+            "\n  build-and-publish:\n"
             "    needs: [aggregate]\n"
             "    if: github.event_name == 'push' && github.ref == 'refs/heads/main'\n"
             "    permissions:\n"
             "      contents: write\n"
             "      actions: read\n"
-            "    uses: ./.github/workflows/publish.yml\n"
+            "    uses: ./.github/workflows/build-and-publish.yml\n"
             "    with:\n"
             "      validated: true\n"))
         # The implicit success(): a failed, skipped or cancelled `aggregate` skips it.
@@ -2498,8 +2498,9 @@ class CIWorkflowTest(unittest.TestCase):
             self.assertNotIn(status, job)
 
     def test_contents_write_only_in_the_publishing_jobs(self):
-        """Across every workflow: ci.yml's `publish` (a called workflow cannot exceed its
-        caller job) and publish.yml's `release`; nowhere else, never at workflow level."""
+        """Across every workflow: ci.yml's `build-and-publish` (a called workflow cannot exceed
+        its caller job) and build-and-publish.yml's `release`; nowhere else, never at workflow
+        level."""
         found = []
         for path in sorted(WORKFLOWS.glob("*.yml")):
             lines = path.read_text().splitlines()
@@ -2507,10 +2508,11 @@ class CIWorkflowTest(unittest.TestCase):
                 job = next(m.group(1) for m in (re.fullmatch(r"  ([\w-]+):", l)
                                                 for l in reversed(lines[:line])) if m)
                 found.append((path.name, job))
-        self.assertEqual(found, [("ci.yml", "publish"), ("publish.yml", "release")])
+        self.assertEqual(found, [("build-and-publish.yml", "release"),
+                                 ("ci.yml", "build-and-publish")])
         # The repository-owned workflows default to read-only (workflow-conformance.yml is
         # managed and stays as installed).
-        for path in (CI_YML, VALIDATE_YML, PUBLISH_YML, WORKFLOWS / "pr-title.yml"):
+        for path in (CI_YML, TESTS_YML, BUILD_AND_PUBLISH_YML, WORKFLOWS / "pr-title.yml"):
             self.assertIn("\npermissions:\n  contents: read\n", path.read_text(), path.name)
 
     def test_the_required_checks_keep_their_names(self):
@@ -2529,14 +2531,14 @@ class CIWorkflowTest(unittest.TestCase):
         self.assertNotRegex((WORKFLOWS / "workflow-conformance.yml").read_text(),
                             r"(?m)^    name:")
         # Only ci.yml has a job called `aggregate`.
-        for path in (VALIDATE_YML, PUBLISH_YML):
+        for path in (TESTS_YML, BUILD_AND_PUBLISH_YML):
             self.assertNotIn("aggregate", _job_ids(path.read_text()), path.name)
 
     def test_one_line_run_commands_are_valid_plain_yaml_scalars(self):
         """A plain scalar cannot hold `: ` or ` #` (YAML reads a mapping or a comment): a
         command with either must be a `run: |` block. No YAML parser in the stdlib, so this
         is the one-line form's guard."""
-        for path in (CI_YML, VALIDATE_YML, PUBLISH_YML):
+        for path in (CI_YML, TESTS_YML, BUILD_AND_PUBLISH_YML):
             for line in path.read_text().splitlines():
                 match = re.fullmatch(r" +run: (.*)", line)
                 if match and match.group(1) not in ("|", "|-", ">", ">-"):
@@ -2547,19 +2549,20 @@ class CIWorkflowTest(unittest.TestCase):
 
     def test_the_old_workflows_are_gone(self):
         self.assertEqual(sorted(p.name for p in WORKFLOWS.glob("*.yml")),
-                         ["ci.yml", "pr-title.yml", "publish.yml", "validate.yml",
+                         ["build-and-publish.yml", "ci.yml", "pr-title.yml", "tests.yml",
                           "workflow-conformance.yml"])
 
 
-class PublishWorkflowTest(unittest.TestCase):
-    """`Publish` (publish.yml): reusable by ci.yml and dispatchable, with every release gate."""
+class BuildAndPublishWorkflowTest(unittest.TestCase):
+    """`Build and publish` (build-and-publish.yml): reusable by ci.yml and dispatchable, with
+    every release gate."""
 
     @classmethod
     def setUpClass(cls):
-        cls.text = PUBLISH_YML.read_text()
+        cls.text = BUILD_AND_PUBLISH_YML.read_text()
 
     def test_triggers_and_inputs(self):
-        self.assertIn("name: Publish\n", self.text)
+        self.assertIn("name: Build and publish\n", self.text)
         self.assertIn(
             "\non:\n"
             "  workflow_call:\n"
@@ -2654,13 +2657,13 @@ class PublishWorkflowTest(unittest.TestCase):
         self.assertIn("aggregate", _job_ids(CI_YML.read_text()))
 
 
-class PublishGateTest(unittest.TestCase):
+class BuildAndPublishGateTest(unittest.TestCase):
     """The `gate` job decides which commit the `release` job checks out and
     executes: only `main`'s tip, and only once it was validated: by this very run
     when CI calls it, by a `CI` push run's `aggregate` when it is dispatched."""
 
     def setUp(self):
-        self.text = PUBLISH_YML.read_text()
+        self.text = BUILD_AND_PUBLISH_YML.read_text()
         self.tmp = Path(tempfile.mkdtemp(prefix="publish-gate-"))
         self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
         bin_dir = self.tmp / "bin"
@@ -5302,8 +5305,8 @@ print(command, "ok")
     # ---- --keep: build the updated repository and stop; CI runs the suites and verify ----
 
     def scheduler_workflow(self, names) -> Path:
-        """A stand-in for `validate.yml` whose scheduler step runs `names`."""
-        path = self.tmp / "scheduler" / "validate.yml"
+        """A stand-in for `tests.yml` whose scheduler step runs `names`."""
+        path = self.tmp / "scheduler" / "tests.yml"
         path.parent.mkdir(exist_ok=True)
         path.write_text("".join(f'          suites="{" ".join(names)}"\n' for _ in range(2)))
         return path
@@ -5393,8 +5396,8 @@ print(command, "ok")
         with self.assertRaisesRegex(release.ReleaseError, "cannot read the scheduler workflow"):
             release.scheduler_suites(self.tmp / "missing.yml")
 
-    def test_the_default_scheduler_is_the_validate_workflow_and_names_the_nine_suites(self):
-        self.assertEqual(release.SCHEDULER_WORKFLOW, REPO_ROOT / ".github/workflows/validate.yml")
+    def test_the_default_scheduler_is_the_tests_workflow_and_names_the_nine_suites(self):
+        self.assertEqual(release.SCHEDULER_WORKFLOW, REPO_ROOT / ".github/workflows/tests.yml")
         self.assertEqual(len(release.scheduler_suites(release.SCHEDULER_WORKFLOW)), 9)
 
     def test_keep_still_reports_a_manager_failure(self):
@@ -5408,7 +5411,7 @@ print(command, "ok")
 
     def run_ci_step(self, releases, block):
         """`Update the previous release to HEAD`, then (when it built) the verify step."""
-        text = VALIDATE_YML.read_text()
+        text = TESTS_YML.read_text()
         job = _job_section(text, "update-fixture")
         # The step passes no --scheduler-workflow: the candidate names the real nine suites.
         managed_release(self.repo.root, "2.13.0",
@@ -5479,7 +5482,7 @@ print(command, "ok")
 
 
 class CandidateSuitesDecisionTest(ScratchTestCase):
-    """`release.py release-source-changed`: `Validate`'s `changes` job. Only a pull request
+    """`release.py release-source-changed`: `Tests`' `changes` job. Only a pull request
     can skip the candidate-suite jobs; everything that cannot be decided runs them."""
 
     def setUp(self):
@@ -5499,7 +5502,7 @@ class CandidateSuitesDecisionTest(ScratchTestCase):
         for path in ("manifest.json", "payload/scripts/new.py", "payload/docs/guide.md",
                      "fixtures/new.md", "templates/new.txt", "tools/release/anything.py",
                      "tools/release/nested/deeper.txt", ".github/workflows/ci.yml",
-                     ".github/workflows/validate.yml", ".github/workflows/publish.yml",
+                     ".github/workflows/tests.yml", ".github/workflows/build-and-publish.yml",
                      ".gitattributes"):
             with self.subTest(path=path):
                 self.change(path, f"changed {path}\n")
@@ -5527,7 +5530,8 @@ class CandidateSuitesDecisionTest(ScratchTestCase):
                      "scripts/workflow.py", "docs/ai-workflow/WORKFLOW_STATE.json",
                      ".workflow-manager/installed.json", ".github/workflows/workflow-conformance.yml",
                      ".github/workflows/pr-title.yml", ".github/workflows/workflow-ci.yml",
-                     ".github/workflows/release.yml", "tools/docs/check_docs.py",
+                     ".github/workflows/release.yml", ".github/workflows/validate.yml",
+                     ".github/workflows/publish.yml", "tools/docs/check_docs.py",
                      "tools/releases/other.py", "payloads/a.txt", "manifest.json.bak"):
             with self.subTest(path=path):
                 self.change(path)
@@ -5613,7 +5617,7 @@ class CandidateSuitesDecisionTest(ScratchTestCase):
         self.assertEqual((code, self.outputs(out)["changed"]), (release.EXIT_OK, "true"), err)
 
     def test_the_workflow_step_writes_the_answer_to_github_output(self):
-        text = VALIDATE_YML.read_text()
+        text = TESTS_YML.read_text()
         command = re.search(r"\n        run: (python3 tools/release/release.py "
                             r"release-source-changed .*)\n", _job_section(text, "changes")).group(1)
         command = command.replace("python3 tools/release/release.py",
@@ -5631,11 +5635,11 @@ class CandidateSuitesDecisionTest(ScratchTestCase):
 
 
 class ManagerBlockCiTest(unittest.TestCase):
-    """The `Validate` (validate.yml) steps for the Manager block."""
+    """The `Tests` (tests.yml) steps for the Manager block."""
 
     @classmethod
     def setUpClass(cls):
-        cls.text = VALIDATE_YML.read_text()
+        cls.text = TESTS_YML.read_text()
 
     def test_the_two_steps_follow_the_tooling_step_in_the_checks_job(self):
         checks = _job_section(self.text, "checks")

@@ -4,8 +4,8 @@
 #
 # Two ways in, one set of gates, and only ever on `refs/heads/main`:
 #
-#   called      by ci.yml's `publish` job (`workflow_call` with `validated:
-#               true`) on a push to `main`, once that run's `aggregate`
+#   called      by ci.yml's `build-and-publish` job (`workflow_call` with
+#               `validated: true`) on a push to `main`, once that run's `aggregate`
 #               succeeded: the pushed commit (`github.sha`) was validated in
 #               the same run. `github.event_name` is the caller's, `push`. If
 #               `main` has meanwhile moved past that commit, the gate ends with
@@ -15,7 +15,8 @@
 #               Nothing in its own run validated anything, so the gate takes
 #               `main`'s tip only once a `CI` (ci.yml) push run for that exact
 #               commit has a successful `aggregate` job (the run itself may
-#               have failed in its own `publish`, which this path re-runs);
+#               have failed in its own `build-and-publish`, which this path
+#               re-runs);
 #               otherwise it fails.
 #
 # `dry-run` (an input of both, default false) runs every gate, the build, the
@@ -43,10 +44,11 @@
 #
 # No workflow-level concurrency: a called workflow whose group equals its
 # caller's deadlocks, and the `release` job serializes every publication in
-# its own group, never cancelled. The caller's `publish` job grants
+# its own group, never cancelled. The caller's `build-and-publish` job grants
 # `contents: write` and `actions: read`; only the `release` job uses the
-# write permission.
-name: Publish
+# write permission. Building and publishing only: the tests that validate the
+# revision are tests.yml's, orchestrated by ci.yml.
+name: Build and publish
 
 on:
   workflow_call:
