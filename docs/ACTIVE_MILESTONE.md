@@ -2,23 +2,22 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; a `fix:` change, Workflow patch release 2.29.8 follows the merge). W57: `command-wording-pins`
-(`process`, governing version `2.2`), branch `milestone/command-wording-pins`, roadmap row 50 (RodrigoFAbreu/workflow#190 points 1 and 2,
-#123 point 6). The plan is `docs/ai-workflow/COMMAND_WORDING_PINS_PLAN.md` (revision 1, approved by gate policy); an archive copy is in
-`docs/milestones/completed/`.
+**Complete** (accepted by policy; a `fix:` change, Workflow patch release 2.29.9 follows the merge). W58: `gate-policy-test-pins`
+(`process`, governing version `2.2`), branch `milestone/gate-policy-test-pins`, roadmap row 51 (RodrigoFAbreu/workflow#185 points 2 to 4,
+#143 point 3, #149 point 3, #190 point 4). The plan is `docs/ai-workflow/GATE_POLICY_TEST_PINS_PLAN.md` (revision 3, approved by gate
+policy); an archive copy is in `docs/milestones/completed/`.
 
 ## Goal
 
-Wording only: shipped text says what the code does. Three command files and the two `cross_device` refusals of `workflow_retention.py`
-change; nothing the code does changes. Not taken: #190 point 3 (owner decision) and #190 point 4 (not in the brief).
+Test-only: five tightenings and one new test in three payload test files; no script changes. Not taken: #185 point 1 (a code change).
 
 ## Outcome
 
-- CP1 (the wording, its pins, roadmap row 50) and CP2 (release 2.29.8) are complete.
-- The technical approval was recorded by policy. Functional flows F1 to F9 are recorded passed by the orchestrator's independent
+- CP1 (the pins and roadmap row 51) and CP2 (release 2.29.9) are complete.
+- The technical approval was recorded by policy. Functional flows F1 to F8 are recorded passed by the orchestrator's independent
   headless executor.
-- The 4 recorded Optional findings are dispositioned (all dropped, with reasons); see
-  `docs/milestones/completed/command-wording-pins-findings.md`.
+- The 6 recorded Optional findings are dispositioned (4 fixed, 2 dropped, with reasons); see
+  `docs/milestones/completed/gate-policy-test-pins-findings.md`.
 
 ## Next action
 

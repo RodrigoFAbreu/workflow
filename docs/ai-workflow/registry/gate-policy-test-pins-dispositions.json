@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "gate-policy-test-pins",
+  "dispositions": {
+    "F-33b274e999cc": {
+      "disposition": "fixed",
+      "note": "Section 0 #185 4 now distinguishes the eight cases from the seven that carry the note."
+    },
+    "F-7f6db4ae9570": {
+      "disposition": "fixed",
+      "note": "D-Pins p5 now says every stat of the name zz fails (the topdown walk stats it too)."
+    },
+    "F-bba1e6b21196": {
+      "disposition": "fixed",
+      "note": "The p3/m3 line reference was corrected in the plan."
+    },
+    "F-e5cd2eee087e": {
+      "disposition": "fixed",
+      "note": "The plan now cites the failed-stat arm as R 226 to 227 and names the second except arm (R 234 to 235)."
+    },
+    "F-1dfe8745e58b": {
+      "disposition": "dropped",
+      "reason": "The mapping file is approved and frozen; its R3 sentence is a summary and the plan's D-Pins documents the p4/p6 exceptions and m4's four existing failures. No shipped text is affected."
+    },
+    "F-62915c54a85f": {
+      "disposition": "dropped",
+      "reason": "A bundle test-results note about a state-only head; the checklist's F8 pins --head f08ab6e and the executor confirmed the title check agrees there."
+    }
+  }
+}
