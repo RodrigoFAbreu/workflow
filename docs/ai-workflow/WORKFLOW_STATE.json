@@ -44920,7 +44920,7 @@
       "registry_path": "docs/ai-workflow/registry/gate-policy-test-pins-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/gate-policy-test-pins-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 3,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -45029,7 +45029,138 @@
           "workflow_release": "2.29.8"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "0cdf5dcf51eab2e3907f06981ed86a7f881d6f72c3381520e173742fa68fc203",
+        "approved_review_content_id": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/gate-policy-test-pins-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b4149109e9c9e0c4c86cb5a09a5015ba475fd8c1"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7b3d6c6d14964bd679de389a69ed425f2e76adaa"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "42f9f87ecd5a31e393e25351fc637140db7238c3"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0a168d56e6de7b76cdde11294008013429414bec"
+          },
+          {
+            "path": "payload/scripts/workflow_gate_policy_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c9a36e8dc72746c39dd8a98b28786328a0b09f3b"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ee39d544d7de659b0a7122089ead09acb1e6d14c"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "70cbd36277d8cd597d05e748d26c75d8d2bdd995"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4a14ebbcc8aff67913007d963cd2953c082d08b3"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "890c3570fa52d2d5c223326c05bb70000a1f3848"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "47636047499406a788279999cf623bdd58ec7963"
+          }
+        ],
+        "reviewed_content_commit": "f08ab6e8fc1906831087e679027d8c5ca4ce40b9",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-17T10:13:07Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+            "ledger": {
+              "local": {
+                "bundle_id": "0cdf5dcf51eab2e3907f06981ed86a7f881d6f72c3381520e173742fa68fc203",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "06f0840c1b4e3bbf99a43c214864bfa942a236f5745fb2f67d1770e01f056956",
+                "ledger_entry_sha256": "6fe793e4ff7144f60fbcee2bf7aa815079e0c55c40f268ea4632f11d2ff2d050",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/gate-policy-test-pins/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "0cdf5dcf51eab2e3907f06981ed86a7f881d6f72c3381520e173742fa68fc203",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "dd5dc99bc4d2df053b04234444b999ebae51d8945b6ff3a337a1c642723eda43",
+                "ledger_entry_sha256": "4009b3401d44cd49ccfc5c20e9b2e06b7f5ab4c59483787f4cebb8a57545bdc2",
+                "run_ref": "codex:20261117T100858Z-274d8b2d",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-17T10:13:07Z",
+          "workflow_release": "2.29.8"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "5714e3753a8f3df574711fcb3b334900510e68db8b0970e43d172528ddff4086",
@@ -45060,12 +45191,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 17,
-      "last_transition": "2026-11-17T09:48:07Z",
+      "state_revision": 20,
+      "last_transition": "2026-11-17T10:13:07Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -45159,6 +45290,41 @@
               "at": "2026-11-17T08:43:57Z"
             }
           ]
+        },
+        "F-62915c54a85f": {
+          "digest": "62915c54a85f7a667faa5bf6cf1233ac03d50b2f70ad95d786c3967ebd1803ba",
+          "text": "`.ai-review/gate-policy-test-pins/current/TEST_RESULTS.md` (the `check-title` command line): the recorded command is `release.py check-title \"<title>\" --agree` with no `--head`. Run at the bundle's HEAD `e06f254`, it refuses (`2.29.9 -> 2.29.9 is none`), because `--agree` compares HEAD with its first parent and the state-record commit's parent `f08ab6e` already carries 2.29.9. It agrees with `--head f08ab6e` (`2.29.8 -> 2.29.9 (patch)`) and on the squash commit CI checks, so the release is not affected. A later record could name `--head <code commit>` so that someone rerunning it at the bundle HEAD gets the same result.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+              "verdict": "APPROVE",
+              "at": "2026-11-17T10:07:26Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "0cdf5dcf51eab2e3907f06981ed86a7f881d6f72c3381520e173742fa68fc203",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-17T10:07:26Z",
+          "verdict_sha256": "06f0840c1b4e3bbf99a43c214864bfa942a236f5745fb2f67d1770e01f056956",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/gate-policy-test-pins/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "0cdf5dcf51eab2e3907f06981ed86a7f881d6f72c3381520e173742fa68fc203",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-17T10:12:08Z",
+          "verdict_sha256": "dd5dc99bc4d2df053b04234444b999ebae51d8945b6ff3a337a1c642723eda43",
+          "run_ref": "codex:20261117T100858Z-274d8b2d",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
