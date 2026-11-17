@@ -22,9 +22,10 @@ The repository root holds two copies of the Workflow (`CLAUDE.md`):
 
 The release tooling is `tools/release/` (`release.py`, `package.py`,
 `manager_block.py`, their tests, two pins and the committed Manager release
-list), and the workflows are `.github/workflows/workflow-ci.yml`
-(`Workflow CI`), `pr-title.yml` (`PR title`) and `release.yml` (`Release`).
-The `D-W0-*` names below are that plan's design decisions.
+list), and the workflows are `.github/workflows/ci.yml` (`CI`), which calls
+`validate.yml` (`Validate`) and `publish.yml` (`Publish`), and `pr-title.yml`
+(`PR title`); see "GitHub Actions layout" below. The `D-W0-*` names below
+are that plan's design decisions.
 
 ## How a release happens
 
@@ -42,15 +43,16 @@ manifest at build time.
 2. Its title is a Conventional Commit whose impact equals that version change
    (below). It is merged into `main` by squash; the title becomes the squash
    commit's subject, with a blank body.
-3. `main`'s `Workflow CI` push run checks the merged commit again.
-4. When that run completes green, `Release` starts (`workflow_run`). If
-   `main` has meanwhile moved on to a commit whose own push run has not
-   succeeded, it defers to that commit's run. Otherwise it checks out `main`'s
-   tip, reads its first-parent history and every tag and release, and decides
-   (`release.py next-release`):
+3. `main`'s `CI` push run checks the merged commit again (its `validate`
+   job).
+4. When that validation passes (the run's `aggregate`), the same run's
+   `publish` job runs `Publish`. If `main` has meanwhile moved on to a newer
+   commit, it defers to that commit's own run. Otherwise it checks out the
+   validated commit, `main`'s tip, reads its first-parent history and every
+   tag and release, and decides (`release.py next-release`):
    - `main`'s manifest names `V` and `vV` is **published**: there is nothing
      to release, once `vV` reads back intact (below);
-   - `vV` is **not published**: `V` is pending. `Release` builds the package
+   - `vV` is **not published**: `V` is pending. `Publish` builds the package
      from the **introducing commit** `C_V` (the oldest first-parent commit
      whose manifest names `V` and whose parent's does not), verifies it with
      the pinned Workflow Manager, publishes `vV` at `C_V` and reads it back.
@@ -86,7 +88,7 @@ that bumps the version fails.
 
 Impact titles are therefore reserved for release-source changes. Repository
 tooling, CI and documentation are always `ci:`, `chore:`, `docs:` or `test:`,
-including a fix to `release.yml` or `tools/release/` while a release is
+including a fix to `publish.yml` or `tools/release/` while a release is
 pending. The squash subjects on `main` are a truthful changelog of the
 release source. Check a title locally, on a commit whose first parent is the
 base:
@@ -113,18 +115,72 @@ gh pr update-branch <number>
 (or "Update branch" on the pull request). GitHub auto-merge does not update
 the branch itself.
 
+## GitHub Actions layout
+
+Three repository-owned workflows, plus `PR title` and the managed
+`workflow-conformance.yml`:
+
+| file | name | role |
+| --- | --- | --- |
+| `ci.yml` | `CI` | the entry point: every pull request, `main` push and `workflow_dispatch`. Its jobs are `validate` (calls `validate.yml`), `aggregate` (the required check) and `publish` (calls `publish.yml`, only on a push to `main`, after `aggregate`) |
+| `validate.yml` | `Validate` | every check of the release source and of the installation ("What CI checks" below). Reusable (`workflow_call`) and runnable by itself (`workflow_dispatch`, which runs everything and reports no required check) |
+| `publish.yml` | `Publish` | the release gate and the release job ("The release job" below). Reusable, with the input `validated`, and runnable by itself on `main` (`workflow_dispatch`), with the input `dry-run` |
+| `pr-title.yml` | `PR title` | the required `Conventional Commit title` check |
+| `workflow-conformance.yml` | `Workflow conformance` | the installation's suites, the required `workflow-conformance` check. Managed by the Workflow release: never edited here |
+
+`aggregate` is a job of `ci.yml` itself, with no `name:`, because a job called
+through `uses:` reports as `<caller job> / <called job>` (`validate / checks`):
+only a job of the calling workflow reports under the bare name the ruleset
+requires. It always runs and fails unless the `validate` job succeeded, so a
+failed, skipped or cancelled validation fails it. The aggregation proper stays
+in `validate.yml`'s `verdict` job, which fails that workflow, and with it
+`aggregate`.
+
+A revision is validated once: `publish` runs in the same `CI` run, only after
+its `aggregate` succeeded, and only on a push to `main`. A called workflow
+cannot exceed its caller job's permissions, so `publish` is the one job that
+grants `contents: write` (and `actions: read`); everything else reads only.
+Only `ci.yml` sets the workflow-level concurrency: a pull request's run is
+cancelled by its next push, and every other run is per event and commit and
+never cancelled (a called workflow with its caller's group would deadlock).
+Publications are serialized by the release job's own group.
+
+Shared workflows from `RodrigoFAbreu/action-workflows` are used only where their
+semantics are exactly this repository's:
+
+- `python-tests.yml` runs `tools/docs/`'s tests (`validate.yml`'s `docs-tests`
+  job: Python 3.12, `test-directory: tools/docs`, `test-pattern: "*_test.py"`,
+  which is `python -m unittest discover -s tools/docs -p '*_test.py'` in a fresh
+  checkout; they need nothing else).
+- `python-tests.yml` is not used for the rest: `tools/release/`'s tests need the
+  pinned zlib-ng runtime, full history and tags, and the conformance suites run
+  sharded in a staged fixture with a coverage gate.
+- The shared `pr-title.yml` is not used: `pr-title.yml` runs this repository's
+  own `release.py check-title --agree`, which also requires the title's impact
+  to agree with the manifest's version change.
+
+Run them by hand:
+
+```bash
+gh workflow run validate.yml --ref <branch>                # every check, nothing published
+gh workflow run publish.yml --ref main -f dry-run=true     # every gate and the build, no release created
+gh workflow run publish.yml --ref main                     # the re-run path (below)
+```
+
 ## What CI checks
 
-`Workflow CI` runs on every pull request, every `main` push and on
-`workflow_dispatch`, under Python 3.12 on `ubuntu-latest`. Its jobs:
+`CI` runs on every pull request, every `main` push and on
+`workflow_dispatch`; its `validate` job runs `Validate`, under Python 3.12 on
+`ubuntu-latest`. Its jobs:
 
 | job | checks |
 | --- | --- |
-| `changes` | seconds long: `release.py release-source-changed` over `HEAD^1..HEAD` (on a pull request's merge ref, the base tip and the merge) answers whether the change touches `manifest.json`, `payload/`, `fixtures/`, `templates/`, `tools/release/`, `.github/workflows/workflow-ci.yml` or the root `.gitattributes` (`git archive` reads its `export-ignore` and `export-subst` lines, so it changes what is staged from the release source). A `push` to `main` and `workflow_dispatch` always answer yes, and so does a decision that cannot be computed (no parent, a git error) |
-| `checks` | one checkout and one install of the pinned tools, then each check as its own named step: `workflow-manager verify .` with the pinned Manager; `release.py build --commit HEAD`, the Manager's `package verify` of the archive, a `--release-dir` bootstrap and verify of a scratch repository, and the three assets uploaded as the `package` artifact; `release.py check-pending` and `check-immutable` against the saved release list (and, when the manifest version is published, `check-immutable --published` against the downloaded `vV` assets); `tools/docs/`'s tests and checker; and `tools/release/release_test.py`, including the byte-for-byte reproduction of every published release (`v2.3.1` to `v2.6.0`) in the pinned deflate runtime; and, for a release after 2.12.0, the Manager block checks ("The Manager metadata block" below) |
+| `changes` | seconds long: `release.py release-source-changed` over `HEAD^1..HEAD` (on a pull request's merge ref, the base tip and the merge) answers whether the change touches `manifest.json`, `payload/`, `fixtures/`, `templates/`, `tools/release/`, `.github/workflows/ci.yml`, `validate.yml`, `publish.yml` or the root `.gitattributes` (`git archive` reads its `export-ignore` and `export-subst` lines, so it changes what is staged from the release source). A `push` to `main` and `workflow_dispatch` always answer yes (in a called workflow the event is the caller's), and so does a decision that cannot be computed (no parent, a git error) |
+| `checks` | one checkout and one install of the pinned tools, then each check as its own named step: `workflow-manager verify .` with the pinned Manager; `release.py build --commit HEAD`, the Manager's `package verify` of the archive, a `--release-dir` bootstrap and verify of a scratch repository, and the three assets uploaded as the `package` artifact; `release.py check-pending` and `check-immutable` against the saved release list (and, when the manifest version is published, `check-immutable --published` against the downloaded `vV` assets); `tools/docs/`'s checker; and `tools/release/release_test.py`, including the byte-for-byte reproduction of every published release (`v2.3.1` to `v2.6.0`) in the pinned deflate runtime; and, for a release after 2.12.0, the Manager block checks ("The Manager metadata block" below) |
+| `docs-tests` | `tools/docs/`'s tests, through the shared `python-tests.yml` ("GitHub Actions layout" above) |
 | `release-source-conformance` | only when `changes` says yes: `release.py stage-conformance --commit HEAD`, then the release source's own nine frozen suites in that fixture, the acceptance-matrix suite in 4 shards, all under one limit |
 | `update-fixture` | only when `changes` says yes: for a release that carries a Manager block, the pre-publish update fixture ("The Manager metadata block" below) builds the updated repository (previous published release, updated to HEAD with the pinned Manager), then runs the same nine frozen suites there with the same scheduler as `release-source-conformance` (the same step text, pinned equal by `release_test.py`), then the Manager's `verify` of it |
-| `aggregate` | fails unless `changes` and `checks` succeeded and each of `release-source-conformance` and `update-fixture` succeeded, or was skipped because `changes` succeeded and said the release source and its CI are unchanged (any other skip fails it, with an `::error` naming the job and its result) |
+| `verdict` | fails unless `changes`, `checks` and `docs-tests` succeeded and each of `release-source-conformance` and `update-fixture` succeeded, or was skipped because `changes` succeeded and said the release source and its CI are unchanged (any other skip fails it, with an `::error` naming the job and its result). It fails `Validate`, and so `CI`'s required `aggregate` |
 
 A pull request that touches none of those paths (documentation, the roadmap, an
 installation of the Workflow in this repository) therefore skips the two jobs
@@ -170,8 +226,8 @@ request (`opened`, `edited`, `reopened`, `synchronize`). The installed
 `workflow-conformance` job runs the installation's suites.
 
 The required checks on `main` are unchanged: `aggregate`, `Conventional Commit
-title` and `workflow-conformance`. Adding a job to `Workflow CI` means adding it to
-`aggregate`'s `needs` and its result list, never to the ruleset.
+title` and `workflow-conformance`. Adding a job to `Validate` means adding it to
+`verdict`'s `needs` and its result list, never to the ruleset.
 
 ### A published version never changes
 
@@ -208,20 +264,33 @@ what makes the release target deterministic.
 
 ## The release job
 
-`Release` (`.github/workflows/release.yml`) runs after every **successful
-`Workflow CI` push run on `main`** (`workflow_run`), and on
-`workflow_dispatch` on `main`, the re-run path. It has two jobs.
+`Publish` (`.github/workflows/publish.yml`) runs as the `publish` job of every
+`CI` **push run on `main` whose `aggregate` succeeded** (`workflow_call`, with
+`validated: true`), and on `workflow_dispatch` on `main`, the re-run path. It
+has two jobs, and only ever runs on `refs/heads/main`.
 
 The `gate` job checks out nothing and runs none of this repository's code. It
 reads `main`'s current tip through the API and passes it on only once that
-tip has a successful `Workflow CI` push run: the triggering run itself when
-the tip is the triggering commit, otherwise one the API lists for the tip's
-sha. A green run only covers its own commit, and `release.yml` executes the
+tip was validated. Called by `CI`, the validation is that same run's
+`aggregate`, which covers only its own commit: the tip is passed on only when
+it is that commit. A run whose commit `main` has moved past ends there with a
+notice, and the tip's own `CI` run, once its `aggregate` succeeds, publishes
+it. Dispatched, nothing in its own run validated anything, so the tip is passed
+on only when the API lists a `CI` push run for that exact sha whose `aggregate`
+job succeeded; a dispatch on a tip without one fails. (`aggregate`, not the
+whole run: a run whose own `publish` failed still validated its commit, and
+the dispatch is what re-runs that publication.) `publish.yml` executes the
 release tooling of the commit it checks out, so a newer tooling-only commit
-whose push run is red or still running is never executed. A `workflow_run`
-whose commit `main` has moved past, with no green run for the tip yet, ends
-there with a notice: the tip's own push run, once green, starts `Release`
-again. A dispatch on a tip without one fails.
+whose validation is red or still running is never executed.
+
+The `dry-run` input (default false, on both ways in) runs every gate, the
+build, the Manager's verification and, for a published version, the read-back,
+but skips `gh release create` with a notice, and so the read-back of a pending
+version it did not create:
+
+```bash
+gh workflow run publish.yml --ref main -f dry-run=true
+```
 
 The `release` job runs only with the gate's sha. Runs are serialized by one
 concurrency group, `workflow-release`, and never cancelled. It checks out
@@ -269,13 +338,15 @@ procedures below.
 - `main`'s manifest names a published version `V` and `vV` reads back
   intact: the job ends green with "nothing to release (vV read back
   intact)". This is every merge that does not bump the version.
-- A pull request's `Workflow CI` run, a failed or cancelled `main` push run,
-  or a dispatch on any branch other than `main`: the job does not run.
-- A `workflow_run` whose commit `main` has moved past, while the new tip has
-  no successful `Workflow CI` push run: the `gate` job ends green with a
-  notice and nothing else runs; the tip's own run decides.
-- A dispatch whose `main` tip has no successful `Workflow CI` push run: the
-  `gate` job fails before anything is checked out.
+- A pull request's `CI` run, a `CI` dispatch, a `main` push run whose
+  `aggregate` failed or was cancelled, or a dispatch of `Publish` on any branch
+  other than `main`: the job does not run.
+- A `CI` push run whose commit `main` has moved past: the `gate` job ends
+  green with a notice and nothing else runs; the tip's own run decides.
+- A dispatch whose `main` tip has no `CI` push run with a successful
+  `aggregate`: the `gate` job fails before anything is checked out.
+- A dry run: nothing is created; for a pending version the job ends with
+  "dry run: vV would be published at C_V; the release is not created".
 
 `next-release` never answers an empty "nothing": a draft or a tag without a
 published release refuses, and a published release that does not read back
@@ -287,19 +358,26 @@ fails the run, so neither is ever mistaken for "nothing to release".
   pull request: a tooling or CI fix is `ci:` (or `test:`/`docs:`), and is
   allowed while a version is pending; a release-source fix needs its own
   version bump once the pending version is published.
-- **A failed `Release` run before `gh release create`** leaves nothing:
-  re-run it (`workflow_dispatch`, below). If the failure was the tooling's,
-  fix it first in a `ci:` pull request; its merge's green push run starts
-  `Release` again.
+- **A failed `Publish` before `gh release create`** leaves nothing (the
+  `CI` run that called it is red in its `publish` job only): re-run it
+  (`workflow_dispatch`, below), or re-run the failed jobs of that `CI` run.
+  If the failure was the tooling's, fix it first in a `ci:` pull request; its
+  merge's push run validates it and publishes again.
 - **A failed run inside or after `gh release create`**: see the next two
   sections. `next-release` names which one applies.
 
-Re-run `Release` through `workflow_dispatch` on `main`:
+Re-run `Publish` through `workflow_dispatch` on `main` (a dry run first, if in
+doubt):
 
 ```bash
-gh workflow run release.yml --ref main
-gh run list --workflow release.yml --limit 5
+gh workflow run publish.yml --ref main -f dry-run=true
+gh workflow run publish.yml --ref main
+gh run list --workflow publish.yml --limit 5
 ```
+
+`gh run list --workflow publish.yml` lists the dispatched runs; a publication
+called by `CI` is the `publish` job of that `CI` run
+(`gh run list --workflow ci.yml --branch main --event push`).
 
 ## Recovering from a failed publication
 
@@ -328,11 +406,11 @@ owner's:
    that never belonged to a published release does not breach release
    immutability (which covers published releases only) or this
    repository's rule against moving a published tag;
-4. re-run `Release` through `workflow_dispatch`; it resolves the same `V`
+4. re-run `Publish` through `workflow_dispatch`; it resolves the same `V`
    and `C_V` (D-W0-Target) and publishes.
 
 Never touch a published release. Recovery never needs a release-source
-change: if the failure came from `release.yml` or `tools/release/`, fix it in
+change: if the failure came from `publish.yml` or `tools/release/`, fix it in
 a `ci:` pull request, which the pending-version freeze allows, then re-run.
 
 W0's CP3 rehearsed this procedure live, for a draft with its tag, in a
@@ -344,7 +422,7 @@ throwaway repository (`docs/ai-workflow/requirements/workflow-repository-setup-l
 A publication can complete while its read-back fails: a missing, extra or
 differing asset, or the tag `vV` somewhere other than `C_V`. A published
 release cannot be repaired, so it is never deleted, edited or re-uploaded.
-Every later `Release` run and every `checks` run's immutability steps then stay red, naming
+Every later `Publish` run and every `checks` run's immutability steps then stay red, naming
 `vV` and what differs, until `V` is superseded:
 
 1. leave `vV` and its tag exactly as they are, and **never add a
@@ -357,7 +435,7 @@ Every later `Release` run and every `checks` run's immutability steps then stay 
    incomplete release V` (patch impact, D-W0-Title). It passes CI:
    `HEAD^1`'s `V` is published, so the bump is allowed (D-W0-Pending), and
    `V'` is unpublished, so D-W0-Immutable does not apply;
-4. once merged, `Release` publishes `V'` normally (`V'` is greater than the
+4. once merged, `Publish` publishes `V'` normally (`V'` is greater than the
    highest published version `V`, whose tag is an ancestor of `C_V'`), and
    reads it back;
 5. record `V` as superseded by `V'` in `docs/RELEASING.md`'s "Superseded
@@ -470,7 +548,7 @@ digests (`archive_sha256=dc86a796…`, `manifest_sha256=d92517a2…`). The tar
 stream and manifest digests are independent of the deflate runtime, so when
 only `archive_sha256` differs, the runtime drifted, not the source.
 
-The other commands CI and `Release` run work locally the same way, against a
+The other commands `Validate` and `Publish` run work locally the same way, against a
 saved release list:
 
 ```bash
@@ -482,7 +560,7 @@ python tools/release/release.py stage-conformance --commit HEAD --out "$(mktemp 
 ```
 
 A token without write access does not see drafts, so locally a draft is
-invisible to `next-release`; the `Release` job saves the list with its write
+invisible to `next-release`; `Publish`'s `release` job saves the list with its write
 token.
 
 ## The installation check
@@ -505,7 +583,7 @@ request bumps `tools/release/manager-pin.json` first or together.
 ### Bumping the Manager pin
 
 `tools/release/manager-pin.json` names the Workflow Manager release CI and
-`Release` install (`version`, `wheel`, `sha256`). The Manager only has to
+`Publish` install (`version`, `wheel`, `sha256`). The Manager only has to
 verify packages, bootstrap and verify a repository, and know the release this
 repository's installation records; bump it when an installation update needs
 a newer Manager, in a `ci:` pull request:
@@ -558,7 +636,7 @@ exists. `--write` replaces only the value of `suites` in the working tree's
 `manifest.json`, keeping every other byte, and refuses a manifest at 2.12.0 or
 older or one with no block to fill.
 
-`Workflow CI` runs `release.py check-manager-block --commit HEAD
+`Validate` runs `release.py check-manager-block --commit HEAD
 --manager-releases tools/release/manager-releases.json`, which refuses when:
 
 - (a) the block is not valid under the contract (schema 1, key types, the closed
@@ -590,7 +668,7 @@ version) and runs `workflow-manager update` with the pinned Manager (held equal
 to the minimum by check (g)) against the candidate. With `--keep OUT` it stops
 there and leaves the updated repository in `OUT`, after checking that the suites
 the updated repository's conformance workflow names are exactly the ones the
-scheduler step in `workflow-ci.yml` runs (it refuses, naming both lists, when
+scheduler step in `validate.yml` runs (it refuses, naming both lists, when
 they differ: a release that changes its suites changes the scheduler step with
 it); the job then runs the candidate's nine frozen suites in it, scheduled exactly as in
 `release-source-conformance` (the acceptance-matrix suite in 4 shards, the
@@ -608,7 +686,7 @@ downgrade posture. That is a judgment no tool can make here.
 ## After a release: the `workflow-manager` pin
 
 A published release reaches users only once `workflow-manager` pins it. After
-`Release` publishes `vV`, open the small `workflow-manager` pull request that
+`Publish` publishes `vV`, open the small `workflow-manager` pull request that
 adds its pin, following that repository's `docs/RELEASING.md`, "Workflow
 packages: adding a pin"
 (https://github.com/RodrigoFAbreu/workflow-manager/blob/main/docs/RELEASING.md).
@@ -676,6 +754,13 @@ repository owner's action, or one the owner explicitly authorizes; an agent
 states the commands and reads results back. Record each step's evidence in
 `docs/ACTIVE_MILESTONE.md`. A problem found here goes back through
 `/apply-functional-review`.
+
+This section is W0's record, kept as it ran: its `Workflow CI`
+(`workflow-ci.yml`) and `Release` (`release.yml`) are now `CI` (`ci.yml`,
+calling `validate.yml`) and `Publish` (`publish.yml`, called by `CI`'s
+`publish` job), described in "GitHub Actions layout" above. Today's
+equivalent of step 6's commands is `gh run list --workflow ci.yml --branch
+main --event push --limit 1` and that run's `publish` job's log.
 
 1. Push the branch and open the pull request (impact `none`: the manifest
    stays at 2.6.0):

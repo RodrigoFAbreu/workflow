@@ -1,0 +1,18 @@
+{
+  "dispositions": {
+    "F-3cbf5b633e3d": {
+      "disposition": "dropped",
+      "reason": "Cosmetic: one line of docs/RETENTION.md:578 is about 105 characters inside a paragraph wrapped near 80; the docs checker accepts it and the plan's request names it as a known limitation. Not re-wrapped (a re-wrap would need another implementation round for no reader-visible change)."
+    },
+    "F-920523558cef": {
+      "disposition": "fixed",
+      "note": "The plan's engine line citations were corrected (now :1918 etc.); the old numbers are gone from the plan."
+    },
+    "F-d912f5b5b8b7": {
+      "disposition": "dropped",
+      "reason": "The approved plan cites the refusal handler as workflow_retention.py:1915 to :1931 where it ends at :1933 (checked at 9aacb87). The plan is frozen once approved and the line numbers appear only in the plan's own evidence table, not in the shipped docs/RETENTION.md text, so nothing a reader of the release sees is wrong."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "retention-docs-notes"
+}

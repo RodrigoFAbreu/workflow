@@ -4714,6 +4714,17 @@ class RetentionReportUnreadable(unittest.TestCase):
         self.assertEqual(data["read_errors"], [])
         self.assertEqual(record["review_folder"], {**_RRU_PARTIAL, "complete": True})
 
+    def test_t7_a_sub_directory_that_cannot_be_examined_is_still_named_by_its_own_path(self):
+        # `_can_fail_walk`'s failed-`stat` arm (#149 point 3): `stat` of the listed sub-directory `zz` fails
+        # (the walk's own stat and the probes alike; the walk never reaches an `open`)
+        rr = self.rr()
+        self.layout(rr, {"a/zz": "dir"})
+        base = rr.root / ".ai-review" / "w00"
+        record, data, _ = self.case(rr, "at least 5 B in 1 files (partly unreadable); no archive", folder="zz")
+        self.assertEqual([e["path"] for e in data["read_errors"]], [str(base / "a" / "zz")])
+        self.assertEqual(record["review_folder"], _RRU_PARTIAL)
+        self.assertFalse(record["review_folder"]["complete"])
+
     @unittest.skipUnless(_HAVE_ZSTD, "remove needs a verified archive")
     def test_t6_the_refusals_name_the_corrected_path_and_write_nothing(self):
         ra = _RA(_rr_many(7))
@@ -6153,13 +6164,33 @@ class RetentionRemove(unittest.TestCase):
                 rr.prepared()
                 archive_before = (rr.adir / "w00.tar.zst").read_bytes()
                 everything = rr.files(rr.root / ".ai-review" / "w00")
-                with _readlink_fails("_remove_tree", "ln", err) as counted:
+                # the stopped run's own calls are observed, not inferred (#143 point 3): the successful
+                # `unlink` and `rmdir` calls made beneath `.removing` (with a `dir_fd`)
+                unlinks, rmdirs = [], []
+                real_unlink, real_rmdir = os.unlink, os.rmdir
+
+                def recording_unlink(path, *a, **k):
+                    real_unlink(path, *a, **k)
+                    if k.get("dir_fd") is not None:
+                        unlinks.append(path)
+
+                def recording_rmdir(path, *a, **k):
+                    real_rmdir(path, *a, **k)
+                    if k.get("dir_fd") is not None:
+                        rmdirs.append(path)
+
+                with _readlink_fails("_remove_tree", "ln", err) as counted, \
+                        unittest.mock.patch.object(os, "unlink", recording_unlink), \
+                        unittest.mock.patch.object(os, "rmdir", recording_rmdir):
                     result = rr.rm(apply=True)
                 self.assertEqual(len(counted), 1)
                 self.link_refused(result, code, err)
                 rest = rr.files(rr.removing / "w00")
-                deleted = len(everything) - len(rest)
+                deleted = len(unlinks) + len(rmdirs)
                 self.assertGreater(deleted, 0)
+                self.assertEqual(deleted, len(everything) - len(rest))  # the observed count is the disk's
+                self.assertEqual(sorted(unlinks + rmdirs),
+                                 sorted(os.path.basename(rel) for rel in set(everything) - set(rest)))
                 self.assertIn("ln", rest)
                 self.assertIn(f"; stopped after deleting {deleted} entries, each proven archived; the rest is in ",
                               result.error.message)
@@ -8177,6 +8208,242 @@ class RetentionErrorPathsTwo(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("  w00: 5 B in 1 files; no archive", out)
         self.assertEqual(_rr_snapshot(rr.root, rr.archive_root), before)
+
+
+@unittest.skipUnless(_HAVE_ZSTD, "the retention pins need the zstd program on PATH")
+class RetentionTestPins(unittest.TestCase):
+    """The pins the retention classes lacked (RodrigoFAbreu/workflow#113 5, #116 2, #119 4): each fails when the
+    one retention line it guards is removed, and no one of them changes behaviour."""
+
+    def setUp(self):
+        self._dirs = []
+
+    def tearDown(self):
+        for directory in self._dirs:
+            shutil.rmtree(directory, ignore_errors=True)
+
+    def stand_in(self, body):
+        directory = Path(tempfile.mkdtemp(prefix="wfo-zstd-"))
+        self._dirs.append(directory)
+        script = directory / "zstd"
+        script.write_text("#!/bin/sh\nreal=" + shutil.which("zstd") + "\n" + body)
+        script.chmod(0o755)
+        return str(script)
+
+    def ra(self):
+        rr = _RA()
+        self.addCleanup(rr.__exit__, None, None, None)
+        rr.__enter__()
+        rr.folder()
+        return rr
+
+    def rm_env(self):
+        rr = _RM()
+        self.addCleanup(rr.__exit__, None, None, None)
+        rr.__enter__()
+        rr.prepared()
+        return rr
+
+    def refused(self, result, code):
+        self.assertEqual((result.code, result.err_code), (2, code), getattr(result.error, "message", result.result))
+        self.assertTrue(result.error.next_step)
+
+    # -- #113 point 5a: a modification time in the future ---------------------
+
+    def test_p1_an_archive_dated_in_the_future_reports_age_zero_and_is_never_prunable(self):
+        with _RR(_rr_many(6)) as rr:
+            rr.archive("w00.tar.zst", -3600)
+            rr.archive("w01.tar.zst", -40 * 86400)
+            before = _rr_snapshot(rr.root, rr.archive_root)
+            report = rr.build()
+            by_id = {r["work_item_id"]: r["archive"] for r in report["finished"]}
+            for item in ("w00", "w01"):
+                self.assertTrue(by_id[item]["present"], item)
+                self.assertEqual(by_id[item]["age_days"], 0, item)
+                self.assertFalse(by_id[item]["prunable"], item)
+            listed = {a["name"]: a for a in report["archives"]}
+            self.assertEqual(sorted(listed), ["w00.tar.zst", "w01.tar.zst"])
+            for name, entry in listed.items():
+                self.assertEqual((entry["age_days"], entry["prunable"], entry["item"]), (0, False, "finished"), name)
+            self.assertEqual(report["totals"]["prunable"], 0)
+            self.assertEqual(_rr_snapshot(rr.root, rr.archive_root), before)
+
+    # -- #113 point 5b: `build_report` without a `run` ------------------------
+
+    def test_p2_build_report_without_run_uses_the_forge_default_runner(self):
+        queries = []
+
+        def default_runner(argv, timeout):
+            queries.append(argv)
+            return _rr_raw("merged")
+        with _RR(_rr_many(6)) as rr:
+            before = _rr_snapshot(rr.root, rr.archive_root)
+            kwdefaults = wr.workflow_forge.query_forge_pr_facts.__kwdefaults__
+            with unittest.mock.patch.dict(kwdefaults, {"run": default_runner}):
+                report = wr.build_report(rr.root, archive_root=rr.archive_root, ttl_days=30, now=_RR_NOW,
+                                         resolve=rr.resolve)
+            self.assertEqual(len(queries), 6)
+            self.assertEqual(rr.queried, [])
+            self.assertEqual(report["not_finished"], [])
+            self.assertEqual(len(report["finished"]) + len(report["kept_recent"]), 6)
+            self.assertNotIn("query_failed", json.dumps(report))
+            self.assertEqual(_rr_snapshot(rr.root, rr.archive_root), before)
+
+    # -- #116 point 2a: a read that fails after a successful open -------------
+
+    def test_p3_a_read_that_fails_after_a_successful_open_is_unreadable_and_nothing_is_kept(self):
+        rr = self.ra()
+        target = rr.root / ".ai-review" / "w00" / "a.txt"
+        before, folder_before = rr.snap(times=False), _ra_snap(rr.root / ".ai-review" / "w00")
+        real_open, real_read = os.open, os.read
+        opened, failed = [], []
+
+        def open_(path, flags, *args, **kwargs):
+            fd = real_open(path, flags, *args, **kwargs)
+            if path == "a.txt" and kwargs.get("dir_fd") is not None:
+                opened.append(fd)
+            return fd
+
+        def read(fd, count):
+            if fd in opened and not failed:
+                failed.append(fd)
+                raise OSError(errno.EIO, os.strerror(errno.EIO))
+            return real_read(fd, count)
+        with unittest.mock.patch.object(os, "open", open_), unittest.mock.patch.object(os, "read", read):
+            result = rr.call(apply=True)
+        self.assertTrue(failed)
+        self.refused(result, "unreadable")
+        self.assertIn("a.txt cannot be read (Input/output error)", result.error.message)
+        self.assertEqual(result.error.next_step, "repair it; the engine does not archive from a partial view")
+        self.assertNotIn("grant read access", result.error.next_step)
+        self.assertEqual(rr.snap(times=False), before)
+        self.assertEqual(_ra_snap(rr.root / ".ai-review" / "w00"), folder_before)
+        self.assertTrue(target.exists())
+
+    # -- #116 point 2b: altered bytes, equal names, types and sizes -----------
+
+    def test_p4_an_archive_whose_bytes_differ_with_names_types_and_sizes_equal_is_not_kept(self):
+        rr = self.ra()
+        flip = Path(tempfile.mkdtemp(prefix="wfo-flip-"))
+        self._dirs.append(flip)
+        script = flip / "flip.py"
+        script.write_text(
+            "import io, sys, tarfile\n"
+            "src = tarfile.open(fileobj=io.BytesIO(sys.stdin.buffer.read()), mode='r:')\n"
+            "out = io.BytesIO()\n"
+            "with tarfile.open(fileobj=out, mode='w', format=tarfile.PAX_FORMAT) as dst:\n"
+            "    for m in src.getmembers():\n"
+            "        data = src.extractfile(m).read() if m.isfile() else None\n"
+            "        if data:\n"
+            "            data = bytes([data[0] ^ 1]) + data[1:]\n"
+            "        dst.addfile(m, io.BytesIO(data) if data is not None else None)\n"
+            "sys.stdout.buffer.write(out.getvalue())\n")
+        stand_in = self.stand_in(
+            'if [ "$1" = "-dc" ]; then exec "$real" "$@"; fi\n'
+            f'{sys.executable} {script} | "$real" "$@"\n')
+        before, folder_before = rr.snap(times=False), _ra_snap(rr.root / ".ai-review" / "w00")
+        result = rr.call(apply=True, zstd=stand_in)
+        self.refused(result, "verify_failed")
+        self.assertIn("differs in content", result.error.message)
+        self.assertEqual(rr.snap(times=False), before)
+        self.assertEqual(_ra_snap(rr.root / ".ai-review" / "w00"), folder_before)
+
+    # -- #119 point 4c: the stat-only re-check after the hash -----------------
+
+    def test_p5_a_stat_only_change_after_the_hash_puts_the_folder_back_and_deletes_nothing(self):
+        rr = self.rm_env()
+        folder = rr.root / ".ai-review" / "w00"
+        before, folder_before = rr.snap(times=False), rr.files(folder)
+        real_table, moved = wr._archive_table, []
+
+        def table(*args, **kwargs):
+            result = real_table(*args, **kwargs)
+            held = rr.removing / "w00" / "a.txt"
+            info = os.stat(held)
+            stamp = info.st_mtime + 5
+            os.utime(held, (stamp, stamp))
+            moved.append(True)
+            return result
+        with unittest.mock.patch.object(wr, "_archive_table", table):
+            result = rr.rm(apply=True)
+        self.assertTrue(moved)
+        self.refused(result, "folder_changed")
+        self.assertIn("the folder changed while it was verified", result.error.message)
+        self.assertTrue(result.error.message.endswith(f"; the folder is back in {folder}"), result.error.message)
+        self.assertEqual(len(rr.renames), 2)  # out and back
+        self.assertFalse((rr.removing / "w00").exists())
+        after = rr.files(folder)
+        self.assertEqual({k: v[:2] for k, v in after.items()}, {k: v[:2] for k, v in folder_before.items()})
+        self.assertEqual(rr.snap(times=False), before)
+
+    # -- #119 point 4c: the selection repeated under the lock -----------------
+
+    def test_p6_the_selection_is_repeated_under_the_lock_and_its_own_refusal_stops_the_run(self):
+        rr = self.rm_env()
+        folder = rr.root / ".ai-review" / "w00"
+        before, folder_before = rr.snap(times=False), rr.files(folder)
+
+        def vanish():
+            os.unlink(rr.adir / "w00.tar.zst")
+        with _hook_after_flock(vanish) as done:
+            result = rr.rm(apply=True, guard=False)
+        self.assertTrue(done)
+        self.refused(result, "not_archived")
+        self.assertIn("has no verified archive", result.error.message)
+        self.assertEqual(rr.renames, [])
+        self.assertTrue(folder.is_dir())
+        self.assertFalse((rr.removing / "w00").exists())
+        self.assertEqual(rr.files(folder), folder_before)
+        self.assertEqual({k: v for k, v in rr.snap(times=False).items() if "w00.tar.zst" not in k},
+                         {k: v for k, v in before.items() if "w00.tar.zst" not in k})
+
+
+@unittest.skipUnless(_HAVE_ZSTD, "the cross_device wording pins need the zstd program on PATH")
+class RetentionCrossDeviceWording(unittest.TestCase):
+    """W57 (command-wording-pins): the next step of both `cross_device` refusals says what the Manager-run
+    command cannot do (it never passes `--archive-root`): run the engine by hand with one, or leave the folder."""
+
+    NEXT_STEP = ("run the engine by hand with an --archive-root on the repository's file system (archive there, "
+                 "then remove), or leave the folder; nothing was moved")
+
+    def env(self):
+        rr = _RM()
+        self.addCleanup(rr.__exit__, None, None, None)
+        rr.__enter__()
+        return rr
+
+    def patch(self, target, name, replacement):
+        patcher = unittest.mock.patch.object(target, name, replacement)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def check(self, rr, result):
+        self.assertEqual(result.code, 2, result.result)
+        self.assertEqual(result.err_code, "cross_device", getattr(result.error, "message", None))
+        self.assertEqual(result.error.next_step, self.NEXT_STEP)
+        self.assertNotIn("keep the archive store", result.error.next_step)
+
+    def test_cross_device_at_the_selection_says_to_run_the_engine_by_hand(self):  # e1
+        rr = self.env()
+        folder = rr.prepared()
+        before, files = rr.snap(times=False), rr.files(folder)
+        self.patch(wr, "_same_device", lambda a, b: False)
+        for apply in (False, True):
+            with self.subTest(apply=apply):
+                self.check(rr, rr.rm(apply=apply))
+        self.assertEqual(rr.snap(times=False), before)
+        self.assertEqual(rr.renames, [])
+        self.assertEqual(rr.files(folder), files)
+
+    def test_cross_device_of_the_rename_says_to_run_the_engine_by_hand(self):  # e2
+        rr = self.env()
+        folder = rr.prepared()
+        before, files = rr.snap(times=False), rr.files(folder)
+        self.patch(wr, "_rename", lambda *a, **k: (_ for _ in ()).throw(OSError(errno.EXDEV, "cross-device")))
+        self.check(rr, rr.rm(apply=True, guard=False))
+        self.assertEqual(rr.files(folder), files)
+        self.assertEqual(rr.snap(times=False), before)
+        self.assertFalse(rr.removing.exists())          # created by this run, removed again
 
 
 if __name__ == "__main__":

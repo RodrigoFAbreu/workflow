@@ -17,6 +17,13 @@ Result: `Ran 10 tests`, `OK`; 10 tests, chunk status 0 (the report's `chunk_stat
 
 The class's own children (`payload/scripts/workflow_gate_policy_test.py`, lines 7365 to 7390) are `subprocess.run` calls, which wait for their child, so the class has no orphan source of its own to declare or remove. Point 1 of #170 is settled; point 2 of #170 (it needs a real change to the bundle files) stays open.
 
+The raw reports of Point 1 are kept next to this file (added by `retention-docs-notes`, #188; byte copies of `$TMPDIR/r.json` and `$TMPDIR/reaper-pcms.json`, `$TMPDIR` being the scratch directory named above):
+
+- `TEST_HARDENING_OWNER_POINTS_REAPER_REPORT.json` (`sha256` `f965db8e91df0c93df73488fa243295ef98688ee29f9333b6869295485572ec9`, 4136 bytes): a later run of the command above, written 2026-11-15 12:58:17Z, after this text was committed (12:55:44Z). Chunk status 0, `supported` true, 78 `[git]` and 1 `git maintenance run --auto --quiet --detach`, all `exited`. It is not the run this text calls "this run": every run wrote the same `$TMPDIR/r.json`, so that report was overwritten and cannot be reconstructed.
+- `TEST_HARDENING_OWNER_POINTS_REAPER_INVESTIGATION.json` (`sha256` `615de6f7173b2a3b3b83b49b6c5d2aca8e126c864e662a26a12561d0472b7d04`, 4192 bytes): the investigation run (written 12:22:39Z, before plan approval), 77 `[git]` and 2 `git maintenance` processes, all `exited`.
+
+The A12/A15 mutation runs (Point 3 below) were terminal output and were never saved; they cannot be reconstructed, so the table below remains the only record of those runs. No log is invented here.
+
 ## Point 3 (#116)
 
 **Class: ALREADY-FIXED.** No test change.

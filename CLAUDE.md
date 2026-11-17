@@ -73,8 +73,9 @@ and installed.
   titles whose impact agrees with the manifest's version change, and the
   required checks `aggregate`, `Conventional Commit title` and
   `workflow-conformance`, up to date with `main`. A release is published by
-  the `Release` workflow when `main`'s manifest names an unpublished
-  version. How releases, CI and the settings work: `docs/RELEASING.md`.
+  the `Publish` workflow, which `CI` calls once a `main` push is validated,
+  when `main`'s manifest names an unpublished version. How releases, CI and
+  the settings work: `docs/RELEASING.md`.
 - The exact commands that verify a change (the nine suites, the `tools/` tests, the
   manager block, the installation): `docs/RELEASING.md`, "Verification commands".
 

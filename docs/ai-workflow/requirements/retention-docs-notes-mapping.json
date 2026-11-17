@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-docs-notes",
+  "requirements": {
+    "R1": {
+      "description": "the 2.25.5 row of docs/release-history.md says a downgrade also restores the UnicodeDecodeError tracebacks for an undecodable state file and, under a UTF-8 locale, an undecodable tracked path; docs/RETENTION.md says that after the rename the folder is renamed back into .ai-review/ (#143 points 1 and 2)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the evidence file of the test-hardening item stores the raw reaper reports as two files with digests, says which run each is (the report file a later run of the same command, not the run the evidence text calls this run) and states that the A12/A15 mutation logs were never saved and are not reconstructible (#188)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "docs only: nothing under payload/, tools/, fixtures/, templates/ or manifest.json changes, so no release; the pull request title is a docs: type with impact none",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    }
+  }
+}
