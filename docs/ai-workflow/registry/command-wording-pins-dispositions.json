@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "work_item_id": "command-wording-pins",
+  "dispositions": {
+    "F-19de1ce97c12": {
+      "disposition": "dropped",
+      "reason": "A bundle test-results note about a state-only commit; the checklist's F7 pins --head 1e63824 and the independent executor confirmed the title check agrees there. No shipped text is affected."
+    },
+    "F-559889db2018": {
+      "disposition": "dropped",
+      "reason": "Measured: under m3 two subtests of the same pin fail (both assertions of the sentence), as the reviewer expected; coverage is intact and the plan's one-failure wording is the only imprecision."
+    },
+    "F-5f2f597afc38": {
+      "disposition": "dropped",
+      "reason": "Same as LPR-CWP-R1-001: m3 fails two assertions of its own pin; regression coverage is not weakened."
+    },
+    "F-76fc36f796c3": {
+      "disposition": "dropped",
+      "reason": "Not wrong as written: the archive_inside_repository refusal names its own next step (choose an --archive-root outside the checkout)."
+    }
+  }
+}
