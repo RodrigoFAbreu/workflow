@@ -2,26 +2,23 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; a `fix:` change, Workflow patch release 2.29.8 follows the merge). W57: `command-wording-pins`
-(`process`, governing version `2.2`), branch `milestone/command-wording-pins`, roadmap row 50 (RodrigoFAbreu/workflow#190 points 1 and 2,
-#123 point 6). The plan is `docs/ai-workflow/COMMAND_WORDING_PINS_PLAN.md` (revision 1, approved by gate policy); an archive copy is in
-`docs/milestones/completed/`.
+**Implementing.** W58: `gate-policy-test-pins` (`process`, governing version `2.2`), branch `milestone/gate-policy-test-pins`, roadmap row 51
+(RodrigoFAbreu/workflow#185 points 2 to 4, #143 point 3, #149 point 3, #190 point 4). The plan is
+`docs/ai-workflow/GATE_POLICY_TEST_PINS_PLAN.md` (revision 3, approved by gate policy).
 
 ## Goal
 
-Wording only: shipped text says what the code does. Three command files and the two `cross_device` refusals of `workflow_retention.py`
-change; nothing the code does changes. Not taken: #190 point 3 (owner decision) and #190 point 4 (not in the brief).
+Test-only: five tightenings and one new test in three payload test files; no script changes. Not taken: #185 point 1 (a code change).
 
-## Outcome
+## Progress
 
-- CP1 (the wording, its pins, roadmap row 50) and CP2 (release 2.29.8) are complete.
-- The technical approval was recorded by policy. Functional flows F1 to F9 are recorded passed by the orchestrator's independent
-  headless executor.
-- The 4 recorded Optional findings are dispositioned (all dropped, with reasons); see
-  `docs/milestones/completed/command-wording-pins-findings.md`.
+- CP1 (the pins p1 to p6 and roadmap row 51): implemented. G (`workflow_gate_policy_test.py`) 429 tests OK and I's edited class OK; T
+  (`workflow_state_completion_obligations_test.py`) 317 tests OK (316 plus the new `RetentionReportUnreadable.test_t7`).
+  Mutations m1 to m5 run in scratch copies of `payload/`: each fails exactly the test its plan row names (m1: the two `stale_changes` and
+  `stale_failed` subtests of T4; m2: T5; m3: T3; m5: the new T7; m4: the demonstration, four other tests that patch `os.unlink` plus the new
+  observed-call assertions of T6). m6 (the label line emitted twice) fails only the surviving `len == 1` assertion of p6.
+- CP2 (release 2.29.9): not started.
 
 ## Next action
 
-The next incomplete milestone in `docs/ROADMAP.md` is row 27 ("Deferred: review-data simplification, longer-term evolution"), which is
-deferred and trigger-driven (see "Later (open items)"). No item is ready for `PLANNING` until its trigger fires. `/milestone-plan` when
-one is chosen.
+`/milestone-implement gate-policy-test-pins` for CP2.
