@@ -44234,18 +44234,22 @@
       "registry_path": "docs/ai-workflow/registry/command-wording-pins-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/command-wording-pins-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 1,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "c2068ca7ec4c04c262b706375d0e07c616b15538",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "2be853fb981092dbf3fc189bac162e14be1212fb"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "29298ff6af0d3b5a8cd5d64773faba62b1ffb5da"
         }
       },
       "current_bundle_id": "554bcbd3d248162fa4ab3ec94d25f3c57a50b12ba2c6d2fec47da544d6d700f2",
@@ -44374,8 +44378,8 @@
           "external": 0
         }
       },
-      "state_revision": 8,
-      "last_transition": "2026-11-17T01:58:37Z",
+      "state_revision": 10,
+      "last_transition": "2026-11-17T03:30:00Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
