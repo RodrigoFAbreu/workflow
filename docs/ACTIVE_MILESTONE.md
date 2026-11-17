@@ -98,8 +98,10 @@ The unmutated baseline is `OK` for both class sets. Golden-hash failures under m
 ```bash
 python3 tools/docs/check_docs.py
 python3 tools/release/release.py check-manager-block --commit HEAD --manager-releases tools/release/manager-releases.json
-python3 tools/release/release.py check-title "fix: make the bundle-record wording of the apply commands and the cross_device next step say what the code does" --agree
+python3 tools/release/release.py check-title "fix: make the bundle-record wording of the apply commands and the cross_device next step say what the code does" --agree --head 1e63824
 ```
+
+`--agree` compares `HEAD^1 -> HEAD`; the branch tip is a docs-only commit with no version change, so the title is checked against `1e63824`, the commit that bumps 2.29.7 -> 2.29.8 (functional-review finding F7: a checklist correction, no code change).
 
 Expect exit 0, `ok: 2.29.8 carries a valid manager block that matches the measurement`, and `impact=patch`. Also run
 `python3 -m unittest discover -s tools/docs -p '*_test.py'` from the repository root: 34 tests, `OK`.
