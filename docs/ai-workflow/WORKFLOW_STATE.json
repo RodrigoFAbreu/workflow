@@ -45326,6 +45326,137 @@
           "run_ref": "codex:20261117T100858Z-274d8b2d",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "70aeb9f071d5c20a42e92e073dca92601a7e424b",
+            "ran_at": "2026-11-17T10:46:58Z",
+            "summary": {
+              "checklist_blob": "dcc2e567c8c3fac3ac70fad34cac7a2482792a1b",
+              "text": "F1: Six payload paths (3 test files + workflow_protocol.py, workflow_protocol_test.py, ORCHESTRATION_PROTOCOL.md); stat ends \"6 files changed, 167 insertions(+), 16 deletions(-)\"."
+            },
+            "log_digest": "cc17512c1c2c97c441a5345aada07157b1e12632d51bf80b45347143f5ed0a89",
+            "run_ref": "claude-functional:w58-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+            "recorded_at": "2026-11-17T10:46:58Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "70aeb9f071d5c20a42e92e073dca92601a7e424b",
+            "ran_at": "2026-11-17T10:46:58Z",
+            "summary": {
+              "checklist_blob": "dcc2e567c8c3fac3ac70fad34cac7a2482792a1b",
+              "text": "F2: git diff --quiet on the three scripts exited 0."
+            },
+            "log_digest": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+            "run_ref": "claude-functional:w58-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+            "recorded_at": "2026-11-17T10:46:58Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "70aeb9f071d5c20a42e92e073dca92601a7e424b",
+            "ran_at": "2026-11-17T10:46:58Z",
+            "summary": {
+              "checklist_blob": "dcc2e567c8c3fac3ac70fad34cac7a2482792a1b",
+              "text": "F3: git diff --name-only over .claude scripts .workflow-manager .github CLAUDE.md produced no output."
+            },
+            "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "run_ref": "claude-functional:w58-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+            "recorded_at": "2026-11-17T10:46:58Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "70aeb9f071d5c20a42e92e073dca92601a7e424b",
+            "ran_at": "2026-11-17T10:46:58Z",
+            "summary": {
+              "checklist_blob": "dcc2e567c8c3fac3ac70fad34cac7a2482792a1b",
+              "text": "F4: Gate-policy suite Ran 429 tests OK (205 s); RetentionReportUnreadable Ran 7 tests OK; TestBundleRevisionSectionsDocumentedForm OK."
+            },
+            "log_digest": "7663d6954edb9d36282a8a694e45225a019789bfa857dfb7557f5a90085fdaff",
+            "run_ref": "claude-functional:w58-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+            "recorded_at": "2026-11-17T10:46:58Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "70aeb9f071d5c20a42e92e073dca92601a7e424b",
+            "ran_at": "2026-11-17T10:46:58Z",
+            "summary": {
+              "checklist_blob": "dcc2e567c8c3fac3ac70fad34cac7a2482792a1b",
+              "text": "F5: With the mutation (line 227 return True -> False) in a fresh fixture copy: FAILED (failures=1), the failure being test_t7_a_sub_directory_that_cannot_be_examined_is_still_named_by_its_own_path; unmutated fixture OK in F4."
+            },
+            "log_digest": "360aa7a811ee7b6f9f54ad2193309619625dc700c36de1c33a4fb95a908efbf4",
+            "run_ref": "claude-functional:w58-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+            "recorded_at": "2026-11-17T10:46:58Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "70aeb9f071d5c20a42e92e073dca92601a7e424b",
+            "ran_at": "2026-11-17T10:46:58Z",
+            "summary": {
+              "checklist_blob": "dcc2e567c8c3fac3ac70fad34cac7a2482792a1b",
+              "text": "F6: All nine manifest-listed payload suites exited 0 in the loop from docs/RELEASING.md."
+            },
+            "log_digest": "634fac4839aa7045547c409c813bc675be01a8b579caee11e33de9af7e49f55c",
+            "run_ref": "claude-functional:w58-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+            "recorded_at": "2026-11-17T10:46:58Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "70aeb9f071d5c20a42e92e073dca92601a7e424b",
+            "ran_at": "2026-11-17T10:46:58Z",
+            "summary": {
+              "checklist_blob": "dcc2e567c8c3fac3ac70fad34cac7a2482792a1b",
+              "text": "F7: check_docs.py exit 0 with no output; check-manager-block printed \"ok: 2.29.9 carries a valid manager block that matches the measurement\"."
+            },
+            "log_digest": "be2b9662c98e59d50bce833e35fadb49297fe9945e2aef8660e03ba5e088ebde",
+            "run_ref": "claude-functional:w58-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+            "recorded_at": "2026-11-17T10:46:58Z"
+          },
+          "flow-8": {
+            "flow_id": "flow-8",
+            "status": "passed",
+            "head": "70aeb9f071d5c20a42e92e073dca92601a7e424b",
+            "ran_at": "2026-11-17T10:46:58Z",
+            "summary": {
+              "checklist_blob": "dcc2e567c8c3fac3ac70fad34cac7a2482792a1b",
+              "text": "F8: check-title on f08ab6e printed impact=patch and \"version 2.29.8 -> 2.29.9 (patch) agrees with the title\"."
+            },
+            "log_digest": "8a1f06d437b51ea0a0b2f97e9bc3761fe7bcafac8467cd4ea262891383e8df2e",
+            "run_ref": "claude-functional:w58-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "bd391473e3cf4475501489fd49cf3da2c52bfdf41a7417ce98eb34ef0125dd4c",
+            "recorded_at": "2026-11-17T10:46:59Z"
+          }
+        },
+        "pr": null,
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 0
+        }
       }
     }
   }
