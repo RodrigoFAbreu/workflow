@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "command-wording-pins",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -44223,6 +44223,212 @@
         },
         "evaluated_at": "2026-11-17T00:24:30Z",
         "workflow_release": "2.29.7"
+      }
+    },
+    "command-wording-pins": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "command-wording-pins",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/COMMAND_WORDING_PINS_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/command-wording-pins-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/command-wording-pins-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 1,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "c2068ca7ec4c04c262b706375d0e07c616b15538",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "554bcbd3d248162fa4ab3ec94d25f3c57a50b12ba2c6d2fec47da544d6d700f2",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "554bcbd3d248162fa4ab3ec94d25f3c57a50b12ba2c6d2fec47da544d6d700f2",
+        "approved_review_content_id": "2e8b570fc61cff8ccd271270555465ec348cd47c33efd69be9fc0efcd3277791",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/COMMAND_WORDING_PINS_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0c385bea749381a14306afb2390b06bf782879fa"
+          },
+          {
+            "path": "docs/ai-workflow/registry/command-wording-pins-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a4383b9e0b78a21b97df12b519d29abb25260768"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/command-wording-pins-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f46f4d42ab3fdb6a3b458d13a466c0035eed1d03"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-17T01:54:55Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "2e8b570fc61cff8ccd271270555465ec348cd47c33efd69be9fc0efcd3277791",
+            "ledger": {
+              "local": {
+                "bundle_id": "554bcbd3d248162fa4ab3ec94d25f3c57a50b12ba2c6d2fec47da544d6d700f2",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "0e39a8fc89003f04eee6e43d97bf580e3b4beb1de2ea12cdf97b89d2b6038ec2",
+                "ledger_entry_sha256": "769235742fbb31c555032b5f5fb1b04aa721842c05eb2cbd0032be65531ca3fd",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/command-wording-pins/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "554bcbd3d248162fa4ab3ec94d25f3c57a50b12ba2c6d2fec47da544d6d700f2",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "f5e9d5c9ac4b91734cc04e83f4fca06efb64865ad9ff72f946a192309d1014fa",
+                "ledger_entry_sha256": "d76aaa2ed4d3062193dc5bcb3d54cd15882ae9015baf267adcea600a12633ef6",
+                "run_ref": "codex:20261117T015139Z-7bc3beba",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-17T01:54:55Z",
+          "workflow_release": "2.29.7"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "2e8b570fc61cff8ccd271270555465ec348cd47c33efd69be9fc0efcd3277791",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "554bcbd3d248162fa4ab3ec94d25f3c57a50b12ba2c6d2fec47da544d6d700f2",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-17T01:50:18Z",
+          "verdict_sha256": "0e39a8fc89003f04eee6e43d97bf580e3b4beb1de2ea12cdf97b89d2b6038ec2",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/command-wording-pins/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "554bcbd3d248162fa4ab3ec94d25f3c57a50b12ba2c6d2fec47da544d6d700f2",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-17T01:53:19Z",
+          "verdict_sha256": "f5e9d5c9ac4b91734cc04e83f4fca06efb64865ad9ff72f946a192309d1014fa",
+          "run_ref": "codex:20261117T015139Z-7bc3beba",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 1,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 6,
+      "last_transition": "2026-11-17T01:54:55Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-17T01:46:22Z",
+        "consumed": null,
+        "published": {
+          "review_content_id": "2e8b570fc61cff8ccd271270555465ec348cd47c33efd69be9fc0efcd3277791",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "2e8b570fc61cff8ccd271270555465ec348cd47c33efd69be9fc0efcd3277791",
+          "bundle_id": "554bcbd3d248162fa4ab3ec94d25f3c57a50b12ba2c6d2fec47da544d6d700f2",
+          "plan_revision": 1
+        }
+      },
+      "optional_findings": {
+        "F-559889db2018": {
+          "digest": "559889db2018fbb45884910a4ef7dfe8ddc97eeac2b919aa64e0359ad473fd8d",
+          "text": "LPR-CWP-R1-001: D-Pins row c1 says each of m1-m3 \"fails its own `subTest`\", and the CP1 verification says \"each mutation fails its pin only\", but W1's ordinary-outcome text is one sentence holding both the third assertion (\"records every round with the ordinary outcome\") and the fourth (\"no round here adds to an earlier entry or rewrites an earlier section\"). Dropping it (m3) fails two `subTest`s. Either say m3 fails subTests 3 and 4, or split m3 so that each mutation removes one asserted phrase, so the recorded mutation results match the claim.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "2e8b570fc61cff8ccd271270555465ec348cd47c33efd69be9fc0efcd3277791",
+              "verdict": "APPROVE",
+              "at": "2026-11-17T01:50:18Z"
+            }
+          ]
+        },
+        "F-76fc36f796c3": {
+          "digest": "76fc36f796c34865c4beb7962f6c49f85ec6721679aaa0145c42e8436e4cf256",
+          "text": "LPR-CWP-R1-002: W3 could say that the `--archive-root` must also be outside the checkout (the engine refuses one inside it with `archive_inside_repository`, R ~1123). This is not wrong as written, because that refusal names its own next step. It would just save the operator a round trip.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "2e8b570fc61cff8ccd271270555465ec348cd47c33efd69be9fc0efcd3277791",
+              "verdict": "APPROVE",
+              "at": "2026-11-17T01:50:18Z"
+            }
+          ]
+        },
+        "F-5f2f597afc38": {
+          "digest": "5f2f597afc38f6e9958cedd26b9cdc7236e50b3164944740f7bfefd47f6cd3d9",
+          "text": "D-Pins promises exactly one failing subtest per mutation, but m3 removes the ordinary-outcome sentence containing two separately asserted phrases. Expect two failing subtests within c1, or split that mutation. This does not weaken the regression coverage.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "2e8b570fc61cff8ccd271270555465ec348cd47c33efd69be9fc0efcd3277791",
+              "verdict": "APPROVE",
+              "at": "2026-11-17T01:53:19Z"
+            }
+          ]
+        }
       }
     }
   }

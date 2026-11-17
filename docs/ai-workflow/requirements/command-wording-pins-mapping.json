@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "work_item_id": "command-wording-pins",
+  "requirements": {
+    "R1": {
+      "description": "wording only, one mechanism: apply-pr-review.md states the 1 to N-1 restore check, the say-so with no quarantine and that every round there is ordinary (record_bundle_generation is called without an outcome, so the same_content rule does not apply to it); apply-implementation-review.md and apply-functional-review.md say a same_content round keeps N and rewrites section N of TEST_RESULTS.md, appending none; no behaviour changes",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "workflow_retention.py's two cross_device refusals (selection step 10 and the EXDEV of the rename) both say as next step: run the engine by hand with an --archive-root on the repository's file system (archive there, then remove), or leave the folder; nothing was moved; code and message unchanged",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "every changed sentence has a pin that fails on the old wording (TestCommandWordingPins in workflow_integration_test.py, RetentionCrossDeviceWording in workflow_state_completion_obligations_test.py, the three golden command hashes) and a failure-only mutation (m1 to m7) measured in the staged fixture, the engine pins also under the reaper; #190 point 3 is not taken (owner decision) and points outside the brief are untouched",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "the change is a release: Workflow 2.29.8, a fix: patch (manifest, release constant, release-history row, release-test class, suite counts), verified per docs/RELEASING.md with the scratch-clone staging for CP1; this repository's own installation and every gate semantic are untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    }
+  }
+}
