@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "retention-index-fd-close",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -45593,6 +45593,219 @@
         },
         "evaluated_at": "2026-11-17T11:07:41Z",
         "workflow_release": "2.29.8"
+      }
+    },
+    "retention-index-fd-close": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "retention-index-fd-close",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/RETENTION_INDEX_FD_CLOSE_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/retention-index-fd-close-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/retention-index-fd-close-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 2,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "92ca0f8dacb35679a20f2fff9db9f7334f605718",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "3f09d5402192a0408e590e31fe856aff270eadf2bb1d6cf14f7cd558e1bea980",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "3f09d5402192a0408e590e31fe856aff270eadf2bb1d6cf14f7cd558e1bea980",
+        "approved_review_content_id": "27c75bda7042cc3b39526f6dc86a004158f67aad324090bb03f9dbdb0f9f97f7",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/RETENTION_INDEX_FD_CLOSE_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c329d4392814a6cb3b4fe3867506e89eacda0299"
+          },
+          {
+            "path": "docs/ai-workflow/registry/retention-index-fd-close-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "30ec4b1791bf44fa6a55900c07ef01e1c9a457dc"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/retention-index-fd-close-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4ce84bf12e2cf17b7718b42c10b25f1b0d6f6977"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-19T18:57:50Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "27c75bda7042cc3b39526f6dc86a004158f67aad324090bb03f9dbdb0f9f97f7",
+            "ledger": {
+              "local": {
+                "bundle_id": "3f09d5402192a0408e590e31fe856aff270eadf2bb1d6cf14f7cd558e1bea980",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "466cf2c8d1902337db5c7a7653b708bcf22228d34a3b84ad095f606054a4f830",
+                "ledger_entry_sha256": "08d8a79ba8aa5c095d0e99a9db3982d3183e4321095efc9554c3ae38d45ef492",
+                "run_ref": "session:local .ai-review/retention-index-fd-close/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "3f09d5402192a0408e590e31fe856aff270eadf2bb1d6cf14f7cd558e1bea980",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "d1941b761267ab78a693dfb1d77bb407634bba94f123fc7a28510c33c6f5d53b",
+                "ledger_entry_sha256": "6b2b0341fd387c33fdf8420394d27974035861501ad0bd0ad4652ce3e3c26333",
+                "run_ref": "codex:20261119T185527Z-b7462711",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-19T18:57:50Z",
+          "workflow_release": "2.29.9"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "27c75bda7042cc3b39526f6dc86a004158f67aad324090bb03f9dbdb0f9f97f7",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "3f09d5402192a0408e590e31fe856aff270eadf2bb1d6cf14f7cd558e1bea980",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-19T20:15:00Z",
+          "verdict_sha256": "466cf2c8d1902337db5c7a7653b708bcf22228d34a3b84ad095f606054a4f830",
+          "run_ref": "session:local .ai-review/retention-index-fd-close/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "3f09d5402192a0408e590e31fe856aff270eadf2bb1d6cf14f7cd558e1bea980",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-19T18:57:10Z",
+          "verdict_sha256": "d1941b761267ab78a693dfb1d77bb407634bba94f123fc7a28510c33c6f5d53b",
+          "run_ref": "codex:20261119T185527Z-b7462711",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-11-19T18:57:51Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-19T18:52:23Z",
+        "consumed": {
+          "review_content_id": "320b4492aaf05e7e1f61ef69a1f7377da60c2d13fd19a9a51127e77fe644648e",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "27c75bda7042cc3b39526f6dc86a004158f67aad324090bb03f9dbdb0f9f97f7",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "27c75bda7042cc3b39526f6dc86a004158f67aad324090bb03f9dbdb0f9f97f7",
+          "bundle_id": "3f09d5402192a0408e590e31fe856aff270eadf2bb1d6cf14f7cd558e1bea980",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "320b4492aaf05e7e1f61ef69a1f7377da60c2d13fd19a9a51127e77fe644648e"
+      ],
+      "optional_findings": {
+        "F-a71bec0aa05c": {
+          "digest": "a71bec0aa05c3764642656309b3a72332d1d26b9fdfd84003368d61904198156",
+          "text": "Section 0 and D-Test say \"No test observes the descriptor\" and introduce a new local `_open_fds()` helper. T already has a module-level `_fd_count()` (T 6031), which more than a dozen archive and removal tests use to assert \"a descriptor leaked\" (for example T 4875, 6555). The claim is true for the failed stat in `_open_index`. Still, the plan could name `_fd_count()` and say why a `{number: readlink}` map is needed instead (it names which file survived, and it is not fooled by one close and one open cancelling out), so the implementer does not add a near-duplicate without a reason.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "320b4492aaf05e7e1f61ef69a1f7377da60c2d13fd19a9a51127e77fe644648e",
+              "verdict": "REVISE",
+              "at": "2026-11-19T19:30:00Z"
+            }
+          ]
+        },
+        "F-0bcbe9e306ba": {
+          "digest": "0bcbe9e306ba8668d590ffb3b700b7003d2370a02331bef08408cd82d44758f9",
+          "text": "Flow 4 of section 4 says \"exactly the new test fails (both subtests)\". Once the Important finding is fixed, state which assertion fails in each subtest, so the functional reviewer checks the right thing.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "320b4492aaf05e7e1f61ef69a1f7377da60c2d13fd19a9a51127e77fe644648e",
+              "verdict": "REVISE",
+              "at": "2026-11-19T19:30:00Z"
+            }
+          ]
+        },
+        "F-2aeaae564602": {
+          "digest": "2aeaae5646027c65b3ab7f7bed663e43e5fc2b064ae4fa183874699c73a6acd4",
+          "text": "In the remove subtest, the backstop's existing next step says the review folder \"may be in the archive directory's `.removing/w00`, renamed aside\". It says this even though the stat fails before any rename, and the snapshot is unchanged. This is today's behaviour, and the plan rightly keeps it byte-identical and asserts no remove next step. It could be noted as a candidate for a separate wording item.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "27c75bda7042cc3b39526f6dc86a004158f67aad324090bb03f9dbdb0f9f97f7",
+              "verdict": "APPROVE",
+              "at": "2026-11-19T20:15:00Z"
+            }
+          ]
+        }
       }
     }
   }
