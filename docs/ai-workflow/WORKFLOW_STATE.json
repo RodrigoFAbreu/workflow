@@ -45604,12 +45604,12 @@
       "registry_path": "docs/ai-workflow/registry/retention-index-fd-close-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/retention-index-fd-close-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 2,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "92ca0f8dacb35679a20f2fff9db9f7334f605718",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "2300da7dd4eeb85d90ee8da5bdabab034c663c21",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -45748,8 +45748,8 @@
           "external": 0
         }
       },
-      "state_revision": 13,
-      "last_transition": "2026-11-19T19:57:39Z",
+      "state_revision": 14,
+      "last_transition": "2026-11-19T20:34:30Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
