@@ -2,22 +2,23 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; a `fix:` change, Workflow patch release 2.29.9 follows the merge). W58: `gate-policy-test-pins`
-(`process`, governing version `2.2`), branch `milestone/gate-policy-test-pins`, roadmap row 51 (RodrigoFAbreu/workflow#185 points 2 to 4,
-#143 point 3, #149 point 3, #190 point 4). The plan is `docs/ai-workflow/GATE_POLICY_TEST_PINS_PLAN.md` (revision 3, approved by gate
-policy); an archive copy is in `docs/milestones/completed/`.
+**Complete** (accepted by policy; a `fix:` change, Workflow patch release 2.29.10 follows the merge). W59: `retention-index-fd-close`
+(`process`, governing version `2.2`), branch `milestone/retention-index-fd-close`, roadmap row 52 (RodrigoFAbreu/workflow#181 point 1
+only; point 2 was declined by the owner). The plan is `docs/ai-workflow/RETENTION_INDEX_FD_CLOSE_PLAN.md` (revision 2); an archive copy
+is in `docs/milestones/completed/`.
 
 ## Goal
 
-Test-only: five tightenings and one new test in three payload test files; no script changes. Not taken: #185 point 1 (a code change).
+In `payload/scripts/workflow_retention.py`, `_open_index` closes the index descriptor when its `os.fstat` raises. Before this change that
+descriptor leaked in all three flows (`archive` dry run, `archive --apply`, `remove`). Every working path is unchanged; the surfaced
+error for a failed stat is the existing `unreadable` refusal.
 
 ## Outcome
 
-- CP1 (the pins and roadmap row 51) and CP2 (release 2.29.9) are complete.
-- The technical approval was recorded by policy. Functional flows F1 to F8 are recorded passed by the orchestrator's independent
-  headless executor.
-- The 6 recorded Optional findings are dispositioned (4 fixed, 2 dropped, with reasons); see
-  `docs/milestones/completed/gate-policy-test-pins-findings.md`.
+- CP1 (the descriptor close, its test, roadmap row 52) and CP2 (release 2.29.10) are complete.
+- The technical approval was recorded by policy. Functional flows 1 to 13 are recorded passed.
+- The 4 recorded Optional findings are dispositioned (2 fixed, 1 dropped, 1 follow-up, with reasons or link); see
+  `docs/milestones/completed/retention-index-fd-close-findings.md`.
 
 ## Next action
 

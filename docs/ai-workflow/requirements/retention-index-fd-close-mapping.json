@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-index-fd-close",
+  "requirements": {
+    "R1": {
+      "description": "one fix in _open_index: the descriptor is closed on every exit path after a successful open (the os.fstat that raises), the refusal order, messages and exit codes byte-identical (#181 point 1; point 2 declined by the owner, not touched)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "one new test in the retention error-path class makes os.fstat raise for the index descriptor and proves the descriptor is closed and the surfaced error is the engine's existing unreadable refusal, with a no-write proof and a failure-only mutation (drop the close) that fails it alone; it also runs under the reaper",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "the change is a release: Workflow 2.29.10, a fix: patch (manifest records and digests, release constant, release-history row, release-test class, suite counts, roadmap row 52 Current then Done), verified per docs/RELEASING.md with scratch-clone staging for CP1; this repository's own installation is untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    }
+  }
+}
