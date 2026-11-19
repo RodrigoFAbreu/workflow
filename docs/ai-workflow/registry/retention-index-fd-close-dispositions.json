@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "work_item_id": "retention-index-fd-close",
+  "dispositions": {
+    "F-0bcbe9e306ba": {
+      "disposition": "fixed",
+      "note": "Checklist F5 names the assertion that fails in each subtest (Lists differ: [] != [N], flow archive and remove)."
+    },
+    "F-a71bec0aa05c": {
+      "disposition": "fixed",
+      "note": "The plan names the existing _fd_count() helper and why a {number: readlink} map is used instead."
+    },
+    "F-112317abb202": {
+      "disposition": "dropped",
+      "reason": "Bundle record only: the reviewer ran release.py build --commit HEAD itself and it succeeded, and the executor ran the release checks again for the checklist; nothing is missing from the change."
+    },
+    "F-2aeaae564602": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/205"
+    }
+  }
+}
