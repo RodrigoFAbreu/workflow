@@ -10,7 +10,10 @@ under `payload/docs/ai-workflow/`. What a script's exit status means is in
 
 The approval is tied to the reviewed content, and the content changed. Go back
 through review: for a plan approved and then changed, `/request-plan-amendment`
-and then `/milestone-plan`, both review stages and the plan approval; for code, `/apply-implementation-review` and its
+and then `/milestone-plan`, both review stages and the plan approval (a plan
+amendment is possible only while the work item is at `IMPLEMENTING` or
+`SELF_REVIEWING_IMPLEMENTATION`; at any other phase `/request-plan-amendment`
+refuses and names the phase); for code, `/apply-implementation-review` and its
 reviews. Do not edit the approval by hand.
 
 ### A gate is blocked for missing evidence

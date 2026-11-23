@@ -4476,6 +4476,8 @@ class WordingPassPlainCommandsReleaseTest(unittest.TestCase):
                 self.assertIn("with both `false` the content of both files is unchanged", text)
         self.assertIn("for a plan approved and then changed, `/request-plan-amendment`", problems)
         self.assertIn("and then `/milestone-plan`, both review stages and the plan approval", problems)
+        self.assertIn("a plan amendment is possible only while the work item is at `IMPLEMENTING` or "
+                      "`SELF_REVIEWING_IMPLEMENTATION`", " ".join(problems.split()))
 
     def test_the_protocol_document_states_the_constraint_and_names_no_changed_message(self):
         doc = (REPO_ROOT / "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md").read_text()
