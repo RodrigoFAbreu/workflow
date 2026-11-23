@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_item_id": "payload-polish-batch",
+  "plan_revision": 3,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The three wording points, their pins and roadmap row 54",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "The two test follow-ups",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 1,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Release 2.29.12",
+      "depends_on": [
+        "CP2"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}

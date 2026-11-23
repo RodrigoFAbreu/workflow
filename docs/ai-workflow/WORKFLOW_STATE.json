@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "payload-polish-batch",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -47934,6 +47934,277 @@
         },
         "evaluated_at": "2026-11-23T15:45:08Z",
         "workflow_release": "2.29.11"
+      }
+    },
+    "payload-polish-batch": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "payload-polish-batch",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/PAYLOAD_POLISH_BATCH_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/payload-polish-batch-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/payload-polish-batch-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 3,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "16e013022e01e52b572b2a24090e91c4e886ae63",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "3cf03dd1e436e469e5a8ea86d0a5845785b730ffd408baa3fec2f7e170d4733b",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "3cf03dd1e436e469e5a8ea86d0a5845785b730ffd408baa3fec2f7e170d4733b",
+        "approved_review_content_id": "064b20d4240f7ce56a89424b3b93d82b58e056ddfc12bc5d16fd805281bda9d0",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/PAYLOAD_POLISH_BATCH_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "fcdd88072a6c4dbabe673aa5082d396e440d14f4"
+          },
+          {
+            "path": "docs/ai-workflow/registry/payload-polish-batch-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f400204d6c82ccf463d5898aca7500fc930828e9"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/payload-polish-batch-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0395bac4dbaf20c1200f9f39dc49087d3f5983b8"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-23T18:28:47Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "064b20d4240f7ce56a89424b3b93d82b58e056ddfc12bc5d16fd805281bda9d0",
+            "ledger": {
+              "local": {
+                "bundle_id": "3cf03dd1e436e469e5a8ea86d0a5845785b730ffd408baa3fec2f7e170d4733b",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "f2859d221d2eef94113e0d0ba3be31434bb157ad3e15b3b15268c9ebe63d521b",
+                "ledger_entry_sha256": "bbee6ead6bf54be1b8c771c31bcb83ae4f2c53b6de785c3ce2d0dfef66b23f50",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/payload-polish-batch/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "3cf03dd1e436e469e5a8ea86d0a5845785b730ffd408baa3fec2f7e170d4733b",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "7eccb51926077d4b8c881e973fc8d8fff961704e6765fde291196beb4abe3c6d",
+                "ledger_entry_sha256": "8966cfb4a3e95db494cc517fcc9159e0593b8c0ce17566805745cb252cf3d962",
+                "run_ref": "codex:20261123T182620Z-80c895e4",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-23T18:28:47Z",
+          "workflow_release": "2.29.11"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "064b20d4240f7ce56a89424b3b93d82b58e056ddfc12bc5d16fd805281bda9d0",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "3cf03dd1e436e469e5a8ea86d0a5845785b730ffd408baa3fec2f7e170d4733b",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-11-23T18:25:50Z",
+          "verdict_sha256": "f2859d221d2eef94113e0d0ba3be31434bb157ad3e15b3b15268c9ebe63d521b",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/payload-polish-batch/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "3cf03dd1e436e469e5a8ea86d0a5845785b730ffd408baa3fec2f7e170d4733b",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-11-23T18:28:04Z",
+          "verdict_sha256": "7eccb51926077d4b8c881e973fc8d8fff961704e6765fde291196beb4abe3c6d",
+          "run_ref": "codex:20261123T182620Z-80c895e4",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 4,
+          "external": 2
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 16,
+      "last_transition": "2026-11-23T18:28:47Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-23T18:23:58Z",
+        "consumed": {
+          "review_content_id": "de41a8a9f6f9902244e29704b3ed5de906e7afe792499dc811cc94aced72cdc3",
+          "plan_revision": 3,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "064b20d4240f7ce56a89424b3b93d82b58e056ddfc12bc5d16fd805281bda9d0",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "064b20d4240f7ce56a89424b3b93d82b58e056ddfc12bc5d16fd805281bda9d0",
+          "bundle_id": "3cf03dd1e436e469e5a8ea86d0a5845785b730ffd408baa3fec2f7e170d4733b",
+          "plan_revision": 3
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "5f81e332adf963402f525a6f63ba4908ab789ca9c1cc471b6bc07d01935cc8ac",
+        "6445d15d988ec09a55185c14a02b9031b12f1a32f0319e3f4d317985cf12c55f",
+        "de41a8a9f6f9902244e29704b3ed5de906e7afe792499dc811cc94aced72cdc3"
+      ],
+      "optional_findings": {
+        "F-a3565369a093": {
+          "digest": "a3565369a0938a553ea5e06dac7d892a4148729d06cb291724a57fa0e533bca5",
+          "text": "**LPR-R1-003:** F1 and roadmap row 54 say \"the dry run ... keep[s] the old text\". The plan's own pin (`test_t7b3`, second subtest) asserts that the dry run's index-stat failure gets the new text, which is correct because `remove_item` calls `_select_removal` in both modes (R 1785). Reword F1 and row 54 to name what actually keeps the old text: the dry run's other strays, such as step 12's `_hash_folder`/`_archive_table`, and the `_flow` lock-time sites such as `os.fstat(adir_fd)`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "5f81e332adf963402f525a6f63ba4908ab789ca9c1cc471b6bc07d01935cc8ac",
+              "verdict": "REVISE",
+              "at": "2026-11-23T18:07:17Z"
+            }
+          ]
+        },
+        "F-78f308d09e0a": {
+          "digest": "78f308d09e0ae6ef5c59c5cc4e9dbd8a6672368404e8c8bac4c26408ece99518",
+          "text": "**LPR-R1-004:** D-Wording 2's no-write proof says each test \"asserts `ws.read_guard(repo.root, \"wi\")` equals the bytes it read before\". `read_guard` returns a parsed record, not bytes. Compare `ws.guard_path(repo.root, \"wi\").read_bytes()` before and after instead, as the neighbouring test does at S 9706-9713.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "5f81e332adf963402f525a6f63ba4908ab789ca9c1cc471b6bc07d01935cc8ac",
+              "verdict": "REVISE",
+              "at": "2026-11-23T18:07:17Z"
+            }
+          ]
+        },
+        "F-be69c9298b1e": {
+          "digest": "be69c9298b1e88b1b55ab77bd0da8135bb4e4f2ca7502d5851a2219ea8456aa0",
+          "text": "**LPR-R1-005 (pre-existing, out of scope):** in the `_flow` lock-time re-selection, a `RetentionError` raised by `_select_removal` gets the leftover note from `_select_removal`'s own handler (R 1767-1770). `_flow`'s `note(exc)` (R 1856-1859) then appends it a second time. The new arm inherits this in state L1. The plan could record it next to F1 or leave it; the new test runs in L0 only, so it is unaffected.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "5f81e332adf963402f525a6f63ba4908ab789ca9c1cc471b6bc07d01935cc8ac",
+              "verdict": "REVISE",
+              "at": "2026-11-23T18:07:17Z"
+            }
+          ]
+        },
+        "F-b9e9d9b43f4d": {
+          "digest": "b9e9d9b43f4d1d76750457e8719a802e9a4c6d23576da1060f3341a7f6d9f67a",
+          "text": "**LPR-R2-001:** Section 0's #205 row says \"neither does it map the two other index I/O calls\" and then lists three (`os.fstat(fd).st_size`, `_index_ids`'s `os.pread` and `os.close(fd)`). Say \"the other index I/O calls\" or \"the three other\". D-Wording 3 itself is right.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "6445d15d988ec09a55185c14a02b9031b12f1a32f0319e3f4d317985cf12c55f",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T18:14:30Z"
+            }
+          ]
+        },
+        "F-da0edf902b56": {
+          "digest": "da0edf902b56f286e50df2072724cb75ead0f126e55c690c1fa852b24f33cf5d",
+          "text": "**LPR-R2-002:** the arm covers `_index_ids`'s `os.pread`, but no subtest fails it: `_call_fails` patches `fstat`, `close` and `open` only, and `pread` is called from `_index_ids`, not from `_judge_removal_archive`. The one `except` arm covers all four calls, so the `fstat` and `close` subtests and m2b show where the arm sits. A `_call_fails(\"pread\", \"_index_ids\", errno.EIO)` subtest would pin the fourth call. Optional: the RETENTION sentence's \"read\" is true by construction.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "6445d15d988ec09a55185c14a02b9031b12f1a32f0319e3f4d317985cf12c55f",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T18:14:30Z"
+            }
+          ]
+        },
+        "F-87659e5a854b": {
+          "digest": "87659e5a854b526d208d1a2694734f3b4f62b3ee2eef8ef559ffd93fefdda87a",
+          "text": "**EPR-R2-002 — Clarify m4(b)’s mutation target.** The recipe says to touch “the folder,” but the assertion compares `a.txt`’s mtime. `_RM.files` records no directory mtimes, so touching only the directory would leave both old and new assertions passing. Specify touching the restored `a.txt`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "6445d15d988ec09a55185c14a02b9031b12f1a32f0319e3f4d317985cf12c55f",
+              "verdict": "REVISE",
+              "at": "2026-11-23T18:17:21Z"
+            }
+          ]
+        },
+        "F-73be194dcc54": {
+          "digest": "73be194dcc54b2e661942bec247bd8189f5186a7ed970802d1ba6625f459c5eb",
+          "text": "**LPR-R4-001:** The header's \"Plan revision: 3\" line still lists only \"round 1 of the local review applied: LPR-R1-001 to 005; round 2 of the external review applied: EPR-R2-001, EPR-R2-002\". It leaves out round 3 of the local review (LPR-R3-001), which section 0 now resolves as \"Not a finding (LPR-R3-001)\". Add it to the list so the header's record of what was applied is complete. This does not change the plan's content or its checkpoints.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "064b20d4240f7ce56a89424b3b93d82b58e056ddfc12bc5d16fd805281bda9d0",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T18:25:50Z"
+            }
+          ]
+        }
       }
     }
   }

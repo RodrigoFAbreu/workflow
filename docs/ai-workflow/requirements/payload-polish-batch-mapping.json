@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_item_id": "payload-polish-batch",
+  "requirements": {
+    "R1": {
+      "description": "three wording points change a message or a comment of the shipped payload and nothing else: the _release_start_next_step docstring says three cases (comment only, no pin); the foreign-worktree refusal of the claim guard names one next step (the takeover route with the guard-release literal for a takeover's guard; otherwise let that worktree finish, resume there if its session died, or use the abandoned-guard recovery); the remove flow's unexpected index I/O failure (the stat after the open, the size stat, the read or the close, before the rename) says nothing was renamed and the folder is where it was, while a failure to open the index keeps its mapped refusal (`unreadable`, \"grant read access to it\"); every refusal order, exit code and message not named stays byte-identical",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "each changed message has an exact pin next to its neighbours' pins and a failure-only mutation run on the product in a scratch copy (m1 to m3), the RETENTION page says the true thing, and the new test runs under the reaper; a point that needs a behaviour change beyond a message is recorded as a finding and excluded",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "test_p5 compares the restored mtime with the one the hook actually stored and names the granularity assumption, and the dot-dot registry-path test uses a unique outside file name instead of a fixed foreign.json, each with a check that fails on the old form (m4, m5)",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "R4": {
+      "description": "the change is a release: Workflow 2.29.12, a fix: patch (manifest records and digests for the seven changed shipped files, release constant, release-history row, release-test class, obligations suite 318 to 319, RETENTION page stamp, roadmap row 54 Current then Done), verified per docs/RELEASING.md with scratch-clone staging before the release checkpoint; this repository's own installation is untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2",
+        "CP3"
+      ]
+    }
+  }
+}
