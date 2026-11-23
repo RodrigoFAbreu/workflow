@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "workflow-docs-wording",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -47183,6 +47183,254 @@
         },
         "evaluated_at": "2026-11-23T10:37:07Z",
         "workflow_release": "2.29.10"
+      }
+    },
+    "workflow-docs-wording": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "workflow-docs-wording",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/WORKFLOW_DOCS_WORDING_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/workflow-docs-wording-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/workflow-docs-wording-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 1,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "7a486a296617a60cea51d8437d2718335c4b7ed0",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "81791d5f59376ff1616ce16e2f9c3c1af784a3d8d2d310e133fe7bab5b5b5e45",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "81791d5f59376ff1616ce16e2f9c3c1af784a3d8d2d310e133fe7bab5b5b5e45",
+        "approved_review_content_id": "bd75e075f1c035d7d587188dee9baa8eb36a4f70266ee8fa7e76b6ca8966457b",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/WORKFLOW_DOCS_WORDING_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d14d2fc8b7a393a91a47f01caac2d6c628ed9a96"
+          },
+          {
+            "path": "docs/ai-workflow/registry/workflow-docs-wording-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "84e1cce0756b6568441fcb959166b34e71ca3aa1"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/workflow-docs-wording-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9831f8cdc2f3cc6822c1dda2d113dc72e397a1fa"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-23T14:35:39Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "bd75e075f1c035d7d587188dee9baa8eb36a4f70266ee8fa7e76b6ca8966457b",
+            "ledger": {
+              "local": {
+                "bundle_id": "81791d5f59376ff1616ce16e2f9c3c1af784a3d8d2d310e133fe7bab5b5b5e45",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "7e3309ffb95ad2a206a88f4113aa86d2a1a17c2770735bb2d91ffbcb3d620aa8",
+                "ledger_entry_sha256": "8a21539680dacef82f45e3afcdd987fa7bd2c72792fefd42bbe3af17839480a5",
+                "run_ref": "session:local .ai-review/workflow-docs-wording/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "81791d5f59376ff1616ce16e2f9c3c1af784a3d8d2d310e133fe7bab5b5b5e45",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "46f868acd78c20163254a422688c7b4d4340eef2d92bb8cafc8f0594301f9227",
+                "ledger_entry_sha256": "a47de04ace77fb336855e78b308aa9ec9324843ffc5d9a6741715cf0cadf946c",
+                "run_ref": "codex:20261123T143238Z-390a1414",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-23T14:35:39Z",
+          "workflow_release": "2.29.11"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "bd75e075f1c035d7d587188dee9baa8eb36a4f70266ee8fa7e76b6ca8966457b",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "81791d5f59376ff1616ce16e2f9c3c1af784a3d8d2d310e133fe7bab5b5b5e45",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-23T14:32:15Z",
+          "verdict_sha256": "7e3309ffb95ad2a206a88f4113aa86d2a1a17c2770735bb2d91ffbcb3d620aa8",
+          "run_ref": "session:local .ai-review/workflow-docs-wording/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "81791d5f59376ff1616ce16e2f9c3c1af784a3d8d2d310e133fe7bab5b5b5e45",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-23T14:34:57Z",
+          "verdict_sha256": "46f868acd78c20163254a422688c7b4d4340eef2d92bb8cafc8f0594301f9227",
+          "run_ref": "codex:20261123T143238Z-390a1414",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 1,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 6,
+      "last_transition": "2026-11-23T14:35:39Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-23T14:29:10Z",
+        "consumed": null,
+        "published": {
+          "review_content_id": "bd75e075f1c035d7d587188dee9baa8eb36a4f70266ee8fa7e76b6ca8966457b",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "bd75e075f1c035d7d587188dee9baa8eb36a4f70266ee8fa7e76b6ca8966457b",
+          "bundle_id": "81791d5f59376ff1616ce16e2f9c3c1af784a3d8d2d310e133fe7bab5b5b5e45",
+          "plan_revision": 1
+        }
+      },
+      "optional_findings": {
+        "F-e180c545309d": {
+          "digest": "e180c545309dcece7e3582265b68f4926e29bdb72e9db4c316472a78ea86fcc0",
+          "text": "Section 0 cites `docs/release-history.md` 23 for the 2.28.0 row. On `7a486a2` the 2.28.0 row is line 25, and line 23 is the 2.29.1 row. Correct the line number. The implementer finds the row by its text, so nothing breaks.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "bd75e075f1c035d7d587188dee9baa8eb36a4f70266ee8fa7e76b6ca8966457b",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T14:32:15Z"
+            }
+          ]
+        },
+        "F-e05e09ff573d": {
+          "digest": "e05e09ff573da0dcc35a00f76f94aac601d1e8c39203ee27593666eb9570d28c",
+          "text": "Section 0 (\"Manifest check\") and `TEST_RESULTS.md` say `grep -n 'common-problems\\|release-history' manifest.json` finds nothing. It finds one hit, `manifest.json` 3877: the `posture` prose names `docs/release-history.md` (\"follow the procedure in the 2.18.4 row of docs/release-history.md\"). That hit is prose, not a record, so the conclusion stands (no record, digest, count or version moves). Restate the measured result accurately, for example \"no record's `target_path` or `location` names either page\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "bd75e075f1c035d7d587188dee9baa8eb36a4f70266ee8fa7e76b6ca8966457b",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T14:32:15Z"
+            }
+          ]
+        },
+        "F-1b69969af92d": {
+          "digest": "1b69969af92d5973a6f1ad3ca80ea863973f6a6722a8ce40633eadc4babcb570",
+          "text": "D-Wording-1 inserts a parenthesis that holds a semicolon just before the sentence's own \"; for code, ...\". The result reads \"the plan approval (a plan amendment is possible only while ...; at any other phase ... names the phase); for code, ...\", which nests two semicolon levels. Consider an em dash or a comma inside the parenthesis (\"..., and at any other phase ...\"). Keep the pinned needle `a plan amendment is possible only while the work item is at \\`IMPLEMENTING\\` or \\`SELF_REVIEWING_IMPLEMENTATION\\`` intact.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "bd75e075f1c035d7d587188dee9baa8eb36a4f70266ee8fa7e76b6ca8966457b",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T14:32:15Z"
+            }
+          ]
+        },
+        "F-ea27b2ac9d15": {
+          "digest": "ea27b2ac9d15d7f6f256905362350370dcc97b0fd7c72c5f7a3926c0da249a4c",
+          "text": "Correct section 0’s manifest measurement and the matching statement in `TEST_RESULTS.md`: the search finds `docs/release-history.md` in `manifest.json:3877`. This is descriptive prose, so the conclusion remains valid: neither page nor the test file is a manifest source record.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "bd75e075f1c035d7d587188dee9baa8eb36a4f70266ee8fa7e76b6ca8966457b",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T14:34:57Z"
+            }
+          ]
+        },
+        "F-99de84cb8324": {
+          "digest": "99de84cb8324497c78adca9ff3747197c32ce7b5502138f0b2c93a6f93964238",
+          "text": "Correct section 0’s reference to the 2.28.0 history row: it is at `docs/release-history.md:25`, not line 23.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "bd75e075f1c035d7d587188dee9baa8eb36a4f70266ee8fa7e76b6ca8966457b",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T14:34:57Z"
+            }
+          ]
+        },
+        "F-58b193652e43": {
+          "digest": "58b193652e43616c069fc3c98fe149b13bb705d93bc98578e3fc029b29d4f77e",
+          "text": "Consider including the cited `v2.28.0` function excerpts as historical evidence. This review copy lacks that tag and the baseline commit, preventing independent historical verification. The available current implementation supports the proposed wording.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "bd75e075f1c035d7d587188dee9baa8eb36a4f70266ee8fa7e76b6ca8966457b",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T14:34:57Z"
+            }
+          ]
+        }
       }
     }
   }
