@@ -46353,7 +46353,7 @@
       "registry_path": "docs/ai-workflow/registry/payload-test-hardening-1-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/payload-test-hardening-1-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 3,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -46462,7 +46462,138 @@
           "workflow_release": "2.29.10"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "6ca3533d5ec0190df1072f22507acaa4b27659cfe23b6e91eba0de03c6059752",
+        "approved_review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/payload-test-hardening-1-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5502f4788b5cfcf0a576b849ae24a8439ce4828b"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6773f9e8d901b0ca0080b0919c4e30ede666239c"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f0e342780b8f8f0f8de2c45e0002c0c901f002c0"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "577cf47bb2f4bda857832e62cc2f1652c3718c96"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "980a9df0efc9742c023f5e36d0d735b90ff10454"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "655010f9cb809494f6d2a4eb90a84a8dae17f2cf"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d2c3924a208d454ae65b8eb5fea69d4a6c0791a5"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0513fc15b1a5d3c2abb1089f3b5debd5156eae30"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "58c9c7a082d594f3e1fca1186a6701c56b05ec34"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "831b3928397c20d35fb56594fd0b7bc4bb2e1394"
+          }
+        ],
+        "reviewed_content_commit": "5081b8fac19741dbc8067e90190b46822c006b59",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-23T09:58:20Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "ledger": {
+              "local": {
+                "bundle_id": "6ca3533d5ec0190df1072f22507acaa4b27659cfe23b6e91eba0de03c6059752",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "8a8a63128a1cdd44cd6f756ffc42320540ac707de5ab9b10648bce5aeadddac9",
+                "ledger_entry_sha256": "5ca0fedafdd2fd76052c65edc21ed097bcfc0cc0bb97c47893c74c1201250a2d",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/payload-test-hardening-1/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "6ca3533d5ec0190df1072f22507acaa4b27659cfe23b6e91eba0de03c6059752",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "15acff79ace683f5ff9a3e307f9769cd65176a968e64ec86aaa3ca0aaee60eb0",
+                "ledger_entry_sha256": "7e800c152273296595de6b69813f0ced6a03636cd9a636e1b39c4a60fbddca34",
+                "run_ref": "codex:20261123T095419Z-f2fd217e",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-23T09:58:20Z",
+          "workflow_release": "2.29.10"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "b29271f870d411d3dc37e306adf88250a98cb35d7632de26e636e7a879c7691c",
@@ -46493,12 +46624,12 @@
           "external": 2
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 21,
-      "last_transition": "2026-11-23T09:37:22Z",
+      "state_revision": 24,
+      "last_transition": "2026-11-23T09:58:20Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -46621,6 +46752,69 @@
               "at": "2026-11-23T07:49:49Z"
             }
           ]
+        },
+        "F-bd4b001ef983": {
+          "digest": "bd4b001ef983a2b5da0718a37ad32d142c45165eb07401f5d9d24da609968943",
+          "text": "PTH-LI1-001 (`payload/scripts/workflow_state_completion_obligations_test.py`, `test_p5`): the +5 s within 1 ms check assumes a filesystem whose mtime granularity divides 5 s. That holds for tmpfs, ext4, btrfs, xfs and APFS (ns), and for a 1 s granularity. On a 2 s granularity (FAT/VFAT) `os.utime` would truncate `t+5` to `t+4` or `t+6` and the test would fail falsely. `$TMPDIR` is effectively never on such a filesystem, so no change is needed now; a one-line comment naming the assumption would help a future reader.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T09:53:00Z"
+            }
+          ]
+        },
+        "F-4007e7c930ff": {
+          "digest": "4007e7c930ffb063024c50ad035a6de405aa5ac1a86f3eb75178d0297f1657fe",
+          "text": "PTH-LI1-002 (pre-existing, outside this diff): `TestStateValidation.test_repo_root_check_rejects_dot_dot_traversal_registry_path` (S, line 1267) writes and unlinks a fixed `foreign.json` in the parent of the temp directory. Two copies of S run at once with the same `$TMPDIR` race on that path: in this review, two parallel mutation runs got a `FileNotFoundError` at its `unlink`. Run alone, the test passes under the same mutation. It is a candidate for the backlog (a unique name, or `missing_ok=True`), not for this patch release, which is frozen at its version bump.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T09:53:00Z"
+            }
+          ]
+        },
+        "F-1596ddfe7cda": {
+          "digest": "1596ddfe7cdacb2b4f7c9542feb6cade9c71133c1d88fdb09a51df31eddcd46b",
+          "text": "`workflow_state_completion_obligations_test.py:8441`: the +5-second assertion can falsely fail on filesystems with two-second mtime granularity. Recording the mtime actually stored by the hook and comparing it after restoration would improve portability.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T09:57:54Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "6ca3533d5ec0190df1072f22507acaa4b27659cfe23b6e91eba0de03c6059752",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-23T09:53:00Z",
+          "verdict_sha256": "8a8a63128a1cdd44cd6f756ffc42320540ac707de5ab9b10648bce5aeadddac9",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/payload-test-hardening-1/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "6ca3533d5ec0190df1072f22507acaa4b27659cfe23b6e91eba0de03c6059752",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-23T09:57:54Z",
+          "verdict_sha256": "15acff79ace683f5ff9a3e307f9769cd65176a968e64ec86aaa3ca0aaee60eb0",
+          "run_ref": "codex:20261123T095419Z-f2fd217e",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
