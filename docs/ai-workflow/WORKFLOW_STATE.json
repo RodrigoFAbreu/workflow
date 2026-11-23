@@ -47945,7 +47945,7 @@
       "registry_path": "docs/ai-workflow/registry/payload-polish-batch-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/payload-polish-batch-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 3,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -48089,12 +48089,12 @@
           "external": 2
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 23,
-      "last_transition": "2026-11-23T20:05:02Z",
+      "state_revision": 24,
+      "last_transition": "2026-11-23T20:22:31Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -48215,6 +48215,34 @@
               "review_content_id": "064b20d4240f7ce56a89424b3b93d82b58e056ddfc12bc5d16fd805281bda9d0",
               "verdict": "APPROVE",
               "at": "2026-11-23T18:25:50Z"
+            }
+          ]
+        },
+        "F-3d891b69a80f": {
+          "digest": "3d891b69a80fd968f65ce866f0fc4a64c236ea0b963b2291f670094bd1225dae",
+          "text": "LIR-R1-002: the strengthened takeover-guard test leaks its guard under failure\n\n`TestTakeoverGuardIsNotTheOwnersToReclaim.test_same_token_other_worktree_still_gets_the_foreign_worktree_message` calls `ws.release_guard` only after its assertions. A failing assertion therefore leaves the lock-order primitive held, and later tests in the process error with `LifecycleLockOrderError`. `TEST_RESULTS.md` reports this cascade under m1. Registering the release with `self.addCleanup` (or a `try`/`finally`) right after `acquire_guard` would keep a real regression's failure report to the one test that caught it. It affects diagnostics only and does not touch the green tree.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "c000d0ec9317e762a2b1af9416f5c058f7a95944a385c5df5e7d5e9480154fc0",
+              "verdict": "REVISE",
+              "at": "2026-11-23T20:22:31Z"
+            }
+          ]
+        },
+        "F-8a6bedf80628": {
+          "digest": "8a6bedf8062842230f2e38271591763ca159ef2eab0d270c309d40b7de87d70d",
+          "text": "LIR-R1-003: F1 and F2, as recorded in the plan\n\nThese are accepted as recorded and not taken: the other pre-rename strays still carry \"renamed aside\", and the `_flow` lock-time re-selection appends the leftover note twice. Each is a candidate for a later item.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "c000d0ec9317e762a2b1af9416f5c058f7a95944a385c5df5e7d5e9480154fc0",
+              "verdict": "REVISE",
+              "at": "2026-11-23T20:22:31Z"
             }
           ]
         }
