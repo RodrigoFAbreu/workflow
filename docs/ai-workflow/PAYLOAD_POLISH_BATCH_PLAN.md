@@ -1,0 +1,138 @@
+# W61: Workflow 2.29.12 — three payload message and comment wording points and two test follow-ups (Revision 3)
+
+Pull request title: `fix: name the true next step in two payload refusals and harden two payload tests`
+(a shipped script and two shipped test files change, the behaviour of every working path does not: the version change is the next patch, so the title's impact must be patch; see D-Release).
+
+- **Work item:** `payload-polish-batch` (`process`, governing version `2.2`)
+- **Requested by:** the Manager Super Orchestrator, owner standing order: row 54 of `docs/ROADMAP.md` (`Current` from CP1, `Done` from CP3, the last checkpoint).
+- **Issues:** RodrigoFAbreu/workflow#108 point 3, #85 point 4, #205, #208, each read with all its comments (#108 has one, "still open: 3 and 4", point 4 since done by 2.29.11; #85 has two, the second "still open: 1 to 4", points 1 to 3 since done by 2.29.11; #205 and #208 have none, the body is the whole record).
+  **Branch:** `milestone/payload-polish-batch`
+- **Base commit:** `16e013022e01e52b572b2a24090e91c4e886ae63` (main after #210: the release source is 2.29.11; automatic gates, default `2.2`, no backlog file, so the prose roadmap applies)
+- **Plan revision:** 3 (round 1 of the local review applied: LPR-R1-001 to 005; round 2 of the external review applied: EPR-R2-001, EPR-R2-002). One mechanism: change a message or a comment of the shipped payload and tighten two tests, changing no refusal order, code or exit code. Every checkpoint section carries its `<!-- CPn -->`/`<!-- /CPn -->` pair.
+
+## 0. Phase 1, the investigation: every point on main at `16e0130`
+
+E is `payload/scripts/workflow_state.py`, R is `payload/scripts/workflow_retention.py`, S is `payload/scripts/workflow_state_test.py`, O is `payload/scripts/workflow_state_completion_obligations_test.py`. Lines have moved since the issues were written: the code is found by name.
+
+| Point | State on main (file:line) | Class |
+| --- | --- | --- |
+| #108 point 3: the `_release_start_next_step` docstring says "two refusals" | E 14831 `_release_start_next_step`, docstring at E 14835 to 14838: "the release has two refusals the raise sites cannot see: an `IN_PROGRESS` entry with no claim, and a claim held by another worktree". The function builds the base step (a start that was never committed) and, with `entry_may_be_unclaimed`, the two sentences of the other two cases: three cases in all, the base one and two refusals | TRUE (comment only) |
+| #85 point 4 (LPR-R1-004): the foreign-worktree refusal of the takeover names no next step | E 6899 to 6905, the `OPUS-R82-002` branch of `_acquire_guard_locked` (`role == "owner"`, same token, other worktree): the message ends "presenting the claim's token is not being the holder, and no worktree breaks another worktree's window here" and names no step. Its two neighbours name one: the takeover-fence branch (E 6873 to 6888: "to clear a leftover one, re-run it: `workflow_state.takeover_evidence`, then `workflow_state.take_over_claim` with the takeover literal and the guard-release literal ...") and the plan-approval twin (E 3797 to 3806). The guard held there is a dead takeover's exactly when it carries `step == "takeover"`, and `role == "takeover"` (E 6906) reaches `reclaim` for the authorized lease from any worktree (no worktree test in that branch) | TRUE |
+| #205: the remove flow's unreadable backstop says the folder "may be in the archive directory's `.removing/<id>`, renamed aside" when the index stat fails | R 1774 `@_stray_io("remove", "the review folder may be in ... renamed aside ...")`. `_open_index` (R 1008) lets `os.fstat(fd)` raise a bare `OSError`; the caller `_judge_removal_archive` (R 1679, step 6 of `_select_removal`, R 1729) does not map it, and neither does it map the two other index I/O calls it makes on the same descriptor before the rename (`os.fstat(fd).st_size`, `_index_ids`'s `os.pread`, and the `os.close(fd)` of its `finally`; main's `test_t7b` already fails the `fstat` and the `close` at that site), so the decorator (R 570) names each with the text above. Step 6 runs before the rename (`_flow` renames at step 3), in the first selection and in the repeat under the lock. The text is true after the rename (O `test_t7b2_a_stray_error_after_the_rename_keeps_the_folder_whole_in_removing` pins it for a stray at `_hash_folder`) and false here | TRUE |
+| #208 1: `test_p5` asserts the restored `a.txt` carries a +5 s shift within 1 ms | O `test_p5_a_stat_only_change_after_the_hash_puts_the_folder_back_and_deletes_nothing`, last line: `abs(after["a.txt"][2] - folder_before["a.txt"][2] - 5_000_000_000) < 1_000_000`. The hook sets `stamp = info.st_mtime + 5` with `os.utime`; on a file system whose time stamps are coarse (2 s) the stored time is not the requested one | TRUE |
+| #208 2: a fixed `root.parent / "foreign.json"` in S | S `test_repo_root_check_rejects_dot_dot_traversal_registry_path`: writes `root.parent / "foreign.json"` (the temporary directory's parent, shared by every run) and the `finally` `unlink()`s it, with `registry_path="registry/../../foreign.json"`. Two parallel runs write and delete the same file | TRUE |
+
+Points not taken, and findings: none of the five is a behaviour change beyond a message or a comment. Two findings are recorded and not taken (D-Stop does not apply to them, they are outside the named points and "every message not named stays byte-identical"): **(F1)** the strays of the remove flow before its rename that are not the index block of `_judge_removal_archive` still reach the old backstop text and say "renamed aside" though nothing was renamed: the dry run's other strays (step 12's `_hash_folder` and `_archive_table`) and the `_flow` lock-time sites such as `os.fstat(adir_fd)`; the new text of D-Wording 3 covers the unmapped I/O errors of the index block of the removal's selection (the stat after the open, the size stat, the read, the close; not the open's own mapped refusals, EPR-R2-001), which both `remove` and `remove --apply` run (`remove_item` calls `_select_removal` in both modes, R 1785); **(F2)**, pre-existing (LPR-R1-005): in the `_flow` lock-time re-selection, a `RetentionError` of `_select_removal` already carries the leftover note from `_select_removal`'s own handler (R 1767 to 1770) and `_flow`'s `note(exc)` (R 1856 to 1859) appends it again; the new arm inherits that in the leftover state, and its test runs without a leftover. Not a finding (LPR-R3-001): the plan-approval guard (`_acquire_plan_approval_guard_locked`, E 3768) has no same-token, other-worktree branch, so it has no twin of the #85 point 4 refusal; E 7533 belongs to `recover_abandoned_destructive_guard` (E 7475), which already names its steps (E 7537 to 7539).
+
+## 1. Goal and scope
+
+Five edits in three shipped files and two test files; one new test; no behaviour. Out of scope: every refusal order, exit code and message not named above (byte-identical), points 1 and 2 of #108 and 1 to 3 of #85 (done), F1 and F2, every page but the one sentence of D-Wording 3.
+This repository's own installation (`.claude/`, `scripts/`, the managed documents of `docs/ai-workflow/`, `.workflow-manager/`, the managed blocks, the conformance workflow) stays untouched.
+
+Open decisions: none; the plan finalizes no open decision row (this repository has no technical-decisions page).
+The judgments made are where the retention wording applies (D-Wording 3: the index block of the removal's selection, not the backstop as a whole) and that a message and comment change is still a release (D-Release).
+
+## 2. Design
+
+### D-Wording (each changed message has an exact pin, found next to its neighbours', and a failure-only mutation)
+
+1. **#108 point 3, comment only.** In E, the docstring of `_release_start_next_step` says: "the release has three cases, and this step is the first: a start that was never committed. The other two are refusals the raise sites cannot see: an `IN_PROGRESS` entry with no claim, and a claim held by another worktree." Nothing else in the function changes. **No pin and no mutation: a docstring is not behaviour** (`git diff` shows the docstring hunk only; the existing release-start tests, S `test_m1_epr001_...`, `test_m1b_...`, stay as they are).
+2. **#85 point 4.** In E, the `OPUS-R82-002` branch keeps its cause text byte for byte and appends one step, chosen by what the guard is:
+   - `held.get("step") == "takeover"` (a takeover's guard in another worktree: running, or left by one that died): `; that guard is a takeover's: let a running takeover finish, or, if it died, re-run it: `workflow_state.takeover_evidence`, then `workflow_state.take_over_claim` with the takeover literal and the guard-release literal {guard_release_authorization_literal(held)!r}` (the same wording and literal as the takeover-fence neighbour, E 6881 to 6888);
+   - any other step: `; let that worktree finish its step, or, if its session died, resume there (its next entry reclaims its own leftover guard), or, if that worktree is gone, use the abandoned-guard recovery; then run this again` (the neighbours' words: E 1896 "a crashed holder holds nothing: its leftover guard is reclaimed by the next entry", E 6912 "if that worktree is gone, use the abandoned-guard recovery"; a step that can never be satisfied is not named, because this branch has no liveness or reclaim path of its own: only the other worktree's own-leftover branch, E 6889 to 6895, reclaims).
+   One principle: every refusal names its cause and one step. The exception class (`CheckpointOwnershipUnavailableError`), the branch order and the guard are unchanged; nothing is written (the refusal raises before `reclaim`).
+   **Pins (S, next to the neighbours' pins):** the two existing tests that pin this refusal by its cause fragment ("presenting the claim's token is not being the holder", S `test_same_token_other_worktree_still_gets_the_foreign_worktree_message`, a takeover's guard planted from the first worktree, and the subtest "the same-token other-worktree refusal" of the live-holder test, step `1d`) gain an assertion of the exact appended sentence each: the first the takeover route with the literal of the guard it planted, the second the full "let that worktree finish ... abandoned-guard recovery; then run this again" sentence and `assertNotIn("take_over_claim", ...)`. No-write proof: the first test already releases its guard afterwards and the second ends the holder's window; each also asserts that `ws.guard_path(repo.root, "wi").read_bytes()` equals the bytes it read before the refusal (`read_guard` returns a parsed record, so the bytes are compared, as the neighbouring test does at S 9706 to 9713).
+   **Failure-only mutation (m1):** in a scratch copy of E, drop the appended step (both arms). The two strengthened assertions fail; their cause-fragment assertions, and every other test of S and of the integration suite, pass (the old pins never read the end of the message).
+3. **#205.** In R, `_judge_removal_archive` wraps its whole index block (the `_open_index(adir_fd, write=False)` call, the `os.fstat(fd).st_size` and `_index_ids` read, and the `os.close(fd)` of the `finally`: every index I/O call it makes before the rename; the arm catches only what is not already mapped) in `except OSError as exc` and raises `_refuse("unreadable", <the backstop's own message for this exception>, "this run renamed nothing: the review folder is where it was before it started; repair the cause, then run the same command again")`. The backstop's message builder moves into one helper, `_stray_message(command, exc)`, that the decorator and this arm both call, so the cause text (`remove stopped on an unexpected I/O error: EIO ...`) stays byte-identical; code `unreadable`, exit 2 and the order (the index is judged first, step 6) are unchanged. `_open_index`'s mapped refusals pass through untouched (EPR-R2-001): an `os.open` failure there is already a `RetentionError` (R 1025 to 1028: `unreadable`, "index.jsonl cannot be read", next step "grant read access to it", for `EACCES`, `EIO` and every other errno that is not `ELOOP`/`EISDIR`/`ENXIO`, which are `_index_unsafe`), so it bypasses the new arm and keeps its text and step; so do `_index_ids`'s `RetentionError`s. What the arm adds is the errors that today escape unmapped: `_open_index`'s own `os.fstat(fd)` (after the open), the `os.fstat(fd).st_size`, `_index_ids`'s `os.pread` and the `os.close(fd)`. The decorator's text and every site outside this block are unchanged (F1): the post-rename strays keep "renamed aside" (it is true there).
+   `_select_removal`'s own `except RetentionError` already appends the leftover note when an earlier run's `.removing/<id>` exists, so the sentence "where it was" stays true in that state (the folder is then in `.removing/<id>` and the note says so).
+   **Docs.** `docs/RETENTION.md`, in the paragraph on the stat errors of the remove command (after "A stat error other than "not found" is `unreadable` before the rename"): one sentence: an unexpected I/O error on the archive's `index.jsonl` after it was opened (while it is measured, read or closed) is `unreadable` before the rename, and its next step says nothing was renamed and the folder is where it was; a failure to open it keeps its own refusal ("cannot be read", "grant read access to it"); a stray I/O error after the rename keeps saying the folder may be in `.removing/<id>`. The `Last checked with` stamp of the page moves in CP3, with the release.
+   **Pin (O, next to `test_t7b2`):** new `RetentionErrorPathsTwo.test_t7b3_a_failed_index_io_says_nothing_was_renamed`, with these subtests: `remove --apply` with `os.fstat` failed inside `_open_index` (`_call_fails("fstat", "_open_index", errno.EIO)`, the helper of `test_t7a2`); the same for `remove` (dry run); `os.fstat` failed at site `_judge_removal_archive` (the second stat); `os.close` failed at site `_judge_removal_archive` (the pair `test_t7b` already uses). Each runs on `self.rm_env()` and asserts: exit 2, `error: unreadable`, the cause text `remove stopped on an unexpected I/O error: EIO`, the exact `next step: this run renamed nothing: the review folder is where it was before it started; repair the cause, then run the same command again`, `assertNotIn("renamed aside", err)`, **no-write proof** (`rr.snap(times=False)` equal to its before, the folder whole in `.ai-review/w00` and no `.removing/w00`), and a clean run afterwards (`rr.rm(apply=True).code == 0`). A subtest keeps the preserved mapped refusal (EPR-R2-001): `os.open` of `index.jsonl` failed with `EACCES` (and with `EIO`) still gives `error: unreadable`, `index.jsonl cannot be read`, `next step: grant read access to it`, and the new sentence is absent. A last subtest keeps the contrast: a stray at `_hash_folder` after the rename still carries "may be in the archive directory's `.removing/w00`" (the existing `test_t7b2` asserts it; the subtest asserts that the new sentence is absent there).
+   **Failure-only mutations:** (m2) in a scratch copy of R, drop the new `except OSError` arm: the new test fails in each of its first four subtests (the old text is back: `renamed aside` present, the new step absent) and no other test of the nine suites fails (`test_t7a2`, `test_t7b` and `test_t7b2` assert the cause prefix and the unchanged tree only, or the post-rename text); (m2b) narrow the arm to the `_open_index` call alone: the two `_judge_removal_archive` subtests (the second `fstat` and the `close`) fail and the `_open_index` ones pass; the open-failure subtest passes in every one of m2, m2b and m3's arms (it never reaches the arm); (m3) change the new step's sentence by one word: the exact pin fails in every subtest that asserts it, nothing else.
+
+### D-Tests (no new test method; each change is an assertion or a line, and each has a check that fails on the old form)
+
+4. **#208 1, in O.** In `test_p5`, the hook records `stored = os.stat(held).st_mtime_ns` **after** `os.utime` and the assertions compare the restored `a.txt`'s mtime with `stored` (exact equality: a rename keeps the inode's time), and `assertNotEqual` against the original stays. The comment names the one assumption left: `os.utime` stores the time at the file system's granularity, so the stored value, not the requested +5 s, is what must survive the round trip, and +5 s is large enough to differ from the original at any granularity up to 4 s. The existing 1 ms tolerance line goes.
+   **Failure-only check (m4):** (a) in a scratch copy of the fixture, `os.utime` inside the hook is wrapped to round the stamp down to whole 2 s: the old assertion fails (the shift is no longer +5 s within 1 ms), the new one passes; (b) in a scratch copy of R, `_restore` is made to touch the restored `a.txt` itself (`os.utime` to a fresh time after the rename back; touching only the folder would change nothing the test compares, since `_RM.files` records no directory mtimes, EPR-R2-002): the new assertion fails (restored != stored), as the old one did.
+5. **#208 2, in S.** The test creates its outside file with `tempfile.mkstemp(dir=root.parent, prefix="foreign-", suffix=".json")` (closing the descriptor, writing the JSON), builds `registry_path` as `f"registry/../../{outside.name}"`, and `unlink(missing_ok=True)` in the `finally`. The assertion (the traversal path is refused) is unchanged, and still reached through the traversal, not through the file's absence: the file exists.
+   **Failure-only check (m5):** a sentinel `foreign.json` planted in the temporary directory's parent before the run: the old form overwrites and deletes it, the new form leaves it intact (compared by bytes); the whole class still passes.
+
+### D-Stop
+
+If a new or strengthened test fails on the fixed tree, if a mutation does not fail exactly what is stated above, or if any existing test changes its result, **stop**: a point that cannot be done without a behaviour change beyond a message is recorded as a finding in this plan (a separate item), excluded, and no further code is changed for it.
+
+### D-Release
+
+The pull request changes shipped files: E, R, S and O are manifest artifacts (`distribution`, and the conformance suite the installed repositories run). `docs/RELEASING.md` ("A published version never changes", "A pending version is frozen until published") refuses a release-source change without a version change, and the required `Conventional Commit title` check requires the title's impact to equal the version change (`check-title --agree`; `fix:` prints `impact=patch`). So the change is **a release, Workflow 2.29.12, a `fix:` patch**, the precedent of 2.29.7 to 2.29.11.
+`manifest.json` `workflow_version` 2.29.12; the seven changed records (E, R, S, O, `workflow_protocol.py`, its test and `ORCHESTRATION_PROTOCOL.md`) take their sentence ("payload-polish-batch (workflow-2.29.12)"), `sha256` and `size`; counts of files and `distribution` do not move; `manager.conformance.suites` is measured by `release.py manager-block --write` (the obligations suite 318 to 319; S 1250, I 385 and the protocol suite 344 stay, since D-Wording 2 and D-Tests 4 and 5 add assertions, not methods). `WORKFLOW_RELEASE` becomes 2.29.12 with its pinned assertions and the protocol document's matching lines (protocol 1.5, no operation or flag changes). The posture says the way back to 2.29.11 needs nothing undone (three messages, a docstring and tests: the older files are back, no state, flag, code or exit code differs). `tools/release/release_test.py` gets a 2.29.12 class (version, constant, counts, digests, posture, suite counts, history line, protocol lines, row), carries the suite-count pin, the 2.29.11 class gives up the pins a newer release owns, and the `Last checked with: Workflow 2.29.4.` pin of `docs/RETENTION.md` (the 2.25.6 class) moves to the 2.29.12 class together with the page's stamp. `docs/release-history.md`: the 2.29.12 row and its stamp; it names the issues by number and not by an internal id (`check_docs`), and says it closes nothing by keyword. A pending version is frozen until published: no further release-source change may be added to this branch after its version bump. The release workflow publishes it; the Manager lock and install pull requests follow (orchestrator).
+
+### D-Staging
+
+CP1 and CP2 change shipped files whose records move only at CP3, so stock `stage-conformance` cannot stage them. Each verifies in a disposable clone under `$TMPDIR` (a new empty directory outside the repository; procedure of `docs/milestones/completed/RETENTION_ARCHIVE_PLAN.md`, D-Staging): a scratch script, in the clone only, (a) recomputes `sha256` and `size` of every record whose file differs, (b) measures `manager.conformance.suites` with `release.py manager-block --release-dir <scratch> --write`, (c) rewrites the pins in `tools/release/release_test.py` that read a changed digest or the obligations count (as the lstat-errors plan did; those pins are CP3's change in the real tree). Then the "Verification commands" of `docs/RELEASING.md` run from the clone (the tools tests with the zlib-ng interpreter `/home/rodrigo/.claude/projects/-home-rodrigo-Workspace-workflow-manager/orchestrator-files/runs-workflow/w0-ext-impl-r1/venv/bin/python`); the new and the touched tests also run under the reaper (the orphan rule). Mutations m1 to m5 run in further copies of that fixture, never in the repository. Nothing runs an archive, remove or prune command against a real repository: every retention run of the tests uses its own scratch repository.
+
+## 3. Checkpoints
+
+| id | name | depends_on | complexity | session_target |
+| --- | --- | --- | --- | --- |
+| CP1 | The three wording points, their pins and roadmap row 54 | - | 2 | 1 |
+| CP2 | The two test follow-ups | CP1 | 1 | 1 |
+| CP3 | Release 2.29.12 | CP2 | 2 | 1 |
+
+<!-- CP1 -->
+### CP1 — The three wording points, their pins and roadmap row 54
+
+**Files:** `payload/scripts/workflow_state.py`, `payload/scripts/workflow_retention.py`, `payload/scripts/workflow_state_test.py`, `payload/scripts/workflow_state_completion_obligations_test.py`, `docs/RETENTION.md`, `docs/ROADMAP.md`.
+
+- D-Wording 1 to 3 as edits to E and R (`git diff 16e0130 -- payload/scripts/workflow_state.py` shows the docstring hunk and the one appended step, `git diff 16e0130 -- payload/scripts/workflow_retention.py` the helper, the decorator's call of it and the one `except` arm around the index block; nothing else), the pins in S and the new test in O, the RETENTION sentence; m1 to m3 (with m2b) run in scratch copies and each result recorded. `docs/ROADMAP.md` carries row 54 (`Current`) in the style of its neighbours.
+
+**Verification:** D-Staging (nine suites from the staged fixture, `tools/docs`, `check_docs.py`, `check-manager-block`, `tools/release` in the zlib-ng interpreter; the new test and the two strengthened S tests under the reaper); m1 fails the two strengthened assertions only, m2, m2b and m3 fail the new test only.
+<!-- /CP1 -->
+
+<!-- CP2 -->
+### CP2 — The two test follow-ups
+
+**Files:** `payload/scripts/workflow_state_completion_obligations_test.py`, `payload/scripts/workflow_state_test.py`.
+
+- D-Tests 4 and 5 (`git diff` of the two files adds or removes no test method beyond CP1's one; no product line changes); m4 and m5 run in scratch copies and each result recorded.
+
+**Verification:** D-Staging; the two touched tests under the reaper; m4 (a) fails the old assertion and passes the new, m4 (b) fails the new; m5 leaves the sentinel intact with the new test and not with the old.
+<!-- /CP2 -->
+
+<!-- CP3 -->
+### CP3 — Release 2.29.12
+
+**Files:** `manifest.json`, `payload/scripts/workflow_protocol.py`, `payload/scripts/workflow_protocol_test.py`, `payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md`, `docs/release-history.md`, `docs/RETENTION.md`, `tools/release/release_test.py`, `docs/ROADMAP.md`.
+
+- `WORKFLOW_RELEASE` 2.29.12 with its pinned assertions and the document's matching lines (protocol 1.5); `manifest.json` per D-Release; the history row and stamp; the page stamp of `docs/RETENTION.md`; the 2.29.12 class and the 2.29.11 class's given-up pins; `docs/ROADMAP.md` row 54 becomes `Done` (the last checkpoint), with the release following the merge.
+- The title is checked with `python3 tools/release/release.py check-title "fix: name the true next step in two payload refusals and harden two payload tests" --agree --head <the version-bump commit>`.
+
+**Verification:** the nine suites pass in a stock `release.py stage-conformance --commit HEAD` fixture; `release.py build --commit HEAD --out "$(mktemp -d)"` succeeds; `check-manager-block` (with `--manager-releases`) and `tools/docs` are clean; the tools tests pass in the zlib-ng environment; `check-title` agrees; `workflow-manager verify .` is clean.
+<!-- /CP3 -->
+
+## 4. Functional review (for the later checklist)
+
+Commands from `docs/RELEASING.md`, "Verification commands". Nothing runs against the real repository, the forge or the network. `$S` is a scratch directory under `$TMPDIR`.
+
+| Flow | Do | Expect |
+| --- | --- | --- |
+| 1 | `git diff --stat 16e0130 -- payload` | CP1 and CP2: E, R, S and O; CP3 adds the protocol script, its test and the protocol document |
+| 2 | `git diff 16e0130 -- payload/scripts/workflow_state.py \| grep '^[-+][^-+]'` | the docstring of `_release_start_next_step` and the appended step of the foreign-worktree refusal; no other line |
+| 3 | `git diff 16e0130 -- payload/scripts/workflow_retention.py \| grep '^[-+][^-+]'` | the `_stray_message` helper, the decorator calling it, the `except OSError` arm around the index block of `_judge_removal_archive` |
+| 4 | in a staged fixture, `python3 -B workflow_state_completion_obligations_test.py RetentionErrorPathsTwo` | OK; the suite counts 319 |
+| 5 | m1 to m5 (and m2b) of D-Wording and D-Tests, each on its own scratch copy | exactly the stated assertions fail; originals pass where stated |
+| 6 | `reaper.py --report R.json --chunk-id polish -- python3 -B <suite> <class>` for the touched classes | status 0; orphans: only `[git]`, all `exited` |
+| 7 | (full environment) the nine payload suites from a staged fixture; the `tools/release` tests with the zlib-ng interpreter; `tools/docs` tests and checker; `check-manager-block` with `--manager-releases` | all pass; the manifest says 2.29.12; `check-title` agrees |
+| 8 | `git diff --name-only 16e0130 -- .claude scripts .workflow-manager .github CLAUDE.md` | nothing |
+
+## 5. Disposition of every item
+
+| Item | What | Checkpoint | Note |
+| --- | --- | --- | --- |
+| #108 3 | D-Wording 1, a comment | CP1 | no pin, no mutation, by design |
+| #85 4 | D-Wording 2, pins, m1 | CP1 | |
+| #205 | D-Wording 3, pin, RETENTION sentence, m2, m2b, m3 | CP1 | the index block of the removal's selection (F1 records the rest) |
+| #208 1, 2 | D-Tests 4 and 5, m4, m5 | CP2 | |
+| F1 and F2 | not taken | - | Optional findings for acceptance |
+| Release | 2.29.12, a `fix:` patch | CP3 | D-Release |
+
+The artifact declaration `docs/ai-workflow/registry/payload-polish-batch-artifacts.json` is generated by `workflow_state.generate_artifacts_declarations` and extended by hand for `payload/`, `tools/`, `fixtures/`, `templates/`, `manifest.json`, `docs/release-history.md` and `docs/RETENTION.md` (excluded at the plan stage, protected at the implementation stage); every path a checkpoint's **Files** paragraph names is classified at both stages.
+`docs/ROADMAP.md` stays excluded at both stages, so row 54 is a classified, unprotected change.

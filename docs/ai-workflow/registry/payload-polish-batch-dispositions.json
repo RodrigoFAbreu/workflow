@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_item_id": "payload-polish-batch",
+  "dispositions": {
+    "F-3d891b69a80f": {
+      "disposition": "fixed",
+      "note": "The foreign-worktree test wraps its assertions in try/finally and releases the guard in the finally (workflow_state_test.py ~9730-9749), so a failed assertion cannot cascade into LifecycleLockOrderError."
+    },
+    "F-78f308d09e0a": {
+      "disposition": "fixed",
+      "note": "Plan line 44 says each test asserts guard_path(...).read_bytes() equals the bytes read before, and the test does (workflow_state_test.py 9731, 9745)."
+    },
+    "F-87659e5a854b": {
+      "disposition": "fixed",
+      "note": "Plan m4(b) says _restore touches the restored a.txt itself and that touching only the folder changes nothing, since _RM.files records no directory mtimes."
+    },
+    "F-a3565369a093": {
+      "disposition": "fixed",
+      "note": "Plan F1 names the dry run's other strays and the _flow lock-time sites, and states remove_item calls _select_removal in both modes; ROADMAP row 54 carries the wording."
+    },
+    "F-8a6bedf80628": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/213"
+    },
+    "F-be69c9298b1e": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/213"
+    },
+    "F-da0edf902b56": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/213"
+    },
+    "F-73be194dcc54": {
+      "disposition": "dropped",
+      "reason": "Plan header record only: the header lists LPR-R1-001..005 and EPR-R2-001/002 while LPR-R3-001 is resolved in section 0; the plan is approved and frozen, no content or checkpoint effect."
+    },
+    "F-b9e9d9b43f4d": {
+      "disposition": "dropped",
+      "reason": "Plan wording slip in a frozen row (says the two other index I/O calls, then lists three); D-Wording 3 is correct and the implementation is unaffected."
+    }
+  }
+}

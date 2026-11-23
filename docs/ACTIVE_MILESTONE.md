@@ -2,39 +2,40 @@
 
 ## Milestone
 
-**Complete** (accepted by policy; a `docs:` change, no Workflow release). W62: `workflow-docs-wording` (`process`, governing version `2.2`), branch
-`milestone/workflow-docs-wording`. It has no `docs/ROADMAP.md` row, and the roadmap is untouched. Issues RodrigoFAbreu/workflow#173
-point 1 and #161 point 1. The plan is `docs/ai-workflow/WORKFLOW_DOCS_WORDING_PLAN.md` (revision 1).
+W61: `payload-polish-batch` (`process`, governing version `2.2`), branch `milestone/payload-polish-batch`, base
+`16e013022e01e52b572b2a24090e91c4e886ae63`. Release Workflow 2.29.12, a `fix:` patch. Row 54 of `docs/ROADMAP.md`. Issues
+RodrigoFAbreu/workflow#108 point 3, #85 point 4, #205, and #208 points 1 and 2. The plan is
+`docs/ai-workflow/PAYLOAD_POLISH_BATCH_PLAN.md` (revision 3).
 
 ## Goal
 
-Two documentation sentences say what the engine already does. No product behaviour, payload file, manifest field, command, message,
-roadmap row or release changes.
+Three wording points and two test follow-ups in the shipped payload. No refusal order, command, exit code or working path changes.
+The release (manifest `workflow_version` 2.29.12, the history row, the protocol document's release lines) is part of this branch;
+its version bump is commit `903d363`.
 
-- `docs/common-problems.md`, "An approval became stale after a change": the plan route now says that a plan amendment is possible only
-  at `IMPLEMENTING` or `SELF_REVIEWING_IMPLEMENTATION`.
-- `docs/release-history.md`, the 2.28.0 row: `--write-findings-record` exits 0 with the paths to stage (the record, and the dispositions
-  file when it exists; `[]` for an item with no finding). The row said "the record path (or nothing, for an item with no finding)".
+## Outcome (complete)
 
-The release tests gain assertions inside two existing methods. No test method is added or removed.
-
-## Outcome
-
-- CP1 (`1fcad47`) and CP2 (`0bc3d5a`) are complete. The plan was approved by gate policy at revision 1.
-- Implementation review round 1 is APPROVE from both the local and the external reviewer. The technical approval was recorded by
-  policy (`3c67a85`).
-- Verification at `0bc3d5a`, recorded in `.ai-review/workflow-docs-wording/current/TEST_RESULTS.md`: the nine payload suites, `tools/release`
-  (386 tests), `tools/docs` (34 tests), `check_docs.py`, `check-manager-block`, `workflow-manager verify .`, `check-title` (`impact=none`),
-  the reaper on the two pin classes, and a failure-only mutation of each page. All pass. The commits after it (`61565b7`, `3c67a85`) change
-  only `docs/ai-workflow/WORKFLOW_STATE.json`, so the verified tree is unchanged.
-- Not taken: #173 points 2 and 3, and #161 points 2 and 3 (fixed on main, or a finished item's plan prose). See the plan, section 0 and
-  section 5.
-- The functional flows 1 to 12 are recorded passed. The recorded Optional findings are dispositioned; see
-  `docs/milestones/completed/workflow-docs-wording-findings.md`. An archive copy of the plan is in `docs/milestones/completed/`.
-- Nothing is pushed, merged or published. There is no Workflow release and no Manager pin.
+- CP1 (`791418f`), CP2 (`525a3db`) and CP3 (`903d363`) are complete. Implementation review round 3: local `APPROVE`
+  (`LOCAL_MODEL_IMPLEMENTATION_REVIEW`) and external `APPROVE` (manual, `openai/gpt-6.1-sol`) on implementation revision 2. The
+  technical approval is `CURRENT` (recorded by policy, `afd7c9d`).
+- Implementation revision 2 changed the #85 wording to three arms, not the two the plan's D-Wording 2 text describes (round 2 of the
+  implementation review, LIR-R1-001: a non-takeover ordinary guard cannot be recovered by "abandoned-guard recovery", which refuses it).
+  The plan bytes are the approved ones, so the plan's D-Wording 2 text is stale on this point; the shipped wording is recorded in
+  `.ai-review/payload-polish-batch/current/IMPLEMENTATION_SUMMARY.md` (round 2) and in the history row and roadmap row 54.
+- Automated verification is recorded in `.ai-review/payload-polish-batch/current/TEST_RESULTS.md` (revision 2). No shipped file, test
+  or manifest has changed since `26be4f1`, so that verification is current. Results: the nine payload suites pass (453, 344, 1250,
+  429, 151, 319, 385, 283 and 27 tests); `tools/release` 388 tests; `tools/docs` 34 tests; `check_docs.py` exit 0;
+  `check-manager-block` ok; `check-title` `impact=patch`; `release.py build` exit 0; the reaper on the touched tests; mutations m1,
+  m2, m2b, m3, m4 (a) and (b), and m5 each fail exactly what the plan states.
+- Not taken, recorded as optional findings in the plan (section 0): F1 (the remove flow's other strays before its rename keep the
+  "renamed aside" text) and F2 (the leftover note is appended twice in the `_flow` lock-time re-selection, pre-existing). Neither is a
+  defect of this batch to fix here.
+- Nothing is pushed, merged or published. The installation (`.claude/`, `scripts/`, `.workflow-manager/`, managed blocks,
+  `.github/`) is untouched, so `workflow-manager verify .` reports the installation at 2.29.11. That is expected until a release is
+  published and a manager pin is added.
 
 ## Next action
 
-No item is ready for `PLANNING` from this milestone: it has no roadmap row. The next incomplete milestone in `docs/ROADMAP.md` is row 27
-("Deferred: review-data simplification, longer-term evolution"), which is deferred and trigger-driven (see "Later (open items)").
-`/milestone-plan` when one is chosen.
+`payload-polish-batch` is complete (accepted by policy, `policy:bae758b4f4ce`). No roadmap item is ready for `PLANNING` in this
+repository: the open rows are waiting on the Controller (rows 12 and 13) or are deferred ("Later (open items)"). Run `/milestone-plan`
+when the next milestone is chosen. Nothing is pushed, merged or published; the release (Workflow 2.29.12) follows the merge.
