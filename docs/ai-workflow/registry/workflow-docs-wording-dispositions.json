@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_item_id": "workflow-docs-wording",
+  "dispositions": {
+    "F-1b69969af92d": {
+      "disposition": "dropped",
+      "reason": "Cosmetic: the sentence reads clearly with its parenthesis and the pinned substrings must stay intact; the page text was left as planned."
+    },
+    "F-58b193652e43": {
+      "disposition": "dropped",
+      "reason": "Process note: the reviewer's copy lacked the v2.28.0 tag; the wording rests on the current implementation, which matches, and the 2.28.0 row change was checked by the orchestrator against that release."
+    },
+    "F-99de84cb8324": {
+      "disposition": "dropped",
+      "reason": "Plan wording only: section 0 cites the 2.28.0 row as line 23 where it is line 25; the implementer finds the row by its text and the plan is frozen."
+    },
+    "F-e180c545309d": {
+      "disposition": "dropped",
+      "reason": "Plan wording only: the same line-number slip in section 0; nothing breaks, the row is found by its text."
+    },
+    "F-e05e09ff573d": {
+      "disposition": "dropped",
+      "reason": "Plan and test-results wording only: the manifest search finds one prose hit (manifest.json:3877, the posture text naming docs/release-history.md), not a record; the conclusion that neither page is a manifest source record stands."
+    },
+    "F-ea27b2ac9d15": {
+      "disposition": "dropped",
+      "reason": "Same as the manifest-search finding: descriptive prose only, the conclusion stands."
+    }
+  }
+}
