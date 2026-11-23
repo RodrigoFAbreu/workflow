@@ -8222,6 +8222,67 @@ class RetentionErrorPathsTwo(unittest.TestCase):
         self.assertEqual(rr.rm(apply=True).code, 0)  # the next run finishes the removal
         self.assertFalse((rr.removing / "w00").exists())
 
+    def test_t7b3_a_failed_index_io_says_nothing_was_renamed(self):
+        step = ("next step: this run renamed nothing: the review folder is where it was before it started; "
+                "repair the cause, then run the same command again")
+        cases = (
+            ("remove --apply, the stat after the open", True, "_open_index", 0),
+            ("remove, the stat after the open", False, "_open_index", 0),
+            ("remove --apply, the size stat", True, "_judge_removal_archive", 0),
+        )
+        for label, apply, site, skip in cases:
+            with self.subTest(label):
+                rr = self.rm_env()
+                before = rr.snap(times=False)
+                with _call_fails("fstat", site, errno.EIO, skip=skip) as counted:
+                    code, _, err = rr.main_rm("w00", "--apply") if apply else rr.main_rm("w00")
+                self.assertTrue(counted)
+                self.assertEqual(code, 2)
+                self.assertIn("error: unreadable", err)
+                self.assertIn("remove stopped on an unexpected I/O error: EIO", err)
+                self.assertIn(step, err)
+                self.assertNotIn("renamed aside", err)
+                self.assertEqual(rr.snap(times=False), before)
+                self.assertTrue((rr.root / ".ai-review" / "w00").is_dir())
+                self.assertFalse((rr.removing / "w00").exists())
+                self.assertEqual(rr.rm(apply=True).code, 0)
+        with self.subTest("remove --apply, the close"):
+            rr = self.rm_env()
+            before = rr.snap(times=False)
+            with _call_fails("close", "_judge_removal_archive", errno.EIO) as counted:
+                code, _, err = rr.main_rm("w00", "--apply")
+            self.assertTrue(counted)
+            self.assertEqual(code, 2)
+            self.assertIn("error: unreadable", err)
+            self.assertIn("remove stopped on an unexpected I/O error: EIO", err)
+            self.assertIn(step, err)
+            self.assertNotIn("renamed aside", err)
+            self.assertEqual(rr.snap(times=False), before)
+            self.assertFalse((rr.removing / "w00").exists())
+            self.assertEqual(rr.rm(apply=True).code, 0)
+        for err_no in (errno.EACCES, errno.EIO):
+            with self.subTest("a failed open keeps its own refusal", errno=err_no):
+                rr = self.rm_env()
+                before = rr.snap(times=False)
+                with _call_fails("open", "_open_index", err_no, only="index.jsonl") as counted:
+                    code, _, err = rr.main_rm("w00", "--apply")
+                self.assertTrue(counted)
+                self.assertEqual(code, 2)
+                self.assertIn("error: unreadable", err)
+                self.assertIn("index.jsonl cannot be read", err)
+                self.assertIn("next step: grant read access to it", err)
+                self.assertNotIn("this run renamed nothing", err)
+                self.assertEqual(rr.snap(times=False), before)
+                self.assertEqual(rr.rm(apply=True).code, 0)
+        with self.subTest("a stray after the rename keeps the old text"):
+            rr = self.rm_env()
+            with _call_fails("fstat", "_hash_folder", errno.EIO) as counted:
+                code, _, err = rr.main_rm("w00", "--apply")
+            self.assertTrue(counted)
+            self.assertEqual(code, 2)
+            self.assertIn("may be in the archive directory's `.removing/w00`", err)
+            self.assertNotIn("this run renamed nothing", err)
+
     def test_t7c_prune_turns_a_stray_oserror_into_unreadable(self):
         rr = _RP()
         self.addCleanup(rr.__exit__, None, None, None)

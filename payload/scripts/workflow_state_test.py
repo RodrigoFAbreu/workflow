@@ -9724,10 +9724,18 @@ class TestTakeoverGuardIsNotTheOwnersToReclaim(unittest.TestCase):
                                      step="takeover", step_class=ws.ORDINARY, now="t2",
                                      role="takeover")
             wt2 = repo.worktree("b")
+            guard_bytes = ws.guard_path(repo.root, "wi").read_bytes()
+            held = ws.read_guard(repo.root, "wi")
             with self.assertRaises(ws.CheckpointOwnershipUnavailableError) as ctx:
                 ws.acquire_guard(wt2, "wi", holder_owner_token=token, checkpoint_id="CP",
                                  step="1d", step_class=ws.ORDINARY, now="t3")
             self.assertIn("presenting the claim's token is not being the holder", str(ctx.exception))
+            self.assertTrue(str(ctx.exception).endswith(
+                "; that guard is a takeover's: let a running takeover finish, or, if it died, re-run it: "
+                "`workflow_state.takeover_evidence`, then `workflow_state.take_over_claim` with the "
+                "takeover literal and the guard-release literal "
+                f"{ws.guard_release_authorization_literal(held)!r}"))
+            self.assertEqual(ws.guard_path(repo.root, "wi").read_bytes(), guard_bytes)
             ws.release_guard(repo.root, "wi", lease)
 
     def test_non_takeover_guard_of_the_same_token_is_still_reclaimed(self):
@@ -10585,10 +10593,17 @@ class TestLiveGuardVisibility(LiveGuardWorkerMixin, unittest.TestCase):
             token = self._claim(repo)
             proc, lease = self._hold(repo.root, token, "1d", ws.ORDINARY)
             wt2 = repo.worktree("b")
+            guard_bytes = ws.guard_path(repo.root, "wi").read_bytes()
             with self.assertRaises(ws.CheckpointOwnershipUnavailableError) as ctx:
                 ws.acquire_guard(wt2, "wi", holder_owner_token=token, checkpoint_id="CP",
                                  step="1d", step_class=ws.ORDINARY, now="t3")
             self.assertIn("presenting the claim's token is not being the holder", str(ctx.exception))
+            self.assertTrue(str(ctx.exception).endswith(
+                "; let that worktree finish its step, or, if its session died, resume there (its next "
+                "entry reclaims its own leftover guard), or, if that worktree is gone, use the "
+                "abandoned-guard recovery; then run this again"))
+            self.assertNotIn("take_over_claim", str(ctx.exception))
+            self.assertEqual(ws.guard_path(repo.root, "wi").read_bytes(), guard_bytes)
             self._end_window(proc)
 
     def _adopt_orphans(self):
