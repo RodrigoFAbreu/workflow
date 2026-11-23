@@ -6910,7 +6910,13 @@ def _acquire_guard_locked(repo_root: Path, work_item_id: str, *, body: dict,
                if held.get("step") == "takeover" else
                "; let that worktree finish its step, or, if its session died, resume there (its next "
                "entry reclaims its own leftover guard), or, if that worktree is gone, use the "
-               "abandoned-guard recovery; then run this again"))
+               "abandoned-guard recovery; then run this again"
+               if held.get("step_class") == DESTRUCTIVE else
+               f"; let that worktree finish its step, or, if its session died, resume there (its next "
+               f"entry reclaims its own leftover guard), or, if that worktree is gone, take the claim "
+               f"over: `workflow_state.takeover_evidence`, then `workflow_state.take_over_claim` with "
+               f"the takeover literal and the guard-release literal "
+               f"{guard_release_authorization_literal(held)!r}; then run this again"))
     elif role == "takeover":
         if held.get("step_class") == DESTRUCTIVE:
             raise CheckpointClaimTakeoverRefusedError(
