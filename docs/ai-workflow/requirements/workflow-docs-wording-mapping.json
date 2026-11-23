@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_item_id": "workflow-docs-wording",
+  "requirements": {
+    "R1": {
+      "description": "the common problems page says a plan amendment is possible only while the work item is at IMPLEMENTING or SELF_REVIEWING_IMPLEMENTATION, keeps every pinned substring, and the sentence is pinned (RodrigoFAbreu/workflow#173 point 1)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the 2.28.0 row of the release history says what that release printed on success, the paths to stage as JSON, and every other byte of the row is unchanged; the sentence is pinned (RodrigoFAbreu/workflow#161 point 1)",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "R3": {
+      "description": "documentation only: no shipped file, no manifest record, digest, count or version, no release, no roadmap row, and this repository's own installation is untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    }
+  }
+}

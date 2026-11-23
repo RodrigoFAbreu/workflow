@@ -4238,8 +4238,11 @@ class AcceptanceFindingsFloorReleaseTest(unittest.TestCase):
     def test_the_release_history_rows_name_the_release_and_the_way_back(self):
         for needle in ("#148", "--write-findings-record", "/satisfy-gate acceptance", "/accept-milestone",
                        "record_changed", "state_changed", "MILESTONE_COMPLETE", "Orchestration Protocol 1.5",
-                       "2.27.0", "removes the flag", "nothing needs undoing", "v2.28.0"):
+                       "2.27.0", "removes the flag", "nothing needs undoing", "v2.28.0",
+                       "it exits 0 with the paths to stage (the record, and the dispositions file "
+                       "when it exists; `[]` for an item with no finding)"):
             self.assertIn(needle, self.row())
+        self.assertNotIn("(or nothing, for an item with no finding)", self.row())
         self.assertNotIn("closes #", self.row())
         self.assertLess(self.history.index("| 2.28.0 |"), self.history.index("| 2.27.0 |"))
 
@@ -4476,6 +4479,8 @@ class WordingPassPlainCommandsReleaseTest(unittest.TestCase):
                 self.assertIn("with both `false` the content of both files is unchanged", text)
         self.assertIn("for a plan approved and then changed, `/request-plan-amendment`", problems)
         self.assertIn("and then `/milestone-plan`, both review stages and the plan approval", problems)
+        self.assertIn("a plan amendment is possible only while the work item is at `IMPLEMENTING` or "
+                      "`SELF_REVIEWING_IMPLEMENTATION`", " ".join(problems.split()))
 
     def test_the_protocol_document_states_the_constraint_and_names_no_changed_message(self):
         doc = (REPO_ROOT / "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md").read_text()
