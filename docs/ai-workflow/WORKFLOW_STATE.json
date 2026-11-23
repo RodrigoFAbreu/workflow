@@ -46353,18 +46353,22 @@
       "registry_path": "docs/ai-workflow/registry/payload-test-hardening-1-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/payload-test-hardening-1-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 3,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "1519eedc681b7e7626844ddd6a5c1843f68c803c",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "b2e86a443f5719481e249c666a9540e8c9947694"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "bdc88065f1cd97355b67a87e5196585e17692b0a"
         }
       },
       "current_bundle_id": "0b04e33599ee0bc4e27dc8d3f272e58902cd7082b0a7d65059167ea583941a60",
@@ -46493,8 +46497,8 @@
           "external": 0
         }
       },
-      "state_revision": 18,
-      "last_transition": "2026-11-23T08:38:05Z",
+      "state_revision": 20,
+      "last_transition": "2026-11-23T09:13:51Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
