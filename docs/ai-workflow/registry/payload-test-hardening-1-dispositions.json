@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_item_id": "payload-test-hardening-1",
+  "dispositions": {
+    "F-44b31b63437e": {
+      "disposition": "fixed",
+      "note": "Plan D-Tests 5 now says a fresh touch also differs whatever the age of the files, and the files are about 21 ms old when the hook runs."
+    },
+    "F-49e0453aa2e4": {
+      "disposition": "fixed",
+      "note": "Plan line 43 reads 'point 4, m5 and m6'; the 'points 6 and 7' wording is gone."
+    },
+    "F-8d4d1a018f2a": {
+      "disposition": "fixed",
+      "note": "Plan names each suite with its count (S 1250, I 385, O 318, protocol 344, gate_policy 429) and Flow 2 compares them."
+    },
+    "F-b4092a3512ce": {
+      "disposition": "fixed",
+      "note": "Plan states every directory the test creates (including test_p4's spaced interpreter-link directory) is appended to the class's self._dirs."
+    },
+    "F-ce5eb9abf707": {
+      "disposition": "fixed",
+      "note": "Plan line 104 gives the full command release.py build --commit HEAD --out \"$(mktemp -d)\"."
+    },
+    "F-1596ddfe7cda": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/208"
+    },
+    "F-4007e7c930ff": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/208"
+    },
+    "F-bd4b001ef983": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/workflow/issues/208"
+    },
+    "F-809898d5e8b8": {
+      "disposition": "dropped",
+      "reason": "Plan wording only: the plan says S is re-measured at CP1 in one place and m7 over O and I in another; the approved plan is frozen and the CP1 measurement record covers it."
+    },
+    "F-9e0f81e587d6": {
+      "disposition": "dropped",
+      "reason": "The wording 'exactly once' is only in the frozen plan; the test asserts a new inode, which is accurate, and the code has a single retry. No code change needed."
+    }
+  }
+}
