@@ -47194,12 +47194,12 @@
       "registry_path": "docs/ai-workflow/registry/workflow-docs-wording-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/workflow-docs-wording-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "SELF_REVIEWING_IMPLEMENTATION",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 1,
-      "implementation_revision": null,
+      "implementation_revision": 1,
       "functional_review_round": null,
       "base_commit": "7a486a296617a60cea51d8437d2718335c4b7ed0",
-      "reviewed_implementation_head": null,
+      "reviewed_implementation_head": "0bc3d5a4c46751c51ef55ddc63fb82870773df83",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
@@ -47338,8 +47338,8 @@
           "external": 0
         }
       },
-      "state_revision": 10,
-      "last_transition": "2026-11-23T14:37:49Z",
+      "state_revision": 11,
+      "last_transition": "2026-11-23T14:57:53Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
