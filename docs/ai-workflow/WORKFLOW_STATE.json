@@ -46343,6 +46343,847 @@
         "evaluated_at": "2026-11-19T22:39:25Z",
         "workflow_release": "2.29.9"
       }
+    },
+    "payload-test-hardening-1": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "payload-test-hardening-1",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/PAYLOAD_TEST_HARDENING_1_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/payload-test-hardening-1-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/payload-test-hardening-1-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 3,
+      "implementation_revision": 1,
+      "functional_review_round": null,
+      "base_commit": "1519eedc681b7e7626844ddd6a5c1843f68c803c",
+      "reviewed_implementation_head": "5081b8fac19741dbc8067e90190b46822c006b59",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP2",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "b2e86a443f5719481e249c666a9540e8c9947694"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "bdc88065f1cd97355b67a87e5196585e17692b0a"
+        }
+      },
+      "current_bundle_id": "0b04e33599ee0bc4e27dc8d3f272e58902cd7082b0a7d65059167ea583941a60",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "0b04e33599ee0bc4e27dc8d3f272e58902cd7082b0a7d65059167ea583941a60",
+        "approved_review_content_id": "b29271f870d411d3dc37e306adf88250a98cb35d7632de26e636e7a879c7691c",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/PAYLOAD_TEST_HARDENING_1_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "437153c8b4e4537f489743bffd8896aac2b97ea8"
+          },
+          {
+            "path": "docs/ai-workflow/registry/payload-test-hardening-1-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e4ae985f56bc6b2701e314f7ef09b58c2d758aed"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/payload-test-hardening-1-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d7119238277782c3ff6b2df72f0412624380d7cb"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-23T07:54:07Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "b29271f870d411d3dc37e306adf88250a98cb35d7632de26e636e7a879c7691c",
+            "ledger": {
+              "local": {
+                "bundle_id": "0b04e33599ee0bc4e27dc8d3f272e58902cd7082b0a7d65059167ea583941a60",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "e517fbfe415da8488a99c9aa2400637e94feea86fc6ad77bce4a0b16d29ef5ca",
+                "ledger_entry_sha256": "baf72367dbe026ef7aae5a4ce457032dfbe90695a9008cb896e78d16839cc12c",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/payload-test-hardening-1/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "0b04e33599ee0bc4e27dc8d3f272e58902cd7082b0a7d65059167ea583941a60",
+                "verdict": "APPROVE",
+                "round": 4,
+                "verdict_sha256": "c975b9a0d5aa9482119cf6547e59b14b85c529532d693c0d55653ad25ff4808e",
+                "ledger_entry_sha256": "d35e2072fa81fe1312e2fdeab116d41b84a35689335e472539dcba20c6123e6f",
+                "run_ref": "codex:20261123T075052Z-8c19dcfe",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-23T07:54:07Z",
+          "workflow_release": "2.29.10"
+        }
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "6ca3533d5ec0190df1072f22507acaa4b27659cfe23b6e91eba0de03c6059752",
+        "approved_review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/payload-test-hardening-1-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5502f4788b5cfcf0a576b849ae24a8439ce4828b"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6773f9e8d901b0ca0080b0919c4e30ede666239c"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f0e342780b8f8f0f8de2c45e0002c0c901f002c0"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "577cf47bb2f4bda857832e62cc2f1652c3718c96"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "980a9df0efc9742c023f5e36d0d735b90ff10454"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "655010f9cb809494f6d2a4eb90a84a8dae17f2cf"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d2c3924a208d454ae65b8eb5fea69d4a6c0791a5"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0513fc15b1a5d3c2abb1089f3b5debd5156eae30"
+          },
+          {
+            "path": "payload/scripts/workflow_state_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "58c9c7a082d594f3e1fca1186a6701c56b05ec34"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "831b3928397c20d35fb56594fd0b7bc4bb2e1394"
+          }
+        ],
+        "reviewed_content_commit": "5081b8fac19741dbc8067e90190b46822c006b59",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-23T09:58:20Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "ledger": {
+              "local": {
+                "bundle_id": "6ca3533d5ec0190df1072f22507acaa4b27659cfe23b6e91eba0de03c6059752",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "8a8a63128a1cdd44cd6f756ffc42320540ac707de5ab9b10648bce5aeadddac9",
+                "ledger_entry_sha256": "5ca0fedafdd2fd76052c65edc21ed097bcfc0cc0bb97c47893c74c1201250a2d",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/payload-test-hardening-1/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "6ca3533d5ec0190df1072f22507acaa4b27659cfe23b6e91eba0de03c6059752",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "15acff79ace683f5ff9a3e307f9769cd65176a968e64ec86aaa3ca0aaee60eb0",
+                "ledger_entry_sha256": "7e800c152273296595de6b69813f0ced6a03636cd9a636e1b39c4a60fbddca34",
+                "run_ref": "codex:20261123T095419Z-f2fd217e",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-23T09:58:20Z",
+          "workflow_release": "2.29.10"
+        }
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "b29271f870d411d3dc37e306adf88250a98cb35d7632de26e636e7a879c7691c",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "0b04e33599ee0bc4e27dc8d3f272e58902cd7082b0a7d65059167ea583941a60",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-11-23T07:49:49Z",
+          "verdict_sha256": "e517fbfe415da8488a99c9aa2400637e94feea86fc6ad77bce4a0b16d29ef5ca",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/payload-test-hardening-1/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "0b04e33599ee0bc4e27dc8d3f272e58902cd7082b0a7d65059167ea583941a60",
+          "verdict": "APPROVE",
+          "round": 4,
+          "completed_at": "2026-11-23T07:53:19Z",
+          "verdict_sha256": "c975b9a0d5aa9482119cf6547e59b14b85c529532d693c0d55653ad25ff4808e",
+          "run_ref": "codex:20261123T075052Z-8c19dcfe",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 4,
+          "external": 2
+        },
+        "implementation": {
+          "local": 1,
+          "external": 1
+        }
+      },
+      "state_revision": 25,
+      "last_transition": "2026-11-23T10:37:07Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-23T07:42:51Z",
+        "consumed": {
+          "review_content_id": "e342eb72653189aa0c7d6031b50ae75fa83ff952e798023d81840bbcafea6c06",
+          "plan_revision": 3,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "b29271f870d411d3dc37e306adf88250a98cb35d7632de26e636e7a879c7691c",
+          "plan_revision": 3
+        },
+        "bound": {
+          "review_content_id": "b29271f870d411d3dc37e306adf88250a98cb35d7632de26e636e7a879c7691c",
+          "bundle_id": "0b04e33599ee0bc4e27dc8d3f272e58902cd7082b0a7d65059167ea583941a60",
+          "plan_revision": 3
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "ace108533d38d987ba83061ec86ccd2d8ba8540abe0b5e38a31c67086dfeed61",
+        "e342eb72653189aa0c7d6031b50ae75fa83ff952e798023d81840bbcafea6c06",
+        "fd859b197b4f04815b408403139a7892cdf2d615791a0b2df9bcf6f04309e510"
+      ],
+      "optional_findings": {
+        "F-44b31b63437e": {
+          "digest": "44b31b63437e8a9df0c613c30d4bc63617c664dc0b9bdd8efef470e4e3824757",
+          "text": "**PTH-L1-002 (D-Tests 5): the stated reason for the +5 s assertion is inaccurate, though the assertion is right.** The plan says \"the test's files are seconds old\". The plan's own m7 output (`4979291016 not less than 1000000`) shows the files are about 21 ms old at the time of the hook. The point stands: under m7, `!=` alone still passes because a fresh touch also differs from the snapshot. Reword the sentence to say that.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ace108533d38d987ba83061ec86ccd2d8ba8540abe0b5e38a31c67086dfeed61",
+              "verdict": "REVISE",
+              "at": "2026-11-23T07:06:59Z"
+            }
+          ]
+        },
+        "F-8d4d1a018f2a": {
+          "digest": "8d4d1a018f2a4f2451357ea52179330fd7666006d0022d1ca1dbd53bc88774e3",
+          "text": "**PTH-L1-003 (section 1 and Flow 2): \"the four suite counts stay 1250, 429, 385 and 318\" mixes in a suite this plan does not touch.** 429 is `workflow_gate_policy_test.py` (`manifest.json` `manager.conformance.suites`). The three edited files are S 1250, I 385 and O 318, and `workflow_protocol_test.py` (344, edited at CP2) is not listed. Name each count with its suite, or list the suites whose files change, so the check in Flow 2 compares the right numbers.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ace108533d38d987ba83061ec86ccd2d8ba8540abe0b5e38a31c67086dfeed61",
+              "verdict": "REVISE",
+              "at": "2026-11-23T07:06:59Z"
+            }
+          ]
+        },
+        "F-b4092a3512ce": {
+          "digest": "b4092a3512ce2e58f3680eb7bcc9f2eefa687409be5a521387a5b2ea71459e06",
+          "text": "**PTH-L1-004 (D-Tests 4): the module-level stand-in helper creates two directories (the spaced stand-in directory and the spaced directory holding the `zstd` link), and `test_p4` adds a third (the spaced interpreter link).** Say that each is registered in the calling class's `self._dirs` (both `RetentionArchive` and `RetentionTestPins` clean up only what is appended there), so the hardened tests leave no directories behind.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ace108533d38d987ba83061ec86ccd2d8ba8540abe0b5e38a31c67086dfeed61",
+              "verdict": "REVISE",
+              "at": "2026-11-23T07:06:59Z"
+            }
+          ]
+        },
+        "F-ce5eb9abf707": {
+          "digest": "ce5eb9abf707b5884470a7e23446f2b4831da499dfeb8f5a396e703e8692e1e8",
+          "text": "**PTH-L1-005 (CP2 Verification): `release.py build --commit HEAD` omits the required `--out`** (`tools/release/release.py` declares `--out` required). State the full command, as `docs/RELEASING.md` line 570 does: `release.py build --commit HEAD --out \"$(mktemp -d)\"`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ace108533d38d987ba83061ec86ccd2d8ba8540abe0b5e38a31c67086dfeed61",
+              "verdict": "REVISE",
+              "at": "2026-11-23T07:06:59Z"
+            }
+          ]
+        },
+        "F-9e0f81e587d6": {
+          "digest": "9e0f81e587d6460a321c6cd972a3d15e8c33d8e5a8a2cff9b2e553c215fbbde7",
+          "text": "**PTH-L2-001 (D-Tests 1, R1, roadmap row 53): \"cleared and made again exactly once\" is wider than the inode assertion shows.** The new `st_ino` check proves that the claim was unlinked and linked again at least once. \"Exactly once\" holds because the code (E 4117 to 4136) has a single retry, not because of anything the test observes. That is acceptable: a second relink would hit `FileExistsError` and refuse. CP1's recorded result could say \"cleared and made again (a new inode)\" so that the report claims only what was observed.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "fd859b197b4f04815b408403139a7892cdf2d615791a0b2df9bcf6f04309e510",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T07:20:25Z"
+            }
+          ]
+        },
+        "F-49e0453aa2e4": {
+          "digest": "49e0453aa2e4d441ebd169db58ddb5c6b974478ffac2b8a3311348a988e0ac63",
+          "text": "**PTH-L3-002 (D-Tests preamble): \"where the thing hardened is itself a test helper (points 6 and 7)\" names the wrong points.** There is no point 7. The test-helper mutations are m5 and m6, both under point 4 (the stand-ins). Point 6 is hardened against a product mutation (m8). Write \"point 4 (m5, m6)\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "e342eb72653189aa0c7d6031b50ae75fa83ff952e798023d81840bbcafea6c06",
+              "verdict": "REVISE",
+              "at": "2026-11-23T07:41:15Z"
+            }
+          ]
+        },
+        "F-809898d5e8b8": {
+          "digest": "809898d5e8b8593f65fc530c40ea47010e3ea89b810a564deb3f6970cf5c52ac",
+          "text": "**PTH-L4-001 (D-Tests preamble, point 5, \"Isolation, measured\"): the plan gives two different scopes for m7's re-measurement and never states m7's set over S.** Point 5 says \"S is re-measured at CP1 like the others\". \"Isolation, measured\" says m7 \"is re-measured over O and I\". The preamble says every set is \"measured over the whole of suites I and S\", but m5 to m7 are measured over O. I measured m7 over S in this round, in a stock `stage-conformance --commit HEAD` fixture of `1519eed`: 1250 tests, OK (1 skipped), no failure. Record \"S: none\" for m7 and name one scope (O, I and S) in all three places. The preamble should also say \"I and S (O for m5 to m7)\". Without this, the CP1 run can be scoped differently from what the expectation table covers.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "b29271f870d411d3dc37e306adf88250a98cb35d7632de26e636e7a879c7691c",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T07:49:49Z"
+            }
+          ]
+        },
+        "F-bd4b001ef983": {
+          "digest": "bd4b001ef983a2b5da0718a37ad32d142c45165eb07401f5d9d24da609968943",
+          "text": "PTH-LI1-001 (`payload/scripts/workflow_state_completion_obligations_test.py`, `test_p5`): the +5 s within 1 ms check assumes a filesystem whose mtime granularity divides 5 s. That holds for tmpfs, ext4, btrfs, xfs and APFS (ns), and for a 1 s granularity. On a 2 s granularity (FAT/VFAT) `os.utime` would truncate `t+5` to `t+4` or `t+6` and the test would fail falsely. `$TMPDIR` is effectively never on such a filesystem, so no change is needed now; a one-line comment naming the assumption would help a future reader.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T09:53:00Z"
+            }
+          ]
+        },
+        "F-4007e7c930ff": {
+          "digest": "4007e7c930ffb063024c50ad035a6de405aa5ac1a86f3eb75178d0297f1657fe",
+          "text": "PTH-LI1-002 (pre-existing, outside this diff): `TestStateValidation.test_repo_root_check_rejects_dot_dot_traversal_registry_path` (S, line 1267) writes and unlinks a fixed `foreign.json` in the parent of the temp directory. Two copies of S run at once with the same `$TMPDIR` race on that path: in this review, two parallel mutation runs got a `FileNotFoundError` at its `unlink`. Run alone, the test passes under the same mutation. It is a candidate for the backlog (a unique name, or `missing_ok=True`), not for this patch release, which is frozen at its version bump.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T09:53:00Z"
+            }
+          ]
+        },
+        "F-1596ddfe7cda": {
+          "digest": "1596ddfe7cdacb2b4f7c9542feb6cade9c71133c1d88fdb09a51df31eddcd46b",
+          "text": "`workflow_state_completion_obligations_test.py:8441`: the +5-second assertion can falsely fail on filesystems with two-second mtime granularity. Recording the mtime actually stored by the hook and comparing it after restoration would improve portability.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T09:57:54Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "6ca3533d5ec0190df1072f22507acaa4b27659cfe23b6e91eba0de03c6059752",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-23T09:53:00Z",
+          "verdict_sha256": "8a8a63128a1cdd44cd6f756ffc42320540ac707de5ab9b10648bce5aeadddac9",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/payload-test-hardening-1/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "6ca3533d5ec0190df1072f22507acaa4b27659cfe23b6e91eba0de03c6059752",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-23T09:57:54Z",
+          "verdict_sha256": "15acff79ace683f5ff9a3e307f9769cd65176a968e64ec86aaa3ca0aaee60eb0",
+          "run_ref": "codex:20261123T095419Z-f2fd217e",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F1: git diff names exactly the six expected payload files."
+            },
+            "log_digest": "aee9436229c6bd759f860a898558bbaf2b8f00135c52f146b0c310fddc334548",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:13Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F2: the only product-line change is WORKFLOW_RELEASE \"2.29.10\" to \"2.29.11\" (the other payload edits are test files and a 2.29.11 version-stamp in ORCHESTRATION_PROTOCOL.md prose)."
+            },
+            "log_digest": "d800a7faf5c75def9c334916005c72e9f594ff1aba6757d034de81a007799710",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:13Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F3: the count of changed `def test_` lines is 0."
+            },
+            "log_digest": "0ef30e0f2c6ac8ac71ad5185414d508420683d4eae2f7b155d61e204a6e43ddc",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:13Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F4: all nine suites OK from the staged fixture with Ran counts 453, 344, 1250, 429, 151, 318, 385, 283, 27 (the state suite's Ran line re-run in flow-4-state-full.log)."
+            },
+            "log_digest": "b413fe28531ab9cedde6e6b571fcfc9ec44ee625c549aaaf9dd253ec876cc560",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:13Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F5: tools/release 386 OK (zlib-ng interpreter), tools/docs 34 OK, check_docs.py rc=0 and silent."
+            },
+            "log_digest": "7d0cf0e80ea9242a8234f8dc2517c6860a89d652b2930eb132ae574c0aa96226",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:13Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F6: workflow_version 2.29.11, ROADMAP row 53 is Done, release-history has the 2.29.11 row and \"Last checked with: Workflow 2.29.11\"."
+            },
+            "log_digest": "20f7b2ef708268c8399bed60f5ee4515b9d075a498fcaa3f3304701971f7542a",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:13Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F7: check-manager-block ok for 2.29.11; check-title reports impact=patch and agrees (2.29.10 -> 2.29.11)."
+            },
+            "log_digest": "a5b16eff054b10c086d11ec1e5c586765de4a45b04d1fac480c9f9033a6a6965",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:13Z"
+          },
+          "flow-8": {
+            "flow_id": "flow-8",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F8: release build succeeded (zlib_ng=2.2.5, files=90) with the archive and manifest written under $S/build only."
+            },
+            "log_digest": "dd7dadbaef3a132b11238dad96e6da78f7763e7aab7bffb8a4b0eda7bab74d45",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:13Z"
+          },
+          "flow-9": {
+            "flow_id": "flow-9",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F9: `workflow-manager verify .` with WORKFLOW_MANAGER_RELEASE_SOURCE exited 0 printing \"installation matches workflow 2.29.10\" (plus two stderr notices, see Notes)."
+            },
+            "log_digest": "5368f56552d815ed818e92ad1b8393addbcf861ab9050ed28d4350b7ac5f8de8",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:14Z"
+          },
+          "flow-10": {
+            "flow_id": "flow-10",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F10: the failing set of each strengthened run equals the table for m1, m1b, m2, m3, m4, m5, m6, m7 and m8; every copy differs from the fixture by only the named edit."
+            },
+            "log_digest": "8e68d17be308c3662ad1a0ce5699bfbb210b3c73a38b335835f116f2166c6548",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:14Z"
+          },
+          "flow-11": {
+            "flow_id": "flow-11",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F11: with the original tests every original target passes and the other failures equal the table (m1 1, m3 3 results, m4 11 results, m7 9 results; m1b/m2/m8 none); m5/m6 see Notes."
+            },
+            "log_digest": "d7e679648718366c966c5fee9bede7600ced04263d3bc3f1212bfebf152c4563",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:14Z"
+          },
+          "flow-12": {
+            "flow_id": "flow-12",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F12: the five classes all returned status 0 under reaper.py, with orphans only git helpers, all `exited` (one is a `git maintenance run --auto` process)."
+            },
+            "log_digest": "a93e8d58cda923c19a658bd73a32a76af97e1a64c9592b2e35258001e1f16fb2",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:14Z"
+          },
+          "flow-13": {
+            "flow_id": "flow-13",
+            "status": "passed",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "ran_at": "2026-11-23T10:36:13Z",
+            "summary": {
+              "checklist_blob": "4156a24c92e6c37f41473dd33f259cc3b19ab6c4",
+              "text": "F13: git diff of .claude scripts .workflow-manager .github CLAUDE.md prints nothing."
+            },
+            "log_digest": "14f73ef732c4614b95a093d0d61d945b2027cb70b8d335cebf7edcbfc71d2e8f",
+            "run_ref": "claude-functional:w60-functional-r1",
+            "reporter": "manager claude-functional.sh (Sonnet 5.5)",
+            "identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T10:36:14Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 207,
+            "url": "https://github.com/RodrigoFAbreu/workflow/pull/207"
+          },
+          "state": "open",
+          "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+          "observed_at": "2026-11-23T10:37:07Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/workflow",
+          "queried_commit": "5081b8fac19741dbc8067e90190b46822c006b59",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-23T10:37:07Z",
+            "raw_sha256": "736f1d2e7da64c27f58ee41db3379cd1531cb948412dbbe3a751225e61cc2674",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "978350509c2883379c95475668f0173a838512fa57d52a0dde4a0579be7c1cbb"
+          },
+          "fact_id": "735b6459905e96ef41cbd3c572e5a7cd4b03460809687ad736fdefa6d361f565"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "default",
+        "file_digest": null,
+        "adopted_digest": null,
+        "floor_digest": null,
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-10', 'flow-11', 'flow-12', 'flow-13', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6', 'flow-7', 'flow-8', 'flow-9'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #207 at ff79f2137fbf9f0e00a24db68f627f59449b0650 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "5081b8fac19741dbc8067e90190b46822c006b59",
+          "anchor_identity": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "f9860805fdf1b06ecbe882a077972bd29035080dbf68a77f4f82b8785f0192d4",
+            "recorded_at": "2026-11-23T09:58:20Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "aa662f1c001a95c8292437b2bd4d4179f66356b195f91ebdfe198e95cd089ac4",
+              "log_digest": "aee9436229c6bd759f860a898558bbaf2b8f00135c52f146b0c310fddc334548",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-10": {
+              "evidence_id": "13c0d24aec548d183c2a9e90108483107202ce5820a029c235c8ba363a9666d8",
+              "log_digest": "8e68d17be308c3662ad1a0ce5699bfbb210b3c73a38b335835f116f2166c6548",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-11": {
+              "evidence_id": "1b9151fec2fac8e868b32df09cf85f7c8e73e2156232341406e8499f939dcd23",
+              "log_digest": "d7e679648718366c966c5fee9bede7600ced04263d3bc3f1212bfebf152c4563",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-12": {
+              "evidence_id": "411c340b68ce59b2fa1eaf8f180aca977cef5e789aef409515ea561ba1264be7",
+              "log_digest": "a93e8d58cda923c19a658bd73a32a76af97e1a64c9592b2e35258001e1f16fb2",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-13": {
+              "evidence_id": "52d12c4fc9ee95b6eda291738c1e60019c4aba25e1ce2feff5f6033b3df142ea",
+              "log_digest": "14f73ef732c4614b95a093d0d61d945b2027cb70b8d335cebf7edcbfc71d2e8f",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-2": {
+              "evidence_id": "8719ce5c0f61664fba60e9d31d152f543ef94d2c345d96ba7e5b2ad2187f14dd",
+              "log_digest": "d800a7faf5c75def9c334916005c72e9f594ff1aba6757d034de81a007799710",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-3": {
+              "evidence_id": "d4f772958b99a5971051e7f54bdb55c2ec0b58e5379d5d0ced49284ff44ee69f",
+              "log_digest": "0ef30e0f2c6ac8ac71ad5185414d508420683d4eae2f7b155d61e204a6e43ddc",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-4": {
+              "evidence_id": "60e77ae6dcd4b795a56d54f5b01c83eb72862300671ac8892359342da7f163fd",
+              "log_digest": "b413fe28531ab9cedde6e6b571fcfc9ec44ee625c549aaaf9dd253ec876cc560",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-5": {
+              "evidence_id": "eaad7dfc7850859f47d80ed68843c3f28c78625e71fb37ef21319a808e995016",
+              "log_digest": "7d0cf0e80ea9242a8234f8dc2517c6860a89d652b2930eb132ae574c0aa96226",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-6": {
+              "evidence_id": "0d0c247b8d86d0d027250da6cb60b948c53b42301a85f27e196b70bb782a51dd",
+              "log_digest": "20f7b2ef708268c8399bed60f5ee4515b9d075a498fcaa3f3304701971f7542a",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-7": {
+              "evidence_id": "f80b5264411baab6ba0ff606d81d58a93a9efb59c8ebd727362af57cc57cc6b9",
+              "log_digest": "a5b16eff054b10c086d11ec1e5c586765de4a45b04d1fac480c9f9033a6a6965",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-8": {
+              "evidence_id": "8446acbd474464b67ca4d52630af75c8be72825f280453bf1c728c8c447541eb",
+              "log_digest": "dd7dadbaef3a132b11238dad96e6da78f7763e7aab7bffb8a4b0eda7bab74d45",
+              "run_ref": "claude-functional:w60-functional-r1"
+            },
+            "flow-9": {
+              "evidence_id": "d74adbaa90848703697e40842ec60bc02958b177dd8c734696dc3e86978546f1",
+              "log_digest": "5368f56552d815ed818e92ad1b8393addbcf861ab9050ed28d4350b7ac5f8de8",
+              "run_ref": "claude-functional:w60-functional-r1"
+            }
+          },
+          "pr": {
+            "fact_id": "735b6459905e96ef41cbd3c572e5a7cd4b03460809687ad736fdefa6d361f565",
+            "head": "ff79f2137fbf9f0e00a24db68f627f59449b0650",
+            "provenance": "workflow_gh",
+            "raw_sha256": "736f1d2e7da64c27f58ee41db3379cd1531cb948412dbbe3a751225e61cc2674"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-23T10:37:07Z",
+        "workflow_release": "2.29.10"
+      }
     }
   }
 }
