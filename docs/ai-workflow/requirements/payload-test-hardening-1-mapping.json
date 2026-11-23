@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_item_id": "payload-test-hardening-1",
+  "requirements": {
+    "R1": {
+      "description": "six existing tests are strengthened and none is added: the journal's leftover-takeover test plants the dead claim on its own inode and asserts it is cleared and re-made once (a new inode, still holding the old epoch's token); the claim guard's leftover-takeover test pins the undecidable-claim refusal with the guard untouched; both same-token reclaim tests read the held guard back; the zstd stand-ins and test_p4 run from paths with a space and quote them; test_p5 asserts the moved mtime; the two release-start pointer tests add a pointer on an existing non-IN_PROGRESS checkpoint (#85 points 1 to 3, #194 points 1 and 3, #108 point 4); no product line changes",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "every new or tightened assertion has a failure-only mutation (m1, m1b and m2 to m8) run on the product in a scratch copy of the staged fixture: the original target test passes under it and the strengthened one fails, and each mutation's failure set measured over the whole of suites I and S equals the expected set stated in the plan (m1, m3, m4 and m7 also fail the existing tests that already pin the mutated line, enumerated and never weakened); the five touched classes also run under the reaper; a real defect found by a strengthened test is recorded as a finding, not fixed here",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "the change is a release: Workflow 2.29.11, a fix: patch (manifest records and digests for the six changed shipped files, release constant, release-history row, release-test class, unchanged suite counts, roadmap row 53 Current then Done), verified per docs/RELEASING.md with scratch-clone staging for CP1; this repository's own installation is untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    }
+  }
+}
