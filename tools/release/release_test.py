@@ -4238,8 +4238,11 @@ class AcceptanceFindingsFloorReleaseTest(unittest.TestCase):
     def test_the_release_history_rows_name_the_release_and_the_way_back(self):
         for needle in ("#148", "--write-findings-record", "/satisfy-gate acceptance", "/accept-milestone",
                        "record_changed", "state_changed", "MILESTONE_COMPLETE", "Orchestration Protocol 1.5",
-                       "2.27.0", "removes the flag", "nothing needs undoing", "v2.28.0"):
+                       "2.27.0", "removes the flag", "nothing needs undoing", "v2.28.0",
+                       "it exits 0 with the paths to stage (the record, and the dispositions file "
+                       "when it exists; `[]` for an item with no finding)"):
             self.assertIn(needle, self.row())
+        self.assertNotIn("(or nothing, for an item with no finding)", self.row())
         self.assertNotIn("closes #", self.row())
         self.assertLess(self.history.index("| 2.28.0 |"), self.history.index("| 2.27.0 |"))
 

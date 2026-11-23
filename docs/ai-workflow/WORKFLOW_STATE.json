@@ -47194,18 +47194,22 @@
       "registry_path": "docs/ai-workflow/registry/workflow-docs-wording-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/workflow-docs-wording-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 1,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "7a486a296617a60cea51d8437d2718335c4b7ed0",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": "CP1",
+      "last_completed_checkpoint_id": "CP2",
       "checkpoints": {
         "CP1": {
           "status": "COMPLETE",
           "start_commit": "eb17c2e1294a4e9924acb7e4bc0825bd2b6bd605"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "1fcad47c1ad236ec3eab760077985a4c4b529ae6"
         }
       },
       "current_bundle_id": "81791d5f59376ff1616ce16e2f9c3c1af784a3d8d2d310e133fe7bab5b5b5e45",
@@ -47334,8 +47338,8 @@
           "external": 0
         }
       },
-      "state_revision": 8,
-      "last_transition": "2026-11-23T14:36:41Z",
+      "state_revision": 10,
+      "last_transition": "2026-11-23T14:37:49Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
