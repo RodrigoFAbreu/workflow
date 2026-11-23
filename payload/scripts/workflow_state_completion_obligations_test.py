@@ -8476,7 +8476,7 @@ class RetentionTestPins(unittest.TestCase):
         rr = self.rm_env()
         folder = rr.root / ".ai-review" / "w00"
         before, folder_before = rr.snap(times=False), rr.files(folder)
-        real_table, moved = wr._archive_table, []
+        real_table, moved, stored = wr._archive_table, [], []
 
         def table(*args, **kwargs):
             result = real_table(*args, **kwargs)
@@ -8484,6 +8484,8 @@ class RetentionTestPins(unittest.TestCase):
             info = os.stat(held)
             stamp = info.st_mtime + 5
             os.utime(held, (stamp, stamp))
+            # What the file system stored, not the requested +5 s, is what must survive the round trip.
+            stored.append(os.stat(held).st_mtime_ns)
             moved.append(True)
             return result
         with unittest.mock.patch.object(wr, "_archive_table", table):
@@ -8497,9 +8499,12 @@ class RetentionTestPins(unittest.TestCase):
         after = rr.files(folder)
         self.assertEqual({k: v[:2] for k, v in after.items()}, {k: v[:2] for k, v in folder_before.items()})
         self.assertEqual(rr.snap(times=False), before)
-        # The restored file carries the time the hook moved it to, +5 s, not a fresh touch.
+        # The restored file carries the time the hook stored, not a fresh touch: a rename keeps the inode's time.
+        # The one assumption left: os.utime stores the time at the file system's granularity, so the stored value,
+        # not the requested +5 s, is what must survive the round trip; +5 s differs from the original at any
+        # granularity up to 4 s.
+        self.assertEqual(after["a.txt"][2], stored[0])
         self.assertNotEqual(after["a.txt"][2], folder_before["a.txt"][2])
-        self.assertLess(abs(after["a.txt"][2] - folder_before["a.txt"][2] - 5_000_000_000), 1_000_000)
 
     # -- #119 point 4c: the selection repeated under the lock -----------------
 

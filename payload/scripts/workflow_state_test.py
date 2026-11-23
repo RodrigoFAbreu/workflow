@@ -1252,19 +1252,23 @@ class TestStateValidation(unittest.TestCase):
     def test_repo_root_check_rejects_dot_dot_traversal_registry_path(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            outside = root.parent / "foreign.json"
-            outside.write_text(json.dumps({"work_item_id": "a", "plan_revision": 3, "checkpoints": []}))
+            # A uniquely named file of this test's own: the file exists, so the refusal comes from the
+            # traversal, and nothing of anyone else's in the parent directory is overwritten or deleted.
+            descriptor, outside_name = tempfile.mkstemp(dir=root.parent, prefix="foreign-", suffix=".json")
+            outside = Path(outside_name)
+            with os.fdopen(descriptor, "w") as handle:
+                handle.write(json.dumps({"work_item_id": "a", "plan_revision": 3, "checkpoints": []}))
             try:
                 (root / "registry").mkdir(parents=True, exist_ok=True)
                 state = _base_state(
                     a=_base_work_item(
-                        work_item_id="a", registry_path="registry/../../foreign.json", plan_revision=3,
+                        work_item_id="a", registry_path=f"registry/../../{outside.name}", plan_revision=3,
                     ),
                 )
                 with self.assertRaises(ws.MissingRegistryForPlanRevisionMirrorCheckError):
                     ws.validate_state(state, repo_root=root)
             finally:
-                outside.unlink()
+                outside.unlink(missing_ok=True)
 
     def test_repo_root_check_rejects_symlinked_registry_path(self):
         with tempfile.TemporaryDirectory() as tmp:
