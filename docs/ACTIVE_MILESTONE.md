@@ -41,7 +41,9 @@ Write findings to `.ai-review/payload-polish-2/feedback/FUNCTIONAL_REVIEW.md`.
 
 ### Setup
 
-1. `git switch milestone/payload-polish-2`. The working tree must be clean; the evidence commit is `HEAD`.
+1. Check the branch: `git branch --show-current` must print `milestone/payload-polish-2`. Do not run `git switch` when it already
+   does: a sandboxed run cannot write inside the product clone. Tracked files must match `HEAD`, except
+   `docs/ai-workflow/WORKFLOW_STATE.json`, which the Controller's run writes; the evidence commit is `HEAD`.
 2. Stock Python 3 and git. Nothing here needs the network, a real GitHub, a real `claude`, `codex` or `ssh`. The suites run
    offline with their own stand-ins.
 3. Stage the conformance fixture from `HEAD` into a new empty directory outside the repository, `$TMPDIR/fixture`:
