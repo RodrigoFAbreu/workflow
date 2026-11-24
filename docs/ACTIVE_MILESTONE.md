@@ -48,7 +48,8 @@ Write findings to `.ai-review/payload-polish-2/feedback/FUNCTIONAL_REVIEW.md`.
    `python3 tools/release/release.py stage-conformance --commit HEAD --out "$TMPDIR/fixture"`. It stages without adjustment,
    because CP3 moved the manifest records.
 4. Automated state at `HEAD`. The last code change is `7282ffb`; `git diff --stat 7282ffb HEAD` lists only
-   `docs/ai-workflow/WORKFLOW_STATE.json`. Of the nine suites, eight passed at CP3. The acceptance-matrix suite was run on
+   the Workflow's own records, `docs/ACTIVE_MILESTONE.md` and `docs/ai-workflow/WORKFLOW_STATE.json`, and no file of
+   `payload/`, `tools/`, `manifest.json` or the documents the release changed. Of the nine suites, eight passed at CP3. The acceptance-matrix suite was run on
    2026-11-24 from the staged fixture: 453 tests, OK, 20 skipped. The skips are the `SkipTest` guards of the type-independent
    rows (for example A4 and B6 to B13), which run only on the process item. The `tools/release` tests (zlib-ng interpreter)
    passed at CP3 and were not re-run here.
