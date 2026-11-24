@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "payload-polish-2",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -48697,6 +48697,247 @@
         },
         "evaluated_at": "2026-11-23T22:49:19Z",
         "workflow_release": "2.29.11"
+      }
+    },
+    "payload-polish-2": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "payload-polish-2",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/PAYLOAD_POLISH_2_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/payload-polish-2-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/payload-polish-2-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 2,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "d34217d63a6f429226c14cb8b08233090599cfd7",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "6efa85f77f687cd0359803ad0822b7423287c55161daa1ee74034eac5bc9c709",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "6efa85f77f687cd0359803ad0822b7423287c55161daa1ee74034eac5bc9c709",
+        "approved_review_content_id": "f30f083415734e61b92dd3de8e6b486fc339534ac017b7c22c4179274f143b34",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/PAYLOAD_POLISH_2_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b11c79f1c21e0a566dbd252d492eecec76e6d20b"
+          },
+          {
+            "path": "docs/ai-workflow/registry/payload-polish-2-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bea436bd824a9f7fbf508380dd9992920d79cb77"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/payload-polish-2-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "af793f2ba90070e22172bbbf6bbe913c6622c7be"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-24T01:45:46Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "f30f083415734e61b92dd3de8e6b486fc339534ac017b7c22c4179274f143b34",
+            "ledger": {
+              "local": {
+                "bundle_id": "6efa85f77f687cd0359803ad0822b7423287c55161daa1ee74034eac5bc9c709",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "36c59fbeea558071b5bbbdf7eb4133fd17018245f1bb6baa29a223eefdbcac23",
+                "ledger_entry_sha256": "ac8a428599587a5a14bfb2ea1e6babfd812510ad25b9fd25c9a1f840748d0f9e",
+                "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/payload-polish-2/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "6efa85f77f687cd0359803ad0822b7423287c55161daa1ee74034eac5bc9c709",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "a263368e7b705c11ef18be8ba354f6f0148a428f4b2d0c76aa24b39f5d294b59",
+                "ledger_entry_sha256": "fafec0f03afaf78c5e912dac0e66a02c868d214b2067daa0309ac3f45effd689",
+                "run_ref": "codex:20261124T014044Z-944683cc",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-24T01:45:46Z",
+          "workflow_release": "2.29.12"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "f30f083415734e61b92dd3de8e6b486fc339534ac017b7c22c4179274f143b34",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "6efa85f77f687cd0359803ad0822b7423287c55161daa1ee74034eac5bc9c709",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-24T01:39:32Z",
+          "verdict_sha256": "36c59fbeea558071b5bbbdf7eb4133fd17018245f1bb6baa29a223eefdbcac23",
+          "run_ref": "session:local /home/rodrigo/Workspace/workflow/.ai-review/payload-polish-2/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "6efa85f77f687cd0359803ad0822b7423287c55161daa1ee74034eac5bc9c709",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-24T01:44:24Z",
+          "verdict_sha256": "a263368e7b705c11ef18be8ba354f6f0148a428f4b2d0c76aa24b39f5d294b59",
+          "run_ref": "codex:20261124T014044Z-944683cc",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-11-24T01:45:46Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-24T01:35:27Z",
+        "consumed": {
+          "review_content_id": "dbacf9fc975f79d1745cb0aedd9bc692b57d0d52597072cc387c01d59d8b3b78",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "f30f083415734e61b92dd3de8e6b486fc339534ac017b7c22c4179274f143b34",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "f30f083415734e61b92dd3de8e6b486fc339534ac017b7c22c4179274f143b34",
+          "bundle_id": "6efa85f77f687cd0359803ad0822b7423287c55161daa1ee74034eac5bc9c709",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "dbacf9fc975f79d1745cb0aedd9bc692b57d0d52597072cc387c01d59d8b3b78"
+      ],
+      "optional_findings": {
+        "F-4967565c6d66": {
+          "digest": "4967565c6d663ab0b10917e169487170a9941270a57869bac21aeba80015f5a5",
+          "text": "The new dry-run subtest \"its `os.close` at `_archive_table`\" fails the `os.close(rfd)` in the `finally` after `Popen` succeeded. That raises before the `try`/`finally` that calls `_reap(proc)`, so the `zstd` child is never reaped by the engine, and the mocked `close` also leaks `rfd`. This is pre-existing behaviour and not a test failure, but Flow 6 expects the reaper's orphans to be \"only `[git]`\". The plan should state the expected reaper result for that subtest, or record the unreaped child as a finding (D-Stop forbids fixing it here).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "dbacf9fc975f79d1745cb0aedd9bc692b57d0d52597072cc387c01d59d8b3b78",
+              "verdict": "REVISE",
+              "at": "2026-11-24T01:33:25Z"
+            }
+          ]
+        },
+        "F-a0a1b4b99959": {
+          "digest": "a0a1b4b9995912b62deb06ab6caddef06dd270b3dcc7684ffac0a05397d498b3",
+          "text": "`docs/RETENTION.md` line 475 (the `.removing` row, \"from the remove command\") says \"the command does not archive from a partial view\", while the code (R `_open_removing`) says \"the engine does not remove from a partial view\". This is the doc twin of #119 2b, in a file CP1 and CP2 already touch. Consider taking it with D-Docs, or record it as not taken.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "dbacf9fc975f79d1745cb0aedd9bc692b57d0d52597072cc387c01d59d8b3b78",
+              "verdict": "REVISE",
+              "at": "2026-11-24T01:33:25Z"
+            }
+          ]
+        },
+        "F-f2f0cf92a893": {
+          "digest": "f2f0cf92a8939b498fba7547f566c8b89d4aa4376aa55b6389c8c3042c77e9e3",
+          "text": "The pin of the `_archive_table` `os.close` dry-run subtest leaves its outcome conditional: the reaper lists the unreaped `zstd`, or else \"the subtest is kept to the other two dry-run sites\". That subtest's \"clean run afterwards\" starts another `Popen`, and `subprocess._cleanup()` probably reaps the abandoned child in-process. So the reaper may report only `[git]`, and Flow 6's exception would not arise. Name the outcome you expect when CP1 records it, and say plainly whether \"kept to the other two dry-run sites\" means the `close`-at-`_archive_table` subtest is dropped. m1's statement holds in either case. A `;` is also missing between that parenthetical and \"`--apply`:\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "f30f083415734e61b92dd3de8e6b486fc339534ac017b7c22c4179274f143b34",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T01:39:32Z"
+            }
+          ]
+        },
+        "F-737ebdba7b1a": {
+          "digest": "737ebdba7b1a2c3e02b965ec1fb2a5133c9c9c7b0e0e894418fe988a283e3c5d",
+          "text": "D-Stop says the RETENTION line 475 twin \"is named on #119 for the next payload polish\", but no checkpoint or step owns that comment on the forge. Say where it is done (for example, in the acceptance's findings record or by the orchestrator), so that it is not silently lost.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "f30f083415734e61b92dd3de8e6b486fc339534ac017b7c22c4179274f143b34",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T01:39:32Z"
+            }
+          ]
+        },
+        "F-62cc869c4a7b": {
+          "digest": "62cc869c4a7b0f63785da6d12638c45e563b05f16593adb3d85b410e3a75ca29",
+          "text": "Clarify D-Wording 5’s blanket promise that pre-rename errors name an existing leftover. D-Wording 1 initializes `adir_fd` and `resolved` to `None` until `_select_finished` returns. An initial-selection `OSError`, such as the unguarded root-directory open in `_walk_chain`, therefore produces the new refusal without a leftover note because `_has_leftover(None, ...)` returns false. Consider documenting this early-selection exception and adding a corresponding subtest. The failure still surfaces correctly; this is a recovery-message clarification.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "f30f083415734e61b92dd3de8e6b486fc339534ac017b7c22c4179274f143b34",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T01:44:24Z"
+            }
+          ]
+        }
       }
     }
   }

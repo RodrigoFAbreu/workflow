@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_item_id": "payload-polish-2",
+  "plan_revision": 2,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The wording points, their pins and the roadmap row",
+      "depends_on": [],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "The pread subtest and the two doc forms",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 1,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "Release 2.29.13",
+      "depends_on": [
+        "CP2"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}
