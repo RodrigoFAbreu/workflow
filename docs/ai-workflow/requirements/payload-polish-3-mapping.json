@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "work_item_id": "payload-polish-3",
+  "requirements": {
+    "R1": {
+      "description": "the final refusal of the plan-approval guard, when the held guard is a takeover's, names the takeover's own next step (let a running takeover finish, or, if it died, re-run it, with the route and the guard-release literal), the third arm matching the claim guard's, with an exact pin that fails on the old wording; every refusal order, exit code and message not named stays byte-identical",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "the remove flow's unexpected I/O error met before the archive directory is open is pinned by a subtest as naming no leftover, docs/RETENTION.md says so instead of promising the note in every case, and a subtest drives an unexpected I/O error through the selection's except OSError arm in the leftover state (index read and size stat) naming the leftover once; no behaviour change",
+      "checkpoint_ids": [
+        "CP2"
+      ]
+    },
+    "R3": {
+      "description": "each changed message has an exact pin next to its neighbours' pins and a failure-only mutation run in a scratch copy, the new tests run under the reaper, and a point that needs a behaviour change beyond a message or a test is recorded as a finding and excluded (point 4 of the issue is recorded as not taken: its premise is false)",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R4": {
+      "description": "the change is a release: Workflow 2.29.14, a fix: patch (manifest records and digests for the six changed shipped files, release constant, release-history row, release-test class, suite counts unchanged, page stamps, roadmap row Current then Done), verified per docs/RELEASING.md with scratch-clone staging before the release checkpoint; this repository's own installation is untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2",
+        "CP3"
+      ]
+    }
+  }
+}
