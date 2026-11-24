@@ -357,7 +357,8 @@ so it does try to read the item folders, and it tolerates their read errors
 
 An archive is `prunable` when its age in whole days (from the file's
 modification time) is strictly greater than the time to live. `archives`
-lists every `*.tar.zst` file in the archive directory, with `item` set to
+lists every regular file named `*.tar.zst` in the archive directory (a
+symlink or a directory of that name is not listed), with `item` set to
 `finished`, `recent`, `open` (the item exists but is not finished) or `other`
 (no such item). `tracked_files` counts paths under the folder that Git tracks.
 The reasons are `invalid_id`, `invalid_entry`, `open_phase`, `family_open`,

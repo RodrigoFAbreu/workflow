@@ -7812,9 +7812,10 @@ def _fwalk_fails(site, err, skip=0):
 
 @contextlib.contextmanager
 def _call_fails(function, site, err, skip=0, only=None):
-    """Fails `os.<function>` (`fstat`, `close`, `open`) when called by the
-    function `site`, after `skip` earlier calls passed; `only` narrows by the
-    first argument. Yields the list of the calls counted."""
+    """Fails `os.<function>` (`fstat`, `close`, `open`, `pread`) when called by
+    the function `site`, after `skip` earlier calls passed; `only` narrows by
+    the first argument (a name, a path or a descriptor). Yields the list of
+    the calls counted."""
     real = getattr(os, function)
     counted = []
 
@@ -8246,6 +8247,21 @@ class RetentionErrorPathsTwo(unittest.TestCase):
                 self.assertTrue((rr.root / ".ai-review" / "w00").is_dir())
                 self.assertFalse((rr.removing / "w00").exists())
                 self.assertEqual(rr.rm(apply=True).code, 0)
+        with self.subTest("remove --apply, the read"):
+            rr = self.rm_env()
+            before = rr.snap(times=False)
+            with _call_fails("pread", "_index_ids", errno.EIO) as counted:
+                code, _, err = rr.main_rm("w00", "--apply")
+            self.assertTrue(counted)
+            self.assertEqual(code, 2)
+            self.assertIn("error: unreadable", err)
+            self.assertIn("remove stopped on an unexpected I/O error: EIO", err)
+            self.assertIn(step, err)
+            self.assertNotIn("renamed aside", err)
+            self.assertEqual(rr.snap(times=False), before)
+            self.assertTrue((rr.root / ".ai-review" / "w00").is_dir())
+            self.assertFalse((rr.removing / "w00").exists())
+            self.assertEqual(rr.rm(apply=True).code, 0)
         with self.subTest("remove --apply, the close"):
             rr = self.rm_env()
             before = rr.snap(times=False)

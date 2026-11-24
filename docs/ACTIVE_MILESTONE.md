@@ -17,4 +17,9 @@ Message, test and doc-form points in the shipped payload. No refusal order, comm
   idempotent leftover note, the running command's name in the walk and the open), `workflow_state.py` (the plan-approval guard's
   true next step), three new tests in the obligations suite, the strengthened integration test, the `docs/RETENTION.md` sentence.
   Mutations m1 to m6b each fail exactly what the plan says.
-- CP2 (the `pread` subtest and the two doc forms) and CP3 (release 2.29.13): not started.
+- CP2 (the `pread` subtest and the two doc forms): complete. `test_t7b3` gains the "remove --apply, the read" subtest
+  (`_call_fails("pread", "_index_ids", EIO)`) and the `_call_fails` docstring is widened; the four `docs/exit-codes.md` rows say
+  `python3 -I scripts/workflow_retention.py <command>`; `docs/RETENTION.md`'s `archives` sentence names regular files and the
+  kinds not listed. m7 fails the new subtest alone (at `assertTrue(counted)`); m8 is a doc revert, whose assertions ride with
+  the release class in CP3. `tools/docs/check_docs.py` is clean.
+- CP3 (release 2.29.13): not started.
