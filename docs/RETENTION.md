@@ -571,11 +571,12 @@ whether the folder is whole in `.removing/<id>` or a leftover that may be
 incomplete, and that `remove <id> --apply` resumes), and `restore_failed` while a
 refused verification is being undone (the message carries both causes and says
 where the folder is); it was a traceback before Workflow 2.25.1. An unexpected I/O error
-on the archive's `index.jsonl` after it was opened (while it is measured, read or closed) is
-`unreadable` before the rename, and its next step says nothing was renamed and the folder is
-where it was; a failure to open it keeps its own refusal ("cannot be read", "grant read access
-to it"), and a stray I/O error after the rename keeps saying the folder may be in
-`.removing/<id>`. A symlink in the
+anywhere before the rename (while the selection reads the archive's `index.jsonl`, the review
+folder or `.removing`, in the dry run's comparison with the archive, and while the lock is taken)
+is `unreadable`, and its next step says nothing was renamed and the folder is where it was; in
+the leftover state it also names the leftover, once. A failure to open `index.jsonl` keeps its
+own refusal ("cannot be read", "grant read access to it"), and a stray I/O error after the
+rename keeps saying the folder may be in `.removing/<id>`. A symlink in the
 review folder whose target cannot be read is `unreadable` (`folder_changed` when
 it vanished or was replaced) at the same places, before the rename and after it
 (after the rename the folder is renamed back into `.ai-review/` and the message says
