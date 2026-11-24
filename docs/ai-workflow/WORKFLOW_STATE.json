@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "payload-polish-3",
   "work_items": {
     "workflow-repository-setup": {
       "work_item_type": "process",
@@ -49504,6 +49504,261 @@
         },
         "evaluated_at": "2026-11-24T07:40:43Z",
         "workflow_release": "2.29.12"
+      }
+    },
+    "payload-polish-3": {
+      "work_item_type": "process",
+      "work_item_kind": "process",
+      "work_item_id": "payload-polish-3",
+      "parent_work_item_id": null,
+      "plan_path": "docs/ai-workflow/PAYLOAD_POLISH_3_PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/payload-polish-3-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/payload-polish-3-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 1,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "9c22845cbf9b14978a6d101ac041a696207e5699",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "32a9fe15cb157372bd82836a77736a3ea6d5d84d0a990562cdfc85b33e24540a",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "32a9fe15cb157372bd82836a77736a3ea6d5d84d0a990562cdfc85b33e24540a",
+        "approved_review_content_id": "5d6685c29d17d9594826756fb79105738760cfdc0322282af1d683e1c023b4e5",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/PAYLOAD_POLISH_3_PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "95701a0347b89a68c3ea86b1330f98259e55852e"
+          },
+          {
+            "path": "docs/ai-workflow/registry/payload-polish-3-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9158a721658ad82202634b07ae629cee6bd774cc"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/payload-polish-3-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "97a8c97ff89ee030178b5fc4cd0f096dd92c1f02"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-24T14:58:53Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "5d6685c29d17d9594826756fb79105738760cfdc0322282af1d683e1c023b4e5",
+            "ledger": {
+              "local": {
+                "bundle_id": "32a9fe15cb157372bd82836a77736a3ea6d5d84d0a990562cdfc85b33e24540a",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "1971ac88d708ef2f2ea456fb65c13eb1c89632d2537239c5c80aa09538bc3a87",
+                "ledger_entry_sha256": "d9dbd640bf84dfebf44cb02cecebf931f2dd481c86d2d867b1b4e86c7665a321",
+                "run_ref": "session:local .ai-review/payload-polish-3/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "32a9fe15cb157372bd82836a77736a3ea6d5d84d0a990562cdfc85b33e24540a",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "74d1360c27bff274c3c02450057bca95db4da046a52f11fbe7918b75457c1dd7",
+                "ledger_entry_sha256": "cc2c8f7e5feb5ece36710d8cf00de35ba88f294e0aa649c5ab28432a306cce53",
+                "run_ref": "codex:20261124T145454Z-8af7b048",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-24T14:58:53Z",
+          "workflow_release": "2.29.13"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "5d6685c29d17d9594826756fb79105738760cfdc0322282af1d683e1c023b4e5",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "32a9fe15cb157372bd82836a77736a3ea6d5d84d0a990562cdfc85b33e24540a",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-24T14:53:28Z",
+          "verdict_sha256": "1971ac88d708ef2f2ea456fb65c13eb1c89632d2537239c5c80aa09538bc3a87",
+          "run_ref": "session:local .ai-review/payload-polish-3/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "32a9fe15cb157372bd82836a77736a3ea6d5d84d0a990562cdfc85b33e24540a",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-24T14:57:17Z",
+          "verdict_sha256": "74d1360c27bff274c3c02450057bca95db4da046a52f11fbe7918b75457c1dd7",
+          "run_ref": "codex:20261124T145454Z-8af7b048",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-11-24T14:58:53Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-24T14:50:45Z",
+        "consumed": {
+          "review_content_id": "ebda298a2bc522d20754eb14be6ffb6abc984cae4f07611cd405d037450b0de0",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "5d6685c29d17d9594826756fb79105738760cfdc0322282af1d683e1c023b4e5",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "5d6685c29d17d9594826756fb79105738760cfdc0322282af1d683e1c023b4e5",
+          "bundle_id": "32a9fe15cb157372bd82836a77736a3ea6d5d84d0a990562cdfc85b33e24540a",
+          "plan_revision": 1
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "ebda298a2bc522d20754eb14be6ffb6abc984cae4f07611cd405d037450b0de0"
+      ],
+      "optional_findings": {
+        "F-87cff6e0b9c8": {
+          "digest": "87cff6e0b9c89bf0d33f43f667850a085c54c0dea563dbc1574962f3fd2d82c6",
+          "text": "Section 0, point 2: the parenthetical \"`os.open` failing at `_walk_chain` (the open of an archive-directory component)\" is inaccurate. With `skip=0`, `_call_fails(\"open\", \"_walk_chain\", EIO)` fails the first, unwrapped `os.open(os.sep, ...)`, the open of `/`. That raw `OSError` is why the cause reads \"remove stopped on an unexpected I/O error: EIO\". An EIO on an actual component open (line 944) goes through `_unsafe_component` instead, and gives \"`<path>` cannot be opened for reading ...\" / \"grant read access to ...\". D-Tests 3's expected text is right only because the root open fails first. Suggest saying \"the first `os.open` of `_walk_chain` (of `/`)\". The subtest could also say this, so that a later `only=`/`skip=` change does not silently retarget it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ebda298a2bc522d20754eb14be6ffb6abc984cae4f07611cd405d037450b0de0",
+              "verdict": "REVISE",
+              "at": "2026-11-24T14:47:30Z"
+            }
+          ]
+        },
+        "F-db4960ac7847": {
+          "digest": "db4960ac7847247c154c3ea963df40fcdf7fd3f480210701e76396163662b237",
+          "text": "D-Tests / m3: as ordered in D-Tests 3, m3 fails on the whole-line `next step:` assertion, which comes before `assertNotIn(\"an earlier run's leftover\", ...)`. It does not fail on that `assertNotIn`, as the mutation list says. This was observed in the m3 run. Suggest \"fails the early-selection subtest (the step line carries the note)\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ebda298a2bc522d20754eb14be6ffb6abc984cae4f07611cd405d037450b0de0",
+              "verdict": "REVISE",
+              "at": "2026-11-24T14:47:30Z"
+            }
+          ]
+        },
+        "F-a573253972ee": {
+          "digest": "a573253972ee8ff624fbdfd027bc327033eeef54aeea50c5b143a6a5f164cd59",
+          "text": "Section 0, point 2 says that naming the leftover there \"cannot\" be done. m3 shows that it can, by opening the archive directory by path, which breaks the descriptor-only, no-link discipline. Suggest \"cannot without opening the archive directory by path, which the engine never does\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ebda298a2bc522d20754eb14be6ffb6abc984cae4f07611cd405d037450b0de0",
+              "verdict": "REVISE",
+              "at": "2026-11-24T14:47:30Z"
+            }
+          ]
+        },
+        "F-860817588f7b": {
+          "digest": "860817588f7b5d1585eecf3cee62f54de43764d5738ca885dd4cac7e4cb87671",
+          "text": "D-Tests, mutation m3: \"the early-selection subtest of `test_t7b4` fails the early-selection subtest (...)\" repeats itself. It should read \"the early-selection subtest of `test_t7b4` fails (the whole-line `next step:` assertion, which carries the note, comes first), nothing else\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "5d6685c29d17d9594826756fb79105738760cfdc0322282af1d683e1c023b4e5",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T14:53:28Z"
+            }
+          ]
+        },
+        "F-a8c93fa0cb24": {
+          "digest": "a8c93fa0cb2470044e58e68bebe6f1da4e808bee4dba973982beef7f2c9148c8",
+          "text": "The CP1 and CP2 Verification lines say that m1/m1b and m2/m3 \"fail exactly what D-Wording says\". The failure-only mutation paragraph that lists all four sits under D-Tests, not D-Wording. Suggest \"what the failure-only mutations paragraph says\".",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "5d6685c29d17d9594826756fb79105738760cfdc0322282af1d683e1c023b4e5",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T14:53:28Z"
+            }
+          ]
+        },
+        "F-54fc59021cdf": {
+          "digest": "54fc59021cdf1659d0598986fbec6c09bb16228895a53a8560fff7183bddaf13",
+          "text": "D-Tests 2–3: `rr.renames == []` adds no evidence around `rr.main_rm(...)`: only `_RM.rm()` installs the wrapper that records renames (`workflow_state_completion_obligations_test.py:5982–6013`). Consider instrumenting `_rename` around the CLI call. The planned snapshot comparison still checks the resulting filesystem state, so this is optional test hardening.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "5d6685c29d17d9594826756fb79105738760cfdc0322282af1d683e1c023b4e5",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T14:57:17Z"
+            }
+          ]
+        }
       }
     }
   }
