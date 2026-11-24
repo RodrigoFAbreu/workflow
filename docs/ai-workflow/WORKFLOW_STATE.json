@@ -48708,7 +48708,7 @@
       "registry_path": "docs/ai-workflow/registry/payload-polish-2-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/payload-polish-2-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -48821,7 +48821,156 @@
           "workflow_release": "2.29.12"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "b41a6b7fcc5d505bcc16cd392a6d5d3985d24506fe316545f703a8dec556ddc3",
+        "approved_review_content_id": "003b95f41c25692c4676b7261805e9ec9402c515a3994e1c06d379f740d07247",
+        "review_content_manifest": [
+          {
+            "path": "docs/RETENTION.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b1cf75827396920663b279f8b9daaac0885e3566"
+          },
+          {
+            "path": "docs/ai-workflow/registry/payload-polish-2-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "98ac7db2dd6b72a529dc8e486c871a3e79d5e21f"
+          },
+          {
+            "path": "docs/exit-codes.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3cc7f8ce1311e85957ea08fb3a69de067c0485f0"
+          },
+          {
+            "path": "docs/release-history.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4292e9bbf8bcd4147cac2765df5f1a2ba8a75303"
+          },
+          {
+            "path": "manifest.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f3b237a9ce59d172a656cdf7fad049b41ccdbf58"
+          },
+          {
+            "path": "payload/docs/ai-workflow/ORCHESTRATION_PROTOCOL.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "dfa8c62300aa74e8046f2d778ec86d07d6e8f682"
+          },
+          {
+            "path": "payload/scripts/workflow_integration_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "79b9bec35d84f984a29294ff23d5fed302217c51"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "15e31a46b203e541890c67864d6ca47fb36b35fe"
+          },
+          {
+            "path": "payload/scripts/workflow_protocol_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3978aac23fb2500a8aadf39b2726b0a2ed156d9f"
+          },
+          {
+            "path": "payload/scripts/workflow_retention.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c414aeccb6016f6bb5cb4935c677ad2f33ff3c3e"
+          },
+          {
+            "path": "payload/scripts/workflow_state.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bfbe5363422bda067256a3346ab137cf0005b03f"
+          },
+          {
+            "path": "payload/scripts/workflow_state_completion_obligations_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b2d268e84c755c53282021dfd7c25370a14d5446"
+          },
+          {
+            "path": "tools/release/release_test.py",
+            "exists": true,
+            "mode": "100644",
+            "blob": "030ecdaff91bb3a1d6ec23d3e44a605240dedce9"
+          }
+        ],
+        "reviewed_content_commit": "7282ffba729da53c0b0e6c678687faf145e0aab3",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-24T04:23:00Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "default",
+          "file_digest": null,
+          "adopted_digest": null,
+          "adopted_at": null,
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "003b95f41c25692c4676b7261805e9ec9402c515a3994e1c06d379f740d07247",
+            "ledger": {
+              "local": {
+                "bundle_id": "b41a6b7fcc5d505bcc16cd392a6d5d3985d24506fe316545f703a8dec556ddc3",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "a8cad765e55935dd43a8a2b5f25b72b71d15c7c49c0e42b32813bd62822a357a",
+                "ledger_entry_sha256": "6a570d7dc845b4818ef9cc71c0bde21c1d870ee73b8b981105d5e245842c6d49",
+                "run_ref": "session:local .ai-review/payload-polish-2/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "b41a6b7fcc5d505bcc16cd392a6d5d3985d24506fe316545f703a8dec556ddc3",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "79118bc6a3a1567724c894c3855bb4cafb46d3b6e219a4a62eea5d9ac324dab7",
+                "ledger_entry_sha256": "0b72b8fde0a4c8e081b680e6a0dd2e1054daf30eddf70ef21d73a3144f63b1f7",
+                "run_ref": "codex:20261124T041718Z-1de6b9dc",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": null,
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-24T04:23:00Z",
+          "workflow_release": "2.29.12"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "f30f083415734e61b92dd3de8e6b486fc339534ac017b7c22c4179274f143b34",
@@ -48852,12 +49001,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 16,
-      "last_transition": "2026-11-24T03:49:23Z",
+      "state_revision": 19,
+      "last_transition": "2026-11-24T04:23:00Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -48950,6 +49099,83 @@
               "at": "2026-11-24T01:44:24Z"
             }
           ]
+        },
+        "F-c075667ebcbd": {
+          "digest": "c075667ebcbd5309ad727f51602db2058aee3ccb433be32a68605f6d1622a50d",
+          "text": "D-Wording 3, the takeover's guard: when the held plan-approval guard is a takeover's (`step == \"takeover\"`, class ordinary) and another token is presented, the final refusal of `_acquire_plan_approval_guard_locked` (`payload/scripts/workflow_state.py` around line 3834) gives the ordinary arm: \"let the owning session finish, or, if that session is gone, take the transaction over ...\". The holder there is a takeover, not the owning session. The claim-guard sibling (`_acquire_guard_locked`, around line 6919) has a third arm for this case: \"that guard is a takeover's: let a running takeover finish, or, if it died, re-run it\". The advice given is not false, because it is conditional on the session being gone and the route is the same. A matching third arm would make it exact. The plan named two arms only, so this belongs to a later polish.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "003b95f41c25692c4676b7261805e9ec9402c515a3994e1c06d379f740d07247",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T04:15:38Z"
+            }
+          ]
+        },
+        "F-47f7462923a6": {
+          "digest": "47f7462923a689df5bd13afae4e4e139d7bcc96dbf371b0ce5b7839e461a6da0",
+          "text": "D-Wording 5 / `docs/RETENTION.md` (around line 576): \"in the leftover state it also names the leftover, once\" does not hold for an unmapped `OSError` raised inside `_select_finished` during the first selection. `adir_fd` is still `None` there, so `_add_leftover_note` adds nothing. This is the plan-stage external reviewer's optional finding. The implementation neither scoped the sentence nor pinned the case. The failure itself still surfaces correctly as `unreadable` with \"renamed nothing\". Inside `_flow` the note is added by `_flow`'s own `note`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "003b95f41c25692c4676b7261805e9ec9402c515a3994e1c06d379f740d07247",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T04:15:38Z"
+            }
+          ]
+        },
+        "F-da4f880f355d": {
+          "digest": "da4f880f355d107ee6dbad6a7e1e498eda7d148c500fcf5d929618f9d2108836",
+          "text": "Test coverage of `_select_removal`'s new `except OSError` arm in the leftover state: the L1 subtest of `test_t7b4` fails `fstat` in `_flow`, which goes through `_flow`'s arm. No subtest drives an `OSError` through `_select_removal`'s arm in L1, where that arm adds the leftover note itself. A subtest that fails an index read (`pread`/`fstat` at `_judge_removal_archive`) after `rr.park()` would pin it.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "003b95f41c25692c4676b7261805e9ec9402c515a3994e1c06d379f740d07247",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T04:15:38Z"
+            }
+          ]
+        },
+        "F-7d29fe83bf97": {
+          "digest": "7d29fe83bf97de61afbab609c324d0d16adb2f3df9fe5afbd9aa16d891171553",
+          "text": "`docs/RETENTION.md:578` overstates when the leftover is named. If `_select_finished` raises an unmapped `OSError` during the initial selection, `adir_fd` remains `None`, so no leftover note is appended. The failure still surfaces correctly and nothing is renamed. Qualify the sentence to cover cases where the leftover can be inspected.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "003b95f41c25692c4676b7261805e9ec9402c515a3994e1c06d379f740d07247",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T04:21:48Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "003b95f41c25692c4676b7261805e9ec9402c515a3994e1c06d379f740d07247",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "b41a6b7fcc5d505bcc16cd392a6d5d3985d24506fe316545f703a8dec556ddc3",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-24T04:15:38Z",
+          "verdict_sha256": "a8cad765e55935dd43a8a2b5f25b72b71d15c7c49c0e42b32813bd62822a357a",
+          "run_ref": "session:local .ai-review/payload-polish-2/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "b41a6b7fcc5d505bcc16cd392a6d5d3985d24506fe316545f703a8dec556ddc3",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-24T04:21:48Z",
+          "verdict_sha256": "79118bc6a3a1567724c894c3855bb4cafb46d3b6e219a4a62eea5d9ac324dab7",
+          "run_ref": "codex:20261124T041718Z-1de6b9dc",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
