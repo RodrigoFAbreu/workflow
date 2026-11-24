@@ -22,4 +22,10 @@ Message, test and doc-form points in the shipped payload. No refusal order, comm
   `python3 -I scripts/workflow_retention.py <command>`; `docs/RETENTION.md`'s `archives` sentence names regular files and the
   kinds not listed. m7 fails the new subtest alone (at `assertTrue(counted)`); m8 is a doc revert, whose assertions ride with
   the release class in CP3. `tools/docs/check_docs.py` is clean.
-- CP3 (release 2.29.13): not started.
+- CP3 (release 2.29.13): complete. `manifest.json` 2.29.13 (the seven changed records take the `payload-polish-2 (workflow-2.29.13)`
+  sentence, `sha256` and `size`; the obligations suite counts 322; the posture says the way back to 2.29.12), `WORKFLOW_RELEASE`
+  2.29.13 and the protocol document's lines (protocol 1.5), the release-history row, the stamps of `docs/RETENTION.md`,
+  `docs/exit-codes.md` and the history page, `PayloadPolishTwoReleaseTest` (with the D-Docs pins and the roadmap row), the 2.29.12
+  and 2.29.5 classes' given-up pins, and row 55 of `docs/ROADMAP.md` is `Done`. Verified in a scratch clone: `check-manager-block`
+  agrees, `build` succeeds, `tools/release` (393) and `tools/docs` pass in the zlib-ng environment, eight of the nine suites pass
+  from the stock `stage-conformance` fixture (the acceptance-matrix suite was not run); m8 fails the new pin alone.
