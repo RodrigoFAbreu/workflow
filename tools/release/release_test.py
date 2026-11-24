@@ -5057,7 +5057,7 @@ class PayloadPolishThreeReleaseTest(unittest.TestCase):
         row = next(line for line in (REPO_ROOT / "docs" / "ROADMAP.md").read_text().splitlines()
                    if line.startswith("| 56 |"))
         self.assertIn("payload-polish-3", row)
-        self.assertTrue(row.rstrip().endswith("| Done (a `fix:` change, "
+        self.assertTrue(row.rstrip().endswith("| Done (accepted by policy; a `fix:` change, "
                                               "Workflow patch release 2.29.14 follows the merge) |"))
 
     def test_the_release_history_rows_name_the_release_and_the_way_back(self):
