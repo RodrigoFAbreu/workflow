@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "work_item_id": "payload-polish-2",
+  "requirements": {
+    "R1": {
+      "description": "the remove flow's strays before the rename (the selection, the dry run's comparison, the lock-time sites) say this run renamed nothing and the folder is where it was, with the leftover note in the leftover state, and the lock-time re-selection names the leftover once; the plan-approval guard's final refusal names the true next step (an exact pin); the shared walk and the file open of remove name remove, archive stays byte-identical; every refusal order, exit code and message not named stays byte-identical",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "each changed message has an exact pin next to its neighbours' pins and a failure-only mutation run on the product in a scratch copy, the RETENTION sentence says the true thing, the new tests run under the reaper; a point that needs a behaviour change beyond a message or a test is recorded as a finding and excluded",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "R3": {
+      "description": "the pread of the index read has its own failing-call subtest and the failing-call helper's docstring names it; docs/exit-codes.md gives the retention commands in the python3 -I form and the archives description says regular file, each doc form pinned by the release class",
+      "checkpoint_ids": [
+        "CP2",
+        "CP3"
+      ]
+    },
+    "R4": {
+      "description": "the change is a release: Workflow 2.29.13, a fix: patch (manifest records and digests for the seven changed shipped files, release constant, release-history row, release-test class, obligations suite 319 to 322, page stamps, roadmap row Current then Done), verified per docs/RELEASING.md with scratch-clone staging before the release checkpoint; this repository's own installation is untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2",
+        "CP3"
+      ]
+    }
+  }
+}

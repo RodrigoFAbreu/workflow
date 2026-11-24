@@ -1,0 +1,48 @@
+{
+  "dispositions": {
+    "F-47f7462923a6": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#216",
+      "note": "Item 2."
+    },
+    "F-4967565c6d66": {
+      "disposition": "fixed"
+    },
+    "F-62cc869c4a7b": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#216",
+      "note": "Item 2."
+    },
+    "F-737ebdba7b1a": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#216",
+      "note": "Item 4 of the issue carries the #119 twin; the comment on #119 is made by the orchestrator."
+    },
+    "F-7d29fe83bf97": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#216",
+      "note": "Item 2."
+    },
+    "F-a0a1b4b99959": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#216",
+      "note": "Item 4: docs/RETENTION.md line 476 still says archive."
+    },
+    "F-c075667ebcbd": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#216",
+      "note": "Item 1."
+    },
+    "F-da4f880f355d": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#216",
+      "note": "Item 3."
+    },
+    "F-f2f0cf92a893": {
+      "disposition": "dropped",
+      "reason": "Plan wording about a reaper outcome of a dry-run subtest; the implementation passed the plan's flows and the reaper stayed clean; no code consequence."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "payload-polish-2"
+}
