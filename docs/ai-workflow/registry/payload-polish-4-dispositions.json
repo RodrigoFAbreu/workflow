@@ -1,0 +1,34 @@
+{
+  "dispositions": {
+    "F-114cf2f77fb1": {
+      "disposition": "dropped",
+      "reason": "Plan harness description inaccuracy; the derived counts hold and the tests pass."
+    },
+    "F-65128e4ddbba": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#221",
+      "note": "Test hardening tail."
+    },
+    "F-90144471faba": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#221",
+      "note": "Test hardening tail."
+    },
+    "F-9a8b7ac07d7b": {
+      "disposition": "dropped",
+      "reason": "A wrong line citation in the plan's section 0; no shipped consequence."
+    },
+    "F-abbc3bf64899": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#221",
+      "note": "Test hardening tail."
+    },
+    "F-d1605b8d9e0f": {
+      "disposition": "follow-up",
+      "link": "RodrigoFAbreu/workflow#221",
+      "note": "Test hardening tail."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "payload-polish-4"
+}

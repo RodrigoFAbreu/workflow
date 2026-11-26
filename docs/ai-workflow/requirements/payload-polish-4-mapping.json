@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "work_item_id": "payload-polish-4",
+  "requirements": {
+    "R1": {
+      "description": "the errno text and the permissions hint of the remove delete step's remove_failed refusals (the walk's first open, the unlink, the in-folder rmdir and the last rmdir) are pinned exactly, with the folder_changed arms that carry no hint, by additions to existing tests of RetentionErrorPathsTwo (the open arm) and RetentionRemove (the unlink and rmdir arms, each case in its own subtest); no behaviour, message, refusal order or exit code changes",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R2": {
+      "description": "every point named by the brief is verified on main with file:line evidence and classified (#143 1 to 3, #119 4 and 6, #113 5): only the pins of #119 point 4a are true and needed, the rest is already fixed or kept and recorded as a finding; a point that needs a behaviour change beyond a test is recorded and excluded",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R3": {
+      "description": "each pin has a failure-only mutation run in a scratch copy, the touched classes run under the reaper, and each mutation's result is the set of failing subtests over the whole obligations suite, and the suite counts do not move (no method added)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "R4": {
+      "description": "the change is a release: Workflow 2.29.15, a fix: patch (manifest records and digests for the four changed shipped files, release constant, release-history row, release-test class, suite counts unchanged, roadmap row 57 Current then Done with its exact ending pinned), verified per docs/RELEASING.md with scratch-clone staging before the release checkpoint; this repository's own installation is untouched",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    }
+  }
+}

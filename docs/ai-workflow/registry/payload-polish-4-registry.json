@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_item_id": "payload-polish-4",
+  "plan_revision": 2,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "The errno and permissions pins of the remove delete step",
+      "depends_on": [],
+      "complexity": 1,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "Release 2.29.15",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 2,
+      "session_target": 1
+    }
+  ]
+}
