@@ -6945,7 +6945,7 @@ class RetentionRemove(unittest.TestCase):
         again = "run `remove w00 --apply` again"
 
         def observed_run(rr, failing):
-            """One apply run with `os.unlink`/`os.rmdir` wrapped: `failing(name, kwargs)` returns an errno
+            """One apply run with `os.unlink`/`os.rmdir` wrapped: `failing(kind, path, kwargs)` returns an errno
             (the call raises it) or None; returns the result and the count of successful calls made with a
             `dir_fd`, observed and not inferred (#143 point 3)."""
             done = []
@@ -6979,6 +6979,8 @@ class RetentionRemove(unittest.TestCase):
         with self.subTest("the unlink fails"):
             rr = self.env()
             rr.prepared()
+            archive = (rr.adir / "w00.tar.zst").read_bytes()
+            before = rr.files(rr.root / ".ai-review" / "w00")
             real = os.unlink
             count = []
 
@@ -6993,14 +6995,17 @@ class RetentionRemove(unittest.TestCase):
             self.refused(rr, result, "remove_failed")
             self.assertRegex(result.error.message, r"stopped after deleting 3 entries, each proven archived; the rest "
                                                    r"is in .*/\.removing/w00")
-            self.assertRegex(result.error.message, r"^[^ ]+ cannot be deleted \(Input/output error\); stopped after "
-                                                   r"deleting 3 entries, each proven archived; the rest is in "
-                                                   + re.escape(str(rr.removing / "w00")) + "$")
+            shown = re.fullmatch(r"([^ ]+) cannot be deleted \(Input/output error\); stopped after deleting 3 entries, "
+                                 r"each proven archived; the rest is in " + re.escape(str(rr.removing / "w00")),
+                                 result.error.message)
+            self.assertIsNotNone(shown, result.error.message)
+            # the shown path is relative to the folder and names the entry of the failing (third) call
+            self.assertEqual(os.path.basename(shown.group(1)), os.path.basename(count[2]))
+            self.assertIn(shown.group(1), before)
             self.assertEqual(result.error.next_step, hint)
             self.assertIn("run `remove w00 --apply` again", result.error.next_step)
             self.assertIn("check the permissions of `.removing/w00`", result.error.next_step)
-            self.assertEqual(rr.rm(apply=True).code, 0)
-            self.assertFalse((rr.removing / "w00").exists())
+            no_write_proof(rr, archive, result, before, 3, result.error.message)
         with self.subTest("a directory that cannot be removed"):
             rr = self.env()
             rr.prepared()
