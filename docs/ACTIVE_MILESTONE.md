@@ -19,8 +19,10 @@ order, command, exit code, message or working path changes.
   not-empty `rmdir` and last `rmdir` arms, each in its own subtest. Only
   `payload/scripts/workflow_state_completion_obligations_test.py` changes in `payload/`. Mutations m1 to m6 on scratch copies
   fail exactly the subtests the plan names; the obligations suite still counts 322.
-- CP2 (release 2.29.15): not started.
+- CP2 (release 2.29.15): complete. `WORKFLOW_RELEASE` and the protocol document's lines name 2.29.15 (protocol 1.5); the manifest
+  carries the version, the posture and the four changed records' sentence, `sha256` and `size`; the history row and stamp, the
+  `PayloadPolishFourReleaseTest` class (the 2.29.14 class gives up the pins a newer release owns) and roadmap row 57 (`Done`).
 
 ## Next action
 
-Run `/milestone-implement payload-polish-4` for CP2. Nothing is pushed, merged or published.
+Run `/milestone-implement payload-polish-4` again: every checkpoint is complete, so it enters self-review. Nothing is pushed, merged or published.
